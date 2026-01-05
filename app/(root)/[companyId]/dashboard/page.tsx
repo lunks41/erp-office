@@ -471,11 +471,6 @@ export default function DashboardPage() {
     }
   }, [])
 
-  const handleRefreshQuotes = () => {
-    setQuotes(shuffleQuotes(dummyQuotes))
-    setCurrentQuote(0)
-  }
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Animated Background Particles */}
@@ -631,25 +626,6 @@ export default function DashboardPage() {
                     aria-label={`Quote ${index + 1}`}
                   />
                 ))}
-              </div>
-            )}
-
-            {/* Refresh Button */}
-            {quotes.length > 0 && (
-              <div className="flex justify-center">
-                <button
-                  onClick={handleRefreshQuotes}
-                  className="group relative overflow-hidden rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 px-6 py-3 text-sm font-bold text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:from-purple-500 hover:via-pink-500 hover:to-orange-400 hover:shadow-purple-500/50"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <span className="animate-spin group-hover:animate-bounce">
-                      🔄
-                    </span>
-                    Get New Quotes
-                    <Rocket className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                  <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-[-100%]" />
-                </button>
               </div>
             )}
           </div>

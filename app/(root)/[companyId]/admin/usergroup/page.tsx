@@ -285,6 +285,7 @@ export default function AdminUserGroupsPage() {
             onCreateAction={canCreate ? handleCreateUserGroup : undefined}
             onRefreshAction={refetchUserGroups}
             onFilterChange={handleFilterChange}
+            initialSearchValue={groupFilters.search}
             moduleId={moduleId}
             transactionId={transactionIdGroup}
             canEdit={canEdit}
@@ -303,6 +304,7 @@ export default function AdminUserGroupsPage() {
           onCreateAction={canCreate ? handleCreateUserGroup : undefined}
           onRefreshAction={refetchUserGroups}
           onFilterChange={handleFilterChange}
+          initialSearchValue={groupFilters.search}
           moduleId={moduleId}
           transactionId={transactionIdGroup}
           canEdit={canEdit}

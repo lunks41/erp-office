@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { apiClient, getData } from "@/lib/api-client"
+import { apiClient, getData, postData } from "@/lib/api-client"
 import {
   JobOrder,
   JobOrder_DebitNote,
@@ -98,6 +98,19 @@ export function LandingItemsTab({
     landingItemId: null,
     jobOrderId: null,
     landingItemName: null,
+  })
+
+  // State for bulk delete confirmation
+  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
+    isOpen: boolean
+    landingItemIds: string[]
+    jobOrderId: number | null
+    count: number
+  }>({
+    isOpen: false,
+    landingItemIds: [],
+    jobOrderId: null,
+    count: 0,
   })
 
   // State for save confirmation
@@ -241,6 +254,78 @@ export function LandingItemsTab({
           landingItemName: null,
         })
       }
+    }
+  }
+
+  const handleBulkDelete = useCallback(
+    (selectedIds: string[]) => {
+      if (selectedIds.length === 0) {
+        toast.error("Please select at least one landing item to delete")
+        return
+      }
+
+      // Check if any selected items have a debitNoteId
+      const itemsWithDebitNote = data?.filter(
+        (item) =>
+          selectedIds.includes(item.landingItemId.toString()) &&
+          item.debitNoteId &&
+          item.debitNoteId > 0
+      )
+
+      if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+        toast.error(
+          `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+        )
+        return
+      }
+
+      setBulkDeleteConfirmation({
+        isOpen: true,
+        landingItemIds: selectedIds,
+        jobOrderId: jobData.jobOrderId,
+        count: selectedIds.length,
+      })
+    },
+    [jobData.jobOrderId, data]
+  )
+
+  const handleConfirmBulkDelete = async () => {
+    if (
+      bulkDeleteConfirmation.landingItemIds.length === 0 ||
+      !bulkDeleteConfirmation.jobOrderId
+    ) {
+      return
+    }
+
+    try {
+      // Use bulk delete endpoint for better performance
+      const response = await postData(
+        `${JobOrder_LandingItems.bulkDelete}/${bulkDeleteConfirmation.jobOrderId}`,
+        {
+          landingItemIds: bulkDeleteConfirmation.landingItemIds,
+        }
+      )
+
+      if (response.result === 1) {
+        queryClient.invalidateQueries({ queryKey: ["landingItems"] })
+        onTaskAdded?.()
+        toast.success(
+          `Successfully deleted ${bulkDeleteConfirmation.landingItemIds.length} item(s)`
+        )
+        handleClearSelection()
+      } else {
+        toast.error(response.message || "Failed to delete selected items")
+      }
+    } catch (error) {
+      console.error("Error during bulk delete:", error)
+      toast.error("An error occurred while deleting items")
+    } finally {
+      setBulkDeleteConfirmation({
+        isOpen: false,
+        landingItemIds: [],
+        jobOrderId: null,
+        count: 0,
+      })
     }
   }
 
@@ -599,6 +684,7 @@ export function LandingItemsTab({
             data={data || []}
             onLandingItemsSelect={handleSelect}
             onDeleteLandingItems={handleDelete}
+            onBulkDeleteLandingItems={handleBulkDelete}
             onEditActionLandingItems={handleEdit}
             onCreateActionLandingItems={handleCreateLandingItems}
             onCombinedService={handleCombinedService}
@@ -768,6 +854,27 @@ export function LandingItemsTab({
             landingItemId: null,
             jobOrderId: null,
             landingItemName: null,
+          })
+        }
+        isDeleting={deleteMutation.isPending}
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <DeleteConfirmation
+        open={bulkDeleteConfirmation.isOpen}
+        onOpenChange={(isOpen) =>
+          setBulkDeleteConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Delete Multiple Landing Items"
+        description="This action cannot be undone. This will permanently delete the selected landing items from our servers."
+        itemName={`${bulkDeleteConfirmation.count} landing item${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
+        onConfirm={handleConfirmBulkDelete}
+        onCancelAction={() =>
+          setBulkDeleteConfirmation({
+            isOpen: false,
+            landingItemIds: [],
+            jobOrderId: null,
+            count: 0,
           })
         }
         isDeleting={deleteMutation.isPending}

@@ -55,6 +55,7 @@ interface BasicTableProps<T> {
   emptyMessage?: string
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
+  initialSearchValue?: string
   showHeader?: boolean
   showFooter?: boolean
   maxHeight?: string
@@ -71,6 +72,7 @@ export function BasicTable<T>({
   emptyMessage = "No data found.",
   onRefreshAction,
   onFilterChange,
+  initialSearchValue,
   showHeader = true,
   showFooter = true,
   maxHeight = "460px",
@@ -123,7 +125,7 @@ export function BasicTable<T>({
     getInitialColumnVisibility
   )
   const [columnSizing, setColumnSizing] = useState(getInitialColumnSizing)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(initialSearchValue || "")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(pageSizeOption)
   const [rowSelection, setRowSelection] = useState({})

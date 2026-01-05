@@ -24,6 +24,7 @@ interface CrewMiscellaneousTableProps {
     crewMiscellaneous: ICrewMiscellaneous | undefined
   ) => void
   onDeleteCrewMiscellaneous?: (crewMiscellaneousId: string) => void
+  onBulkDeleteCrewMiscellaneous?: (selectedIds: string[]) => void
   onEditActionCrewMiscellaneous?: (
     crewMiscellaneous: ICrewMiscellaneous
   ) => void
@@ -58,6 +59,7 @@ export function CrewMiscellaneousTable({
   isLoading = false,
   onCrewMiscellaneousSelect,
   onDeleteCrewMiscellaneous,
+  onBulkDeleteCrewMiscellaneous,
   onEditActionCrewMiscellaneous,
   onCreateActionCrewMiscellaneous,
   onRefreshActionte: _onRefreshActionte,
@@ -298,6 +300,7 @@ export function CrewMiscellaneousTable({
         onCreateAction={onCreateActionCrewMiscellaneous}
         onEditAction={onEditActionCrewMiscellaneous}
         onDeleteAction={onDeleteCrewMiscellaneous}
+        onBulkDeleteAction={onBulkDeleteCrewMiscellaneous}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

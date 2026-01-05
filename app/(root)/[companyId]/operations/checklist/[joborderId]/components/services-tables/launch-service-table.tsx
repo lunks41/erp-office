@@ -22,6 +22,7 @@ interface LaunchServiceTableProps {
   isLoading?: boolean
   onLaunchServiceSelect?: (launchService: ILaunchService | undefined) => void
   onDeleteLaunchService?: (launchServiceId: string) => void
+  onBulkDeleteLaunchService?: (selectedIds: string[]) => void
   onEditActionLaunchService?: (launchService: ILaunchService) => void
   onCreateActionLaunchService?: () => void
   onDebitNoteAction?: (launchServiceId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function LaunchServiceTable({
   isLoading = false,
   onLaunchServiceSelect,
   onDeleteLaunchService,
+  onBulkDeleteLaunchService,
   onEditActionLaunchService,
   onCreateActionLaunchService,
   onDebitNoteAction,
@@ -555,6 +557,7 @@ export function LaunchServiceTable({
         onCreateAction={onCreateActionLaunchService}
         onEditAction={onEditActionLaunchService}
         onDeleteAction={onDeleteLaunchService}
+        onBulkDeleteAction={onBulkDeleteLaunchService}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

@@ -57,6 +57,7 @@ interface TaskTableProps<T> {
   onCreateAction?: () => void
   onEditAction?: (item: T) => void
   onDeleteAction?: (itemId: string) => void
+  onBulkDeleteAction?: (selectedIds: string[]) => void
   onDebitNoteAction?: (itemId: string, debitNoteNo?: string) => void
   onPurchaseAction?: (itemId: string) => void
   onCombinedService?: (selectedIds: string[]) => void
@@ -88,6 +89,7 @@ export function TaskTable<T>({
   onCreateAction,
   onEditAction,
   onDeleteAction,
+  onBulkDeleteAction,
   onDebitNoteAction,
   onPurchaseAction,
   onCombinedService,
@@ -161,6 +163,20 @@ export function TaskTable<T>({
         (row as T & { debitNoteId?: number }).debitNoteId! > 0
     )
   }, [hasSelectedRows, data, rowSelection])
+
+  // Check if ANY selected item has a debitNoteId (to prevent bulk delete)
+  const hasAnyDebitNoteId = useMemo(() => {
+    if (!hasSelectedRows || !data) return false
+    const selectedRowIds = Object.keys(rowSelection)
+    const selectedRows = data.filter((_, index) =>
+      selectedRowIds.includes(index.toString())
+    )
+    return selectedRows.some(
+      (row) =>
+        (row as T & { debitNoteId?: number }).debitNoteId &&
+        (row as T & { debitNoteId?: number }).debitNoteId! > 0
+    )
+  }, [hasSelectedRows, data, rowSelection])
   const selectedRowIds = useMemo(() => {
     if (!hasSelectedRows || !data) return []
     const selectedIndices = Object.keys(rowSelection)
@@ -202,6 +218,15 @@ export function TaskTable<T>({
       onCloneTask(selectedRowIds)
     }
   }, [selectedRowIds, onCloneTask])
+
+  const handleBulkDelete = useCallback(() => {
+    if (selectedRowIds.length === 0) {
+      return
+    }
+    if (onBulkDeleteAction) {
+      onBulkDeleteAction(selectedRowIds)
+    }
+  }, [selectedRowIds, onBulkDeleteAction])
 
   const handleDebitNoteFromActions = useCallback(
     (id: string) => {
@@ -389,6 +414,7 @@ export function TaskTable<T>({
           transactionId={transactionId || 1}
           onCombinedService={handleCombinedService}
           onCloneTask={handleCloneTask}
+          onBulkDeleteAction={handleBulkDelete}
           onDebitNoteAction={(debitNoteNo, selectedIds) => {
             if (selectedIds && selectedIds.length > 0 && onDebitNoteAction) {
               onDebitNoteAction(selectedIds.join(","), debitNoteNo || "")
@@ -397,6 +423,7 @@ export function TaskTable<T>({
           hasSelectedRows={hasSelectedRows}
           selectedRowsCount={selectedRowsCount}
           hasValidDebitNoteIds={hasValidDebitNoteIds}
+          hasAnyDebitNoteId={hasAnyDebitNoteId}
           isConfirmed={isConfirmed}
           selectedRowIds={selectedRowIds}
           hideColumnsOnDebitNote={["edit", "delete", "purchase"]} // Example: hide these columns when debit note exists

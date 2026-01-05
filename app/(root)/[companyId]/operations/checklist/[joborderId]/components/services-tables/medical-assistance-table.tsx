@@ -24,6 +24,7 @@ interface MedicalAssistanceTableProps {
     medicalAssistance: IMedicalAssistance | undefined
   ) => void
   onDeleteMedicalAssistance?: (medicalAssistanceId: string) => void
+  onBulkDeleteMedicalAssistance?: (selectedIds: string[]) => void
   onEditActionMedicalAssistance?: (
     medicalAssistance: IMedicalAssistance
   ) => void
@@ -58,6 +59,7 @@ export function MedicalAssistanceTable({
   isLoading = false,
   onMedicalAssistanceSelect,
   onDeleteMedicalAssistance,
+  onBulkDeleteMedicalAssistance,
   onEditActionMedicalAssistance,
   onCreateActionMedicalAssistance,
   onRefreshActionte: _onRefreshActionte,
@@ -449,6 +451,7 @@ export function MedicalAssistanceTable({
         onCreateAction={onCreateActionMedicalAssistance}
         onEditAction={onEditActionMedicalAssistance}
         onDeleteAction={onDeleteMedicalAssistance}
+        onBulkDeleteAction={onBulkDeleteMedicalAssistance}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

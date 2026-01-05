@@ -1242,6 +1242,7 @@ export const JobOrder_PortExpenses = {
   getById: "/operations/GetPortExpensesById",
   add: "/operations/saveportexpenses",
   delete: "/operations/deleteportexpenses",
+  bulkDelete: "/operations/DeletePortExpensesBulk",
   getByIdHistory: "/operations/GetPortExpensesByIdHistory",
 }
 
@@ -1251,6 +1252,7 @@ export const JobOrder_LaunchServices = {
   getById: "/operations/getlaunchservicesbyid",
   add: "/operations/savelaunchservices",
   delete: "/operations/deletelaunchservices",
+  bulkDelete: "/operations/DeleteLaunchServicesBulk",
   getByIdHistory: "/operations/GetLaunchServicesByIdHistory",
 }
 
@@ -1260,6 +1262,7 @@ export const JobOrder_EquipmentUsed = {
   getById: "/operations/getequipmentusedbyid",
   add: "/operations/saveequipmentused",
   delete: "/operations/deleteequipmentused",
+  bulkDelete: "/operations/DeleteEquipmentUsedBulk",
   getByIdHistory: "/operations/GetEquipmentUsedByIdHistory",
 }
 
@@ -1269,6 +1272,7 @@ export const JobOrder_CrewSignOn = {
   getById: "/operations/getcrewsignonbyid",
   add: "/operations/savecrewsignon",
   delete: "/operations/deletecrewsignon",
+  bulkDelete: "/operations/DeleteCrewSignOnBulk",
   getByIdHistory: "/operations/GetCrewSignOnByIdHistory",
 }
 
@@ -1278,6 +1282,7 @@ export const JobOrder_CrewSignOff = {
   getById: "/operations/getcrewsignoffbyid",
   add: "/operations/savecrewsignoff",
   delete: "/operations/deletecrewsignoff",
+  bulkDelete: "/operations/DeleteCrewSignOffBulk",
   getByIdHistory: "/operations/GetCrewSignOffByIdHistory",
 }
 
@@ -1287,6 +1292,7 @@ export const JobOrder_CrewMiscellaneous = {
   getById: "/operations/getcrewmiscellaneousbyid",
   add: "/operations/savecrewmiscellaneous",
   delete: "/operations/deletecrewmiscellaneous",
+  bulkDelete: "/operations/DeleteCrewMiscellaneousBulk",
   getByIdHistory: "/operations/GetCrewMiscellaneousByIdHistory",
 }
 
@@ -1296,6 +1302,7 @@ export const JobOrder_MedicalAssistance = {
   getById: "/operations/getmedicalassistancebyid",
   add: "/operations/savemedicalassistance",
   delete: "/operations/deletemedicalassistance",
+  bulkDelete: "/operations/DeleteMedicalAssistanceBulk",
   getByIdHistory: "/operations/GetMedicalAssistanceByIdHistory",
 }
 
@@ -1305,6 +1312,7 @@ export const JobOrder_ConsignmentImport = {
   getById: "/operations/getconsignmentimportbyid",
   add: "/operations/saveconsignmentimport",
   delete: "/operations/deleteconsignmentimport",
+  bulkDelete: "/operations/DeleteConsignmentImportBulk",
   getByIdHistory: "/operations/GetConsignmentImportByIdHistory",
 }
 
@@ -1314,6 +1322,7 @@ export const JobOrder_ConsignmentExport = {
   getById: "/operations/getconsignmentexportbyid",
   add: "/operations/saveconsignmentexport",
   delete: "/operations/deleteconsignmentexport",
+  bulkDelete: "/operations/DeleteConsignmentExportBulk",
   getByIdHistory: "/operations/GetConsignmentExportByIdHistory",
 }
 
@@ -1323,6 +1332,7 @@ export const JobOrder_ThirdParty = {
   getById: "/operations/getthirdpartybyid",
   add: "/operations/savethirdparty",
   delete: "/operations/deletethirdparty",
+  bulkDelete: "/operations/DeleteThirdPartyBulk",
   getByIdHistory: "/operations/GetThirdPartyByIdHistory",
 }
 
@@ -1332,6 +1342,7 @@ export const JobOrder_FreshWater = {
   getById: "/operations/getfreshwaterbyid",
   add: "/operations/savefreshwater",
   delete: "/operations/deletefreshwater",
+  bulkDelete: "/operations/DeleteFreshWaterBulk",
   getByIdHistory: "/operations/GetFreshWaterByIdHistory",
 }
 
@@ -1341,6 +1352,7 @@ export const JobOrder_TechnicianSurveyor = {
   getById: "/operations/gettechniciansurveyorbyid",
   add: "/operations/savetechniciansurveyor",
   delete: "/operations/deletetechniciansurveyor",
+  bulkDelete: "/operations/DeleteTechnicianSurveyorBulk",
   getByIdHistory: "/operations/GetTechnicianSurveyorByIdHistory",
 }
 
@@ -1350,6 +1362,7 @@ export const JobOrder_LandingItems = {
   getById: "/operations/getlandingitemsbyid",
   add: "/operations/savelandingitems",
   delete: "/operations/deletelandingitems",
+  bulkDelete: "/operations/DeleteLandingItemsBulk",
   getByIdHistory: "/operations/GetLandingItemsByIdHistory",
 }
 
@@ -1359,6 +1372,7 @@ export const JobOrder_OtherService = {
   getById: "/operations/getotherservicebyid",
   add: "/operations/saveotherservice",
   delete: "/operations/deleteotherservice",
+  bulkDelete: "/operations/DeleteOtherServiceBulk",
   getByIdHistory: "/operations/GetOtherServiceByIdHistory",
 }
 
@@ -1368,6 +1382,7 @@ export const JobOrder_AgencyRemuneration = {
   getById: "/operations/getagencyremunerationbyid",
   add: "/operations/saveagencyremuneration",
   delete: "/operations/deleteagencyremuneration",
+  bulkDelete: "/operations/DeleteAgencyRemunerationBulk",
   getByIdHistory: "/operations/GetAgencyRemunerationByIdHistory",
 }
 

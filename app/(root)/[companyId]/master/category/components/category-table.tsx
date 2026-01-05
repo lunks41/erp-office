@@ -47,6 +47,7 @@ export function CategoryTable({
   onCreateAction,
   onRefreshAction,
   onFilterChange,
+  initialSearchValue,
   onPageChange,
   onPageSizeChange,
   currentPage = 1,

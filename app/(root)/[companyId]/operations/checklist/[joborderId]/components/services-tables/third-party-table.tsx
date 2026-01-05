@@ -22,6 +22,7 @@ interface ThirdPartyTableProps {
   isLoading?: boolean
   onThirdPartySelect?: (thirdParty: IThirdParty | undefined) => void
   onDeleteThirdParty?: (thirdPartyId: string) => void
+  onBulkDeleteThirdParty?: (selectedIds: string[]) => void
   onEditActionThirdParty?: (thirdParty: IThirdParty) => void
   onCreateActionThirdParty?: () => void
   onDebitNoteAction?: (thirdPartyId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function ThirdPartyTable({
   isLoading = false,
   onThirdPartySelect,
   onDeleteThirdParty,
+  onBulkDeleteThirdParty,
   onEditActionThirdParty,
   onCreateActionThirdParty,
   onDebitNoteAction,
@@ -346,6 +348,7 @@ export function ThirdPartyTable({
         onCreateAction={onCreateActionThirdParty}
         onEditAction={onEditActionThirdParty}
         onDeleteAction={onDeleteThirdParty}
+        onBulkDeleteAction={onBulkDeleteThirdParty}
         onDebitNoteAction={canDebitNote ? handleDebitNote : undefined}
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}

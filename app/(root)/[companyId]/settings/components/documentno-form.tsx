@@ -66,7 +66,7 @@ export function DocumentNoForm() {
       monthDelimiter: "",
       monthSeq: 3,
       monthFormat: "MM",
-      noDigits: 4,
+      noDigits: 3,
       digitSeq: 4,
       resetYearly: false,
     },
@@ -183,7 +183,7 @@ export function DocumentNoForm() {
         monthDelimiter: numberFormatDataResponse.data.monthDelimiter ?? "",
         monthSeq: numberFormatDataResponse.data.monthSeq ?? 3,
         monthFormat: numberFormatDataResponse.data.monthFormat ?? "MM",
-        noDigits: numberFormatDataResponse.data.noDigits ?? 4,
+        noDigits: numberFormatDataResponse.data.noDigits ?? 3,
         digitSeq: numberFormatDataResponse.data.digitSeq ?? 4,
         resetYearly: numberFormatDataResponse.data.resetYearly ?? false,
       })

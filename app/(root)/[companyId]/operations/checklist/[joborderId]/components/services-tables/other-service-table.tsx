@@ -22,6 +22,7 @@ interface OtherServiceTableProps {
   isLoading?: boolean
   onOtherServiceSelect?: (otherService: IOtherService | undefined) => void
   onDeleteOtherService?: (otherServiceId: string) => void
+  onBulkDeleteOtherService?: (selectedIds: string[]) => void
   onEditActionOtherService?: (otherService: IOtherService) => void
   onCreateActionOtherService?: () => void
   onDebitNoteAction?: (otherServiceId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function OtherServiceTable({
   isLoading = false,
   onOtherServiceSelect,
   onDeleteOtherService,
+  onBulkDeleteOtherService,
   onEditActionOtherService,
   onCreateActionOtherService,
   onDebitNoteAction,
@@ -342,6 +344,7 @@ export function OtherServiceTable({
         onCreateAction={onCreateActionOtherService}
         onEditAction={onEditActionOtherService}
         onDeleteAction={onDeleteOtherService}
+        onBulkDeleteAction={onBulkDeleteOtherService}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

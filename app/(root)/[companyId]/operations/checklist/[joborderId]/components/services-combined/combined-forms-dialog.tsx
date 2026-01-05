@@ -125,6 +125,7 @@ const BULK_UPDATE_CONFIG: Record<number, BulkUpdateFieldConfig[]> = {
     { field: "transportName", label: "Transportation", type: "text" },
     { field: "remarks", label: "Remarks", type: "text" },
     { field: "taskStatusId", label: "Status", type: "select" },
+    { field: "clearing", label: "Clearing", type: "text" },
   ],
   5: [
     // CrewSignOff
@@ -134,6 +135,7 @@ const BULK_UPDATE_CONFIG: Record<number, BulkUpdateFieldConfig[]> = {
     { field: "transportName", label: "Transportation", type: "text" },
     { field: "remarks", label: "Remarks", type: "text" },
     { field: "taskStatusId", label: "Status", type: "select" },
+    { field: "clearing", label: "Clearing", type: "text" },
   ],
 
   // Type 4: All other tasks (default)

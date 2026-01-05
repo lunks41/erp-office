@@ -22,6 +22,7 @@ interface CrewSignOnTableProps {
   isLoading?: boolean
   onCrewSignOnSelect?: (crewSignOn: ICrewSignOn | undefined) => void
   onDeleteCrewSignOn?: (crewSignOnId: string) => void
+  onBulkDeleteCrewSignOn?: (selectedIds: string[]) => void
   onEditActionCrewSignOn?: (crewSignOn: ICrewSignOn) => void
   onCreateActionCrewSignOn?: () => void
   onDebitNoteAction?: (crewSignOnId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function CrewSignOnTable({
   isLoading = false,
   onCrewSignOnSelect,
   onDeleteCrewSignOn,
+  onBulkDeleteCrewSignOn,
   onEditActionCrewSignOn,
   onCreateActionCrewSignOn,
   onDebitNoteAction,
@@ -386,6 +388,7 @@ export function CrewSignOnTable({
         onCreateAction={onCreateActionCrewSignOn}
         onEditAction={onEditActionCrewSignOn}
         onDeleteAction={onDeleteCrewSignOn}
+        onBulkDeleteAction={onBulkDeleteCrewSignOn}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

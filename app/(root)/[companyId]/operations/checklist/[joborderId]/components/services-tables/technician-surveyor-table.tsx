@@ -24,6 +24,7 @@ interface TechnicianSurveyorTableProps {
     technicianSurveyor: ITechnicianSurveyor | null
   ) => void
   onDeleteTechnicianSurveyor?: (technicianSurveyorId: string) => void
+  onBulkDeleteTechnicianSurveyor?: (selectedIds: string[]) => void
   onEditActionTechnicianSurveyor?: (
     technicianSurveyor: ITechnicianSurveyor
   ) => void
@@ -58,6 +59,7 @@ export function TechnicianSurveyorTable({
   isLoading = false,
   onTechnicianSurveyorSelect,
   onDeleteTechnicianSurveyor,
+  onBulkDeleteTechnicianSurveyor,
   onEditActionTechnicianSurveyor,
   onCreateActionTechnicianSurveyor,
   onRefreshActionte: _onRefreshActionte,
@@ -424,6 +426,7 @@ export function TechnicianSurveyorTable({
         onCreateAction={onCreateActionTechnicianSurveyor}
         onEditAction={onEditActionTechnicianSurveyor}
         onDeleteAction={onDeleteTechnicianSurveyor}
+        onBulkDeleteAction={onBulkDeleteTechnicianSurveyor}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

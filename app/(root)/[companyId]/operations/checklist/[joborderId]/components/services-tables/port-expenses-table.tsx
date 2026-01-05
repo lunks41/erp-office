@@ -22,6 +22,7 @@ interface PortExpensesTableProps {
   isLoading?: boolean
   onPortExpensesSelect?: (portExpenses: IPortExpenses | undefined) => void
   onDeletePortExpenses?: (portExpensesId: string) => void
+  onBulkDeletePortExpenses?: (selectedIds: string[]) => void
   onEditActionPortExpenses?: (portExpenses: IPortExpenses) => void
   onCreateActionPortExpenses?: () => void
   onDebitNoteAction?: (portExpenseId: string, debitNoteNo: string) => void
@@ -47,6 +48,7 @@ export function PortExpensesTable({
   isLoading = false,
   onPortExpensesSelect,
   onDeletePortExpenses,
+  onBulkDeletePortExpenses,
   onEditActionPortExpenses,
   onCreateActionPortExpenses,
   onDebitNoteAction,
@@ -313,6 +315,7 @@ export function PortExpensesTable({
         onCreateAction={onCreateActionPortExpenses}
         onEditAction={onEditActionPortExpenses}
         onDeleteAction={onDeletePortExpenses}
+        onBulkDeleteAction={onBulkDeletePortExpenses}
         onDebitNoteAction={canDebitNote ? handleDebitNote : undefined}
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}

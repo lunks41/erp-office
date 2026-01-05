@@ -22,6 +22,7 @@ interface LandingItemsTableProps {
   isLoading?: boolean
   onLandingItemsSelect?: (landingItems: ILandingItems | undefined) => void
   onDeleteLandingItems?: (landingItemsId: string) => void
+  onBulkDeleteLandingItems?: (selectedIds: string[]) => void
   onEditActionLandingItems?: (landingItems: ILandingItems) => void
   onCreateActionLandingItems?: () => void
   onDebitNoteAction?: (landingItemsId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function LandingItemsTable({
   isLoading = false,
   onLandingItemsSelect,
   onDeleteLandingItems,
+  onBulkDeleteLandingItems,
   onEditActionLandingItems,
   onCreateActionLandingItems,
   onDebitNoteAction,
@@ -365,6 +367,7 @@ export function LandingItemsTable({
         onCreateAction={onCreateActionLandingItems}
         onEditAction={onEditActionLandingItems}
         onDeleteAction={onDeleteLandingItems}
+        onBulkDeleteAction={onBulkDeleteLandingItems}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

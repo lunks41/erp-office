@@ -18,6 +18,7 @@ interface UserLogTableProps {
   isLoading?: boolean
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
+  initialSearchValue?: string
   moduleId?: number
   transactionId?: number
 }
@@ -27,6 +28,7 @@ export function UserLogTable({
   isLoading = false,
   onRefreshAction,
   onFilterChange,
+  initialSearchValue,
   moduleId,
   transactionId,
 }: UserLogTableProps) {
@@ -93,6 +95,7 @@ export function UserLogTable({
       emptyMessage="No user log found."
       onRefreshAction={onRefreshAction}
       onFilterChange={onFilterChange}
+      initialSearchValue={initialSearchValue}
     />
   )
 }

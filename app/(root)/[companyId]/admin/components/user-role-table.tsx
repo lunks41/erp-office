@@ -41,6 +41,7 @@ export function UserRoleTable({
   onCreateAction,
   onRefreshAction,
   onFilterChange,
+  initialSearchValue,
   moduleId,
   transactionId,
   // Permission props

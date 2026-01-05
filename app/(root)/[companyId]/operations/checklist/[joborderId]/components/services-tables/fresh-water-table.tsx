@@ -22,6 +22,7 @@ interface FreshWaterTableProps {
   isLoading?: boolean
   onFreshWaterSelect?: (freshWater: IFreshWater | undefined) => void
   onDeleteFreshWater?: (freshWaterId: string) => void
+  onBulkDeleteFreshWater?: (selectedIds: string[]) => void
   onEditActionFreshWater?: (freshWater: IFreshWater) => void
   onCreateActionFreshWater?: () => void
   onDebitNoteAction?: (freshWaterId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function FreshWaterTable({
   isLoading = false,
   onFreshWaterSelect,
   onDeleteFreshWater,
+  onBulkDeleteFreshWater,
   onEditActionFreshWater,
   onCreateActionFreshWater,
   onDebitNoteAction,
@@ -381,6 +383,7 @@ export function FreshWaterTable({
         onCreateAction={onCreateActionFreshWater}
         onEditAction={onEditActionFreshWater}
         onDeleteAction={onDeleteFreshWater}
+        onBulkDeleteAction={onBulkDeleteFreshWater}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

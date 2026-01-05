@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { apiClient, getData } from "@/lib/api-client"
+import { apiClient, getData, postData } from "@/lib/api-client"
 import {
   JobOrder,
   JobOrder_DebitNote,
@@ -111,6 +111,19 @@ export function MedicalAssistanceTab({
     medicalAssistanceId: null,
     medicalAssistanceName: null,
     jobOrderId: null,
+  })
+
+  // State for bulk delete confirmation
+  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
+    isOpen: boolean
+    medicalAssistanceIds: string[]
+    jobOrderId: number | null
+    count: number
+  }>({
+    isOpen: false,
+    medicalAssistanceIds: [],
+    jobOrderId: null,
+    count: 0,
   })
 
   // State for selected items (for bulk operations)
@@ -246,6 +259,71 @@ export function MedicalAssistanceTab({
           medicalAssistanceName: null,
         })
       }
+    }
+  }
+
+  const handleBulkDelete = useCallback((selectedIds: string[]) => {
+    if (selectedIds.length === 0) {
+      toast.error("Please select at least one medical assistance to delete")
+      return
+    }
+
+    // Check if any selected items have a debitNoteId
+    const itemsWithDebitNote = data?.filter((item) =>
+      selectedIds.includes(item.medicalAssistanceId.toString()) &&
+      item.debitNoteId &&
+      item.debitNoteId > 0
+    )
+
+    if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+      toast.error(
+        `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+      )
+      return
+    }
+
+    setBulkDeleteConfirmation({
+      isOpen: true,
+      medicalAssistanceIds: selectedIds,
+      jobOrderId: jobData.jobOrderId,
+      count: selectedIds.length,
+    })
+  }, [jobData.jobOrderId, data])
+
+  const handleConfirmBulkDelete = async () => {
+    if (bulkDeleteConfirmation.medicalAssistanceIds.length === 0 || !bulkDeleteConfirmation.jobOrderId) {
+      return
+    }
+
+    try {
+      // Use bulk delete endpoint for better performance
+      const response = await postData(
+        `${JobOrder_MedicalAssistance.bulkDelete}/${bulkDeleteConfirmation.jobOrderId}`,
+        {
+          medicalAssistanceIds: bulkDeleteConfirmation.medicalAssistanceIds,
+        }
+      )
+
+      if (response.result === 1) {
+        queryClient.invalidateQueries({ queryKey: ["medicalAssistance"] })
+        onTaskAdded?.()
+        toast.success(
+          `Successfully deleted ${bulkDeleteConfirmation.medicalAssistanceIds.length} item(s)`
+        )
+        handleClearSelection()
+      } else {
+        toast.error(response.message || "Failed to delete selected items")
+      }
+    } catch (error) {
+      console.error("Error during bulk delete:", error)
+      toast.error("An error occurred while deleting items")
+    } finally {
+      setBulkDeleteConfirmation({
+        isOpen: false,
+        medicalAssistanceIds: [],
+        jobOrderId: null,
+        count: 0,
+      })
     }
   }
 
@@ -613,6 +691,7 @@ export function MedicalAssistanceTab({
             data={data || []}
             onMedicalAssistanceSelect={handleSelect}
             onDeleteMedicalAssistance={handleDelete}
+            onBulkDeleteMedicalAssistance={handleBulkDelete}
             onEditActionMedicalAssistance={handleEdit}
             onCreateActionMedicalAssistance={handleCreateMedicalAssistance}
             onCombinedService={handleCombinedService}
@@ -782,6 +861,27 @@ export function MedicalAssistanceTab({
             medicalAssistanceId: null,
             jobOrderId: null,
             medicalAssistanceName: null,
+          })
+        }
+        isDeleting={deleteMutation.isPending}
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <DeleteConfirmation
+        open={bulkDeleteConfirmation.isOpen}
+        onOpenChange={(isOpen) =>
+          setBulkDeleteConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Delete Multiple Medical Assistance"
+        description="This action cannot be undone. This will permanently delete the selected medical assistance items from our servers."
+        itemName={`${bulkDeleteConfirmation.count} medical assistance item${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
+        onConfirm={handleConfirmBulkDelete}
+        onCancelAction={() =>
+          setBulkDeleteConfirmation({
+            isOpen: false,
+            medicalAssistanceIds: [],
+            jobOrderId: null,
+            count: 0,
           })
         }
         isDeleting={deleteMutation.isPending}

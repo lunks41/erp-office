@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { apiClient, getData } from "@/lib/api-client"
+import { apiClient, getData, postData } from "@/lib/api-client"
 import {
   JobOrder,
   JobOrder_DebitNote,
@@ -99,6 +99,19 @@ export function EquipmentUsedTab({
     equipmentUsedId: null,
     jobOrderId: null,
     equipmentUsedName: null,
+  })
+
+  // State for bulk delete confirmation
+  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
+    isOpen: boolean
+    equipmentUsedIds: string[]
+    jobOrderId: number | null
+    count: number
+  }>({
+    isOpen: false,
+    equipmentUsedIds: [],
+    jobOrderId: null,
+    count: 0,
   })
 
   // State for save confirmation
@@ -241,6 +254,71 @@ export function EquipmentUsedTab({
           equipmentUsedName: null,
         })
       }
+    }
+  }
+
+  const handleBulkDelete = useCallback((selectedIds: string[]) => {
+    if (selectedIds.length === 0) {
+      toast.error("Please select at least one equipment used to delete")
+      return
+    }
+
+    // Check if any selected items have a debitNoteId
+    const itemsWithDebitNote = data?.filter((item) =>
+      selectedIds.includes(item.equipmentUsedId.toString()) &&
+      item.debitNoteId &&
+      item.debitNoteId > 0
+    )
+
+    if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+      toast.error(
+        `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+      )
+      return
+    }
+
+    setBulkDeleteConfirmation({
+      isOpen: true,
+      equipmentUsedIds: selectedIds,
+      jobOrderId: jobData.jobOrderId,
+      count: selectedIds.length,
+    })
+  }, [jobData.jobOrderId, data])
+
+  const handleConfirmBulkDelete = async () => {
+    if (bulkDeleteConfirmation.equipmentUsedIds.length === 0 || !bulkDeleteConfirmation.jobOrderId) {
+      return
+    }
+
+    try {
+      // Use bulk delete endpoint for better performance
+      const response = await postData(
+        `${JobOrder_EquipmentUsed.bulkDelete}/${bulkDeleteConfirmation.jobOrderId}`,
+        {
+          equipmentUsedIds: bulkDeleteConfirmation.equipmentUsedIds,
+        }
+      )
+
+      if (response.result === 1) {
+        queryClient.invalidateQueries({ queryKey: ["equipmentUsed"] })
+        onTaskAdded?.()
+        toast.success(
+          `Successfully deleted ${bulkDeleteConfirmation.equipmentUsedIds.length} item(s)`
+        )
+        handleClearSelection()
+      } else {
+        toast.error(response.message || "Failed to delete selected items")
+      }
+    } catch (error) {
+      console.error("Error during bulk delete:", error)
+      toast.error("An error occurred while deleting items")
+    } finally {
+      setBulkDeleteConfirmation({
+        isOpen: false,
+        equipmentUsedIds: [],
+        jobOrderId: null,
+        count: 0,
+      })
     }
   }
 
@@ -602,6 +680,7 @@ export function EquipmentUsedTab({
             data={data || []}
             onEquipmentUsedSelect={handleSelect}
             onDeleteEquipmentUsed={handleDelete}
+            onBulkDeleteEquipmentUsed={handleBulkDelete}
             onEditActionEquipmentUsed={handleEdit}
             onCreateActionEquipmentUsed={handleCreate}
             onCombinedService={handleCombinedService}
@@ -775,6 +854,27 @@ export function EquipmentUsedTab({
             equipmentUsedId: null,
             jobOrderId: null,
             equipmentUsedName: null,
+          })
+        }
+        isDeleting={deleteMutation.isPending}
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <DeleteConfirmation
+        open={bulkDeleteConfirmation.isOpen}
+        onOpenChange={(isOpen) =>
+          setBulkDeleteConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Delete Multiple Equipment Used"
+        description="This action cannot be undone. This will permanently delete the selected equipment used items from our servers."
+        itemName={`${bulkDeleteConfirmation.count} equipment used item${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
+        onConfirm={handleConfirmBulkDelete}
+        onCancelAction={() =>
+          setBulkDeleteConfirmation({
+            isOpen: false,
+            equipmentUsedIds: [],
+            jobOrderId: null,
+            count: 0,
           })
         }
         isDeleting={deleteMutation.isPending}

@@ -22,6 +22,7 @@ interface CrewSignOffTableProps {
   isLoading?: boolean
   onCrewSignOffSelect?: (crewSignOff: ICrewSignOff | undefined) => void
   onDeleteCrewSignOff?: (crewSignOffId: string) => void
+  onBulkDeleteCrewSignOff?: (selectedIds: string[]) => void
   onEditActionCrewSignOff?: (crewSignOff: ICrewSignOff) => void
   onCreateActionCrewSignOff?: () => void
   onDebitNoteAction?: (crewSignOffId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function CrewSignOffTable({
   isLoading = false,
   onCrewSignOffSelect,
   onDeleteCrewSignOff,
+  onBulkDeleteCrewSignOff,
   onEditActionCrewSignOff,
   onCreateActionCrewSignOff,
   onDebitNoteAction,
@@ -141,6 +143,16 @@ export function CrewSignOffTable({
         minSize: 100,
       },
       {
+        accessorKey: "visaName",
+        header: "Visa Type",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("visaName") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+        enableColumnFilter: true,
+      },
+      {
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
@@ -161,6 +173,28 @@ export function CrewSignOffTable({
         enableColumnFilter: true,
       },
       {
+        accessorKey: "nationalityName",
+        header: "Nationality",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("nationalityName") || "-"}
+          </div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
+      {
+        accessorKey: "rankName",
+        header: "Rank",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("rankName") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
+      {
         accessorKey: "flightDetails",
         header: "Flight Details",
         cell: ({ row }) => (
@@ -168,8 +202,6 @@ export function CrewSignOffTable({
             {row.getValue("flightDetails") || "-"}
           </div>
         ),
-        size: 200,
-        minSize: 150,
       },
       {
         accessorKey: "hotelName",
@@ -177,8 +209,6 @@ export function CrewSignOffTable({
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("hotelName") || "-"}</div>
         ),
-        size: 200,
-        minSize: 150,
       },
       {
         accessorKey: "departureDetails",
@@ -188,8 +218,6 @@ export function CrewSignOffTable({
             {row.getValue("departureDetails") || "-"}
           </div>
         ),
-        size: 200,
-        minSize: 150,
       },
       {
         accessorKey: "transportName",
@@ -199,8 +227,6 @@ export function CrewSignOffTable({
             {row.getValue("transportName") || "-"}
           </div>
         ),
-        size: 200,
-        minSize: 150,
       },
       {
         accessorKey: "clearing",
@@ -208,8 +234,6 @@ export function CrewSignOffTable({
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("clearing") || "-"}</div>
         ),
-        size: 150,
-        minSize: 120,
       },
       {
         accessorKey: "overStayRemark",
@@ -219,8 +243,6 @@ export function CrewSignOffTable({
             {row.getValue("overStayRemark") || "-"}
           </div>
         ),
-        size: 200,
-        minSize: 150,
       },
       {
         accessorKey: "modificationRemark",
@@ -230,8 +252,6 @@ export function CrewSignOffTable({
             {row.getValue("modificationRemark") || "-"}
           </div>
         ),
-        size: 200,
-        minSize: 150,
       },
       {
         accessorKey: "cidClearance",
@@ -239,8 +259,8 @@ export function CrewSignOffTable({
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("cidClearance") || "-"}</div>
         ),
-        size: 150,
-        minSize: 120,
+        size: 200,
+        minSize: 150,
       },
       {
         accessorKey: "remarks",
@@ -360,7 +380,7 @@ export function CrewSignOffTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.crewSignOff}
-        emptyMessage="No crew sign offs found."
+        emptyMessage="No crew sign ons found."
         accessorId="crewSignOffId"
         onRefreshAction={onRefreshAction}
         onFilterChange={handleFilterChange}
@@ -368,6 +388,7 @@ export function CrewSignOffTable({
         onCreateAction={onCreateActionCrewSignOff}
         onEditAction={onEditActionCrewSignOff}
         onDeleteAction={onDeleteCrewSignOff}
+        onBulkDeleteAction={onBulkDeleteCrewSignOff}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

@@ -22,6 +22,7 @@ interface EquipmentUsedTableProps {
   isLoading?: boolean
   onEquipmentUsedSelect?: (equipmentUsed: IEquipmentUsed | undefined) => void
   onDeleteEquipmentUsed?: (equipmentUsedId: string) => void
+  onBulkDeleteEquipmentUsed?: (selectedIds: string[]) => void
   onEditActionEquipmentUsed?: (equipmentUsed: IEquipmentUsed) => void
   onCreateActionEquipmentUsed?: () => void
   onDebitNoteAction?: (equipmentUsedId: string, debitNoteNo?: string) => void
@@ -47,6 +48,7 @@ export function EquipmentUsedTable({
   isLoading = false,
   onEquipmentUsedSelect,
   onDeleteEquipmentUsed,
+  onBulkDeleteEquipmentUsed,
   onEditActionEquipmentUsed,
   onCreateActionEquipmentUsed,
   onDebitNoteAction,
@@ -388,6 +390,7 @@ export function EquipmentUsedTable({
         onCreateAction={onCreateActionEquipmentUsed}
         onEditAction={onEditActionEquipmentUsed}
         onDeleteAction={onDeleteEquipmentUsed}
+        onBulkDeleteAction={onBulkDeleteEquipmentUsed}
         onDebitNoteAction={handleDebitNote}
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}

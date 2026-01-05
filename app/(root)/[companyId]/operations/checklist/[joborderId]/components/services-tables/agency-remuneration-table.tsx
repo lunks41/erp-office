@@ -24,6 +24,7 @@ interface AgencyRemunerationTableProps {
     agencyRemuneration: IAgencyRemuneration | undefined
   ) => void
   onDeleteAgencyRemuneration?: (agencyRemunerationId: string) => void
+  onBulkDeleteAgencyRemuneration?: (selectedIds: string[]) => void
   onEditActionAgencyRemuneration?: (
     agencyRemuneration: IAgencyRemuneration
   ) => void
@@ -58,6 +59,7 @@ export function AgencyRemunerationTable({
   isLoading = false,
   onAgencyRemunerationSelect,
   onDeleteAgencyRemuneration,
+  onBulkDeleteAgencyRemuneration,
   onEditActionAgencyRemuneration,
   onCreateActionAgencyRemuneration,
   onRefreshActionte: _onRefreshActionte,
@@ -287,6 +289,7 @@ export function AgencyRemunerationTable({
         onCreateAction={onCreateActionAgencyRemuneration}
         onEditAction={onEditActionAgencyRemuneration}
         onDeleteAction={onDeleteAgencyRemuneration}
+        onBulkDeleteAction={onBulkDeleteAgencyRemuneration}
         onDebitNoteAction={canDebitNote ? handleDebitNote : undefined}
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}

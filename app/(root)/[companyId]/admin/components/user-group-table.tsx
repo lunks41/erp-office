@@ -41,6 +41,7 @@ export function UserGroupTable({
   onCreateAction,
   onRefreshAction,
   onFilterChange,
+  initialSearchValue,
   moduleId,
   transactionId,
   // Permission props

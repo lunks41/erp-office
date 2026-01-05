@@ -20,20 +20,20 @@ export const bankSchema = z.object({
     .optional(),
   swiftCode: z
     .string()
-    .max(50, "SWIFT code cannot exceed 50 characters")
+    .max(100, "SWIFT code cannot exceed 50 characters")
     .optional(),
   iban: z.string().max(50, "IBAN cannot exceed 50 characters").optional(),
   remarks1: z
     .string()
-    .max(255, "Remarks1 cannot exceed 255 characters")
+    .max(2000, "Remarks1 cannot exceed 255 characters")
     .optional(),
   remarks2: z
     .string()
-    .max(255, "Remarks2 cannot exceed 255 characters")
+    .max(2000, "Remarks2 cannot exceed 255 characters")
     .optional(),
   remarks3: z
     .string()
-    .max(255, "Remarks3 cannot exceed 255 characters")
+    .max(2000, "Remarks3 cannot exceed 255 characters")
     .optional(),
   glId: z.number().optional(),
 

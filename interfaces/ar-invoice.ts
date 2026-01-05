@@ -98,6 +98,8 @@ export interface IArInvoiceHd {
   otherRemarks: string
   advRecAmt: number
   bargeId: number
+  bargeName: string
+  bargeCode: string
   data_details: IArInvoiceDt[]
 }
 

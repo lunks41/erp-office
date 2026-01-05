@@ -362,6 +362,8 @@ export default function InvoicePage() {
         form.getValues() as unknown as IArInvoiceHd
       )
 
+      console.log("handleSaveInvoice formValues", formValues)
+
       // Validate the form data using the schema
       const validationResult = ArInvoiceHdSchema(required, visible).safeParse(
         formValues
@@ -369,6 +371,16 @@ export default function InvoicePage() {
 
       if (!validationResult.success) {
         console.error("Form validation failed:", validationResult.error)
+        console.error(
+          "Validation errors:",
+          JSON.stringify(validationResult.error.issues, null, 2)
+        )
+
+        // Collect all error messages
+        const errorMessages = validationResult.error.issues.map((error) => {
+          const fieldPath = error.path.join(".")
+          return `${fieldPath}: ${error.message}`
+        })
 
         // Set field-level errors on the form so FormMessage components can display them
         validationResult.error.issues.forEach((error) => {
@@ -379,7 +391,15 @@ export default function InvoicePage() {
           })
         })
 
-        toast.error("Please check form data and try again")
+        // Show detailed error message
+        const errorMessage =
+          errorMessages.length > 0
+            ? `Validation failed:\n${errorMessages.slice(0, 3).join("\n")}${errorMessages.length > 3 ? `\n... and ${errorMessages.length - 3} more errors` : ""}`
+            : "Please check form data and try again"
+
+        toast.error(errorMessage, {
+          duration: 5000,
+        })
         return
       }
 

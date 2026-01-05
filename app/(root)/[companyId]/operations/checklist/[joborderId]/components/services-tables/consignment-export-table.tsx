@@ -24,6 +24,7 @@ interface ConsignmentExportTableProps {
     consignmentExport: IConsignmentExport | undefined
   ) => void
   onDeleteConsignmentExport?: (consignmentExportId: string) => void
+  onBulkDeleteConsignmentExport?: (selectedIds: string[]) => void
   onEditActionConsignmentExport?: (
     consignmentExport: IConsignmentExport
   ) => void
@@ -58,6 +59,7 @@ export function ConsignmentExportTable({
   isLoading = false,
   onConsignmentExportSelect,
   onDeleteConsignmentExport,
+  onBulkDeleteConsignmentExport,
   onEditActionConsignmentExport,
   onCreateActionConsignmentExport,
   onRefreshActionte: _onRefreshActionte,
@@ -326,6 +328,7 @@ export function ConsignmentExportTable({
         onCreateAction={onCreateActionConsignmentExport}
         onEditAction={onEditActionConsignmentExport}
         onDeleteAction={onDeleteConsignmentExport}
+        onBulkDeleteAction={onBulkDeleteConsignmentExport}
         onDebitNoteAction={canDebitNote ? handleDebitNote : undefined}
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}

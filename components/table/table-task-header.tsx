@@ -13,6 +13,7 @@ import {
   RedoDot,
   RefreshCw,
   SlidersHorizontal,
+  Trash2,
   Upload,
   UploadCloudIcon,
   UploadIcon,
@@ -52,6 +53,7 @@ type TaskTableHeaderProps<TData> = {
   onCreateAction?: () => void
   onCombinedService?: () => void
   onCloneTask?: () => void
+  onBulkDeleteAction?: () => void
   onDebitNoteAction?: (debitNoteNo?: string, selectedIds?: string[]) => void
   searchQuery: string
   onSearchChange: (query: string) => void
@@ -63,6 +65,7 @@ type TaskTableHeaderProps<TData> = {
   hasSelectedRows?: boolean
   selectedRowsCount?: number
   hasValidDebitNoteIds?: boolean
+  hasAnyDebitNoteId?: boolean
   isConfirmed?: boolean
   selectedRowIds?: string[]
   // Props for column visibility control
@@ -82,6 +85,7 @@ export function TaskTableHeader<TData>({
   onCreateAction,
   onCombinedService,
   onCloneTask,
+  onBulkDeleteAction,
   onDebitNoteAction,
   searchQuery,
   onSearchChange,
@@ -92,6 +96,7 @@ export function TaskTableHeader<TData>({
   hasSelectedRows = false,
   selectedRowsCount = 0,
   hasValidDebitNoteIds = false,
+  hasAnyDebitNoteId = false,
   isConfirmed = false,
   selectedRowIds = [],
   hideColumnsOnDebitNote = [],
@@ -284,16 +289,42 @@ export function TaskTableHeader<TData>({
               title={
                 isConfirmed ? "Cannot refresh when confirmed" : "Refresh data"
               }
+              className={
+                isConfirmed
+                  ? "cursor-not-allowed opacity-50"
+                  : "border-green-600 bg-green-600 text-white hover:border-green-700 hover:bg-green-700"
+              }
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
+
+            {onBulkDeleteAction && hasSelectedRows && (
+              <Button
+                variant="destructive"
+                onClick={onBulkDeleteAction}
+                title={
+                  hasAnyDebitNoteId
+                    ? "Cannot delete - One or more selected items have a Debit Note"
+                    : `Delete ${selectedRowsCount} selected item${selectedRowsCount !== 1 ? "s" : ""}`
+                }
+                disabled={isConfirmed || hasAnyDebitNoteId}
+                className={
+                  isConfirmed || hasAnyDebitNoteId
+                    ? "cursor-not-allowed opacity-50"
+                    : ""
+                }
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete ({selectedRowsCount})
+              </Button>
+            )}
 
             <Button
               variant="outline"
               onClick={handleCombinedServiceClick}
               title={
                 hasSelectedRows
-                  ? "Combined Services"
+                  ? "Bulk & Task Forward Services"
                   : "Please select at least one item first"
               }
               //disabled={isConfirmed || !hasSelectedRows}
@@ -325,6 +356,7 @@ export function TaskTableHeader<TData>({
                 <Building2 className="h-4 w-4" />
               </Button>
             )}
+
             {canDebitNote && (
               <div className="flex items-center gap-2">
                 <Button
