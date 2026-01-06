@@ -14,18 +14,15 @@ export const geolocationSchema = z.object({
   latitude: z
     .string()
     .max(50, { message: "Latitude cannot exceed 50 characters" })
-    .optional()
-    .nullable(),
+    .optional(),
   longitude: z
     .string()
     .max(50, { message: "Longitude cannot exceed 50 characters" })
-    .optional()
-    .nullable(),
+    .optional(),
   remarks: z
     .string()
     .max(255, { message: "Remarks cannot exceed 255 characters" })
-    .optional()
-    .nullable(),
+    .optional(),
   isActive: z.boolean(),
 })
 

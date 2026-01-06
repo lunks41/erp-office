@@ -24,6 +24,8 @@ export interface IJobOrderHd {
   voyageNo?: string
   geoLocationId?: number
   geoLocationName?: string
+  latitude?: string
+  longitude?: string
   natureOfCall?: string
   isps?: string
   etaDate?: Date | string | null

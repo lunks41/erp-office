@@ -44,12 +44,14 @@ export default function RankPage() {
 
   const [filters, setFilters] = useState<IRankFilter>({})
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(50)
-
   // Get user setting defaults
   const { defaults } = useUserSettingDefaults()
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(
+    defaults?.common?.masterGridTotalRecords || 50
+  )
 
   // Update page size when defaults change
   useEffect(() => {

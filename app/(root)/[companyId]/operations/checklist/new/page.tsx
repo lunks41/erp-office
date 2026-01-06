@@ -3,12 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { setExchangeRate_JobOrder } from "@/helpers/account"
+import { IBankAddress, IBankContact } from "@/interfaces/bank"
 import { IJobOrderHd } from "@/interfaces/checklist"
+import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
 import {
   ICurrencyLookup,
   ICustomerLookup,
+  IGeoLocationLookup,
   IVesselLookup,
 } from "@/interfaces/lookup"
+import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
 import { JobOrderHdSchema, JobOrderHdSchemaType } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -27,19 +31,25 @@ import {
 import { useSaveJobOrder } from "@/hooks/use-checklist"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
 import {
-  AddressAutocomplete,
-  ContactAutocomplete,
+  CountryAutocomplete,
   CurrencyAutocomplete,
   CustomerAutocomplete,
   DynamicVesselAutocomplete,
   GSTAutocomplete,
   GeoLocationAutocomplete,
+  JobStatusAutocomplete,
   PortAutocomplete,
-  StatusAutocomplete,
   VoyageAutocomplete,
 } from "@/components/autocomplete"
+import DynamicAddressAutocomplete, {
+  EntityType as AddressEntityType,
+} from "@/components/autocomplete/autocomplete-address-dynamic"
+import DynamicContactAutocomplete, {
+  EntityType as ContactEntityType,
+} from "@/components/autocomplete/autocomplete-contact-dynamic"
 import CustomCheckbox from "@/components/custom/custom-checkbox"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { CustomDateTimePicker } from "@/components/custom/custom-date-time-picker"
@@ -84,6 +94,12 @@ export default function NewChecklistPage() {
   // State to track customer code for label display
   const [customerCode, setCustomerCode] = useState<string>("")
 
+  // State for address and contact
+  const [selectedAddress, setSelectedAddress] =
+    useState<ICustomerAddress | null>(null)
+  const [selectedContact, setSelectedContact] =
+    useState<ICustomerContact | null>(null)
+
   const form = useForm<JobOrderHdSchemaType>({
     resolver: zodResolver(JobOrderHdSchema),
     defaultValues: {
@@ -98,6 +114,9 @@ export default function NewChecklistPage() {
       exhRate: 0,
       vesselId: 0,
       voyageId: 0,
+      geoLocationId: 0,
+      latitude: "",
+      longitude: "",
       lastPortId: 0,
       nextPortId: 0,
       etaDate: undefined,
@@ -375,6 +394,79 @@ export default function NewChecklistPage() {
     [form]
   )
 
+  // Handle geo location selection
+  const handleGeoLocationChange = useCallback(
+    (selectedGeoLocation: IGeoLocationLookup | null) => {
+      // Populate latitude and longitude when geo location changes
+      if (selectedGeoLocation?.latitude && selectedGeoLocation?.longitude) {
+        form.setValue("latitude", selectedGeoLocation.latitude)
+        form.setValue("longitude", selectedGeoLocation.longitude)
+        toast.info(
+          `Latitude and Longitude have been populated: ${selectedGeoLocation.latitude}, ${selectedGeoLocation.longitude}`
+        )
+      } else {
+        form.setValue("latitude", "")
+        form.setValue("longitude", "")
+        if (selectedGeoLocation) {
+          toast.info("Selected geo location has no latitude/longitude")
+        }
+      }
+    },
+    [form]
+  )
+
+  // Handle address selection
+  const handleAddressSelect = useCallback(
+    (address: ICustomerAddress | ISupplierAddress | IBankAddress | null) => {
+      const customerAddress = address as ICustomerAddress | null
+      setSelectedAddress(customerAddress)
+      if (customerAddress) {
+        form.setValue("addressId", customerAddress.addressId)
+        form.setValue("billName", customerAddress.billName || "")
+        form.setValue("address1", customerAddress.address1 || "")
+        form.setValue("address2", customerAddress.address2 || "")
+        form.setValue("address3", customerAddress.address3 || "")
+        form.setValue("address4", customerAddress.address4 || "")
+        form.setValue("pinCode", customerAddress.pinCode?.toString() || "")
+        form.setValue("phoneNo", customerAddress.phoneNo || "")
+        form.setValue("faxNo", customerAddress.faxNo || "")
+        form.setValue("countryId", customerAddress.countryId || 0)
+      } else {
+        form.setValue("addressId", 0)
+        form.setValue("billName", "")
+        form.setValue("address1", "")
+        form.setValue("address2", "")
+        form.setValue("address3", "")
+        form.setValue("address4", "")
+        form.setValue("pinCode", "")
+        form.setValue("phoneNo", "")
+        form.setValue("faxNo", "")
+        form.setValue("countryId", 0)
+      }
+    },
+    [form]
+  )
+
+  // Handle contact selection
+  const handleContactSelect = useCallback(
+    (contact: ICustomerContact | ISupplierContact | IBankContact | null) => {
+      const customerContact = contact as ICustomerContact | null
+      setSelectedContact(customerContact)
+      if (customerContact) {
+        form.setValue("contactId", customerContact.contactId)
+        form.setValue("contactName", customerContact.contactName || "")
+        form.setValue("mobileNo", customerContact.mobileNo || "")
+        form.setValue("emailAdd", customerContact.otherName || "")
+      } else {
+        form.setValue("contactId", 0)
+        form.setValue("contactName", "")
+        form.setValue("mobileNo", "")
+        form.setValue("emailAdd", "")
+      }
+    },
+    [form]
+  )
+
   // Handle form submission
   const onSubmit = async (values: JobOrderHdSchemaType) => {
     console.log("onSubmit:", values)
@@ -545,17 +637,12 @@ export default function NewChecklistPage() {
                     label="IMO No"
                     isRequired={false}
                   />
-                  <GeoLocationAutocomplete
+
+                  <CustomNumberInput
                     form={form}
-                    name="geoLocationId"
-                    label="GeoLocation"
-                    isRequired={false}
-                  />
-                  <VoyageAutocomplete
-                    form={form}
-                    name="voyageId"
-                    label="Voyage"
-                    isRequired={false}
+                    name="vesselDistance"
+                    label="Vessel Distance (NM)"
+                    isRequired={true}
                   />
                   <PortAutocomplete
                     form={form}
@@ -563,18 +650,37 @@ export default function NewChecklistPage() {
                     label="Last Port"
                     isRequired={false}
                   />
+                  <GeoLocationAutocomplete
+                    form={form}
+                    name="geoLocationId"
+                    label="GeoLocation"
+                    isRequired={false}
+                    onChangeEvent={handleGeoLocationChange}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="latitude"
+                    label="Latitude"
+                    isRequired={false}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="longitude"
+                    label="Longitude"
+                    isRequired={false}
+                  />
+
                   <PortAutocomplete
                     form={form}
                     name="nextPortId"
                     label="Next Port"
                     isRequired={false}
                   />
-                  <CustomInput
+                  <VoyageAutocomplete
                     form={form}
-                    name="vesselDistance"
-                    label="Vessel Distance (NM)"
-                    type="number"
-                    isRequired={true}
+                    name="voyageId"
+                    label="Voyage"
+                    isRequired={false}
                   />
 
                   <CustomDateTimePicker
@@ -635,10 +741,10 @@ export default function NewChecklistPage() {
                     label="ISPS"
                     isRequired={false}
                   />
-                  <StatusAutocomplete
+                  <JobStatusAutocomplete
                     form={form}
                     name="jobStatusId"
-                    label="Status"
+                    label="Job Status"
                     isRequired={true}
                   />
                   <div className="col-span-2">
@@ -687,36 +793,54 @@ export default function NewChecklistPage() {
                   <CustomDateNew
                     form={form}
                     name="accountDate"
-                    label="Account Date"
+                    label="Account | Debit Note Date"
                     isFutureShow={true}
                   />
                   <CustomDateNew
                     form={form}
                     name="seriesDate"
-                    isFutureShow={true}
                     label="Series Date"
+                    isFutureShow={true}
                   />
-                  <AddressAutocomplete
+
+                  <DynamicAddressAutocomplete
                     form={form}
                     name="addressId"
                     label="Address"
-                    isRequired={false}
-                    customerId={customerId || 0}
+                    entityId={customerId}
+                    entityType={AddressEntityType.CUSTOMER}
+                    onChangeEvent={handleAddressSelect}
                   />
-                  <ContactAutocomplete
+
+                  <DynamicContactAutocomplete
                     form={form}
                     name="contactId"
                     label="Contact"
-                    isRequired={false}
-                    customerId={customerId || 0}
+                    entityId={customerId}
+                    entityType={ContactEntityType.CUSTOMER}
+                    onChangeEvent={handleContactSelect}
                   />
 
-                  <CustomCheckbox
-                    form={form}
-                    name="isTaxable"
-                    label="Taxable"
-                    isRequired={false}
-                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    <CustomCheckbox
+                      form={form}
+                      name="isClose"
+                      label="Close"
+                      isRequired={false}
+                    />
+                    <CustomCheckbox
+                      form={form}
+                      name="isPost"
+                      label="Post"
+                      isRequired={false}
+                    />
+                    <CustomCheckbox
+                      form={form}
+                      name="isTaxable"
+                      label="Taxable"
+                      isRequired={false}
+                    />
+                  </div>
 
                   {isTaxable && (
                     <GSTAutocomplete
@@ -734,27 +858,132 @@ export default function NewChecklistPage() {
                       isRequired={true}
                     />
                   )}
-
-                  <CustomCheckbox
-                    form={form}
-                    name="isClose"
-                    label="Close"
-                    isRequired={false}
-                  />
-                  <CustomCheckbox
-                    form={form}
-                    name="isPost"
-                    label="Post"
-                    isRequired={false}
-                  />
                   <CustomCheckbox
                     form={form}
                     name="isActive"
-                    label="Active Status"
+                    label="Active"
                     isRequired={false}
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Address and Contact Section */}
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {/* Address Section */}
+              <Card className="border-0">
+                <CardContent>
+                  <div className="mb-2 flex">
+                    <Badge
+                      variant="outline"
+                      className="border-purple-200 bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-800 shadow-sm transition-colors duration-200 hover:bg-purple-200"
+                    >
+                      📍 Address Details
+                    </Badge>
+                  </div>
+                  <div className="mb-4 border-b border-gray-200"></div>
+
+                  <div className="grid gap-2">
+                    <CustomInput
+                      form={form}
+                      name="billName"
+                      label="Bill Name"
+                      isDisabled={!selectedAddress}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <CustomTextarea
+                        form={form}
+                        name="address1"
+                        label="Address Line 1"
+                        isDisabled={!selectedAddress}
+                      />
+                      <CustomTextarea
+                        form={form}
+                        name="address2"
+                        label="Address Line 2"
+                        isDisabled={!selectedAddress}
+                      />
+                      <CustomTextarea
+                        form={form}
+                        name="address3"
+                        label="Address Line 3"
+                        isDisabled={!selectedAddress}
+                      />
+                      <CustomTextarea
+                        form={form}
+                        name="address4"
+                        label="Address Line 4"
+                        isDisabled={!selectedAddress}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      <CountryAutocomplete
+                        form={form}
+                        name="countryId"
+                        label="Country"
+                      />
+                      <CustomInput
+                        form={form}
+                        name="pinCode"
+                        label="Pin Code"
+                        isDisabled={!selectedAddress}
+                      />
+                      <CustomInput
+                        form={form}
+                        name="phoneNo"
+                        label="Phone No"
+                        isDisabled={!selectedAddress}
+                      />
+                      <CustomInput
+                        form={form}
+                        name="faxNo"
+                        label="Fax No"
+                        isDisabled={!selectedAddress}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Contact Section */}
+              <Card className="border-0">
+                <CardContent>
+                  <div className="mb-2 flex">
+                    <Badge
+                      variant="outline"
+                      className="border-indigo-200 bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm transition-colors duration-200 hover:bg-indigo-200"
+                    >
+                      👤 Contact Details
+                    </Badge>
+                  </div>
+                  <div className="mb-4 border-b border-gray-200"></div>
+
+                  <div className="grid gap-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <CustomInput
+                        form={form}
+                        name="contactName"
+                        label="Contact Name"
+                        isDisabled={!selectedContact}
+                      />
+                      <CustomInput
+                        form={form}
+                        name="emailAdd"
+                        label="Email"
+                        isDisabled={!selectedContact}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <CustomInput
+                        form={form}
+                        name="mobileNo"
+                        label="Mobile No"
+                        isDisabled={!selectedContact}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </form>
         </Form>

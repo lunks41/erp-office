@@ -7,6 +7,7 @@ import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
 import {
   ICurrencyLookup,
   ICustomerLookup,
+  IGeoLocationLookup,
   IVesselLookup,
 } from "@/interfaces/lookup"
 import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
@@ -31,8 +32,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
 import {
-  AddressAutocomplete,
-  ContactAutocomplete,
   CountryAutocomplete,
   CurrencyAutocomplete,
   CustomerAutocomplete,
@@ -278,6 +277,8 @@ export function ChecklistMain({
       vesselId: jobData?.vesselId ?? 0,
       voyageId: jobData?.voyageId ?? 0,
       geoLocationId: jobData?.geoLocationId ?? 0,
+      latitude: jobData?.latitude ?? "",
+      longitude: jobData?.longitude ?? "",
       lastPortId: jobData?.lastPortId ?? 0,
       nextPortId: jobData?.nextPortId ?? 0,
       etaDate: jobData?.etaDate
@@ -508,6 +509,8 @@ export function ChecklistMain({
       vesselId: apiJobOrder.vesselId ?? 0,
       voyageId: apiJobOrder.voyageId ?? 0,
       geoLocationId: apiJobOrder.geoLocationId ?? 0,
+      latitude: apiJobOrder.latitude ?? "",
+      longitude: apiJobOrder.longitude ?? "",
       lastPortId: apiJobOrder.lastPortId ?? 0,
       nextPortId: apiJobOrder.nextPortId ?? 0,
       etaDate: apiJobOrder.etaDate
@@ -747,6 +750,27 @@ export function ChecklistMain({
     [form]
   )
 
+  // Handle geo location selection
+  const handleGeoLocationChange = React.useCallback(
+    (selectedGeoLocation: IGeoLocationLookup | null) => {
+      // Populate latitude and longitude when geo location changes
+      if (selectedGeoLocation?.latitude && selectedGeoLocation?.longitude) {
+        form.setValue("latitude", selectedGeoLocation.latitude)
+        form.setValue("longitude", selectedGeoLocation.longitude)
+        toast.info(
+          `Latitude and Longitude have been populated: ${selectedGeoLocation.latitude}, ${selectedGeoLocation.longitude}`
+        )
+      } else {
+        form.setValue("latitude", "")
+        form.setValue("longitude", "")
+        if (selectedGeoLocation) {
+          toast.info("Selected geo location has no latitude/longitude")
+        }
+      }
+    },
+    [form]
+  )
+
   const handleAddressSelect = (
     address: ICustomerAddress | ISupplierAddress | IBankAddress | null
   ) => {
@@ -888,7 +912,7 @@ export function ChecklistMain({
                 </Badge>
               </div>
               <div className="mb-4 border-b border-gray-200"></div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <CustomDateNew
                   form={form}
                   name="jobOrderDate"
@@ -935,18 +959,12 @@ export function ChecklistMain({
                   isRequired={false}
                   isDisabled={isConfirmed}
                 />
-                <GeoLocationAutocomplete
+
+                <CustomNumberInput
                   form={form}
-                  name="geoLocationId"
-                  label="GeoLocation"
-                  isRequired={false}
-                  isDisabled={isConfirmed}
-                />
-                <VoyageAutocomplete
-                  form={form}
-                  name="voyageId"
-                  label="Voyage"
-                  isRequired={false}
+                  name="vesselDistance"
+                  label="Vessel Distance (NM)"
+                  isRequired={true}
                   isDisabled={isConfirmed}
                 />
                 <PortAutocomplete
@@ -956,6 +974,29 @@ export function ChecklistMain({
                   isRequired={false}
                   isDisabled={isConfirmed}
                 />
+                <GeoLocationAutocomplete
+                  form={form}
+                  name="geoLocationId"
+                  label="GeoLocation"
+                  isRequired={false}
+                  isDisabled={isConfirmed}
+                  onChangeEvent={handleGeoLocationChange}
+                />
+                <CustomInput
+                  form={form}
+                  name="latitude"
+                  label="Latitude"
+                  isRequired={false}
+                  isDisabled={true}
+                />
+                <CustomInput
+                  form={form}
+                  name="longitude"
+                  label="Longitude"
+                  isRequired={false}
+                  isDisabled={true}
+                />
+
                 <PortAutocomplete
                   form={form}
                   name="nextPortId"
@@ -963,11 +1004,11 @@ export function ChecklistMain({
                   isRequired={false}
                   isDisabled={isConfirmed}
                 />
-                <CustomNumberInput
+                <VoyageAutocomplete
                   form={form}
-                  name="vesselDistance"
-                  label="Vessel Distance (NM)"
-                  isRequired={true}
+                  name="voyageId"
+                  label="Voyage"
+                  isRequired={false}
                   isDisabled={isConfirmed}
                 />
 
@@ -1142,13 +1183,29 @@ export function ChecklistMain({
                   isDisabled={isConfirmed}
                 /> */}
 
-                <CustomCheckbox
-                  form={form}
-                  name="isTaxable"
-                  label="Taxable"
-                  isRequired={false}
-                  isDisabled={isConfirmed}
-                />
+                <div className="grid grid-cols-3 gap-2">
+                  <CustomCheckbox
+                    form={form}
+                    name="isClose"
+                    label="Close"
+                    isRequired={false}
+                    isDisabled={isConfirmed}
+                  />
+                  <CustomCheckbox
+                    form={form}
+                    name="isPost"
+                    label="Post"
+                    isRequired={false}
+                    isDisabled={isConfirmed}
+                  />
+                  <CustomCheckbox
+                    form={form}
+                    name="isTaxable"
+                    label="Taxable"
+                    isRequired={false}
+                    isDisabled={isConfirmed}
+                  />
+                </div>
 
                 {isTaxable && (
                   <GSTAutocomplete
@@ -1168,21 +1225,6 @@ export function ChecklistMain({
                     isDisabled={isConfirmed}
                   />
                 )}
-
-                <CustomCheckbox
-                  form={form}
-                  name="isClose"
-                  label="Close"
-                  isRequired={false}
-                  isDisabled={isConfirmed}
-                />
-                <CustomCheckbox
-                  form={form}
-                  name="isPost"
-                  label="Post"
-                  isRequired={false}
-                  isDisabled={isConfirmed}
-                />
                 <CustomCheckbox
                   form={form}
                   name="isActive"

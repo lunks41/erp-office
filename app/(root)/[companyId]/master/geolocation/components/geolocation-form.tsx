@@ -26,9 +26,9 @@ const defaultValues = {
   geoLocationCode: "",
   geoLocationName: "",
   portId: 0,
-  latitude: null,
-  longitude: null,
-  remarks: null,
+  latitude: "",
+  longitude: "",
+  remarks: "",
   isActive: true,
 }
 

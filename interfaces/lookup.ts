@@ -460,6 +460,8 @@ export interface IGeoLocationLookup {
   geoLocationId: number
   geoLocationCode: string
   geoLocationName: string
+  latitude: string
+  longitude: string
 }
 
 export interface IPassTypeLookup {

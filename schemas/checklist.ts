@@ -24,6 +24,14 @@ export const JobOrderHdSchema = z
     nextPortId: z.number().optional(),
     voyageId: z.number().optional(),
     geoLocationId: z.number().optional(),
+    latitude: z
+      .string()
+      .max(100, "Latitude cannot exceed 50 characters")
+      .optional(),
+    longitude: z
+      .string()
+      .max(100, "Longitude cannot exceed 50 characters")
+      .optional(),
     natureOfCall: z
       .string()
       .max(50, "Nature of Call must be less than 50 characters")

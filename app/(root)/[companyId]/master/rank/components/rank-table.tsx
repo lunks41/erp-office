@@ -48,6 +48,7 @@ export function RanksTable({
   onCreateAction,
   onRefreshAction,
   onFilterChange,
+  initialSearchValue,
   onPageChange,
   onPageSizeChange,
   currentPage = 1,
@@ -182,4 +183,3 @@ export function RanksTable({
     />
   )
 }
-

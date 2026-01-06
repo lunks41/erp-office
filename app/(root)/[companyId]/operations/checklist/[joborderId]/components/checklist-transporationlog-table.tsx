@@ -43,6 +43,10 @@ export function TransportationLogTable({
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]
   )
+  const datetimeFormat = useMemo(
+    () => decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss",
+    [decimals]
+  )
 
   const formatDateValue = useCallback(
     (value: unknown) => {
@@ -137,12 +141,31 @@ export function TransportationLogTable({
         size: 120,
         minSize: 100,
       },
-
+      {
+        accessorKey: "serviceName",
+        header: "Service",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("serviceName") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
       {
         accessorKey: "chargeName",
         header: "Charge",
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "cargoTypeName",
+        header: "Cargo Type",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("cargoTypeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
@@ -239,8 +262,60 @@ export function TransportationLogTable({
         minSize: 120,
         enableColumnFilter: true,
       },
+      {
+        accessorKey: "createBy",
+        header: "Create By",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "createDate",
+        header: "Create Date",
+        cell: ({ row }) => {
+          const raw = row.getValue("createDate")
+          let date: Date | null = null
+          if (typeof raw === "string") date = new Date(raw)
+          else if (raw instanceof Date) date = raw
+          return (
+            <div className="text-wrap">
+              {date && isValid(date) ? format(date, datetimeFormat) : "-"}
+            </div>
+          )
+        },
+        size: 180,
+        minSize: 150,
+      },
+      {
+        accessorKey: "editBy",
+        header: "Edit By",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "editDate",
+        header: "Edit Date",
+        cell: ({ row }) => {
+          const raw = row.getValue("editDate")
+          let date: Date | null = null
+          if (typeof raw === "string") date = new Date(raw)
+          else if (raw instanceof Date) date = raw
+          return (
+            <div className="text-wrap">
+              {date && isValid(date) ? format(date, datetimeFormat) : "-"}
+            </div>
+          )
+        },
+        size: 180,
+        minSize: 150,
+      },
     ],
-    [formatDateValue]
+    [formatDateValue, datetimeFormat]
   )
 
   return (

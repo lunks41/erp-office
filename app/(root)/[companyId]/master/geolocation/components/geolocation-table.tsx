@@ -80,8 +80,8 @@ export function GeoLocationsTable({
       enableColumnFilter: true,
     },
     {
-      accessorKey: "portId",
-      header: "Port ID",
+      accessorKey: "portName",
+      header: "Port",
       size: 120,
       minSize: 50,
     },
