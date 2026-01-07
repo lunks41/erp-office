@@ -392,8 +392,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
         })
         form.setValue(
           "serviceItemNoName",
-          selectedOption.serviceCode + " " + selectedOption.serviceItemNoName ||
-            ""
+          selectedOption.serviceItemNoName || ""
         )
       } else {
         // Clear service fields
@@ -713,7 +712,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             name="toBankExhRate"
             label="Bank Exchange Rate"
             round={exhRateDec}
-            isRequired={true}
+            isRequired={false}
             className="text-right"
             onChangeEvent={handleToBankExhRateChange}
           />
@@ -723,7 +722,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             name="toBankTotAmt"
             label="Bank Total Amount"
             round={amtDec}
-            isRequired={true}
+            isRequired={false}
             className="text-right"
             onChangeEvent={handleToBankTotAmtChange}
           />
@@ -733,7 +732,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             name="toBankTotLocalAmt"
             label="Bank Total Local Amount"
             round={locAmtDec}
-            isDisabled={true}
+            isDisabled={false}
             className="text-right"
           />
 

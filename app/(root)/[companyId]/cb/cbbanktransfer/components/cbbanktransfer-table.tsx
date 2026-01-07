@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ICbBankTransfer, ICbBankTransferFilter } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
@@ -390,7 +390,7 @@ export default function BankTransferTable({
     ) {
       setSearchQuery(initialFilters.search)
     }
-  }, [initialFilters?.search])
+  }, [initialFilters?.search, searchQuery])
 
   // Show loading spinner while data is loading
   if (isLoadingBankTransfers) {

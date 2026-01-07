@@ -16,7 +16,6 @@ import { useAuthStore } from "@/stores/auth-store"
 import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 
-import { usePaymentTypeLookup } from "@/hooks/use-lookup"
 import {
   BankAutocomplete,
   BankChartOfAccountAutocomplete,
@@ -56,38 +55,8 @@ export default function CbBankTransferCtmForm({
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6
 
-  const { data: paymentTypes = [] } = usePaymentTypeLookup()
-
-  // State to track if payment type is cheque
-  const [isChequePayment, setIsChequePayment] = React.useState(false)
-
   // State to control payee selection dialog
   const [isPayeeDialogOpen, setIsPayeeDialogOpen] = React.useState(false)
-
-  // Watch paymentTypeId and update cheque payment state
-  React.useEffect(() => {
-    const paymentTypeId = form.watch("paymentTypeId")
-
-    if (paymentTypeId && paymentTypes.length > 0) {
-      const selectedPaymentType = paymentTypes.find(
-        (pt) => pt.paymentTypeId === paymentTypeId
-      )
-
-      if (selectedPaymentType) {
-        const isCheque =
-          selectedPaymentType.paymentTypeName
-            ?.toLowerCase()
-            .includes("cheque") ||
-          selectedPaymentType.paymentTypeCode?.toLowerCase().includes("cheque")
-
-        setIsChequePayment(isCheque)
-      } else {
-        setIsChequePayment(false)
-      }
-    } else {
-      setIsChequePayment(false)
-    }
-  }, [form, paymentTypes])
 
   const onSubmit = async () => {
     await onSuccessAction("save")
@@ -107,37 +76,17 @@ export default function CbBankTransferCtmForm({
   const handleAccountDateChange = React.useCallback(
     async (_selectedAccountDate: Date | null) => {
       const { accountDate } = form?.getValues()
-      // Update chequeDate to accountDate if not cheque payment
-      if (!isChequePayment) {
-        form.setValue("chequeDate", accountDate)
-        form?.trigger("chequeDate")
-      }
+      form.setValue("chequeDate", accountDate)
+      form?.trigger("chequeDate")
     },
-    [form, isChequePayment]
+    [form]
   )
 
   // Handle payment type change
   const handlePaymentTypeChange = React.useCallback(
     (selectedPaymentType: IPaymentTypeLookup | null) => {
-      if (selectedPaymentType) {
-        // Check if payment type is "Cheque"
-        const isCheque =
-          selectedPaymentType?.paymentTypeName
-            ?.toLowerCase()
-            .includes("cheque") ||
-          selectedPaymentType?.paymentTypeCode?.toLowerCase().includes("cheque")
-
-        setIsChequePayment(isCheque)
-
-        // Set chequeDate to accountDate if not cheque payment
-        if (!isCheque) {
-          form.setValue("chequeNo", "")
-          const accountDate = form.getValues("accountDate")
-          form.setValue("chequeDate", accountDate || "")
-        }
-      } else {
+      if (!selectedPaymentType) {
         // No payment type selected, set chequeDate to accountDate
-        setIsChequePayment(false)
         form.setValue("chequeNo", "")
         const accountDate = form.getValues("accountDate")
         form.setValue("chequeDate", accountDate || "")
@@ -305,26 +254,21 @@ export default function CbBankTransferCtmForm({
           onChangeEvent={handlePaymentTypeChange}
         />
 
-        {/* Cheque No - Only show when payment type is cheque */}
-        {isChequePayment && (
-          <CustomInput
-            form={form}
-            name="chequeNo"
-            label="Cheque No"
-            isRequired={true}
-          />
-        )}
+        <CustomInput
+          form={form}
+          name="chequeNo"
+          label="Cheque No"
+          isRequired={false}
+        />
 
-        {/* Cheque Date - Only show when payment type is cheque */}
-        {isChequePayment && (
-          <CustomDateNew
-            form={form}
-            name="chequeDate"
-            label="Cheque Date"
-            isRequired={true}
-            isFutureShow={true}
-          />
-        )}
+        {/* Cheque Date */}
+        <CustomDateNew
+          form={form}
+          name="chequeDate"
+          label="Cheque Date"
+          isRequired={false}
+          isFutureShow={true}
+        />
 
         {/* FROM BANK DETAILS */}
         <BankAutocomplete
@@ -404,7 +348,7 @@ export default function CbBankTransferCtmForm({
           label="Exchange Gain/Loss"
           round={amtDec}
           className="text-right"
-          isDisabled={true}
+          isDisabled={false}
         />
 
         {/* Remarks */}

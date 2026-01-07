@@ -116,6 +116,22 @@ export const formatDate = (date: string | Date | null | undefined): string => {
   }
 }
 
+export const calculateMultiplierWithDivisionAmount = (
+  baseAmount: number,
+  multiplier: number,
+  division: number,
+  precision: number
+  // isMultiply?: boolean
+): number => {
+  // const total = isMultiply ? baseAmount * multiplier : baseAmount / multiplier;
+  const totMultiplier = baseAmount * multiplier
+  const totDivision = totMultiplier / division
+  const total = totDivision
+  const rounded = mathRound(total, precision)
+  //const rounded = Math.round(total * Math.pow(10, precision)) / Math.pow(10, precision);
+  return Number(rounded)
+}
+
 /**
  * Calculate multiplier amount with precision
  * Used for: Exchange rate conversions, Quantity × Price calculations

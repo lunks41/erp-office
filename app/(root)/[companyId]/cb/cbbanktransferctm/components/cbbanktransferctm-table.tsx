@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ICbBankTransferCtmFilter, ICbBankTransferCtmHd } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
@@ -274,7 +274,7 @@ export default function CbBankTransferCtmTable({
     ) {
       setSearchQuery(initialFilters.search)
     }
-  }, [initialFilters?.search])
+  }, [initialFilters?.search, searchQuery])
 
   return (
     <div className="w-full overflow-auto">

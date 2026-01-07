@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   calculateDivisionAmount,
   calculateMultiplierAmount,
+  calculateMultiplierWithDivisionAmount,
   setFromExchangeRate,
   setToExchangeRate,
 } from "@/helpers/account"
@@ -372,44 +373,29 @@ export default function BankTransferForm({
         const toExhRate = value || 0
         const toTotAmt = form.getValues("toTotAmt") || 0
         const fromExhRate = form.getValues("fromExhRate") || 0
-        const fromCurrencyId = form.getValues("fromCurrencyId")
-        const toCurrencyId = form.getValues("toCurrencyId")
+        const fromTotLocalAmt = form.getValues("fromTotLocalAmt") || 0
 
-        // 1. Calculate toTotLocalAmt = toTotAmt * toExhRate
-        const toTotLocalAmt = calculateMultiplierAmount(
-          toTotAmt,
-          toExhRate,
-          locAmtDec
-        )
-        form.setValue("toTotLocalAmt", toTotLocalAmt, { shouldValidate: false })
-
-        // 2. Recalculate FROM amounts based on currency relationship
-        if (fromCurrencyId && toCurrencyId && fromCurrencyId !== toCurrencyId) {
-          // Different currencies: local amounts must be equal
-          const fromTotLocalAmt = toTotLocalAmt
-          const fromTotAmt =
-            fromExhRate > 0
-              ? calculateDivisionAmount(fromTotLocalAmt, fromExhRate, amtDec)
-              : 0
-          form.setValue("fromTotAmt", fromTotAmt, { shouldValidate: false })
-          form.setValue("fromTotLocalAmt", fromTotLocalAmt, {
+        if (fromExhRate !== toExhRate) {
+          const toTotAmtWithDivision = calculateMultiplierWithDivisionAmount(
+            toTotAmt,
+            fromExhRate,
+            toExhRate,
+            locAmtDec
+          )
+          form.setValue("toTotAmt", toTotAmtWithDivision, {
+            shouldValidate: false,
+          })
+          form.setValue("toTotLocalAmt", fromTotLocalAmt, {
             shouldValidate: false,
           })
         } else {
-          // Same currency: FROM amounts equal TO amounts
-          const fromTotAmt = toTotAmt
-          const fromTotLocalAmt = calculateMultiplierAmount(
-            fromTotAmt,
-            fromExhRate,
-            locAmtDec
-          )
-          form.setValue("fromTotAmt", fromTotAmt, { shouldValidate: false })
-          form.setValue("fromTotLocalAmt", fromTotLocalAmt, {
+          form.setValue("toTotAmt", toTotAmt, { shouldValidate: false })
+          form.setValue("toTotLocalAmt", fromTotLocalAmt, {
             shouldValidate: false,
           })
         }
 
-        // 3. Recalculate bank charge local amounts
+        // 2. Recalculate TO bank charge local amount
         const toBankChgAmt = form.getValues("toBankChgAmt") || 0
         const toBankChgLocalAmt = calculateMultiplierAmount(
           toBankChgAmt,
@@ -419,21 +405,11 @@ export default function BankTransferForm({
         form.setValue("toBankChgLocalAmt", toBankChgLocalAmt, {
           shouldValidate: false,
         })
-
-        const fromBankChgAmt = form.getValues("fromBankChgAmt") || 0
-        const fromBankChgLocalAmt = calculateMultiplierAmount(
-          fromBankChgAmt,
-          fromExhRate,
-          locAmtDec
-        )
-        form.setValue("fromBankChgLocalAmt", fromBankChgLocalAmt, {
-          shouldValidate: false,
-        })
       } finally {
         isUpdatingAmounts.current = false
       }
     },
-    [form, amtDec, locAmtDec]
+    [form, locAmtDec]
   )
 
   // STEP 1: FROM Total Amount Handler (Enhanced Debugging)
@@ -741,25 +717,21 @@ export default function BankTransferForm({
             />
 
             {/* Cheque No - Only show when payment type is cheque */}
-            {isChequePayment && (
-              <CustomInput
-                form={form}
-                name="chequeNo"
-                label="Cheque No"
-                isRequired={true}
-              />
-            )}
 
-            {/* Cheque Date - Only show when payment type is cheque */}
-            {isChequePayment && (
-              <CustomDateNew
-                form={form}
-                name="chequeDate"
-                label="Cheque Date"
-                isRequired={true}
-                isFutureShow={true}
-              />
-            )}
+            <CustomInput
+              form={form}
+              name="chequeNo"
+              label="Cheque No"
+              isRequired={false}
+            />
+
+            <CustomDateNew
+              form={form}
+              name="chequeDate"
+              label="Cheque Date"
+              isRequired={false}
+              isFutureShow={true}
+            />
 
             {/* JOB-SPECIFIC MODE: Job Order → Task → Service */}
             {visible?.m_JobOrderId &&

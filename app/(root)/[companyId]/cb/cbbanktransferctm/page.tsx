@@ -719,14 +719,14 @@ export default function CbBankTransferCtmPage() {
               parseDate(apiCbBankTransferCtm.trnDate as string) || new Date(),
               dateFormat
             )
-          : dateFormat,
+          : format(new Date(), dateFormat),
         accountDate: apiCbBankTransferCtm.accountDate
           ? format(
               parseDate(apiCbBankTransferCtm.accountDate as string) ||
                 new Date(),
               dateFormat
             )
-          : dateFormat,
+          : format(new Date(), dateFormat),
         paymentTypeId: apiCbBankTransferCtm.paymentTypeId ?? 0,
         chequeNo: apiCbBankTransferCtm.chequeNo ?? "",
         chequeDate: apiCbBankTransferCtm.chequeDate
