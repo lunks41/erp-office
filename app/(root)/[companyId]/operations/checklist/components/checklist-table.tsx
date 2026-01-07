@@ -139,9 +139,9 @@ export function ChecklistTable({
             </button>
           )
         },
-        size: 180,
-        minSize: 100,
-        maxSize: 140,
+        size: 160,
+        minSize: 120,
+        maxSize: 180,
       },
       {
         accessorKey: "jobOrderDate",
@@ -156,10 +156,149 @@ export function ChecklistTable({
         minSize: 70,
       },
       {
+        accessorKey: "vesselName",
+        header: "Vessel",
+        size: 130,
+        minSize: 90,
+      },
+      {
+        accessorKey: "portName",
+        header: "Port",
+        size: 120,
+        minSize: 80,
+      },
+
+      {
         accessorKey: "customerName",
         header: "Customer",
         size: 180,
         minSize: 100,
+      },
+
+      {
+        accessorKey: "currencyCode",
+        header: "Curr.",
+        size: 50,
+        minSize: 50,
+      },
+      {
+        accessorKey: "jobStatusName",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.getValue("jobStatusName") as string
+          const statusColors: Record<string, string> = {
+            Pending: "bg-yellow-100 text-yellow-800",
+            Completed: "bg-blue-100 text-blue-800",
+            Cancelled: "bg-red-100 text-red-800",
+            "Cancel with Service": "bg-orange-100 text-orange-800",
+            Confirmed: "bg-green-100 text-green-800",
+            Posted: "bg-purple-100 text-purple-800",
+            Delivered: "bg-green-100 text-green-800",
+            Approved: "bg-blue-100 text-blue-800",
+          }
+          return (
+            <Badge
+              className={`px-1.5 py-0.5 text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-800"}`}
+            >
+              {status}
+            </Badge>
+          )
+        },
+        size: 90,
+        minSize: 70,
+      },
+      {
+        accessorKey: "etaDate",
+        header: "ETA",
+        cell: ({ row }) => {
+          const date = row.original.etaDate
+            ? new Date(row.original.etaDate)
+            : null
+          return date && isValid(date) ? format(date, datetimeFormat) : "-"
+        },
+        size: 160,
+        minSize: 120,
+      },
+      {
+        accessorKey: "etdDate",
+        header: "ETD",
+        cell: ({ row }) => {
+          const date = row.original.etdDate
+            ? new Date(row.original.etdDate)
+            : null
+          return date && isValid(date) ? format(date, datetimeFormat) : "-"
+        },
+        size: 160,
+        minSize: 120,
+      },
+      {
+        accessorKey: "vesselDistance",
+        header: "Dist. In.",
+        cell: ({ row }) => {
+          const distance = row.getValue("vesselDistance") as
+            | number
+            | null
+            | undefined
+          if (distance === null || distance === undefined || distance === 0) {
+            return "-"
+          }
+          return (
+            <span>
+              {distance} <span className="text-xs">N Miles</span>
+            </span>
+          )
+        },
+        size: 70,
+        minSize: 50,
+      },
+
+      {
+        accessorKey: "remarks",
+        header: "Remarks",
+        size: 100,
+        minSize: 50,
+      },
+      {
+        accessorKey: "lastPortName",
+        header: "Last Port",
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "nextPortName",
+        header: "Next Port",
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "istaxable",
+        header: "Tax",
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            {row.getValue("istaxable") ? (
+              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+            ) : (
+              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        ),
+        size: 80,
+        minSize: 50,
+      },
+      {
+        accessorKey: "isPost",
+        header: "Post",
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            {row.getValue("isPost") ? (
+              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+            ) : (
+              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        ),
+        size: 80,
+        minSize: 50,
       },
       {
         accessorKey: "billName",
@@ -241,129 +380,6 @@ export function ChecklistTable({
         minSize: 150,
       },
       {
-        accessorKey: "currencyCode",
-        header: "Curr.",
-        size: 50,
-        minSize: 50,
-      },
-      {
-        accessorKey: "portName",
-        header: "Port",
-        size: 100,
-        minSize: 80,
-      },
-      {
-        accessorKey: "vesselName",
-        header: "Vessel",
-        size: 110,
-        minSize: 90,
-      },
-      {
-        accessorKey: "jobStatusName",
-        header: "Status",
-        cell: ({ row }) => {
-          const status = row.getValue("jobStatusName") as string
-          const statusColors: Record<string, string> = {
-            Pending: "bg-yellow-100 text-yellow-800",
-            Completed: "bg-blue-100 text-blue-800",
-            Cancelled: "bg-red-100 text-red-800",
-            "Cancel with Service": "bg-orange-100 text-orange-800",
-            Confirmed: "bg-green-100 text-green-800",
-            Posted: "bg-purple-100 text-purple-800",
-            Delivered: "bg-green-100 text-green-800",
-            Approved: "bg-blue-100 text-blue-800",
-          }
-          return (
-            <Badge
-              className={`px-1.5 py-0.5 text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-800"}`}
-            >
-              {status}
-            </Badge>
-          )
-        },
-        size: 90,
-        minSize: 70,
-      },
-      {
-        accessorKey: "etaDate",
-        header: "ETA",
-        cell: ({ row }) => {
-          const date = row.original.etaDate
-            ? new Date(row.original.etaDate)
-            : null
-          return date && isValid(date) ? format(date, datetimeFormat) : "-"
-        },
-        size: 140,
-        minSize: 120,
-      },
-      {
-        accessorKey: "etdDate",
-        header: "ETD",
-        cell: ({ row }) => {
-          const date = row.original.etdDate
-            ? new Date(row.original.etdDate)
-            : null
-          return date && isValid(date) ? format(date, datetimeFormat) : "-"
-        },
-        size: 140,
-        minSize: 120,
-      },
-      {
-        accessorKey: "vesselDistance",
-        header: "Dist. In.",
-        size: 70,
-        minSize: 50,
-      },
-
-      {
-        accessorKey: "remarks",
-        header: "Remarks",
-        size: 100,
-        minSize: 50,
-      },
-      {
-        accessorKey: "lastPortName",
-        header: "Last Port",
-        size: 100,
-        minSize: 80,
-      },
-      {
-        accessorKey: "nextPortName",
-        header: "Next Port",
-        size: 100,
-        minSize: 80,
-      },
-      {
-        accessorKey: "istaxable",
-        header: "Tax",
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            {row.getValue("istaxable") ? (
-              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
-            ) : (
-              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
-            )}
-          </div>
-        ),
-        size: 80,
-        minSize: 50,
-      },
-      {
-        accessorKey: "isPost",
-        header: "Post",
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            {row.getValue("isPost") ? (
-              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
-            ) : (
-              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
-            )}
-          </div>
-        ),
-        size: 80,
-        minSize: 50,
-      },
-      {
         accessorKey: "isActive",
         header: "Status",
         cell: ({ row }) => (
@@ -441,7 +457,7 @@ export function ChecklistTable({
   )
 
   return (
-    <div>
+    <div className="text-xs">
       <JobTable
         data={filteredData}
         columns={columns}
