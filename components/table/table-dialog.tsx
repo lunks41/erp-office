@@ -188,10 +188,10 @@ export function DialogDataTable<T>({
       return
     }
 
-    // Only sync if initialSearchValue is provided and different from current searchQuery
+    // Only sync if initialSearchValue is provided and different from tracked searchQuery
     if (
       initialSearchValue !== undefined &&
-      initialSearchValue !== searchQuery
+      initialSearchValue !== searchQueryRef.current
     ) {
       setSearchQuery(initialSearchValue)
       searchQueryRef.current = initialSearchValue

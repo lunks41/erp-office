@@ -109,7 +109,7 @@ export default function InvoiceTable({
     ) {
       setSearchQuery(initialFilters.search)
     }
-  }, [initialFilters?.search])
+  }, [initialFilters?.search, searchQuery])
 
   // Data fetching - only after search button is clicked OR if dates are already set
   const {
