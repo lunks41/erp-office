@@ -188,10 +188,10 @@ export function DialogDataTable<T>({
       return
     }
 
-    // Only sync if initialSearchValue is provided and different from current searchQuery
+    // Only sync if initialSearchValue is provided and different from tracked searchQuery
     if (
       initialSearchValue !== undefined &&
-      initialSearchValue !== searchQuery
+      initialSearchValue !== searchQueryRef.current
     ) {
       setSearchQuery(initialSearchValue)
       searchQueryRef.current = initialSearchValue
@@ -602,7 +602,7 @@ export function DialogDataTable<T>({
                 {Array.from({
                   length: (() => {
                     const dataRows = table.getRowModel().rows.length
-                    return dataRows >= 5 ? 0 : Math.max(0, 5 - dataRows)
+                    return dataRows >= 18 ? 0 : Math.max(0, 18 - dataRows)
                   })(),
                 }).map((_, index) => (
                   <TableRow key={`empty-${index}`} className="h-7">

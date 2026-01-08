@@ -1496,7 +1496,7 @@ export default function InvoicePage() {
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Header */}
-          <div className="bg-background flex flex-col gap-1 border-b p-2">
+          <div className="bg-background flex flex-col gap-3 border-b p-2">
             <DialogTitle className="text-2xl font-bold tracking-tight">
               Invoice List
             </DialogTitle>

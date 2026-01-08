@@ -111,7 +111,7 @@ export function SortableTableHeader<TData>({
         ...style,
       }}
       className={cn(
-        "bg-muted group hover:bg-muted/80 relative transition-colors",
+        "bg-muted group hover:bg-muted/80 transition-colors sticky top-0 z-30",
         isDragging && "z-10 cursor-grabbing",
         className
       )}

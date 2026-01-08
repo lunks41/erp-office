@@ -61,10 +61,10 @@ export * from "./worklocation"
 
 // AR schemas
 export * from "./ar-receipt"
-export * from "./ar-creditnote"
+export * from "./ar-creditNote"
 export * from "./ar-invoice"
 export * from "./ar-invoicectm"
-export * from "./ar-debitnote"
+export * from "./ar-debitNote"
 export * from "./ar-adjustment"
 export * from "./ar-refund"
 export * from "./ar-docsetoff"
