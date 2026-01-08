@@ -35,7 +35,6 @@ import { TableName } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -470,14 +469,19 @@ export function AccountBaseTable<T>({
         />
       )}
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div
+        className="relative overflow-x-auto overflow-y-auto rounded-lg border"
+        style={{ maxHeight: maxHeight, scrollbarGutter: "stable" }}
+      >
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="overflow-y-auto" style={{ maxHeight: maxHeight }}>
-            <Table className="w-full table-fixed border-collapse">
+          <table
+            className="w-full table-fixed border-collapse text-xs"
+            style={{ minWidth: "100%" }}
+          >
               <colgroup>
                 {table.getAllLeafColumns().map((col) => (
                   <col
@@ -505,6 +509,10 @@ export function AccountBaseTable<T>({
                               width: header.getSize(),
                               minWidth: header.column.columnDef.minSize,
                               maxWidth: header.column.columnDef.maxSize,
+                              position: "sticky",
+                              top: 0,
+                              left: 0,
+                              zIndex: 50,
                             }}
                             className="bg-muted group hover:bg-muted/80 relative transition-colors"
                           >
@@ -630,8 +638,7 @@ export function AccountBaseTable<T>({
                   )}
                 </SortableContext>
               </TableBody>
-            </Table>
-          </div>
+            </table>
         </DndContext>
       </div>
     </div>

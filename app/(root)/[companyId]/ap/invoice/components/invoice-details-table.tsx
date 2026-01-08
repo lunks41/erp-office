@@ -74,16 +74,16 @@ export default function InvoiceDetailsTable({
   const columns: ColumnDef<IApInvoiceDt>[] = [
     {
       accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
+      header: "Item No.",
+      size: 110,
       cell: ({ row }: { row: { original: IApInvoiceDt } }) => (
         <div className="text-right">{row.original.itemNo}</div>
       ),
     },
     {
       accessorKey: "seqNo",
-      header: "Seq No",
-      size: 60,
+      header: "Seq. No.",
+      size: 110,
       cell: ({ row }: { row: { original: IApInvoiceDt } }) => (
         <div className="text-right">{row.original.seqNo}</div>
       ),
@@ -93,26 +93,26 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "productName",
             header: "Product",
-            size: 100,
+            size: 105,
           },
         ]
       : []),
     {
       accessorKey: "glCode",
       header: "Code",
-      size: 100,
+      size: 90,
     },
     {
       accessorKey: "glName",
       header: "Account",
-      size: 100,
+      size: 110,
     },
     ...(visible?.m_DepartmentId
       ? [
           {
             accessorKey: "departmentName",
             header: "Department",
-            size: 100,
+            size: 130,
           },
         ]
       : []),
@@ -121,13 +121,13 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "jobOrderNo",
             header: "Job Order",
-            size: 100,
+            size: 120,
           },
 
           {
             accessorKey: "taskName",
             header: "Task",
-            size: 100,
+            size: 90,
           },
 
           {
@@ -142,7 +142,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "remarks",
             header: "Remarks",
-            size: 200,
+            size: 150,
           },
         ]
       : []),
@@ -151,7 +151,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "qty",
             header: "Qty",
-            size: 60,
+            size: 80,
             cell: ({ row }: { row: { original: IApInvoiceDt } }) => (
               <div className="text-right">{row.original.qty}</div>
             ),
@@ -164,7 +164,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "uomName",
             header: "UOM",
-            size: 100,
+            size: 95,
           },
         ]
       : []),
@@ -185,7 +185,7 @@ export default function InvoiceDetailsTable({
     {
       accessorKey: "totAmt",
       header: "Amount",
-      size: 100,
+      size: 105,
       cell: ({ row }: CellContext<IApInvoiceDt, unknown>) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
@@ -198,7 +198,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "gstPercentage",
             header: "VAT %",
-            size: 50,
+            size: 95,
             cell: ({ row }: CellContext<IApInvoiceDt, unknown>) => (
               <div className="text-right">
                 {formatNumber(row.getValue("gstPercentage"), 2)}
@@ -208,7 +208,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "gstAmt",
             header: "VAT Amount",
-            size: 100,
+            size: 130,
             cell: ({ row }: CellContext<IApInvoiceDt, unknown>) => (
               <div className="text-right">
                 {formatNumber(row.getValue("gstAmt"), amtDec)}
@@ -232,7 +232,7 @@ export default function InvoiceDetailsTable({
     {
       accessorKey: "totLocalAmt",
       header: "Local Amount",
-      size: 100,
+      size: 135,
       cell: ({ row }: CellContext<IApInvoiceDt, unknown>) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
@@ -258,7 +258,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "gstName",
             header: "Gst",
-            size: 100,
+            size: 80,
           },
         ]
       : []),
@@ -267,7 +267,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "gstLocalAmt",
             header: "GST Local Amount",
-            size: 100,
+            size: 170,
             cell: ({ row }: CellContext<IApInvoiceDt, unknown>) => (
               <div className="text-right">
                 {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
@@ -314,7 +314,7 @@ export default function InvoiceDetailsTable({
           {
             accessorKey: "vesselName",
             header: "Vessel",
-            size: 200,
+            size: 90,
           },
         ]
       : []),
@@ -339,7 +339,7 @@ export default function InvoiceDetailsTable({
     {
       accessorKey: "docItemNo",
       header: "Doc Item No",
-      size: 80,
+      size: 100,
       cell: ({ row }: { row: { original: IApInvoiceDt } }) => (
         <div className="text-right">{row.original.docItemNo}</div>
       ),
