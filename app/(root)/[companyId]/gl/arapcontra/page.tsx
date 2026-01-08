@@ -90,7 +90,7 @@ export default function ArapcontraPage() {
   }, [searchParams])
 
   const autoLoadStorageKey = useMemo(
-    () => `history-doc:/${companyId}/ap/payment`,
+    () => `history-doc:/${companyId}/gl/arapcontra`,
     [companyId]
   )
 
@@ -1363,7 +1363,7 @@ export default function ArapcontraPage() {
         }}
       >
         <DialogContent
-          className="@container flex h-auto w-[80vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
+          className="@container flex h-auto w-[90vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Header */}

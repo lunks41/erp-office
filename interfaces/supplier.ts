@@ -77,6 +77,7 @@ export interface ISupplierContactFilter {
 export interface ISupplierAddress {
   supplierId: number
   addressId: number
+  billName: string
   address1: string
   address2: string
   address3: string

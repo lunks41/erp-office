@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
-import { format, startOfMonth, subMonths } from "date-fns"
+import { addMonths, format, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { formatDateForApi } from "@/lib/date-utils"
@@ -117,8 +117,17 @@ export default function ReportsPage() {
     },
   })
 
+  // Handle fromDate change and automatically set toDate to 2 months later
+  const handleFromDateChange = (date: Date | null) => {
+    if (date) {
+      const twoMonthsLater = addMonths(date, 2)
+      const formattedToDate = format(twoMonthsLater, dateFormat)
+      form.setValue("toDate", formattedToDate)
+    }
+  }
+
   // Handle asOfDate change and automatically set toDate to the same value
-  const _handleAsDateChange = (date: Date | null) => {
+  const handleAsDateChange = (date: Date | null) => {
     if (date) {
       const formattedDate = format(date, dateFormat)
       form.setValue("asOfDate", formattedDate)
@@ -378,14 +387,58 @@ export default function ReportsPage() {
                   isRequired={true}
                 />
 
+                {/* Date Selection Checkboxes */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center space-x-1.5">
+                    <Checkbox
+                      id="useTrsDate"
+                      checked={form.watch("useTrsDate")}
+                      onCheckedChange={(checked) => {
+                        const isChecked = checked as boolean
+                        form.setValue("useTrsDate", isChecked)
+                        if (isChecked) {
+                          form.setValue("useAsDate", false)
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="useTrsDate"
+                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Trs Date:
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-1.5">
+                    <Checkbox
+                      id="useAsDate"
+                      checked={form.watch("useAsDate")}
+                      onCheckedChange={(checked) => {
+                        const isChecked = checked as boolean
+                        form.setValue("useAsDate", isChecked)
+                        if (isChecked) {
+                          form.setValue("useTrsDate", false)
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="useAsDate"
+                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      As Date:
+                    </label>
+                  </div>
+                </div>
+
                 {/* Date Range - Show From/To Date for TrsDate reports */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <CustomDateNew
                     form={form}
                     name="fromDate"
                     label="From Date:"
                     isRequired={false}
                     isDisabled={form.watch("useAsDate")}
+                    onChangeEvent={handleFromDateChange}
                   />
                   <CustomDateNew
                     form={form}
@@ -393,18 +446,20 @@ export default function ReportsPage() {
                     label="To Date:"
                     isRequired={false}
                     isDisabled={form.watch("useAsDate")}
+                    isFutureShow={true}
                     onChangeEvent={handleToDateChange}
                   />
                 </div>
 
                 {/* As Date - Show only for non-TrsDate reports */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <CustomDateNew
                     form={form}
                     name="asOfDate"
                     label="As Date:"
                     isRequired={false}
                     isDisabled={form.watch("useTrsDate")}
+                    onChangeEvent={handleAsDateChange}
                   />
                 </div>
 

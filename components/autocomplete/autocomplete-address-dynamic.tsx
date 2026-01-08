@@ -113,7 +113,12 @@ export default function DynamicAddressAutocomplete<
     () =>
       addresses.map((address: AddressType) => ({
         value: address.addressId.toString(),
-        label: address.address1,
+        label:
+          address.billName +
+          " - " +
+          address.address1 +
+          " - " +
+          address.address2,
       })),
     [addresses]
   )

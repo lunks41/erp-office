@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ICbBankTransfer, ICbBankTransferFilter } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
-import { format, subMonths } from "date-fns"
+import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { CbBankTransfer } from "@/lib/api-routes"
-import { formatDateForApi } from "@/lib/date-utils"
+import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
+import { formatNumber } from "@/lib/format-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
-import { useGetWithDates } from "@/hooks/use-common"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { Spinner } from "@/components/ui/spinner"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
@@ -20,61 +22,127 @@ export interface BankTransferTableProps {
   ) => void
   onFilterChange: (filters: ICbBankTransferFilter) => void
   initialFilters?: ICbBankTransferFilter
+  pageSize: number
 }
+
+const DEFAULT_PAGE_SIZE = 15
 
 export default function BankTransferTable({
   onBankTransferSelect,
   onFilterChange,
   initialFilters,
+  pageSize: _pageSize,
 }: BankTransferTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 9
-  const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
-  //const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+  const dateFormat = decimals[0]?.dateFormat || clientDateFormat
+  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const moduleId = ModuleId.cb
   const transactionId = CBTransactionId.cbbanktransfer
 
+  const today = useMemo(() => new Date(), [])
+  const defaultStartDate = useMemo(
+    () => format(startOfMonth(subMonths(today, 1)), "yyyy-MM-dd"),
+    [today]
+  )
+  const defaultEndDate = useMemo(
+    () => format(lastDayOfMonth(today), "yyyy-MM-dd"),
+    [today]
+  )
+
   const form = useForm({
     defaultValues: {
-      startDate:
-        initialFilters?.startDate ||
-        format(subMonths(new Date(), 1), "yyyy-MM-dd"),
-      endDate: initialFilters?.endDate || format(new Date(), "yyyy-MM-dd"),
+      startDate: initialFilters?.startDate || defaultStartDate,
+      endDate: initialFilters?.endDate || defaultEndDate,
     },
   })
 
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search || "")
-  const [currentPage] = useState(1)
-  const [pageSize] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState<number>(
+    typeof _pageSize === "number" && _pageSize > 0
+      ? _pageSize
+      : DEFAULT_PAGE_SIZE
+  )
 
-  // Data fetching - only when table is opened
+  // State to track if search has been clicked
+  const [hasSearched, setHasSearched] = useState(false)
+  // Store the actual search dates - initialize from initialFilters if available
+  const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
+    initialFilters?.startDate
+      ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+      : defaultStartDate
+  )
+  const [searchEndDate, setSearchEndDate] = useState<string | undefined>(
+    initialFilters?.endDate
+      ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+      : defaultEndDate
+  )
+
+  // Update form values when initialFilters change (when dialog reopens)
+  useEffect(() => {
+    form.setValue("startDate", initialFilters?.startDate || defaultStartDate)
+    form.setValue("endDate", initialFilters?.endDate || defaultEndDate)
+    setSearchStartDate(
+      initialFilters?.startDate
+        ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+        : defaultStartDate
+    )
+    setSearchEndDate(
+      initialFilters?.endDate
+        ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+        : defaultEndDate
+    )
+
+    const sizeFromFilters =
+      typeof initialFilters?.pageSize === "number" &&
+      initialFilters.pageSize > 0
+        ? initialFilters.pageSize
+        : typeof _pageSize === "number" && _pageSize > 0
+          ? _pageSize
+          : DEFAULT_PAGE_SIZE
+    setPageSize(sizeFromFilters)
+
+    // Update searchQuery when initialFilters change
+    if (initialFilters?.search !== undefined) {
+      setSearchQuery(initialFilters.search)
+    }
+  }, [initialFilters, form, defaultStartDate, defaultEndDate, _pageSize])
+
+  // Update searchQuery when initialFilters.search changes (separate effect to avoid conflicts)
+  useEffect(() => {
+    if (
+      initialFilters?.search !== undefined &&
+      initialFilters.search !== searchQuery
+    ) {
+      setSearchQuery(initialFilters.search)
+    }
+  }, [initialFilters?.search, searchQuery])
+
+  // Data fetching - only after search button is clicked OR if dates are already set
   const {
     data: bankTransfersResponse,
     isLoading: isLoadingBankTransfers,
     isRefetching: isRefetchingBankTransfers,
     refetch: refetchBankTransfers,
-  } = useGetWithDates<ICbBankTransfer>(
+  } = useGetWithDatesAndPagination<ICbBankTransfer>(
     `${CbBankTransfer.get}`,
     TableName.cbBankTransfer,
     searchQuery,
-    formatDateForApi(form.watch("startDate")) || "",
-    formatDateForApi(form.watch("endDate")) || "",
+    searchStartDate,
+    searchEndDate,
+    currentPage,
+    pageSize,
     undefined, // options
-    true // enabled: Fetch when table is opened
+    hasSearched || Boolean(searchStartDate && searchEndDate) // enabled: If searched OR dates already set
   )
 
   const data = bankTransfersResponse?.data || []
+  const totalRecords = bankTransfersResponse?.totalRecords || data.length
   const isLoading = isLoadingBankTransfers || isRefetchingBankTransfers
-
-  const formatNumber = (value: number, decimals: number) => {
-    return value.toLocaleString(undefined, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    })
-  }
 
   const columns: ColumnDef<ICbBankTransfer>[] = [
     {
@@ -152,7 +220,7 @@ export default function BankTransferTable({
       header: "From Exchange Rate",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.fromExhRate || 0, exhRateDec)}
+          {formatNumber(row.getValue("fromExhRate"), exhRateDec)}
         </div>
       ),
     },
@@ -169,7 +237,7 @@ export default function BankTransferTable({
       header: "From Bank Charge Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.fromBankChgAmt || 0, amtDec)}
+          {formatNumber(row.getValue("fromBankChgAmt"), amtDec)}
         </div>
       ),
     },
@@ -178,7 +246,7 @@ export default function BankTransferTable({
       header: "From Bank Charge Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.fromBankChgLocalAmt || 0, locAmtDec)}
+          {formatNumber(row.getValue("fromBankChgLocalAmt"), locAmtDec)}
         </div>
       ),
     },
@@ -187,7 +255,7 @@ export default function BankTransferTable({
       header: "From Total Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.fromTotAmt || 0, amtDec)}
+          {formatNumber(row.getValue("fromTotAmt"), amtDec)}
         </div>
       ),
     },
@@ -196,7 +264,7 @@ export default function BankTransferTable({
       header: "From Total Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.fromTotLocalAmt || 0, locAmtDec)}
+          {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
         </div>
       ),
     },
@@ -221,7 +289,7 @@ export default function BankTransferTable({
       header: "To Exchange Rate",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.toExhRate || 0, exhRateDec)}
+          {formatNumber(row.getValue("toExhRate"), exhRateDec)}
         </div>
       ),
     },
@@ -238,7 +306,7 @@ export default function BankTransferTable({
       header: "To Bank Charge Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.toBankChgAmt || 0, amtDec)}
+          {formatNumber(row.getValue("toBankChgAmt"), amtDec)}
         </div>
       ),
     },
@@ -247,7 +315,7 @@ export default function BankTransferTable({
       header: "To Bank Charge Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.toBankChgLocalAmt || 0, locAmtDec)}
+          {formatNumber(row.getValue("toBankChgLocalAmt"), locAmtDec)}
         </div>
       ),
     },
@@ -256,7 +324,7 @@ export default function BankTransferTable({
       header: "To Total Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.toTotAmt || 0, amtDec)}
+          {formatNumber(row.getValue("toTotAmt"), amtDec)}
         </div>
       ),
     },
@@ -265,7 +333,7 @@ export default function BankTransferTable({
       header: "To Total Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.toTotLocalAmt || 0, locAmtDec)}
+          {formatNumber(row.getValue("toTotLocalAmt"), locAmtDec)}
         </div>
       ),
     },
@@ -274,7 +342,7 @@ export default function BankTransferTable({
       header: "Bank Exchange Rate",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.bankExhRate || 0, exhRateDec)}
+          {formatNumber(row.getValue("bankExhRate"), exhRateDec)}
         </div>
       ),
     },
@@ -283,7 +351,7 @@ export default function BankTransferTable({
       header: "Bank Total Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.bankTotAmt || 0, amtDec)}
+          {formatNumber(row.getValue("bankTotAmt"), amtDec)}
         </div>
       ),
     },
@@ -292,7 +360,7 @@ export default function BankTransferTable({
       header: "Bank Total Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.bankTotLocalAmt || 0, locAmtDec)}
+          {formatNumber(row.getValue("bankTotLocalAmt"), locAmtDec)}
         </div>
       ),
     },
@@ -301,7 +369,7 @@ export default function BankTransferTable({
       header: "Exchange Gain/Loss",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.original.exhGainLoss || 0, amtDec)}
+          {formatNumber(row.getValue("exhGainLoss"), amtDec)}
         </div>
       ),
     },
@@ -324,7 +392,7 @@ export default function BankTransferTable({
         const date = row.original.createDate
           ? new Date(row.original.createDate)
           : null
-        return date ? format(date, dateFormat) : "-"
+        return date ? format(date, datetimeFormat) : "-"
       },
     },
     {
@@ -338,7 +406,7 @@ export default function BankTransferTable({
         const date = row.original.editDate
           ? new Date(row.original.editDate)
           : null
-        return date ? format(date, dateFormat) : "-"
+        return date ? format(date, datetimeFormat) : "-"
       },
     },
     {
@@ -348,16 +416,66 @@ export default function BankTransferTable({
   ]
 
   const handleSearchInvoice = () => {
+    const startDate = form.getValues("startDate")
+    const endDate = form.getValues("endDate")
+
+    // Format dates to yyyy-MM-dd format for API
+    const formattedStartDate = formatDateForApi(startDate) || ""
+    const formattedEndDate = formatDateForApi(endDate) || ""
+
+    // Store the search dates (formatted for API)
+    setSearchStartDate(formattedStartDate)
+    setSearchEndDate(formattedEndDate)
+    setHasSearched(true) // Enable the query
+    setCurrentPage(1) // Reset to first page when searching
+
     const newFilters: ICbBankTransferFilter = {
-      startDate: form.getValues("startDate"),
-      endDate: form.getValues("endDate"),
+      startDate: startDate,
+      endDate: endDate,
       search: searchQuery,
-      sortBy: "invoiceNo",
+      sortBy: "transferNo",
       sortOrder: "asc",
-      pageNumber: currentPage,
+      pageNumber: 1, // Always start from page 1 when searching
       pageSize: pageSize,
     }
     onFilterChange(newFilters)
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // The query will automatically refetch due to query key change
+    if (onFilterChange) {
+      const newFilters: ICbBankTransferFilter = {
+        startDate: form.getValues("startDate"),
+        endDate: form.getValues("endDate"),
+        search: searchQuery,
+        sortBy: "transferNo",
+        sortOrder: "asc",
+        pageNumber: page,
+        pageSize: pageSize,
+      }
+      onFilterChange(newFilters)
+    }
+  }
+
+  const handlePageSizeChange = (size: number) => {
+    const nextSize =
+      typeof size === "number" && size > 0 ? size : DEFAULT_PAGE_SIZE
+    setPageSize(nextSize)
+    setCurrentPage(1) // Reset to first page when changing page size
+    // The query will automatically refetch due to query key change
+    if (onFilterChange) {
+      const newFilters: ICbBankTransferFilter = {
+        startDate: form.getValues("startDate"),
+        endDate: form.getValues("endDate"),
+        search: searchQuery,
+        sortBy: "transferNo",
+        sortOrder: "asc",
+        pageNumber: 1,
+        pageSize: nextSize,
+      }
+      onFilterChange(newFilters)
+    }
   }
 
   const handleDialogFilterChange = (filters: {
@@ -382,65 +500,57 @@ export default function BankTransferTable({
     }
   }
 
-  // Update searchQuery when initialFilters.search changes
-  useEffect(() => {
-    if (
-      initialFilters?.search !== undefined &&
-      initialFilters.search !== searchQuery
-    ) {
-      setSearchQuery(initialFilters.search)
-    }
-  }, [initialFilters?.search, searchQuery])
-
-  // Show loading spinner while data is loading
-  if (isLoadingBankTransfers) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
-          <p className="mt-4 text-sm text-gray-600">
-            Loading bank transfers...
-          </p>
-          <p className="mt-2 text-xs text-gray-500">
-            Please wait while we fetch the bank transfer list
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="w-full overflow-auto">
-      <FormProvider {...form}>
-        <div className="mb-4 flex items-center gap-2">
-          {/* From Date */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">From Date:</span>
-            <CustomDateNew
-              form={form}
-              name="startDate"
-              isRequired={true}
-              size="sm"
-            />
-          </div>
+      {/* Compact Filter Section */}
+      <div className="bg-card mb-2 rounded-lg border p-3">
+        <FormProvider {...form}>
+          <div className="flex items-center gap-3">
+            {/* Date Filters */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-sm font-medium">
+                  From:
+                </span>
+                <CustomDateNew
+                  form={form}
+                  name="startDate"
+                  isRequired={true}
+                  size="sm"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-sm font-medium">
+                  To:
+                </span>
+                <CustomDateNew
+                  form={form}
+                  name="endDate"
+                  isRequired={true}
+                  size="sm"
+                />
+              </div>
+            </div>
 
-          {/* To Date */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">To Date:</span>
-            <CustomDateNew
-              form={form}
-              name="endDate"
-              isRequired={true}
+            {/* Search Button */}
+            <Button
+              variant="default"
               size="sm"
-            />
+              onClick={handleSearchInvoice}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Loading...
+                </>
+              ) : (
+                "Search"
+              )}
+            </Button>
           </div>
-
-          <Button variant="outline" size="sm" onClick={handleSearchInvoice}>
-            Search Bank Transfer
-          </Button>
-        </div>
-      </FormProvider>
-      <Separator className="mb-4" />
+        </FormProvider>
+      </div>
 
       <DialogDataTable
         data={data}
@@ -449,12 +559,40 @@ export default function BankTransferTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.cbBankTransfer}
-        emptyMessage="No data found."
+        emptyMessage="No bank transfers found matching your criteria. Try adjusting the date range or search terms."
         onRefreshAction={() => refetchBankTransfers()}
         onFilterChange={handleDialogFilterChange}
         initialSearchValue={initialFilters?.search}
         onRowSelect={(row) => onBankTransferSelect(row || undefined)}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalRecords={totalRecords}
+        serverSidePagination={true}
       />
+
+      <div className="mt-3 flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage <= 1 || isLoading}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-muted-foreground text-sm">
+          Page {currentPage}
+        </span>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={isLoading || currentPage * pageSize >= totalRecords}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 }

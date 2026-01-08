@@ -63,6 +63,7 @@ export interface IBankContactFilter {
 
 export interface IBankAddress {
   bankId: number
+  billName: string
   bankCode: string
   bankName: string
   addressId: number

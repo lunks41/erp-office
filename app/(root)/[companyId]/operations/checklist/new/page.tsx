@@ -653,7 +653,7 @@ export default function NewChecklistPage() {
                   <GeoLocationAutocomplete
                     form={form}
                     name="geoLocationId"
-                    label="GeoLocation"
+                    label="Calling Location"
                     isRequired={false}
                     onChangeEvent={handleGeoLocationChange}
                   />

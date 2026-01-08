@@ -1510,7 +1510,7 @@ export default function CbPettyCashPage() {
         }}
       >
         <DialogContent
-          className="@container flex h-auto w-[80vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
+          className="@container flex h-auto w-[90vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Header */}

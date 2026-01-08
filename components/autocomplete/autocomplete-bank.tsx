@@ -63,7 +63,7 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
     () =>
       banks.map((bank: IBankLookup) => ({
         value: bank.bankId.toString(),
-        label: bank.bankName,
+        label: bank.bankCode + " - " + bank.bankName,
       })),
     [banks]
   )
