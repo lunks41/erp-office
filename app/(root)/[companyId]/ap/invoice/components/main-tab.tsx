@@ -275,6 +275,7 @@ export default function Main({
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={handleDataReorder as (newData: IApInvoiceDt[]) => void}
         isCancelled={isCancelled}
+        maxHeight={300}
       />
 
       <DeleteConfirmation

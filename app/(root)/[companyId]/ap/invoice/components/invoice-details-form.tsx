@@ -1205,7 +1205,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 p-2 ${
+            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 p-2 gap-y-2 ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
@@ -1589,7 +1589,7 @@ const InvoiceDetailsForm = React.forwardRef<
                 label="Remarks"
                 isRequired={required?.m_Remarks}
                 className="col-span-2"
-                minRows={2}
+                minRows={1.31}
                 maxRows={6}
               />
             )}

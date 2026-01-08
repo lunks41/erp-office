@@ -19,6 +19,9 @@ interface InvoiceDetailsTableProps {
   onDataReorder?: (newData: IApInvoiceDt[]) => void
   visible: IVisibleFields
   isCancelled?: boolean
+  maxHeight?: number | string
+  visibleRows?: number
+  rowHeight?: number
 }
 
 export default function InvoiceDetailsTable({
@@ -31,11 +34,24 @@ export default function InvoiceDetailsTable({
   onDataReorder,
   visible,
   isCancelled = false,
+  maxHeight = 480,
+  visibleRows,
+  rowHeight = 36,
 }: InvoiceDetailsTableProps) {
   const [mounted, setMounted] = useState(false)
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
+
+  const headerHeight = 44
+  const computedMaxHeight =
+    typeof visibleRows === "number"
+      ? headerHeight + visibleRows * rowHeight
+      : maxHeight
+  const resolvedMaxHeight =
+    typeof computedMaxHeight === "number"
+      ? `${computedMaxHeight}px`
+      : computedMaxHeight
 
   useEffect(() => {
     setMounted(true)
@@ -336,28 +352,31 @@ export default function InvoiceDetailsTable({
 
   return (
     <div className="w-full px-2 pt-1 pb-2">
-      <AccountBaseTable
-        data={data}
-        columns={columns}
-        moduleId={ModuleId.ap}
-        transactionId={APTransactionId.invoice}
-        tableName={TableName.apInvoiceDt}
-        emptyMessage="No invoice details found."
-        accessorId="itemNo"
-        onRefreshAction={onRefreshAction}
-        onFilterChange={onFilterChange}
-        onBulkDeleteAction={handleBulkDelete}
-        onBulkSelectionChange={() => {}}
-        onDataReorder={onDataReorder}
-        onEditAction={onEditAction}
-        onDeleteAction={handleDelete}
-        showHeader={true}
-        showActions={true}
-        hideEdit={isCancelled}
-        hideDelete={isCancelled}
-        hideCheckbox={isCancelled}
-        disableOnAccountExists={false}
-      />
+      <div className="overflow-hidden">
+        <AccountBaseTable
+          data={data}
+          columns={columns}
+          moduleId={ModuleId.ap}
+          transactionId={APTransactionId.invoice}
+          tableName={TableName.apInvoiceDt}
+          emptyMessage="No invoice details found."
+          accessorId="itemNo"
+          onRefreshAction={onRefreshAction}
+          onFilterChange={onFilterChange}
+          onBulkDeleteAction={handleBulkDelete}
+          onBulkSelectionChange={() => {}}
+          onDataReorder={onDataReorder}
+          onEditAction={onEditAction}
+          onDeleteAction={handleDelete}
+          showHeader={true}
+          showActions={true}
+          hideEdit={isCancelled}
+          hideDelete={isCancelled}
+          hideCheckbox={isCancelled}
+          disableOnAccountExists={false}
+          maxHeight={resolvedMaxHeight}
+        />
+      </div>
     </div>
   )
 }

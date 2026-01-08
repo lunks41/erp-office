@@ -35,7 +35,7 @@ export default function CustomTextarea<T extends Record<string, unknown>>({
   isRequired = false,
   maxLength,
   showCharacterCount = false,
-  minRows = 2,
+  minRows = 1,
   maxRows = 6,
 }: CustomTextareaProps<T>) {
   return (

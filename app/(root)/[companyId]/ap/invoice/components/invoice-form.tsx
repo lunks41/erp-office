@@ -513,7 +513,7 @@ export default function InvoiceForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-12 rounded-md p-2"
       >
-        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-1">
+        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-0 pb-0 ">
           {/* Transaction Date */}
           {visible?.m_TrnDate && (
             <CustomDateNew
@@ -554,8 +554,8 @@ export default function InvoiceForm({
               onChangeEvent={handleSupplierChange}
             />
           )}
-
-          {/* customerInvoiceNo */}
+          {/*flag*/}
+          {/* customerInvoiceNo */} 
           <CustomInput
             form={form}
             name="suppInvoiceNo"
@@ -718,7 +718,7 @@ export default function InvoiceForm({
             name="remarks"
             label="Remarks"
             isRequired={required?.m_Remarks_Hd}
-            className="col-span-2"
+            className="col-span-3 pb-2"
           />
         </div>
 
@@ -727,18 +727,18 @@ export default function InvoiceForm({
             {/* Summary Box */}
         {/* Right Section: Summary Box */}
         <div className="col-span-2 ml-2 flex flex-col justify-start">
-          <div className="w-full rounded-md border border-blue-200 bg-blue-50 p-3 shadow-sm">
+          <div className="w-full rounded-md border border-blue-200 bg-gray-100 py-1.5 px-4 shadow-sm">
             {/* Header Row */}
-            <div className="mb-2 grid grid-cols-3 gap-x-4 border-b border-blue-300 pb-2 text-sm">
-              <div className="text-right font-bold text-blue-800">Trns</div>
+            <div className="mb-1 grid grid-cols-3 gap-x-4 border-b border-blue-300 text-sm">
+              <div className="text-left font-bold text-blue-800 px-1.5">Trns</div>
               <div className="text-center"></div>
-              <div className="text-right font-bold text-blue-800">Local</div>
+              <div className="text-right font-bold text-blue-800 px-1.5">Local</div>
             </div>
 
             {/* 3-column grid: [Amt] [Label] [Local] */}
             <div className="grid grid-cols-3 gap-x-4 text-sm">
               {/* Column 1: Foreign Amounts (Amt) */}
-              <div className="space-y-1 text-right">
+              <div className="space-y-1 text-left px-1.5">
                 <div className="font-medium text-gray-700">
                   {(form.watch("totAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
