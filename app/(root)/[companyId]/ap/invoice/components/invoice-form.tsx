@@ -513,7 +513,7 @@ export default function InvoiceForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-12 rounded-md p-2"
       >
-        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-0 pb-0 ">
+        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-0 pb-0">
           {/* Transaction Date */}
           {visible?.m_TrnDate && (
             <CustomDateNew
@@ -555,7 +555,7 @@ export default function InvoiceForm({
             />
           )}
           {/*flag*/}
-          {/* customerInvoiceNo */} 
+          {/* customerInvoiceNo */}
           <CustomInput
             form={form}
             name="suppInvoiceNo"
@@ -649,12 +649,12 @@ export default function InvoiceForm({
             />
           )}
 
-          {/* GST Claim Date */}
+          {/* VAT Claim Date */}
           {visible?.m_GstClaimDate && (
             <CustomDateNew
               form={form}
               name="gstClaimDate"
-              label="GST Claim Date"
+              label="VAT Claim Date"
               isRequired={false}
               isFutureShow={true}
             />
@@ -727,18 +727,22 @@ export default function InvoiceForm({
             {/* Summary Box */}
         {/* Right Section: Summary Box */}
         <div className="col-span-2 ml-2 flex flex-col justify-start">
-          <div className="w-full rounded-md border border-blue-200 bg-gray-100 py-1.5 px-4 shadow-sm">
+          <div className="w-full rounded-md border border-blue-200 bg-gray-100 px-4 py-1.5 shadow-sm">
             {/* Header Row */}
             <div className="mb-1 grid grid-cols-3 gap-x-4 border-b border-blue-300 text-sm">
-              <div className="text-left font-bold text-blue-800 px-1.5">Trns</div>
+              <div className="px-1.5 text-left font-bold text-blue-800">
+                Trns
+              </div>
               <div className="text-center"></div>
-              <div className="text-right font-bold text-blue-800 px-1.5">Local</div>
+              <div className="px-1.5 text-right font-bold text-blue-800">
+                Local
+              </div>
             </div>
 
             {/* 3-column grid: [Amt] [Label] [Local] */}
             <div className="grid grid-cols-3 gap-x-4 text-sm">
               {/* Column 1: Foreign Amounts (Amt) */}
-              <div className="space-y-1 text-left px-1.5">
+              <div className="space-y-1 px-1.5 text-left">
                 <div className="font-medium text-gray-700">
                   {(form.watch("totAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
@@ -796,10 +800,13 @@ export default function InvoiceForm({
                 </div>
                 {visible?.m_GstId && (
                   <div className="font-medium text-gray-700">
-                    {(form.watch("gstLocalAmt") || 0).toLocaleString(undefined, {
-                      minimumFractionDigits: locAmtDec,
-                      maximumFractionDigits: locAmtDec,
-                    })}
+                    {(form.watch("gstLocalAmt") || 0).toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: locAmtDec,
+                        maximumFractionDigits: locAmtDec,
+                      }
+                    )}
                   </div>
                 )}
                 <hr className="my-1 border-blue-300" />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { IArDebitNoteFilter, IArDebitNoteHd } from "@/interfaces"
+import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
@@ -22,6 +23,7 @@ export interface DebitNoteTableProps {
   initialFilters?: IArDebitNoteFilter
   pageSize: number
   onCloseAction?: () => void
+  visible?: IVisibleFields
 }
 
 export default function DebitNoteTable({
@@ -30,6 +32,7 @@ export default function DebitNoteTable({
   initialFilters,
   pageSize: _pageSize,
   onCloseAction,
+  visible,
 }: DebitNoteTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -144,6 +147,8 @@ export default function DebitNoteTable({
     {
       accessorKey: "paymentStatus",
       header: "Payment Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const balAmt = row.original.balAmt ?? 0
         const payAmt = row.original.payAmt ?? 0
@@ -199,16 +204,6 @@ export default function DebitNoteTable({
       header: "Reference No",
     },
     {
-      accessorKey: "trnDate",
-      header: "Transaction Date",
-      cell: ({ row }) => {
-        const date = row.original.trnDate
-          ? new Date(row.original.trnDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
@@ -219,15 +214,103 @@ export default function DebitNoteTable({
       },
     },
     {
-      accessorKey: "deliveryDate",
-      header: "Delivery Date",
-      cell: ({ row }) => {
-        const date = row.original.deliveryDate
-          ? new Date(row.original.deliveryDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
+      accessorKey: "customerCode",
+      header: "Customer Code",
+      size: 100,
+      minSize: 80,
     },
+    {
+      accessorKey: "customerName",
+      header: "Customer Name",
+    },
+    {
+      accessorKey: "currencyCode",
+      header: "Currency Code",
+      size: 80,
+      minSize: 60,
+    },
+    {
+      accessorKey: "totAmt",
+      header: "Total Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "gstAmt",
+      header: "VAT Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("gstAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totAmtAftGst",
+      header: "Total After GST",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totLocalAmt",
+      header: "Total Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "gstLocalAmt",
+      header: "GST Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totLocalAmtAftGst",
+      header: "Total Local After GST",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
+        </div>
+      ),
+    },
+    ...(visible?.m_TrnDate
+      ? [
+          {
+            accessorKey: "trnDate",
+            header: "Transaction Date",
+            cell: ({ row }) => {
+              const date = row.original.trnDate
+                ? new Date(row.original.trnDate)
+                : null
+              return date ? format(date, dateFormat) : "-"
+            },
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
+    ...(visible?.m_DeliveryDate
+      ? [
+          {
+            accessorKey: "deliveryDate",
+            header: "Delivery Date",
+            cell: ({ row }) => {
+              const date = row.original.deliveryDate
+                ? new Date(row.original.deliveryDate)
+                : null
+              return date ? format(date, dateFormat) : "-"
+            },
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
     {
       accessorKey: "dueDate",
       header: "Due Date",
@@ -237,18 +320,6 @@ export default function DebitNoteTable({
           : null
         return date ? format(date, dateFormat) : "-"
       },
-    },
-    {
-      accessorKey: "customerCode",
-      header: "Customer Code",
-    },
-    {
-      accessorKey: "customerName",
-      header: "Customer Name",
-    },
-    {
-      accessorKey: "currencyCode",
-      header: "Currency Code",
     },
     {
       accessorKey: "currencyName",
@@ -263,22 +334,26 @@ export default function DebitNoteTable({
         </div>
       ),
     },
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "ctyExhRate",
+            header: "Country Exchange Rate",
+            cell: ({ row }) => (
+              <div className="text-right">
+                {formatNumber(row.getValue("ctyExhRate"), exhRateDec)}
+              </div>
+            ),
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
     {
-      accessorKey: "ctyExhRate",
-      header: "Country Exchange Rate",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("ctyExhRate"), exhRateDec)}
-        </div>
-      ),
+      accessorKey: "debitTermCode",
+      header: "Debit Term Code",
     },
     {
-      accessorKey: "creditTermCode",
-      header: "Credit Term Code",
-    },
-    {
-      accessorKey: "creditTermName",
-      header: "Credit Term Name",
+      accessorKey: "debitTermName",
+      header: "Debit Term Name",
     },
     {
       accessorKey: "bankCode",
@@ -288,65 +363,54 @@ export default function DebitNoteTable({
       accessorKey: "bankName",
       header: "Bank Name",
     },
-    {
-      accessorKey: "totAmt",
-      header: "Total Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totLocalAmt",
-      header: "Total Local Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "gstAmt",
-      header: "VAT Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("gstAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totAmtAftGst",
-      header: "Total After GST",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
-        </div>
-      ),
-    },
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "totCtyAmt",
+            header: "Total Country Amount",
+            cell: ({ row }) => (
+              <div className="text-right">
+                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "gstCtyAmt",
+            header: "GST Country Amount",
+            cell: ({ row }) => (
+              <div className="text-right">
+                {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "totCtyAmtAftGst",
+            header: "Total Country After GST",
+            cell: ({ row }) => (
+              <div className="text-right">
+                {formatNumber(row.getValue("totCtyAmtAftGst"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
 
-    {
-      accessorKey: "remarks",
-      header: "Remarks",
-    },
+    ...(visible?.m_Remarks
+      ? [
+          {
+            accessorKey: "remarks",
+            header: "Remarks",
+          } as ColumnDef<IArDebitNoteHd>,
+        ]
+      : []),
     {
       accessorKey: "status",
       header: "Status",

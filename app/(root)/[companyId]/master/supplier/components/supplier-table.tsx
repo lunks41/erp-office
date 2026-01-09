@@ -183,6 +183,22 @@ export function SupplierTable({
       minSize: 50,
     },
     {
+      accessorKey: "isDiffGstGl",
+      header: "Diff VAT GL",
+      cell: ({ row }) => (
+        <Badge variant={row.getValue("isDiffGstGl") ? "default" : "secondary"}>
+          {row.getValue("isDiffGstGl") ? (
+            <IconCircleCheckFilled className="mr-1 fill-green-500 dark:fill-green-400" />
+          ) : (
+            <IconSquareRoundedXFilled className="mr-1 fill-red-500 dark:fill-red-400" />
+          )}
+          {row.getValue("isDiffGstGl") ? "Yes" : "No"}
+        </Badge>
+      ),
+      size: 120,
+      minSize: 50,
+    },
+    {
       accessorKey: "remarks",
       header: "Remarks",
       size: 250,

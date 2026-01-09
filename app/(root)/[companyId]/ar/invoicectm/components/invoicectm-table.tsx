@@ -157,7 +157,7 @@ export default function InvoiceCtmTable({
     },
     {
       accessorKey: "paymentStatus",
-      header: "Payment Status",
+      header: "Pay Status",
       cell: ({ row }) => {
         const balAmt = row.original.balAmt ?? 0
         const payAmt = row.original.payAmt ?? 0

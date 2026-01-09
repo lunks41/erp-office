@@ -144,6 +144,8 @@ export default function DocSetOffTable({
     {
       accessorKey: "paymentStatus",
       header: "Payment Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const balTotAmt = row.original.unAllocTotAmt ?? 0
         const payAmt = row.original.allocTotAmt ?? 0
@@ -199,16 +201,6 @@ export default function DocSetOffTable({
       header: "Reference No",
     },
     {
-      accessorKey: "trnDate",
-      header: "Transaction Date",
-      cell: ({ row }) => {
-        const date = row.original.trnDate
-          ? new Date(row.original.trnDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
@@ -218,10 +210,11 @@ export default function DocSetOffTable({
         return date ? format(date, dateFormat) : "-"
       },
     },
-
     {
       accessorKey: "supplierCode",
       header: "Supplier Code",
+      size: 100,
+      minSize: 80,
     },
     {
       accessorKey: "supplierName",
@@ -230,6 +223,18 @@ export default function DocSetOffTable({
     {
       accessorKey: "currencyCode",
       header: "Currency Code",
+      size: 80,
+      minSize: 60,
+    },
+    {
+      accessorKey: "trnDate",
+      header: "Transaction Date",
+      cell: ({ row }) => {
+        const date = row.original.trnDate
+          ? new Date(row.original.trnDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
     },
     {
       accessorKey: "currencyName",
@@ -244,7 +249,6 @@ export default function DocSetOffTable({
         </div>
       ),
     },
-
     {
       accessorKey: "bankCode",
       header: "Bank Code",

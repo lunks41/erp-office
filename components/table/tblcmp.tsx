@@ -409,7 +409,7 @@ export default function InvoiceTable({
       },
       {
         accessorKey: "paymentStatusDisplay",
-        header: "Payment Status",
+        header: "Pay Status",
         size: 160,
         minSize: 140,
         maxSize: 220,

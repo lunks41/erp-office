@@ -155,6 +155,8 @@ export default function RefundTable({
     {
       accessorKey: "paymentStatus",
       header: "Payment Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const payAmt = row.original.allocTotAmt ?? 0
         const isCancel = row.original.isCancel ?? false
@@ -209,16 +211,6 @@ export default function RefundTable({
       header: "Reference No",
     },
     {
-      accessorKey: "trnDate",
-      header: "Transaction Date",
-      cell: ({ row }) => {
-        const date = row.original.trnDate
-          ? new Date(row.original.trnDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
@@ -228,10 +220,11 @@ export default function RefundTable({
         return date ? format(date, dateFormat) : "-"
       },
     },
-
     {
       accessorKey: "customerCode",
       header: "Customer Code",
+      size: 100,
+      minSize: 80,
     },
     {
       accessorKey: "customerName",
@@ -240,6 +233,36 @@ export default function RefundTable({
     {
       accessorKey: "currencyCode",
       header: "Currency Code",
+      size: 80,
+      minSize: 60,
+    },
+    {
+      accessorKey: "totAmt",
+      header: "Total Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totLocalAmt",
+      header: "Total Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "trnDate",
+      header: "Transaction Date",
+      cell: ({ row }) => {
+        const date = row.original.trnDate
+          ? new Date(row.original.trnDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
     },
     {
       accessorKey: "currencyName",
@@ -254,7 +277,6 @@ export default function RefundTable({
         </div>
       ),
     },
-
     {
       accessorKey: "bankCode",
       header: "Bank Code",
@@ -284,24 +306,6 @@ export default function RefundTable({
           : null
         return date ? format(date, dateFormat) : "-"
       },
-    },
-    {
-      accessorKey: "totAmt",
-      header: "Total Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totLocalAmt",
-      header: "Total Local Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
-        </div>
-      ),
     },
     {
       accessorKey: "recTotAmt",

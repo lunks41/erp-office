@@ -1563,12 +1563,12 @@ const CbPettyCashDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST No */}
+            {/* TRN No */}
             {visible?.m_GstNo && (
               <CustomInput
                 form={form}
                 name="supplierRegNo"
-                label="GST No"
+                label="TRN No"
                 isRequired={isServiceCategoryRequired()}
               />
             )}

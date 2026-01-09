@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/auth-store"
 import { IconCopy, IconEye, IconX } from "@tabler/icons-react"
 import { addMonths, format, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 import { formatDateForApi } from "@/lib/date-utils"
 import { cn } from "@/lib/utils"
@@ -69,8 +70,10 @@ interface IReport {
   id: string
   name: string
   category: string
-  reportFile: string
+  reportFile?: string
   reportType?: string
+  supportsReportType?: boolean
+  defaultReportType?: number
 }
 
 // Reports that use TrsDate (From/To Date)
@@ -85,48 +88,21 @@ const REPORT_CATEGORIES = [
   {
     name: "Financial Report",
     reports: [
-      // {
-      //   id: "trial-balance-summary",
-      //   name: "Trial Balance Summary Report (OB/CB)",
-      //   reportFile: "gl/TrialBalanceSummary.trdp",
-      //   reportType: 1,
-      // },
-      {
-        id: "trial-balance-debit-credit",
-        name: "Trial Balance (DEBIT/CREDIT)",
-        reportFile: "gl/TrialBalanceDebitCredit.trdp",
-        reportType: 1,
-      },
       {
         id: "trial-balance",
         name: "Trial Balance",
-        reportFile: "gl/TrialBalance.trdp",
-        reportType: 2,
+        supportsReportType: true, // This report supports reportType selection
       },
       {
-        id: "balance-sheet-details",
-        name: "Balance Sheet Details",
-        reportFile: "gl/BalanceSheetDetails.trdp",
-        reportType: 2,
+        id: "balance-sheet",
+        name: "Balance Sheet",
+        supportsReportType: true,
       },
       {
-        id: "profit-loss-details",
-        name: "Profit & Loss Account Details",
-        reportFile: "gl/ProfitLossDetails.trdp",
-        reportType: 2,
+        id: "profit-loss",
+        name: "Profit & Loss Account",
+        supportsReportType: true,
       },
-      // {
-      //   id: "balance-sheet-summary",
-      //   name: "Balance Sheet Summary",
-      //   reportFile: "gl/BalanceSheetSummary.trdp",
-      //   reportType: 2,
-      // },
-      // {
-      //   id: "profit-loss-summary",
-      //   name: "Profit & Loss Account Summary",
-      //   reportFile: "gl/ProfitLossSummary.trdp",
-      //   reportType: 2,
-      // },
     ],
   },
   {
@@ -136,30 +112,124 @@ const REPORT_CATEGORIES = [
         id: "gl-ledger",
         name: "GLLedger",
         reportFile: "gl/Ledger.trdp",
+        supportsReportType: false,
       },
       {
         id: "combined-vat-computation",
         name: "Combined VAT Computation",
         reportFile: "gl/CombinedGstComputation.trdp",
+        supportsReportType: false,
       },
       {
         id: "vat-authority",
         name: "VAT Authority",
         reportFile: "gl/GstAuthority.trdp",
+        supportsReportType: false,
       },
       {
-        id: "vat-details",
-        name: "VAT Details",
-        reportFile: "gl/GstDetails.trdp",
-      },
-      {
-        id: "vat-summary",
-        name: "VAT Summary",
-        reportFile: "gl/GstSummary.trdp",
+        id: "vat",
+        name: "VAT",
+        supportsReportType: true,
+        defaultReportType: 0, // Default to Summary
       },
     ],
   },
 ]
+
+// Mapping function to get reportFile based on reportId and reportType
+const getReportFile = (reportId: string, reportType: number): string | null => {
+  // Trial Balance mappings
+  if (reportId === "trial-balance") {
+    switch (reportType) {
+      case 0: // Summary
+        return "gl/TrialBalance.trdp"
+      case 2: // OB/CB
+        return "gl/TrialBalanceSummary.trdp"
+      case 3: // D/C - Year
+        return "gl/TrialBalanceDebitCredit.trdp"
+      default:
+        return "gl/TrialBalance.trdp"
+    }
+  }
+
+  // Balance Sheet mappings
+  if (reportId === "balance-sheet") {
+    switch (reportType) {
+      case 0: // Summary
+        return "gl/BalanceSheetSummary.trdp"
+      case 1: // Details
+        return "gl/BalanceSheetDetails.trdp"
+      default:
+        return "gl/BalanceSheetSummary.trdp"
+    }
+  }
+
+  // Profit & Loss Account mappings
+  if (reportId === "profit-loss") {
+    switch (reportType) {
+      case 0: // Summary
+        return "gl/ProfitLossSummary.trdp"
+      case 1: // Details
+        return "gl/ProfitLossDetails.trdp"
+      default:
+        return "gl/ProfitLossSummary.trdp"
+    }
+  }
+
+  // VAT reports that don't support reportType
+  const vatCategory = REPORT_CATEGORIES[1]
+  const vatReport = vatCategory.reports.find((r) => r.id === reportId)
+  if (vatReport) {
+    const vatReportWithFile = vatReport as {
+      id: string
+      name: string
+      reportFile?: string
+      supportsReportType?: boolean
+      defaultReportType?: number
+    }
+    if (!vatReportWithFile.supportsReportType && vatReportWithFile.reportFile) {
+      return vatReportWithFile.reportFile
+    }
+  }
+
+  // VAT report mappings
+  if (reportId === "vat") {
+    switch (reportType) {
+      case 0: // Summary
+        return "gl/GstSummary.trdp"
+      case 1: // Details
+        return "gl/GstDetails.trdp"
+      default:
+        return "gl/GstSummary.trdp"
+    }
+  }
+
+  return null
+}
+
+// Get the reportType value to send to API based on reportId and selected reportType
+const getReportTypeForApi = (reportId: string, reportType: number): number => {
+  // Trial Balance: Summary=0, OB/CB=2, D/C-Year=2
+  if (reportId === "trial-balance") {
+    if (reportType === 0) return 0 // Summary
+    if (reportType === 2) return 2 // OB/CB
+    if (reportType === 3) return 2 // D/C - Year
+  }
+
+  // Balance Sheet and Profit & Loss: Summary=0, Details=2
+  if (reportId === "balance-sheet" || reportId === "profit-loss") {
+    if (reportType === 0) return 0 // Summary
+    if (reportType === 1) return 2 // Details
+  }
+
+  // VAT report
+  if (reportId === "vat") {
+    if (reportType === 0) return 0 // Summary
+    if (reportType === 1) return 1 // Details
+  }
+
+  return reportType
+}
 
 export default function ReportsPage() {
   const params = useParams()
@@ -302,9 +372,13 @@ export default function ReportsPage() {
       category.reports.map((report) => ({
         ...report,
         category: category.name,
+        reportFile: (report as { reportFile?: string }).reportFile || "",
         reportType: (
-          (report as { reportType?: number }).reportType ?? 0
+          (report as { defaultReportType?: number }).defaultReportType ?? 0
         ).toString(),
+        supportsReportType:
+          (report as { supportsReportType?: boolean }).supportsReportType ??
+          false,
       }))
     )
   }
@@ -332,10 +406,34 @@ export default function ReportsPage() {
         form.setValue("useAsDate", true)
       }
 
-      // Set reportType from the selected report if available
-      if (selectedReport?.reportType !== undefined) {
-        const reportTypeNum = Number(selectedReport.reportType) || 0
-        form.setValue("reportType", reportTypeNum)
+      // Set default reportType based on selected report
+      if (selectedReport) {
+        const supportsReportType =
+          (selectedReport as { supportsReportType?: boolean })
+            .supportsReportType ?? false
+
+        if (supportsReportType) {
+          // For reports that support reportType, set default based on report
+          if (selectedReportId === "trial-balance") {
+            form.setValue("reportType", 0) // Default to Summary for Trial Balance
+          } else if (
+            selectedReportId === "balance-sheet" ||
+            selectedReportId === "profit-loss"
+          ) {
+            form.setValue("reportType", 0) // Default to Summary
+          } else if (selectedReportId === "vat") {
+            form.setValue("reportType", 0) // Default to Summary for VAT
+          } else {
+            // For other reports with defaultReportType
+            const defaultReportType =
+              (selectedReport as { defaultReportType?: number })
+                .defaultReportType ?? 0
+            form.setValue("reportType", defaultReportType)
+          }
+        } else {
+          // For reports that don't support reportType, keep current value or default to 0
+          form.setValue("reportType", 0)
+        }
       } else {
         form.setValue("reportType", 0)
       }
@@ -375,6 +473,20 @@ export default function ReportsPage() {
 
     const parameters = buildReportParameters(data)
     const report = selectedReportObjects[0] // Only one report can be selected
+    const reportId = report.id
+    const reportType = parameters.reportType
+
+    // Get the actual reportFile based on reportId and reportType
+    const reportFile = getReportFile(reportId, reportType)
+
+    // Check if report is not available (Trial Balance Details)
+    if (reportFile === null) {
+      toast.error("No report available for this selection")
+      return
+    }
+
+    // Get the reportType value to send to API
+    const apiReportType = getReportTypeForApi(reportId, reportType)
 
     const reportParams = {
       companyId: parameters.companyId,
@@ -388,7 +500,7 @@ export default function ReportsPage() {
       toDate: parameters.toDate,
       asDate: parameters.asOfDate,
       currencyId: parameters.currencyId || "0",
-      reptype: parameters.reportType,
+      reptype: apiReportType,
       gstTypeId: parameters.vatType || "0",
       gstId: parameters.vatId || "0",
       amtDec: amtDec,
@@ -403,7 +515,7 @@ export default function ReportsPage() {
 
     // Store report data in sessionStorage with a fixed key to avoid URL parameters
     const reportData = {
-      reportFile: report.reportFile,
+      reportFile: reportFile,
       parameters: reportParams,
     }
 
@@ -426,7 +538,7 @@ export default function ReportsPage() {
       // Fallback to URL parameters using the legacy viewer if sessionStorage fails
       window.open(
         `/${companyId}/reports/viewer?report=${encodeURIComponent(
-          report.reportFile
+          reportFile
         )}&params=${encodeURIComponent(JSON.stringify(reportParams))}`,
         "_blank"
       )
@@ -546,6 +658,58 @@ export default function ReportsPage() {
                 onSubmit={form.handleSubmit(handleViewReport)}
                 className="space-y-2.5"
               >
+                {/* Report Type - Show on top */}
+                {(() => {
+                  const selectedReportObjects = getSelectedReportObjects()
+                  const selectedReport = selectedReportObjects[0]
+                  const supportsReportType =
+                    selectedReport?.supportsReportType ?? false
+
+                  // Determine which reportType options to show
+                  // Trial Balance: Summary, OB/CB, D/C - Year (no Details)
+                  const showAllOptions = selectedReport?.id === "trial-balance"
+                  // Balance Sheet, Profit & Loss, VAT: Summary, Details
+                  const showSummaryDetailsOnly =
+                    selectedReport?.id === "balance-sheet" ||
+                    selectedReport?.id === "profit-loss" ||
+                    selectedReport?.id === "vat"
+
+                  return supportsReportType ? (
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">
+                        Report Type:
+                      </label>
+                      <Select
+                        value={
+                          typeof form.watch("reportType") === "number"
+                            ? form.watch("reportType").toString()
+                            : "0"
+                        }
+                        onValueChange={(value) => {
+                          const numValue = Number(value) || 0
+                          form.setValue("reportType", numValue)
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select.." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">Summary</SelectItem>
+                          {showAllOptions && (
+                            <>
+                              <SelectItem value="2">OB/CB</SelectItem>
+                              <SelectItem value="3">D/C - Year</SelectItem>
+                            </>
+                          )}
+                          {showSummaryDetailsOnly && (
+                            <SelectItem value="1">Details</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : null
+                })()}
+
                 {/* GL Name Selection - Range Method */}
                 <div className="space-y-1.5">
                   <div className="flex flex-row items-end gap-2">
@@ -655,15 +819,6 @@ export default function ReportsPage() {
                         form.setValue("useAsDate", isChecked)
                         if (isChecked) {
                           form.setValue("useTrsDate", false)
-                          // Sync asOfDate with toDate when As Date is enabled
-                          const toDate = form.watch("toDate")
-                          if (toDate) {
-                            form.setValue("asOfDate", toDate)
-                          } else {
-                            // If toDate is empty, set to current date
-                            form.setValue("asOfDate", getCurrentDate())
-                            form.setValue("toDate", getCurrentDate())
-                          }
                         }
                       }}
                     />

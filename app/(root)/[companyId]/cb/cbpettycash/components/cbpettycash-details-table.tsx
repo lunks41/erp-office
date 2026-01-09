@@ -208,7 +208,7 @@ export default function CbPettyCashDetailsTable({
       ? [
           {
             accessorKey: "supplierRegNo",
-            header: "GST No",
+            header: "TRN No",
             size: 100,
           },
         ]

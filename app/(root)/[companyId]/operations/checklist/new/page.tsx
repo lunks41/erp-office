@@ -854,7 +854,7 @@ export default function NewChecklistPage() {
                     <CustomNumberInput
                       form={form}
                       name="gstPercentage"
-                      label="GST %"
+                      label="VAT Percentage"
                       isRequired={true}
                     />
                   )}

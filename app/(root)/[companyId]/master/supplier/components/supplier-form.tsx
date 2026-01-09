@@ -66,6 +66,7 @@ export default function SupplierForm({
         isVendor: false,
         isTrader: false,
         isSupplier: false,
+        isDiffGstGl: false,
         remarks: "",
         isActive: true,
       } as z.infer<typeof supplierSchema>),
@@ -91,6 +92,7 @@ export default function SupplierForm({
         isVendor: false,
         isTrader: false,
         isSupplier: false,
+        isDiffGstGl: false,
         remarks: "",
         isActive: true,
       }
@@ -234,6 +236,12 @@ export default function SupplierForm({
                 form={form}
                 name="isSupplier"
                 label="Is Supplier"
+                activeColor="success"
+              />
+              <CustomSwitch
+                form={form}
+                name="isDiffGstGl"
+                label="Diff VAT GL"
                 activeColor="success"
               />
               <CustomSwitch

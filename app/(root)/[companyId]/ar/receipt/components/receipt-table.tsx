@@ -147,6 +147,8 @@ export default function ReceiptTable({
     {
       accessorKey: "paymentStatus",
       header: "Payment Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const balAmt = row.original.unAllocTotAmt ?? 0
         const payAmt = row.original.allocTotAmt ?? 0
@@ -201,6 +203,50 @@ export default function ReceiptTable({
       accessorKey: "referenceNo",
       header: "Reference No",
     },
+    {
+      accessorKey: "accountDate",
+      header: "Account Date",
+      cell: ({ row }) => {
+        const date = row.original.accountDate
+          ? new Date(row.original.accountDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
+    },
+    {
+      accessorKey: "customerCode",
+      header: "Customer Code",
+      size: 100,
+      minSize: 80,
+    },
+    {
+      accessorKey: "customerName",
+      header: "Customer Name",
+    },
+    {
+      accessorKey: "currencyCode",
+      header: "Currency Code",
+      size: 80,
+      minSize: 60,
+    },
+    {
+      accessorKey: "totAmt",
+      header: "Total Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totLocalAmt",
+      header: "Total Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
     ...(visible?.m_TrnDate
       ? [
           {
@@ -216,29 +262,6 @@ export default function ReceiptTable({
         ]
       : []),
     {
-      accessorKey: "accountDate",
-      header: "Account Date",
-      cell: ({ row }) => {
-        const date = row.original.accountDate
-          ? new Date(row.original.accountDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-
-    {
-      accessorKey: "customerCode",
-      header: "Customer Code",
-    },
-    {
-      accessorKey: "customerName",
-      header: "Customer Name",
-    },
-    {
-      accessorKey: "currencyCode",
-      header: "Currency Code",
-    },
-    {
       accessorKey: "currencyName",
       header: "Currency Name",
     },
@@ -251,7 +274,6 @@ export default function ReceiptTable({
         </div>
       ),
     },
-
     {
       accessorKey: "bankCode",
       header: "Bank Code",
@@ -281,24 +303,6 @@ export default function ReceiptTable({
           : null
         return date ? format(date, dateFormat) : "-"
       },
-    },
-    {
-      accessorKey: "totAmt",
-      header: "Total Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totLocalAmt",
-      header: "Total Local Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
-        </div>
-      ),
     },
     {
       accessorKey: "recTotAmt",

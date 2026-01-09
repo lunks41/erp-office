@@ -110,15 +110,16 @@ export function GeoLocationForm({
               <CustomInput
                 form={form}
                 name="geoLocationCode"
-                label="GeoLocation Code"
+                label="Calling Location Code"
                 isRequired
-                isDisabled={isReadOnly || Boolean(initialData)}
+                //isDisabled={isReadOnly || Boolean(initialData)}
+                isDisabled={isReadOnly}
                 onBlurEvent={handleCodeBlur}
               />
               <CustomInput
                 form={form}
                 name="geoLocationName"
-                label="GeoLocation Name"
+                label="Calling Location Name"
                 isRequired
                 isDisabled={isReadOnly}
               />

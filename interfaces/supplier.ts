@@ -28,6 +28,7 @@ export interface ISupplier {
   isVendor: boolean
   isTrader: boolean
   isSupplier: boolean
+  isDiffGstGl: boolean
   remarks: string
   isActive: boolean
   createById: number

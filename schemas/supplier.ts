@@ -15,18 +15,15 @@ export const supplierSchema = z.object({
   supplierOtherName: z
     .string()
     .max(150, "Supplier other name cannot exceed 150 characters")
-    .optional()
-    ,
+    .optional(),
   supplierShortName: z
     .string()
     .max(150, "Supplier short name cannot exceed 150 characters")
-    .optional()
-    ,
+    .optional(),
   supplierRegNo: z
     .string()
     .max(150, "Supplier registration number cannot exceed 50 characters")
-    .optional()
-    ,
+    .optional(),
   parentSupplierId: z.number().optional(),
 
   currencyId: z.number().min(1, "Currency is required"),
@@ -39,12 +36,12 @@ export const supplierSchema = z.object({
   isVendor: z.boolean().optional(),
   isTrader: z.boolean().optional(),
   isCustomer: z.boolean().optional(),
+  isDiffGstGl: z.boolean().optional(),
 
   remarks: z
     .string()
     .max(255, "Remarks cannot exceed 255 characters")
-    .optional()
-    ,
+    .optional(),
   isActive: z.boolean(),
 })
 export type SupplierSchemaType = z.infer<typeof supplierSchema>
@@ -59,38 +56,25 @@ export const supplierContactSchema = z.object({
   otherName: z
     .string()
     .max(150, "Other name cannot exceed 150 characters")
-    .optional()
-    ,
+    .optional(),
   mobileNo: z
     .string()
     .max(20, "Mobile number cannot exceed 20 characters")
-    .optional()
-    ,
+    .optional(),
   offNo: z
     .string()
     .max(20, "Office number cannot exceed 20 characters")
-    .optional()
-    ,
+    .optional(),
   faxNo: z
     .string()
     .max(20, "Fax number cannot exceed 20 characters")
-    .optional()
-    ,
-  emailAdd: z
-    .string()
-    .email("Please enter a valid email address")
-    .optional()
-    ,
-  messId: z
-    .string()
-    .max(50, "Mess ID cannot exceed 50 characters")
-    .optional()
-    ,
+    .optional(),
+  emailAdd: z.string().email("Please enter a valid email address").optional(),
+  messId: z.string().max(50, "Mess ID cannot exceed 50 characters").optional(),
   contactMessType: z
     .string()
     .max(50, "Contact mess type cannot exceed 50 characters")
-    .optional()
-    ,
+    .optional(),
   isDefault: z.boolean().optional(),
   isFinance: z.boolean().optional(),
   isSales: z.boolean().optional(),
@@ -108,39 +92,29 @@ export const supplierAddressSchema = z.object({
   address2: z
     .string()
     .max(255, "Address 2 cannot exceed 255 characters")
-    .optional()
-    ,
+    .optional(),
   address3: z
     .string()
     .max(255, "Address 3 cannot exceed 255 characters")
-    .optional()
-    ,
+    .optional(),
   address4: z
     .string()
     .max(255, "Address 4 cannot exceed 255 characters")
-    .optional()
-    ,
+    .optional(),
   pinCode: z
     .string()
     .max(20, "Pin code cannot exceed 20 characters")
-    .optional()
-    ,
+    .optional(),
   countryId: z.number().min(1, "Country is required"),
   phoneNo: z
     .string()
     .max(20, "Phone number cannot exceed 20 characters")
-    .optional()
-    ,
+    .optional(),
   faxNo: z
     .string()
     .max(20, "Fax number cannot exceed 20 characters")
-    .optional()
-    ,
-  emailAdd: z
-    .string()
-    .email("Please enter a valid email address")
-    .optional()
-    ,
+    .optional(),
+  emailAdd: z.string().email("Please enter a valid email address").optional(),
   webUrl: z.string().url("Please enter a valid URL").optional(),
   isDefaultAdd: z.boolean().optional(),
   isDeliveryAdd: z.boolean().optional(),

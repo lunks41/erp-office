@@ -776,12 +776,12 @@ export default function CreditNoteForm({
             />
           )}
 
-          {/* GST Claim Date */}
+          {/* VAT Claim Date */}
           {visible?.m_GstClaimDate && (
             <CustomDateNew
               form={form}
               name="gstClaimDate"
-              label="GST Claim Date"
+              label="VAT Claim Date"
               isRequired={false}
               isFutureShow={true}
             />
@@ -923,10 +923,13 @@ export default function CreditNoteForm({
                 </div>
                 {visible?.m_GstId && (
                   <div className="font-medium text-gray-700">
-                    {(form.watch("gstLocalAmt") || 0).toLocaleString(undefined, {
-                      minimumFractionDigits: locAmtDec,
-                      maximumFractionDigits: locAmtDec,
-                    })}
+                    {(form.watch("gstLocalAmt") || 0).toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: locAmtDec,
+                        maximumFractionDigits: locAmtDec,
+                      }
+                    )}
                   </div>
                 )}
                 <hr className="my-1 border-blue-300" />

@@ -427,11 +427,11 @@ export default function InvoiceForm({
           isFutureShow={true}
         />
 
-        {/* GST Claim Date */}
+        {/* VAT Claim Date */}
         <CustomDateNew
           form={form}
           name="gstClaimDate"
-          label="GST Claim Date"
+          label="VAT Claim Date"
           isFutureShow={true}
         />
 

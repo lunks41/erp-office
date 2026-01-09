@@ -164,6 +164,8 @@ export default function CbGenPaymentTable({
     {
       accessorKey: "paymentStatus",
       header: "Payment Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const isCancel = row.original.isCancel ?? false
         const status = getPaymentStatus(isCancel)
@@ -204,6 +206,58 @@ export default function CbGenPaymentTable({
       accessorKey: "referenceNo",
       header: "Reference No",
     },
+    {
+      accessorKey: "accountDate",
+      header: "Account Date",
+      cell: ({ row }) => {
+        const date = row.original.accountDate
+          ? new Date(row.original.accountDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
+    },
+    ...(visible?.m_PayeeTo
+      ? [
+          {
+            accessorKey: "payeeTo",
+            header: "Payee To",
+            size: 150,
+          } as ColumnDef<ICbGenPaymentHd>,
+        ]
+      : []),
+    {
+      accessorKey: "currencyCode",
+      header: "Currency Code",
+      size: 80,
+      minSize: 60,
+    },
+    {
+      accessorKey: "totAmt",
+      header: "Total Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "gstAmt",
+      header: "VAT Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("gstAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totAmtAftGst",
+      header: "Total After GST",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
+        </div>
+      ),
+    },
     ...(visible?.m_TrnDate
       ? [
           {
@@ -218,20 +272,6 @@ export default function CbGenPaymentTable({
           } as ColumnDef<ICbGenPaymentHd>,
         ]
       : []),
-    {
-      accessorKey: "accountDate",
-      header: "Account Date",
-      cell: ({ row }) => {
-        const date = row.original.accountDate
-          ? new Date(row.original.accountDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
-      accessorKey: "currencyCode",
-      header: "Currency Code",
-    },
     {
       accessorKey: "currencyName",
       header: "Currency Name",
@@ -265,15 +305,6 @@ export default function CbGenPaymentTable({
     {
       accessorKey: "creditTermName",
       header: "Credit Term Name",
-    },
-    {
-      accessorKey: "totAmt",
-      header: "Total Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmt"), amtDec)}
-        </div>
-      ),
     },
     {
       accessorKey: "totLocalAmt",

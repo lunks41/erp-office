@@ -148,6 +148,8 @@ export default function ContraTable({
     {
       accessorKey: "contraStatus",
       header: "Contra Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const isCancel = row.original.isCancel ?? false
         const status = getContraStatus(isCancel)
@@ -188,20 +190,6 @@ export default function ContraTable({
       accessorKey: "referenceNo",
       header: "Reference No",
     },
-    ...(visible?.m_TrnDate
-      ? [
-          {
-            accessorKey: "trnDate",
-            header: "Transaction Date",
-            cell: ({ row }) => {
-              const date = row.original.trnDate
-                ? new Date(row.original.trnDate)
-                : null
-              return date ? format(date, dateFormat) : "-"
-            },
-          } as ColumnDef<IGLContraHd>,
-        ]
-      : []),
     {
       accessorKey: "accountDate",
       header: "Account Date",
@@ -212,7 +200,6 @@ export default function ContraTable({
         return date ? format(date, dateFormat) : "-"
       },
     },
-
     {
       accessorKey: "supplierCode",
       header: "Supplier Code",
@@ -221,7 +208,6 @@ export default function ContraTable({
       accessorKey: "supplierName",
       header: "Supplier Name",
     },
-
     {
       accessorKey: "customerCode",
       header: "Customer Code",
@@ -233,24 +219,8 @@ export default function ContraTable({
     {
       accessorKey: "currencyCode",
       header: "Currency Code",
-    },
-    {
-      accessorKey: "currencyName",
-      header: "Currency Name",
-    },
-    {
-      accessorKey: "exhRate",
-      header: "Exchange Rate",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("exhRate"), exhRateDec)}
-        </div>
-      ),
-    },
-
-    {
-      accessorKey: "moduleFrom",
-      header: "Module From",
+      size: 80,
+      minSize: 60,
     },
     {
       accessorKey: "totAmt",
@@ -269,6 +239,37 @@ export default function ContraTable({
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
+    },
+    ...(visible?.m_TrnDate
+      ? [
+          {
+            accessorKey: "trnDate",
+            header: "Transaction Date",
+            cell: ({ row }) => {
+              const date = row.original.trnDate
+                ? new Date(row.original.trnDate)
+                : null
+              return date ? format(date, dateFormat) : "-"
+            },
+          } as ColumnDef<IGLContraHd>,
+        ]
+      : []),
+    {
+      accessorKey: "currencyName",
+      header: "Currency Name",
+    },
+    {
+      accessorKey: "exhRate",
+      header: "Exchange Rate",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("exhRate"), exhRateDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "moduleFrom",
+      header: "Module From",
     },
     {
       accessorKey: "exhGainLoss",

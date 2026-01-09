@@ -1220,7 +1220,7 @@ export function ChecklistMain({
                   <CustomNumberInput
                     form={form}
                     name="gstPercentage"
-                    label="GST %"
+                    label="VAT Percentage"
                     isRequired={true}
                     isDisabled={isConfirmed}
                   />

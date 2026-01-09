@@ -420,7 +420,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_GstClaimDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">GST Claim Date</div>
+        <div className="text-center font-medium text-wrap">VAT Claim Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">

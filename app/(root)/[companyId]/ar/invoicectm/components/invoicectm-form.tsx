@@ -672,12 +672,12 @@ export default function InvoiceCtmForm({
             />
           )}
 
-          {/* GST Claim Date */}
+          {/* VAT Claim Date */}
           {visible?.m_GstClaimDate && (
             <CustomDateNew
               form={form}
               name="gstClaimDate"
-              label="GST Claim Date"
+              label="VAT Claim Date"
               isRequired={false}
               isFutureShow={true}
             />

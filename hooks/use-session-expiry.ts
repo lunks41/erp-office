@@ -6,6 +6,7 @@ import { refreshToken } from "@/lib/auth-helpers"
 
 // Cross-tab communication for session expiry
 const SESSION_EXPIRY_CHANNEL = "session-expiry-channel"
+const LAST_ACTIVITY_STORAGE_KEY = "lastActivityAcrossTabs"
 
 interface SessionExpiryConfig {
   warningTimeMinutes: number
@@ -40,7 +41,17 @@ export function useSessionExpiry() {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState(0)
-  const [_lastActivity, setLastActivity] = useState(Date.now())
+  const [lastActivity, setLastActivity] = useState(Date.now())
+  // Initialize from localStorage if available, otherwise use current time
+  const [lastActivityAcrossTabs, setLastActivityAcrossTabs] = useState(() => {
+    if (typeof window === "undefined") return Date.now()
+    try {
+      const stored = localStorage.getItem(LAST_ACTIVITY_STORAGE_KEY)
+      return stored ? parseInt(stored, 10) : Date.now()
+    } catch {
+      return Date.now()
+    }
+  })
   const [warningShown, setWarningShown] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [tokenRefreshInProgress, setTokenRefreshInProgress] = useState(false)
@@ -77,14 +88,50 @@ export function useSessionExpiry() {
           setShowModal(false)
           setWarningShown(false)
           break
+        case "ACTIVITY_UPDATE":
+          // Update last activity across tabs when any tab reports activity
+          if (data?.timestamp) {
+            setLastActivityAcrossTabs((prev) => {
+              // Only update if the new timestamp is more recent
+              const newTimestamp = data.timestamp > prev ? data.timestamp : prev
+              // Persist to localStorage for cross-tab persistence
+              if (typeof window !== "undefined") {
+                try {
+                  localStorage.setItem(
+                    LAST_ACTIVITY_STORAGE_KEY,
+                    newTimestamp.toString()
+                  )
+                } catch (e) {
+                  console.warn("Failed to save activity to localStorage:", e)
+                }
+              }
+              return newTimestamp
+            })
+          }
+          break
       }
     }
 
     broadcastChannel.addEventListener("message", handleMessage)
 
+    // Listen for localStorage changes (when other tabs update activity)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === LAST_ACTIVITY_STORAGE_KEY && e.newValue) {
+        const newTimestamp = parseInt(e.newValue, 10)
+        if (!isNaN(newTimestamp)) {
+          setLastActivityAcrossTabs((prev) => {
+            return newTimestamp > prev ? newTimestamp : prev
+          })
+        }
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+
     return () => {
       broadcastChannel.removeEventListener("message", handleMessage)
       broadcastChannel.close()
+      window.removeEventListener("storage", handleStorageChange)
     }
   }, [])
 
@@ -102,7 +149,34 @@ export function useSessionExpiry() {
 
   // Update last activity on user interaction (without closing modal)
   const updateActivity = useCallback(() => {
-    setLastActivity(Date.now())
+    const now = Date.now()
+    setLastActivity(now)
+    setLastActivityAcrossTabs((prev) => {
+      // Only update if this is more recent
+      if (now > prev) {
+        // Persist to localStorage for cross-tab persistence
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem(LAST_ACTIVITY_STORAGE_KEY, now.toString())
+          } catch (e) {
+            console.warn("Failed to save activity to localStorage:", e)
+          }
+        }
+        return now
+      }
+      return prev
+    })
+
+    // Broadcast activity to other tabs
+    if (typeof window !== "undefined") {
+      const broadcastChannel = new BroadcastChannel(SESSION_EXPIRY_CHANNEL)
+      broadcastChannel.postMessage({
+        type: "ACTIVITY_UPDATE",
+        data: { timestamp: now },
+      })
+      broadcastChannel.close()
+    }
+
     // Don't automatically close the modal on user interaction
     // The modal should only be closed by explicit user action (Stay Signed In, Sign Out, or Close)
   }, [])
@@ -301,7 +375,7 @@ export function useSessionExpiry() {
       return
     }
 
-    const checkSession = () => {
+    const checkSession = async () => {
       if (isTokenExpired(token)) {
         handleSignOut()
         return
@@ -312,6 +386,30 @@ export function useSessionExpiry() {
       const timeUntilExpiry = tokenExpiry - now
       const warningTimeMs = config.warningTimeMinutes * 60 * 1000
 
+      // Check if there's been activity in any tab recently
+      // Use warning time as threshold - if user is active, they should get auto-refresh
+      const activityThreshold = config.warningTimeMinutes * 60 * 1000 // Same as warning time (default 5 minutes)
+
+      // Also check localStorage for the most up-to-date activity (in case broadcast missed)
+      let mostRecentActivity = lastActivityAcrossTabs
+      if (typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem(LAST_ACTIVITY_STORAGE_KEY)
+          if (stored) {
+            const storedTimestamp = parseInt(stored, 10)
+            if (storedTimestamp > mostRecentActivity) {
+              mostRecentActivity = storedTimestamp
+              setLastActivityAcrossTabs(storedTimestamp)
+            }
+          }
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+      }
+
+      const timeSinceLastActivity = now - mostRecentActivity
+      const hasRecentActivity = timeSinceLastActivity < activityThreshold
+
       // Debug logging with more details (development only)
       if (process.env.NODE_ENV === "development") {
         //console.log("🔍 [SessionExpiry] Debug info:", {
@@ -320,6 +418,9 @@ export function useSessionExpiry() {
         //timeUntilExpiry: Math.floor(timeUntilExpiry / 1000),
         //warningTimeMs: Math.floor(warningTimeMs / 1000),
         //warningShown,
+        //hasRecentActivity,
+        //timeSinceLastActivity: Math.floor(timeSinceLastActivity / 1000),
+        //lastActivityAcrossTabs: new Date(lastActivityAcrossTabs).toISOString(),
         //config: {
         //enabled: config.enabled,
         //warningTimeMinutes: config.warningTimeMinutes,
@@ -328,19 +429,49 @@ export function useSessionExpiry() {
         //})
       }
 
+      // If there's recent activity and token is about to expire, automatically refresh
+      if (
+        hasRecentActivity &&
+        timeUntilExpiry <= warningTimeMs &&
+        timeUntilExpiry > 0
+      ) {
+        // Only auto-refresh if not already refreshing and modal not shown
+        if (!tokenRefreshInProgress && !warningShown && !isRefreshing) {
+          // console.log("🔄 [SessionExpiry] Auto-refreshing token due to recent activity")
+          try {
+            setTokenRefreshInProgress(true)
+            const newToken = await refreshToken()
+            if (newToken && newToken.length > 0) {
+              // Token refreshed successfully, reset warning state
+              setWarningShown(false)
+              setShowModal(false)
+              broadcastToOtherTabs("TOKEN_REFRESHED")
+            }
+            setTokenRefreshInProgress(false)
+          } catch (error) {
+            console.error("❌ [SessionExpiry] Auto-refresh failed:", error)
+            setTokenRefreshInProgress(false)
+            // Fall through to show modal if refresh fails
+          }
+        }
+        return
+      }
+
       // Show warning if we're within the warning time and haven't shown it yet
       // Also ensure timeUntilExpiry > 0 to avoid showing for expired tokens
       // Don't show modal if token refresh is in progress
+      // Only show if there's NO recent activity in any tab
       if (
         timeUntilExpiry <= warningTimeMs &&
         timeUntilExpiry > 0 &&
         !warningShown &&
-        !tokenRefreshInProgress
+        !tokenRefreshInProgress &&
+        !hasRecentActivity
       ) {
         // console.log(
         //   "⚠️ [SessionExpiry] Showing modal - time until expiry:",
         //   Math.floor(timeUntilExpiry / 1000),
-        //   "seconds"
+        //   "seconds, no recent activity"
         // )
         const timeRemainingSeconds = Math.floor(timeUntilExpiry / 1000)
         setTimeRemaining(timeRemainingSeconds)
@@ -370,6 +501,8 @@ export function useSessionExpiry() {
     config.sessionTimeoutMinutes,
     warningShown,
     tokenRefreshInProgress,
+    isRefreshing,
+    lastActivityAcrossTabs,
     isTokenExpired,
     getTokenExpiry,
     handleSignOut,

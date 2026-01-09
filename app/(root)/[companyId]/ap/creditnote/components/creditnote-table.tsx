@@ -144,6 +144,8 @@ export default function CreditNoteTable({
     {
       accessorKey: "paymentStatus",
       header: "Payment Status",
+      size: 120,
+      minSize: 100,
       cell: ({ row }) => {
         const balAmt = row.original.balAmt ?? 0
         const payAmt = row.original.payAmt ?? 0
@@ -195,6 +197,91 @@ export default function CreditNoteTable({
       },
     },
     {
+      accessorKey: "suppCreditNoteNo",
+      header: "Supplier Credit Note No",
+    },
+
+    {
+      accessorKey: "accountDate",
+      header: "Account Date",
+      cell: ({ row }) => {
+        const date = row.original.accountDate
+          ? new Date(row.original.accountDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
+    },
+    {
+      accessorKey: "supplierCode",
+      header: "Supplier Code",
+      size: 100,
+      minSize: 80,
+    },
+    {
+      accessorKey: "supplierName",
+      header: "Supplier Name",
+    },
+    {
+      accessorKey: "currencyCode",
+      header: "Currency Code",
+      size: 80,
+      minSize: 60,
+    },
+    {
+      accessorKey: "totAmt",
+      header: "Total Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "gstAmt",
+      header: "VAT Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("gstAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totAmtAftGst",
+      header: "Total After GST",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totLocalAmt",
+      header: "Total Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "gstLocalAmt",
+      header: "GST Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "totLocalAmtAftGst",
+      header: "Total Local After GST",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
       accessorKey: "referenceNo",
       header: "Reference No",
     },
@@ -204,16 +291,6 @@ export default function CreditNoteTable({
       cell: ({ row }) => {
         const date = row.original.trnDate
           ? new Date(row.original.trnDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
-      accessorKey: "accountDate",
-      header: "Account Date",
-      cell: ({ row }) => {
-        const date = row.original.accountDate
-          ? new Date(row.original.accountDate)
           : null
         return date ? format(date, dateFormat) : "-"
       },
@@ -237,18 +314,6 @@ export default function CreditNoteTable({
           : null
         return date ? format(date, dateFormat) : "-"
       },
-    },
-    {
-      accessorKey: "supplierCode",
-      header: "Supplier Code",
-    },
-    {
-      accessorKey: "supplierName",
-      header: "Supplier Name",
-    },
-    {
-      accessorKey: "currencyCode",
-      header: "Currency Code",
     },
     {
       accessorKey: "currencyName",
@@ -287,60 +352,6 @@ export default function CreditNoteTable({
     {
       accessorKey: "bankName",
       header: "Bank Name",
-    },
-    {
-      accessorKey: "totAmt",
-      header: "Total Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totLocalAmt",
-      header: "Total Local Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "gstAmt",
-      header: "VAT Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("gstAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totAmtAftGst",
-      header: "Total After GST",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
-        </div>
-      ),
     },
 
     {
