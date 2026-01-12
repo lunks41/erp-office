@@ -1501,7 +1501,7 @@ export default function DebitNotePage() {
               //disabled={!debitNote}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1654,7 +1654,7 @@ export default function DebitNotePage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleDebitNoteReset}
         itemName={debitNote?.debitNoteNo}
-        title="Reset DebitNote"
+        title="New DebitNote"
         description="This will clear all unsaved changes."
       />
 

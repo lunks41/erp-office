@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { IChartOfAccountLookup } from "@/interfaces/lookup"
 import { useAuthStore } from "@/stores/auth-store"
 import { IconCopy, IconEye, IconX } from "@tabler/icons-react"
-import { addMonths, format, startOfMonth, subMonths } from "date-fns"
+import { format, parse } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { formatDateForApi } from "@/lib/date-utils"
@@ -179,13 +179,6 @@ export default function ReportsPage() {
     return format(new Date(), dateFormat)
   }
 
-  // Get date 2 months ago formatted, starting from the 1st day of that month
-  const getTwoMonthsAgoDate = () => {
-    const twoMonthsAgo = subMonths(new Date(), 2)
-    const firstDayOfMonth = startOfMonth(twoMonthsAgo)
-    return format(firstDayOfMonth, dateFormat)
-  }
-
   const form = useForm<IReportFormData>({
     defaultValues: {
       fromGlId: "",
@@ -193,7 +186,7 @@ export default function ReportsPage() {
       sameToGl: false,
       glIds: [],
       departmentId: "",
-      fromDate: getTwoMonthsAgoDate(),
+      fromDate: getCurrentDate(),
       toDate: getCurrentDate(),
       asOfDate: getCurrentDate(),
       currencyId: "0",
@@ -205,12 +198,20 @@ export default function ReportsPage() {
     },
   })
 
-  // Handle fromDate change and automatically set toDate to 2 months later
+  // Handle fromDate change and automatically set toDate to current date
   const handleFromDateChange = (date: Date | null) => {
     if (date) {
-      const twoMonthsLater = addMonths(date, 2)
-      const formattedToDate = format(twoMonthsLater, dateFormat)
-      form.setValue("toDate", formattedToDate)
+      const formattedFromDate = format(date, dateFormat)
+      form.setValue("fromDate", formattedFromDate)
+
+      // Set toDate to current date when fromDate changes
+      const currentDate = getCurrentDate()
+      form.setValue("toDate", currentDate)
+
+      // Also update asOfDate if it's in use
+      if (form.watch("useAsDate")) {
+        form.setValue("asOfDate", currentDate)
+      }
     }
   }
 
@@ -285,9 +286,33 @@ export default function ReportsPage() {
   }
 
   // Handle toDate change and automatically set asOfDate to the same value
+  // Also validate that toDate is not less than fromDate
   const handleToDateChange = (date: Date | null) => {
     if (date) {
       const formattedDate = format(date, dateFormat)
+      const fromDateValue = form.getValues("fromDate")
+
+      // If fromDate exists, compare dates
+      if (fromDateValue) {
+        try {
+          // Parse both dates using the same format for comparison
+          const fromDateParsed = parse(fromDateValue, dateFormat, new Date())
+          const toDateParsed = date
+
+          // If toDate is less than fromDate, set toDate equal to fromDate
+          if (toDateParsed < fromDateParsed) {
+            // Set toDate to be the same as fromDate
+            form.setValue("toDate", fromDateValue)
+            form.setValue("asOfDate", fromDateValue)
+            return
+          }
+        } catch (error) {
+          // If parsing fails, proceed with normal logic
+          console.error("Error parsing dates for comparison:", error)
+        }
+      }
+
+      // Normal case: toDate is valid (greater than or equal to fromDate)
       form.setValue("toDate", formattedDate)
       form.setValue("asOfDate", formattedDate)
     }
@@ -434,15 +459,14 @@ export default function ReportsPage() {
   }
 
   const handleClear = () => {
-    const currentDate = format(new Date(), dateFormat)
-    const twoMonthsAgoDate = getTwoMonthsAgoDate()
+    const currentDate = getCurrentDate()
     form.reset({
       fromGlId: "",
       toGlId: "",
       sameToGl: false,
       glIds: [],
       departmentId: "",
-      fromDate: twoMonthsAgoDate,
+      fromDate: currentDate,
       toDate: currentDate,
       asOfDate: currentDate,
       currencyId: "0",

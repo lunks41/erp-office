@@ -41,7 +41,6 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
-import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -140,17 +139,6 @@ export function CrewSignOnTab({
     crewSignOnIds: [],
     jobOrderId: null,
     count: 0,
-  })
-
-  // State for save confirmation
-  const [saveConfirmation, setSaveConfirmation] = useState<{
-    isOpen: boolean
-    formData: Partial<ICrewSignOn> | null
-    operationType: "create" | "update"
-  }>({
-    isOpen: false,
-    formData: null,
-    operationType: "create",
   })
 
   const jobDataProps = useMemo(
@@ -257,36 +245,43 @@ export function CrewSignOnTab({
     }
   }
 
-  const handleBulkDelete = useCallback((selectedIds: string[]) => {
-    if (selectedIds.length === 0) {
-      toast.error("Please select at least one crew sign on to delete")
-      return
-    }
+  const handleBulkDelete = useCallback(
+    (selectedIds: string[]) => {
+      if (selectedIds.length === 0) {
+        toast.error("Please select at least one crew sign on to delete")
+        return
+      }
 
-    // Check if any selected items have a debitNoteId
-    const itemsWithDebitNote = data?.filter((item) =>
-      selectedIds.includes(item.crewSignOnId.toString()) &&
-      item.debitNoteId &&
-      item.debitNoteId > 0
-    )
-
-    if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
-      toast.error(
-        `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+      // Check if any selected items have a debitNoteId
+      const itemsWithDebitNote = data?.filter(
+        (item) =>
+          selectedIds.includes(item.crewSignOnId.toString()) &&
+          item.debitNoteId &&
+          item.debitNoteId > 0
       )
-      return
-    }
 
-    setBulkDeleteConfirmation({
-      isOpen: true,
-      crewSignOnIds: selectedIds,
-      jobOrderId: jobData.jobOrderId,
-      count: selectedIds.length,
-    })
-  }, [jobData.jobOrderId, data])
+      if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+        toast.error(
+          `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+        )
+        return
+      }
+
+      setBulkDeleteConfirmation({
+        isOpen: true,
+        crewSignOnIds: selectedIds,
+        jobOrderId: jobData.jobOrderId,
+        count: selectedIds.length,
+      })
+    },
+    [jobData.jobOrderId, data]
+  )
 
   const handleConfirmBulkDelete = async () => {
-    if (bulkDeleteConfirmation.crewSignOnIds.length === 0 || !bulkDeleteConfirmation.jobOrderId) {
+    if (
+      bulkDeleteConfirmation.crewSignOnIds.length === 0 ||
+      !bulkDeleteConfirmation.jobOrderId
+    ) {
       return
     }
 
@@ -343,74 +338,54 @@ export function CrewSignOnTab({
   )
 
   const handleSubmit = useCallback(
-    (formData: Partial<ICrewSignOn>) => {
-      // Show save confirmation instead of directly submitting
-      setSaveConfirmation({
-        isOpen: true,
-        formData,
-        operationType: modalMode === "edit" ? "update" : "create",
-      })
+    async (formData: Partial<ICrewSignOn>) => {
+      try {
+        const processedData = {
+          ...formData,
+        }
+        const submitData = { ...processedData, ...jobDataProps }
+
+        let response
+        if (modalMode === "edit" && selectedItem) {
+          response = await updateMutation.mutateAsync({
+            ...submitData,
+            crewSignOnId: selectedItem.crewSignOnId,
+          })
+        } else {
+          response = await saveMutation.mutateAsync(submitData)
+        }
+
+        // Check if API response indicates success (result=1)
+        if (response && response.result === 1) {
+          // Only close modal and reset state on successful submission
+          setIsModalOpen(false)
+          setSelectedItem(undefined)
+          setModalMode("create")
+          refetch()
+          onTaskAdded?.()
+        } else {
+          // If result !== 1, don't close the modal - let user see the error
+          console.error(
+            "API returned error result:",
+            response?.result,
+            response?.message
+          )
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error)
+        // Don't close the modal on error - let user fix the issue and retry
+      }
     },
-    [modalMode]
+    [
+      modalMode,
+      jobDataProps,
+      selectedItem,
+      updateMutation,
+      saveMutation,
+      refetch,
+      onTaskAdded,
+    ]
   )
-
-  // Actual save function that gets called after confirmation
-  const handleConfirmSave = useCallback(async () => {
-    if (!saveConfirmation.formData) return
-
-    try {
-      const processedData = {
-        ...saveConfirmation.formData,
-      }
-      const submitData = { ...processedData, ...jobDataProps }
-
-      let response
-      if (saveConfirmation.operationType === "update" && selectedItem) {
-        response = await updateMutation.mutateAsync({
-          ...submitData,
-          crewSignOnId: selectedItem.crewSignOnId,
-        })
-      } else {
-        response = await saveMutation.mutateAsync(submitData)
-      }
-
-      // Check if API response indicates success (result=1)
-      if (response && response.result === 1) {
-        // Only close modal and reset state on successful submission
-        setIsModalOpen(false)
-        setSelectedItem(undefined)
-        setModalMode("create")
-        refetch()
-        onTaskAdded?.()
-      } else {
-        // If result !== 1, don't close the modal - let user see the error
-        console.error(
-          "API returned error result:",
-          response?.result,
-          response?.message
-        )
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error)
-      // Don't close the modal on error - let user fix the issue and retry
-    } finally {
-      // Close the save confirmation dialog
-      setSaveConfirmation({
-        isOpen: false,
-        formData: null,
-        operationType: "create",
-      })
-    }
-  }, [
-    saveConfirmation.formData,
-    saveConfirmation.operationType,
-    jobDataProps,
-    selectedItem,
-    updateMutation,
-    saveMutation,
-    refetch,
-    onTaskAdded,
-  ])
 
   const handleCombinedService = useCallback((selectedIds: string[]) => {
     setSelectedItems(selectedIds)
@@ -808,29 +783,6 @@ export function CrewSignOnTab({
         />
       )}
 
-      {/* Save Confirmation */}
-      <SaveConfirmation
-        open={saveConfirmation.isOpen}
-        onOpenChange={(isOpen) =>
-          setSaveConfirmation((prev) => ({ ...prev, isOpen }))
-        }
-        title="Confirm Save"
-        itemName={
-          saveConfirmation.operationType === "update"
-            ? `Crew Sign On ${selectedItem?.crewName || ""}`
-            : "New Crew Sign On"
-        }
-        operationType={saveConfirmation.operationType}
-        onConfirm={handleConfirmSave}
-        onCancelAction={() =>
-          setSaveConfirmation({
-            isOpen: false,
-            formData: null,
-            operationType: "create",
-          })
-        }
-        isSaving={saveMutation.isPending || updateMutation.isPending}
-      />
       {/* Delete Confirmation */}
       <DeleteConfirmation
         open={deleteConfirmation.isOpen}

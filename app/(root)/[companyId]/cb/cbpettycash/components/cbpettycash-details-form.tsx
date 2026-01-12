@@ -41,6 +41,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
+import { PlusIcon, Repeat } from "lucide-react"
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -67,8 +68,13 @@ import {
   VesselAutocomplete,
   VoyageAutocomplete,
 } from "@/components/autocomplete"
+import SupplierSelectionDialog from "@/components/common/supplier-selection-dialog"
 import { DuplicateConfirmation } from "@/components/confirmation/duplicate-confirmation"
-import { CustomDateNew, CustomInput } from "@/components/custom"
+import {
+  CustomDateNew,
+  CustomInput,
+  CustomInputGroup,
+} from "@/components/custom"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
@@ -132,6 +138,9 @@ const CbPettyCashDetailsForm = React.forwardRef<
       useState(false)
     const [pendingSubmitData, setPendingSubmitData] =
       useState<CbPettyCashDtSchemaType | null>(null)
+
+    // State for supplier selection dialog
+    const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false)
 
     // Track if submit was attempted to show errors only after submit
     const [submitAttempted, setSubmitAttempted] = useState(false)
@@ -364,6 +373,57 @@ const CbPettyCashDetailsForm = React.forwardRef<
       focusFirstVisibleField()
     }
 
+    // Handler for repeat - clones the detail with highest seqNo
+    const handleRepeat = () => {
+      // Get current data_details from header form (most up-to-date)
+      const currentDataDetails = Hdform.getValues("data_details") || []
+
+      if (currentDataDetails.length === 0) {
+        toast.warning("No recent transaction to repeat")
+        return
+      }
+
+      // Find the item with the highest seqNo
+      const detailWithHighestSeqNo = currentDataDetails.reduce(
+        (highest, current) => {
+          const currentSeqNo = (current as CbPettyCashDtSchemaType).seqNo ?? 0
+          const highestSeqNo = (highest as CbPettyCashDtSchemaType).seqNo ?? 0
+          return currentSeqNo > highestSeqNo ? current : highest
+        }
+      ) as CbPettyCashDtSchemaType
+
+      const mostRecentDetail = detailWithHighestSeqNo
+
+      // Get next itemNo
+      const nextItemNo = getNextItemNo()
+
+      // Clone the most recent detail with new itemNo and reset IDs
+      const clonedDetail: CbPettyCashDtSchemaType = {
+        ...mostRecentDetail,
+        itemNo: nextItemNo,
+        seqNo: nextItemNo,
+        paymentId: "0",
+        paymentNo: "",
+        editVersion: 0,
+        // Reset amounts to 0 so user can enter new values
+        totAmt: 0,
+        totLocalAmt: 0,
+        totCtyAmt: 0,
+        gstAmt: 0,
+        gstLocalAmt: 0,
+        gstCtyAmt: 0,
+      }
+
+      // Populate code/name fields from lookup data
+      const populatedDetail = populateCodeNameFields(clonedDetail)
+
+      // Reset form with cloned values
+      form.reset(populatedDetail)
+      setSubmitAttempted(false)
+      toast.success("Recent transaction cloned")
+      focusFirstVisibleField()
+    }
+
     // Function to recalculate local amounts when exchange rate changes
     // This is called during form validation/submission and from handleExchangeRateBlur
     // Uses reusable helper function from cb-payment-calculations
@@ -401,7 +461,20 @@ const CbPettyCashDetailsForm = React.forwardRef<
           defaultGlId > 0 &&
           (!currentGlId || currentGlId === 0)
         ) {
-          form.setValue("glId", defaultGlId, { shouldValidate: false })
+          // If lookup data is already loaded, populate code/name immediately
+          if (chartOfAccounts && chartOfAccounts.length > 0) {
+            const glData = chartOfAccounts.find(
+              (gl: IChartOfAccountLookup) => gl.glId === defaultGlId
+            )
+            if (glData) {
+              form.setValue("glCode", glData.glCode || "")
+              form.setValue("glName", glData.glName || "")
+            }
+          }
+          // Set glId and trigger validation to clear any existing errors
+          form.setValue("glId", defaultGlId, { shouldValidate: true })
+          // Clear any existing error for glId field
+          form.clearErrors("glId")
         }
 
         // Set default GST ID if not already set
@@ -410,13 +483,34 @@ const CbPettyCashDetailsForm = React.forwardRef<
           defaultGstId > 0 &&
           (!currentGstId || currentGstId === 0)
         ) {
-          form.setValue("gstId", defaultGstId, { shouldValidate: false })
+          // If lookup data is already loaded, populate name immediately
+          if (gsts && gsts.length > 0) {
+            const gstData = gsts.find(
+              (gst: IGstLookup) => gst.gstId === defaultGstId
+            )
+            if (gstData) {
+              form.setValue("gstName", gstData.gstName || "")
+              // Trigger GST percentage calculation after setting default GST
+              setGSTPercentage(Hdform, form, decimals?.[0] || {}, visible)
+            }
+          }
+          // Set gstId and trigger validation to clear any existing errors
+          form.setValue("gstId", defaultGstId, { shouldValidate: true })
+          // Clear any existing error for gstId field
+          form.clearErrors("gstId")
         }
       }, 100)
 
       return () => clearTimeout(timeoutId)
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [defaultGlId, defaultGstId, editingDetail, existingDetails.length])
+    }, [
+      defaultGlId,
+      defaultGstId,
+      editingDetail,
+      existingDetails.length,
+      chartOfAccounts,
+      gsts,
+    ])
 
     // Populate code/name fields when defaults are applied (only for new records)
     useEffect(() => {
@@ -426,23 +520,64 @@ const CbPettyCashDetailsForm = React.forwardRef<
       const currentGstId = form.getValues("gstId")
 
       // Populate GL code/name if glId is set and code/name are empty
-      if (currentGlId && currentGlId > 0 && !form.getValues("glCode")) {
+      // Also check if we need to apply defaultGlId if it wasn't set initially
+      if (currentGlId && currentGlId > 0) {
         const glData = chartOfAccounts?.find(
           (gl: IChartOfAccountLookup) => gl.glId === currentGlId
         )
         if (glData) {
+          // Only update if code/name are empty or don't match
+          const currentGlCode = form.getValues("glCode")
+          const currentGlName = form.getValues("glName")
+          if (!currentGlCode || currentGlCode !== glData.glCode) {
+            form.setValue("glCode", glData.glCode || "")
+          }
+          if (!currentGlName || currentGlName !== glData.glName) {
+            form.setValue("glName", glData.glName || "")
+          }
+        }
+      } else if (
+        defaultGlId &&
+        defaultGlId > 0 &&
+        chartOfAccounts &&
+        chartOfAccounts.length > 0
+      ) {
+        // If glId is 0 but we have a default, apply it now that lookup data is loaded
+        const glData = chartOfAccounts.find(
+          (gl: IChartOfAccountLookup) => gl.glId === defaultGlId
+        )
+        if (glData) {
           form.setValue("glCode", glData.glCode || "")
           form.setValue("glName", glData.glName || "")
+          form.setValue("glId", defaultGlId, { shouldValidate: true })
+          // Clear any existing error for glId field
+          form.clearErrors("glId")
         }
       }
 
       // Populate GST name if gstId is set and name is empty
-      if (currentGstId && currentGstId > 0 && !form.getValues("gstName")) {
+      if (currentGstId && currentGstId > 0) {
         const gstData = gsts?.find(
           (gst: IGstLookup) => gst.gstId === currentGstId
         )
         if (gstData) {
+          const currentGstName = form.getValues("gstName")
+          if (!currentGstName || currentGstName !== gstData.gstName) {
+            form.setValue("gstName", gstData.gstName || "")
+            // Trigger GST percentage calculation after setting default GST
+            setGSTPercentage(Hdform, form, decimals?.[0] || {}, visible)
+          }
+        }
+      } else if (defaultGstId && defaultGstId > 0 && gsts && gsts.length > 0) {
+        // If gstId is 0 but we have a default, apply it now that lookup data is loaded
+        const gstData = gsts.find(
+          (gst: IGstLookup) => gst.gstId === defaultGstId
+        )
+        if (gstData) {
           form.setValue("gstName", gstData.gstName || "")
+          form.setValue("gstId", defaultGstId, { shouldValidate: true })
+          // Clear any existing error for gstId field
+          form.clearErrors("gstId")
           // Trigger GST percentage calculation after setting default GST
           setGSTPercentage(Hdform, form, decimals?.[0] || {}, visible)
         }
@@ -514,14 +649,14 @@ const CbPettyCashDetailsForm = React.forwardRef<
           supplierRegNo: editingDetail.supplierRegNo ?? "",
           serviceCategoryId: editingDetail.serviceCategoryId ?? 0,
           serviceCategoryName: editingDetail.serviceCategoryName ?? "",
-          glId: editingDetail.glId ?? 0,
+          glId: editingDetail.glId ?? defaultGlId,
           glCode: editingDetail.glCode ?? "",
           glName: editingDetail.glName ?? "",
           totAmt: editingDetail.totAmt ?? 0,
           totLocalAmt: editingDetail.totLocalAmt ?? 0,
           totCtyAmt: editingDetail.totCtyAmt ?? 0,
           remarks: editingDetail.remarks ?? "",
-          gstId: editingDetail.gstId ?? 0,
+          gstId: editingDetail.gstId ?? defaultGstId,
           gstName: editingDetail.gstName ?? "",
           gstPercentage: editingDetail.gstPercentage ?? 0,
           gstAmt: editingDetail.gstAmt ?? 0,
@@ -689,7 +824,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
           paymentNo: updatedData.paymentNo ?? "",
           itemNo: updatedData.itemNo ?? currentItemNo,
           seqNo: updatedData.seqNo ?? currentItemNo,
-          glId: populatedData.glId ?? 0,
+          glId: populatedData.glId ?? defaultGlId,
           glCode: populatedData.glCode ?? "",
           glName: populatedData.glName ?? "",
           invoiceDate: (() => {
@@ -719,7 +854,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
           totLocalAmt: updatedData.totLocalAmt ?? 0,
           totCtyAmt: updatedData.totCtyAmt ?? 0,
           remarks: updatedData.remarks ?? "",
-          gstId: populatedData.gstId ?? 0,
+          gstId: populatedData.gstId ?? defaultGstId,
           gstName: populatedData.gstName ?? "",
           gstPercentage: updatedData.gstPercentage ?? 0,
           gstAmt: updatedData.gstAmt ?? 0,
@@ -831,6 +966,23 @@ const CbPettyCashDetailsForm = React.forwardRef<
       const nextItemNo = getNextItemNo()
       form.reset(createDefaultValues(nextItemNo))
       toast.info("Form reset due to duplicate record")
+    }
+
+    // Handle supplier selection from dialog
+    const handleSupplierSelect = (
+      supplierName: string,
+      supplierRegNo: string
+    ) => {
+      form.setValue("supplierName", supplierName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      form.setValue("supplierRegNo", supplierRegNo, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      form.trigger("supplierName")
+      form.trigger("supplierRegNo")
     }
 
     // ============================================================================
@@ -1317,11 +1469,18 @@ const CbPettyCashDetailsForm = React.forwardRef<
 
             {/* Supplier Name */}
             {visible?.m_SupplierName && (
-              <CustomInput
+              <CustomInputGroup
                 form={form}
                 name="supplierName"
                 label="Supplier Name"
                 isRequired={true}
+                className="col-span-1"
+                buttonText=""
+                buttonIcon={<PlusIcon className="h-4 w-4" />}
+                buttonPosition="right"
+                onButtonClick={() => setIsSupplierDialogOpen(true)}
+                buttonVariant="default"
+                buttonDisabled={false}
                 onChangeEvent={checkDuplicateOnChange}
               />
             )}
@@ -1623,6 +1782,18 @@ const CbPettyCashDetailsForm = React.forwardRef<
               >
                 Cancel
               </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                title="Repeat - Clone most recent transaction"
+                size="sm"
+                onClick={handleRepeat}
+                disabled={existingDetails.length === 0 || isCancelled}
+              >
+                <Repeat className="mr-1 h-4 w-4" />
+                Repeat
+              </Button>
             </div>
           </form>
         </FormProvider>
@@ -1658,6 +1829,14 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 }
               : undefined
           }
+        />
+
+        {/* Supplier Selection Dialog */}
+        <SupplierSelectionDialog
+          open={isSupplierDialogOpen}
+          onOpenChangeAction={setIsSupplierDialogOpen}
+          onSelectSupplierAction={handleSupplierSelect}
+          companyId={companyId}
         />
       </>
     )

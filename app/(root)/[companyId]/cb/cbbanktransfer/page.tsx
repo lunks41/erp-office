@@ -1168,7 +1168,7 @@ export default function BankTransferPage() {
               //disabled={!bankTransfer}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1318,7 +1318,7 @@ export default function BankTransferPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleBankTransferReset}
         itemName={bankTransfer?.transferNo}
-        title="Reset Bank Transfer"
+        title="New Bank Transfer"
         description="This will clear all unsaved changes."
       />
 

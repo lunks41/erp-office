@@ -79,7 +79,6 @@ export default function Main({
     setTableKey((prev) => prev + 1)
   }, [currentGLjournalId, currentGLJournalNo])
 
-
   // Helper function to recalculate header totals
   const recalculateHeaderTotals = () => {
     const currentDetails = form.getValues("data_details") || []
@@ -224,10 +223,10 @@ export default function Main({
   }
 
   const handleDataReorder = (newData: IGLJournalDt[]) => {
-    // Update itemNo sequentially after reordering
+    // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
       ...item,
-      itemNo: index + 1,
+      seqNo: index + 1,
     }))
     form.setValue(
       "data_details",
@@ -304,7 +303,6 @@ export default function Main({
           setItemToDelete(null)
         }}
       />
-
     </div>
   )
 }

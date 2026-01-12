@@ -1199,7 +1199,7 @@ export default function DocSetOffPage() {
               //disabled={!docSetOff}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1349,7 +1349,7 @@ export default function DocSetOffPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleDocSetOffReset}
         itemName={docSetOff?.setoffNo}
-        title="Reset DocSetOff"
+        title="New DocSetOff"
         description="This will clear all unsaved changes."
       />
 

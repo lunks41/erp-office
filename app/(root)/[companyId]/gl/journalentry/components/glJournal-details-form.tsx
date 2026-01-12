@@ -857,8 +857,14 @@ const GLJournalDetailsForm = React.forwardRef<
     // CALCULATION HANDLERS
     // ============================================================================
 
-    const triggerTotalAmountCalculation = () => {
+    const triggerTotalAmountCalculation = (newTotAmt?: number) => {
       const rowData = form.getValues()
+
+      // Use the provided newTotAmt if available, otherwise use the value from form
+      // This ensures we use the correct value even if form state hasn't updated yet
+      if (newTotAmt !== undefined) {
+        rowData.totAmt = newTotAmt
+      }
 
       // Sync city exchange rate with exchange rate if needed
       const exchangeRate = Hdform.getValues("exhRate") || 0
@@ -909,7 +915,8 @@ const GLJournalDetailsForm = React.forwardRef<
       }
 
       form.setValue("totAmt", value)
-      triggerTotalAmountCalculation()
+      // Pass the new value directly to ensure correct calculation
+      triggerTotalAmountCalculation(value)
     }
 
     // Handle gstPercentage focus - capture original value

@@ -591,7 +591,7 @@ export default function DocSetOffPage() {
       createDate: currentDateTime,
       data_details: [],
     })
-    toast.success("DocSetOff reset successfully")
+    toast.success("Ready for new DocSetOff")
   }
 
   // Handle Print Doc Set Off Report
@@ -1171,7 +1171,7 @@ export default function DocSetOffPage() {
               //disabled={!docSetOff}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1321,7 +1321,7 @@ export default function DocSetOffPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleDocSetOffReset}
         itemName={docSetOff?.setoffNo}
-        title="Reset DocSetOff"
+        title="New DocSetOff"
         description="This will clear all unsaved changes."
       />
 

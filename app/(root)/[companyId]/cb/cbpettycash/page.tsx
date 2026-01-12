@@ -1441,7 +1441,7 @@ export default function CbPettyCashPage() {
               //disabled={!cbPettyCash}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1594,7 +1594,7 @@ export default function CbPettyCashPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleCbPettyCashReset}
         itemName={cbPettyCash?.paymentNo}
-        title="Reset CbPettyCash"
+        title="New CbPettyCash"
         description="This will clear all unsaved changes."
       />
 

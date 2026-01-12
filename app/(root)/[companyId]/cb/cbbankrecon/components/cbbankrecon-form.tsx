@@ -53,10 +53,20 @@ export default function BankReconForm({
 
   // Handle bank selection
   const handleBankChange = React.useCallback(
-    (_selectedBank: IBankLookup | null) => {
-      // Additional logic when bank changes if needed
+    (selectedBank: IBankLookup | null) => {
+      // Additional logic when bank changes
+      // When bank changes in New Mode, update currency to match bank's currency
+      if (!_isEdit && selectedBank && selectedBank.currencyId) {
+        const currentCurrencyId = form.getValues("currencyId")
+
+        // Only update currency if it's different from bank's currency
+        if (currentCurrencyId !== selectedBank.currencyId) {
+          form.setValue("currencyId", selectedBank.currencyId)
+          form.trigger("currencyId")
+        }
+      }
     },
-    []
+    [_isEdit, form]
   )
 
   // Handle currency selection

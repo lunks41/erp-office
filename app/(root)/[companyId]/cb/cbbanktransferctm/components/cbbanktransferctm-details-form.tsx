@@ -745,7 +745,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
               className="ml-auto"
               onClick={handleFormReset}
             >
-              Reset
+              New
             </Button>
 
             <Button

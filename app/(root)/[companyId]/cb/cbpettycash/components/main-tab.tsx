@@ -150,8 +150,8 @@ export default function Main({
 
       setEditingDetail(null)
     } else {
-      // Add new row
-      const updatedData = [...currentData, rowData]
+      // Add new row at the beginning (most recent shows at top)
+      const updatedData = [rowData, ...currentData]
       console.log("updatedData", updatedData)
       form.setValue(
         "data_details",
@@ -223,10 +223,10 @@ export default function Main({
   }
 
   const handleDataReorder = (newData: ICbPettyCashDt[]) => {
-    // Update itemNo sequentially after reordering
+    // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
       ...item,
-      itemNo: index + 1,
+      seqNo: index + 1,
     }))
     form.setValue(
       "data_details",
@@ -260,7 +260,7 @@ export default function Main({
         visible={visible}
         required={required}
         existingDetails={dataDetails as CbPettyCashDtSchemaType[]}
-        defaultGlId={defaults.ap.invoiceGlId}
+        defaultGlId={defaults.cb.pettyCashGlId}
         defaultGstId={defaults.common.gstId}
         isCancelled={isCancelled}
       />

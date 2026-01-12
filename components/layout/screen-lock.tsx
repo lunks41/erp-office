@@ -313,31 +313,33 @@ export function ScreenLock({ variant = "icon", className }: ScreenLockProps) {
       window.removeEventListener("manual-screen-lock", handleManualLock)
   }, [isAuthenticated, lockScreen])
   // Handle inactivity timeout
-  useEffect(() => {
-    if (!isAuthenticated) return
-    const updateActivity = () => {
-      setLastActivity(Date.now())
-    }
-    const events = [
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart",
-    ]
-    events.forEach((event) => window.addEventListener(event, updateActivity))
-    const inactivityCheck = setInterval(() => {
-      if (Date.now() - lastActivity > INACTIVITY_TIMEOUT) {
-        lockScreen()
-      }
-    }, 1000)
-    return () => {
-      events.forEach((event) =>
-        window.removeEventListener(event, updateActivity)
-      )
-      clearInterval(inactivityCheck)
-    }
-  }, [lastActivity, isAuthenticated, lockScreen])
+  // DISABLED: Automatic inactivity lock is disabled because it locks tabs individually
+  // even when user is active in other tabs, causing poor user experience
+  // useEffect(() => {
+  //   if (!isAuthenticated) return
+  //   const updateActivity = () => {
+  //     setLastActivity(Date.now())
+  //   }
+  //   const events = [
+  //     "mousedown",
+  //     "mousemove",
+  //     "keypress",
+  //     "scroll",
+  //     "touchstart",
+  //   ]
+  //   events.forEach((event) => window.addEventListener(event, updateActivity))
+  //   const inactivityCheck = setInterval(() => {
+  //     if (Date.now() - lastActivity > INACTIVITY_TIMEOUT) {
+  //       lockScreen()
+  //     }
+  //   }, 1000)
+  //   return () => {
+  //     events.forEach((event) =>
+  //       window.removeEventListener(event, updateActivity)
+  //     )
+  //     clearInterval(inactivityCheck)
+  //   }
+  // }, [lastActivity, isAuthenticated, lockScreen])
   // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {

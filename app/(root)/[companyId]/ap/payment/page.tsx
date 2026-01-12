@@ -1212,7 +1212,7 @@ export default function PaymentPage() {
               //disabled={!payment}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1361,7 +1361,7 @@ export default function PaymentPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handlePaymentReset}
         itemName={payment?.paymentNo}
-        title="Reset Payment"
+        title="New Payment"
         description="This will clear all unsaved changes."
       />
 

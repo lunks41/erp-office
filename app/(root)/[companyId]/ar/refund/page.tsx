@@ -608,7 +608,7 @@ export default function RefundPage() {
       createDate: currentDateTime,
       data_details: [],
     })
-    toast.success("Refund reset successfully")
+    toast.success("Ready for new Refund")
   }
 
   // Handle Print Refund Report
@@ -1199,7 +1199,7 @@ export default function RefundPage() {
               //disabled={!refund}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1347,7 +1347,7 @@ export default function RefundPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleRefundReset}
         itemName={refund?.refundNo}
-        title="Reset Refund"
+        title="New Refund"
         description="This will clear all unsaved changes."
       />
 

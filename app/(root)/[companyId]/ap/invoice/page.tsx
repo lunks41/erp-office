@@ -1424,7 +1424,7 @@ export default function InvoicePage() {
               //disabled={!invoice}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1572,7 +1572,7 @@ export default function InvoicePage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleInvoiceReset}
         itemName={invoice?.invoiceNo}
-        title="Reset Invoice"
+        title="New Invoice"
         description="This will clear all unsaved changes."
       />
 

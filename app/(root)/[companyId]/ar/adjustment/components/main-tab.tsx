@@ -222,10 +222,10 @@ export default function Main({
   }
 
   const handleDataReorder = (newData: IArAdjustmentDt[]) => {
-    // Update itemNo sequentially after reordering
+    // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
       ...item,
-      itemNo: index + 1,
+      seqNo: index + 1,
     }))
     form.setValue(
       "data_details",

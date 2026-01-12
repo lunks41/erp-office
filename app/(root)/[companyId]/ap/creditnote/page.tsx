@@ -1460,7 +1460,7 @@ export default function CreditNotePage() {
               //disabled={!creditNote}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1613,7 +1613,7 @@ export default function CreditNotePage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleCreditNoteReset}
         itemName={creditNote?.creditNoteNo}
-        title="Reset CreditNote"
+        title="New CreditNote"
         description="This will clear all unsaved changes."
       />
 

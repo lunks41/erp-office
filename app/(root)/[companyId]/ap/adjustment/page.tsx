@@ -1486,7 +1486,7 @@ export default function AdjustmentPage() {
               //disabled={!adjustment}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1639,7 +1639,7 @@ export default function AdjustmentPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleAdjustmentReset}
         itemName={adjustment?.adjustmentNo}
-        title="Reset Adjustment"
+        title="New Adjustment"
         description="This will clear all unsaved changes."
       />
 

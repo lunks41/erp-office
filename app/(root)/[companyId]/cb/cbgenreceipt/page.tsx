@@ -1398,7 +1398,7 @@ export default function CbGenReceiptPage() {
               //disabled={!cbGenReceipt}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1551,7 +1551,7 @@ export default function CbGenReceiptPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleCbGenReceiptReset}
         itemName={cbGenReceipt?.receiptNo}
-        title="Reset CbGenReceipt"
+        title="New CbGenReceipt"
         description="This will clear all unsaved changes."
       />
 

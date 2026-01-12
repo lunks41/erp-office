@@ -617,7 +617,7 @@ export default function ReceiptPage() {
       createDate: currentDateTime,
       data_details: [],
     })
-    toast.success("Receipt reset successfully")
+    toast.success("Ready for new Receipt")
   }
 
   // Handle Print Receipt Report
@@ -1216,7 +1216,7 @@ export default function ReceiptPage() {
               //disabled={!receipt}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1365,7 +1365,7 @@ export default function ReceiptPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleReceiptReset}
         itemName={receipt?.receiptNo}
-        title="Reset Receipt"
+        title="New Receipt"
         description="This will clear all unsaved changes."
       />
 

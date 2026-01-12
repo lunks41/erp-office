@@ -261,7 +261,7 @@ export default function InvoiceDetailsForm() {
               className="ml-auto"
               onClick={() => form.reset()}
             >
-              Reset
+              New
             </Button>
             <Button type="submit" size="sm" className="ml-auto">
               Add

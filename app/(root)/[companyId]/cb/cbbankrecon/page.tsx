@@ -313,7 +313,7 @@ export default function BankReconPage() {
       ...defaultBankRecon,
       data_details: [],
     })
-    toast.success("Bank Reconciliation reset successfully")
+    toast.success("Ready for new Bank Reconciliation")
   }
 
   // Handle Print Bank Recon Report
@@ -777,7 +777,7 @@ export default function BankReconPage() {
               onClick={() => setShowResetConfirm(true)}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -918,7 +918,7 @@ export default function BankReconPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleBankReconReset}
         itemName={bankRecon?.reconNo}
-        title="Reset Bank Reconciliation"
+        title="New Bank Reconciliation"
         description="This will clear all unsaved changes."
       />
 

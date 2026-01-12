@@ -1297,7 +1297,7 @@ export default function ArapcontraPage() {
               //disabled={!invoice}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1445,7 +1445,7 @@ export default function ArapcontraPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleContraReset}
         itemName={contra?.contraNo}
-        title="Reset Contra"
+        title="New Contra"
         description="This will clear all unsaved changes."
       />
 

@@ -160,7 +160,7 @@ export default function Main({
 
     // Trigger form validation
     form.trigger("data_details")
-    
+
     // Recalculate header totals after adding/updating row
     recalculateHeaderTotals()
   }
@@ -221,16 +221,16 @@ export default function Main({
   }
 
   const handleDataReorder = (newData: IApInvoiceDt[]) => {
-    // Update itemNo sequentially after reordering
+    // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
       ...item,
-      itemNo: index + 1,
+      seqNo: index + 1,
     }))
     form.setValue(
       "data_details",
       reorderedData as unknown as ApInvoiceDtSchemaType[]
     )
-    
+
     // Recalculate header totals after reordering (in case amounts were affected)
     recalculateHeaderTotals()
   }

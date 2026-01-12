@@ -796,7 +796,7 @@ export default function InvoicePage() {
               disabled={!form.getValues("data_details")?.length}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -895,7 +895,7 @@ export default function InvoicePage() {
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
               {showConfirmDialog.save && "Save Invoice"}
-              {showConfirmDialog.reset && "Reset Invoice"}
+              {showConfirmDialog.reset && "New Invoice"}
               {showConfirmDialog.clone && "Clone Invoice"}
               {showConfirmDialog.delete && "Delete Invoice"}
               {showConfirmDialog.load && "Load Invoice"}
@@ -904,7 +904,7 @@ export default function InvoicePage() {
           <div className="p-6 text-center">
             <h3 className="mb-4 text-lg font-medium">
               {showConfirmDialog.save && "Do you want to save changes?"}
-              {showConfirmDialog.reset && "Do you want to reset all fields?"}
+              {showConfirmDialog.reset && "Do you want to create a new invoice?"}
               {showConfirmDialog.clone && "Do you want to clone this invoice?"}
               {showConfirmDialog.delete &&
                 "Do you want to delete this invoice?"}

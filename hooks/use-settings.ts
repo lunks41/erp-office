@@ -160,6 +160,7 @@ export const useUserSettingDefaults = () => {
       // Cash & Bank defaults
       cb: {
         currencyId: settings?.cb_CurrencyId || 0,
+        pettyCashGlId: settings?.ap_IN_GLId || 0,
       },
       // General Ledger defaults
       gl: {

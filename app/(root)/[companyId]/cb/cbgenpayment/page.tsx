@@ -1398,7 +1398,7 @@ export default function CbGenPaymentPage() {
               //disabled={!cbGenPayment}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1551,7 +1551,7 @@ export default function CbGenPaymentPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleCbGenPaymentReset}
         itemName={cbGenPayment?.paymentNo}
-        title="Reset CbGenPayment"
+        title="New CbGenPayment"
         description="This will clear all unsaved changes."
       />
 

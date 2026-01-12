@@ -781,7 +781,7 @@ export default function AdjustmentPage() {
       createDate: currentDateTime,
       data_details: [],
     })
-    toast.success("Adjustment reset successfully")
+    toast.success("Ready for new Adjustment")
   }
 
   // Handle Print Adjustment Report
@@ -1491,7 +1491,7 @@ export default function AdjustmentPage() {
               //disabled={!adjustment}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1644,7 +1644,7 @@ export default function AdjustmentPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleAdjustmentReset}
         itemName={adjustment?.adjustmentNo}
-        title="Reset Adjustment"
+        title="New Adjustment"
         description="This will clear all unsaved changes."
       />
 

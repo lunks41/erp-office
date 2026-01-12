@@ -281,7 +281,7 @@ export default function BankReconTable({
     ) {
       setSearchQuery(initialFilters.search)
     }
-  }, [initialFilters?.search])
+  }, [initialFilters?.search, searchQuery])
 
   // Show loading spinner while data is loading
   if (isLoadingBankRecons) {

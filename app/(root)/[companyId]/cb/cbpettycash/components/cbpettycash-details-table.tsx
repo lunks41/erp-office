@@ -8,7 +8,7 @@ import { format, isValid } from "date-fns"
 import { parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
-import { AccountBaseTable } from "@/components/table/table-account"
+import { AccountBaseTablev1 } from "@/components/table/table-account-v1"
 
 // Use flexible data type that can work with form data
 interface CbPettyCashDetailsTableProps {
@@ -59,14 +59,6 @@ export default function CbPettyCashDetailsTable({
 
   // Define columns with visible prop checks
   const columns: ColumnDef<ICbPettyCashDt>[] = [
-    {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: ICbPettyCashDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
     {
       accessorKey: "seqNo",
       header: "Seq No",
@@ -204,6 +196,14 @@ export default function CbPettyCashDetailsTable({
           },
         ]
       : []),
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: ICbPettyCashDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
     ...(visible?.m_GstNo
       ? [
           {
@@ -339,14 +339,14 @@ export default function CbPettyCashDetailsTable({
 
   return (
     <div className="w-full px-2 pt-1 pb-2">
-      <AccountBaseTable
+      <AccountBaseTablev1
         data={data}
         columns={columns}
         moduleId={ModuleId.cb}
         transactionId={CBTransactionId.cbpettycash}
         tableName={TableName.cbPettyCashDt}
         emptyMessage="No cbPettyCash details found."
-        accessorId="itemNo"
+        accessorId="seqNo"
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

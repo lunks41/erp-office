@@ -298,10 +298,25 @@ export default function CbGenPaymentForm({
 
   // Handle bank selection
   const handleBankChange = React.useCallback(
-    (_selectedBank: IBankLookup | null) => {
+    async (selectedBank: IBankLookup | null) => {
       // Additional logic when bank changes
+      // When bank changes in New Mode, update currency to match bank's currency
+      if (!isEdit && selectedBank && selectedBank.currencyId) {
+        const currentCurrencyId = form.getValues("currencyId")
+
+        // Only update currency if it's different from bank's currency
+        if (currentCurrencyId !== selectedBank.currencyId) {
+          form.setValue("currencyId", selectedBank.currencyId)
+
+          // Trigger exchange rate fetch when currency is set
+          await setExchangeRate(form, exhRateDec, visible)
+          if (visible?.m_CtyCurr) {
+            await setExchangeRateLocal(form, exhRateDec)
+          }
+        }
+      }
     },
-    []
+    [isEdit, form, exhRateDec, visible]
   )
 
   // Handle payment type change

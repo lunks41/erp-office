@@ -34,7 +34,7 @@ interface ResetConfirmationProps {
 }
 
 export function ResetConfirmation({
-  title = "Reset Confirmation",
+  title = "New Confirmation",
   description = "This will clear all unsaved changes.",
   itemName,
   open,
@@ -64,8 +64,8 @@ export function ResetConfirmation({
 
   // Construct the full description
   const fullDescription = itemName
-    ? `Do you want to reset "${itemName}"? ${description}`
-    : `Do you want to reset all fields? ${description}`
+    ? `Do you want to create a new "${itemName}"? ${description}`
+    : `Do you want to create a new record? ${description}`
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -86,7 +86,7 @@ export function ResetConfirmation({
             className="bg-orange-600 text-white hover:bg-orange-700"
           >
             {isResetting && <Spinner className="mr-2" size="sm" />}
-            {isResetting ? "Resetting..." : "Reset"}
+            {isResetting ? "Creating..." : "New"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

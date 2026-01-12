@@ -298,10 +298,25 @@ export default function CbPettyCashForm({
 
   // Handle bank selection
   const handleBankChange = React.useCallback(
-    (_selectedBank: IBankLookup | null) => {
+    async (selectedBank: IBankLookup | null) => {
       // Additional logic when bank changes
+      // When bank changes in New Mode, update currency to match bank's currency
+      if (!isEdit && selectedBank && selectedBank.currencyId) {
+        const currentCurrencyId = form.getValues("currencyId")
+
+        // Only update currency if it's different from bank's currency
+        if (currentCurrencyId !== selectedBank.currencyId) {
+          form.setValue("currencyId", selectedBank.currencyId)
+
+          // Trigger exchange rate fetch when currency is set
+          await setExchangeRate(form, exhRateDec, visible)
+          if (visible?.m_CtyCurr) {
+            await setExchangeRateLocal(form, exhRateDec)
+          }
+        }
+      }
     },
-    []
+    [isEdit, form, exhRateDec, visible]
   )
 
   // Handle payment type change
@@ -622,31 +637,34 @@ export default function CbPettyCashForm({
               />
             </>
           )}
-
-          {/* Bank Charges Amount */}
-          <CustomNumberInput
-            form={form}
-            name="bankChgAmt"
-            label="Bank Charges Amount"
-            onFocusEvent={handleBankChgAmtFocus}
-            onBlurEvent={handleBankChgAmtChange}
-          />
-
-          {/* Bank Charges Local Amount */}
-          <CustomNumberInput
-            form={form}
-            name="bankChgLocalAmt"
-            label="Bank Charges Local Amount"
-            isDisabled={true}
-          />
-
+          <div className="col-span-1 flex flex-row gap-1">
+            <div className="flex-1">
+              {/* Bank Charges Amount */}
+              <CustomNumberInput
+                form={form}
+                name="bankChgAmt"
+                label="Bank Chrg Amt"
+                onFocusEvent={handleBankChgAmtFocus}
+                onBlurEvent={handleBankChgAmtChange}
+              />
+            </div>
+            <div className="flex-1">
+              {/* Bank Charges Local Amount */}
+              <CustomNumberInput
+                form={form}
+                name="bankChgLocalAmt"
+                label="Bank Chrg Loc."
+                isDisabled={true}
+              />
+            </div>
+          </div>
           {/* Remarks */}
           <CustomTextarea
             form={form}
             name="remarks"
             label="Remarks"
             isRequired={required?.m_Remarks_Hd}
-            className="col-span-2"
+            className="col-span-1"
           />
         </div>
 

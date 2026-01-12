@@ -42,7 +42,6 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
-import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -88,16 +87,6 @@ export function LaunchServicesTab({
   const [showPurchaseModal, setShowPurchaseModal] = useState(false)
   const [debitNoteHd, setDebitNoteHd] = useState<IDebitNoteHd | null>(null)
 
-  // State for save confirmation
-  const [saveConfirmation, setSaveConfirmation] = useState<{
-    isOpen: boolean
-    formData: Partial<ILaunchService> | null
-    operationType: "create" | "update"
-  }>({
-    isOpen: false,
-    formData: null,
-    operationType: "create",
-  })
   // State for delete confirmation
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean
@@ -356,75 +345,55 @@ export function LaunchServicesTab({
   )
 
   const handleSubmit = useCallback(
-    (formData: LaunchServiceSchemaType) => {
-      // Show save confirmation instead of directly submitting
-      setSaveConfirmation({
-        isOpen: true,
-        formData,
-        operationType: modalMode === "edit" ? "update" : "create",
-      })
+    async (formData: LaunchServiceSchemaType) => {
+      try {
+        const processedData = {
+          ...formData,
+          date: formatDateForApi(formData.date) || undefined,
+        }
+        const submitData = { ...processedData, ...jobDataProps }
+
+        let response
+        if (modalMode === "edit" && selectedItem) {
+          response = await updateMutation.mutateAsync({
+            ...submitData,
+            launchServiceId: selectedItem.launchServiceId,
+          })
+        } else {
+          response = await saveMutation.mutateAsync(submitData)
+        }
+
+        // Check if API response indicates success (result=1)
+        if (response && response.result === 1) {
+          // Only close modal and reset state on successful submission
+          setIsModalOpen(false)
+          setSelectedItem(undefined)
+          setModalMode("create")
+          refetch()
+          onTaskAdded?.()
+        } else {
+          // If result !== 1, don't close the modal - let user see the error
+          console.error(
+            "API returned error result:",
+            response?.result,
+            response?.message
+          )
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error)
+        // Don't close the modal on error - let user fix the issue and retry
+      }
     },
-    [modalMode]
+    [
+      modalMode,
+      jobDataProps,
+      selectedItem,
+      updateMutation,
+      saveMutation,
+      refetch,
+      onTaskAdded,
+    ]
   )
-
-  // Actual save function that gets called after confirmation
-  const handleConfirmSave = useCallback(async () => {
-    if (!saveConfirmation.formData) return
-
-    try {
-      const processedData = {
-        ...saveConfirmation.formData,
-        date: formatDateForApi(saveConfirmation.formData.date) || undefined,
-      }
-      const submitData = { ...processedData, ...jobDataProps }
-
-      let response
-      if (saveConfirmation.operationType === "update" && selectedItem) {
-        response = await updateMutation.mutateAsync({
-          ...submitData,
-          launchServiceId: selectedItem.launchServiceId,
-        })
-      } else {
-        response = await saveMutation.mutateAsync(submitData)
-      }
-
-      // Check if API response indicates success (result=1)
-      if (response && response.result === 1) {
-        // Only close modal and reset state on successful submission
-        setIsModalOpen(false)
-        setSelectedItem(undefined)
-        setModalMode("create")
-        refetch()
-        onTaskAdded?.()
-      } else {
-        // If result !== 1, don't close the modal - let user see the error
-        console.error(
-          "API returned error result:",
-          response?.result,
-          response?.message
-        )
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error)
-      // Don't close the modal on error - let user fix the issue and retry
-    } finally {
-      // Close the save confirmation dialog
-      setSaveConfirmation({
-        isOpen: false,
-        formData: null,
-        operationType: "create",
-      })
-    }
-  }, [
-    saveConfirmation.formData,
-    saveConfirmation.operationType,
-    jobDataProps,
-    selectedItem,
-    updateMutation,
-    saveMutation,
-    refetch,
-    onTaskAdded,
-  ])
 
   const handleRefreshLaunchServices = useCallback(() => {
     refetch()
@@ -817,29 +786,6 @@ export function LaunchServicesTab({
           isConfirmed={isConfirmed}
         />
       )}
-      {/* Save Confirmation */}
-      <SaveConfirmation
-        open={saveConfirmation.isOpen}
-        onOpenChange={(isOpen) =>
-          setSaveConfirmation((prev) => ({ ...prev, isOpen }))
-        }
-        title="Confirm Save"
-        itemName={
-          saveConfirmation.operationType === "update"
-            ? `Launch Service ${selectedItem?.chargeName || ""}`
-            : "New Launch Service"
-        }
-        operationType={saveConfirmation.operationType}
-        onConfirm={handleConfirmSave}
-        onCancelAction={() =>
-          setSaveConfirmation({
-            isOpen: false,
-            formData: null,
-            operationType: "create",
-          })
-        }
-        isSaving={saveMutation.isPending || updateMutation.isPending}
-      />
       {/* Delete Confirmation */}
       <DeleteConfirmation
         open={deleteConfirmation.isOpen}

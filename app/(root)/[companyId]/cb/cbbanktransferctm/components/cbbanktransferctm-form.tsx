@@ -102,10 +102,22 @@ export default function CbBankTransferCtmForm({
 
   // Handle bank selection
   const handleBankChange = React.useCallback(
-    (_selectedBank: IBankLookup | null) => {
-      // Additional logic when bank changes if needed
+    async (selectedBank: IBankLookup | null) => {
+      // Additional logic when bank changes
+      // When FROM bank changes in New Mode, update FROM currency to match bank's currency
+      if (!_isEdit && selectedBank && selectedBank.currencyId) {
+        const currentFromCurrencyId = form.getValues("fromCurrencyId")
+
+        // Only update currency if it's different from bank's currency
+        if (currentFromCurrencyId !== selectedBank.currencyId) {
+          form.setValue("fromCurrencyId", selectedBank.currencyId)
+
+          // Trigger exchange rate fetch when currency is set
+          await setFromExchangeRate(form, exhRateDec, visible, "fromCurrencyId")
+        }
+      }
     },
-    []
+    [_isEdit, form, exhRateDec, visible]
   )
 
   // Handle payee selection from dialog

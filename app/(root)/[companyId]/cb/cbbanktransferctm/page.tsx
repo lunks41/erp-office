@@ -1267,7 +1267,7 @@ export default function CbBankTransferCtmPage() {
               //disabled={!cbBankTransferCtm}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1422,7 +1422,7 @@ export default function CbBankTransferCtmPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleCbBankTransferCtmReset}
         itemName={cbBankTransferCtm?.transferNo}
-        title="Reset Bank Transfer CTM"
+        title="New Bank Transfer CTM"
         description="This will clear all unsaved changes."
       />
 

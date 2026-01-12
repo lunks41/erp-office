@@ -1384,7 +1384,7 @@ export default function GLJournalPage() {
               //disabled={!glJournal}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
-              Reset
+              New
             </Button>
 
             <Button
@@ -1537,7 +1537,7 @@ export default function GLJournalPage() {
         onOpenChange={setShowResetConfirm}
         onConfirm={handleGLJournalReset}
         itemName={glJournal?.journalNo}
-        title="Reset GLJournal"
+        title="New GLJournal"
         description="This will clear all unsaved changes."
       />
 
