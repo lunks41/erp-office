@@ -34,9 +34,12 @@ export const JobOrderHdSchema = z
       .optional(),
     natureOfCall: z
       .string()
-      .max(50, "Nature of Call must be less than 50 characters")
+      .max(200, "Nature of Call must be less than 200 characters")
       .optional(),
-    isps: z.string().max(20, "ISPS must be less than 20 characters").optional(),
+    isps: z
+      .string()
+      .max(200, "ISPS must be less than 200 characters")
+      .optional(),
     etaDate: z.union([z.date(), z.string(), z.null()]).optional(),
     etdDate: z.union([z.date(), z.string(), z.null()]).optional(),
     ownerName: z

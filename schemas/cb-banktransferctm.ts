@@ -34,8 +34,8 @@ export const CbBankTransferCtmDtSchema = (
     toBankChgGLId: z.number().min(0).optional(),
     toBankChgGLCode: z.string().optional(),
     toBankChgGLName: z.string().optional(),
-    toBankChgAmt: z.number().min(0),
-    toBankChgLocalAmt: z.number().min(0),
+    toBankChgAmt: z.number(),
+    toBankChgLocalAmt: z.number(),
 
     // Bank Exchange Fields
     toBankExhRate: z.number().min(0),
@@ -81,8 +81,8 @@ export const CbBankTransferCtmHdSchema = (
       .number()
       .min(0.000001, "From Exchange Rate must be greater than 0"),
     fromBankChgGLId: z.number().optional(),
-    fromBankChgAmt: z.number().min(0),
-    fromBankChgLocalAmt: z.number().min(0),
+    fromBankChgAmt: z.number(),
+    fromBankChgLocalAmt: z.number(),
     fromTotAmt: z.number().min(0, "From Total Amount is required"),
     fromTotLocalAmt: z.number().min(0),
 
@@ -91,7 +91,7 @@ export const CbBankTransferCtmHdSchema = (
       ? z.string().min(3, "Remarks must be at least 3 characters")
       : z.string().optional(),
     payeeTo: z.string().optional(),
-    exhGainLoss: z.number(),
+    exhGainLoss: z.number().optional(),
     moduleFrom: z.string().optional(),
 
     // Audit Fields

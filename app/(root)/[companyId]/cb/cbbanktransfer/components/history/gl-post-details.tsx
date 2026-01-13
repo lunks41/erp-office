@@ -51,94 +51,94 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
 
   const columns: ExtendedColumnDef<IGlTransactionDetails>[] = [
     {
-      accessorKey: "DocumentNo",
+      accessorKey: "documentNo",
       header: "Document No",
     },
     {
-      accessorKey: "ReferenceNo",
+      accessorKey: "referenceNo",
       header: "Reference No",
     },
     {
-      accessorKey: "AccountDate",
+      accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
-        const date = row.original.AccountDate
-          ? new Date(row.original.AccountDate)
+        const date = row.original.accountDate
+          ? new Date(row.original.accountDate)
           : null
         return date ? format(date, dateFormat) : "-"
       },
     },
     {
-      accessorKey: "CurrencyCode",
+      accessorKey: "currencyCode",
       header: "Currency Code",
     },
     {
-      accessorKey: "CurrencyName",
+      accessorKey: "currencyName",
       header: "Currency Name",
       hidden: true,
     },
     {
-      accessorKey: "ExhRate",
+      accessorKey: "exhRate",
       header: "Exchange Rate",
       cell: ({ row }) =>
-        row.original.ExhRate ? row.original.ExhRate.toFixed(exhRateDec) : "-",
+        row.original.exhRate ? row.original.exhRate.toFixed(exhRateDec) : "-",
     },
 
     {
-      accessorKey: "CtyExhRate",
+      accessorKey: "ctyExhRate",
       header: "Country Exchange Rate",
       cell: ({ row }) =>
-        row.original.CtyExhRate
-          ? row.original.CtyExhRate.toFixed(exhRateDec)
+        row.original.ctyExhRate
+          ? row.original.ctyExhRate.toFixed(exhRateDec)
           : "-",
       hidden: true,
     },
     {
-      accessorKey: "BankCode",
+      accessorKey: "bankCode",
       header: "Bank Code",
       hidden: true,
     },
     {
-      accessorKey: "BankName",
+      accessorKey: "bankName",
       header: "Bank Name",
     },
     {
-      accessorKey: "GLCode",
+      accessorKey: "glCode",
       header: "GL Code",
     },
     {
-      accessorKey: "GLName",
+      accessorKey: "glName",
       header: "GL Name",
     },
     {
-      accessorKey: "IsDebit",
+      accessorKey: "isDebit",
       header: "Type",
       cell: ({ row }) => (
-        <Badge variant={row.original.IsDebit ? "default" : "destructive"}>
-          {row.original.IsDebit ? "Debit" : "Credit"}
+        <Badge variant={row.original.isDebit ? "default" : "destructive"}>
+          {row.original.isDebit ? "Debit" : "Credit"}
         </Badge>
       ),
     },
     {
-      accessorKey: "TotAmt",
+      accessorKey: "totAmt",
       header: "Total Amount",
       cell: ({ row }) =>
-        row.original.TotAmt ? row.original.TotAmt.toFixed(amtDec) : "-",
+        row.original.totAmt ? row.original.totAmt.toFixed(amtDec) : "-",
     },
     {
-      accessorKey: "TotLocalAmt",
+      accessorKey: "totLocalAmt",
       header: "Total Local Amount",
       cell: ({ row }) =>
-        row.original.TotLocalAmt
-          ? row.original.TotLocalAmt.toFixed(locAmtDec)
+        row.original.totLocalAmt
+          ? row.original.totLocalAmt.toFixed(locAmtDec)
           : "-",
     },
     {
-      accessorKey: "TotCtyAmt",
+      accessorKey: "totCtyAmt",
       header: "Total Country Amount",
       cell: ({ row }) =>
-        row.original.TotCtyAmt
-          ? row.original.TotCtyAmt.toFixed(locAmtDec)
+        row.original.totCtyAmt
+          ? row.original.totCtyAmt.toFixed(locAmtDec)
           : "-",
       hidden: true,
     },

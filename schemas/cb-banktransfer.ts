@@ -72,7 +72,7 @@ export const CbBankTransferSchema = (
       ? z.string().min(3, "Remarks must be at least 3 characters")
       : z.string().optional(),
     payeeTo: z.string().optional(),
-    exhGainLoss: z.number(),
+    exhGainLoss: z.number().optional(),
     moduleFrom: z.string().optional(),
 
     // Audit Fields

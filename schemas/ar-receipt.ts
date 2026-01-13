@@ -33,8 +33,8 @@ export const ArReceiptHdSchema = (
     bankChgGLId: visible?.m_BankChgGLId
       ? z.number().min(0, "Bank Charge GL is required")
       : z.number().optional(),
-    bankChgAmt: z.number().min(0, "Bank Charges Amount is required"),
-    bankChgLocalAmt: z.number().min(0, "Bank Charges Local Amount is required"),
+    bankChgAmt: z.number(),
+    bankChgLocalAmt: z.number(),
 
     // Currency Fields
     currencyId: z.number().min(1, "Currency is required"),
@@ -144,7 +144,7 @@ export const ArReceiptDtSchema = (
     docAllocLocalAmt: z.number("Document Allocated Local Amount is required"),
 
     // Exchange and Difference Fields
-    centDiff: z.number().min(0, "Cent Difference is required"),
+    centDiff: z.number(),
 
     // Exchange Gain/Loss Fields
     exhGainLoss: z.number().optional(),

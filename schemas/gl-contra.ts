@@ -101,7 +101,7 @@ export const GLContraDtSchema = (
     docAllocLocalAmt: z.number("Document Allocated Local Amount is required"),
 
     // Exchange and Difference Fields
-    centDiff: z.number().min(0, "Cent Difference is required"),
+    centDiff: z.number(),
 
     // Exchange Gain/Loss Fields
     exhGainLoss: z.number().optional(),

@@ -38,8 +38,8 @@ export const CbGenReceiptHdSchema = (
     chequeDate: z.union([z.date(), z.string()]).optional(),
 
     // Bank Charge GL Fields
-    bankChgAmt: z.number().min(0, "Bank Charges Amount is required"),
-    bankChgLocalAmt: z.number().min(0, "Bank Charges Local Amount is required"),
+    bankChgAmt: z.number(),
+    bankChgLocalAmt: z.number(),
 
     // Amounts
     totAmt: required?.m_TotAmt ? z.number().min(0) : z.number().optional(),

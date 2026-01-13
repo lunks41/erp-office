@@ -40,6 +40,7 @@ import {
   RotateCcw,
   Save,
   Trash2,
+  Undo2,
 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -343,6 +344,7 @@ export default function InvoicePage() {
   const saveMutation = usePersist<ArInvoiceHdSchemaType>(`${ArInvoice.add}`)
   const updateMutation = usePersist<ArInvoiceHdSchemaType>(`${ArInvoice.add}`)
   const deleteMutation = useDeleteWithRemarks(`${ArInvoice.delete}`)
+  const unpostMutation = usePersist(`${ArInvoice.unpost}`)
 
   // Remove the useGetInvoiceById hook for selection
   // const { data: invoiceByIdData, refetch: refetchInvoiceById } = ...
@@ -775,6 +777,43 @@ export default function InvoicePage() {
       }
     } catch {
       toast.error("Network error while deleting invoice")
+    }
+  }
+
+  const handleUnpostInvoice = async () => {
+    if (!invoice) return
+
+    try {
+      const response = await unpostMutation.mutateAsync({
+        invoiceId: invoice.invoiceId?.toString() ?? "",
+        invoiceNo: invoice.invoiceNo ?? "",
+      })
+
+      if (response.result === 1) {
+        toast.success(`Invoice ${invoice.invoiceNo} unposted successfully`)
+        // Refresh invoice data
+        if (invoice.invoiceId && invoice.invoiceId !== "0") {
+          const response = await getById(
+            `${ArInvoice.getByIdNo}/${invoice.invoiceId}`
+          )
+          if (response?.result === 1) {
+            const detailedInvoice = Array.isArray(response.data)
+              ? response.data[0]
+              : response.data
+            if (detailedInvoice) {
+              const invoiceData = detailedInvoice as IArInvoiceHd
+              const formValues = transformToSchemaType(invoiceData)
+              setInvoice(formValues)
+              form.reset(formValues)
+            }
+          }
+        }
+      } else {
+        toast.error(response.message || "Failed to unpost invoice")
+      }
+    } catch (error) {
+      console.error("Error unposting invoice:", error)
+      toast.error("Network error while unposting invoice")
     }
   }
 
@@ -1554,6 +1593,26 @@ export default function InvoicePage() {
                 <Trash2 className="mr-1 h-4 w-4" />
               )}
               {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleUnpostInvoice}
+              disabled={
+                !canView ||
+                !invoice ||
+                invoice.invoiceId === "0" ||
+                unpostMutation.isPending ||
+                isCancelled
+              }
+              title="UnPost Invoice"
+            >
+              {unpostMutation.isPending ? (
+                <Spinner size="sm" className="h-4 w-4" />
+              ) : (
+                <Undo2 className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>

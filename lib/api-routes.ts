@@ -932,6 +932,7 @@ export const ArInvoice = {
   getByIdNo: "/account/getarinvoicebyidno",
   add: "/account/savearinvoice",
   delete: "/account/deletearinvoice",
+  unpost: "/account/unpostarinvoice",
   history: "/account/gethistoryarinvoicebyid",
   historyDetails: "/account/gethistoryarinvoicedetailsbyid",
 }
