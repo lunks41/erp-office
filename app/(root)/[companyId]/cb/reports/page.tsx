@@ -216,13 +216,14 @@ export default function ReportsPage() {
     data: IReportFormData,
     report?: IReport
   ): IReportParameters => {
-    const asOfDate = data.asOfDate || getCurrentDate()
     const reportType = report?.reportType ?? data.reportType ?? 0
 
     // Format all dates to yyyy-MM-dd format using formatDateForApi
-    const formattedFromDate = formatDateForApi(data.fromDate || asOfDate)
-    const formattedToDate = formatDateForApi(data.toDate || asOfDate)
-    const formattedAsOfDate = formatDateForApi(asOfDate)
+    const formattedFromDate = formatDateForApi(data.fromDate)
+    const formattedToDate = formatDateForApi(data.toDate)
+    const formattedAsOfDate = formatDateForApi(
+      data.asOfDate || getCurrentDate()
+    )
 
     return {
       companyId,

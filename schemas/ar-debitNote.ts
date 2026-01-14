@@ -203,9 +203,9 @@ export const ArDebitNoteDtSchema = (
       required?.m_UnitPrice && visible?.m_UnitPrice
         ? z.number().min(0)
         : z.number().optional(),
-    totAmt: required?.m_TotAmt ? z.number().min(0) : z.number().optional(),
-    totLocalAmt: z.number().min(0),
-    totCtyAmt: visible?.m_CtyCurr ? z.number().min(0) : z.number().optional(),
+    totAmt: required?.m_TotAmt ? z.number() : z.number().optional(),
+    totLocalAmt: z.number(),
+    totCtyAmt: visible?.m_CtyCurr ? z.number() : z.number().optional(),
 
     // Remarks
     remarks:
@@ -220,13 +220,13 @@ export const ArDebitNoteDtSchema = (
         : z.number().optional(),
     gstName: z.string().optional(),
     gstPercentage: visible?.m_GstId ? z.number().min(0) : z.number().optional(),
-    gstAmt: visible?.m_GstId ? z.number().min(0) : z.number().optional(),
+    gstAmt: visible?.m_GstId ? z.number() : z.number().optional(),
     gstLocalAmt: visible?.m_GstId
       ? z.number().optional()
       : z.number().optional(),
     gstCtyAmt:
       visible?.m_CtyCurr && visible?.m_GstId
-        ? z.number().min(0)
+        ? z.number()
         : z.number().optional(),
 
     // Delivery Date

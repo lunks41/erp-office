@@ -118,8 +118,8 @@ export const CbBankReconDtSchema = (
 
     // Amounts
     exhRate: z.number().min(0.000001, "Exchange Rate must be greater than 0"),
-    totAmt: z.number().min(0),
-    totLocalAmt: z.number().min(0),
+    totAmt: z.number(),
+    totLocalAmt: z.number(),
 
     // Additional Fields
     paymentFromTo: z.string().optional().nullable(),
