@@ -251,6 +251,7 @@ export default function ArOutStandingTransactionsTable({
         hideDelete={true}
         hideCheckbox={false}
         disableOnAccountExists={false}
+        maxHeight="calc(80vh - 250px)"
       />
     </div>
   )

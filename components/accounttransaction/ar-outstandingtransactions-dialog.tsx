@@ -1,14 +1,16 @@
 "use client"
 
+import { useCallback, useEffect, useRef, useState } from "react"
 import { IArOutTransaction } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse } from "date-fns"
-import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { CustomNumberInput } from "@/components/custom"
+import { getByBody } from "@/lib/api-client"
+import { Account } from "@/lib/api-routes"
+import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,9 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { getByBody } from "@/lib/api-client"
-import { Account } from "@/lib/api-routes"
-import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { CustomNumberInput } from "@/components/custom"
 
 import ArOutStandingTransactionsTable from "./ar-outstandingtransactions-table"
 
@@ -326,9 +326,9 @@ export default function ArOutStandingTransactionsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className="flex h-[80vh] w-[80vw] !max-w-none flex-col overflow-y-auto rounded-lg">
+      <DialogContent className="flex h-[80vh] w-[80vw] !max-w-none flex-col rounded-lg">
         <DialogHeader>
-          <DialogTitle>AP Transaction List</DialogTitle>
+          <DialogTitle>AR Transaction List</DialogTitle>
           <DialogDescription>
             Select outstanding transactions to add to the receipt.
           </DialogDescription>
@@ -371,7 +371,7 @@ export default function ArOutStandingTransactionsDialog({
         </div>
 
         {/* Transaction Table */}
-        <div className="flex-1 overflow-hidden">
+        <div className="min-h-0 flex-1">
           {isLoading ? (
             <div className="flex min-h-[400px] items-center justify-center">
               <div className="text-center">

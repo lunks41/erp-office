@@ -326,7 +326,7 @@ export default function ApOutStandingTransactionsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className="flex h-[80vh] w-[80vw] !max-w-none flex-col overflow-y-auto rounded-lg">
+      <DialogContent className="flex h-[80vh] w-[80vw] !max-w-none flex-col rounded-lg">
         <DialogHeader>
           <DialogTitle>AP Transaction List</DialogTitle>
           <DialogDescription>
@@ -371,7 +371,7 @@ export default function ApOutStandingTransactionsDialog({
         </div>
 
         {/* Transaction Table */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0">
           {isLoading ? (
             <div className="flex min-h-[400px] items-center justify-center">
               <div className="text-center">
