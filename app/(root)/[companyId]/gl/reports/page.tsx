@@ -25,9 +25,7 @@ import { Separator } from "@/components/ui/separator"
 import {
   ChartOfAccountAutocomplete,
   CurrencyAutocomplete,
-  DepartmentAutocomplete,
   GSTAutocomplete,
-  PaymentTypeAutocomplete,
 } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import ChartOfAccountMultiSelect from "@/components/multiselection-chartofaccount"
@@ -37,7 +35,6 @@ interface IReportFormData extends Record<string, unknown> {
   toGlId: string
   glIds: number[]
   sameToGl: boolean
-  departmentId: string
   fromDate: string
   toDate: string
   asOfDate: string
@@ -45,8 +42,8 @@ interface IReportFormData extends Record<string, unknown> {
   useTrsDate: boolean
   useAsDate: boolean
   reportType: number
-  vatType: string
-  vatId: string
+  gstTypeId: number
+  gstId: number
 }
 
 interface IReportParameters {
@@ -54,15 +51,13 @@ interface IReportParameters {
   fromGlId: number | null
   toGlId: number | null
   glIds: number[]
-  departmentId: number | null
-  paymentTypeId: number | null
   fromDate: string | null
   toDate: string | null
   asOfDate: string | null
   currencyId: number
   reportType: number
-  vatType: string
-  vatId: number | null
+  gstTypeId: number
+  gstId: number | null
 }
 
 interface IReport {
@@ -77,8 +72,19 @@ interface IReport {
 // Note: GL reports typically use TrsDate for date range reports
 // Reports without TrsDate use AsDate (single date)
 const TRS_DATE_REPORTS: string[] = [
-  // Add report IDs here if specific reports require TrsDate
-  // For now, all GL reports can use either TrsDate or AsDate based on user selection
+  "gl-ledger",
+  "combined-vat-computation",
+  "vat-authority",
+  "vat-details",
+  "vat-summary",
+]
+
+// Reports that use AsDate only (single date)
+const AS_DATE_REPORTS: string[] = [
+  "trial-balance-debit-credit",
+  "trial-balance",
+  "balance-sheet-details",
+  "profit-loss-details",
 ]
 
 const REPORT_CATEGORIES = [
@@ -185,7 +191,6 @@ export default function ReportsPage() {
       toGlId: "",
       sameToGl: false,
       glIds: [],
-      departmentId: "",
       fromDate: getCurrentDate(),
       toDate: getCurrentDate(),
       asOfDate: getCurrentDate(),
@@ -193,8 +198,8 @@ export default function ReportsPage() {
       useTrsDate: true,
       useAsDate: false,
       reportType: 0,
-      vatType: "",
-      vatId: "",
+      gstTypeId: 0,
+      gstId: 0,
     },
   })
 
@@ -277,9 +282,31 @@ export default function ReportsPage() {
   }
 
   // Handle asOfDate change and automatically set toDate to the same value
+  // Also validate that fromDate is not greater than asOfDate
   const handleAsDateChange = (date: Date | null) => {
     if (date) {
       const formattedDate = format(date, dateFormat)
+      const fromDateValue = form.getValues("fromDate")
+
+      // If fromDate exists, compare dates
+      if (fromDateValue) {
+        try {
+          // Parse both dates using the same format for comparison
+          const fromDateParsed = parse(fromDateValue, dateFormat, new Date())
+          const asOfDateParsed = date
+
+          // If fromDate is greater than asOfDate, set fromDate equal to asOfDate
+          if (fromDateParsed > asOfDateParsed) {
+            // Set fromDate to be the same as asOfDate
+            form.setValue("fromDate", formattedDate)
+          }
+        } catch (error) {
+          // If parsing fails, proceed with normal logic
+          console.error("Error parsing dates for comparison:", error)
+        }
+      }
+
+      // Set asOfDate and toDate to the same value
       form.setValue("asOfDate", formattedDate)
       form.setValue("toDate", formattedDate)
     }
@@ -344,6 +371,7 @@ export default function ReportsPage() {
     if (selectedReports.length > 0) {
       const selectedReportId = selectedReports[0]
       const usesTrsDate = TRS_DATE_REPORTS.includes(selectedReportId)
+      const usesAsDate = AS_DATE_REPORTS.includes(selectedReportId)
       const allReports = getAllReports()
       const selectedReport = allReports.find((r) => r.id === selectedReportId)
 
@@ -351,10 +379,13 @@ export default function ReportsPage() {
         // Set TrsDate to true and disable AsDate
         form.setValue("useTrsDate", true)
         form.setValue("useAsDate", false)
-      } else {
+      } else if (usesAsDate) {
         // Set AsDate to true and disable TrsDate
         form.setValue("useTrsDate", false)
         form.setValue("useAsDate", true)
+      } else {
+        // Default behavior - allow user selection
+        // Don't force either option if not in either array
       }
 
       // Set reportType from the selected report if available
@@ -380,15 +411,13 @@ export default function ReportsPage() {
       fromGlId: data.fromGlId ? Number(data.fromGlId) : null,
       toGlId: data.toGlId ? Number(data.toGlId) : null,
       glIds: data.glIds ? data.glIds : [],
-      departmentId: data.departmentId ? Number(data.departmentId) : null,
-      paymentTypeId: data.paymentTypeId ? Number(data.paymentTypeId) : null,
       fromDate: formattedFromDate,
       toDate: formattedToDate,
       asOfDate: formattedAsOfDate,
       currencyId: data.currencyId ? Number(data.currencyId) : 0,
       reportType: typeof data.reportType === "number" ? data.reportType : 0,
-      vatType: data.vatType || "",
-      vatId: data.vatId ? Number(data.vatId) : null,
+      gstTypeId: typeof data.gstTypeId === "number" ? data.gstTypeId : 0,
+      gstId: typeof data.gstId === "number" ? data.gstId : null,
     }
   }
 
@@ -407,15 +436,13 @@ export default function ReportsPage() {
       fromGlId: parameters.fromGlId?.toString() || "0",
       toGlId: parameters.toGlId?.toString() || "0",
       glIds: parameters.glIds?.toString() || "0",
-      departmentId: parameters.departmentId || "0",
-      paymentTypeId: parameters.paymentTypeId || "0",
       fromDate: parameters.fromDate,
       toDate: parameters.toDate,
-      asDate: parameters.asOfDate,
+      asOfDate: parameters.asOfDate,
       currencyId: parameters.currencyId || "0",
       reptype: parameters.reportType,
-      gstTypeId: parameters.vatType || "0",
-      gstId: parameters.vatId || "0",
+      gstTypeId: parameters.gstTypeId || 0,
+      gstId: parameters.gstId || 0,
       amtDec: amtDec,
       locAmtDec: locAmtDec,
       url: "",
@@ -465,7 +492,6 @@ export default function ReportsPage() {
       toGlId: "",
       sameToGl: false,
       glIds: [],
-      departmentId: "",
       fromDate: currentDate,
       toDate: currentDate,
       asOfDate: currentDate,
@@ -473,8 +499,8 @@ export default function ReportsPage() {
       useTrsDate: true,
       useAsDate: false,
       reportType: 0,
-      vatType: "",
-      vatId: "",
+      gstTypeId: 0,
+      gstId: 0,
     })
     setSelectedReports([])
   }
@@ -485,6 +511,14 @@ export default function ReportsPage() {
   const toGlId = form.watch("toGlId")
   const hasMultiSelect = Array.isArray(glIds) && glIds.length > 0
   const hasRangeSelect = !!(fromGlId || toGlId)
+
+  // Check if selected report requires TrsDate (fromDate/toDate only)
+  const requiresTrsDate =
+    selectedReports.length > 0 && TRS_DATE_REPORTS.includes(selectedReports[0])
+
+  // Check if selected report requires AsDate (asOfDate only)
+  const requiresAsDate =
+    selectedReports.length > 0 && AS_DATE_REPORTS.includes(selectedReports[0])
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-2 sm:px-6 sm:pt-3 sm:pb-6">
@@ -654,17 +688,24 @@ export default function ReportsPage() {
                     <Checkbox
                       id="useTrsDate"
                       checked={form.watch("useTrsDate")}
+                      disabled={requiresTrsDate || requiresAsDate}
                       onCheckedChange={(checked) => {
-                        const isChecked = checked as boolean
-                        form.setValue("useTrsDate", isChecked)
-                        if (isChecked) {
-                          form.setValue("useAsDate", false)
+                        if (!requiresTrsDate && !requiresAsDate) {
+                          const isChecked = checked as boolean
+                          form.setValue("useTrsDate", isChecked)
+                          if (isChecked) {
+                            form.setValue("useAsDate", false)
+                          }
                         }
                       }}
                     />
                     <label
                       htmlFor="useTrsDate"
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className={cn(
+                        "text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                        (requiresTrsDate || requiresAsDate) &&
+                          "cursor-not-allowed opacity-50"
+                      )}
                     >
                       Trs Date:
                     </label>
@@ -674,26 +715,32 @@ export default function ReportsPage() {
                     <Checkbox
                       id="useAsDate"
                       checked={form.watch("useAsDate")}
+                      disabled={requiresTrsDate}
                       onCheckedChange={(checked) => {
-                        const isChecked = checked as boolean
-                        form.setValue("useAsDate", isChecked)
-                        if (isChecked) {
-                          form.setValue("useTrsDate", false)
-                          // Sync asOfDate with toDate when As Date is enabled
-                          const toDate = form.watch("toDate")
-                          if (toDate) {
-                            form.setValue("asOfDate", toDate)
-                          } else {
-                            // If toDate is empty, set to current date
-                            form.setValue("asOfDate", getCurrentDate())
-                            form.setValue("toDate", getCurrentDate())
+                        if (!requiresTrsDate) {
+                          const isChecked = checked as boolean
+                          form.setValue("useAsDate", isChecked)
+                          if (isChecked) {
+                            form.setValue("useTrsDate", false)
+                            // Sync asOfDate with toDate when As Date is enabled
+                            const toDate = form.watch("toDate")
+                            if (toDate) {
+                              form.setValue("asOfDate", toDate)
+                            } else {
+                              // If toDate is empty, set to current date
+                              form.setValue("asOfDate", getCurrentDate())
+                              form.setValue("toDate", getCurrentDate())
+                            }
                           }
                         }
                       }}
                     />
                     <label
                       htmlFor="useAsDate"
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className={cn(
+                        "text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                        requiresTrsDate && "cursor-not-allowed opacity-50"
+                      )}
                     >
                       As Date:
                     </label>
@@ -707,7 +754,7 @@ export default function ReportsPage() {
                     name="fromDate"
                     label="From Date:"
                     isRequired={false}
-                    isDisabled={form.watch("useAsDate")}
+                    isDisabled={form.watch("useAsDate") || requiresAsDate}
                     onChangeEvent={handleFromDateChange}
                   />
                   <CustomDateNew
@@ -715,7 +762,7 @@ export default function ReportsPage() {
                     name="toDate"
                     label="To Date:"
                     isRequired={false}
-                    isDisabled={form.watch("useAsDate")}
+                    isDisabled={form.watch("useAsDate") || requiresAsDate}
                     isFutureShow={true}
                     onChangeEvent={handleToDateChange}
                   />
@@ -728,59 +775,55 @@ export default function ReportsPage() {
                     name="asOfDate"
                     label="As Date:"
                     isRequired={false}
-                    isDisabled={form.watch("useTrsDate")}
+                    isDisabled={form.watch("useTrsDate") || requiresTrsDate}
                     onChangeEvent={handleAsDateChange}
                   />
                 </div>
 
-                {/* Currency, Department, Payment Type */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {/* Currency */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <CurrencyAutocomplete
                     form={form}
                     name="currencyId"
                     label="* Currency:"
-                    isRequired={true}
                   />
-                  <DepartmentAutocomplete
-                    form={form}
-                    name="departmentId"
-                    label="Department:"
-                    isRequired={false}
-                  />
-                  <PaymentTypeAutocomplete
-                    form={form}
-                    name="paymentTypeId"
-                    label="Payment Type:"
-                    isRequired={false}
-                  />
-                </div>
 
-                {/* VAT Type and VAT in one row */}
-                <div className="flex flex-row gap-3">
-                  <div className="flex flex-1 flex-col gap-0.5">
-                    <label className="text-sm font-medium">VAT Type:</label>
-                    <Select
-                      value={form.watch("vatType")}
-                      onValueChange={(value) => form.setValue("vatType", value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select.." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="input">Input</SelectItem>
-                        <SelectItem value="output">Output</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* VAT Type and VAT in one row - Only show for VAT Details report */}
+                  {selectedReports.includes("vat-details") && (
+                    <div className="flex flex-row gap-3">
+                      <div className="flex flex-1 flex-col gap-0.5">
+                        <label className="text-sm font-medium">VAT Type:</label>
+                        <Select
+                          value={
+                            form.watch("gstTypeId") &&
+                            form.watch("gstTypeId") !== 0
+                              ? form.watch("gstTypeId").toString()
+                              : undefined
+                          }
+                          onValueChange={(value) =>
+                            form.setValue("gstTypeId", Number(value))
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select.." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">Input</SelectItem>
+                            <SelectItem value="2">Output</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  <div className="flex-1">
-                    <GSTAutocomplete
-                      form={form}
-                      name="vatId"
-                      label="VAT:"
-                      isRequired={false}
-                    />
-                  </div>
+                      <div className="flex-1">
+                        <GSTAutocomplete
+                          form={form}
+                          name="gstId"
+                          label="VAT:"
+                          isRequired={false}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

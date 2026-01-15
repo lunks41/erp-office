@@ -163,7 +163,7 @@ export default function SupplierForm({
               <CustomInput
                 form={form}
                 name="supplierRegNo"
-                label="Registration No"
+                label="Registration No (TRN)"
               />
               <BankAutocomplete
                 form={form}

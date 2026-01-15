@@ -59,6 +59,15 @@ const TRS_DATE_REPORTS = [
   "gross-sales",
 ]
 
+// Reports that use AsDate only (single date)
+const AS_DATE_REPORTS = [
+  "ar-aging-details",
+  "ar-aging-summary",
+  "ar-outstanding-details",
+  "ar-outstanding-summary",
+  "statement-of-account",
+]
+
 const REPORT_CATEGORIES = [
   {
     name: "Aging",
@@ -102,7 +111,7 @@ const REPORT_CATEGORIES = [
         id: "statement-of-account",
         name: "Statement Of Account",
         reportFile: "ar/ArStatementOfAccount.trdp",
-        reportType: 2,
+        reportType: 1,
       },
       {
         id: "monthly-receivable",
@@ -192,9 +201,31 @@ export default function ReportsPage() {
   }
 
   // Handle asOfDate change and automatically set toDate to the same value
+  // Also validate that fromDate is not greater than asOfDate
   const handleAsDateChange = (date: Date | null) => {
     if (date) {
       const formattedDate = format(date, dateFormat)
+      const fromDateValue = form.getValues("fromDate")
+
+      // If fromDate exists, compare dates
+      if (fromDateValue) {
+        try {
+          // Parse both dates using the same format for comparison
+          const fromDateParsed = parse(fromDateValue, dateFormat, new Date())
+          const asOfDateParsed = date
+
+          // If fromDate is greater than asOfDate, set fromDate equal to asOfDate
+          if (fromDateParsed > asOfDateParsed) {
+            // Set fromDate to be the same as asOfDate
+            form.setValue("fromDate", formattedDate)
+          }
+        } catch (error) {
+          // If parsing fails, proceed with normal logic
+          console.error("Error parsing dates for comparison:", error)
+        }
+      }
+
+      // Set asOfDate and toDate to the same value
       form.setValue("asOfDate", formattedDate)
       form.setValue("toDate", formattedDate)
     }
@@ -247,6 +278,7 @@ export default function ReportsPage() {
     if (selectedReports.length > 0) {
       const selectedReportId = selectedReports[0]
       const usesTrsDate = TRS_DATE_REPORTS.includes(selectedReportId)
+      const usesAsDate = AS_DATE_REPORTS.includes(selectedReportId)
       const allReports = getAllReports()
       const selectedReport = allReports.find((r) => r.id === selectedReportId)
 
@@ -254,10 +286,13 @@ export default function ReportsPage() {
         // Set TrsDate to true and disable AsDate
         form.setValue("useTrsDate", true)
         form.setValue("useAsDate", false)
-      } else {
+      } else if (usesAsDate) {
         // Set AsDate to true and disable TrsDate
         form.setValue("useTrsDate", false)
         form.setValue("useAsDate", true)
+      } else {
+        // Default behavior - allow user selection
+        // Don't force either option if not in either array
       }
 
       // Set reportType from the selected report
@@ -375,6 +410,14 @@ export default function ReportsPage() {
     setSelectedReports([])
   }
 
+  // Check if selected report requires TrsDate (fromDate/toDate only)
+  const requiresTrsDate =
+    selectedReports.length > 0 && TRS_DATE_REPORTS.includes(selectedReports[0])
+
+  // Check if selected report requires AsDate (asOfDate only)
+  const requiresAsDate =
+    selectedReports.length > 0 && AS_DATE_REPORTS.includes(selectedReports[0])
+
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
@@ -482,17 +525,23 @@ export default function ReportsPage() {
                     <Checkbox
                       id="useTrsDate"
                       checked={form.watch("useTrsDate")}
+                      disabled={requiresTrsDate || requiresAsDate}
                       onCheckedChange={(checked) => {
-                        const isChecked = checked as boolean
-                        form.setValue("useTrsDate", isChecked)
-                        if (isChecked) {
-                          form.setValue("useAsDate", false)
+                        if (!requiresTrsDate && !requiresAsDate) {
+                          const isChecked = checked as boolean
+                          form.setValue("useTrsDate", isChecked)
+                          if (isChecked) {
+                            form.setValue("useAsDate", false)
+                          }
                         }
                       }}
                     />
                     <label
                       htmlFor="useTrsDate"
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className={`text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                        (requiresTrsDate || requiresAsDate) &&
+                        "cursor-not-allowed opacity-50"
+                      }`}
                     >
                       Trs Date:
                     </label>
@@ -502,17 +551,22 @@ export default function ReportsPage() {
                     <Checkbox
                       id="useAsDate"
                       checked={form.watch("useAsDate")}
+                      disabled={requiresTrsDate}
                       onCheckedChange={(checked) => {
-                        const isChecked = checked as boolean
-                        form.setValue("useAsDate", isChecked)
-                        if (isChecked) {
-                          form.setValue("useTrsDate", false)
+                        if (!requiresTrsDate) {
+                          const isChecked = checked as boolean
+                          form.setValue("useAsDate", isChecked)
+                          if (isChecked) {
+                            form.setValue("useTrsDate", false)
+                          }
                         }
                       }}
                     />
                     <label
                       htmlFor="useAsDate"
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className={`text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                        requiresTrsDate && "cursor-not-allowed opacity-50"
+                      }`}
                     >
                       As Date:
                     </label>
@@ -526,7 +580,7 @@ export default function ReportsPage() {
                     name="fromDate"
                     label="From Date:"
                     isRequired={false}
-                    isDisabled={form.watch("useAsDate")}
+                    isDisabled={form.watch("useAsDate") || requiresAsDate}
                     onChangeEvent={handleFromDateChange}
                   />
                   <CustomDateNew
@@ -534,7 +588,7 @@ export default function ReportsPage() {
                     name="toDate"
                     label="To Date:"
                     isRequired={false}
-                    isDisabled={form.watch("useAsDate")}
+                    isDisabled={form.watch("useAsDate") || requiresAsDate}
                     isFutureShow={true}
                     onChangeEvent={handleToDateChange}
                   />
@@ -547,7 +601,7 @@ export default function ReportsPage() {
                     name="asOfDate"
                     label="As Date:"
                     isRequired={false}
-                    isDisabled={form.watch("useTrsDate")}
+                    isDisabled={form.watch("useTrsDate") || requiresTrsDate}
                     onChangeEvent={handleAsDateChange}
                   />
                 </div>

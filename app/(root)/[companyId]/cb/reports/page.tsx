@@ -128,9 +128,31 @@ export default function ReportsPage() {
   }
 
   // Handle asOfDate change and automatically set toDate to the same value
+  // Also validate that fromDate is not greater than asOfDate
   const handleAsDateChange = (date: Date | null) => {
     if (date) {
       const formattedDate = format(date, dateFormat)
+      const fromDateValue = form.getValues("fromDate")
+
+      // If fromDate exists, compare dates
+      if (fromDateValue) {
+        try {
+          // Parse both dates using the same format for comparison
+          const fromDateParsed = parse(fromDateValue, dateFormat, new Date())
+          const asOfDateParsed = date
+
+          // If fromDate is greater than asOfDate, set fromDate equal to asOfDate
+          if (fromDateParsed > asOfDateParsed) {
+            // Set fromDate to be the same as asOfDate
+            form.setValue("fromDate", formattedDate)
+          }
+        } catch (error) {
+          // If parsing fails, proceed with normal logic
+          console.error("Error parsing dates for comparison:", error)
+        }
+      }
+
+      // Set asOfDate and toDate to the same value
       form.setValue("asOfDate", formattedDate)
       form.setValue("toDate", formattedDate)
     }
