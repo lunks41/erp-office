@@ -169,22 +169,17 @@ export function ChecklistDetailsForm({
         onValueChange={setActiveTab}
         className="space-y-2"
       >
-        <div className="bg-card rounded-lg border p-3 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="text-sm">📊</span>
-            <span className="text-sm font-medium">Service Categories</span>
-          </div>
-          <div className="overflow-x-auto">
-            <TabsList className="flex h-auto w-max flex-wrap gap-1 p-1">
+        <div className="bg-card rounded-lg border p-2 shadow-sm">
+          <div>
+            <TabsList className="flex h-auto w-full flex-wrap gap-1 p-0.5">
               <TabsTrigger
                 value="port-expenses"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">🏢</span>
-                  <span className="hidden sm:inline">Port Expenses</span>
-                  <span className="sm:hidden">Port</span>
-                </div>
+                <span className="text-[10px]">🏢</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Port Expenses
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -193,20 +188,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.portExpense || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="launch-services"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">🚤</span>
-                  <span className="hidden sm:inline">Launch Services</span>
-                  <span className="sm:hidden">Launch</span>
-                </div>
+                <span className="text-[10px]">🚤</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Launch Services
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -215,20 +209,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.launchService || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="equipment-used"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">🔧</span>
-                  <span className="hidden sm:inline">Equipment Used</span>
-                  <span className="sm:hidden">Equipment</span>
-                </div>
+                <span className="text-[10px]">🔧</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Equipment Used
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -237,20 +230,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.equipmentUsed || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="crew-sign-on"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">👥</span>
-                  <span className="hidden sm:inline">Crew Sign On</span>
-                  <span className="sm:hidden">Sign On</span>
-                </div>
+                <span className="text-[10px]">👥</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Crew Sign On
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -259,20 +251,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.crewSignOn || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="crew-sign-off"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">👋</span>
-                  <span className="hidden sm:inline">Crew Sign Off</span>
-                  <span className="sm:hidden">Sign Off</span>
-                </div>
+                <span className="text-[10px]">👋</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Crew Sign Off
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -281,20 +272,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.crewSignOff || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="crew-miscellaneous"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">📋</span>
-                  <span className="hidden sm:inline">Crew Miscellaneous</span>
-                  <span className="sm:hidden">Misc</span>
-                </div>
+                <span className="text-[10px]">📋</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Crew Miscellaneous
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -303,20 +293,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.crewMiscellaneous || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="medical-assistance"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">🏥</span>
-                  <span className="hidden sm:inline">Medical Assistance</span>
-                  <span className="sm:hidden">Medical</span>
-                </div>
+                <span className="text-[10px]">🏥</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Medical Assistance
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -325,20 +314,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.medicalAssistance || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="consignment-import"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">📥</span>
-                  <span className="hidden sm:inline">Consignment Import</span>
-                  <span className="sm:hidden">Import</span>
-                </div>
+                <span className="text-[10px]">📥</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Consignment Import
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -347,20 +335,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.consignmentImport || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="consignment-export"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">📤</span>
-                  <span className="hidden sm:inline">Consignment Export</span>
-                  <span className="sm:hidden">Export</span>
-                </div>
+                <span className="text-[10px]">📤</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Consignment Export
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -369,20 +356,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.consignmentExport || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="third-party"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">🤝</span>
-                  <span className="hidden sm:inline">Third Party</span>
-                  <span className="sm:hidden">3rd Party</span>
-                </div>
+                <span className="text-[10px]">🤝</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  3rd Party
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -391,20 +377,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.thirdParty || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="fresh-water"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">💧</span>
-                  <span className="hidden sm:inline">Fresh Water</span>
-                  <span className="sm:hidden">Water</span>
-                </div>
+                <span className="text-[10px]">💧</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Fresh Water
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -413,20 +398,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.freshWater || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="technician-surveyor"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">🔍</span>
-                  <span className="hidden sm:inline">Technician Surveyor</span>
-                  <span className="sm:hidden">Surveyor</span>
-                </div>
+                <span className="text-[10px]">🔍</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Technicians & Surveyors
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -435,20 +419,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.technicianSurveyor || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="landing-items"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">📦</span>
-                  <span className="hidden sm:inline">Landing Items</span>
-                  <span className="sm:hidden">Landing</span>
-                </div>
+                <span className="text-[10px]">📦</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Landing Items
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -457,20 +440,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.landingItems || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="other-service"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">⚙️</span>
-                  <span className="hidden sm:inline">Other Service</span>
-                  <span className="sm:hidden">Other</span>
-                </div>
+                <span className="text-[10px]">⚙️</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Other Services
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -479,20 +461,19 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.otherService || 0}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger
                 value="agency-remuneration"
-                className="relative flex flex-col items-center space-y-1 px-3 py-2 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
+                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">💰</span>
-                  <span className="hidden sm:inline">Agency Remuneration</span>
-                  <span className="sm:hidden">Remuneration</span>
-                </div>
+                <span className="text-[10px]">💰</span>
+                <span className="text-[10px] break-words whitespace-normal">
+                  Agency Remuneration
+                </span>
                 <Badge
                   variant={
                     isLoading
@@ -501,7 +482,7 @@ export function ChecklistDetailsForm({
                         ? "destructive"
                         : "outline"
                   }
-                  className="text-xs font-medium"
+                  className="h-4 px-1 text-[9px] font-medium"
                 >
                   {isLoading ? "..." : data?.agencyRemuneration || 0}
                 </Badge>

@@ -5,6 +5,7 @@ import { IArOutTransaction } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse } from "date-fns"
+import { RefreshCw } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -77,9 +78,9 @@ export default function ArOutStandingTransactionsDialog({
   const isLoadingRef = useRef(false)
   const lastLoadParamsRef = useRef<string>("")
 
-  // Load transactions when dialog opens
-  useEffect(() => {
-    if (!open || !customerId || !currencyId || !accountDate) {
+  // Extract loadTransactions function so it can be reused
+  const loadTransactions = useCallback(async () => {
+    if (!customerId || !currencyId || !accountDate) {
       return
     }
 
@@ -96,98 +97,89 @@ export default function ArOutStandingTransactionsDialog({
       isLoadingRef.current = false
     }
 
-    const loadTransactions = async () => {
-      // Set loading flag and store params
-      isLoadingRef.current = true
-      lastLoadParamsRef.current = paramsKey
+    // Set loading flag and store params
+    isLoadingRef.current = true
+    lastLoadParamsRef.current = paramsKey
 
-      setIsLoading(true)
-      setSelectedTransactions([])
+    setIsLoading(true)
+    setSelectedTransactions([])
 
-      // Add timeout to prevent infinite loading
-      const timeoutId = setTimeout(() => {
-        console.error("API call timeout - taking too long")
-        toast.error("Request timeout", {
-          description:
-            "Loading transactions is taking too long. Please try again.",
-        })
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.error("API call timeout - taking too long")
+      toast.error("Request timeout", {
+        description:
+          "Loading transactions is taking too long. Please try again.",
+      })
+      setIsLoading(false)
+      isLoadingRef.current = false
+      setOutTransactions([])
+    }, 3000) // 30 second timeout
+
+    try {
+      const parsedAccountDate = (() => {
+        if (!accountDate) return null
+        const parsed = parse(accountDate, dateFormat, new Date())
+        if (isValid(parsed)) return parsed
+        return parseDate(accountDate)
+      })()
+
+      if (!parsedAccountDate) {
+        clearTimeout(timeoutId)
         setIsLoading(false)
         isLoadingRef.current = false
+        toast.error("Invalid account date")
         setOutTransactions([])
-      }, 3000) // 30 second timeout
-
-      try {
-        const parsedAccountDate = (() => {
-          if (!accountDate) return null
-          const parsed = parse(accountDate, dateFormat, new Date())
-          if (isValid(parsed)) return parsed
-          return parseDate(accountDate)
-        })()
-
-        if (!parsedAccountDate) {
-          clearTimeout(timeoutId)
-          setIsLoading(false)
-          isLoadingRef.current = false
-          toast.error("Invalid account date")
-          setOutTransactions([])
-          return
-        }
-
-        const dt = format(parsedAccountDate, "yyyy-MM-dd")
-
-        const payload: Record<string, unknown> = {
-          customerId: customerId,
-          currencyId: currencyId,
-          accountDate: dt,
-          isRefund: isRefund ?? false,
-          documentId: documentId ?? "",
-          transactionId: transactionId ?? "",
-        }
-
-        const response = await getByBody(
-          Account.getArOutstandTransaction,
-          payload
-        )
-
-        // Clear timeout since API call completed
-        clearTimeout(timeoutId)
-
-        if (response?.result === 1) {
-          setOutTransactions(response.data || [])
-        } else {
-          setOutTransactions([])
-          const errorMsg = response?.message || "Failed to load transactions"
-          console.error("Failed to fetch outstanding transactions:", errorMsg)
-          toast.error("Failed to load transactions", {
-            description: errorMsg,
-          })
-        }
-      } catch (error) {
-        // Clear timeout on error
-        clearTimeout(timeoutId)
-
-        console.error("Error fetching outstanding transactions:", error)
-        console.error("Error details:", JSON.stringify(error, null, 2))
-        toast.error("Error loading transactions", {
-          description:
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred",
-        })
-        setOutTransactions([])
-      } finally {
-        setIsLoading(false)
-        isLoadingRef.current = false
+        return
       }
+
+      const dt = format(parsedAccountDate, "yyyy-MM-dd")
+
+      const payload: Record<string, unknown> = {
+        customerId: customerId,
+        currencyId: currencyId,
+        accountDate: dt,
+        isRefund: isRefund ?? false,
+        documentId: documentId ?? "",
+        transactionId: transactionId ?? "",
+      }
+
+      const response = await getByBody(
+        Account.getArOutstandTransaction,
+        payload
+      )
+
+      // Clear timeout since API call completed
+      clearTimeout(timeoutId)
+
+      if (response?.result === 1) {
+        setOutTransactions(response.data || [])
+      } else {
+        setOutTransactions([])
+        const errorMsg = response?.message || "Failed to load transactions"
+        console.error("Failed to fetch outstanding transactions:", errorMsg)
+        toast.error("Failed to load transactions", {
+          description: errorMsg,
+        })
+      }
+    } catch (error) {
+      // Clear timeout on error
+      clearTimeout(timeoutId)
+
+      console.error("Error fetching outstanding transactions:", error)
+      console.error("Error details:", JSON.stringify(error, null, 2))
+      toast.error("Error loading transactions", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      })
+      setOutTransactions([])
+    } finally {
+      setIsLoading(false)
+      isLoadingRef.current = false
     }
-
-    // Call the function immediately
-    loadTransactions()
-
-    // No cleanup function - let the request complete naturally
-    // State updates are safe and loading state will always be reset
   }, [
-    open,
     customerId,
     currencyId,
     accountDate,
@@ -196,6 +188,14 @@ export default function ArOutStandingTransactionsDialog({
     dateFormat,
     transactionId,
   ])
+
+  // Load transactions when dialog opens
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+    loadTransactions()
+  }, [open, loadTransactions])
 
   // Force remount of transactions table and clear selection whenever dialog opens
   useEffect(() => {
@@ -315,8 +315,8 @@ export default function ArOutStandingTransactionsDialog({
   }, [onOpenChangeAction])
 
   const handleRefresh = useCallback(() => {
-    // Refresh is handled by the useEffect when dialog opens
-  }, [])
+    loadTransactions()
+  }, [loadTransactions])
 
   const handleFilterChange = useCallback(() => {}, [])
 
@@ -336,7 +336,18 @@ export default function ArOutStandingTransactionsDialog({
 
         {/* Summary Input Fields and Action Buttons */}
         <div className="flex items-end justify-between gap-4 pb-4">
-          <div className="flex gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={isLoading}
+              title="Refresh transactions"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
+            </Button>
             <CustomNumberInput
               form={summaryForm}
               name="selectedTotAmt"

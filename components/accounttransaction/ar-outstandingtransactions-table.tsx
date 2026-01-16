@@ -95,6 +95,13 @@ export default function ArOutStandingTransactionsTable({
   // Define columns based on IArOutTransaction interface
   const columns: ExtendedColumnDef<IArOutTransaction>[] = [
     {
+      accessorKey: "accountDate",
+      header: "Account Date",
+      size: 120,
+      cell: ({ row }: { row: { original: IArOutTransaction } }) =>
+        formatDate(row.original.accountDate),
+    },
+    {
       accessorKey: "documentNo",
       header: "Document No",
       size: 120,
@@ -105,24 +112,10 @@ export default function ArOutStandingTransactionsTable({
       size: 120,
     },
     {
-      accessorKey: "accountDate",
-      header: "Account Date",
-      size: 120,
-      cell: ({ row }: { row: { original: IArOutTransaction } }) =>
-        formatDate(row.original.accountDate),
-    },
-
-    {
-      accessorKey: "customerName",
-      header: "Customer Name",
-      size: 150,
-    },
-    {
       accessorKey: "currencyCode",
       header: "Currency Code",
       size: 100,
     },
-
     {
       accessorKey: "exhRate",
       header: "Exchange Rate",
@@ -135,7 +128,7 @@ export default function ArOutStandingTransactionsTable({
     },
     {
       accessorKey: "totAmt",
-      header: "Total Amount",
+      header: "Total Amt",
       size: 120,
       cell: ({ row }: { row: { original: IArOutTransaction } }) => (
         <div className="text-right">
@@ -155,7 +148,7 @@ export default function ArOutStandingTransactionsTable({
     },
     {
       accessorKey: "balAmt",
-      header: "Balance Amount",
+      header: "Balance Amt",
       size: 120,
       cell: ({ row }: { row: { original: IArOutTransaction } }) => (
         <div className="text-right">
@@ -174,23 +167,6 @@ export default function ArOutStandingTransactionsTable({
       ),
     },
     {
-      accessorKey: "remarks",
-      header: "Remarks",
-      size: 150,
-    },
-    {
-      accessorKey: "createBy",
-      header: "Created By",
-      size: 120,
-    },
-    {
-      accessorKey: "createDate",
-      header: "Create Date",
-      size: 120,
-      cell: ({ row }: { row: { original: IArOutTransaction } }) =>
-        formatDate(row.original.createDate),
-    },
-    {
       accessorKey: "dueDate",
       header: "Due Date",
       size: 120,
@@ -198,9 +174,12 @@ export default function ArOutStandingTransactionsTable({
         formatDate(row.original.dueDate),
     },
     {
-      accessorKey: "customerCode",
-      header: "Customer Code",
+      accessorKey: "moduleId",
+      header: "Module ID",
       size: 100,
+      cell: ({ row }: { row: { original: IArOutTransaction } }) => (
+        <div className="text-right">{row.original.moduleId}</div>
+      ),
       hidden: true,
     },
     {

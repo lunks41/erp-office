@@ -73,12 +73,11 @@ export function ConsignmentImportTable({
   onCloneTask,
   isConfirmed,
   jobData,
-  // Permission props
-  canView,
-  canEdit,
-  canDelete,
-  canCreate,
-  canDebitNote,
+  canView = true,
+  canEdit = true,
+  canDelete = true,
+  canCreate = true,
+  canDebitNote = true,
 }: ConsignmentImportTableProps) {
   const { decimals } = useAuthStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -87,30 +86,13 @@ export function ConsignmentImportTable({
     [decimals]
   )
 
-  const formatDateValue = useCallback(
-    (value: unknown) => {
-      if (!value) return "-"
-      if (value instanceof Date) {
-        return isNaN(value.getTime()) ? "-" : format(value, dateFormat)
-      }
-      if (typeof value === "string") {
-        const parsed = parseDate(value) || parse(value, dateFormat, new Date())
-        if (!parsed || !isValid(parsed)) {
-          return value
-        }
-        return format(parsed, dateFormat)
-      }
-      return "-"
-    },
-    [dateFormat]
-  )
-
-  const formatDateTimeValue = useCallback(
+  const formatDateTime = useCallback(
     (value: unknown) => {
       if (!value) return "-"
       if (value instanceof Date) {
         return isNaN(value.getTime()) ? "-" : format(value, datetimeFormat)
       }
+
       if (typeof value === "string") {
         const parsed = parseDate(value) || parse(value, dateFormat, new Date())
         if (!parsed || !isValid(parsed)) {
@@ -118,6 +100,7 @@ export function ConsignmentImportTable({
         }
         return format(parsed, datetimeFormat)
       }
+
       return "-"
     },
     [dateFormat, datetimeFormat]
@@ -256,53 +239,6 @@ export function ConsignmentImportTable({
         minSize: 120,
       },
       {
-        accessorKey: "clearedBy",
-        header: "Cleared By",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("clearedBy") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-      },
-      {
-        accessorKey: "billEntryNo",
-        header: "Bill Entry No",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("billEntryNo") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-      },
-      {
-        accessorKey: "declarationNo",
-        header: "Declaration No",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("declarationNo") || "-"}
-          </div>
-        ),
-        size: 150,
-        minSize: 120,
-      },
-      {
-        accessorKey: "receiveDate",
-        header: "Receive Date",
-        cell: ({ row }) => {
-          return formatDateValue(row.getValue("receiveDate"))
-        },
-        size: 120,
-        minSize: 100,
-      },
-      {
-        accessorKey: "deliverDate",
-        header: "Deliver Date",
-        cell: ({ row }) => {
-          return formatDateValue(row.getValue("deliverDate"))
-        },
-        size: 120,
-        minSize: 100,
-      },
-      {
         accessorKey: "poNo",
         header: "PO No",
         size: 150,
@@ -320,12 +256,9 @@ export function ConsignmentImportTable({
       {
         accessorKey: "createDate",
         header: "Create Date",
-        cell: ({ row }) => {
-          return formatDateTimeValue(row.getValue("createDate"))
-        },
-        size: 180,
-        minSize: 150,
-        maxSize: 200,
+        cell: ({ row }) => formatDateTime(row.getValue("createDate")),
+        size: 160,
+        minSize: 130,
       },
       {
         accessorKey: "editBy",
@@ -339,29 +272,12 @@ export function ConsignmentImportTable({
       {
         accessorKey: "editDate",
         header: "Edit Date",
-        cell: ({ row }) => {
-          return formatDateTimeValue(row.getValue("editDate"))
-        },
-        size: 180,
-        minSize: 150,
-        maxSize: 200,
-      },
-      {
-        accessorKey: "editVersion",
-        header: "Edit Version",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            <Badge variant="default">
-              {row.getValue("editVersion") || "0"}
-            </Badge>
-          </div>
-        ),
-        size: 70,
-        minSize: 60,
-        maxSize: 80,
+        cell: ({ row }) => formatDateTime(row.getValue("editDate")),
+        size: 160,
+        minSize: 130,
       },
     ],
-    [formatDateValue, formatDateTimeValue, canDebitNote]
+    [formatDateTime, canDebitNote]
   )
 
   // Wrapper functions to handle type differences
@@ -398,7 +314,7 @@ export function ConsignmentImportTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.consignmentImport}
-        emptyMessage="No consignment imports found."
+        emptyMessage="No consignment exports found."
         accessorId="consignmentImportId"
         onRefreshAction={onRefreshAction}
         onFilterChange={handleFilterChange}
@@ -407,8 +323,8 @@ export function ConsignmentImportTable({
         onEditAction={onEditActionConsignmentImport}
         onDeleteAction={onDeleteConsignmentImport}
         onBulkDeleteAction={onBulkDeleteConsignmentImport}
-        onDebitNoteAction={handleDebitNote}
-        onPurchaseAction={onPurchaseAction}
+        onDebitNoteAction={canDebitNote ? handleDebitNote : undefined}
+        onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
         isConfirmed={isConfirmed}
@@ -416,6 +332,11 @@ export function ConsignmentImportTable({
         showActions={true}
         jobData={jobData}
         transactionIdForDocuments={OperationsTransactionId.consignmentImport}
+        canView={canView}
+        canEdit={canEdit}
+        canDelete={canDelete}
+        canCreate={canCreate}
+        canDebitNote={canDebitNote}
       />
 
       {/* History Dialog */}

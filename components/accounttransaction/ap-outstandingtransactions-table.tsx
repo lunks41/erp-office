@@ -95,47 +95,30 @@ export default function ApOutStandingTransactionsTable({
   // Define columns based on IApOutTransaction interface
   const columns: ExtendedColumnDef<IApOutTransaction>[] = [
     {
-      accessorKey: "documentNo",
-      header: "Document No",
-      size: 120,
-    },
-    {
-      accessorKey: "referenceNo",
-      header: "Reference No",
-      size: 120,
-    },
-    {
       accessorKey: "accountDate",
       header: "Account Date",
       size: 120,
       cell: ({ row }: { row: { original: IApOutTransaction } }) =>
         formatDate(row.original.accountDate),
     },
-
     {
-      accessorKey: "supplierName",
-      header: "Customer Name",
-      size: 150,
+      accessorKey: "suppNo",
+      header: "Invoice No",
+      size: 120,
+    },
+    {
+      accessorKey: "trnType",
+      header: "Trn Type",
+      size: 120,
     },
     {
       accessorKey: "currencyCode",
-      header: "Currency Code",
+      header: "Currency",
       size: 100,
-    },
-
-    {
-      accessorKey: "exhRate",
-      header: "Exchange Rate",
-      size: 100,
-      cell: ({ row }: { row: { original: IApOutTransaction } }) => (
-        <div className="text-right">
-          {formatNumber(row.original.exhRate, exhRateDec)}
-        </div>
-      ),
     },
     {
       accessorKey: "totAmt",
-      header: "Total Amount",
+      header: "Total Amt",
       size: 120,
       cell: ({ row }: { row: { original: IApOutTransaction } }) => (
         <div className="text-right">
@@ -155,7 +138,7 @@ export default function ApOutStandingTransactionsTable({
     },
     {
       accessorKey: "balAmt",
-      header: "Balance Amount",
+      header: "Balance Amt",
       size: 120,
       cell: ({ row }: { row: { original: IApOutTransaction } }) => (
         <div className="text-right">
@@ -174,21 +157,24 @@ export default function ApOutStandingTransactionsTable({
       ),
     },
     {
-      accessorKey: "remarks",
-      header: "Remarks",
-      size: 150,
-    },
-    {
-      accessorKey: "createBy",
-      header: "Created By",
+      accessorKey: "documentNo",
+      header: "Document No",
       size: 120,
     },
     {
-      accessorKey: "createDate",
-      header: "Create Date",
+      accessorKey: "referenceNo",
+      header: "Reference No",
       size: 120,
-      cell: ({ row }: { row: { original: IApOutTransaction } }) =>
-        formatDate(row.original.createDate),
+    },
+    {
+      accessorKey: "exhRate",
+      header: "Exchange Rate",
+      size: 100,
+      cell: ({ row }: { row: { original: IApOutTransaction } }) => (
+        <div className="text-right">
+          {formatNumber(row.original.exhRate, exhRateDec)}
+        </div>
+      ),
     },
     {
       accessorKey: "dueDate",
@@ -198,9 +184,12 @@ export default function ApOutStandingTransactionsTable({
         formatDate(row.original.dueDate),
     },
     {
-      accessorKey: "supplierCode",
-      header: "Supplier Code",
+      accessorKey: "moduleId",
+      header: "Module ID",
       size: 100,
+      cell: ({ row }: { row: { original: IApOutTransaction } }) => (
+        <div className="text-right">{row.original.moduleId}</div>
+      ),
       hidden: true,
     },
     {

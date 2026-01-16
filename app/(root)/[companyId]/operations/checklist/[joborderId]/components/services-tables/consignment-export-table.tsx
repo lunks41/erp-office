@@ -277,13 +277,7 @@ export function ConsignmentExportTable({
         minSize: 130,
       },
     ],
-    [
-      datetimeFormat,
-      dateFormat,
-      formatDateTime,
-      _handleOpenHistory,
-      canDebitNote,
-    ]
+    [formatDateTime, canDebitNote]
   )
 
   // Wrapper functions to handle type differences

@@ -16,6 +16,7 @@ import {
   Copy,
   ListFilter,
   Printer,
+  RefreshCw,
   RotateCcw,
   Save,
   Trash2,
@@ -27,7 +28,7 @@ import { getById } from "@/lib/api-client"
 import { CbBankRecon } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId } from "@/lib/utils"
-import { useDelete, usePersist } from "@/hooks/use-common"
+import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,6 +41,7 @@ import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
+  CancelConfirmation,
   CloneConfirmation,
   DeleteConfirmation,
   LoadConfirmation,
@@ -62,6 +64,7 @@ export default function BankReconPage() {
   const [showListDialog, setShowListDialog] = useState(false)
   const [showSaveConfirm, setShowSaveConfirm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [showLoadConfirm, setShowLoadConfirm] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [showCloneConfirm, setShowCloneConfirm] = useState(false)
@@ -159,7 +162,7 @@ export default function BankReconPage() {
   const updateMutation = usePersist<CbBankReconHdSchemaType>(
     `${CbBankRecon.add}`
   )
-  const deleteMutation = useDelete(`${CbBankRecon.delete}`)
+  const deleteMutation = useDeleteWithRemarks(`${CbBankRecon.delete}`)
 
   // Handle Save
   const handleSaveBankRecon = async () => {
@@ -281,14 +284,28 @@ export default function BankReconPage() {
     }
   }
 
-  // Handle Delete
-  const handleBankReconDelete = async () => {
+  // Handle Delete - First Level: Confirmation
+  const handleDeleteConfirmation = () => {
+    // Close delete confirmation and open cancel confirmation
+    setShowDeleteConfirm(false)
+    setShowCancelConfirm(true)
+  }
+
+  // Handle Delete - Second Level: With Cancel Remarks
+  const handleBankReconDelete = async (cancelRemarks: string) => {
     if (!bankRecon) return
 
     try {
-      const response = await deleteMutation.mutateAsync(
-        bankRecon.reconId?.toString() ?? ""
-      )
+      console.log("Cancel remarks:", cancelRemarks)
+      console.log("BankRecon ID:", bankRecon.reconId)
+      console.log("BankRecon No:", bankRecon.reconNo)
+
+      const response = await deleteMutation.mutateAsync({
+        documentId: bankRecon.reconId?.toString() ?? "",
+        documentNo: bankRecon.reconNo ?? "",
+        cancelRemarks: cancelRemarks,
+      })
+
       if (response.result === 1) {
         setBankRecon(null)
         setSearchNo("") // Clear search input
@@ -296,6 +313,9 @@ export default function BankReconPage() {
           ...defaultBankRecon,
           data_details: [],
         })
+        toast.success(
+          `Bank Reconciliation ${bankRecon.reconNo} deleted successfully`
+        )
         // Data refresh handled by BankReconTable component
       } else {
         toast.error(response.message || "Failed to delete Bank Reconciliation")
@@ -598,6 +618,7 @@ export default function BankReconPage() {
   // Determine mode and bank recon ID from URL
   const reconNo = form.getValues("reconNo")
   const isEdit = Boolean(reconNo)
+  const isCancelled = bankRecon?.isCancel === true
 
   // Generic function to copy text to clipboard
   const copyToClipboard = useCallback(async (textToCopy: string) => {
@@ -658,7 +679,7 @@ export default function BankReconPage() {
 
   // Compose title text
   const titleText = isEdit
-    ? `CB Bank Reconciliation (Edit) - ${reconNo}`
+    ? `CB Bank Reconciliation (Edit) - v[${bankRecon?.editVersion}] - ${reconNo}`
     : "CB Bank Reconciliation (New)"
 
   // Show loading spinner while essential data is loading
@@ -687,30 +708,66 @@ export default function BankReconPage() {
         onValueChange={setActiveTab}
       >
         <div className="mb-2 flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="main">Main</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="main">Main</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
 
-          <h1>
-            {/* Outer wrapper: gradient border or yellow pulsing border */}
-            <span
-              className={`relative inline-flex rounded-full p-[2px] transition-all ${
-                isEdit
-                  ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                  : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
-              } `}
-            >
-              {/* Inner pill: solid dark background + white text */}
+            {/* Cancel Remarks Badge - Only show when cancelled */}
+            {isCancelled && (
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
+                  Cancelled
+                </span>
+                {bankRecon?.cancelRemarks && (
+                  <div className="max-w-xs truncate text-sm text-red-600">
+                    {bankRecon.cancelRemarks}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <h1>
+              {/* Outer wrapper: gradient border or yellow pulsing border */}
               <span
-                className={`text-l block cursor-pointer rounded-full px-6 font-semibold select-none ${isEdit ? "text-white" : "text-white"}`}
-                onDoubleClick={handleCopyInvoiceNo}
-                title="Double-click to copy reconciliation number"
+                className={`relative inline-flex rounded-full p-[2px] transition-all ${
+                  isEdit
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
+                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
+                } `}
               >
-                {titleText}
+                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
+                <span
+                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
+                  onDoubleClick={handleCopyInvoiceNo}
+                  title="Double-click to copy reconciliation number"
+                >
+                  {titleText}
+                </span>
               </span>
-            </span>
-          </h1>
+            </h1>
+            {isEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (bankRecon?.reconNo) {
+                    setSearchNo(bankRecon.reconNo)
+                    setShowLoadConfirm(true)
+                  }
+                }}
+                disabled={isLoadingBankRecon}
+                className="h-4 w-4 p-0"
+                title="Refresh bank reconciliation data"
+              >
+                <RefreshCw className="h-2 w-2" />
+              </Button>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <div
@@ -754,11 +811,16 @@ export default function BankReconPage() {
               disabled={
                 isSaving || saveMutation.isPending || updateMutation.isPending
               }
+              className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
               <Save className="mr-1 h-4 w-4" />
               {isSaving || saveMutation.isPending || updateMutation.isPending
-                ? "Saving..."
-                : "Save"}
+                ? isEdit
+                  ? "Updating..."
+                  : "Saving..."
+                : isEdit
+                  ? "Update"
+                  : "Save"}
             </Button>
 
             <Button
@@ -784,7 +846,9 @@ export default function BankReconPage() {
               variant="outline"
               size="sm"
               onClick={() => setShowCloneConfirm(true)}
-              disabled={!bankRecon || bankRecon.reconId === "0"}
+              disabled={
+                !bankRecon || bankRecon.reconId === "0" || isCancelled
+              }
             >
               <Copy className="mr-1 h-4 w-4" />
               Clone
@@ -794,10 +858,19 @@ export default function BankReconPage() {
               variant="destructive"
               size="sm"
               onClick={() => setShowDeleteConfirm(true)}
-              disabled={!bankRecon || bankRecon.reconId === "0"}
+              disabled={
+                !bankRecon ||
+                bankRecon.reconId === "0" ||
+                deleteMutation.isPending ||
+                isCancelled
+              }
             >
-              <Trash2 className="mr-1 h-4 w-4" />
-              Delete
+              {deleteMutation.isPending ? (
+                <Spinner size="sm" className="mr-1" />
+              ) : (
+                <Trash2 className="mr-1 h-4 w-4" />
+              )}
+              {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
             </Button>
           </div>
         </div>
@@ -825,53 +898,50 @@ export default function BankReconPage() {
         open={showListDialog}
         onOpenChange={(open) => {
           setShowListDialog(open)
-          if (open) {
-            // Data refresh handled by BankReconTable component
-          }
         }}
       >
         <DialogContent
-          className="@container h-[90vh] w-[90vw] !max-w-none overflow-y-auto rounded-lg p-4"
+          className="@container flex h-auto w-[90vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
           onInteractOutside={(e) => e.preventDefault()}
         >
-          <DialogHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="text-2xl font-bold tracking-tight">
-                  CB Bank Reconciliation List
-                </DialogTitle>
-                <p className="text-muted-foreground text-sm">
-                  Manage and select existing Bank Reconciliations from the list
-                  below. Use search to filter records or create new Bank
-                  Reconciliations.
-                </p>
-              </div>
-            </div>
-          </DialogHeader>
+          {/* Header */}
+          <div className="bg-background flex flex-col gap-1 border-b p-2">
+            <DialogTitle className="text-2xl font-bold tracking-tight">
+              CB Bank Reconciliation List
+            </DialogTitle>
+            <p className="text-muted-foreground text-sm">
+              Manage and select existing Bank Reconciliations from the list
+              below. Use search to filter records or create new Bank
+              Reconciliations.
+            </p>
+          </div>
 
-          {isSelectingBankRecon ? (
-            <div className="flex min-h-[60vh] items-center justify-center">
-              <div className="text-center">
-                <Spinner size="lg" className="mx-auto" />
-                <p className="mt-4 text-sm text-gray-600">
-                  {isSelectingBankRecon
-                    ? "Loading Bank Reconciliation details..."
-                    : "Loading Bank Reconciliations..."}
-                </p>
-                <p className="mt-2 text-xs text-gray-500">
-                  {isSelectingBankRecon
-                    ? "Please wait while we fetch the complete Bank Reconciliation data"
-                    : "Please wait while we fetch the Bank Reconciliation list"}
-                </p>
+          {/* Table Container - Takes remaining space */}
+          <div className="flex-1 overflow-auto px-4 py-2">
+            {isSelectingBankRecon ? (
+              <div className="flex min-h-[60vh] items-center justify-center">
+                <div className="text-center">
+                  <Spinner size="lg" className="mx-auto" />
+                  <p className="mt-4 text-sm text-gray-600">
+                    {isSelectingBankRecon
+                      ? "Loading Bank Reconciliation details..."
+                      : "Loading Bank Reconciliations..."}
+                  </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    {isSelectingBankRecon
+                      ? "Please wait while we fetch the complete Bank Reconciliation data"
+                      : "Please wait while we fetch the Bank Reconciliation list"}
+                  </p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <BankReconTable
-              onBankReconSelect={handleBankReconSelect}
-              onFilterChange={handleFilterChange}
-              initialFilters={filters}
-            />
-          )}
+            ) : (
+              <BankReconTable
+                onBankReconSelect={handleBankReconSelect}
+                onFilterChange={handleFilterChange}
+                initialFilters={filters}
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -889,15 +959,26 @@ export default function BankReconPage() {
         }
       />
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation - First Level */}
       <DeleteConfirmation
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-        onConfirm={handleBankReconDelete}
+        onConfirm={() => handleDeleteConfirmation()}
         itemName={bankRecon?.reconNo}
         title="Delete Bank Reconciliation"
-        description="This action cannot be undone. All bank reconciliation details will be permanently deleted."
-        isDeleting={deleteMutation.isPending}
+        description="Are you sure you want to delete this bank reconciliation? You will be asked to provide a reason."
+        isDeleting={false}
+      />
+
+      {/* Cancel Confirmation - Second Level */}
+      <CancelConfirmation
+        open={showCancelConfirm}
+        onOpenChange={setShowCancelConfirm}
+        onConfirmAction={handleBankReconDelete}
+        itemName={bankRecon?.reconNo}
+        title="Cancel Bank Reconciliation"
+        description="Please provide a reason for cancelling this bank reconciliation."
+        isCancelling={deleteMutation.isPending}
       />
 
       {/* Load Confirmation */}
