@@ -12,83 +12,100 @@ import {
   useSensors,
 } from "@dnd-kit/core"
 import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { IconGripVertical } from "@tabler/icons-react"
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  Row,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
+            {/* Scrollable Body */}
+            <TableBody>
+              <SortableContext
+                items={data.map((item) =>
+                  String(
+                    (item as Record<string, unknown>)[accessorId as string]
+                  )
+                )}
+                strategy={verticalListSortingStrategy}
+              >
+                {rowModel.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell, cellIndex) => {
+                      const isActions = cell.column.id === "drag-actions"
+                      const isFirstColumn = cellIndex === 0
 
-              <TableBody>
-                <SortableContext
-                  items={data.map((item) =>
-                    String(
-                      (item as Record<string, unknown>)[accessorId as string]
-                    )
-                  )}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {rowModel.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.getVisibleCells().map((cell, cellIndex) => {
-                        const isActions = cell.column.id === "drag-actions"
-                        const isFirstColumn = cellIndex === 0
-
-                        return (
-                          <TableCell
-                            key={cell.id}
-                            className={`py-1 ${
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={`py-1 ${
+                            isFirstColumn || isActions
+                              ? "bg-background sticky left-0 z-10"
+                              : ""
+                          }`}
+                          style={{
+                            width: `${cell.column.getSize()}px`,
+                            minWidth: `${cell.column.getSize()}px`,
+                            maxWidth: `${cell.column.getSize()}px`,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            position:
                               isFirstColumn || isActions
-                                ? "bg-background sticky left-0 z-10"
-                                : ""
-                            }`}
-                            style={{
-                              width: `${cell.column.getSize()}px`,
-                              minWidth: `${cell.column.getSize()}px`,
-                              maxWidth: `${cell.column.getSize()}px`,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              position:
-                                isFirstColumn || isActions
-                                  ? "sticky"
-                                  : "relative",
-                              left: isFirstColumn || isActions ? 0 : "auto",
-                              zIndex: isFirstColumn || isActions ? 10 : 1,
-                            }}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        )
-                      })}
-                    </TableRow>
-                  ))}
+                                ? "sticky"
+                                : "relative",
+                            left: isFirstColumn || isActions ? 0 : "auto",
+                            zIndex: isFirstColumn || isActions ? 10 : 1,
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      )
+                    })}
+                  </TableRow>
+                ))}
 
-                  {/* Empty State */}
-                  {isTableEmpty && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={tableColumns.length}
-                        className="h-7 text-center"
-                      >
-                        {isLoading ? "Loading..." : emptyMessage}
-                      </TableCell>
-                    </TableRow>
+                {/* Empty State */}
+                {isTableEmpty && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={tableColumns.length}
+                      className="h-7 text-center"
+                    >
+                      {isLoading ? "Loading..." : emptyMessage}
+                    </TableCell>
+                  </TableRow>
+                )}
+
+                {/* Empty Rows */}
+                {Array.from({ length: fillerRowCount }).map((_, index) => (
+                  <TableRow key={`empty-${index}`} className="h-7">
+                    {table.getAllLeafColumns().map((column, cellIndex) => {
+                      const isActions = column.id === "drag-actions"
+                      const isFirstColumn = cellIndex === 0
+
+                      return (
+                        <TableCell
+                          key={`empty-${index}-${column.id}`}
+                          className={`py-1 ${
+                            isFirstColumn || isActions
+                              ? "bg-background sticky left-0 z-10"
+                              : ""
+                          }`}
+                          style={{
+                            width: `${column.getSize()}px`,
+                            minWidth: `${column.getSize()}px`,
+                            maxWidth: `${column.getSize()}px`,
+                            position:
+                              isFirstColumn || isActions
+                                ? "sticky"
+                                : "relative",
+                            left: isFirstColumn || isActions ? 0 : "auto",
+                            zIndex: isFirstColumn || isActions ? 10 : 1,
+                          }}
+                        />
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </SortableContext>
+            </TableBody>
                   )}
 
                   {/* Empty Rows */}
@@ -551,7 +568,7 @@ import {
                 )}
                 strategy={verticalListSortingStrategy}
               >
-                  {rowModel.map((row) => (
+                {rowModel.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell, cellIndex) => {
                       const isActions = cell.column.id === "drag-actions"
@@ -567,21 +584,14 @@ import {
                           }`}
                           style={{
                             width: `${cell.column.getSize()}px`,
-
-                        {/* Empty State */}
-                        {isTableEmpty && (
-                          <TableRow>
-                            <TableCell
-                              colSpan={tableColumns.length}
-                              className="h-7 text-center"
-                            >
-                              {isLoading ? "Loading..." : emptyMessage}
-                            </TableCell>
-                          </TableRow>
-                        )}
                             minWidth: `${cell.column.getSize()}px`,
                             maxWidth: `${cell.column.getSize()}px`,
-                        {Array.from({ length: fillerRowCount }).map((_, index) => (
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            position:
+                              isFirstColumn || isActions
+                                ? "sticky"
                                 : "relative",
                             left: isFirstColumn || isActions ? 0 : "auto",
                             zIndex: isFirstColumn || isActions ? 10 : 1,
@@ -596,6 +606,25 @@ import {
                     })}
                   </TableRow>
                 ))}
+
+                {/* Empty State */}
+                {isTableEmpty && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={tableColumns.length}
+                      className="h-7 text-center"
+                    >
+                      {isLoading ? "Loading..." : emptyMessage}
+                    </TableCell>
+                  </TableRow>
+                )}
+
+                {/* Empty Rows */}
+                {Array.from({ length: fillerRowCount }).map((_, index) => (
+                  <TableRow key={`empty-${index}`} className="h-7">
+                    {table.getAllLeafColumns().map((column, cellIndex) => {
+                      const isActions = column.id === "drag-actions"
+                      const isFirstColumn = cellIndex === 0
 
                       return (
                         <TableCell
@@ -621,18 +650,6 @@ import {
                     })}
                   </TableRow>
                 ))}
-
-                {/* Empty State */}
-                {table.getRowModel().rows.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={tableColumns.length}
-                      className="h-7 text-center"
-                    >
-                      {isLoading ? "Loading..." : emptyMessage}
-                    </TableCell>
-                  </TableRow>
-                )}
               </SortableContext>
             </TableBody>
           </table>
