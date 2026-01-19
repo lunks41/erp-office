@@ -10,6 +10,7 @@ import { useAuthStore } from "@/stores/auth-store"
 import { UseFormReturn } from "react-hook-form"
 
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import { useReactSelectScrollToSelected } from "@/hooks/use-react-select-scroll"
 import { DeleteConfirmation } from "@/components/confirmation"
 
 import InvoiceDetailsForm, {
@@ -41,6 +42,9 @@ export default function Main({
 
   // Get user settings with defaults for all modules
   const { defaults } = useUserSettingDefaults()
+
+  // Keep react-select dropdowns aligned with the current selection when opened
+  useReactSelectScrollToSelected()
 
   const [editingDetail, setEditingDetail] =
     useState<ApInvoiceDtSchemaType | null>(null)
