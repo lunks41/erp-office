@@ -446,6 +446,13 @@ export function AccountBaseTable<T>({
     setColumnSizing({})
   }, [table])
 
+  const rowModel = table.getRowModel().rows
+  const isTableEmpty = rowModel.length === 0
+  const fillerRowCount = Math.max(
+    0,
+    pageSize - (isTableEmpty ? 1 : rowModel.length)
+  )
+
   return (
     <div className="space-y-4">
       {showHeader && (
@@ -549,7 +556,7 @@ export function AccountBaseTable<T>({
                   )}
                   strategy={verticalListSortingStrategy}
                 >
-                  {table.getRowModel().rows.map((row) => (
+                  {rowModel.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell, cellIndex) => {
                         const isActions = cell.column.id === "drag-actions"
@@ -588,13 +595,20 @@ export function AccountBaseTable<T>({
                     </TableRow>
                   ))}
 
+                  {/* Empty State */}
+                  {isTableEmpty && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={tableColumns.length}
+                        className="h-7 text-center"
+                      >
+                        {isLoading ? "Loading..." : emptyMessage}
+                      </TableCell>
+                    </TableRow>
+                  )}
+
                   {/* Empty Rows */}
-                  {Array.from({
-                    length: Math.max(
-                      0,
-                      pageSize - table.getRowModel().rows.length
-                    ),
-                  }).map((_, index) => (
+                  {Array.from({ length: fillerRowCount }).map((_, index) => (
                     <TableRow key={`empty-${index}`} className="h-7">
                       {table.getAllLeafColumns().map((column, cellIndex) => {
                         const isActions = column.id === "drag-actions"
@@ -624,18 +638,6 @@ export function AccountBaseTable<T>({
                       })}
                     </TableRow>
                   ))}
-
-                  {/* Empty State */}
-                  {table.getRowModel().rows.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={tableColumns.length}
-                        className="h-7 text-center"
-                      >
-                        {isLoading ? "Loading..." : emptyMessage}
-                      </TableCell>
-                    </TableRow>
-                  )}
                 </SortableContext>
               </TableBody>
             </table>

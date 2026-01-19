@@ -31,104 +31,99 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { TableName } from "@/lib/utils"
-import { useGetGridLayout } from "@/hooks/use-settings"
-import { Button } from "@/components/ui/button"
-import {
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+              <TableBody>
+                <SortableContext
+                  items={data.map((item) =>
+                    String(
+                      (item as Record<string, unknown>)[accessorId as string]
+                    )
+                  )}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {rowModel.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell, cellIndex) => {
+                        const isActions = cell.column.id === "drag-actions"
+                        const isFirstColumn = cellIndex === 0
 
-import { Checkbox } from "../ui/checkbox"
-import { SortableTableHeader } from "./sortable-table-header"
-import { AccountTableActions } from "./table-account-action"
-import { AccountTableHeader } from "./table-account-header"
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            className={`py-1 ${
+                              isFirstColumn || isActions
+                                ? "bg-background sticky left-0 z-10"
+                                : ""
+                            }`}
+                            style={{
+                              width: `${cell.column.getSize()}px`,
+                              minWidth: `${cell.column.getSize()}px`,
+                              maxWidth: `${cell.column.getSize()}px`,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              position:
+                                isFirstColumn || isActions
+                                  ? "sticky"
+                                  : "relative",
+                              left: isFirstColumn || isActions ? 0 : "auto",
+                              zIndex: isFirstColumn || isActions ? 10 : 1,
+                            }}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
+                  ))}
 
-interface AccountBaseTablev1Props<T> {
-  data: T[]
-  columns: ColumnDef<T>[]
-  isLoading?: boolean
-  moduleId?: number
-  transactionId?: number
-  tableName: TableName
-  emptyMessage?: string
-  accessorId: keyof T
-  onRefreshAction?: () => void
-  onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
-  onSelect?: (item: T | null) => void
-  onEditAction?: (item: T) => void
-  onDeleteAction?: (itemId: string) => void
-  onBulkDeleteAction?: (selectedIds: string[]) => void
-  onBulkSelectionChange?: (selectedIds: string[]) => void
-  onDataReorder?: (newData: T[]) => void
-  isConfirmed?: boolean
-  showHeader?: boolean
-  showActions?: boolean
-  hideEdit?: boolean
-  hideDelete?: boolean
-  hideCheckbox?: boolean
-  disableOnAccountExists?: boolean
-  initialSelectedIds?: string[]
-  maxHeight?: string
-  pageSizeOption?: number
-}
+                  {/* Empty State */}
+                  {isTableEmpty && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={tableColumns.length}
+                        className="h-7 text-center"
+                      >
+                        {isLoading ? "Loading..." : emptyMessage}
+                      </TableCell>
+                    </TableRow>
+                  )}
 
-export function AccountBaseTablev1<T>({
-  data,
-  columns,
-  isLoading,
-  moduleId,
-  transactionId,
-  tableName,
-  emptyMessage = "No data found.",
-  accessorId,
-  onRefreshAction,
-  onFilterChange,
-  onSelect,
-  onEditAction,
-  onDeleteAction,
-  onBulkDeleteAction,
-  onBulkSelectionChange,
-  onDataReorder,
-  isConfirmed,
-  showHeader = true,
-  showActions = true,
-  hideEdit = false,
-  hideDelete = false,
-  hideCheckbox = false,
-  disableOnAccountExists = true,
-  initialSelectedIds = [],
-  maxHeight = "100%",
-  pageSizeOption = 50,
-}: AccountBaseTablev1Props<T>) {
-  // Always call the hook but pass valid IDs or defaults
-  const { data: gridSettings } = useGetGridLayout(
-    moduleId && moduleId > 0 ? moduleId.toString() : "0",
-    transactionId && transactionId > 0 ? transactionId.toString() : "0",
-    tableName
-  )
+                  {/* Empty Rows */}
+                  {Array.from({ length: fillerRowCount }).map((_, index) => (
+                    <TableRow key={`empty-${index}`} className="h-7">
+                      {table.getAllLeafColumns().map((column, cellIndex) => {
+                        const isActions = column.id === "drag-actions"
+                        const isFirstColumn = cellIndex === 0
 
-  const gridSettingsData = gridSettings?.data
-  const getInitialSorting = (): SortingState => {
-    if (gridSettingsData?.grdSort) {
-      try {
-        return JSON.parse(gridSettingsData.grdSort) || []
-      } catch {
-        return []
-      }
-    }
-    return []
-  }
-
-  const getInitialColumnVisibility = (): VisibilityState => {
-    if (gridSettingsData?.grdColVisible) {
-      try {
-        return JSON.parse(gridSettingsData.grdColVisible) || {}
-      } catch {
-        return {}
+                        return (
+                          <TableCell
+                            key={`empty-${index}-${column.id}`}
+                            className={`py-1 ${
+                              isFirstColumn || isActions
+                                ? "bg-background sticky left-0 z-10"
+                                : ""
+                            }`}
+                            style={{
+                              width: `${column.getSize()}px`,
+                              minWidth: `${column.getSize()}px`,
+                              maxWidth: `${column.getSize()}px`,
+                              position:
+                                isFirstColumn || isActions
+                                  ? "sticky"
+                                  : "relative",
+                              left: isFirstColumn || isActions ? 0 : "auto",
+                              zIndex: isFirstColumn || isActions ? 10 : 1,
+                            }}
+                          />
+                        )
+                      })}
+                    </TableRow>
+                  ))}
+                </SortableContext>
+              </TableBody>
       }
     }
     return {}
@@ -446,6 +441,13 @@ export function AccountBaseTablev1<T>({
     setColumnSizing({})
   }, [table])
 
+  const rowModel = table.getRowModel().rows
+  const isTableEmpty = rowModel.length === 0
+  const fillerRowCount = Math.max(
+    0,
+    pageSize - (isTableEmpty ? 1 : rowModel.length)
+  )
+
   return (
     <div className="space-y-4">
       {showHeader && (
@@ -549,7 +551,7 @@ export function AccountBaseTablev1<T>({
                 )}
                 strategy={verticalListSortingStrategy}
               >
-                {table.getRowModel().rows.map((row) => (
+                  {rowModel.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell, cellIndex) => {
                       const isActions = cell.column.id === "drag-actions"
@@ -565,14 +567,21 @@ export function AccountBaseTablev1<T>({
                           }`}
                           style={{
                             width: `${cell.column.getSize()}px`,
+
+                        {/* Empty State */}
+                        {isTableEmpty && (
+                          <TableRow>
+                            <TableCell
+                              colSpan={tableColumns.length}
+                              className="h-7 text-center"
+                            >
+                              {isLoading ? "Loading..." : emptyMessage}
+                            </TableCell>
+                          </TableRow>
+                        )}
                             minWidth: `${cell.column.getSize()}px`,
                             maxWidth: `${cell.column.getSize()}px`,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            position:
-                              isFirstColumn || isActions
-                                ? "sticky"
+                        {Array.from({ length: fillerRowCount }).map((_, index) => (
                                 : "relative",
                             left: isFirstColumn || isActions ? 0 : "auto",
                             zIndex: isFirstColumn || isActions ? 10 : 1,
@@ -587,18 +596,6 @@ export function AccountBaseTablev1<T>({
                     })}
                   </TableRow>
                 ))}
-
-                {/* Empty Rows */}
-                {Array.from({
-                  length: Math.max(
-                    0,
-                    pageSize - table.getRowModel().rows.length
-                  ),
-                }).map((_, index) => (
-                  <TableRow key={`empty-${index}`} className="h-7">
-                    {table.getAllLeafColumns().map((column, cellIndex) => {
-                      const isActions = column.id === "drag-actions"
-                      const isFirstColumn = cellIndex === 0
 
                       return (
                         <TableCell
