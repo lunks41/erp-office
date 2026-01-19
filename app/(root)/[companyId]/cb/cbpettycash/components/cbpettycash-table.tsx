@@ -223,6 +223,12 @@ export default function CbPettyCashTable({
           } as ColumnDef<ICbPettyCashHd>,
         ]
       : []),
+      {
+      accessorKey: "bankName",
+      header: "Bank Name",
+      size: 80,
+      minSize: 60,
+    },
     {
       accessorKey: "currencyCode",
       header: "Currency Code",
@@ -249,27 +255,33 @@ export default function CbPettyCashTable({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
         </div>
       ),
     },
-    ...(visible?.m_TrnDate
+     ...(visible?.m_Remarks
       ? [
           {
-            accessorKey: "trnDate",
-            header: "Transaction Date",
+            accessorKey: "remarks",
+            header: "Remarks",
+            size: 200,
+            minSize: 150,
+            maxSize: 220,
             cell: ({ row }) => {
-              const date = row.original.trnDate
-                ? new Date(row.original.trnDate)
-                : null
-              return date ? format(date, dateFormat) : "-"
+              const remarks = row.original.remarks ?? ""
+              return (
+                <div className="max-w-[200px] truncate" title={remarks}>
+                  {remarks || "-"}
+                </div>
+              )
             },
           } as ColumnDef<ICbPettyCashHd>,
         ]
       : []),
+  
     {
       accessorKey: "currencyName",
       header: "Currency Name",
@@ -359,27 +371,42 @@ export default function CbPettyCashTable({
       : []),
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
         </div>
       ),
     },
+
     {
       accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
+      header: "Total Local After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
         </div>
       ),
     },
+      ...(visible?.m_TrnDate
+      ? [
+          {
+            accessorKey: "trnDate",
+            header: "Transaction Date",
+            cell: ({ row }) => {
+              const date = row.original.trnDate
+                ? new Date(row.original.trnDate)
+                : null
+              return date ? format(date, dateFormat) : "-"
+            },
+          } as ColumnDef<ICbPettyCashHd>,
+        ]
+      : []),
     ...(visible?.m_CtyCurr
       ? [
           {
             accessorKey: "totCtyAmtAftGst",
-            header: "Total Country After GST",
+            header: "Total Country After VAT",
             cell: ({ row }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("totCtyAmtAftGst"), locAmtDec)}
@@ -389,25 +416,7 @@ export default function CbPettyCashTable({
         ]
       : []),
 
-    ...(visible?.m_Remarks
-      ? [
-          {
-            accessorKey: "remarks",
-            header: "Remarks",
-            size: 200,
-            minSize: 150,
-            maxSize: 220,
-            cell: ({ row }) => {
-              const remarks = row.original.remarks ?? ""
-              return (
-                <div className="max-w-[200px] truncate" title={remarks}>
-                  {remarks || "-"}
-                </div>
-              )
-            },
-          } as ColumnDef<ICbPettyCashHd>,
-        ]
-      : []),
+   
     {
       accessorKey: "status",
       header: "Status",

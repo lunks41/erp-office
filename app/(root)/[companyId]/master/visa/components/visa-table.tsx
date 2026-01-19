@@ -52,6 +52,7 @@ export function VisasTable({
   currentPage = 1,
   pageSize = 50,
   serverSidePagination = false,
+  initialSearchValue,
   moduleId,
   transactionId,
   // Permission props
@@ -181,4 +182,3 @@ export function VisasTable({
     />
   )
 }
-

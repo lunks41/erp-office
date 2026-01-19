@@ -340,7 +340,7 @@ export default function InvoiceCtmTable({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
@@ -349,7 +349,7 @@ export default function InvoiceCtmTable({
     },
     {
       accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
+      header: "Total Local After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}

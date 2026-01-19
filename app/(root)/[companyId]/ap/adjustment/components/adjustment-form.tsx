@@ -665,7 +665,7 @@ export default function AdjustmentForm({
               <CustomNumberInput
                 form={form}
                 name="totCtyAmtAftGst"
-                label="Total Country Amount After GST"
+                label="Total Country Amount After VAT"
                 isDisabled={true}
                 round={amtDec}
                 className="text-right"

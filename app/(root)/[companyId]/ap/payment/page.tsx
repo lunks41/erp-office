@@ -46,6 +46,12 @@ import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -619,7 +625,7 @@ export default function PaymentPage() {
   }
 
   // Handle Print Payment Report
-  const handlePrintPayment = () => {
+  const handlePrintPayment = (reportType: "Payment" | "ChequePayment" = "Payment") => {
     if (!payment || payment.paymentId === "0") {
       toast.error("Please select a payment to print")
       return
@@ -647,9 +653,13 @@ export default function PaymentPage() {
 
     console.log("reportParams", reportParams)
 
+    // Determine report file based on type
+    const reportFile =
+      reportType === "ChequePayment" ? "ap/ApChequePayment.trdp" : "ap/ApPayment.trdp"
+
     // Store report data in sessionStorage
     const reportData = {
-      reportFile: "ap/ApPayment.trdp",
+      reportFile: reportFile,
       parameters: reportParams,
     }
 
@@ -1195,15 +1205,26 @@ export default function PaymentPage() {
                   : "Save"}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!payment || payment.paymentId === "0"}
-              onClick={handlePrintPayment}
-            >
-              <Printer className="mr-1 h-4 w-4" />
-              Print
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!payment || payment.paymentId === "0"}
+                >
+                  <Printer className="mr-1 h-4 w-4" />
+                  Print
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handlePrintPayment("Payment")}>
+                  1. Payment
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePrintPayment("ChequePayment")}>
+                  2. ChequePayment
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button
               variant="outline"

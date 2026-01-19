@@ -55,7 +55,7 @@ export default function ChecklistPage() {
   // Add this at the top of your component
   const today = new Date()
   const defaultStartDate = new Date(today)
-  defaultStartDate.setMonth(today.getMonth() - 2) // Go back 2 months
+  defaultStartDate.setMonth(today.getMonth() - 6) // Go back 6 months
 
   // Format dates to YYYY-MM-DD for input fields (using standardized function)
   const formatDateForInput = (date: Date) => formatDateForApi(date) || ""

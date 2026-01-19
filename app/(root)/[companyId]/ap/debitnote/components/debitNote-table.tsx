@@ -247,7 +247,7 @@ export default function DebitNoteTable({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
@@ -278,7 +278,7 @@ export default function DebitNoteTable({
     },
     {
       accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
+      header: "Total Local After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}

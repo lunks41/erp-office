@@ -1070,6 +1070,13 @@ const CbPettyCashDetailsForm = React.forwardRef<
           shouldDirty: true,
         })
         form.setValue("jobOrderNo", selectedOption.jobOrderNo || "")
+        // Auto-populate vessel from job order if available
+        if (selectedOption.vesselId) {
+          form.setValue("vesselId", selectedOption.vesselId, {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
+        }
         // Reset task and service when job order changes
         form.setValue("taskId", 0, { shouldValidate: true })
         form.setValue("taskName", "")
@@ -1078,6 +1085,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
       } else {
         form.setValue("jobOrderId", 0, { shouldValidate: true })
         form.setValue("jobOrderNo", "")
+        form.setValue("vesselId", 0, { shouldValidate: true })
         form.setValue("taskId", 0, { shouldValidate: true })
         form.setValue("taskName", "")
         form.setValue("serviceItemNo", 0, { shouldValidate: true })

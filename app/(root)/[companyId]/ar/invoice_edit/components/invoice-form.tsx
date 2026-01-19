@@ -459,7 +459,7 @@ export default function InvoiceForm({
         <CustomNumberInput
           form={form}
           name="totAmtAftGst"
-          label="Total Amount After GST"
+          label="Total Amount After VAT"
           round={amtDec}
           isDisabled={true}
           className="text-right"
@@ -489,7 +489,7 @@ export default function InvoiceForm({
         <CustomNumberInput
           form={form}
           name="totLocalAmtAftGst"
-          label="Total Local Amount After GST"
+          label="Total Local Amount After VAT"
           round={locAmtDec}
           isDisabled={true}
           className="text-right"
@@ -529,7 +529,7 @@ export default function InvoiceForm({
             <CustomNumberInput
               form={form}
               name="totCtyAmtAftGst"
-              label="Total Country Amount After GST"
+              label="Total Country Amount After VAT"
               isDisabled={true}
               round={amtDec}
               className="text-right"

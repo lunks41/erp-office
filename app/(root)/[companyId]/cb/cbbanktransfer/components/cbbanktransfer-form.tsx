@@ -69,6 +69,8 @@ export default function BankTransferForm({
 
   const watchedJobOrderId = form.watch("jobOrderId")
   const watchedTaskId = form.watch("taskId")
+  const watchedToBankChgAmt = form.watch("toBankChgAmt")
+  const isToBankChgGLRequired = (watchedToBankChgAmt || 0) > 0
 
   // State to track if payment type is cheque
   const [isChequePayment, setIsChequePayment] = React.useState(false)
@@ -169,7 +171,20 @@ export default function BankTransferForm({
         shouldDirty: true,
       })
       form.setValue("jobOrderNo", selectedOption.jobOrderNo || "")
+      // // Auto-populate vessel from job order
+      // if (selectedOption.vesselId) {
+      //   form.setValue("vesselId", selectedOption.vesselId, {
+      //     shouldValidate: true,
+      //     shouldDirty: true,
+      //   })
+      // }
       // Reset task and service when job order changes
+      form.setValue("taskId", 0, { shouldValidate: true })
+      form.setValue("serviceItemNo", 0, { shouldValidate: true })
+    } else {
+      form.setValue("jobOrderId", 0, { shouldValidate: true })
+      form.setValue("jobOrderNo", "")
+      // form.setValue("vesselId", 0, { shouldValidate: true })
       form.setValue("taskId", 0, { shouldValidate: true })
       form.setValue("serviceItemNo", 0, { shouldValidate: true })
     }
@@ -600,26 +615,69 @@ export default function BankTransferForm({
   const handleBankExhRateChange = React.useCallback(
     (value: number) => {
       const bankExhRate = value || 0
-      const bankTotAmt = form.getValues("bankTotAmt") || 0
+      
+      // If bankExhRate is zero, reset related fields
+      if (bankExhRate === 0) {
+        form.setValue("bankTotAmt", 0, {
+          shouldValidate: false,
+        })
+        form.setValue("bankTotLocalAmt", 0, {
+          shouldValidate: false,
+        })
+        form.setValue("toBankChgLocalAmt", 0, {
+          shouldValidate: false,
+        })
+        form.setValue("toBankChgAmt", 0, {
+          shouldValidate: false,
+        })
+        return
+      }
+
+      const fromTotAmt = form.getValues("fromTotAmt") || 0
+      
+      form.setValue("bankTotAmt", fromTotAmt, {
+        shouldValidate: false,
+      })
 
       // Calculate local amount: bankTotAmt * bankExhRate
       const bankTotLocalAmt = calculateMultiplierAmount(
-        bankTotAmt,
+        fromTotAmt,
         bankExhRate,
         locAmtDec
       )
 
-      form.setValue("bankTotLocalAmt", bankTotLocalAmt, {
+        form.setValue("bankTotLocalAmt", bankTotLocalAmt, {
+        shouldValidate: false,
+      })
+
+      // Calculate toBankChgLocalAmt = fromTotLocalAmt - bankTotLocalAmt
+      const fromTotLocalAmt = form.getValues("fromTotLocalAmt") || 0
+      const toBankChgLocalAmt = fromTotLocalAmt - bankTotLocalAmt
+
+      form.setValue("toBankChgLocalAmt", toBankChgLocalAmt, {
+        shouldValidate: false,
+      })
+
+      // Calculate toBankChgAmt = toBankChgLocalAmt / toExhRate
+      const toExhRate = form.getValues("toExhRate") || 0
+      const toBankChgAmt =
+        toExhRate > 0
+          ? calculateDivisionAmount(toBankChgLocalAmt, toExhRate, amtDec)
+          : 0
+
+      form.setValue("toBankChgAmt", toBankChgAmt, {
         shouldValidate: false,
       })
 
       console.log("🏦 [BANK] Exchange rate calculated:", {
         bankExhRate,
-        bankTotAmt,
+        fromTotAmt,
         bankTotLocalAmt,
+        toBankChgLocalAmt,
+        toBankChgAmt,
       })
     },
-    [form, locAmtDec]
+    [form, locAmtDec, amtDec]
   )
 
   // STEP 6: Bank Total Amount Handler
@@ -647,6 +705,7 @@ export default function BankTransferForm({
     },
     [form, locAmtDec]
   )
+
 
   return (
     <FormProvider {...form}>
@@ -912,6 +971,7 @@ export default function BankTransferForm({
                 name="toBankChgGLId"
                 label="To Bank Charge GL"
                 companyId={_companyId}
+                isRequired={isToBankChgGLRequired}
               />
 
               <CustomNumberInput
@@ -978,7 +1038,7 @@ export default function BankTransferForm({
               round={amtDec}
               isRequired={false}
               className="text-right"
-              onChangeEvent={handleBankTotAmtChange}
+              //onChangeEvent={handleBankTotAmtChange}
             />
 
             <CustomNumberInput

@@ -347,7 +347,7 @@ export default function GSTAutocomplete<T extends Record<string, unknown>>({
                     value={getValue()}
                     onChange={handleChange}
                     onMenuClose={handleMenuClose}
-                    placeholder="Select GST..."
+                    placeholder="Select VAT..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
                     isSearchable={true}
@@ -365,7 +365,7 @@ export default function GSTAutocomplete<T extends Record<string, unknown>>({
                     }
                     menuPosition="fixed"
                     isLoading={isLoading}
-                    loadingMessage={() => "Loading account setups..."}
+                    loadingMessage={() => "Loading VAT..."}
                     tabIndex={0}
                     instanceId={name}
                     blurInputOnSelect={true}
@@ -406,7 +406,7 @@ export default function GSTAutocomplete<T extends Record<string, unknown>>({
           options={options}
           onChange={handleChange}
           onMenuClose={handleMenuClose}
-          placeholder="Select GST..."
+          placeholder="Select VAT..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}
           isSearchable={true}
@@ -424,7 +424,7 @@ export default function GSTAutocomplete<T extends Record<string, unknown>>({
           }
           menuPosition="fixed"
           isLoading={isLoading}
-          loadingMessage={() => "Loading GST..."}
+          loadingMessage={() => "Loading VAT..."}
           tabIndex={0}
           instanceId={name}
           blurInputOnSelect={true}

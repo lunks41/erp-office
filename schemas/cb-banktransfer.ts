@@ -92,6 +92,20 @@ export const CbBankTransferSchema = (
     appBy: z.string().optional(),
     appDate: z.union([z.date(), z.null()]).optional(),
   })
+    .refine(
+      (data) => {
+        // If toBankChgAmt has a value (greater than 0), toBankChgGLId is required
+        const toBankChgAmt = data.toBankChgAmt || 0
+        if (toBankChgAmt > 0) {
+          return data.toBankChgGLId !== undefined && data.toBankChgGLId !== null && data.toBankChgGLId > 0
+        }
+        return true
+      },
+      {
+        message: "To Bank Charge GL is required when To Bank Charge Amount has a value",
+        path: ["toBankChgGLId"],
+      }
+    )
 }
 
 export type CbBankTransferSchemaType = z.infer<

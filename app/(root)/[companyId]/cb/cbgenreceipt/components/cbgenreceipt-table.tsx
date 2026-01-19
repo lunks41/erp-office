@@ -251,7 +251,7 @@ export default function CbGenReceiptTable({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
@@ -268,6 +268,25 @@ export default function CbGenReceiptTable({
                 ? new Date(row.original.trnDate)
                 : null
               return date ? format(date, dateFormat) : "-"
+            },
+          } as ColumnDef<ICbGenReceiptHd>,
+        ]
+      : []),
+       ...(visible?.m_Remarks
+      ? [
+          {
+            accessorKey: "remarks",
+            header: "Remarks",
+            size: 200,
+            minSize: 150,
+            maxSize: 220,
+            cell: ({ row }) => {
+              const remarks = row.original.remarks ?? ""
+              return (
+                <div className="max-w-[200px] truncate" title={remarks}>
+                  {remarks || "-"}
+                </div>
+              )
             },
           } as ColumnDef<ICbGenReceiptHd>,
         ]
@@ -361,7 +380,7 @@ export default function CbGenReceiptTable({
       : []),
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
@@ -370,7 +389,7 @@ export default function CbGenReceiptTable({
     },
     {
       accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
+      header: "Total Local After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
@@ -381,7 +400,7 @@ export default function CbGenReceiptTable({
       ? [
           {
             accessorKey: "totCtyAmtAftGst",
-            header: "Total Country After GST",
+            header: "Total Country After VAT",
             cell: ({ row }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("totCtyAmtAftGst"), locAmtDec)}
@@ -391,25 +410,7 @@ export default function CbGenReceiptTable({
         ]
       : []),
 
-    ...(visible?.m_Remarks
-      ? [
-          {
-            accessorKey: "remarks",
-            header: "Remarks",
-            size: 200,
-            minSize: 150,
-            maxSize: 220,
-            cell: ({ row }) => {
-              const remarks = row.original.remarks ?? ""
-              return (
-                <div className="max-w-[200px] truncate" title={remarks}>
-                  {remarks || "-"}
-                </div>
-              )
-            },
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
+   
     {
       accessorKey: "status",
       header: "Status",

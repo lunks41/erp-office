@@ -227,7 +227,7 @@ export default function EditVersionDetails({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {row.original.totAmtAftGst
@@ -238,7 +238,7 @@ export default function EditVersionDetails({
     },
     {
       accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
+      header: "Total Local After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {row.original.totLocalAmtAftGst

@@ -264,7 +264,7 @@ export default function InvoiceTable({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "Total After GST",
+      header: "Total After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
@@ -296,7 +296,7 @@ export default function InvoiceTable({
     },
     {
       accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After GST",
+      header: "Total Local After VAT",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
@@ -413,7 +413,7 @@ export default function InvoiceTable({
       ? [
           {
             accessorKey: "totCtyAmtAftGst",
-            header: "Total Country After GST",
+            header: "Total Country After VAT",
             cell: ({ row }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("totCtyAmtAftGst"), locAmtDec)}

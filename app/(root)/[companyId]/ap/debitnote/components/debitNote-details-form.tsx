@@ -74,7 +74,7 @@ import DynamicVesselAutocomplete from "@/components/autocomplete/autocomplete-dy
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
-import { getDefaultValues } from "./debitNote-defaultvalues"
+import { getDefaultValues } from "./debitnote-defaultvalues"
 
 export interface DebitNoteDetailsFormRef {
   recalculateAmounts: (
@@ -802,13 +802,20 @@ const DebitNoteDetailsForm = React.forwardRef<
     }
 
     // Handle job order selection
-    const handleJobOrderChange = (selectedOption: IJobOrderLookup | null) => {
+     const handleJobOrderChange = (selectedOption: IJobOrderLookup | null) => {
       if (selectedOption) {
         form.setValue("jobOrderId", selectedOption.jobOrderId, {
           shouldValidate: true,
           shouldDirty: true,
         })
         form.setValue("jobOrderNo", selectedOption.jobOrderNo || "")
+        // Auto-populate vessel from job order if available
+        if (selectedOption.vesselId) {
+          form.setValue("vesselId", selectedOption.vesselId, {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
+        }
         // Reset task and service when job order changes
         form.setValue("taskId", 0, { shouldValidate: true })
         form.setValue("taskName", "")
@@ -817,6 +824,7 @@ const DebitNoteDetailsForm = React.forwardRef<
       } else {
         form.setValue("jobOrderId", 0, { shouldValidate: true })
         form.setValue("jobOrderNo", "")
+        form.setValue("vesselId", 0, { shouldValidate: true })
         form.setValue("taskId", 0, { shouldValidate: true })
         form.setValue("taskName", "")
         form.setValue("serviceItemNo", 0, { shouldValidate: true })

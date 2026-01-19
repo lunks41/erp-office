@@ -150,20 +150,6 @@ export default function BankTransferTable({
       header: "Transfer No",
     },
     {
-      accessorKey: "referenceNo",
-      header: "Reference No",
-    },
-    {
-      accessorKey: "trnDate",
-      header: "Transaction Date",
-      cell: ({ row }) => {
-        const date = row.original.trnDate
-          ? new Date(row.original.trnDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
@@ -172,6 +158,40 @@ export default function BankTransferTable({
           : null
         return date ? format(date, dateFormat) : "-"
       },
+    },
+     {
+      accessorKey: "fromBankName",
+      header: "From Bank Name",
+    },
+    {
+      accessorKey: "fromCurrencyCode",
+      header: "From Currency Code",
+    },
+     {
+      accessorKey: "fromTotAmt",
+      header: "From Total Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("fromTotAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "fromTotLocalAmt",
+      header: "From Total Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "toBankName",
+      header: "To Bank Name",
+    },
+    {
+      accessorKey: "toCurrencyCode",
+      header: "To Currency Code",
     },
     {
       accessorKey: "chequeNo",
@@ -203,18 +223,16 @@ export default function BankTransferTable({
       accessorKey: "fromBankCode",
       header: "From Bank Code",
     },
-    {
-      accessorKey: "fromBankName",
-      header: "From Bank Name",
-    },
-    {
-      accessorKey: "fromCurrencyCode",
-      header: "From Currency Code",
-    },
+   
     {
       accessorKey: "fromCurrencyName",
       header: "From Currency Name",
     },
+     {
+      accessorKey: "remarks",
+      header: "Remarks",
+    },
+    
     {
       accessorKey: "fromExhRate",
       header: "From Exchange Rate",
@@ -268,18 +286,11 @@ export default function BankTransferTable({
         </div>
       ),
     },
-    {
+     {
       accessorKey: "toBankCode",
       header: "To Bank Code",
     },
-    {
-      accessorKey: "toBankName",
-      header: "To Bank Name",
-    },
-    {
-      accessorKey: "toCurrencyCode",
-      header: "To Currency Code",
-    },
+   
     {
       accessorKey: "toCurrencyName",
       header: "To Currency Name",
@@ -374,8 +385,8 @@ export default function BankTransferTable({
       ),
     },
     {
-      accessorKey: "remarks",
-      header: "Remarks",
+      accessorKey: "referenceNo",
+      header: "Reference No",
     },
     {
       accessorKey: "payeeTo",
