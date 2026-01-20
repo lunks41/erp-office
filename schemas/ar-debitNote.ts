@@ -216,7 +216,7 @@ export const ArDebitNoteDtSchema = (
     // GST Fields
     gstId:
       required?.m_GstId && visible?.m_GstId
-        ? z.number().min(1, "GST is required")
+        ? z.number().min(1, "VAT is required")
         : z.number().optional(),
     gstName: z.string().optional(),
     gstPercentage: visible?.m_GstId ? z.number().min(0) : z.number().optional(),

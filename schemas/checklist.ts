@@ -109,7 +109,7 @@ export const JobOrderHdSchema = z
       return true
     },
     {
-      message: "GST is required when taxable is enabled",
+      message: "VAT is required when taxable is enabled",
       path: ["gstId"],
     }
   )
@@ -695,9 +695,9 @@ export const debitNoteDtSchema = z
     unitPrice: z.number().min(0, "Unit price must be 0 or greater"),
     totLocalAmt: z.number(),
     totAmt: z.number().min(0, "Total amount must be 0 or greater"),
-    gstId: z.number().min(1, "GST ID is required"),
-    gstPercentage: z.number().min(0, "GST percentage must be 0 or greater"),
-    gstAmt: z.number().min(0, "GST amount must be 0 or greater"),
+    gstId: z.number().min(1, "VAT ID is required"),
+    gstPercentage: z.number().min(0, "VAT percentage must be 0 or greater"),
+    gstAmt: z.number().min(0, "VAT amount must be 0 or greater"),
     totAmtAftGst: z.number().min(0, "Total after GST must be 0 or greater"),
     remarks: z
       .string()
@@ -739,7 +739,7 @@ export const debitNoteHdSchema = z.object({
   exhRate: z.number().min(0, "Exchange rate must be 0 or greater"),
   glId: z.number().min(1, "Chart of Account is required"),
   totAmt: z.number().min(0, "Total amount must be 0 or greater"),
-  gstAmt: z.number().min(0, "GST amount must be 0 or greater"),
+  gstAmt: z.number().min(0, "VAT amount must be 0 or greater"),
   totAmtAftGst: z.number().min(0, "Total after GST must be 0 or greater"),
 
   taxableAmt: z.number().min(0, "Taxable amount must be 0 or greater"),

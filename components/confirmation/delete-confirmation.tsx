@@ -67,19 +67,23 @@ export function DeleteConfirmation({
     ? `You are about to delete "${itemName}". ${description}`
     : description
 
+  const hasMultipleItems = itemName && itemName.includes("<br/>")
+
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogContent>
+      <AlertDialogContent
+        className={hasMultipleItems ? "max-h-[90vh] flex flex-col" : ""}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
-            {itemName && itemName.includes("<br/>") ? (
-              <div>
+            {hasMultipleItems ? (
+              <div className="flex flex-col">
                 <p className="mb-2 font-medium text-red-600">
                   You are about to delete:
                 </p>
                 <div
-                  className="font-medium text-red-700"
+                  className="max-h-[50vh] overflow-y-auto rounded-md border border-red-200 bg-red-50 p-3 font-medium text-red-700"
                   dangerouslySetInnerHTML={{ __html: itemName }}
                 />
                 <p className="mt-2 text-red-600">{description}</p>
@@ -89,7 +93,7 @@ export function DeleteConfirmation({
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="mt-4">
           <AlertDialogCancel onClick={handleCancel} disabled={isDeleting}>
             Cancel
           </AlertDialogCancel>

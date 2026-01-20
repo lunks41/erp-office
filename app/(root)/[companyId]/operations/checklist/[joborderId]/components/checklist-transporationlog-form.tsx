@@ -240,7 +240,7 @@ export function TransportationLogForm({
           })}
         >
           <div className="grid gap-2">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <JobOrderTaskAutocomplete
                 key={`task-${watchedJobOrderId}`}
                 form={form}
@@ -251,7 +251,7 @@ export function TransportationLogForm({
                 isDisabled={isConfirmed}
                 onChangeEvent={handleTaskChange}
               />
-              <div className="col-span-2">
+              <div className="col-span-3">
                 <JobOrderServiceItemNoMultiSelect
                   key={`service-${watchedJobOrderId}-${watchedTaskId}`}
                   form={form}
