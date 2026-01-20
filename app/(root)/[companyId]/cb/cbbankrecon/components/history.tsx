@@ -19,13 +19,13 @@ export default function History({ form, isEdit: _isEdit }: HistoryProps) {
   const formValues = form.getValues()
   const accountDetails = {
     createBy: formValues.createBy || "",
-    createDate: (formValues.createDate || "").toString(),
+    createDate: formValues.createDate || "",
     editBy: formValues.editBy || "",
-    editDate: formValues.editDate ? formValues.editDate?.toString() : "",
+    editDate: formValues.editDate || "",
     cancelBy: formValues.cancelBy || "",
-    cancelDate: formValues.cancelDate ? formValues.cancelDate?.toString() : "",
+    cancelDate: formValues.cancelDate || "",
     appBy: formValues.appBy || "",
-    appDate: formValues.appDate ? formValues.appDate?.toString() : "",
+    appDate: formValues.appDate || "",
   }
 
   return (

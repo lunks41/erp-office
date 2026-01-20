@@ -227,18 +227,18 @@ export default function BankTransferPage() {
           editVersion: bankTransfer.editVersion ?? 0,
           isCancel: bankTransfer.isCancel ?? false,
           cancelBy: bankTransfer.cancelBy ?? "",
-          cancelDate: bankTransfer.cancelDate ?? null,
-          cancelRemarks: bankTransfer.cancelRemarks ?? null,
+          cancelDate: bankTransfer.cancelDate ?? "",
+          cancelRemarks: bankTransfer.cancelRemarks ?? "",
           isPost: bankTransfer.isPost ?? false,
           postBy: bankTransfer.postBy ?? "",
-          postDate: bankTransfer.postDate ?? null,
+          postDate: bankTransfer.postDate ?? "",
           appStatusId: bankTransfer.appStatusId ?? null,
           appBy: bankTransfer.appBy ?? "",
-          appDate: bankTransfer.appDate ?? null,
+          appDate: bankTransfer.appDate ?? "",
           createBy: bankTransfer.createBy ?? "",
           editBy: bankTransfer.editBy ?? "",
           createDate: bankTransfer.createDate ?? "",
-          editDate: bankTransfer.editDate ?? null,
+          editDate: bankTransfer.editDate ?? "",
         }
       : (() => {
           // For new bankTransfer, set createDate with time and createBy
@@ -367,21 +367,37 @@ export default function BankTransferPage() {
             )
           : "",
         editDate: apiBankTransfer.editDate
-          ? parseDate(apiBankTransfer.editDate as unknown as string) || null
-          : null,
+          ? format(
+              parseDate(apiBankTransfer.editDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         cancelDate: apiBankTransfer.cancelDate
-          ? parseDate(apiBankTransfer.cancelDate as unknown as string) || null
-          : null,
-        cancelRemarks: apiBankTransfer.cancelRemarks ?? null,
+          ? format(
+              parseDate(apiBankTransfer.cancelDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
+        cancelRemarks: apiBankTransfer.cancelRemarks ?? "",
         isPost: apiBankTransfer.isPost ?? false,
         postDate: apiBankTransfer.postDate
-          ? parseDate(apiBankTransfer.postDate as unknown as string) || null
-          : null,
+          ? format(
+              parseDate(apiBankTransfer.postDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         appStatusId: apiBankTransfer.appStatusId ?? null,
         appBy: apiBankTransfer.appBy ?? "",
         appDate: apiBankTransfer.appDate
-          ? parseDate(apiBankTransfer.appDate as unknown as string) || null
-          : null,
+          ? format(
+              parseDate(apiBankTransfer.appDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         isCancel: apiBankTransfer.isCancel ?? false,
       }
     },

@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -121,7 +120,26 @@ export default function BankReconPage() {
           totAmt: bankRecon.totAmt ?? 0,
           opBalAmt: bankRecon.opBalAmt ?? 0,
           clBalAmt: bankRecon.clBalAmt ?? 0,
+          createById: bankRecon.createById ?? 0,
+          createBy: bankRecon.createBy ?? "",
+          createDate: bankRecon.createDate ?? "",
+          editById: bankRecon.editById ?? undefined,
+          editBy: bankRecon.editBy ?? "",
+          editDate: bankRecon.editDate ?? "",
           editVersion: bankRecon.editVersion ?? 0,
+          isCancel: bankRecon.isCancel ?? false,
+          cancelById: bankRecon.cancelById ?? undefined,
+          cancelBy: bankRecon.cancelBy ?? "",
+          cancelDate: bankRecon.cancelDate ?? "",
+          cancelRemarks: bankRecon.cancelRemarks ?? null,
+          isPost: bankRecon.isPost ?? false,
+          postById: bankRecon.postById ?? undefined,
+          postBy: bankRecon.postBy ?? "",
+          postDate: bankRecon.postDate ?? "",
+          appStatusId: bankRecon.appStatusId ?? null,
+          appById: bankRecon.appById ?? null,
+          appBy: bankRecon.appBy ?? "",
+          appDate: bankRecon.appDate ?? "",
           data_details:
             bankRecon.data_details?.map((detail) => ({
               ...detail,
@@ -150,9 +168,23 @@ export default function BankReconPage() {
               editVersion: detail.editVersion ?? 0,
             })) || [],
         }
-      : {
-          ...defaultBankRecon,
-        },
+      : (() => {
+          // For new bankRecon, set createDate with time and createBy
+          const currentDateTime = decimals[0]?.longDateFormat
+            ? format(new Date(), decimals[0].longDateFormat)
+            : format(new Date(), "dd/MM/yyyy HH:mm:ss")
+          const userName = user?.userName || ""
+
+          return {
+            ...defaultBankRecon,
+            createBy: userName,
+            createDate: currentDateTime,
+            editDate: "",
+            cancelDate: "",
+            postDate: "",
+            appDate: "",
+          }
+        })(),
   })
 
   // Data fetching moved to BankReconTable component for better performance
@@ -309,8 +341,19 @@ export default function BankReconPage() {
       if (response.result === 1) {
         setBankRecon(null)
         setSearchNo("") // Clear search input
+        const currentDateTime = decimals[0]?.longDateFormat
+          ? format(new Date(), decimals[0].longDateFormat)
+          : format(new Date(), "dd/MM/yyyy HH:mm:ss")
+        const userName = user?.userName || ""
+
         form.reset({
           ...defaultBankRecon,
+          createBy: userName,
+          createDate: currentDateTime,
+          editDate: "",
+          cancelDate: "",
+          postDate: "",
+          appDate: "",
           data_details: [],
         })
         toast.success(
@@ -329,10 +372,22 @@ export default function BankReconPage() {
   const handleBankReconReset = () => {
     setBankRecon(null)
     setSearchNo("") // Clear search input
+
+    const currentDateTime = decimals[0]?.longDateFormat
+      ? format(new Date(), decimals[0].longDateFormat)
+      : format(new Date(), "dd/MM/yyyy HH:mm:ss")
+    const userName = user?.userName || ""
+
     form.reset({
       ...defaultBankRecon,
+      createBy: userName,
+      createDate: currentDateTime,
+      editDate: "",
+      cancelDate: "",
+      postDate: "",
+      appDate: "",
       data_details: [],
-    })
+    } as CbBankReconHdSchemaType)
     toast.success("Ready for new Bank Reconciliation")
   }
 
@@ -429,29 +484,48 @@ export default function BankReconPage() {
       clBalAmt: apiBankRecon.clBalAmt ?? 0,
       createById: apiBankRecon.createById ?? 0,
       createDate: apiBankRecon.createDate
-        ? parseDate(apiBankRecon.createDate as string) || new Date()
-        : new Date(),
+        ? format(
+            parseDate(apiBankRecon.createDate as string) || new Date(),
+            decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+          )
+        : "",
       editById: apiBankRecon.editById ?? undefined,
       editDate: apiBankRecon.editDate
-        ? parseDate(apiBankRecon.editDate as unknown as string) || null
-        : null,
+        ? format(
+            parseDate(apiBankRecon.editDate as unknown as string) ||
+              new Date(),
+            decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+          )
+        : "",
       editVersion: apiBankRecon.editVersion ?? 0,
       isCancel: apiBankRecon.isCancel ?? false,
       cancelById: apiBankRecon.cancelById ?? undefined,
       cancelDate: apiBankRecon.cancelDate
-        ? parseDate(apiBankRecon.cancelDate as unknown as string) || null
-        : null,
+        ? format(
+            parseDate(apiBankRecon.cancelDate as unknown as string) ||
+              new Date(),
+            decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+          )
+        : "",
       cancelRemarks: apiBankRecon.cancelRemarks ?? null,
       isPost: apiBankRecon.isPost ?? false,
       postById: apiBankRecon.postById ?? undefined,
       postDate: apiBankRecon.postDate
-        ? parseDate(apiBankRecon.postDate as unknown as string) || null
-        : null,
+        ? format(
+            parseDate(apiBankRecon.postDate as unknown as string) ||
+              new Date(),
+            decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+          )
+        : "",
       appStatusId: apiBankRecon.appStatusId ?? null,
       appById: apiBankRecon.appById ?? null,
       appDate: apiBankRecon.appDate
-        ? parseDate(apiBankRecon.appDate as unknown as string) || null
-        : null,
+        ? format(
+            parseDate(apiBankRecon.appDate as unknown as string) ||
+              new Date(),
+            decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+          )
+        : "",
       data_details:
         apiBankRecon.data_details?.map(
           (detail) =>

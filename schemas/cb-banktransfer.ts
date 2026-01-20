@@ -77,20 +77,20 @@ export const CbBankTransferSchema = (
 
     // Audit Fields
     createBy: z.string().optional(),
-    createDate: z.union([z.date(), z.string()]).optional(),
+    createDate:  z.string().optional(),
     editBy: z.string().optional(),
-    editDate: z.union([z.date(), z.null()]).optional(),
+    editDate:  z.string().optional(),
     editVersion: z.number().optional(),
     isCancel: z.boolean().optional(),
     cancelBy: z.string().optional(),
-    cancelDate: z.union([z.date(), z.null()]).optional(),
+    cancelDate:  z.string().optional(),
     cancelRemarks: z.string().optional().nullable(),
     isPost: z.boolean().optional().nullable(),
     postBy: z.string().optional(),
-    postDate: z.union([z.date(), z.null()]).optional(),
+    postDate:  z.string().optional(),
     appStatusId: z.number().optional().nullable(),
     appBy: z.string().optional(),
-    appDate: z.union([z.date(), z.null()]).optional(),
+    appDate:  z.string().optional(),
   })
     .refine(
       (data) => {

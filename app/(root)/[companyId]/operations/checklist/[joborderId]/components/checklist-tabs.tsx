@@ -85,7 +85,7 @@ export function ChecklistTabs({
   const [activeTab, setActiveTab] = useState("main")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{
-    type: "clone" | "cancel" | "update" | "cloneCompany"
+    type: "clone" | "cancel" | "update" | "cloneCompany" | "generateInvoice"
     title: string
     message: string
   } | null>(null)
@@ -441,6 +441,35 @@ export function ChecklistTabs({
     }
   }
 
+  const handleGenerateInvoice = useCallback(async () => {
+    if (!currentJobData?.jobOrderId) {
+      toast.error("Invalid job order data")
+      return
+    }
+
+    try {
+      const response = await apiClient.get(
+        `/operations/GetGenerateInvoiceByJobOrderId/${currentJobData.jobOrderId}`
+      )
+
+      if (response.data.result === 1) {
+        toast.success(
+          response.data.message || "Invoice generated successfully"
+        )
+        // Refresh the job order data to get updated invoiceId
+        refetch()
+        onUpdateSuccess?.()
+      } else {
+        toast.error(
+          response.data.message || "Failed to generate invoice"
+        )
+      }
+    } catch (error) {
+      console.error("Error generating invoice:", error)
+      toast.error("An error occurred while generating invoice")
+    }
+  }, [currentJobData?.jobOrderId, refetch, onUpdateSuccess])
+
   // Load data when dialog opens
   useEffect(() => {
     if (showDebitNoteDialog && jobOrderId) {
@@ -584,7 +613,12 @@ export function ChecklistTabs({
                   parseInt(currentJobData.invoiceId) > 0
               )}
               onClick={() => {
-                // console.log("Invoice Create triggered")
+                setConfirmAction({
+                  type: "generateInvoice",
+                  title: "Generate Invoice",
+                  message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
+                })
+                setShowConfirmDialog(true)
               }}
             >
               <FileText className="mr-1 h-4 w-4" />
@@ -780,6 +814,9 @@ export function ChecklistTabs({
                       break
                     case "cloneCompany":
                       setShowCloneCompanyConfirmDialog(true)
+                      break
+                    case "generateInvoice":
+                      handleGenerateInvoice()
                       break
                   }
                 }

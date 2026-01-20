@@ -400,6 +400,11 @@ export function EquipmentUsedTable({
         showActions={true}
         jobData={jobData}
         transactionIdForDocuments={OperationsTransactionId.equipmentUsed}
+        canView={_canView}
+        canEdit={_canEdit}
+        canDelete={_canDelete}
+        canCreate={_canCreate}
+        canDebitNote={canDebitNote}
       />
 
       {/* History Dialog */}

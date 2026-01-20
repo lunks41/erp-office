@@ -94,7 +94,7 @@ export function ChecklistHistory({
       },
       {
         accessorKey: "editBy",
-        header: "Modified By",
+        header: "Edited By",
         cell: ({ row }) => (
           <span className="text-sm">{row.getValue("editBy") || "-"}</span>
         ),
@@ -104,7 +104,7 @@ export function ChecklistHistory({
       },
       {
         accessorKey: "editDate",
-        header: "Modified Date",
+        header: "Edited Date",
         cell: ({ row }) => (
           <span className="text-sm">
             {formatDate(row.getValue("editDate"))}

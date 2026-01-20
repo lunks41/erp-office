@@ -190,9 +190,6 @@ export function ChecklistMain({
   // Watch customerId to reset address and contact when customer changes
   const customerId = form.watch("customerId")
 
-  // Watch jobOrderDate to update accountDate
-  const jobOrderDate = form.watch("jobOrderDate")
-
   // Watch accountDate to update exchange rate
   const accountDate = form.watch("accountDate")
 
@@ -435,17 +432,6 @@ export function ChecklistMain({
     }
   }, [customerId, jobData?.customerId, form])
 
-  // Update accountDate when jobOrderDate changes
-  useEffect(() => {
-    if (jobOrderDate) {
-      // Ensure accountDate is set as string
-      const accountDateStr =
-        typeof jobOrderDate === "string"
-          ? jobOrderDate
-          : format(jobOrderDate, dateFormat)
-      form.setValue("accountDate", accountDateStr)
-    }
-  }, [dateFormat, form, jobOrderDate])
 
   // Update exchange rate when accountDate or currencyId changes
   useEffect(() => {

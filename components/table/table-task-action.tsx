@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 
 interface TaskTableActionsProps<T> {
-  row: T & { debitNoteId?: number }
+  row: T & { debitNoteId?: number; debitNoteNo?: string }
   onView?: (row: T) => void
   onEditAction?: (row: T) => void
   onDeleteAction?: (id: string) => void
@@ -43,15 +43,17 @@ export function TaskTableActions<T>({
     }
   }
   const hasValidDebitNoteId = row.debitNoteId && row.debitNoteId > 0
+  const hasDebitNoteNo = row.debitNoteNo && row.debitNoteNo.trim() !== ""
+  const hasDebitNote = hasValidDebitNoteId || hasDebitNoteNo
   return (
     <div className="flex items-center gap-2">
       <Checkbox
         checked={isSelected}
         onCheckedChange={handleCheckboxChange}
-        disabled={Boolean(hasValidDebitNoteId) || isConfirmed}
-        className={hasValidDebitNoteId ? "cursor-not-allowed opacity-50" : ""}
+        disabled={Boolean(hasDebitNote) || isConfirmed}
+        className={hasDebitNote ? "cursor-not-allowed opacity-50" : ""}
         title={
-          hasValidDebitNoteId
+          hasDebitNote
             ? "Cannot select - Debit Note exists"
             : "Select row"
         }
@@ -69,13 +71,13 @@ export function TaskTableActions<T>({
         variant="ghost"
         size="icon"
         className={`h-6 w-6 ${
-          hasValidDebitNoteId
+          hasDebitNote
             ? "cursor-not-allowed text-gray-400 opacity-50"
             : ""
         }`}
-        onClick={() => !hasValidDebitNoteId && onEditAction?.(row)}
-        disabled={hideEdit || Boolean(hasValidDebitNoteId) || isConfirmed}
-        title={hasValidDebitNoteId ? "Cannot edit - Debit Note exists" : "Edit"}
+        onClick={() => !hasDebitNote && onEditAction?.(row)}
+        disabled={hideEdit || Boolean(hasDebitNote) || isConfirmed}
+        title={hasDebitNote ? "Cannot edit - Debit Note exists" : "Edit"}
       >
         <Pencil className="h-4 w-4" />
       </Button>
@@ -83,16 +85,16 @@ export function TaskTableActions<T>({
         variant="ghost"
         size="icon"
         className={`h-6 w-6 ${
-          hasValidDebitNoteId
+          hasDebitNote
             ? "cursor-not-allowed text-gray-400 opacity-50"
             : "text-destructive hover:bg-destructive/10"
         }`}
         onClick={() =>
-          !hasValidDebitNoteId && onDeleteAction?.(String(row[idAccessor]))
+          !hasDebitNote && onDeleteAction?.(String(row[idAccessor]))
         }
-        disabled={hideDelete || Boolean(hasValidDebitNoteId) || isConfirmed}
+        disabled={hideDelete || Boolean(hasDebitNote) || isConfirmed}
         title={
-          hasValidDebitNoteId ? "Cannot delete - Debit Note exists" : "Delete"
+          hasDebitNote ? "Cannot delete - Debit Note exists" : "Delete"
         }
       >
         <Trash2 className="h-4 w-4" />
@@ -100,11 +102,15 @@ export function TaskTableActions<T>({
       <Button
         variant="ghost"
         size="icon"
-        className="h-6 w-6 text-purple-600 hover:bg-purple-100"
-        disabled={hidePurchase || isConfirmed}
-        onClick={() => onPurchaseAction?.(String(row[idAccessor]))}
+        className={`h-6 w-6 ${
+          hasDebitNote
+            ? "cursor-not-allowed text-gray-400 opacity-50"
+            : "text-purple-600 hover:bg-purple-100"
+        }`}
+        disabled={hidePurchase || Boolean(hasDebitNote) || isConfirmed}
+        onClick={() => !hasDebitNote && onPurchaseAction?.(String(row[idAccessor]))}
         title={
-          hasValidDebitNoteId
+          hasDebitNote
             ? "Cannot purchase - Debit Note exists"
             : "Purchase"
         }
@@ -115,18 +121,18 @@ export function TaskTableActions<T>({
         variant="ghost"
         size="icon"
         className={`h-6 w-6 ${
-          hasValidDebitNoteId
+          hasDebitNote
             ? "text-orange-600 hover:bg-orange-100"
             : "cursor-not-allowed text-gray-400 opacity-50"
         }`}
         onClick={() =>
-          hasValidDebitNoteId && onDebitNoteAction?.(String(row[idAccessor]))
+          hasDebitNote && onDebitNoteAction?.(String(row[idAccessor]))
         }
-        disabled={hideDebitNote || !hasValidDebitNoteId}
+        disabled={hideDebitNote || !hasDebitNote}
         title={
-          hasValidDebitNoteId
-            ? "Debit Note"
-            : "Debit Note ID is zero or invalid"
+          hasDebitNote
+            ? "View Debit Note"
+            : "No Debit Note available"
         }
       >
         <Receipt className="h-4 w-4" />

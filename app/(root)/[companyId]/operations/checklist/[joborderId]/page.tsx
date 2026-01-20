@@ -124,7 +124,7 @@ export default function JobOrderDetailsPage() {
   }
 
   return (
-    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-8 sm:pt-3 sm:pb-6 lg:px-12">
+   <div className="@container mx-auto space-y-2 px-2 pt-2 pb-4 sm:space-y-2 sm:px-4 sm:pt-2 sm:pb-4 lg:px-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
@@ -152,47 +152,51 @@ export default function JobOrderDetailsPage() {
                     {`${jobOrderResponse?.data?.jobOrderNo} : v[${jobOrderResponse?.data?.editVersion}]`}
                   </Badge>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-sm border border-gray-200 bg-white p-4 shadow-lg">
-                  <div className="space-y-2">
-                    <h4 className="mb-3 font-semibold text-blue-800">
-                      Checklist Details
-                    </h4>
-                    <div className="grid grid-cols-1 gap-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                <TooltipContent className="max-w-3xl border-2 border-blue-100 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-xl">
+                  <div className="space-y-4">
+                    <div className="border-b-2 border-blue-200 pb-3">
+                      <h4 className="text-lg font-bold text-blue-900">
+                        Checklist Details
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           JobOrderNo:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.jobOrderNo}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Customer:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900 break-words">
                           {jobOrderResponse?.data?.customerName || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">Port:</span>
-                        <span className="text-gray-800">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
+                          Port:
+                        </span>
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.portName || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Currency:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.currencyName || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Job Date:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.jobOrderDate
                             ? new Date(
                                 jobOrderResponse.data.jobOrderDate
@@ -200,41 +204,43 @@ export default function JobOrderDetailsPage() {
                             : "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Vessel:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.vesselName || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">IMO:</span>
-                        <span className="text-gray-800">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
+                          IMO:
+                        </span>
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.imoCode || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Last Port:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.lastPortName || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Next Port:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.nextPortName || "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
+                      <div className="flex items-start gap-3 rounded-md bg-gray-50/50 p-2">
+                        <span className="min-w-[100px] font-semibold text-gray-700">
                           Status:
                         </span>
-                        <span className="text-gray-800">
+                        <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.jobStatusName || "N/A"}
                         </span>
                       </div>

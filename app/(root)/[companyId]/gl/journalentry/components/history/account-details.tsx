@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { format } from "date-fns"
+import { format, parse, isValid } from "date-fns"
 
 import { parseDate } from "@/lib/date-utils"
 import { Badge } from "@/components/ui/badge"
@@ -48,7 +48,31 @@ export default function AccountDetails({
       }
     }
 
-    // Parse the date string using parseDate which handles multiple formats correctly
+    // Try to parse already-formatted datetime strings (e.g., "dd/MM/yyyy HH:mm:ss")
+    // Common datetime formats that might be in the form values
+    if (typeof dateValue === "string") {
+      const datetimeFormats = [
+        "dd/MM/yyyy HH:mm:ss",
+        "dd/MM/yyyy HH:mm",
+        "MM/dd/yyyy HH:mm:ss",
+        "MM/dd/yyyy HH:mm",
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm",
+      ]
+
+      for (const fmt of datetimeFormats) {
+        try {
+          const parsed = parse(dateValue, fmt, new Date())
+          if (isValid(parsed) && !isNaN(parsed.getTime())) {
+            return format(parsed, formatStr)
+          }
+        } catch {
+          // Continue to next format
+        }
+      }
+    }
+
+    // Parse the date string using parseDate which handles multiple date formats correctly
     const date = parseDate(dateValue as string)
     return date ? format(date, formatStr) : ""
   }

@@ -63,6 +63,8 @@ export function EquipmentUsedTab({
   const moduleId = ModuleId.operations
   const transactionId = OperationsTransactionId.equipmentUsed
   const { hasPermission } = usePermissionStore()
+  // Calculate permissions using the correct transaction ID for this service
+  // Each service tab should use its own transaction ID, not the parent's
   const canView = hasPermission(moduleId, transactionId, "isRead")
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
   const canDelete = hasPermission(moduleId, transactionId, "isDelete")

@@ -1,7 +1,8 @@
 "use client"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { format } from "date-fns"
+import { format, parse, isValid } from "date-fns"
+import { parseDate } from "@/lib/date-utils"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,11 +40,54 @@ export default function AccountDetails({
 
   const formatDate = (date: string | null) => {
     if (!date) return "-"
-    try {
-      return format(new Date(date), datetimeFormat)
-    } catch {
-      return date
+    
+    // If it's already a Date object, use it directly
+    if (date instanceof Date) {
+      return isNaN(date.getTime()) ? "-" : format(date, datetimeFormat)
     }
+
+    // Handle ISO datetime strings (e.g., "2025-11-04T08:29:51.19")
+    if (typeof date === "string" && date.includes("T")) {
+      const isoDate = new Date(date)
+      if (!isNaN(isoDate.getTime())) {
+        return format(isoDate, datetimeFormat)
+      }
+    }
+
+    // Try to parse already-formatted datetime strings
+    if (typeof date === "string") {
+      const datetimeFormats = [
+        "dd/MM/yyyy HH:mm:ss",
+        "dd/MM/yyyy HH:mm",
+        "MM/dd/yyyy HH:mm:ss",
+        "MM/dd/yyyy HH:mm",
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm",
+      ]
+
+      for (const fmt of datetimeFormats) {
+        try {
+          const parsed = parse(date, fmt, new Date())
+          if (isValid(parsed) && !isNaN(parsed.getTime())) {
+            return format(parsed, datetimeFormat)
+          }
+        } catch {
+          // Continue to next format
+        }
+      }
+    }
+
+    // Parse the date string using parseDate which handles multiple date formats correctly
+    try {
+      const parsed = parseDate(date)
+      if (parsed) {
+        return format(parsed, datetimeFormat)
+      }
+    } catch {
+      // Fallback to original string
+    }
+    
+    return date
   }
 
   return (

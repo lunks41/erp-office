@@ -567,6 +567,11 @@ export function LaunchServiceTable({
         showActions={true}
         jobData={jobData}
         transactionIdForDocuments={OperationsTransactionId.launchService}
+        canView={_canView}
+        canEdit={_canEdit}
+        canDelete={_canDelete}
+        canCreate={_canCreate}
+        canDebitNote={canDebitNote}
       />
 
       {/* History Dialog */}

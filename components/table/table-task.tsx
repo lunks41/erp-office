@@ -290,7 +290,7 @@ export function TaskTable<T>({
               const isSelected = row.getIsSelected()
               return (
                 <TaskTableActions
-                  row={item as T & { debitNoteId?: number }}
+                  row={item as T & { debitNoteId?: number; debitNoteNo?: string }}
                   idAccessor={accessorId}
                   onView={onSelect}
                   onEditAction={onEditAction}
@@ -302,6 +302,9 @@ export function TaskTable<T>({
                   }}
                   isSelected={isSelected}
                   isConfirmed={isConfirmed}
+                  hideView={!canView}
+                  hideEdit={!canEdit}
+                  hideDelete={!canDelete}
                   hideDebitNote={!canDebitNote}
                   hidePurchase={!canDebitNote}
                 />
@@ -432,6 +435,7 @@ export function TaskTable<T>({
           onResetLayout={handleResetLayout}
           jobData={jobData}
           transactionIdForDocuments={transactionIdForDocuments}
+          canDebitNote={canDebitNote}
         />
       )}
       <Table>

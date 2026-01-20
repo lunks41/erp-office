@@ -768,25 +768,38 @@ export default function CbBankTransferCtmPage() {
             )
           : "",
         editDate: apiCbBankTransferCtm.editDate
-          ? parseDate(apiCbBankTransferCtm.editDate as unknown as string) ||
-            null
-          : null,
+          ? format(
+              parseDate(apiCbBankTransferCtm.editDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         cancelDate: apiCbBankTransferCtm.cancelDate
-          ? parseDate(apiCbBankTransferCtm.cancelDate as unknown as string) ||
-            null
-          : null,
+          ? format(
+              parseDate(apiCbBankTransferCtm.cancelDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         cancelRemarks: apiCbBankTransferCtm.cancelRemarks ?? null,
         isPost: apiCbBankTransferCtm.isPost ?? false,
         postBy: apiCbBankTransferCtm.postBy ?? "",
         postDate: apiCbBankTransferCtm.postDate
-          ? parseDate(apiCbBankTransferCtm.postDate as unknown as string) ||
-            null
-          : null,
+          ? format(
+              parseDate(apiCbBankTransferCtm.postDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         appStatusId: apiCbBankTransferCtm.appStatusId ?? null,
         appBy: apiCbBankTransferCtm.appBy ?? "",
         appDate: apiCbBankTransferCtm.appDate
-          ? parseDate(apiCbBankTransferCtm.appDate as unknown as string) || null
-          : null,
+          ? format(
+              parseDate(apiCbBankTransferCtm.appDate as unknown as string) ||
+                new Date(),
+              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+            )
+          : "",
         isCancel: apiCbBankTransferCtm.isCancel ?? false,
         data_details:
           apiCbBankTransferCtm.data_details?.map((detail) => ({
