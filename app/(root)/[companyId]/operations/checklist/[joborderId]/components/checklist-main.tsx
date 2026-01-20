@@ -29,7 +29,6 @@ import {
 } from "@/lib/date-utils"
 import { updateJobOrderDirect } from "@/hooks/use-checklist"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
 import {
   CountryAutocomplete,
@@ -992,6 +991,7 @@ export function ChecklistMain({
                   isDisabled={isConfirmed}
                   onChangeEvent={handleGeoLocationChange}
                 />
+                <div className="grid grid-cols-2 gap-2">
                 <CustomInput
                   form={form}
                   name="latitude"
@@ -1006,6 +1006,7 @@ export function ChecklistMain({
                   isRequired={false}
                   isDisabled={true}
                 />
+                </div>
 
                 <PortAutocomplete
                   form={form}
@@ -1216,7 +1217,7 @@ export function ChecklistMain({
                     isDisabled={isConfirmed}
                   />
                 </div>
-
+<div className="grid grid-cols-2 gap-2">
                 {isTaxable && (
                   <GSTAutocomplete
                     form={form}
@@ -1235,6 +1236,7 @@ export function ChecklistMain({
                     isDisabled={isConfirmed}
                   />
                 )}
+                </div>
                 <CustomCheckbox
                   form={form}
                   name="isActive"
@@ -1249,19 +1251,18 @@ export function ChecklistMain({
           {/* Address and Contact Section */}
           <div className="mt-4 grid grid-cols-2 gap-4">
             {/* Address Section */}
-            <Card className="border-0">
-              <CardContent>
-                <div className="mb-2 flex">
-                  <Badge
-                    variant="outline"
-                    className="border-purple-200 bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-800 shadow-sm transition-colors duration-200 hover:bg-purple-200"
-                  >
-                    📍 Address Details
-                  </Badge>
-                </div>
-                <div className="mb-4 border-b border-gray-200"></div>
+            <div className="rounded-lg border p-4">
+              <div className="mb-2 flex">
+                <Badge
+                  variant="outline"
+                  className="border-purple-200 bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-800 shadow-sm transition-colors duration-200 hover:bg-purple-200"
+                >
+                  📍 Address Details
+                </Badge>
+              </div>
+              <div className="mb-4 border-b border-gray-200"></div>
 
-                <div className="grid gap-2">
+              <div className="grid gap-2">
                   <CustomInput
                     form={form}
                     name="billName"
@@ -1321,23 +1322,22 @@ export function ChecklistMain({
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+             
+            </div>
 
             {/* Contact Section */}
-            <Card className="border-0">
-              <CardContent>
-                <div className="mb-2 flex">
-                  <Badge
-                    variant="outline"
-                    className="border-indigo-200 bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm transition-colors duration-200 hover:bg-indigo-200"
-                  >
-                    👤 Contact Details
-                  </Badge>
-                </div>
-                <div className="mb-4 border-b border-gray-200"></div>
+            <div className="rounded-lg border p-4">
+              <div className="mb-2 flex">
+                <Badge
+                  variant="outline"
+                  className="border-indigo-200 bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm transition-colors duration-200 hover:bg-indigo-200"
+                >
+                  👤 Contact Details
+                </Badge>
+              </div>
+              <div className="mb-4 border-b border-gray-200"></div>
 
-                <div className="grid gap-2">
+              <div className="grid gap-2">
                   <div className="grid grid-cols-2 gap-2">
                     <CustomInput
                       form={form}
@@ -1361,8 +1361,7 @@ export function ChecklistMain({
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
           </div>
         </form>
       </Form>

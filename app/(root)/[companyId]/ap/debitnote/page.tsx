@@ -69,8 +69,8 @@ import {
   SaveConfirmation,
 } from "@/components/confirmation"
 
-import { getDefaultValues } from "./components/debitNote-defaultvalues"
-import DebitNoteTable from "./components/debitNote-table"
+import { getDefaultValues } from "./components/debitnote-defaultvalues"
+import DebitNoteTable from "./components/debitnote-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
 import Other from "./components/other"
@@ -80,7 +80,7 @@ export default function DebitNotePage() {
   const searchParams = useSearchParams()
   const companyId = params.companyId as string
 
-  const moduleId = ModuleId.ar
+  const moduleId = ModuleId.ap
   const transactionId = APTransactionId.debitNote
 
   const { hasPermission } = usePermissionStore()

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { IArCreditNoteDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 
 import { formatNumber } from "@/lib/format-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -137,7 +137,7 @@ export default function CreditNoteDetailsTable({
             accessorKey: "unitPrice",
             header: "Price",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("unitPrice"), amtDec)}
               </div>
@@ -149,7 +149,7 @@ export default function CreditNoteDetailsTable({
       accessorKey: "totAmt",
       header: "Amount",
       size: 100,
-      cell: ({ row }) => (
+      cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
@@ -162,9 +162,9 @@ export default function CreditNoteDetailsTable({
             accessorKey: "gstPercentage",
             header: "VAT %",
             size: 50,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: { original: IArCreditNoteDt } }) => (
               <div className="text-right">
-                {formatNumber(row.getValue("gstPercentage"), 2)}
+                {formatNumber(row.original.gstPercentage, 2)}
               </div>
             ),
           },
@@ -172,7 +172,7 @@ export default function CreditNoteDetailsTable({
             accessorKey: "gstAmt",
             header: "VAT Amount",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("gstAmt"), amtDec)}
               </div>
@@ -196,7 +196,7 @@ export default function CreditNoteDetailsTable({
       accessorKey: "totLocalAmt",
       header: "Local Amount",
       size: 100,
-      cell: ({ row }) => (
+      cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
@@ -208,7 +208,7 @@ export default function CreditNoteDetailsTable({
             accessorKey: "totCtyAmt",
             header: "Country Amount",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>
@@ -231,7 +231,7 @@ export default function CreditNoteDetailsTable({
             accessorKey: "gstLocalAmt",
             header: "GST Local Amount",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
               </div>
@@ -245,7 +245,7 @@ export default function CreditNoteDetailsTable({
             accessorKey: "gstCtyAmt",
             header: "GST Country Amount",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
               </div>

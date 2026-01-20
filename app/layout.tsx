@@ -19,18 +19,18 @@ const META_THEME_COLORS = {
 
 const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || "ERP",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://ahha-erp.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com",
   ogImage:
     process.env.NEXT_PUBLIC_SITE_OG_IMAGE ||
-    `${process.env.NEXT_PUBLIC_SITE_URL || "https://ahha-erp.com"}/og.jpg`,
+    `${process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com"}/og.jpg`,
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
     "Comprehensive Enterprise Resource Planning system for shipping, logistics, and maritime operations. Streamline your business processes with integrated modules for accounting, project management, and document control.",
   links: {
     twitter:
-      process.env.NEXT_PUBLIC_SITE_TWITTER || "https://twitter.com/ahha_erp",
+      process.env.NEXT_PUBLIC_SITE_TWITTER || "https://twitter.com/erp",
     github:
-      process.env.NEXT_PUBLIC_SITE_GITHUB || "https://github.com/ahha-erp",
+      process.env.NEXT_PUBLIC_SITE_GITHUB || "https://github.com/erp",
   },
 }
 
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   authors: [
     {
       name: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AHHA Technologies",
-      url: process.env.NEXT_PUBLIC_SITE_URL || "https://ahha-erp.com",
+      url: process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com",
     },
   ],
   creator: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AHHA Technologies",
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
-    creator: process.env.NEXT_PUBLIC_SITE_TWITTER_HANDLE || "@ahha_erp",
+    creator: process.env.NEXT_PUBLIC_SITE_TWITTER_HANDLE || "@erp",
   },
   icons: {
     icon: "/favicon.ico",

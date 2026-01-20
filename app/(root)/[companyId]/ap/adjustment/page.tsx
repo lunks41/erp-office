@@ -81,7 +81,7 @@ export default function AdjustmentPage() {
   const searchParams = useSearchParams()
   const companyId = params.companyId as string
 
-  const moduleId = ModuleId.ar
+  const moduleId = ModuleId.ap
   const transactionId = APTransactionId.adjustment
 
   const { hasPermission } = usePermissionStore()

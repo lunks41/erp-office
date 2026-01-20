@@ -66,7 +66,7 @@ const buildDefaultCreditNote = (dateFormat: string) => ({
   creditNoteId: "0",
   creditNoteNo: "",
   referenceNo: "",
-
+  suppCreditNoteNo: "",
   trnDate: format(new Date(), dateFormat),
   accountDate: format(new Date(), dateFormat),
   deliveryDate: format(new Date(), dateFormat),
@@ -114,7 +114,6 @@ const buildDefaultCreditNote = (dateFormat: string) => ({
   emailAdd: "",
   moduleFrom: "",
   supplierName: "",
-  suppCreditNoteNo: "",
   apCreditNoteId: "0",
   apCreditNoteNo: "",
   createById: 0,

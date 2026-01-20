@@ -46,7 +46,7 @@ import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
-import { CreditNoteDetailsFormRef } from "./creditNote-details-form"
+import { CreditNoteDetailsFormRef } from "./creditnote-details-form"
 
 interface CreditNoteFormProps {
   form: UseFormReturn<ApCreditNoteHdSchemaType>

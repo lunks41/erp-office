@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { IApDebitNoteDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 
 import { formatNumber } from "@/lib/format-utils"
 import { APTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -158,7 +158,7 @@ export default function DebitNoteDetailsTable({
             accessorKey: "unitPrice",
             header: "Price",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("unitPrice"), amtDec)}
               </div>
@@ -170,7 +170,7 @@ export default function DebitNoteDetailsTable({
       accessorKey: "totAmt",
       header: "Amount",
       size: 100,
-      cell: ({ row }) => (
+      cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
@@ -217,7 +217,7 @@ export default function DebitNoteDetailsTable({
       accessorKey: "totLocalAmt",
       header: "Local Amount",
       size: 100,
-      cell: ({ row }) => (
+      cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
         <div className="text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
@@ -229,7 +229,7 @@ export default function DebitNoteDetailsTable({
             accessorKey: "totCtyAmt",
             header: "Country Amount",
             size: 100,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
               <div className="text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>

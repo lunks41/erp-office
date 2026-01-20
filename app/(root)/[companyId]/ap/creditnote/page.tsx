@@ -79,7 +79,7 @@ export default function CreditNotePage() {
   const searchParams = useSearchParams()
   const companyId = params.companyId as string
 
-  const moduleId = ModuleId.ar
+  const moduleId = ModuleId.ap
   const transactionId = APTransactionId.creditNote
 
   const { hasPermission } = usePermissionStore()

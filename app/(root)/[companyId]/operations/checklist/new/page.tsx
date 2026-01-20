@@ -657,18 +657,22 @@ export default function NewChecklistPage() {
                     isRequired={false}
                     onChangeEvent={handleGeoLocationChange}
                   />
-                  <CustomInput
-                    form={form}
-                    name="latitude"
-                    label="Latitude"
-                    isRequired={false}
-                  />
-                  <CustomInput
-                    form={form}
-                    name="longitude"
-                    label="Longitude"
-                    isRequired={false}
-                  />
+                 <div className="grid grid-cols-2 gap-2">
+                <CustomInput
+                  form={form}
+                  name="latitude"
+                  label="Latitude"
+                  isRequired={false}
+                  isDisabled={true}
+                />
+                <CustomInput
+                  form={form}
+                  name="longitude"
+                  label="Longitude"
+                  isRequired={false}
+                  isDisabled={true}
+                />
+                </div>
 
                   <PortAutocomplete
                     form={form}
@@ -841,7 +845,7 @@ export default function NewChecklistPage() {
                       isRequired={false}
                     />
                   </div>
-
+                  <div className="grid grid-cols-2 gap-2">
                   {isTaxable && (
                     <GSTAutocomplete
                       form={form}
@@ -858,6 +862,7 @@ export default function NewChecklistPage() {
                       isRequired={true}
                     />
                   )}
+                  </div>
                   <CustomCheckbox
                     form={form}
                     name="isActive"

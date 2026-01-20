@@ -34,6 +34,7 @@ export default function Other({ form }: OtherProps) {
   useEffect(() => {
     // Initialize address from form values
     const address: ICustomerAddress = {
+      billName: "",
       customerId: customerId,
       addressId: form.getValues("addressId") || 0,
       address1: form.getValues("address1") || "",

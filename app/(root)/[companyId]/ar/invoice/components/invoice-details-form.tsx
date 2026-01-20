@@ -702,6 +702,13 @@ const InvoiceDetailsForm = React.forwardRef<
         })
         form.setValue("productCode", selectedOption.productCode || "")
         form.setValue("productName", selectedOption.productName || "")
+        form.setValue("remarks", selectedOption.productName || "")
+      }
+      else {
+        form.setValue("remarks", "")
+        form.setValue("productId", 0)
+        form.setValue("productCode", "")
+        form.setValue("productName", "")
       }
     }
 
