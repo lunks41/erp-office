@@ -16,10 +16,12 @@ import {
   FileStack,
   Lock,
   MinusCircle,
+  Package,
   PlusCircle,
   Receipt,
   Scale,
   Sliders,
+  Truck,
   Undo2,
 } from "lucide-react"
 
@@ -105,6 +107,15 @@ const _data = {
         { title: "GL Period Close", url: "/gl/periodclose", icon: Lock },
         { title: "Opening Balance", url: "/gl/opening-balance", icon: Scale },
         { title: "Report", url: "/gl/reports", icon: BarChart },
+      ],
+    },
+    {
+      title: "Logistics",
+      url: "/logistics",
+      items: [
+        { title: "Transportation Log", url: "/logistics/log", icon: Truck },
+        { title: "Freight Management", url: "/logistics/freight", icon: Package },
+        { title: "Reports", url: "/logistics/reports", icon: BarChart },
       ],
     },
   ],

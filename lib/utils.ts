@@ -82,6 +82,7 @@ export enum ModuleId {
   document = 8,
   request = 9,
   inquiry = 10,
+  logistics = 11,
 
   ar = 25,
   ap = 26,
@@ -266,6 +267,11 @@ export enum GLTransactionId {
   overview = 100,
 }
 
+export enum LogisticsTransactionId {
+  freight = 1,
+  transportation = 2,
+}
+
 export enum HRTransactionId {
   employees = 1,
   loan = 2,
@@ -338,6 +344,10 @@ export function getModuleAndTransactionId(pathname: string): {
         InquiryTransactionId[
           transactionName as keyof typeof InquiryTransactionId
         ] || 0
+      break
+    case ModuleId.logistics:
+      transactionId =
+        LogisticsTransactionId[transactionName as keyof typeof LogisticsTransactionId] || 0
       break
     case ModuleId.ar:
       transactionId =

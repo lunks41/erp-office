@@ -1413,6 +1413,22 @@ export const JobOrder_TransportationLog = {
   delete: "/operations/deletetransportationlog",
 }
 
+// Transportation Log Endpoints (Logistics Module)
+export const TransportationLog = {
+  get: "/logistics/gettransportation",
+  getById: "/logistics/gettransportationbyid",
+  add: "/logistics/savetransportation",
+  delete: "/logistics/deletetransportation",
+}
+
+// Transportation Log Endpoints (Logistics Module)
+export const Freight = {
+  get: "/logistics/getfreight",
+  getById: "/logistics/getfreightbyid",
+  add: "/logistics/savefreight",
+  delete: "/logistics/deletefreight",
+}
+
 // Leave Management Endpoints
 
 export const HrUserRequest = {

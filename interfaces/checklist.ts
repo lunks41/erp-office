@@ -868,6 +868,7 @@ export interface ITransportationLog {
   itemNo: number
   companyId: number
   jobOrderId: number
+  jobOrderNo: string
   taskId: number
   serviceItemNo: string
   serviceItemNoName: string

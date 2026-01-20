@@ -27,6 +27,7 @@ export * from "./docexpiry"
 export * from "./employee"
 export * from "./employer"
 export * from "./entitytype"
+export * from "./freight"
 
 export * from "./gst"
 export * from "./history"
