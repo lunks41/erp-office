@@ -4,8 +4,8 @@ import { ApiResponse } from "@/interfaces/auth"
 import { IFreight } from "@/interfaces/freight"
 import { FreightSchemaType } from "@/schemas/freight"
 import { useQueryClient } from "@tanstack/react-query"
-import { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { Badge } from "@/components/ui/badge"
@@ -26,8 +26,8 @@ import { Freight } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 
 import { LogisticsTransactionId, ModuleId } from "@/lib/utils"
-import { usePermissionStore } from "@/stores/permission-store"
 import { useAuthStore } from "@/stores/auth-store"
+import { usePermissionStore } from "@/stores/permission-store"
 import { FreightForm } from "./components/freight-form"
 import { FreightTable } from "./components/freight-table"
 
@@ -253,7 +253,7 @@ export default function FreightManagementPage() {
       </div>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[80vw] !max-w-none overflow-y-auto"
+          className="max-h-[90vh] w-[90vw] !max-w-none overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}

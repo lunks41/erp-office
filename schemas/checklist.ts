@@ -195,6 +195,8 @@ export const ConsignmentExportSchema = z.object({
   debitNoteId: z.number().optional(),
   debitNoteNo: z.string().optional(),
   poNo: z.string().optional(),
+  isCleared: z.boolean().optional(),
+  existPortCustom: z.string().nullable().optional(),
   editVersion: z.number(),
 })
 
@@ -239,6 +241,8 @@ export const ConsignmentImportSchema = z.object({
   debitNoteId: z.number().optional(),
   debitNoteNo: z.string().optional(),
   poNo: z.string().optional(),
+  isCleared: z.boolean().optional(),
+  existPortCustom: z.string().nullable().optional(),
   editVersion: z.number(),
 })
 

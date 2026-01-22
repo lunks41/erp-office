@@ -146,6 +146,8 @@ export interface IConsignmentExport {
   debitNoteId?: number
   debitNoteNo?: string
   poNo?: string
+  isCleared?: boolean
+  existPortCustom?: string | null
   createById: number
   createDate: Date
   editById?: number
@@ -196,6 +198,8 @@ export interface IConsignmentImport {
   debitNoteId?: number
   debitNoteNo?: string
   poNo?: string
+  isCleared?: boolean
+  existPortCustom?: string | null
   createById: number
   createDate: Date
   editById?: number

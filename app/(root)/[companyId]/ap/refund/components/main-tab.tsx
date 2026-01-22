@@ -548,7 +548,7 @@ export default function Main({
       supplierId,
       currencyId,
       accountDate: accountDate?.toString() || "",
-      isRefund: false,
+      isRefund: true,
       documentId: form.getValues("refundId") || "0",
       transactionId: APTransactionId.payment,
     }

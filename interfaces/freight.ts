@@ -47,5 +47,7 @@ export interface IFreight {
   editDate: string | null
   editBy: string
   editVersion: number
+  isCleared?: boolean
+  existPortCustom?: string | null
 }
 

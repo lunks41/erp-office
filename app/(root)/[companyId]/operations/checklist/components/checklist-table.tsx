@@ -59,19 +59,21 @@ export function ChecklistTable({
     return data.filter((job: IJobOrderHd) => {
       switch (selectedStatus) {
         case "Pending":
-          return job.jobStatusName === OperationsStatus.Pending.toString()
+          return (job.jobStatusName === OperationsStatus.Pending.toString() && job.isActive === true)
         case "Completed":
-          return job.jobStatusName === OperationsStatus.Completed.toString()
+          return (job.jobStatusName === OperationsStatus.Completed.toString() && job.isActive === true)
         case "Cancelled":
-          return job.jobStatusName === OperationsStatus.Cancelled.toString()
+          return (job.jobStatusName === OperationsStatus.Cancelled.toString() && job.isActive === true)
         case "Cancel With Service":
           return (
-            job.jobStatusName === OperationsStatus.CancelWithService.toString()
+            job.jobStatusName === OperationsStatus.CancelWithService.toString() && job.isActive === true
           )
         case "Confirmed":
-          return job.jobStatusName === OperationsStatus.Confirmed.toString()
+          return (job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true)
         case "Posted":
-          return job.jobStatusName === OperationsStatus.Post.toString()
+          return (job.jobStatusName === OperationsStatus.Post.toString() && job.isActive === true)
+        case "InActive":
+          return job.isActive === false
         default:
           return true
       }

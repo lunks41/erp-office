@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import {
   ResetPasswordSchemaType,
   UserProfileSchemaType,
@@ -23,13 +22,11 @@ import {
   Shield,
   User,
 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
-import { AdminTransactionId, ModuleId } from "@/lib/utils"
-import { useGetById, usePersist } from "@/hooks/use-common"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import PhotoUpload from "@/components/custom/photo-upload"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -50,7 +47,9 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import PhotoUpload from "@/components/custom/photo-upload"
+import { useGetById, usePersist } from "@/hooks/use-common"
+import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
+import { AdminTransactionId, ModuleId } from "@/lib/utils"
 
 export default function ProfilePage() {
   const { user } = useAuthStore()
@@ -304,39 +303,6 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <Avatar className="h-32 w-32">
-                    <AvatarImage
-                      src={
-                        currentProfilePicture
-                          ? currentProfilePicture.startsWith("data:")
-                            ? currentProfilePicture
-                            : currentProfilePicture
-                          : "/uploads/avatars/default.png"
-                      }
-                      alt={user?.userName || "User"}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.src = "/uploads/avatars/default.png"
-                      }}
-                    />
-                    <AvatarFallback className="text-2xl">
-                      {getInitials(user?.userName || "User")}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-
-                <div className="text-center">
-                  <h3 className="text-lg font-medium">
-                    {user?.userName || "User"}
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    {user?.userEmail || "user@example.com"}
-                  </p>
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <PhotoUpload
                   currentPhoto={currentProfilePicture}
@@ -349,6 +315,7 @@ export default function ProfilePage() {
                   label="Upload New Picture"
                   photoType="profile"
                   userId={user?.userId || ""}
+                  userName={user?.userName || ""}
                 />
               </div>
             </CardContent>

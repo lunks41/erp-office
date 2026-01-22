@@ -131,6 +131,7 @@ const getModuleIcon = (moduleCode: string) => {
     ap: CreditCard,
     cb: Banknote,
     gl: BookOpenText,
+    logistics: Truck,
     admin: Landmark,
     settings: Settings,
     requests: ClipboardList,
@@ -254,6 +255,9 @@ const getTransactionIcon = (transactionCode: string) => {
     invoice_edit: Pencil,
     invoicectm: Receipt,
     overview: BarChart,
+    // Logistics transactions
+    freight: Truck,
+    transportation: ArrowLeftRight,
   }
   return iconMap[transactionCode.toLowerCase()] || FileText
 }

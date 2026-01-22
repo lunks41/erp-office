@@ -3,6 +3,10 @@
 import { useCallback, useMemo } from "react"
 import { IFreight } from "@/interfaces/freight"
 import { useAuthStore } from "@/stores/auth-store"
+import {
+  IconCircleCheckFilled,
+  IconSquareRoundedXFilled,
+} from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -62,16 +66,7 @@ export function FreightTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IFreight>[] = useMemo(
     () => [
-      {
-        accessorKey: "jobOrderNo",
-        header: "Job Order",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
-        ),
-        size: 120,
-        minSize: 100,
-        enableColumnFilter: true,
-      },
+     
       {
         accessorKey: "referenceNo",
         header: "Reference No",
@@ -124,7 +119,7 @@ export function FreightTable({
       },
       {
         accessorKey: "receiveDate",
-        header: "Receive Date",
+        header: "Cleared Date",
         cell: ({ row }) => (
           <div className="text-wrap">
             {formatDateValue(row.getValue("receiveDate"))}
@@ -144,17 +139,7 @@ export function FreightTable({
         size: 120,
         minSize: 100,
       },
-      {
-        accessorKey: "deliverDate",
-        header: "Delivery Date",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {formatDateValue(row.getValue("deliverDate"))}
-          </div>
-        ),
-        size: 120,
-        minSize: 100,
-      },
+     
       {
         accessorKey: "noOfPcs",
         header: "No of Pcs",
@@ -192,6 +177,17 @@ export function FreightTable({
         size: 130,
         minSize: 120,
       },
+       {
+        accessorKey: "remarks",
+        header: "Remarks",
+        cell: ({ row }) => (
+          <div className="max-w-xs truncate text-wrap">
+            {row.getValue("remarks") || "-"}
+          </div>
+        ),
+        size: 200,
+        minSize: 150,
+      },
       {
         accessorKey: "carrierName",
         header: "Carrier",
@@ -212,61 +208,7 @@ export function FreightTable({
         minSize: 120,
         enableColumnFilter: true,
       },
-      {
-        accessorKey: "serviceModeName",
-        header: "Service Mode",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("serviceModeName") || "-"}
-          </div>
-        ),
-        size: 130,
-        minSize: 120,
-      },
-      {
-        accessorKey: "consignmentTypeName",
-        header: "Consignment Type",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("consignmentTypeName") || "-"}
-          </div>
-        ),
-        size: 150,
-        minSize: 130,
-      },
-      {
-        accessorKey: "landingTypeName",
-        header: "Landing Type",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("landingTypeName") || "-"}
-          </div>
-        ),
-        size: 130,
-        minSize: 120,
-      },
-      {
-        accessorKey: "pickupLocation",
-        header: "Pickup Location",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("pickupLocation") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-        enableColumnFilter: true,
-      },
-      {
-        accessorKey: "deliveryLocation",
-        header: "Delivery Location",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("deliveryLocation") || "-"}
-          </div>
-        ),
-        size: 150,
-        minSize: 120,
-        enableColumnFilter: true,
-      },
+      
       {
         accessorKey: "uomName",
         header: "UOM",
@@ -308,16 +250,93 @@ export function FreightTable({
         size: 200,
         minSize: 150,
       },
-      {
-        accessorKey: "remarks",
-        header: "Remarks",
+     
+       {
+        accessorKey: "deliverDate",
+        header: "Delivery Date",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate text-wrap">
-            {row.getValue("remarks") || "-"}
+          <div className="text-wrap">
+            {formatDateValue(row.getValue("deliverDate"))}
           </div>
         ),
-        size: 200,
-        minSize: 150,
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "serviceModeName",
+        header: "Service Mode",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("serviceModeName") || "-"}
+          </div>
+        ),
+        size: 130,
+        minSize: 120,
+      },
+      {
+        accessorKey: "consignmentTypeName",
+        header: "Consignment Type",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("consignmentTypeName") || "-"}
+          </div>
+        ),
+        size: 150,
+        minSize: 130,
+      },
+      {
+        accessorKey: "chargeName",
+        header: "Charge",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+        enableColumnFilter: true,
+      },
+       {
+        accessorKey: "deliverDate",
+        header: "Delivery Date",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {formatDateValue(row.getValue("deliverDate"))}
+          </div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "landingTypeName",
+        header: "Landing Type",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("landingTypeName") || "-"}
+          </div>
+        ),
+        size: 130,
+        minSize: 120,
+      },
+      {
+        accessorKey: "pickupLocation",
+        header: "Pickup Location",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("pickupLocation") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+        enableColumnFilter: true,
+      },
+      {
+        accessorKey: "deliveryLocation",
+        header: "Delivery Location",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("deliveryLocation") || "-"}
+          </div>
+        ),
+        size: 150,
+        minSize: 120,
+        enableColumnFilter: true,
       },
       {
         accessorKey: "createBy",
@@ -327,6 +346,41 @@ export function FreightTable({
         ),
         size: 120,
         minSize: 100,
+      },
+       {
+        accessorKey: "jobOrderNo",
+        header: "Job Order",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+        enableColumnFilter: true,
+      },
+      {
+        accessorKey: "isCleared",
+        header: "Is Cleared",
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            {row.getValue("isCleared") ? (
+              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+            ) : (
+              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        ),
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "existPortCustom",
+        header: "Exist Port Custom",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("existPortCustom") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+        enableColumnFilter: true,
       },
       {
         accessorKey: "createDate",

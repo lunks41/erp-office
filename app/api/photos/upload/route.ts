@@ -1,5 +1,5 @@
 import { existsSync } from "fs"
-import { mkdir, writeFile } from "fs/promises"
+import { mkdir, readdir, unlink, writeFile } from "fs/promises"
 import { join } from "path"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File
     const photoType = formData.get("photoType") as string // "employee" or "profile"
     const _userId = formData.get("userId") as string
+    const userName = formData.get("userName") as string
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
@@ -55,12 +56,61 @@ export async function POST(request: NextRequest) {
       await mkdir(uploadDir, { recursive: true })
     }
 
+    // For profile pictures, remove existing files for this user before uploading new one
+    if (photoType === "profile" && userName) {
+      try {
+        // Sanitize userName the same way as in filename generation
+        const sanitizedUserName = userName
+          .replace(/[^a-zA-Z0-9_-]/g, "_")
+          .replace(/\s+/g, "_")
+          .toLowerCase()
+          .substring(0, 50)
+        
+        const files = await readdir(uploadDir)
+        for (const file of files) {
+          // Skip default.png and delete files that match pattern: {timestamp}-{sanitizedUserName}.{ext}
+          if (file !== "default.png") {
+            // Check if file matches the pattern (starts with digits, has dash, then sanitized userName)
+            const pattern = new RegExp(`^\\d+-${sanitizedUserName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.`)
+            if (pattern.test(file)) {
+              const filePath = join(uploadDir, file)
+              try {
+                await unlink(filePath)
+              } catch (err) {
+                console.error(`Error deleting file ${file}:`, err)
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error reading directory:", err)
+        // Continue with upload even if deletion fails
+      }
+    }
+
     // Create file path with better naming
-    const timestamp = Date.now()
     const originalName = file.name
     const extension = originalName.split(".").pop()?.toLowerCase() || "jpg"
-    const baseName = originalName.replace(`.${extension}`, "")
-    const fileName = `${timestamp}-${baseName}.${extension}`
+    
+    let fileName: string
+    
+    if (photoType === "profile" && userName) {
+      // For profile pictures, use format: {timestamp}-{userName}.{extension}
+      const timestamp = Date.now()
+      // Sanitize userName to make it a valid filename
+      const sanitizedUserName = userName
+        .replace(/[^a-zA-Z0-9_-]/g, "_") // Replace special chars with underscore
+        .replace(/\s+/g, "_") // Replace spaces with underscore
+        .toLowerCase()
+        .substring(0, 50) // Limit length
+      fileName = `${timestamp}-${sanitizedUserName}.${extension}`
+    } else {
+      // For employee photos or when userName is not provided, use timestamp
+      const timestamp = Date.now()
+      const baseName = originalName.replace(`.${extension}`, "")
+      fileName = `${timestamp}-${baseName}.${extension}`
+    }
+    
     const filePath = join(uploadDir, fileName)
 
     // Save file

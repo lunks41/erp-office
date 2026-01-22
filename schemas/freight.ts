@@ -42,6 +42,8 @@ export const FreightSchema = z.object({
   debitNoteNo: z.string().optional(),
   taskStatusId: z.number().min(1, "Task Status is required"),
   taskStatusName: z.string().optional(),
+  isCleared: z.boolean().optional(),
+  existPortCustom: z.string().nullable().optional(),
   editVersion: z.number().optional(),
 })
 

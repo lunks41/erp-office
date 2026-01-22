@@ -33,6 +33,7 @@ import CustomAccordion, {
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 interface ConsignmentImportFormProps {
@@ -133,6 +134,8 @@ export function ConsignmentImportForm({
       debitNoteId: initialData?.debitNoteId ?? 0,
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
+      isCleared: initialData?.isCleared ?? false,
+      existPortCustom: initialData?.existPortCustom ?? "",
       editVersion: initialData?.editVersion ?? 0,
     },
   })
@@ -188,6 +191,8 @@ export function ConsignmentImportForm({
       debitNoteId: initialData?.debitNoteId ?? 0,
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
+      isCleared: initialData?.isCleared ?? false,
+      existPortCustom: initialData?.existPortCustom ?? "",
       editVersion: initialData?.editVersion ?? 0,
     })
   }, [
@@ -379,6 +384,19 @@ export function ConsignmentImportForm({
                 label="Refund Instrument No"
                 isDisabled={isConfirmed}
               />
+               <CustomInput
+                form={form}
+                name="existPortCustom"
+                label="Exist Port Custom"
+                isDisabled={isConfirmed}
+              />
+              <CustomSwitch
+                form={form}
+                name="isCleared"
+                label="Is Cleared"
+                isDisabled={isConfirmed}
+              />
+             
             </div>
 
             {/* Audit Information Section */}

@@ -15,6 +15,7 @@ interface PhotoUploadProps {
   className?: string
   photoType?: "employee" | "profile"
   userId?: string
+  userName?: string
 }
 
 export default function PhotoUpload({
@@ -25,6 +26,7 @@ export default function PhotoUpload({
   className = "",
   photoType = "employee",
   userId = "",
+  userName = "",
 }: PhotoUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -56,6 +58,9 @@ export default function PhotoUpload({
         formData.append("file", file)
         formData.append("photoType", photoType)
         formData.append("userId", userId)
+        if (userName) {
+          formData.append("userName", userName)
+        }
 
         const response = await fetch("/api/photos/upload", {
           method: "POST",

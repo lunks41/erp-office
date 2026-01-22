@@ -1,34 +1,28 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
 import { IFreight } from "@/interfaces/freight"
-import { IJobOrderLookup, IVesselLookup } from "@/interfaces/lookup"
 import { FreightSchema, FreightSchemaType } from "@/schemas/freight"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
+import { useCallback, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 
-import { clientDateFormat, parseDate } from "@/lib/date-utils"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form"
-import {
-  JobOrderAutocomplete,
-  JobOrderTaskAutocomplete,
-} from "@/components/autocomplete"
+import { DynamicVesselAutocomplete, JobOrderAutocomplete } from "@/components/autocomplete"
 import CarrierAutocomplete from "@/components/autocomplete/autocomplete-carrier"
-import ChargeAutocomplete from "@/components/autocomplete/autocomplete-charge"
 import ConsignmentTypeAutocomplete from "@/components/autocomplete/autocomplete-consignmenttype"
 import LandingTypeAutocomplete from "@/components/autocomplete/autocomplete-landingtype"
 import ServiceModeAutocomplete from "@/components/autocomplete/autocomplete-servicemode"
-import TaskStatusAutocomplete from "@/components/autocomplete/autocomplete-status-task"
-import UomAutocomplete from "@/components/autocomplete/autocomplete-uom"
-import VesselAutocomplete from "@/components/autocomplete/autocomplete-vessel"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import { Info } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Form } from "@/components/ui/form"
+import { clientDateFormat, parseDate } from "@/lib/date-utils"
 
 interface FreightFormProps {
   companyId: number
@@ -226,138 +220,100 @@ export function FreightForm({
               <input type="hidden" {...form.register("taskStatusId")} />
               
               <div className="grid grid-cols-6 gap-4">
-                {/* Job Order */}
-                <FormField
-                  control={form.control}
-                  name="jobOrderNo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Order</FormLabel>
-                      <div>
-                        <Badge
-                          variant="secondary"
-                          className="w-full justify-center px-4 py-2 text-sm font-medium"
-                        >
-                          {field.value || "-"}
-                        </Badge>
-                      </div>
-                    </FormItem>
-                  )}
+                <JobOrderAutocomplete
+                  form={form}
+                  name="jobOrderId"
+                  label="Job Order"
+                  isDisabled={true}
                 />
-                
-                {/* Vessel */}
-                <FormField
-                  control={form.control}
-                  name="vesselName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Vessel</FormLabel>
-                      <div>
-                        <Badge
-                          variant="secondary"
-                          className="w-full justify-center px-4 py-2 text-sm font-medium"
-                        >
-                          {field.value || "-"}
-                        </Badge>
-                      </div>
-                    </FormItem>
-                  )}
+                <DynamicVesselAutocomplete
+                  form={form}
+                  name="vesselId"
+                  label="Vessel"
+                  isDisabled={true}
                 />
-                
-                {/* Task */}
-                <FormField
-                  control={form.control}
-                  name="taskId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Task</FormLabel>
-                      <div>
-                        <Badge
-                          variant="secondary"
-                          className="w-full justify-center px-4 py-2 text-sm font-medium"
-                        >
-                          {field.value || "-"}
-                        </Badge>
-                      </div>
-                    </FormItem>
-                  )}
+               
+              <CustomInput
+                  form={form}
+                  name="awbNo"
+                  label="AWB No"
+                  isDisabled={true}
                 />
-                
-                {/* Charges */}
-                <FormField
-                  control={form.control}
-                  name="chargeName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Charges</FormLabel>
-                      <div>
-                        <Badge
-                          variant="secondary"
-                          className="w-full justify-center px-4 py-2 text-sm font-medium"
-                        >
-                          {field.value || "-"}
-                        </Badge>
-                      </div>
-                    </FormItem>
-                  )}
+                  <CustomNumberInput
+                  form={form}
+                  name="noOfPcs"
+                  label="No of Pcs"
+                  isDisabled={true}
                 />
-                
-                {/* UOM */}
-                <FormField
-                  control={form.control}
-                  name="uomName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>UOM</FormLabel>
-                      <div>
-                        <Badge
-                          variant="secondary"
-                          className="w-full justify-center px-4 py-2 text-sm font-medium"
-                        >
-                          {field.value || "-"}
-                        </Badge>
-                      </div>
-                    </FormItem>
-                  )}
+                <CustomNumberInput
+                  form={form}
+                  name="weight"
+                  label="Weight"
+                  isDisabled={true}
                 />
-                
-                {/* Task Status */}
-                <FormField
-                  control={form.control}
-                  name="taskStatusName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Task Status</FormLabel>
-                      <div>
-                        <Badge
-                          variant="secondary"
-                          className="w-full justify-center px-4 py-2 text-sm font-medium"
-                        >
-                          {field.value || "-"}
-                        </Badge>
-                      </div>
-                    </FormItem>
-                  )}
+                 <CarrierAutocomplete
+                  form={form}
+                  name="carrierId"
+                  label="Carrier"
+                  isDisabled={true}
                 />
+                 <ServiceModeAutocomplete
+                  form={form}
+                  name="serviceModeId"
+                  label="Service Mode"
+                  isDisabled={true}
+                />
+                <ConsignmentTypeAutocomplete
+                  form={form}
+                  name="consignmentTypeId"
+                  label="Consignment Type"
+                  isDisabled={true}
+                />
+                <LandingTypeAutocomplete
+                  form={form}
+                  name="landingTypeId"
+                  label="Landing Type"
+                  isDisabled={true}
+                />
+                  <CustomInput
+                  form={form}
+                  name="pickupLocation"
+                  label="Pickup Location"
+                  isDisabled={true}
+                />
+                <CustomInput
+                  form={form}
+                  name="deliveryLocation"
+                  label="Delivery Location"
+                  isDisabled={true}
+                />
+
+              
               </div>
             </div>
 
             {/* Section 2: Remaining Fields */}
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold">Additional Details</h3>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-semibold">Additional Details</h3>
+                <Badge
+                  variant="secondary"
+                  className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                  <span className="text-xs font-normal">
+                    Updates made here will automatically sync to the corresponding consignment import in the checklist
+                  </span>
+                </Badge>
+              </div>
+              <div className="grid grid-cols-6 gap-2">
                 <CustomInput
                   form={form}
                   name="referenceNo"
                   label="Reference No"
                   isDisabled={isConfirmed}
                 />
-                <CustomInput
-                  form={form}
-                  name="awbNo"
-                  label="AWB No"
-                  isDisabled={isConfirmed}
-                />
+               
                 <CustomInput
                   form={form}
                   name="declarationNo"
@@ -391,18 +347,7 @@ export function FreightForm({
                   isDisabled={isConfirmed}
                   isFutureShow={true}
                 />
-                <CustomNumberInput
-                  form={form}
-                  name="noOfPcs"
-                  label="No of Pcs"
-                  isDisabled={isConfirmed}
-                />
-                <CustomNumberInput
-                  form={form}
-                  name="weight"
-                  label="Weight"
-                  isDisabled={isConfirmed}
-                />
+              
                 <CustomInput
                   form={form}
                   name="clearedBy"
@@ -421,63 +366,35 @@ export function FreightForm({
                   label="PO No"
                   isDisabled={isConfirmed}
                 />
-                <CarrierAutocomplete
-                  form={form}
-                  name="carrierId"
-                  label="Carrier"
-                  isDisabled={isConfirmed}
-                />
-                <ServiceModeAutocomplete
-                  form={form}
-                  name="serviceModeId"
-                  label="Service Mode"
-                  isDisabled={isConfirmed}
-                />
-                <ConsignmentTypeAutocomplete
-                  form={form}
-                  name="consignmentTypeId"
-                  label="Consignment Type"
-                  isDisabled={isConfirmed}
-                />
-                <LandingTypeAutocomplete
-                  form={form}
-                  name="landingTypeId"
-                  label="Landing Type"
-                  isDisabled={isConfirmed}
-                />
-                <CustomInput
-                  form={form}
-                  name="pickupLocation"
-                  label="Pickup Location"
-                  isDisabled={isConfirmed}
-                />
-                <CustomInput
-                  form={form}
-                  name="deliveryLocation"
-                  label="Delivery Location"
-                  isDisabled={isConfirmed}
-                />
+               
                 <CustomInput
                   form={form}
                   name="refundInstrumentNo"
                   label="Refund Instrument No"
                   isDisabled={isConfirmed}
                 />
-                <CustomInput
-                  form={form}
-                  name="debitNoteNo"
-                  label="Debit Note No"
-                  isDisabled={isConfirmed}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
+               <CustomInput
+                form={form}
+                name="existPortCustom"
+                label="Exist Port Custom" 
+                isDisabled={isConfirmed}
+              />
+               <CustomSwitch
+                form={form}
+                name="isCleared"
+                label="Is Delivery Cleared"
+                isDisabled={isConfirmed}
+              />
+            
+              <div className="col-span-2">
             <CustomTextarea
               form={form}
               name="description"
               label="Description"
               isDisabled={isConfirmed}
             />
+            </div>
+            <div className="col-span-2">
             <CustomTextarea
               form={form}
               name="remarks"
@@ -485,6 +402,11 @@ export function FreightForm({
               isDisabled={isConfirmed}
             />
             </div>
+
+             
+              </div>
+            </div>
+           
           </div>
           {!isConfirmed && (
             <div className="mt-4 flex justify-end gap-2">

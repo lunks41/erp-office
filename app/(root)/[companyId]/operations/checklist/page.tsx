@@ -191,27 +191,30 @@ export default function ChecklistPage() {
       All: apiData.length,
       Pending: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Pending.toString()
+          job.jobStatusName === OperationsStatus.Pending.toString() && job.isActive === true
       ).length,
       Confirmed: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Confirmed.toString()
+          job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true
       ).length,
       Completed: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Completed.toString()
+          job.jobStatusName === OperationsStatus.Completed.toString() && job.isActive === true
       ).length,
       Cancelled: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Cancelled.toString()
+          job.jobStatusName === OperationsStatus.Cancelled.toString() && job.isActive === true
       ).length,
       "Cancel With Service": apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.CancelWithService.toString()
+          job.jobStatusName === OperationsStatus.CancelWithService.toString() && job.isActive === true
       ).length,
       Posted: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Post.toString()
+          job.jobStatusName === OperationsStatus.Post.toString() && job.isActive === true
+      ).length,
+      InActive: apiData.filter(
+        (job: IJobOrderHd) => job.isActive === false
       ).length,
     }
     return counts
@@ -347,6 +350,7 @@ export default function ChecklistPage() {
               },
               { value: "Confirmed", count: statusCounts.Confirmed, icon: "✔️" },
               { value: "Posted", count: statusCounts.Posted, icon: "📤" },
+              { value: "InActive", count: statusCounts.InActive, icon: "🚫" },
             ].map(({ value, count, icon }) => (
               <TabsTrigger
                 key={value}
@@ -373,7 +377,11 @@ export default function ChecklistPage() {
                                 ? "destructive"
                                 : value === "Cancel With Service"
                                   ? "secondary"
-                                  : "default"
+                                  : value === "Posted"
+                                    ? "default"
+                                    : value === "InActive"
+                                      ? "secondary"
+                                      : "default"
                       : "outline"
                   }
                   className={cn(
@@ -396,7 +404,10 @@ export default function ChecklistPage() {
                       "bg-purple-100 text-purple-800 hover:bg-purple-200",
                     value === "Posted" &&
                       count > 0 &&
-                      "bg-cyan-100 text-cyan-800 hover:bg-cyan-200"
+                      "bg-cyan-100 text-cyan-800 hover:bg-cyan-200",
+                    value === "InActive" &&
+                      count > 0 &&
+                      "bg-gray-100 text-gray-800 hover:bg-gray-200"
                   )}
                 >
                   {count}

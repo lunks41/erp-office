@@ -7,6 +7,10 @@ import {
   IJobOrderHd,
 } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
+import {
+  IconCircleCheckFilled,
+  IconSquareRoundedXFilled,
+} from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -241,6 +245,30 @@ export function ConsignmentExportTable({
       {
         accessorKey: "poNo",
         header: "PO No",
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "isCleared",
+        header: "Is Cleared",
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            {row.getValue("isCleared") ? (
+              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+            ) : (
+              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        ),
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "existPortCustom",
+        header: "Exist Port Custom",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("existPortCustom") || "-"}</div>
+        ),
         size: 150,
         minSize: 120,
       },
