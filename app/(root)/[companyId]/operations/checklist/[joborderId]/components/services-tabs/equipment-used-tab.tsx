@@ -5,8 +5,8 @@ import { ApiResponse } from "@/interfaces/auth"
 import {
   IDebitNoteData,
   IDebitNoteHd,
-  IEquipmentUsed,
   IJobOrderHd,
+  IEquipmentUsed,
 } from "@/interfaces/checklist"
 import { EquipmentUsedSchemaType } from "@/schemas/checklist"
 import { usePermissionStore } from "@/stores/permission-store"
@@ -63,19 +63,16 @@ export function EquipmentUsedTab({
   const moduleId = ModuleId.operations
   const transactionId = OperationsTransactionId.equipmentUsed
   const { hasPermission } = usePermissionStore()
-  // Calculate permissions using the correct transaction ID for this service
-  // Each service tab should use its own transaction ID, not the parent's
   const canView = hasPermission(moduleId, transactionId, "isRead")
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
   const canDelete = hasPermission(moduleId, transactionId, "isDelete")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
   const canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
-  // Get default values for Equipment Used task
-  const { defaults: taskDefaults } = useTaskServiceDefaults(Task.EquipmentUsed)
-
   const jobOrderId = jobData.jobOrderId
-
   const queryClient = useQueryClient()
+
+  // Get default values for Launch Services task
+  const { defaults: taskDefaults } = useTaskServiceDefaults(Task.EquipmentUsed)
   //states
   const [selectedItem, setSelectedItem] = useState<IEquipmentUsed | undefined>(
     undefined
@@ -84,11 +81,12 @@ export function EquipmentUsedTab({
     "create"
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [showDebitNoteModal, setShowDebitNoteModal] = useState(false)
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false)
   const [showCombinedServiceModal, setShowCombinedServiceModal] =
     useState(false)
+  const [showDebitNoteModal, setShowDebitNoteModal] = useState(false)
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false)
   const [debitNoteHd, setDebitNoteHd] = useState<IDebitNoteHd | null>(null)
+
   // State for delete confirmation
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean
@@ -114,7 +112,6 @@ export function EquipmentUsedTab({
     jobOrderId: null,
     count: 0,
   })
-
 
   // State for selected items (for bulk operations)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
@@ -157,7 +154,7 @@ export function EquipmentUsedTab({
   // Data fetching
   const { data: response, refetch } = useGetById<IEquipmentUsed>(
     `${JobOrder_EquipmentUsed.get}`,
-    "equipmentUsed",
+    "equipmentUseds",
 
     `${jobOrderId || ""}`
   )
@@ -207,7 +204,8 @@ export function EquipmentUsedTab({
           console.error("Failed to load details")
         }
       } catch (error) {
-        console.error("An error occurred while fetching details:", error)
+        console.error("An error occurred while fetching details")
+        console.error("Error fetching item:", error)
       }
     },
     [jobOrderId]
@@ -223,7 +221,7 @@ export function EquipmentUsedTab({
       isOpen: true,
       equipmentUsedId: id,
       jobOrderId: jobData.jobOrderId,
-      equipmentUsedName: `Equipment Used ${itemToDelete.chargeName}`,
+      equipmentUsedName: `Launch Service ${itemToDelete.chargeName}`,
     })
   }
 
@@ -233,10 +231,10 @@ export function EquipmentUsedTab({
         await deleteMutation.mutateAsync(
           `${deleteConfirmation.jobOrderId}/${deleteConfirmation.equipmentUsedId}`
         )
-        queryClient.invalidateQueries({ queryKey: ["equipmentUsed"] })
+        queryClient.invalidateQueries({ queryKey: ["equipmentUseds"] })
         onTaskAdded?.()
       } catch (error) {
-        console.error("Failed to delete equipment used:", error)
+        console.error("Failed to delete launch service:", error)
       } finally {
         setDeleteConfirmation({
           isOpen: false,
@@ -248,36 +246,43 @@ export function EquipmentUsedTab({
     }
   }
 
-  const handleBulkDelete = useCallback((selectedIds: string[]) => {
-    if (selectedIds.length === 0) {
-      toast.error("Please select at least one equipment used to delete")
-      return
-    }
+  const handleBulkDelete = useCallback(
+    (selectedIds: string[]) => {
+      if (selectedIds.length === 0) {
+        toast.error("Please select at least one launch service to delete")
+        return
+      }
 
-    // Check if any selected items have a debitNoteId
-    const itemsWithDebitNote = data?.filter((item) =>
-      selectedIds.includes(item.equipmentUsedId.toString()) &&
-      item.debitNoteId &&
-      item.debitNoteId > 0
-    )
-
-    if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
-      toast.error(
-        `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+      // Check if any selected items have a debitNoteId
+      const itemsWithDebitNote = data?.filter(
+        (item) =>
+          selectedIds.includes(item.equipmentUsedId.toString()) &&
+          item.debitNoteId &&
+          item.debitNoteId > 0
       )
-      return
-    }
 
-    setBulkDeleteConfirmation({
-      isOpen: true,
-      equipmentUsedIds: selectedIds,
-      jobOrderId: jobData.jobOrderId,
-      count: selectedIds.length,
-    })
-  }, [jobData.jobOrderId, data])
+      if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+        toast.error(
+          `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+        )
+        return
+      }
+
+      setBulkDeleteConfirmation({
+        isOpen: true,
+        equipmentUsedIds: selectedIds,
+        jobOrderId: jobData.jobOrderId,
+        count: selectedIds.length,
+      })
+    },
+    [jobData.jobOrderId, data]
+  )
 
   const handleConfirmBulkDelete = async () => {
-    if (bulkDeleteConfirmation.equipmentUsedIds.length === 0 || !bulkDeleteConfirmation.jobOrderId) {
+    if (
+      bulkDeleteConfirmation.equipmentUsedIds.length === 0 ||
+      !bulkDeleteConfirmation.jobOrderId
+    ) {
       return
     }
 
@@ -291,7 +296,7 @@ export function EquipmentUsedTab({
       )
 
       if (response.result === 1) {
-        queryClient.invalidateQueries({ queryKey: ["equipmentUsed"] })
+        queryClient.invalidateQueries({ queryKey: ["equipmentUseds"] })
         onTaskAdded?.()
         toast.success(
           `Successfully deleted ${bulkDeleteConfirmation.equipmentUsedIds.length} item(s)`
@@ -321,7 +326,6 @@ export function EquipmentUsedTab({
 
   const handleEdit = useCallback(
     async (item: IEquipmentUsed) => {
-      console.log("Handling edit for item:", item)
       const response = (await getData(
         `${JobOrder_EquipmentUsed.getById}/${jobOrderId}/${item.equipmentUsedId}`
       )) as ApiResponse<IEquipmentUsed>
@@ -331,19 +335,17 @@ export function EquipmentUsedTab({
           : response.data
 
         if (itemData) {
-          console.log("Setting selected item for edit:", itemData)
-          console.log("isConfirmed value when editing:", isConfirmed)
           setSelectedItem(itemData)
           setModalMode("edit")
           setIsModalOpen(true)
         }
       }
     },
-    [jobOrderId, isConfirmed]
+    [jobOrderId]
   )
 
   const handleSubmit = useCallback(
-    async (formData: Partial<IEquipmentUsed>) => {
+    async (formData: EquipmentUsedSchemaType) => {
       try {
         const processedData = {
           ...formData,
@@ -393,6 +395,68 @@ export function EquipmentUsedTab({
     ]
   )
 
+  const handleRefreshEquipmentUsed = useCallback(() => {
+    refetch()
+  }, [refetch])
+
+  const handleCloneTask = async () => {
+    const formValues = cloneTaskForm.getValues()
+
+    if (!formValues.toCompanyId || !formValues.toJobOrderId) {
+      toast.error("Please select both company and job order")
+      return
+    }
+
+    if (selectedItems.length === 0) {
+      toast.error("Please select at least one launch service to clone")
+      return
+    }
+
+    setIsCloning(true)
+    try {
+      // Prepare clone request data according to API specification
+      const cloneData = {
+        toCompanyId: formValues.toCompanyId as number,
+        fromTaskId: Task.EquipmentUsed,
+        fromJobOrderId: jobData.jobOrderId,
+        toJobOrderId: formValues.toJobOrderId,
+        multipleId: selectedItems.join(","),
+      }
+
+      const response = await apiClient.post(
+        JobOrder.cloneTaskChecklist,
+        cloneData
+      )
+
+      if (response.data.result === 1) {
+        toast.success(
+          response.data.message ||
+            "Launch services cloned to different company successfully!"
+        )
+
+        // Close dialogs
+        setShowCloneTaskDialog(false)
+        setShowCloneTaskConfirmDialog(false)
+        cloneTaskForm.reset()
+        handleClearSelection()
+
+        // Refresh the data
+        refetch()
+        onTaskAdded?.()
+      } else {
+        toast.error(response.data.message || "Failed to clone launch services")
+      }
+    } catch (error) {
+      console.error(
+        "Error cloning launch services to different company:",
+        error
+      )
+      toast.error("Failed to clone launch services. Please try again.")
+    } finally {
+      setIsCloning(false)
+    }
+  }
+
   const handleCombinedService = useCallback((selectedIds: string[]) => {
     setSelectedItems(selectedIds)
     setShowCombinedServiceModal(true)
@@ -401,7 +465,7 @@ export function EquipmentUsedTab({
   // Handler for clone task from table header - receives selectedIds from table
   const handleCloneTaskClick = useCallback((selectedIds: string[]) => {
     if (selectedIds.length === 0) {
-      toast.error("Please select at least one equipment used to clone")
+      toast.error("Please select at least one launch service to clone")
       return
     }
     // Store selected IDs for use in clone API call
@@ -409,7 +473,6 @@ export function EquipmentUsedTab({
     setShowCloneTaskDialog(true)
   }, [])
 
-  // Function to clear selection after operations
   const handleClearSelection = useCallback(() => {
     setSelectedItems([])
     // Reset table selection by changing key
@@ -432,7 +495,7 @@ export function EquipmentUsedTab({
         )
 
         if (!foundItems || foundItems.length === 0) {
-          console.error("Equipment Used(s) not found")
+          console.error("Launch service(s) not found")
           return
         }
 
@@ -465,7 +528,7 @@ export function EquipmentUsedTab({
             setSelectedItem(firstItem)
             setShowDebitNoteModal(true)
 
-            queryClient.invalidateQueries({ queryKey: ["equipmentUsed"] })
+            queryClient.invalidateQueries({ queryKey: ["equipmentUseds"] })
           } else {
             console.error("Failed to fetch existing debit note data")
           }
@@ -523,7 +586,7 @@ export function EquipmentUsedTab({
           // Invalidate queries with a small delay to allow clear selection to complete
           requestAnimationFrame(() => {
             setTimeout(() => {
-              queryClient.invalidateQueries({ queryKey: ["equipmentUsed"] })
+              queryClient.invalidateQueries({ queryKey: ["equipmentUseds"] })
               queryClient.invalidateQueries({ queryKey: ["taskCount"] })
               queryClient.invalidateQueries({ queryKey: ["debitNote"] })
             }, 50)
@@ -547,65 +610,6 @@ export function EquipmentUsedTab({
     [data]
   )
 
-  const handleRefreshEquipmentUsed = useCallback(() => {
-    refetch()
-  }, [refetch])
-
-  const handleCloneTask = async () => {
-    const formValues = cloneTaskForm.getValues()
-
-    if (!formValues.toCompanyId || !formValues.toJobOrderId) {
-      toast.error("Please select both company and job order")
-      return
-    }
-
-    if (selectedItems.length === 0) {
-      toast.error("Please select at least one equipment used to clone")
-      return
-    }
-
-    setIsCloning(true)
-    try {
-      // Prepare clone request data according to API specification
-      const cloneData = {
-        toCompanyId: formValues.toCompanyId as number,
-        fromTaskId: Task.EquipmentUsed,
-        fromJobOrderId: jobData.jobOrderId,
-        toJobOrderId: formValues.toJobOrderId,
-        multipleId: selectedItems.join(","),
-      }
-
-      const response = await apiClient.post(
-        JobOrder.cloneTaskChecklist,
-        cloneData
-      )
-
-      if (response.data.result === 1) {
-        toast.success(
-          response.data.message ||
-            "Equipment used cloned to different company successfully!"
-        )
-
-        // Close dialogs
-        setShowCloneTaskDialog(false)
-        setShowCloneTaskConfirmDialog(false)
-        cloneTaskForm.reset()
-        handleClearSelection()
-
-        // Refresh the data
-        refetch()
-        onTaskAdded?.()
-      } else {
-        toast.error(response.data.message || "Failed to clone equipment used")
-      }
-    } catch (error) {
-      console.error("Error cloning equipment used to different company:", error)
-      toast.error("Failed to clone equipment used. Please try again.")
-    } finally {
-      setIsCloning(false)
-    }
-  }
-
   // Handle debit note delete
   const handleDeleteDebitNote = useCallback(
     async (debitNoteId: number) => {
@@ -620,7 +624,7 @@ export function EquipmentUsedTab({
         // Invalidate queries with a small delay to allow clear selection to complete
         requestAnimationFrame(() => {
           setTimeout(() => {
-            queryClient.invalidateQueries({ queryKey: ["equipmentUsed"] })
+            queryClient.invalidateQueries({ queryKey: ["equipmentUseds"] })
             queryClient.invalidateQueries({ queryKey: ["debitNote"] })
             queryClient.invalidateQueries({ queryKey: ["taskCount"] })
           }, 50)
@@ -671,17 +675,16 @@ export function EquipmentUsedTab({
           />
         </div>
       </div>
-
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[60vw] !max-w-none overflow-y-auto"
+          className="max-h-[90vh] w-[80vw] !max-w-none overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
         >
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <DialogTitle>Equipment Used</DialogTitle>
+              <DialogTitle>Launch Services</DialogTitle>
               <Badge
                 variant={
                   modalMode === "create"
@@ -713,10 +716,10 @@ export function EquipmentUsedTab({
             </div>
             <DialogDescription>
               {modalMode === "create"
-                ? "Add a new equipment used to this job order."
+                ? "Add a new launch service to this job order."
                 : modalMode === "edit"
-                  ? "Update the equipment used details."
-                  : "View equipment used details (read-only)."}
+                  ? "Update the launch service details."
+                  : "View launch service details (read-only)."}
             </DialogDescription>
           </DialogHeader>
           <Separator />
@@ -727,15 +730,14 @@ export function EquipmentUsedTab({
                 ? selectedItem
                 : undefined
             }
+            taskDefaults={taskDefaults} // Pass defaults to form
             submitAction={handleSubmit}
             onCancelAction={() => setIsModalOpen(false)}
             isSubmitting={saveMutation.isPending || updateMutation.isPending}
             isConfirmed={modalMode === "view"}
-            taskDefaults={taskDefaults}
           />
         </DialogContent>
       </Dialog>
-
       {/* Combined Services Modal */}
       {showCombinedServiceModal && (
         <CombinedFormsDialog
@@ -766,7 +768,7 @@ export function EquipmentUsedTab({
           onDeleteAction={handleDeleteDebitNote}
           onClearSelection={handleClearSelection}
           title="Debit Note"
-          description="Manage debit note details for this equipment used."
+          description="Manage debit note details for this launch services."
           jobOrder={jobData}
         />
       )}
@@ -777,22 +779,21 @@ export function EquipmentUsedTab({
           open={showPurchaseModal}
           onOpenChangeAction={setShowPurchaseModal}
           title="Purchase"
-          description="Manage purchase details for this equipment used."
+          description="Manage purchase details for this launch services."
           jobOrderId={jobData.jobOrderId}
           taskId={Task.EquipmentUsed}
           serviceItemNo={selectedItem?.equipmentUsedId ?? 0}
           isConfirmed={isConfirmed}
         />
       )}
-
       {/* Delete Confirmation */}
       <DeleteConfirmation
         open={deleteConfirmation.isOpen}
         onOpenChange={(isOpen) =>
           setDeleteConfirmation((prev) => ({ ...prev, isOpen }))
         }
-        title="Delete Equipment Used"
-        description="This action cannot be undone. This will permanently delete the equipment used from our servers."
+        title="Delete Launch Service"
+        description="This action cannot be undone. This will permanently delete the launch service from our servers."
         itemName={deleteConfirmation.equipmentUsedName || ""}
         onConfirm={handleConfirmDelete}
         onCancelAction={() =>
@@ -812,9 +813,9 @@ export function EquipmentUsedTab({
         onOpenChange={(isOpen) =>
           setBulkDeleteConfirmation((prev) => ({ ...prev, isOpen }))
         }
-        title="Delete Multiple Equipment Used"
-        description="This action cannot be undone. This will permanently delete the selected equipment used items from our servers."
-        itemName={`${bulkDeleteConfirmation.count} equipment used item${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
+        title="Delete Multiple Launch Services"
+        description="This action cannot be undone. This will permanently delete the selected launch services from our servers."
+        itemName={`${bulkDeleteConfirmation.count} launch service${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
         onConfirm={handleConfirmBulkDelete}
         onCancelAction={() =>
           setBulkDeleteConfirmation({
@@ -842,7 +843,7 @@ export function EquipmentUsedTab({
             <DialogTitle>Clone Task to Different Company</DialogTitle>
             <DialogDescription>
               Select the target company and job order to clone{" "}
-              {selectedItems.length} selected equipment used item(s).
+              {selectedItems.length} selected launch service(s).
             </DialogDescription>
           </DialogHeader>
           <Form {...cloneTaskForm}>
@@ -899,9 +900,9 @@ export function EquipmentUsedTab({
           <DialogHeader>
             <DialogTitle>Confirm Clone</DialogTitle>
             <DialogDescription>
-              Are you sure you want to clone {selectedItems.length} equipment
-              used item(s) to the selected company and job order? This action
-              will create new records in the target job order.
+              Are you sure you want to clone {selectedItems.length} launch
+              service(s) to the selected company and job order? This action will
+              create new records in the target job order.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

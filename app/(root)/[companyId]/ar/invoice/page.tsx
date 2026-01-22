@@ -786,18 +786,12 @@ export default function InvoicePage() {
     try {
       const response = await unpostMutation.mutateAsync({
         invoiceId: invoice.invoiceId?.toString() ?? "",
-        invoiceNo: invoice.invoiceNo ?? "",
       })
 
       if (response.result === 1) {
         toast.success(`Invoice ${invoice.invoiceNo} unposted successfully`)
-        // Refresh invoice data
-        if (invoice.invoiceId && invoice.invoiceId !== "0") {
-          const response = await getById(
-            `${ArInvoice.getByIdNo}/${invoice.invoiceId}`
-          )
-          if (response?.result === 1) {
-            const detailedInvoice = Array.isArray(response.data)
+
+         const detailedInvoice = Array.isArray(response.data)
               ? response.data[0]
               : response.data
             if (detailedInvoice) {
@@ -806,8 +800,24 @@ export default function InvoicePage() {
               setInvoice(formValues)
               form.reset(formValues)
             }
-          }
-        }
+            
+        // // Refresh invoice data
+        // if (invoice.invoiceId && invoice.invoiceId !== "0") {
+        //   const response = await getById(
+        //     `${ArInvoice.getByIdNo}/${invoice.invoiceId}`
+        //   )
+        //   if (response?.result === 1) {
+        //     const detailedInvoice = Array.isArray(response.data)
+        //       ? response.data[0]
+        //       : response.data
+        //     if (detailedInvoice) {
+        //       const invoiceData = detailedInvoice as IArInvoiceHd
+        //       const formValues = transformToSchemaType(invoiceData)
+        //       setInvoice(formValues)
+        //       form.reset(formValues)
+        //     }
+        //   }
+        // }
       } else {
         toast.error(response.message || "Failed to unpost invoice")
       }

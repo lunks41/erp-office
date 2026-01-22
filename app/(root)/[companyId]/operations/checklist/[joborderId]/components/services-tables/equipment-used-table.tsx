@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo, useState } from "react"
 import {
+  IJobOrderHd,
   IEquipmentUsed,
   IEquipmentUsedFilter,
-  IJobOrderHd,
 } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
@@ -20,10 +20,10 @@ import EquipmentUsedHistoryDialog from "../services-history/equipment-used-histo
 interface EquipmentUsedTableProps {
   data: IEquipmentUsed[]
   isLoading?: boolean
-  onEquipmentUsedSelect?: (equipmentUsed: IEquipmentUsed | undefined) => void
+  onEquipmentUsedSelect?: (EquipmentUsed: IEquipmentUsed | undefined) => void
   onDeleteEquipmentUsed?: (equipmentUsedId: string) => void
   onBulkDeleteEquipmentUsed?: (selectedIds: string[]) => void
-  onEditActionEquipmentUsed?: (equipmentUsed: IEquipmentUsed) => void
+  onEditActionEquipmentUsed?: (EquipmentUsed: IEquipmentUsed) => void
   onCreateActionEquipmentUsed?: () => void
   onDebitNoteAction?: (equipmentUsedId: string, debitNoteNo?: string) => void
   onPurchaseAction?: (equipmentUsedId: string) => void
@@ -150,19 +150,25 @@ export function EquipmentUsedTable({
       {
         accessorKey: "taskStatusName",
         header: "Status",
-        cell: ({ row }) => (
-          <div className="text-center">
-            <Badge variant="default">
-              {row.getValue("taskStatusName") || "-"}
-            </Badge>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const status = row.getValue("taskStatusName") as string
+          return (
+            <div className="text-center">
+              <Badge
+                variant={status === "Active" ? "default" : "secondary"}
+                className="font-medium"
+              >
+                {status || "-"}
+              </Badge>
+            </div>
+          )
+        },
         size: 120,
         minSize: 100,
       },
       {
         accessorKey: "date",
-        header: "Date",
+        header: "Service Date",
         cell: ({ row }) => {
           return (
             <div className="text-wrap">
@@ -172,16 +178,6 @@ export function EquipmentUsedTable({
         },
         size: 120,
         minSize: 100,
-      },
-      {
-        accessorKey: "referenceNo",
-        header: "Reference No",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("referenceNo") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-        enableColumnFilter: true,
       },
       {
         accessorKey: "chargeName",
@@ -199,8 +195,9 @@ export function EquipmentUsedTable({
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("mafi") || "-"}</div>
         ),
-        size: 150,
-        minSize: 120,
+        size: 100,
+        minSize: 80,
+        maxSize: 120,
       },
       {
         accessorKey: "others",
@@ -208,62 +205,40 @@ export function EquipmentUsedTable({
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("others") || "-"}</div>
         ),
-        size: 150,
-        minSize: 120,
+        size: 120,
+        minSize: 100,
       },
       {
         accessorKey: "craneChargeName",
         header: "Crane Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("craneChargeName") || "-"}
-          </div>
+          <div className="text-wrap">{row.getValue("craneChargeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
+        maxSize: 200,
       },
       {
         accessorKey: "forkliftChargeName",
         header: "Forklift Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("forkliftChargeName") || "-"}
-          </div>
+          <div className="text-wrap">{row.getValue("forkliftChargeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
+        maxSize: 200,
       },
-      {
+        {
         accessorKey: "stevedoreChargeName",
         header: "Stevedore Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("stevedoreChargeName") || "-"}
-          </div>
+          <div className="text-wrap">{row.getValue("stevedoreChargeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
+        maxSize: 200,
       },
-      {
-        accessorKey: "loadingRefNo",
-        header: "Loading Ref No",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("loadingRefNo") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-      },
-      {
-        accessorKey: "offloadingRefNo",
-        header: "Offloading Ref No",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("offloadingRefNo") || "-"}
-          </div>
-        ),
-        size: 150,
-        minSize: 120,
-      },
+    
       {
         accessorKey: "remarks",
         header: "Remarks",
@@ -275,15 +250,16 @@ export function EquipmentUsedTable({
         header: "Version",
         cell: ({ row }) => {
           const item = row.original
+          const version = row.getValue("editVersion") as number
           return (
             <div className="text-center">
               <Badge
                 variant="destructive"
-                className="cursor-pointer transition-colors hover:bg-red-700"
+                className="cursor-pointer font-mono text-xs transition-all duration-200 hover:scale-105 hover:bg-red-700"
                 onClick={() => handleOpenHistory(item)}
                 title="Click to view history"
               >
-                {row.getValue("editVersion") || "0"}
+                v{version || "0"}
               </Badge>
             </div>
           )
@@ -306,6 +282,7 @@ export function EquipmentUsedTable({
         ),
         size: 120,
         minSize: 100,
+        maxSize: 150,
       },
       {
         accessorKey: "createDate",
@@ -329,6 +306,7 @@ export function EquipmentUsedTable({
         ),
         size: 120,
         minSize: 100,
+        maxSize: 150,
       },
       {
         accessorKey: "editDate",

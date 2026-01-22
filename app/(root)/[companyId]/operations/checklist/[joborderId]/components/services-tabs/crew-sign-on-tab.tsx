@@ -86,6 +86,33 @@ export function CrewSignOnTab({
   const [showDebitNoteModal, setShowDebitNoteModal] = useState(false)
   const [showPurchaseModal, setShowPurchaseModal] = useState(false)
   const [debitNoteHd, setDebitNoteHd] = useState<IDebitNoteHd | null>(null)
+  // State for delete confirmation
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean
+    crewSignOnId: string | null
+    jobOrderId: number | null
+    crewSignOnName: string | null
+  }>({
+    isOpen: false,
+    crewSignOnId: null,
+    jobOrderId: null,
+    crewSignOnName: null,
+  })
+
+  // State for bulk delete confirmation
+  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
+    isOpen: boolean
+    crewSignOnIds: string[]
+    jobOrderId: number | null
+    count: number
+  }>({
+    isOpen: false,
+    crewSignOnIds: [],
+    jobOrderId: null,
+    count: 0,
+  })
+
+
   // State for selected items (for bulk operations)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   // Key to reset table selection state
@@ -114,32 +141,6 @@ export function CrewSignOnTab({
   })
 
   const selectedCompanyId = cloneTaskForm.watch("toCompanyId")
-
-  // State for delete confirmation
-  const [deleteConfirmation, setDeleteConfirmation] = useState<{
-    isOpen: boolean
-    crewSignOnId: string | null
-    jobOrderId: number | null
-    crewSignOnName: string | null
-  }>({
-    isOpen: false,
-    crewSignOnId: null,
-    jobOrderId: null,
-    crewSignOnName: null,
-  })
-
-  // State for bulk delete confirmation
-  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
-    isOpen: boolean
-    crewSignOnIds: string[]
-    jobOrderId: number | null
-    count: number
-  }>({
-    isOpen: false,
-    crewSignOnIds: [],
-    jobOrderId: null,
-    count: 0,
-  })
 
   const jobDataProps = useMemo(
     () => ({
