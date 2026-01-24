@@ -130,6 +130,8 @@ export function ChecklistMain({
       vesselId: jobData?.vesselId ?? 0,
       voyageId: jobData?.voyageId ?? 0,
       geoLocationId: jobData?.geoLocationId ?? 0,
+      latitude: jobData?.latitude ?? "",
+      longitude: jobData?.longitude ?? "",
       lastPortId: jobData?.lastPortId ?? 0,
       nextPortId: jobData?.nextPortId ?? 0,
       etaDate: jobData?.etaDate
@@ -613,9 +615,12 @@ export function ChecklistMain({
         // Converts to ISO 8601 format (yyyy-MM-ddTHH:mm:ss.SSSZ)
         etaDate: etaDateFormatted,
         etdDate: etdDateFormatted,
+
+        invoiceId: jobData?.invoiceId ?? "",
+        invoiceNo: jobData?.invoiceNo ?? "",
       }
 
-      // console.log("Formatted form data:", formData)
+      console.log("Formatted form data:", formData)
 
       // console.log("Calling updateJobOrder API using api-client.ts...")
       const response = await updateJobOrderDirect(formData)

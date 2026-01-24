@@ -133,6 +133,7 @@ interface MainTableProps<T> {
   canCreate?: boolean // Permission to create new items
   canEdit?: boolean // Permission to edit items
   canDelete?: boolean // Permission to delete items
+  isConfirmed?: boolean // Whether the record is confirmed (readonly mode)
 }
 // ============================================================================
 // MAIN COMPONENT FUNCTION
@@ -191,6 +192,7 @@ export function MainTable<T>({
   canCreate = true, // Create permission
   canEdit = true, // Edit permission
   canDelete = true, // Delete permission
+  isConfirmed = false, // Confirmed state (readonly mode)
 }: MainTableProps<T>) {
   // ============================================================================
   // GRID LAYOUT SETTINGS
@@ -695,6 +697,7 @@ export function MainTable<T>({
           moduleId={moduleId || 1} // Module ID for settings (default to 1)
           transactionId={transactionId || 1} // Transaction ID for settings (default to 1)
           onResetLayout={handleResetLayout} // Reset layout handler
+          isConfirmed={isConfirmed} // Pass isConfirmed to disable create button when confirmed
         />
       )}
       {/* ============================================================================

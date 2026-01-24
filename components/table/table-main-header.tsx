@@ -62,6 +62,7 @@ type MainTableHeaderProps<TData> = {
   moduleId: number
   transactionId: number
   onResetLayout?: () => void // Callback to reset layout in parent component
+  isConfirmed?: boolean // Whether the record is confirmed (readonly mode)
 }
 export function MainTableHeader<TData>({
   onRefreshAction,
@@ -76,6 +77,7 @@ export function MainTableHeader<TData>({
   moduleId,
   transactionId,
   onResetLayout,
+  isConfirmed = false, // Default to false
 }: MainTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
   const [activeButton, setActiveButton] = useState<"show" | "hide" | null>(null)
@@ -239,6 +241,7 @@ export function MainTableHeader<TData>({
         {onCreateAction && !hideCreateButton && (
           <Button
             type="button"
+            disabled={isConfirmed}
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()

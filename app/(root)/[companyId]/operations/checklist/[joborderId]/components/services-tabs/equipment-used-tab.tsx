@@ -684,7 +684,7 @@ export function EquipmentUsedTab({
         >
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <DialogTitle>Launch Services</DialogTitle>
+              <DialogTitle>Equipment Used</DialogTitle>
               <Badge
                 variant={
                   modalMode === "create"
@@ -716,10 +716,10 @@ export function EquipmentUsedTab({
             </div>
             <DialogDescription>
               {modalMode === "create"
-                ? "Add a new launch service to this job order."
+                ? "Add a new equipment used to this job order."
                 : modalMode === "edit"
-                  ? "Update the launch service details."
-                  : "View launch service details (read-only)."}
+                  ? "Update the equipment used details."
+                  : "View equipment used details (read-only)."}
             </DialogDescription>
           </DialogHeader>
           <Separator />
@@ -768,7 +768,7 @@ export function EquipmentUsedTab({
           onDeleteAction={handleDeleteDebitNote}
           onClearSelection={handleClearSelection}
           title="Debit Note"
-          description="Manage debit note details for this launch services."
+          description="Manage debit note details for this equipment used."
           jobOrder={jobData}
         />
       )}
@@ -779,7 +779,7 @@ export function EquipmentUsedTab({
           open={showPurchaseModal}
           onOpenChangeAction={setShowPurchaseModal}
           title="Purchase"
-          description="Manage purchase details for this launch services."
+          description="Manage purchase details for this equipment used."
           jobOrderId={jobData.jobOrderId}
           taskId={Task.EquipmentUsed}
           serviceItemNo={selectedItem?.equipmentUsedId ?? 0}
@@ -792,8 +792,8 @@ export function EquipmentUsedTab({
         onOpenChange={(isOpen) =>
           setDeleteConfirmation((prev) => ({ ...prev, isOpen }))
         }
-        title="Delete Launch Service"
-        description="This action cannot be undone. This will permanently delete the launch service from our servers."
+        title="Delete Equipment Used"
+        description="This action cannot be undone. This will permanently delete the equipment used from our servers."
         itemName={deleteConfirmation.equipmentUsedName || ""}
         onConfirm={handleConfirmDelete}
         onCancelAction={() =>
@@ -813,9 +813,9 @@ export function EquipmentUsedTab({
         onOpenChange={(isOpen) =>
           setBulkDeleteConfirmation((prev) => ({ ...prev, isOpen }))
         }
-        title="Delete Multiple Launch Services"
-        description="This action cannot be undone. This will permanently delete the selected launch services from our servers."
-        itemName={`${bulkDeleteConfirmation.count} launch service${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
+        title="Delete Multiple Equipment Used"
+        description="This action cannot be undone. This will permanently delete the selected equipment used from our servers."
+        itemName={`${bulkDeleteConfirmation.count} equipment used${bulkDeleteConfirmation.count !== 1 ? "s" : ""}`}
         onConfirm={handleConfirmBulkDelete}
         onCancelAction={() =>
           setBulkDeleteConfirmation({
@@ -843,7 +843,7 @@ export function EquipmentUsedTab({
             <DialogTitle>Clone Task to Different Company</DialogTitle>
             <DialogDescription>
               Select the target company and job order to clone{" "}
-              {selectedItems.length} selected launch service(s).
+              {selectedItems.length} selected equipment used(s).
             </DialogDescription>
           </DialogHeader>
           <Form {...cloneTaskForm}>
@@ -900,8 +900,8 @@ export function EquipmentUsedTab({
           <DialogHeader>
             <DialogTitle>Confirm Clone</DialogTitle>
             <DialogDescription>
-              Are you sure you want to clone {selectedItems.length} launch
-              service(s) to the selected company and job order? This action will
+                Are you sure you want to clone {selectedItems.length} equipment used
+              used(s) to the selected company and job order? This action will
               create new records in the target job order.
             </DialogDescription>
           </DialogHeader>

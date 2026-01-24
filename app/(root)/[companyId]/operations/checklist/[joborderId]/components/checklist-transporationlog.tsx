@@ -39,7 +39,7 @@ export function TransportationLogTab({
   moduleId,
   transactionId,
   onTaskAdded,
-  isConfirmed: _isConfirmed,
+  isConfirmed,
 }: TransportationLogTabProps) {
   const jobOrderId = jobData.jobOrderId
   const queryClient = useQueryClient()
@@ -213,11 +213,14 @@ export function TransportationLogTab({
     if (!saveConfirmation.formData) return
 
     try {
+      // Convert null to undefined for chargeId to match schema type (number | undefined, not number | null)
+      const { chargeId, ...restFormData } = saveConfirmation.formData
       const processedData = {
-        ...saveConfirmation.formData,
+        ...restFormData,
         transportDate:
           formatDateForApi(saveConfirmation.formData.transportDate) ||
           undefined,
+        chargeId: chargeId ?? undefined,
       }
       const submitData = { ...processedData, ...jobDataProps }
 
@@ -292,6 +295,7 @@ export function TransportationLogTab({
             onRefreshAction={handleRefreshTransportationLog}
             moduleId={moduleId}
             transactionId={transactionId}
+            isConfirmed={isConfirmed}
           />
         </div>
       </div>
@@ -348,7 +352,7 @@ export function TransportationLogTab({
             submitAction={handleSubmit}
             onCancelAction={() => setIsModalOpen(false)}
             isSubmitting={saveMutation.isPending || updateMutation.isPending}
-            isConfirmed={modalMode === "view"}
+            isConfirmed={isConfirmed || modalMode === "view"}
           />
         </DialogContent>
       </Dialog>

@@ -17,7 +17,7 @@ import {
   Printer,
   Receipt,
   RefreshCcw,
-  X,
+  Trash,
 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -27,6 +27,7 @@ import { apiClient } from "@/lib/api-client"
 import { JobOrder } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { useGetJobOrderByIdNo } from "@/hooks/use-checklist"
+import { useDelete } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -55,6 +56,7 @@ import { ChecklistMain } from "./checklist-main"
 import { ChecklistLog } from "./checklist-timeline"
 import { TransportationLogTab } from "./checklist-transporationlog"
 import { DebitNoteItemsTable } from "./debit-note-items-table"
+import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 
 interface ChecklistTabsProps {
   jobData: IJobOrderHd
@@ -85,11 +87,22 @@ export function ChecklistTabs({
   const [activeTab, setActiveTab] = useState("main")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{
-    type: "clone" | "cancel" | "update" | "cloneCompany" | "generateInvoice"
+    type: "clone" | "update" | "cloneCompany" | "generateInvoice" | "deleteJobOrder"
     title: string
     message: string
   } | null>(null)
   const [formRef, setFormRef] = useState<HTMLFormElement | null>(null)
+
+  // State for delete job order confirmation
+  const [deleteJobOrderConfirmation, setDeleteJobOrderConfirmation] = useState<{
+    isOpen: boolean
+    jobOrderId: number | null
+    jobOrderNo: string | null
+  }>({
+    isOpen: false,
+    jobOrderId: null,
+    jobOrderNo: null,
+  })
 
   // Clone Company Dialog State
   const [showCloneCompanyDialog, setShowCloneCompanyDialog] = useState(false)
@@ -131,6 +144,9 @@ export function ChecklistTabs({
     error,
     refetch,
   } = useGetJobOrderByIdNo(jobOrderId)
+
+  // Delete job order mutation
+  const deleteJobOrderMutation = useDelete(`${JobOrder.delete}`)
 
   // Force refetch when component mounts or jobData changes
   // Removed refetch from dependencies to prevent infinite loops
@@ -470,6 +486,43 @@ export function ChecklistTabs({
     }
   }, [currentJobData?.jobOrderId, refetch, onUpdateSuccess])
 
+  // Handle delete job order confirmation
+  const handleConfirmDeleteJobOrder = useCallback(async () => {
+    if (!deleteJobOrderConfirmation.jobOrderId) {
+      return
+    }
+
+    try {
+      const response = await deleteJobOrderMutation.mutateAsync(
+        deleteJobOrderConfirmation.jobOrderId.toString()
+      )
+
+      if (response && response.result === 1) {
+        toast.success(
+          response.message || "Job order deleted successfully"
+        )
+        // Refetch and navigate or refresh
+        refetch()
+        onUpdateSuccess?.()
+        // Optionally navigate back to checklist list
+        // router.push(`/${companyId}/operations/checklist`)
+      } else {
+        toast.error(
+          response?.message || "Failed to delete job order"
+        )
+      }
+    } catch (error) {
+      console.error("Error deleting job order:", error)
+      toast.error("An error occurred while deleting job order")
+    } finally {
+      setDeleteJobOrderConfirmation({
+        isOpen: false,
+        jobOrderId: null,
+        jobOrderNo: null,
+      })
+    }
+  }, [deleteJobOrderConfirmation.jobOrderId, deleteJobOrderMutation, refetch, onUpdateSuccess])
+
   // Load data when dialog opens
   useEffect(() => {
     if (showDebitNoteDialog && jobOrderId) {
@@ -581,7 +634,7 @@ export function ChecklistTabs({
               <DropdownMenuItem onClick={() => handlePrint("jobSummary")}>
                 Job Summary
               </DropdownMenuItem>
-              {isConfirmed && (
+              {isConfirmed && currentJobData?.invoiceId && currentJobData?.isPost===true && (
                 <DropdownMenuItem onClick={() => handlePrint("invoice")}>
                   Invoice Print
                 </DropdownMenuItem>
@@ -609,7 +662,7 @@ export function ChecklistTabs({
               size="sm"
               disabled={Boolean(
                 currentJobData?.invoiceId &&
-                  currentJobData.invoiceId &&
+                  currentJobData.isPost === true &&
                   parseInt(currentJobData.invoiceId) > 0
               )}
               onClick={() => {
@@ -622,24 +675,22 @@ export function ChecklistTabs({
               }}
             >
               <FileText className="mr-1 h-4 w-4" />
-              Invoice Create
+              Post Invoice
             </Button>
           )}
 
           {/* Refresh button */}
-          {isConfirmed && (
-            <Button
-              title="Refresh"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                // console.log("Manual refresh triggered")
-                refetch()
-              }}
-            >
-              <RefreshCcw className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            title="Refresh"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // console.log("Manual refresh triggered")
+              refetch()
+            }}
+          >
+            <RefreshCcw className="h-4 w-4" />
+          </Button>
 
           {/* Clone button - only show in edit mode and if user has create permission
           <Button
@@ -673,26 +724,25 @@ export function ChecklistTabs({
             </Button>
           )}
 
-          {/* Cancel button - only show in edit mode and if user has delete permission */}
-          {isConfirmed && canDelete && (
-            <Button
-              variant="destructive"
-              size="sm"
-              disabled={isConfirmed}
-              onClick={() => {
-                setConfirmAction({
-                  type: "cancel",
-                  title: "Cancel Job Order",
-                  message:
-                    "Do you want to cancel this job order? This action cannot be undone.",
-                })
-                setShowConfirmDialog(true)
-              }}
-            >
-              <X className="mr-1 h-4 w-4" />
-              Cancel
-            </Button>
-          )}
+            {/* Delete Job Order Button - only show if user has edit permission and Summary tab is active and invoiceId is 0 and isPost is false */}
+            {canEdit && activeTab === "main" && isConfirmed===false && canDelete===true && (
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={isConfirmed}
+                onClick={() => {
+                  setConfirmAction({
+                    type: "deleteJobOrder",
+                    title: "Delete Job Order",
+                    message: "Do you want to delete this job order?",
+                  })
+                  setShowConfirmDialog(true)
+                }}
+              >
+                <Trash className="mr-1 h-4 w-4" />
+                Delete
+              </Button>
+            )}
 
           {/* Submit/Update Button - only show if user has edit permission and Summary tab is active */}
           {canEdit && activeTab === "main" && (
@@ -807,16 +857,22 @@ export function ChecklistTabs({
                       break
                     case "update":
                       handleFormSubmit()
-                      break
-                    case "cancel":
-                      // Cancel job order logic
-                      // console.log("Cancelling job order")
+                      // Always refetch after update button is clicked
+                      refetch()
                       break
                     case "cloneCompany":
                       setShowCloneCompanyConfirmDialog(true)
                       break
                     case "generateInvoice":
                       handleGenerateInvoice()
+                      break
+                    case "deleteJobOrder":
+                      // Open delete confirmation dialog
+                      setDeleteJobOrderConfirmation({
+                        isOpen: true,
+                        jobOrderId: currentJobData?.jobOrderId || null,
+                        jobOrderNo: currentJobData?.jobOrderNo || null,
+                      })
                       break
                   }
                 }
@@ -967,6 +1023,30 @@ export function ChecklistTabs({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Job Order Confirmation */}
+      <DeleteConfirmation
+        open={deleteJobOrderConfirmation.isOpen}
+        onOpenChange={(isOpen) =>
+          setDeleteJobOrderConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Delete Job Order"
+        description="This action cannot be undone. This will permanently delete the job order from our servers."
+        itemName={
+          deleteJobOrderConfirmation.jobOrderNo
+            ? `Job Order ${deleteJobOrderConfirmation.jobOrderNo}`
+            : "Job Order"
+        }
+        onConfirm={handleConfirmDeleteJobOrder}
+        onCancelAction={() =>
+          setDeleteJobOrderConfirmation({
+            isOpen: false,
+            jobOrderId: null,
+            jobOrderNo: null,
+          })
+        }
+        isDeleting={deleteJobOrderMutation.isPending}
+      />
     </div>
   )
 }

@@ -25,6 +25,7 @@ interface TransportationLogTableProps {
   onRefreshAction?: () => void
   moduleId?: number
   transactionId?: number
+  isConfirmed?: boolean
 }
 
 export function TransportationLogTable({
@@ -37,6 +38,7 @@ export function TransportationLogTable({
   onRefreshAction,
   moduleId,
   transactionId,
+  isConfirmed,
 }: TransportationLogTableProps) {
   const { decimals } = useAuthStore()
   const dateFormat = useMemo(
@@ -337,10 +339,11 @@ export function TransportationLogTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
-      canEdit={true}
-      canDelete={true}
+      canEdit={!isConfirmed}
+      canDelete={!isConfirmed}
       canView={true}
-      canCreate={true}
+      canCreate={!isConfirmed}
+      isConfirmed={isConfirmed}
     />
   )
 }
