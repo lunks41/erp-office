@@ -5,7 +5,6 @@ export enum OperationsStatus {
   Cancelled = "Cancelled",
   CancelWithService = "Cancel With Service",
   Confirmed = "Confirmed",
-  Post = "Post",
 }
 
 export enum Task {

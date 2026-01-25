@@ -71,7 +71,7 @@ export function ChecklistTable({
         case "Confirmed":
           return (job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true)
         case "Posted":
-          return (job.jobStatusName === OperationsStatus.Post.toString() && job.isActive === true)
+          return (job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true && job.isPost === true)
         case "InActive":
           return job.isActive === false
         default:

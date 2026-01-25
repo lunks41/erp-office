@@ -642,18 +642,20 @@ export function ChecklistTabs({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Debit Note No. Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            title="Re-Arrange Debit Note No."
-            disabled={isConfirmed}
-            onClick={() => {
-              setShowDebitNoteDialog(true)
-            }}
-          >
-            <Receipt className="mr-1 h-4 w-4" />
-          </Button>
+          {/* Debit Note No. Button - only show on Services tab */}
+          {activeTab === "details" && (
+            <Button
+              variant="outline"
+              size="sm"
+              title="Re-Arrange Debit Note No."
+              disabled={isConfirmed}
+              onClick={() => {
+                setShowDebitNoteDialog(true)
+              }}
+            >
+              <Receipt className="mr-1 h-4 w-4" />
+            </Button>
+          )}
 
           {/* Invoice Create button - only show when status is confirmed */}
           {isConfirmed && (

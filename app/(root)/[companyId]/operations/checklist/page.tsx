@@ -211,7 +211,7 @@ export default function ChecklistPage() {
       ).length,
       Posted: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Post.toString() && job.isActive === true
+          job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true && job.isPost === true
       ).length,
       InActive: apiData.filter(
         (job: IJobOrderHd) => job.isActive === false
