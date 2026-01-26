@@ -57,32 +57,32 @@ import { ChecklistLog } from "./checklist-timeline"
 import { TransportationLogTab } from "./checklist-transporationlog"
 import { DebitNoteItemsTable } from "./debit-note-items-table"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { ModuleId, OperationsTransactionId } from "@/lib/utils"
+import { usePermissionStore } from "@/stores/permission-store"
 
 interface ChecklistTabsProps {
   jobData: IJobOrderHd
   onClone?: (clonedData: IJobOrderHd) => void
   onUpdateSuccess?: () => void
-  // Permission props
-  canView?: boolean
-  canEdit?: boolean
-  canDelete?: boolean
-  canCreate?: boolean
-  canDebitNote?: boolean
 }
 
 export function ChecklistTabs({
   jobData,
   onClone,
   onUpdateSuccess,
-  canView: _canView = true,
-  canEdit = true,
-  canDelete = true,
-  canCreate = true,
-  canDebitNote = true,
 }: ChecklistTabsProps) {
   const params = useParams()
   const companyId = params.companyId as string
   const { decimals, user } = useAuthStore()
+
+   const moduleId = ModuleId.operations
+  const transactionId = OperationsTransactionId.checklist
+  const { hasPermission } = usePermissionStore()
+  const canView = hasPermission(moduleId, transactionId, "isRead")
+  const canEdit = hasPermission(moduleId, transactionId, "isEdit")
+  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
+  const canCreate = hasPermission(moduleId, transactionId, "isCreate")
+  const canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
 
   const [activeTab, setActiveTab] = useState("main")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -727,7 +727,7 @@ export function ChecklistTabs({
           )}
 
             {/* Delete Job Order Button - only show if user has edit permission and Summary tab is active and invoiceId is 0 and isPost is false */}
-            {canEdit && activeTab === "main" && isConfirmed===false && canDelete===true && (
+            {canEdit && activeTab === "main" && isConfirmed===false && canDelete===true &&  (
               <Button
                 size="sm"
                 variant="destructive"
@@ -788,11 +788,6 @@ export function ChecklistTabs({
           <ChecklistDetailsForm
             jobData={currentJobData}
             isConfirmed={isConfirmed}
-            canView={_canView}
-            canEdit={canEdit}
-            canDelete={canDelete}
-            canCreate={canCreate}
-            canDebitNote={canDebitNote}
           />
         </TabsContent>
 

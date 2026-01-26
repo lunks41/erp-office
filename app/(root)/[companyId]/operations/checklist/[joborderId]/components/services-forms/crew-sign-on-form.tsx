@@ -189,13 +189,13 @@ export function CrewSignOnForm({
               <CustomTextarea
                 form={form}
                 name="flightDetails"
-                label="Flight Details"
+                label="Arrival Flight Details"
                 isDisabled={isConfirmed}
               />
               <CustomTextarea
                 form={form}
                 name="departureDetails"
-                label="Departure Details"
+                label="Departure Flight Details"
                 isDisabled={isConfirmed}
               />
 

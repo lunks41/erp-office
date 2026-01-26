@@ -25,6 +25,8 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { TransportationLogForm } from "./checklist-transporationlog-form"
 import { TransportationLogTable } from "./checklist-transporationlog-table"
+import { ModuleId, OperationsTransactionId } from "@/lib/utils"
+import { usePermissionStore } from "@/stores/permission-store"
 
 interface TransportationLogTabProps {
   jobData: IJobOrderHd
@@ -36,13 +38,20 @@ interface TransportationLogTabProps {
 
 export function TransportationLogTab({
   jobData,
-  moduleId,
-  transactionId,
   onTaskAdded,
   isConfirmed,
 }: TransportationLogTabProps) {
   const jobOrderId = jobData.jobOrderId
   const queryClient = useQueryClient()
+
+  const moduleId = ModuleId.operations
+  const transactionId = OperationsTransactionId.transportationLog
+  const { hasPermission } = usePermissionStore()
+  const canView = hasPermission(moduleId, transactionId, "isRead")
+  const canEdit = hasPermission(moduleId, transactionId, "isEdit")
+  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
+  const canCreate = hasPermission(moduleId, transactionId, "isCreate")
+  const canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
 
   // Get default values for Transportation task - use taskId from initialData or a default value
   // Since Task.Transportation doesn't exist, we'll use 0 as default

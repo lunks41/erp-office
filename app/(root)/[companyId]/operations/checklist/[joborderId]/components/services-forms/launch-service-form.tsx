@@ -443,12 +443,14 @@ export function LaunchServiceForm({
                 name="deliveredWeight"
                 label="Cargo Delivered Weight"
                 isDisabled={isConfirmed}
+                round={3}
               />
               <CustomNumberInput
                 form={form}
                 name="landedWeight"
                 label="Cargo Landed Weight"
                 isDisabled={isConfirmed}
+                round={3}
               />
               <CustomDateTimePicker
                 form={form}

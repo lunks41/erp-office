@@ -121,6 +121,7 @@ const BULK_UPDATE_CONFIG: Record<number, BulkUpdateFieldConfig[]> = {
     // CrewSignOn
     { field: "visaId", label: "Visa Type", type: "select" },
     { field: "flightDetails", label: "Flight Details", type: "text" },
+    { field: "departureDetails", label: "Departure Details", type: "text" },
     { field: "hotelName", label: "Hotel", type: "text" },
     { field: "transportName", label: "Transportation", type: "text" },
     { field: "remarks", label: "Remarks", type: "text" },
@@ -131,6 +132,7 @@ const BULK_UPDATE_CONFIG: Record<number, BulkUpdateFieldConfig[]> = {
     // CrewSignOff
     { field: "visaId", label: "Visa Type", type: "select" },
     { field: "flightDetails", label: "Flight Details", type: "text" },
+    { field: "departureDetails", label: "Departure Details", type: "text" },
     { field: "hotelName", label: "Hotel", type: "text" },
     { field: "transportName", label: "Transportation", type: "text" },
     { field: "remarks", label: "Remarks", type: "text" },

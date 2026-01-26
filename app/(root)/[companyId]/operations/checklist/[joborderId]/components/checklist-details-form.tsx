@@ -31,22 +31,11 @@ import { ThirdPartyTab } from "./services-tabs/third-party-tab"
 interface ChecklistDetailsFormProps {
   jobData: IJobOrderHd
   isConfirmed: boolean
-  // Permission props
-  canView?: boolean
-  canEdit?: boolean
-  canDelete?: boolean
-  canCreate?: boolean
-  canDebitNote?: boolean
 }
 
 export function ChecklistDetailsForm({
   jobData,
   isConfirmed,
-  canView: _canView,
-  canEdit: _canEdit,
-  canDelete: _canDelete,
-  canCreate: _canCreate,
-  canDebitNote: _canDebitNote,
 }: ChecklistDetailsFormProps) {
   //const { decimals } = useAuthStore()
   const [activeTab, setActiveTab] = useState("port-expenses")
