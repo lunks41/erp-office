@@ -32,7 +32,7 @@ import {
   Save,
   Trash2,
 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { Path, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { getById } from "@/lib/api-client"
@@ -359,15 +359,35 @@ export default function CbBankTransferCtmPage() {
 
         // Set field-level errors on the form so FormMessage components can display them
         validationResult.error.issues.forEach((error) => {
-          const fieldPath = error.path.join(
-            "."
-          ) as keyof CbBankTransferCtmHdSchemaType
+          // Handle nested paths correctly (e.g., ["data_details", 0, "fieldName"] -> "data_details.0.fieldName")
+          const fieldPath = error.path
+            .map((segment) => String(segment))
+            .join(".") as Path<CbBankTransferCtmHdSchemaType>
+          
           form.setError(fieldPath, {
             type: "validation",
             message: error.message,
           })
         })
-
+        
+        // Trigger validation to ensure errors are visible
+        form.trigger()
+        
+        // Scroll to first error field
+        const firstErrorField = validationResult.error.issues[0]
+        if (firstErrorField) {
+          const firstFieldPath = firstErrorField.path
+            .map((segment) => String(segment))
+            .join(".")
+          const errorElement = document.querySelector(
+            `[name="${firstFieldPath}"], [id="${firstFieldPath}"]`
+          )
+          if (errorElement) {
+            errorElement.scrollIntoView({ behavior: "smooth", block: "center" })
+            ;(errorElement as HTMLElement).focus()
+          }
+        }
+        
         toast.error("Please check form data and try again")
         return
       }
@@ -768,38 +788,26 @@ export default function CbBankTransferCtmPage() {
             )
           : "",
         editDate: apiCbBankTransferCtm.editDate
-          ? format(
-              parseDate(apiCbBankTransferCtm.editDate as unknown as string) ||
-                new Date(),
-              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
-            )
-          : "",
+          ? (parseDate(apiCbBankTransferCtm.editDate as unknown as string) ||
+              null)
+          : null,
         cancelDate: apiCbBankTransferCtm.cancelDate
-          ? format(
-              parseDate(apiCbBankTransferCtm.cancelDate as unknown as string) ||
-                new Date(),
-              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
-            )
-          : "",
+          ? (parseDate(apiCbBankTransferCtm.cancelDate as unknown as string) ||
+              null)
+          : null,
         cancelRemarks: apiCbBankTransferCtm.cancelRemarks ?? null,
         isPost: apiCbBankTransferCtm.isPost ?? false,
         postBy: apiCbBankTransferCtm.postBy ?? "",
         postDate: apiCbBankTransferCtm.postDate
-          ? format(
-              parseDate(apiCbBankTransferCtm.postDate as unknown as string) ||
-                new Date(),
-              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
-            )
-          : "",
+          ? (parseDate(apiCbBankTransferCtm.postDate as unknown as string) ||
+              null)
+          : null,
         appStatusId: apiCbBankTransferCtm.appStatusId ?? null,
         appBy: apiCbBankTransferCtm.appBy ?? "",
         appDate: apiCbBankTransferCtm.appDate
-          ? format(
-              parseDate(apiCbBankTransferCtm.appDate as unknown as string) ||
-                new Date(),
-              decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
-            )
-          : "",
+          ? (parseDate(apiCbBankTransferCtm.appDate as unknown as string) ||
+              null)
+          : null,
         isCancel: apiCbBankTransferCtm.isCancel ?? false,
         data_details:
           apiCbBankTransferCtm.data_details?.map((detail) => ({
@@ -853,7 +861,7 @@ export default function CbBankTransferCtmPage() {
       const trimmedTransferId =
         typeof transferId === "number"
           ? transferId.toString()
-          : (transferId?.toString().trim() ?? "")
+          : (transferId?.toString()?.trim() ?? "")
 
       if (!trimmedTransferNo && !trimmedTransferId) return null
 
@@ -919,10 +927,6 @@ export default function CbBankTransferCtmPage() {
     [
       dateFormat,
       form,
-      setCbBankTransferCtm,
-      setIsLoadingCbBankTransferCtm,
-      setPreviousAccountDate,
-      setSearchNo,
       transformToSchemaType,
     ]
   )

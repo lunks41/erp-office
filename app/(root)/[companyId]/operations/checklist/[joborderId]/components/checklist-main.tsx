@@ -1133,7 +1133,7 @@ export function ChecklistMain({
                     name="currencyId"
                     label="Currency"
                     isRequired={true}
-                    isDisabled={true}
+                   // isDisabled={true}
                     onChangeEvent={handleCurrencyChange}
                   />
                   {/* Exchange Rate */}

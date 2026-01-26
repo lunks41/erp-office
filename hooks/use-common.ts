@@ -169,6 +169,41 @@ export function useGetWithDates<T>(
 }
 
 /**
+ * GET with query parameters hook (for endpoints that use [HttpGet] with [FromQuery])
+ * Params are passed from other place when calling
+ * Uses getData to send parameters as query string and ensure headers are sent via interceptors
+ */
+export function useGetByBody<T>(
+  baseUrl: string,
+  queryKey: string,
+  data: Record<string, unknown>,
+  options?: Partial<UseQueryOptions<ApiResponse<T>>>,
+  enabled?: boolean
+) {
+  return useQuery<ApiResponse<T>>({
+    queryKey: [queryKey, data],
+    queryFn: async () => {
+      // Convert data object to query parameters (string format for getData)
+      const params: Record<string, string> = {}
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          params[key] = String(value)
+        }
+      })
+      // Use getData to send as query parameters and ensure headers are sent via interceptors
+      return await getData(cleanUrl(baseUrl), params)
+    },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    enabled, // won't auto-fetch unless manually triggered
+    ...options,
+  })
+}
+
+/**
  * GET with pagination support
  */
 export function useGetWithPagination<T>(
@@ -303,6 +338,8 @@ export function useDeleteWithRemarks<T = unknown>(baseUrl: string) {
     onError: handleMutationError,
   })
 }
+
+
 
 /**
  * Specialized grid layout update

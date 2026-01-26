@@ -568,16 +568,57 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
 
     // Handle bank selection
     const handleBankChange = React.useCallback(
-      (selectedBank: IBankLookup | null) => {
+      async (selectedBank: IBankLookup | null) => {
         if (selectedBank) {
+          form.setValue("toBankId", selectedBank.bankId, {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
           form.setValue("toBankCode", selectedBank.bankCode || "")
           form.setValue("toBankName", selectedBank.bankName || "")
+
+          // Update currency to match bank's currency if available
+          if (selectedBank.currencyId) {
+            const currentCurrencyId = form.getValues("toCurrencyId")
+
+            // Only update currency if it's different from bank's currency
+            if (currentCurrencyId !== selectedBank.currencyId) {
+              form.setValue("toCurrencyId", selectedBank.currencyId, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+              
+
+              // Fetch exchange rate for the new currency
+              const exhRate = await setToExchangeRateDetails(
+                Hdform,
+                form,
+                exhRateDec,
+                "toCurrencyId"
+              )
+
+              // Auto-calculate local amounts with new exchange rate
+              if (exhRate) {
+                const toTotAmt = form.getValues("toTotAmt") || 0
+                const toTotLocalAmt = calculateMultiplierAmount(
+                  toTotAmt,
+                  Number(exhRate),
+                  locAmtDec
+                )
+                form.setValue("toTotLocalAmt", toTotLocalAmt)
+
+                // Calculate bank charges based on difference
+                setTimeout(() => calculateBankCharges(), 0)
+              }
+            }
+          }
         } else {
+          form.setValue("toBankId", 0, { shouldValidate: true })
           form.setValue("toBankCode", "")
           form.setValue("toBankName", "")
         }
       },
-      [form]
+      [form, Hdform, exhRateDec, locAmtDec, calculateBankCharges]
     )
 
     // Handle bank chart of account selection

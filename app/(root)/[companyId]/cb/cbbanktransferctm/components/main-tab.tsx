@@ -267,8 +267,34 @@ export default function Main({
     validateHeaderTotals()
   }
 
+  // Get form errors for display
+  const formErrors = form.formState.errors
+
   return (
     <div className="w-full">
+      {/* Display form errors summary */}
+      {Object.keys(formErrors).length > 0 && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 dark:bg-red-950/20">
+          <p className="mb-2 font-semibold text-red-800 dark:text-red-300">
+            Please fix the following errors:
+          </p>
+          <ul className="list-inside list-disc space-y-1 text-sm text-red-700 dark:text-red-400">
+            {Object.entries(formErrors).map(([field, error]) => {
+              const errorMessage =
+                typeof error === "object" && error !== null && "message" in error
+                  ? error.message
+                  : "Invalid value"
+              return (
+                <li key={field}>
+                  <span className="font-medium capitalize">{field}:</span>{" "}
+                  {String(errorMessage)}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+
       <CbBankTransferCtmForm
         form={form}
         onSuccessAction={onSuccessAction}

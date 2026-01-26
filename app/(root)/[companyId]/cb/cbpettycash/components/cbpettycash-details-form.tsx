@@ -1,12 +1,5 @@
 "use client"
 
-import React, {
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
 import {
   handleGstPercentageChange,
   handleTotalamountChange,
@@ -42,17 +35,16 @@ import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { PlusIcon, Repeat } from "lucide-react"
+import React, {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { clientDateFormat, parseDate } from "@/lib/date-utils"
-import {
-  useChartOfAccountLookup,
-  useGetDynamicLookup,
-  useGstLookup,
-} from "@/hooks/use-lookup"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   BargeAutocomplete,
   ChartOfAccountAutocomplete,
@@ -77,6 +69,26 @@ import {
 } from "@/components/custom"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { useGetByBody } from "@/hooks/use-common"
+import {
+  useChartOfAccountLookup,
+  useGetDynamicLookup,
+  useGstLookup,
+} from "@/hooks/use-lookup"
+import { CbPettyCash } from "@/lib/api-routes"
+import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 
 import { getDefaultValues } from "./cbpettycash-defaultvalues"
 
@@ -141,6 +153,64 @@ const CbPettyCashDetailsForm = React.forwardRef<
 
     // State for supplier selection dialog
     const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false)
+
+    // State for API duplicate supplier invoice confirmation
+    const [showApiDuplicateConfirmation, setShowApiDuplicateConfirmation] =
+      useState(false)
+    const [apiDuplicateMessage, setApiDuplicateMessage] = useState<string>("")
+
+    // State for duplicate check query data
+    const [duplicateCheckData, setDuplicateCheckData] = useState<{
+      InvoiceDate: string
+      InvoiceNo: string
+      SupplierName: string
+    } | null>(null)
+    const [shouldCheckDuplicate, setShouldCheckDuplicate] = useState(false)
+
+    // Hook for checking duplicate supplier invoice via API
+    const checkDuplicateSupplierInvoiceQuery = useGetByBody(
+      CbPettyCash.checkDuplicateSupplierInvoice,
+      "checkDuplicateSupplierInvoice",
+      duplicateCheckData || {},
+      {},
+      shouldCheckDuplicate && duplicateCheckData !== null
+    )
+
+    // Handle query response
+    useEffect(() => {
+      if (
+        checkDuplicateSupplierInvoiceQuery.data &&
+        shouldCheckDuplicate
+      ) {
+        const response = checkDuplicateSupplierInvoiceQuery.data
+        // Check if result > 0 (duplicates found)
+        if (response?.result > 0 && response?.message) {
+          setApiDuplicateMessage(response.message)
+          setShowApiDuplicateConfirmation(true)
+        }
+        setShouldCheckDuplicate(false)
+      }
+    }, [
+      checkDuplicateSupplierInvoiceQuery.data,
+      shouldCheckDuplicate,
+    ])
+
+    // Handle query error
+    useEffect(() => {
+      if (
+        checkDuplicateSupplierInvoiceQuery.error &&
+        shouldCheckDuplicate
+      ) {
+        console.error(
+          "Error checking duplicate supplier invoice:",
+          checkDuplicateSupplierInvoiceQuery.error
+        )
+        setShouldCheckDuplicate(false)
+      }
+    }, [
+      checkDuplicateSupplierInvoiceQuery.error,
+      shouldCheckDuplicate,
+    ])
 
     // Track if submit was attempted to show errors only after submit
     const [submitAttempted, setSubmitAttempted] = useState(false)
@@ -968,6 +1038,43 @@ const CbPettyCashDetailsForm = React.forwardRef<
       toast.info("Form reset due to duplicate record")
     }
 
+    // Check for duplicate supplier invoice via API
+    const checkDuplicateSupplierInvoice = () => {
+      checkDuplicateOnChange()
+      const currentData = form.getValues()
+      // Only check if all three fields have values
+      if (
+        currentData.invoiceDate &&
+        currentData.invoiceNo &&
+        currentData.supplierName
+      ) {
+        // Format invoice date for API
+        const invoiceDateValue = currentData.invoiceDate
+        let formattedInvoiceDate = ""
+
+        if (typeof invoiceDateValue === "string") {
+          const parsedDate = parseDate(invoiceDateValue)
+          if (parsedDate) {
+            formattedInvoiceDate = formatDateForApi(parsedDate) || ""
+          }
+        } else if (invoiceDateValue instanceof Date) {
+          formattedInvoiceDate = formatDateForApi(invoiceDateValue) || ""
+        }
+
+        if (!formattedInvoiceDate) {
+          return // Skip if date cannot be formatted
+        }
+
+        // Set query data and enable the query
+        setDuplicateCheckData({
+          InvoiceDate: formattedInvoiceDate,
+          InvoiceNo: currentData.invoiceNo || "",
+          SupplierName: currentData.supplierName || "",
+        })
+        setShouldCheckDuplicate(true)
+      }
+    }
+
     // Handle supplier selection from dialog
     const handleSupplierSelect = (
       supplierName: string,
@@ -983,6 +1090,24 @@ const CbPettyCashDetailsForm = React.forwardRef<
       })
       form.trigger("supplierName")
       form.trigger("supplierRegNo")
+      // Check for duplicate supplier invoice after supplier is selected
+      checkDuplicateSupplierInvoice()
+    }
+
+    // Handle API duplicate confirmation - Yes (keep data)
+    const handleApiDuplicateConfirm = () => {
+      setShowApiDuplicateConfirmation(false)
+      setApiDuplicateMessage("")
+      toast.info("You can continue with the current data")
+    }
+
+    // Handle API duplicate confirmation - No (reset form)
+    const handleApiDuplicateCancel = () => {
+      setShowApiDuplicateConfirmation(false)
+      setApiDuplicateMessage("")
+      const nextItemNo = getNextItemNo()
+      form.reset(createDefaultValues(nextItemNo))
+      toast.info("Form reset due to duplicate supplier invoice")
     }
 
     // ============================================================================
@@ -1490,6 +1615,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 buttonVariant="default"
                 buttonDisabled={false}
                 onChangeEvent={checkDuplicateOnChange}
+                onBlurEvent={checkDuplicateSupplierInvoice}
               />
             )}
 
@@ -1838,6 +1964,46 @@ const CbPettyCashDetailsForm = React.forwardRef<
               : undefined
           }
         />
+
+        {/* API Duplicate Supplier Invoice Confirmation */}
+        <AlertDialog
+          open={showApiDuplicateConfirmation}
+          onOpenChange={setShowApiDuplicateConfirmation}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-destructive">
+                ⚠️ Duplicate Supplier Invoice Found
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-3">
+                <p>
+                  A duplicate supplier invoice record was found in the system:
+                </p>
+                {apiDuplicateMessage && (
+                  <div className="border-destructive/30 bg-destructive/5 max-h-96 overflow-y-auto rounded-md border p-4 text-sm">
+                    <pre className="whitespace-pre-wrap font-mono text-xs">
+                      {apiDuplicateMessage}
+                    </pre>
+                  </div>
+                )}
+                <p className="font-medium">
+                  Do you want to continue with creating this record?
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={handleApiDuplicateCancel}>
+                No
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleApiDuplicateConfirm}
+                className="bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Yes
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Supplier Selection Dialog */}
         <SupplierSelectionDialog

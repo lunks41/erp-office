@@ -1124,6 +1124,7 @@ export const CbPettyCash = {
   delete: "/account/deletecbpettycash",
   history: "/account/gethistorycbpettycashbyid",
   historyDetails: "/account/gethistorycbpettycashdetailsbyid",
+  checkDuplicateSupplierInvoice: "/account/GetCheckDuplicateSupplierInvoice",
 }
 
 // Cash Book Bank Reconciliation Endpoints

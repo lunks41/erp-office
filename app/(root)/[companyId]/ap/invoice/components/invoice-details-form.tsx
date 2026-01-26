@@ -42,6 +42,7 @@ import {
 } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Repeat } from "lucide-react"
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -324,6 +325,58 @@ const InvoiceDetailsForm = React.forwardRef<
       // Reset submit attempted flag when canceling
       setSubmitAttempted(false)
       toast.info("Detail cancelled")
+      focusFirstVisibleField()
+    }
+
+    // Handler for repeat - clones the detail with highest seqNo
+    const handleRepeat = () => {
+      // Get current data_details from header form (most up-to-date)
+      const currentDataDetails = Hdform.getValues("data_details") || []
+
+      if (currentDataDetails.length === 0) {
+        toast.warning("No recent transaction to repeat")
+        return
+      }
+
+      // Find the item with the highest seqNo
+      const detailWithHighestSeqNo = currentDataDetails.reduce(
+        (highest, current) => {
+          const currentSeqNo = (current as ApInvoiceDtSchemaType).seqNo ?? 0
+          const highestSeqNo = (highest as ApInvoiceDtSchemaType).seqNo ?? 0
+          return currentSeqNo > highestSeqNo ? current : highest
+        }
+      ) as ApInvoiceDtSchemaType
+
+      const mostRecentDetail = detailWithHighestSeqNo
+
+      // Get next itemNo
+      const nextItemNo = getNextItemNo()
+
+      // Clone the most recent detail with new itemNo and reset IDs
+      const clonedDetail: ApInvoiceDtSchemaType = {
+        ...mostRecentDetail,
+        itemNo: nextItemNo,
+        seqNo: nextItemNo,
+        docItemNo: nextItemNo,
+        invoiceId: "0",
+        invoiceNo: "",
+        editVersion: 0,
+        // Reset amounts to 0 so user can enter new values
+        totAmt: 0,
+        totLocalAmt: 0,
+        totCtyAmt: 0,
+        gstAmt: 0,
+        gstLocalAmt: 0,
+        gstCtyAmt: 0,
+      }
+
+      // Populate code/name fields from lookup data
+      const populatedDetail = populateCodeNameFields(clonedDetail)
+
+      // Reset form with cloned values
+      form.reset(populatedDetail)
+      setSubmitAttempted(false)
+      toast.success("Recent transaction cloned")
       focusFirstVisibleField()
     }
 
@@ -1627,6 +1680,18 @@ const InvoiceDetailsForm = React.forwardRef<
                 onClick={handleCancelEdit}
               >
                 Cancel
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                title="Repeat - Clone most recent transaction"
+                size="sm"
+                onClick={handleRepeat}
+                disabled={existingDetails.length === 0 || isCancelled}
+              >
+                <Repeat className="mr-1 h-4 w-4" />
+                Repeat
               </Button>
             </div>
           </form>
