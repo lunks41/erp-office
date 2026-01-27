@@ -595,3 +595,41 @@ export enum TableName {
   paymentDetails = "paymentDetails",
   otherDocument = "otherDocument",
 }
+
+/**
+ * Status icon mapping for consistent icon usage across the application
+ * Maps status names to Lucide React icon component names
+ */
+export const StatusIconMap = {
+  Pending: "Clock",
+  "PENDING": "Clock",
+  Completed: "CheckCircle",
+  "COMPLETED": "CheckCircle",
+  Cancelled: "XCircle",
+  "CANCELLED": "XCircle",
+  Confirmed: "CheckCircle",
+  "CONFIRMED": "CheckCircle",
+  Posted: "Send",
+  "POSTED": "Send",
+  Approved: "CheckCircle",
+  "APPROVED": "CheckCircle",
+  Rejected: "XCircle",
+  "REJECTED": "XCircle",
+  "Cancel With Service": "AlertTriangle",
+  InActive: "XCircle",
+  "INACTIVE": "XCircle",
+  All: "List",
+} as const
+
+/**
+ * Get status icon name for a given status
+ * @param status - Status name (case-insensitive)
+ * @returns Icon component name as string
+ */
+export function getStatusIconName(status: string): string {
+  const normalizedStatus = status.trim()
+  return (
+    StatusIconMap[normalizedStatus as keyof typeof StatusIconMap] ||
+    StatusIconMap.Pending
+  )
+}

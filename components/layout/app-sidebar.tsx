@@ -258,6 +258,9 @@ const getTransactionIcon = (transactionCode: string) => {
     // Logistics transactions
     freight: Truck,
     transportation: ArrowLeftRight,
+    // Status-related transactions
+    pending: Clock,
+    reports: BarChart,
   }
   return iconMap[transactionCode.toLowerCase()] || FileText
 }
