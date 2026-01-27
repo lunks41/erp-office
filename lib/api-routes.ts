@@ -1388,6 +1388,25 @@ export const JobOrder_AgencyRemuneration = {
   getByIdHistory: "/operations/GetAgencyRemunerationByIdHistory",
 }
 
+// Reports Endpoints
+export const Reports = {
+  getPortExpensesReports: "/operations/GetPortExpensesReports",
+  getLaunchServiceReports: "/operations/GetLaunchServiceReports",
+  getEquipmentUsedReports: "/operations/GetEquipmentUsedReports",
+  getCrewSignOnReports: "/operations/GetCrewSignOnReports",
+  getCrewSignOffReports: "/operations/GetCrewSignOffReports",
+  getCrewMiscellaneousReports: "/operations/GetCrewMiscellaneousReports",
+  getMedicalAssistanceReports: "/operations/GetMedicalAssistanceReports",
+  getConsignmentImportReports: "/operations/GetConsignmentImportReports",
+  getConsignmentExportReports: "/operations/GetConsignmentExportReports",
+  getThirdPartyReports: "/operations/GetThirdPartyReports",
+  getFreshWaterReports: "/operations/GetFreshWaterReports",
+  getTechnicianSurveyorReports: "/operations/GetTechnicianSurveyorReports",
+  getLandingItemsReports: "/operations/GetLandingItemsReports",
+  getOtherServiceReports: "/operations/GetOtherServiceReports",
+  getAgencyRemunerationReports: "/operations/GetAgencyRemunerationReports",
+}
+
 // Debit Note Endpoints
 export const JobOrder_DebitNote = {
   getById: "/operations/getdebitnotebyid",

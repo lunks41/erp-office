@@ -9,12 +9,17 @@ import {
 } from "@/schemas/tariff"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { XIcon } from "lucide-react"
+import { HelpCircle, XIcon } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   Dialog,
   DialogContent,
@@ -32,12 +37,16 @@ interface TariffDetailsFormProps {
   form: UseFormReturn<TariffHdSchemaType>
   tariffId: number
   companyId: number
+  exhRate: number
+  uomCode?: string
 }
 
 export function TariffDetailsForm({
   form,
   tariffId,
   companyId: _companyId,
+  exhRate,
+  uomCode,
 }: TariffDetailsFormProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -166,6 +175,25 @@ export function TariffDetailsForm({
   // Watch isAdditional for conditional fields
   const isAdditional = detailsForm.watch("isAdditional")
 
+  // Handle displayRate blur - calculate basicRate = displayRate / exhRate
+  const handleDisplayRateBlur = React.useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      const displayRate = parseFloat(e.target.value) || 0
+
+      if (displayRate > 0 && exhRate > 0) {
+        const basicRate = displayRate / exhRate
+        detailsForm.setValue(
+          "basicRate",
+          Number(basicRate.toFixed(amtDec))
+        )
+        detailsForm.trigger("basicRate")
+      } else if (displayRate === 0) {
+        detailsForm.setValue("basicRate", 0)
+      }
+    },
+    [exhRate, detailsForm, amtDec]
+  )
+
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
@@ -204,12 +232,12 @@ export function TariffDetailsForm({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {editingDetail ? "Edit Detail" : "Add Detail"}
+              {editingDetail ? "Edit Detail" : "Add Detail"}      {" Uom : "} {uomCode}
             </DialogTitle>
             <DialogDescription>
               {editingDetail
                 ? "Update tariff detail information"
-                : "Add a new tariff detail"}
+                : "Add a new tariff detail"}  
             </DialogDescription>
           </DialogHeader>
           <Form {...detailsForm}>
@@ -222,13 +250,41 @@ export function TariffDetailsForm({
               className="space-y-3"
             >
               <div className="bg-card grid grid-cols-4 gap-2 rounded-lg border p-2 shadow-sm">
-                <CustomNumberInput
-                  form={detailsForm}
-                  name="displayRate"
-                  label="Display Rate"
-                  isRequired
-                  round={amtDec}
-                />
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm font-medium">Local Rate</label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
+                        >
+                          <HelpCircle className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <div className="space-y-1">
+                          <p className="font-semibold">Local Rate</p>
+                          <p className="text-xs">
+                            The rate displayed in your local currency. This is the
+                            amount customers will see. The system automatically
+                            calculates the Basic Rate by dividing this value by the
+                            Exchange Rate when you leave this field.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                    <span className="text-sm text-red-500">*</span>
+                  </div>
+                  <CustomNumberInput
+                    form={detailsForm}
+                    name="displayRate"
+                    label=""
+                    isRequired
+                    round={amtDec}
+                    onBlurEvent={handleDisplayRateBlur}
+                  />
+                </div>
                 <CustomNumberInput
                   form={detailsForm}
                   name="basicRate"
@@ -236,31 +292,114 @@ export function TariffDetailsForm({
                   isRequired
                   round={amtDec}
                 />
-                <CustomNumberInput
-                  form={detailsForm}
-                  name="minUnit"
-                  label="Min Unit"
-                  isRequired
-                  round={amtDec}
-                />
-                <CustomNumberInput
-                  form={detailsForm}
-                  name="maxUnit"
-                  label="Max Unit"
-                  isRequired
-                  round={amtDec}
-                />
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm font-medium">Min Slab</label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
+                        >
+                          <HelpCircle className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <div className="space-y-1">
+                          <p className="font-semibold">Minimum Slab   </p>
+                          <p className="text-xs">
+                            The minimum quantity/unit range for which this rate
+                            applies. This rate will be used when the quantity is
+                            equal to or greater than this value and less than or
+                            equal to the Maximum Slab.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                    <span className="text-sm text-red-500">*</span>
+                  </div>
+                  <CustomNumberInput
+                    form={detailsForm}
+                    name="minUnit"
+                    label=""
+                    isRequired
+                    round={amtDec}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm font-medium">Max Slab</label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
+                        >
+                          <HelpCircle className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <div className="space-y-1">
+                          <p className="font-semibold">Maximum Slab</p>
+                          <p className="text-xs">
+                            The maximum quantity/unit range for which this rate
+                            applies. This rate will be used when the quantity is
+                            between the Minimum Slab and this value (inclusive).
+                            If you need rates for higher quantities, create
+                            additional tariff details with different slab ranges.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                    <span className="text-sm text-red-500">*</span>
+                  </div>
+                  <CustomNumberInput
+                    form={detailsForm}
+                    name="maxUnit"
+                    label=""
+                    isRequired
+                    round={amtDec}
+                  />
+                </div>
               </div>
               <div className="bg-card grid grid-cols-3 gap-2 rounded-lg border p-2 shadow-sm">
-                <CustomSwitch
-                  form={detailsForm}
-                  name="isAdditional"
-                  label="Additional"
-                />
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm font-medium">Additional</label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
+                        >
+                          <HelpCircle className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <div className="space-y-1">
+                          <p className="font-semibold">Additional Charges</p>
+                          <p className="text-xs">
+                            Enable this option to apply additional charges beyond
+                            the base rate. When enabled, you can specify an
+                            Additional Slab (quantity threshold) and Additional
+                            Rate (charge per unit) that applies when the quantity
+                            exceeds the specified threshold. This is useful for
+                            tiered pricing structures.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <CustomSwitch
+                    form={detailsForm}
+                    name="isAdditional"
+                    label=""
+                  />
+                </div>
                 <CustomNumberInput
                   form={detailsForm}
                   name="additionalUnit"
-                  label="Additional Unit"
+                  label="Additional Slab"
                   isRequired={isAdditional}
                   isDisabled={!isAdditional}
                   round={amtDec}

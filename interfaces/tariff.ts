@@ -10,6 +10,7 @@ export interface ITariffHd {
   tariffId: number
   customerId: number
   currencyId: number
+  exhRate?: number // UI only - not saved to DB, fetched based on current date
   portId: number
   taskId: number
   chargeId: number

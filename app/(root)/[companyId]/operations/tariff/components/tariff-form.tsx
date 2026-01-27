@@ -16,7 +16,7 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { useCompanyCustomerLookup } from "@/hooks/use-lookup"
+import { useCompanyCustomerLookup, useUomLookup } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Form } from "@/components/ui/form"
 import {
@@ -39,6 +39,8 @@ import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { TariffDetailsForm } from "./tariff-details-form"
+import { getData } from "@/lib/api-client"
+import { BasicSetting } from "@/lib/api-routes"
 
 interface TariffFormProps {
   initialData?: ITariffHd
@@ -73,9 +75,11 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
   ) => {
     const { decimals } = useAuthStore()
     const amtDec = decimals[0]?.amtDec || 2
+    const exhRateDec = decimals[0]?.exhRateDec || 6
     const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
     const { data: customers = [] } = useCompanyCustomerLookup(companyId)
+    const { data: uoms = [] } = useUomLookup()
 
     // Extract currency ID to prevent infinite loop - useMemo ensures stable reference
     const firstCustomerCurrencyId = customers[0]?.currencyId
@@ -93,6 +97,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         portId: initialData?.portId || portId,
         customerId: initialData?.customerId || customerId,
         currencyId: initialData?.currencyId || defaultCurrencyId,
+        exhRate: 1, // UI only - fetched from DB based on current date
         uomId: initialData?.uomId || 0,
         visaId: initialData?.visaId || null,
         fromLocationId: initialData?.fromLocationId || null,
@@ -112,6 +117,34 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     // Track if form has been initialized to prevent resetting when initialData changes after user edits
     const isInitializedRef = useRef(false)
     const lastInitialDataRef = useRef<ITariffHd | undefined>(undefined)
+
+    // Handle exchange rate fetch when currency changes
+    const handleExchangeRateChange = React.useCallback(
+      async (currencyId: number) => {
+        if (!currencyId || currencyId === 0) {
+          return
+        }
+
+        try {
+          // Use current date in yyyy-MM-dd format
+          const currentDate = format(new Date(), "yyyy-MM-dd")
+          
+          const res = await getData(
+            `${BasicSetting.getExchangeRate}/${currencyId}/${currentDate}`
+          )
+
+          const exhRate = res?.data
+
+          if (exhRate) {
+            form.setValue("exhRate", +Number(exhRate).toFixed(exhRateDec))
+            form.trigger("exhRate")
+          }
+        } catch (error) {
+          console.error("Error fetching exchange rate:", error)
+        }
+      },
+      [form, exhRateDec]
+    )
 
     useEffect(() => {
       // Only reset if initialData actually changed (not just a reference change)
@@ -138,6 +171,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           portId: initialData.portId || portId,
           customerId: initialData.customerId || customerId,
           currencyId: initialData.currencyId || defaultCurrencyId,
+          exhRate: 1, // Will be fetched from DB based on current date
           uomId: initialData.uomId || 0,
           visaId: initialData.visaId || null,
           fromLocationId: initialData.fromLocationId || null,
@@ -173,6 +207,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           portId: portId,
           customerId: customerId,
           currencyId: defaultCurrencyId,
+          exhRate: 1,
           uomId: 0,
           visaId: null,
           fromLocationId: null,
@@ -198,8 +233,24 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
       defaultCurrencyId,
     ])
 
+    // Fetch exchange rate when currency is set
+    useEffect(() => {
+      const currencyId = form.getValues("currencyId")
+      if (currencyId && currencyId > 0) {
+        handleExchangeRateChange(currencyId)
+      }
+    }, [defaultCurrencyId, handleExchangeRateChange, form])
+
     // Watch form values
     const watchedDetails = form.watch("data_details") || []
+    const watchedExhRate = form.watch("exhRate") || 1
+    const watchedUomId = form.watch("uomId")
+
+    // Get uomCode from uomId
+    const uomCode = useMemo(() => {
+      const selectedUom = uoms.find((uom) => uom.uomId === watchedUomId)
+      return selectedUom?.uomCode || ""
+    }, [uoms, watchedUomId])
 
     // Check if details exist - if so, Task and Charge should be read-only
     const hasDetails =
@@ -239,6 +290,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         portId: formValues.portId ?? data.portId,
         customerId: formValues.customerId ?? data.customerId,
         currencyId: formValues.currencyId ?? data.currencyId,
+        // exhRate is NOT saved to DB - it's UI only for calculations
         uomId: formValues.uomId ?? data.uomId,
         visaId: formValues.visaId ?? data.visaId ?? null,
         fromLocationId:
@@ -267,10 +319,17 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     // Handle customer selection
     const handleCustomerChange = React.useCallback(
       async (selectedCustomer: ICustomerLookup | null) => {
-        form.setValue("currencyId", selectedCustomer?.currencyId || 0)
+        const newCurrencyId = selectedCustomer?.currencyId || 0
+        form.setValue("currencyId", newCurrencyId)
+        
+        // Fetch exchange rate when currency changes
+        if (newCurrencyId > 0) {
+          await handleExchangeRateChange(newCurrencyId)
+        }
+        
         form.trigger()
       },
-      [form]
+      [form, handleExchangeRateChange]
     )
 
     return (
@@ -437,6 +496,8 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 form={form}
                 tariffId={form.watch("tariffId") || 0}
                 companyId={companyId}
+                exhRate={watchedExhRate}
+                uomCode={uomCode}
               />
             )}
 

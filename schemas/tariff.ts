@@ -94,6 +94,7 @@ export const tariffHdSchema = z
     companyId: z.number().min(1, "Company ID is required"),
     customerId: z.number().min(1, "Customer is required"),
     currencyId: z.number().min(0, "Currency ID is required"),
+    exhRate: z.number().optional(), // UI only - not saved to DB
     portId: z.number().min(1, "Port is required"),
     taskId: z.number().min(1, "Task is required"),
     chargeId: z.number().min(1, "Charge is required"),
