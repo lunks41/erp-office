@@ -330,7 +330,7 @@ export default function CbBankTransferCtmForm({
           name="fromBankChgLocalAmt"
           label="From Bank Charge Local Amt"
           round={locAmtDec}
-          isDisabled={true}
+          isDisabled={false}
           className="text-right"
         />
 

@@ -412,7 +412,7 @@ export default function CbBankTransferCtmPage() {
       )
       const locAmtDec = decimals[0]?.locAmtDec || 2
       const validation = validateFromTotLocalAmt(
-        formValues.fromTotLocalAmt,
+        formValues.fromTotLocalAmt + formValues.fromBankChgLocalAmt + (formValues.exhGainLoss || 0),
         formValues.data_details as unknown as ICbBankTransferCtmDt[],
         locAmtDec
       )

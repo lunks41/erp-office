@@ -409,31 +409,52 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
       }
     }
 
-    // Common handler to calculate bank charges based on difference
-    const calculateBankCharges = React.useCallback(() => {
-      const toBankExhRate = form.getValues("toBankExhRate") || 0
-      const toExhRate = form.getValues("toExhRate") || 0
-
-      // Only calculate if bank exchange rate is set (user has entered it)
-      if (toBankExhRate === 0) {
-        return
-      }
-
+    // Calculate bank charges based on difference: toBankChgLocalAmt = toBankTotLocalAmt - toTotLocalAmt
+    // Then calculate: toBankChgAmt = toBankChgLocalAmt / toExhRate
+    const calculateBankChargesFromDifference = React.useCallback(() => {
       const toBankTotLocalAmt = form.getValues("toBankTotLocalAmt") || 0
       const toTotLocalAmt = form.getValues("toTotLocalAmt") || 0
+      const toExhRate = form.getValues("toExhRate") || 0
 
-      // Calculate difference and set to toBankChgLocalAmt
+      // Calculate difference: toBankChgLocalAmt = toBankTotLocalAmt - toTotLocalAmt
       const toBankChgLocalAmt = toBankTotLocalAmt - toTotLocalAmt
-      form.setValue("toBankChgLocalAmt", toBankChgLocalAmt)
+      form.setValue("toBankChgLocalAmt", Number(toBankChgLocalAmt.toFixed(locAmtDec)), {
+        shouldDirty: true,
+      })
 
       // Calculate toBankChgAmt if toExhRate is not zero
       if (toExhRate !== 0) {
         const toBankChgAmt = toBankChgLocalAmt / toExhRate
-        form.setValue("toBankChgAmt", Number(toBankChgAmt.toFixed(amtDec)))
+        form.setValue("toBankChgAmt", Number(toBankChgAmt.toFixed(amtDec)), {
+          shouldDirty: true,
+        })
       } else {
-        form.setValue("toBankChgAmt", 0)
+        form.setValue("toBankChgAmt", 0, { shouldDirty: true })
       }
-    }, [form, amtDec])
+    }, [form, locAmtDec, amtDec])
+
+    // Handle bank charge amount blur - calculate local amount on blur only
+    const handleToBankChgAmtBlur = React.useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        const toBankChgAmt = parseFloat(e.target.value) || 0
+        const toExhRate = form.getValues("toExhRate") || 0
+
+        // Calculate local amount: toBankChgLocalAmt = toBankChgAmt * toExhRate
+        if (toExhRate > 0) {
+          const toBankChgLocalAmt = calculateMultiplierAmount(
+            toBankChgAmt,
+            toExhRate,
+            locAmtDec
+          )
+          form.setValue("toBankChgLocalAmt", toBankChgLocalAmt, {
+            shouldDirty: true,
+          })
+        } else {
+          form.setValue("toBankChgLocalAmt", 0, { shouldDirty: true })
+        }
+      },
+      [form, locAmtDec]
+    )
 
     // Handle TO currency selection
     const handleToCurrencyChange = React.useCallback(
@@ -460,9 +481,6 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
               locAmtDec
             )
             form.setValue("toTotLocalAmt", toTotLocalAmt)
-
-            // Calculate bank charges based on difference
-            setTimeout(() => calculateBankCharges(), 0)
           }
         } else {
           form.setValue("toCurrencyId", 0, { shouldValidate: true })
@@ -470,11 +488,9 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
           form.setValue("toCurrencyName", "")
           form.setValue("toExhRate", 0)
           form.setValue("toTotLocalAmt", 0)
-          form.setValue("toBankChgLocalAmt", 0)
-          form.setValue("toBankChgAmt", 0)
         }
       },
-      [form, Hdform, exhRateDec, locAmtDec, calculateBankCharges]
+      [form, Hdform, exhRateDec, locAmtDec]
     )
 
     // Handle TO total amount change
@@ -490,11 +506,8 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
           locAmtDec
         )
         form.setValue("toTotLocalAmt", toTotLocalAmt)
-
-        // Calculate bank charges based on difference
-        setTimeout(() => calculateBankCharges(), 0)
       },
-      [form, locAmtDec, calculateBankCharges]
+      [form, locAmtDec]
     )
 
     // Handle bank total amount change
@@ -510,22 +523,21 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
           locAmtDec
         )
         form.setValue("toBankTotLocalAmt", toBankTotLocalAmt)
-
-        // Calculate bank charges based on difference
-        setTimeout(() => calculateBankCharges(), 0)
       },
-      [form, locAmtDec, calculateBankCharges]
+      [form, locAmtDec]
     )
 
-    // Handle bank exchange rate change
-    const handleToBankExhRateChange = React.useCallback(
-      (value: number) => {
-        const toBankExhRate = value || 0
+    // Handle bank exchange rate change - only on blur to avoid recalculation when editing
+    const handleToBankExhRateBlur = React.useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        const toBankExhRate = parseFloat(e.target.value) || 0
 
         // If bank exchange rate is zero, clear all bank amounts
         if (toBankExhRate === 0) {
           form.setValue("toBankTotAmt", 0)
           form.setValue("toBankTotLocalAmt", 0)
+          form.setValue("toBankChgLocalAmt", 0)
+          form.setValue("toBankChgAmt", 0)
           return
         }
 
@@ -541,9 +553,9 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
         form.setValue("toBankTotLocalAmt", toBankTotLocalAmt)
 
         // Calculate bank charges based on difference
-        setTimeout(() => calculateBankCharges(), 0)
+        calculateBankChargesFromDifference()
       },
-      [form, locAmtDec, calculateBankCharges]
+      [form, locAmtDec, calculateBankChargesFromDifference]
     )
 
     // Handle TO exchange rate change
@@ -559,11 +571,8 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
           locAmtDec
         )
         form.setValue("toTotLocalAmt", toTotLocalAmt)
-
-        // Calculate bank charges based on difference
-        setTimeout(() => calculateBankCharges(), 0)
       },
-      [form, locAmtDec, calculateBankCharges]
+      [form, locAmtDec]
     )
 
     // Handle bank selection
@@ -606,9 +615,6 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
                   locAmtDec
                 )
                 form.setValue("toTotLocalAmt", toTotLocalAmt)
-
-                // Calculate bank charges based on difference
-                setTimeout(() => calculateBankCharges(), 0)
               }
             }
           }
@@ -618,7 +624,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
           form.setValue("toBankName", "")
         }
       },
-      [form, Hdform, exhRateDec, locAmtDec, calculateBankCharges]
+      [form, Hdform, exhRateDec, locAmtDec]
     )
 
     // Handle bank chart of account selection
@@ -724,8 +730,9 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             name="toBankChgAmt"
             label="To Bank Charge Amt"
             round={amtDec}
-            isDisabled={true}
+            isDisabled={false}
             className="text-right"
+            onBlurEvent={handleToBankChgAmtBlur}
           />
 
           <CustomNumberInput
@@ -733,7 +740,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             name="toBankChgLocalAmt"
             label="To Bank Charge Local Amt"
             round={locAmtDec}
-            isDisabled={true}
+            isDisabled={false}
             className="text-right"
           />
 
@@ -742,7 +749,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             name="toTotAmt"
             label="To Total Amount"
             round={amtDec}
-            isRequired={true}
+            isRequired={false}
             className="text-right"
             onChangeEvent={handleToTotAmtChange}
           />
@@ -763,7 +770,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             round={exhRateDec}
             isRequired={false}
             className="text-right"
-            onChangeEvent={handleToBankExhRateChange}
+            onBlurEvent={handleToBankExhRateBlur}
           />
 
           <CustomNumberInput
