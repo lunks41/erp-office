@@ -116,6 +116,7 @@ const GLJournalDetailsForm = React.forwardRef<
     const { decimals } = useAuthStore()
     const amtDec = decimals[0]?.amtDec || 2
     const locAmtDec = decimals[0]?.locAmtDec || 2
+    const ctyAmtDec = decimals[0]?.ctyAmtDec || 2
     const dateFormat = useMemo(
       () => decimals[0]?.dateFormat || clientDateFormat,
       [decimals]
@@ -1271,7 +1272,7 @@ const GLJournalDetailsForm = React.forwardRef<
                 form={form}
                 name="totCtyAmt"
                 label="Total Country Amount"
-                round={locAmtDec}
+                round={ctyAmtDec}
                 className="text-right"
                 isDisabled={true}
               />
@@ -1332,7 +1333,7 @@ const GLJournalDetailsForm = React.forwardRef<
                 form={form}
                 name="gstCtyAmt"
                 label="GST Country Amount"
-                round={locAmtDec}
+                round={ctyAmtDec}
                 className="text-right"
                 isDisabled={true}
               />

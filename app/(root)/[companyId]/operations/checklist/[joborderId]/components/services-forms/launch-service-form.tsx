@@ -441,14 +441,14 @@ export function LaunchServiceForm({
               <CustomNumberInput
                 form={form}
                 name="deliveredWeight"
-                label="Cargo Delivered Weight"
+                label="Cargo Delivered Weight (Tons)"
                 isDisabled={isConfirmed}
                 round={3}
               />
               <CustomNumberInput
                 form={form}
                 name="landedWeight"
-                label="Cargo Landed Weight"
+                label="Cargo Landed Weight (Tons)"
                 isDisabled={isConfirmed}
                 round={3}
               />
@@ -470,7 +470,7 @@ export function LaunchServiceForm({
               />
               <div className="space-y-1">
                 <label className="text-sm font-medium">
-                  Launch Waiting Time (2-1) (Hrs)
+                  Launch Waiting Time (2-1) (HH:MM)
                 </label>
                 <input
                   type="text"
@@ -500,7 +500,7 @@ export function LaunchServiceForm({
               />
               <div className="space-y-1">
                 <label className="text-sm font-medium">
-                  Time Difference (4-3) (Hrs)
+                  Time Difference (4-3) (HH:MM)
                 </label>
                 <input
                   type="text"

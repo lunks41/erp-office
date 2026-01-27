@@ -51,6 +51,8 @@ export default function DocSetOffForm({
   dataDetails = [],
 }: DocSetOffFormProps) {
   const { decimals } = useAuthStore()
+  const amtDec = decimals[0]?.amtDec || 2
+  const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6
 
   const { data: dynamicLookup } = useGetDynamicLookup()
@@ -353,6 +355,7 @@ export default function DocSetOffForm({
           form={form}
           name="allocTotAmt"
           label="Allocated Amount"
+          round={amtDec}
           isDisabled={true}
         />
 
@@ -361,6 +364,7 @@ export default function DocSetOffForm({
           form={form}
           name="balTotAmt"
           label="Balanced Amount"
+          round={amtDec}
           isDisabled={true}
         />
 
@@ -369,6 +373,7 @@ export default function DocSetOffForm({
           form={form}
           name="unAllocTotAmt"
           label="Unallocated Amount"
+          round={amtDec}
           isDisabled={true}
         />
 
@@ -377,6 +382,7 @@ export default function DocSetOffForm({
           form={form}
           name="exhGainLoss"
           label="Exchange Gain/Loss"
+          round={locAmtDec}
           isDisabled={true}
         />
 

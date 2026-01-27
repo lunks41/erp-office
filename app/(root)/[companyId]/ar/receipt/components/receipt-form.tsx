@@ -889,6 +889,7 @@ export default function ReceiptForm({
           form={form}
           name="unAllocTotAmt"
           label="Unallocated Amount"
+          round={amtDec}
           isDisabled={true}
         />
 
@@ -897,6 +898,7 @@ export default function ReceiptForm({
           form={form}
           name="unAllocTotLocalAmt"
           label="Unallocated Local Amount"
+          round={locAmtDec}
           isDisabled={true}
         />
 
@@ -926,6 +928,7 @@ export default function ReceiptForm({
           form={form}
           name="recTotAmt"
           label="Rec Total Amount"
+          round={amtDec}
           isDisabled={isCurrenciesEqual}
           onFocusEvent={handleRecTotAmtFocus}
           onBlurEvent={handleRecTotAmtChange}
@@ -936,6 +939,7 @@ export default function ReceiptForm({
           form={form}
           name="recTotLocalAmt"
           label="Rec Total Local Amount"
+          round={locAmtDec}
           isDisabled={true}
         />
 
@@ -976,6 +980,7 @@ export default function ReceiptForm({
           form={form}
           name="bankChgAmt"
           label="Bank Charges Amount"
+          round={amtDec}
           onFocusEvent={handleBankChgAmtFocus}
           onBlurEvent={handleBankChgAmtChange}
         />
@@ -985,6 +990,7 @@ export default function ReceiptForm({
           form={form}
           name="bankChgLocalAmt"
           label="Bank Charges Local Amount"
+          round={locAmtDec}
           isDisabled={true}
         />
 
@@ -993,6 +999,7 @@ export default function ReceiptForm({
           form={form}
           name="exhGainLoss"
           label="Exchange Gain/Loss"
+          round={locAmtDec}
         />
 
         {/* Job Order */}

@@ -358,7 +358,7 @@ export default function CbBankTransferCtmForm({
           form={form}
           name="exhGainLoss"
           label="Exchange Gain/Loss"
-          round={amtDec}
+          round={locAmtDec}
           className="text-right"
           isDisabled={false}
         />

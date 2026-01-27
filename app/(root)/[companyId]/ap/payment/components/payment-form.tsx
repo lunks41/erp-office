@@ -887,6 +887,7 @@ export default function PaymentForm({
           form={form}
           name="unAllocTotAmt"
           label="Unallocated Amount"
+          round={amtDec}
           isDisabled={true}
         />
 
@@ -895,6 +896,7 @@ export default function PaymentForm({
           form={form}
           name="unAllocTotLocalAmt"
           label="Unallocated Local Amount"
+          round={locAmtDec}
           isDisabled={true}
         />
 
@@ -924,6 +926,7 @@ export default function PaymentForm({
           form={form}
           name="payTotAmt"
           label="Pay Total Amount"
+          round={amtDec}
           isDisabled={isCurrenciesEqual}
           onFocusEvent={handlePayTotAmtFocus}
           onBlurEvent={handlePayTotAmtChange}
@@ -934,6 +937,7 @@ export default function PaymentForm({
           form={form}
           name="payTotLocalAmt"
           label="Pay Total Local Amount"
+          round={locAmtDec}
           isDisabled={true}
         />
 
@@ -974,6 +978,7 @@ export default function PaymentForm({
           form={form}
           name="bankChgAmt"
           label="Bank Charges Amount"
+          round={amtDec}
           onFocusEvent={handleBankChgAmtFocus}
           onBlurEvent={handleBankChgAmtChange}
         />
@@ -983,6 +988,7 @@ export default function PaymentForm({
           form={form}
           name="bankChgLocalAmt"
           label="Bank Charges Local Amount"
+          round={locAmtDec}
           isDisabled={true}
         />
 
@@ -991,6 +997,8 @@ export default function PaymentForm({
           form={form}
           name="exhGainLoss"
           label="Exchange Gain/Loss"
+          round={locAmtDec}
+          className="text-right"
         />
 
         {/* Remarks */}

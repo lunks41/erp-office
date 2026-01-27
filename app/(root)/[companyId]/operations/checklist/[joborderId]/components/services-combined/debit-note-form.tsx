@@ -71,6 +71,8 @@ export default function DebitNoteForm({
   }, [onServiceChargeUpdate])
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
+  const priceDec = decimals[0]?.priceDec || 2
+  const qtyDec = decimals[0]?.qtyDec || 2
   const { isLoading: _isChartOfAccountLoading } = useChartOfAccountLookup(
     Number(companyId)
   )
@@ -495,7 +497,7 @@ export default function DebitNoteForm({
                     form={form}
                     name="qty"
                     label="Qty"
-                    round={amtDec}
+                    round={qtyDec}
                     isDisabled={isConfirmed}
                     onChangeEvent={handleQtyChange}
                   />
@@ -506,7 +508,7 @@ export default function DebitNoteForm({
                     form={form}
                     name="unitPrice"
                     label="Unit Price"
-                    round={amtDec}
+                    round={priceDec}
                     isDisabled={isConfirmed}
                     onChangeEvent={handleUnitPriceChange}
                   />

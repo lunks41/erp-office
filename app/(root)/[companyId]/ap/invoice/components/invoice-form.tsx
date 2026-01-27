@@ -68,6 +68,7 @@ export default function InvoiceForm({
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
+  const ctyAmtDec = decimals[0]?.ctyAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6
 
   const { data: dynamicLookup } = useGetDynamicLookup()
@@ -667,7 +668,7 @@ export default function InvoiceForm({
                 form={form}
                 name="totCtyAmt"
                 label="Total Country Amount"
-                round={amtDec}
+                round={ctyAmtDec}
                 isDisabled={true}
                 className="text-right"
               />
@@ -682,7 +683,7 @@ export default function InvoiceForm({
                 name="gstCtyAmt"
                 label="GST Country Amount"
                 isDisabled={true}
-                round={amtDec}
+                round={ctyAmtDec}
                 className="text-right"
               />
             </>
@@ -696,7 +697,7 @@ export default function InvoiceForm({
                 name="totCtyAmtAftGst"
                 label="Total Country Amount After VAT"
                 isDisabled={true}
-                round={amtDec}
+                round={ctyAmtDec}
                 className="text-right"
               />
             </>

@@ -387,6 +387,7 @@ export default function ContraForm({
           form={form}
           name="exhGainLoss"
           label="Exchange Gain/Loss"
+          round={locAmtDec}
         />
         {/* Remarks */}
         {visible?.m_Remarks && (
