@@ -56,6 +56,7 @@ export function ConsignmentImportForm({
   isConfirmed,
 }: ConsignmentImportFormProps) {
   const { decimals } = useAuthStore()
+  const amtDec = decimals[0]?.amtDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const dateFormat = useMemo(
@@ -375,6 +376,7 @@ export function ConsignmentImportForm({
                 form={form}
                 name="amountDeposited"
                 label="Amount Deposited"
+                round={amtDec}
                 isDisabled={isConfirmed}
               />
 

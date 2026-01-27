@@ -37,6 +37,7 @@ export default function CbPettyCashDetailsTable({
   const [mounted, setMounted] = useState(false)
   const { decimals } = useAuthStore()
   const amtDec = decimals?.[0]?.amtDec || 2
+  const priceDec = decimals?.[0]?.priceDec || 2
   const locAmtDec = decimals?.[0]?.locAmtDec || 2
   const dateFormat = decimals?.[0]?.dateFormat || "dd/MM/yyyy"
 
@@ -149,7 +150,7 @@ export default function CbPettyCashDetailsTable({
             size: 50,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
               <div className="text-right">
-                {formatNumber(row.getValue("gstPercentage"), 2)}
+                {formatNumber(row.getValue("gstPercentage"), priceDec)}
               </div>
             ),
           },

@@ -49,6 +49,7 @@ export function OtherServiceForm({
   isConfirmed,
 }: OtherServiceFormProps) {
   const { decimals } = useAuthStore()
+  const amtDec = decimals[0]?.amtDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const dateFormat = useMemo(
@@ -218,6 +219,7 @@ export function OtherServiceForm({
                 form={form}
                 name="amount"
                 label="CTM|Amount"
+                round={amtDec}
                 isRequired
                 isDisabled={isConfirmed || !isCashToMaster}
               />

@@ -642,6 +642,7 @@ export default function CbGenReceiptForm({
             form={form}
             name="bankChgAmt"
             label="Bank Charges Amount"
+            round={amtDec}
             onFocusEvent={handleBankChgAmtFocus}
             onBlurEvent={handleBankChgAmtChange}
           />
@@ -651,6 +652,7 @@ export default function CbGenReceiptForm({
             form={form}
             name="bankChgLocalAmt"
             label="Bank Charges Local Amount"
+            round={locAmtDec}
             isDisabled={true}
           />
 

@@ -645,6 +645,7 @@ export default function CbPettyCashForm({
                 form={form}
                 name="bankChgAmt"
                 label="Bank Chrg Amt"
+                round={amtDec}
                 onFocusEvent={handleBankChgAmtFocus}
                 onBlurEvent={handleBankChgAmtChange}
               />
@@ -655,6 +656,7 @@ export default function CbPettyCashForm({
                 form={form}
                 name="bankChgLocalAmt"
                 label="Bank Chrg Loc."
+                round={locAmtDec}
                 isDisabled={true}
               />
             </div>
