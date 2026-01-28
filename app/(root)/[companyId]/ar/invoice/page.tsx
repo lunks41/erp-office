@@ -120,7 +120,7 @@ export default function InvoicePage() {
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
   const canDelete = hasPermission(moduleId, transactionId, "isDelete")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
-  const _canPost = hasPermission(moduleId, transactionId, "isPost")
+  const canPost = hasPermission(moduleId, transactionId, "isPost")
 
   const [showListDialog, setShowListDialog] = useState(false)
   const [showSaveConfirm, setShowSaveConfirm] = useState(false)
@@ -1605,8 +1605,10 @@ export default function InvoicePage() {
               {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
             </Button>
 
+              
+    {invoice?.moduleFrom==="OPERATION" && (
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               onClick={handleUnpostInvoice}
               disabled={
@@ -1614,7 +1616,9 @@ export default function InvoicePage() {
                 !invoice ||
                 invoice.invoiceId === "0" ||
                 unpostMutation.isPending ||
-                isCancelled
+                isCancelled ||
+                payAmt > 0 ||
+                !canPost
               }
               title="UnPost Invoice"
             >
@@ -1623,7 +1627,10 @@ export default function InvoicePage() {
               ) : (
                 <Undo2 className="h-4 w-4" />
               )}
+               {"Un Post"}
             </Button>
+            )}
+           
           </div>
         </div>
 
