@@ -8,7 +8,7 @@ import { format } from "date-fns"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { ModuleId, TableName } from "@/lib/utils"
+import { GLTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { BasicTable } from "@/components/table/table-basic"
 
@@ -271,6 +271,9 @@ export default function YearEndProcessTable({
     },
   ]
 
+  // When footer is disabled, set page size to show all rows (disable pagination)
+  const pageSize = data.length > 0 ? data.length : 10000
+
   return (
     <div className="space-y-2">
       <BasicTable<IGLOpeningBalance>
@@ -278,13 +281,14 @@ export default function YearEndProcessTable({
         columns={columns}
         isLoading={false}
         moduleId={ModuleId.gl}
-        transactionId={0}
+        transactionId={GLTransactionId.yearendprocess as number}
         tableName={TableName.yearEndProcess}
         emptyMessage="No year end process lines found."
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         showHeader={true}
-        showFooter={true}
+        showFooter={false}
+        pageSizeOption={pageSize}
       />
     </div>
   )

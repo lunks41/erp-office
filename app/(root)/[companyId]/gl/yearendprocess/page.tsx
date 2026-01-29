@@ -13,6 +13,7 @@ import { GLYearEndProcess } from "@/lib/api-routes"
 import { formatNumber } from "@/lib/format-utils"
 import { GLTransactionId, ModuleId } from "@/lib/utils"
 import { usePersist } from "@/hooks/use-common"
+import { useCurrentYearLookup } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -48,9 +49,13 @@ export default function YearEndProcessPage() {
   const [tableData, setTableData] = useState<IGLOpeningBalance[]>([])
   const [pendingRequest, setPendingRequest] =
     useState<GLYearEndProcessRequestSchemaType | null>(null)
+  const [selectedYearName, setSelectedYearName] = useState<string>("")
   const [isSaveMode, setIsSaveMode] = useState(false)
   const [activeTab, setActiveTab] = useState("main")
   const formRef = useRef<YearEndProcessFormRef>(null)
+
+  // Get year lookup data to find year name from yearId
+  const { data: currentYears = [] } = useCurrentYearLookup()
 
   useEffect(() => {
     const docId = searchParams.get("documentId")
@@ -110,6 +115,15 @@ export default function YearEndProcessPage() {
     requestData: GLYearEndProcessRequestSchemaType
   ) => {
     setPendingRequest(requestData)
+    // Find and store the year name from the selected yearId
+    const selectedYear = currentYears.find(
+      (year) => year.yearId === requestData.documentId
+    )
+    if (selectedYear) {
+      setSelectedYearName(selectedYear.yearName)
+    } else {
+      setSelectedYearName("")
+    }
     setShowGenerateConfirm(true)
   }
 
@@ -154,6 +168,7 @@ export default function YearEndProcessPage() {
     // Clear table data and documentId when reset is clicked
     setTableData([])
     setDocumentId(undefined)
+    setSelectedYearName("")
     setTotals({
       totDebitLocalAmt: 0,
       totCreditLocalAmt: 0,
@@ -275,10 +290,10 @@ export default function YearEndProcessPage() {
         onConfirm={isSaveMode ? handleConfirmSave : handleConfirmGenerate}
         itemName={
           isSaveMode
-            ? `year end process for document ${documentId || ""}`
-            : `year end process for document ${pendingRequest?.documentId || ""}`
+            ? `year end process for year ${selectedYearName || documentId || ""}`
+            : `year end process for year ${selectedYearName || pendingRequest?.documentId || ""}`
         }
-        operationType={isSaveMode ? "update" : "create"}
+        operationType="create"
         isSaving={
           isSaving || saveMutation.isPending || generateMutation.isPending
         }
@@ -293,7 +308,7 @@ export default function YearEndProcessPage() {
           }
         }}
         onConfirm={handleConfirmGenerate}
-        itemName={`year end process for document ${pendingRequest?.documentId || ""}`}
+        itemName={`year end process for year ${selectedYearName || pendingRequest?.documentId || ""}`}
         operationType="create"
         isSaving={generateMutation.isPending}
       />

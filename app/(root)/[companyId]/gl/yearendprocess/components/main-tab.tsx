@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { IGLOpeningBalance } from "@/interfaces"
 import { GLYearEndProcessRequestSchemaType } from "@/schemas/gl-yearendprocess"
 import { useAuthStore } from "@/stores/auth-store"
+import { AlertTriangle } from "lucide-react"
 
 import YearEndProcessForm, {
   YearEndProcessFormRef,
@@ -34,7 +35,6 @@ export default function Main({
   documentId,
   tableData = [],
   onTotalsChange,
-  onTableDataChange,
   formRef,
 }: MainProps) {
   const { decimals: _decimals } = useAuthStore()
@@ -77,7 +77,44 @@ export default function Main({
       />
 
       {dataDetails.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-4 space-y-4">
+          {/* Information Box */}
+          <div className="rounded-lg border-2 border-red-500 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+              <div className="flex-1 space-y-2">
+                <h4 className="font-semibold text-red-900 dark:text-red-200">
+                  Year-End Process Information
+                </h4>
+                <div className="space-y-1.5 text-sm text-red-800 dark:text-red-300">
+                  <p className="font-medium">
+                    Before you proceed, make sure that:
+                  </p>
+                  <ul className="ml-4 list-disc space-y-1">
+                    <li>
+                      You have closed all 12 fiscal periods for the selected
+                      year.
+                    </li>
+                    <li>
+                      You have executed Temporary Year-End process recently to
+                      register latest closing entries.
+                    </li>
+                    <li>
+                      All pending transactions have been posted and reconciled.
+                    </li>
+                    <li>
+                      Backup of current data has been created before proceeding.
+                    </li>
+                  </ul>
+                  <p className="mt-2 font-semibold">
+                    Click Generate to proceed with the Year-End process!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Table */}
           <YearEndProcessTable
             data={(dataDetails as unknown as IGLOpeningBalance[]) || []}
             onRefreshAction={() => {}}
