@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { IGLOpeningBalance } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
@@ -10,30 +10,19 @@ import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import { ModuleId, TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { AccountBaseTable } from "@/components/table/table-account"
+import { BasicTable } from "@/components/table/table-basic"
 
 interface YearEndProcessTableProps {
   data: IGLOpeningBalance[]
-  onDeleteAction?: (itemNo: number) => void
-  onBulkDeleteAction?: (selectedItemNos: number[]) => void
-  onEditAction?: (row: IGLOpeningBalance) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
-  onDataReorder?: (newData: IGLOpeningBalance[]) => void
-  isCancelled?: boolean
 }
 
 export default function YearEndProcessTable({
   data,
-  onDeleteAction,
-  onBulkDeleteAction,
-  onEditAction,
   onRefreshAction,
   onFilterChange,
-  onDataReorder,
-  isCancelled = false,
 }: YearEndProcessTableProps) {
-  const [mounted, setMounted] = useState(false)
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
@@ -41,28 +30,6 @@ export default function YearEndProcessTable({
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]
   )
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const handleDelete = (itemId: string) => {
-    if (onDeleteAction) {
-      onDeleteAction(Number(itemId))
-    }
-  }
-
-  const handleBulkDelete = (selectedIds: string[]) => {
-    if (onBulkDeleteAction) {
-      onBulkDeleteAction(selectedIds.map((id) => Number(id)))
-    }
-  }
-
-  const handleDataReorderInternal = (newData: IGLOpeningBalance[]) => {
-    if (onDataReorder) {
-      onDataReorder(newData)
-    }
-  }
 
   const columns: (ColumnDef<IGLOpeningBalance> & { hidden?: boolean })[] = [
     {
@@ -88,6 +55,14 @@ export default function YearEndProcessTable({
       },
     },
     {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
+    {
       accessorKey: "glCode",
       header: "GL Code",
       size: 120,
@@ -98,7 +73,7 @@ export default function YearEndProcessTable({
     {
       accessorKey: "glName",
       header: "GL Name",
-      size: 200,
+      size: 250,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
         <div className="text-right">{row.original.glName}</div>
       ),
@@ -197,166 +172,108 @@ export default function YearEndProcessTable({
         <div className="text-right">{row.original.bargeName || "-"}</div>
       ),
     },
-    {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
+
     {
       accessorKey: "glId",
       header: "GL Id",
       size: 80,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.glId}</div>
-      ),
     },
     {
       accessorKey: "currencyId",
       header: "Currency Id",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.currencyId}</div>
-      ),
     },
     {
       accessorKey: "currencyName",
       header: "Currency Name",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.currencyName}</div>
-      ),
     },
     {
       accessorKey: "departemntCode",
       header: "Department Code",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.departemntCode}</div>
-      ),
     },
     {
       accessorKey: "employeeCode",
       header: "Employee Code",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.employeeCode || "-"}</div>
-      ),
     },
     {
       accessorKey: "productCode",
       header: "Product Code",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.productCode || "-"}</div>
-      ),
     },
     {
       accessorKey: "portCode",
       header: "Port Code",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.portCode || "-"}</div>
-      ),
     },
     {
       accessorKey: "vesselCode",
       header: "Vessel Code",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.vesselCode || "-"}</div>
-      ),
     },
     {
       accessorKey: "bargeCode",
       header: "Barge Code",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.bargeCode || "-"}</div>
-      ),
     },
     {
       accessorKey: "departmentId",
       header: "Department",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.departmentId || "-"}</div>
-      ),
     },
     {
       accessorKey: "employeeId",
       header: "Employee",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.employeeId || "-"}</div>
-      ),
     },
     {
       accessorKey: "productId",
       header: "Product",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.productId || "-"}</div>
-      ),
     },
     {
       accessorKey: "portId",
       header: "Port",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.portId || "-"}</div>
-      ),
     },
     {
       accessorKey: "vesselId",
       header: "Vessel",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.vesselId || "-"}</div>
-      ),
     },
     {
       accessorKey: "bargeId",
       header: "Barge",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.bargeId || "-"}</div>
-      ),
     },
     {
       accessorKey: "voyageId",
       header: "Voyage",
       size: 90,
       hidden: true,
-      cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.voyageId || "-"}</div>
-      ),
     },
   ]
 
-  if (!mounted) return null
-
   return (
     <div className="space-y-2">
-      <AccountBaseTable<IGLOpeningBalance>
+      <BasicTable<IGLOpeningBalance>
         data={data}
         columns={columns}
         isLoading={false}
@@ -364,18 +281,10 @@ export default function YearEndProcessTable({
         transactionId={0}
         tableName={TableName.yearEndProcess}
         emptyMessage="No year end process lines found."
-        accessorId="itemNo"
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
-        onEditAction={onEditAction}
-        onDeleteAction={isCancelled ? undefined : handleDelete}
-        onBulkDeleteAction={isCancelled ? undefined : handleBulkDelete}
-        onDataReorder={handleDataReorderInternal}
-        isConfirmed={isCancelled}
         showHeader={true}
-        showActions={!isCancelled}
-        hideEdit={isCancelled}
-        hideDelete={isCancelled}
+        showFooter={true}
       />
     </div>
   )

@@ -12,7 +12,7 @@ import { toast } from "sonner"
 import { GLYearEndProcess } from "@/lib/api-routes"
 import { formatNumber } from "@/lib/format-utils"
 import { GLTransactionId, ModuleId } from "@/lib/utils"
-import { useGetById, usePersist } from "@/hooks/use-common"
+import { usePersist } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -35,67 +35,66 @@ export default function YearEndProcessPage() {
   const { decimals } = useAuthStore()
 
   const canView = hasPermission(moduleId, transactionId, "isRead")
-  const canEdit = hasPermission(moduleId, transactionId, "isEdit")
-  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false)
+  const [showGenerateConfirm, setShowGenerateConfirm] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [documentIdToFetch, setDocumentIdToFetch] = useState<
-    string | undefined
-  >(undefined)
+  const [documentId, setDocumentId] = useState<string | undefined>(undefined)
   const [totals, setTotals] = useState<YearEndProcessTotals>({
     totDebitLocalAmt: 0,
     totCreditLocalAmt: 0,
   })
+  const [tableData, setTableData] = useState<IGLOpeningBalance[]>([])
   const [pendingRequest, setPendingRequest] =
     useState<GLYearEndProcessRequestSchemaType | null>(null)
+  const [isSaveMode, setIsSaveMode] = useState(false)
   const [activeTab, setActiveTab] = useState("main")
   const formRef = useRef<YearEndProcessFormRef>(null)
 
   useEffect(() => {
     const docId = searchParams.get("documentId")
     if (docId) {
-      setDocumentIdToFetch(docId)
+      setDocumentId(docId)
     }
   }, [searchParams])
 
-  const { data: fetchedYearEndProcess } = useGetById<
-    IGLOpeningBalance | IGLOpeningBalance[]
-  >(GLYearEndProcess.getById, "gl-year-end-process", documentIdToFetch || "", {
-    enabled: !!documentIdToFetch && documentIdToFetch !== "0",
-  })
-
-  const saveMutation = usePersist<GLYearEndProcessRequestSchemaType>(
+  const generateMutation = usePersist<GLYearEndProcessRequestSchemaType>(
     GLYearEndProcess.generate
   )
+
+  const saveMutation = usePersist<IGLOpeningBalance[]>(GLYearEndProcess.add)
 
   const handleGenerate = async (
     requestData: GLYearEndProcessRequestSchemaType
   ) => {
-    if (isSaving || saveMutation.isPending) {
+    if (isSaving || generateMutation.isPending) {
       return
     }
-
-    setIsSaving(true)
-
+    setTableData([])
     try {
-      const response = await saveMutation.mutateAsync(requestData)
-
+      const response = await generateMutation.mutateAsync(requestData)
+      console.log("response", response)
       if (response.result === 1) {
-        // The API should return IGLOpeningBalance[] array
         const yearEndData = response.data
-        if (yearEndData) {
-          // If data is returned, set documentId to fetch and display
-          const firstItem = Array.isArray(yearEndData)
-            ? yearEndData[0]
-            : yearEndData
-          if (firstItem && firstItem.documentId) {
-            setDocumentIdToFetch(String(firstItem.documentId))
-          }
-        }
 
-        setShowSaveConfirm(false)
+        if (yearEndData) {
+          console.log("yearEndData", yearEndData)
+          const dataArray = Array.isArray(yearEndData)
+            ? yearEndData
+            : [yearEndData]
+
+          if (dataArray.length > 0) {
+            console.log("dataArray", dataArray)
+            const typedDataArray = dataArray as unknown as IGLOpeningBalance[]
+            console.log("typedDataArray", typedDataArray)
+            setTableData(typedDataArray)
+          } else {
+            setTableData([])
+          }
+        } else {
+          setTableData([])
+        }
         toast.success("Year end process generated successfully")
       } else {
         toast.error(response.message || "Failed to generate year end process")
@@ -104,7 +103,6 @@ export default function YearEndProcessPage() {
       console.error("Generate error:", error)
       toast.error("Network error while generating year end process")
     } finally {
-      setIsSaving(false)
     }
   }
 
@@ -112,21 +110,61 @@ export default function YearEndProcessPage() {
     requestData: GLYearEndProcessRequestSchemaType
   ) => {
     setPendingRequest(requestData)
-    setShowSaveConfirm(true)
+    setShowGenerateConfirm(true)
   }
 
   const handleConfirmGenerate = async () => {
     if (pendingRequest) {
       await handleGenerate(pendingRequest)
       setPendingRequest(null)
+      setShowGenerateConfirm(false)
     }
   }
 
-  const isEdit = !!documentIdToFetch && documentIdToFetch !== "0"
+  const handleSave = async () => {
+    if (isSaving || saveMutation.isPending || tableData.length === 0) {
+      return
+    }
+    setIsSaving(true)
+
+    try {
+      const response = await saveMutation.mutateAsync(tableData)
+
+      if (response.result === 1) {
+        setShowSaveConfirm(false)
+        setIsSaveMode(false)
+        toast.success("Year end process saved successfully")
+        // Data is already in tableData, no need to refetch
+      } else {
+        toast.error(response.message || "Failed to save year end process")
+      }
+    } catch (error) {
+      console.error("Save error:", error)
+      toast.error("Network error while saving year end process")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleConfirmSave = async () => {
+    await handleSave()
+  }
+
+  const handleReset = () => {
+    // Clear table data and documentId when reset is clicked
+    setTableData([])
+    setDocumentId(undefined)
+    setTotals({
+      totDebitLocalAmt: 0,
+      totCreditLocalAmt: 0,
+    })
+  }
+
+  const isEdit = !!documentId && documentId !== "0"
   const locAmtDec = decimals[0]?.locAmtDec ?? 2
 
   const titleText = isEdit
-    ? `GL Year End Process - Document: ${documentIdToFetch}`
+    ? `GL Year End Process - Document: ${documentId}`
     : "GL Year End Process (New)"
 
   return (
@@ -179,28 +217,26 @@ export default function YearEndProcessPage() {
             <Button
               variant="default"
               size="sm"
-              onClick={() => setShowSaveConfirm(true)}
+              onClick={() => {
+                setIsSaveMode(true)
+                setShowSaveConfirm(true)
+              }}
               disabled={
                 !canView ||
                 isSaving ||
                 saveMutation.isPending ||
-                (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
+                generateMutation.isPending ||
+                tableData.length === 0 ||
+                !canCreate
               }
-              className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+              className="bg-blue-600 hover:bg-blue-700"
             >
               {isSaving || saveMutation.isPending ? (
                 <Spinner size="sm" className="mr-1" />
               ) : (
                 <Save className="mr-1 h-4 w-4" />
               )}
-              {isSaving || saveMutation.isPending
-                ? isEdit
-                  ? "Updating..."
-                  : "Saving..."
-                : isEdit
-                  ? "Update"
-                  : "Save"}
+              {isSaving || saveMutation.isPending ? "Saving..." : "Save"}
             </Button>
           </div>
         </div>
@@ -208,10 +244,12 @@ export default function YearEndProcessPage() {
         <TabsContent value="main">
           <Main
             onGenerateAction={handleGenerateClick}
+            onResetAction={handleReset}
             companyId={Number(companyId)}
-            documentIdToFetch={documentIdToFetch}
-            fetchedData={fetchedYearEndProcess}
+            documentId={documentId}
+            tableData={tableData}
             onTotalsChange={setTotals}
+            onTableDataChange={setTableData}
             formRef={
               formRef as unknown as React.RefObject<YearEndProcessFormRef>
             }
@@ -220,13 +258,7 @@ export default function YearEndProcessPage() {
 
         <TabsContent value="history">
           <History
-            fetchedData={
-              fetchedYearEndProcess?.result === 1 && fetchedYearEndProcess?.data
-                ? (fetchedYearEndProcess.data as
-                    | IGLOpeningBalance
-                    | IGLOpeningBalance[])
-                : undefined
-            }
+            fetchedData={tableData.length > 0 ? tableData : undefined}
             isEdit={isEdit}
           />
         </TabsContent>
@@ -234,11 +266,36 @@ export default function YearEndProcessPage() {
 
       <SaveConfirmation
         open={showSaveConfirm}
-        onOpenChange={setShowSaveConfirm}
+        onOpenChange={(open) => {
+          setShowSaveConfirm(open)
+          if (!open) {
+            setIsSaveMode(false)
+          }
+        }}
+        onConfirm={isSaveMode ? handleConfirmSave : handleConfirmGenerate}
+        itemName={
+          isSaveMode
+            ? `year end process for document ${documentId || ""}`
+            : `year end process for document ${pendingRequest?.documentId || ""}`
+        }
+        operationType={isSaveMode ? "update" : "create"}
+        isSaving={
+          isSaving || saveMutation.isPending || generateMutation.isPending
+        }
+      />
+
+      <SaveConfirmation
+        open={showGenerateConfirm}
+        onOpenChange={(open) => {
+          setShowGenerateConfirm(open)
+          if (!open) {
+            setPendingRequest(null)
+          }
+        }}
         onConfirm={handleConfirmGenerate}
         itemName={`year end process for document ${pendingRequest?.documentId || ""}`}
         operationType="create"
-        isSaving={isSaving || saveMutation.isPending}
+        isSaving={generateMutation.isPending}
       />
     </div>
   )

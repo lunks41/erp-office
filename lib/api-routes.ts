@@ -1194,7 +1194,6 @@ export const GLOpeningBalance = {
 
 // General Ledger Year End Process Endpoints
 export const GLYearEndProcess = {
-  getById: "/account/GetGLYearEndProcess",
   generate: "/account/GenerateGLYearEndProcess",
   add: "/account/SaveGLYearEndProcess",
 }
