@@ -45,7 +45,7 @@ export default function Other({ form, visible: _visible }: OtherProps) {
   useEffect(() => {
     // Initialize address from form values
     const address: ICustomerAddress = {
-      billName: "",
+      billName: form.getValues("billName") || "",
       customerId: customerId,
       addressId: form.getValues("addressId") || 0,
       address1: form.getValues("address1") || "",
@@ -108,6 +108,7 @@ export default function Other({ form, visible: _visible }: OtherProps) {
     setSelectedAddress(customerAddress)
     if (customerAddress) {
       form.setValue("addressId", customerAddress.addressId)
+      form.setValue("billName", customerAddress.billName || "")
       form.setValue("address1", customerAddress.address1 || "")
       form.setValue("address2", customerAddress.address2 || "")
       form.setValue("address3", customerAddress.address3 || "")
@@ -118,6 +119,7 @@ export default function Other({ form, visible: _visible }: OtherProps) {
       form.setValue("countryId", customerAddress.countryId || 0)
     } else {
       form.setValue("addressId", 0)
+      form.setValue("billName", "")
       form.setValue("address1", "")
       form.setValue("address2", "")
       form.setValue("address3", "")
@@ -168,6 +170,12 @@ export default function Other({ form, visible: _visible }: OtherProps) {
                 </div>
               )}
               <div className="grid">
+                <CustomInput
+                  form={form}
+                  name="billName"
+                  label="Bill Name"
+                  isDisabled={!selectedAddress}
+                />
                 <div className="grid grid-cols-2 gap-x-1 gap-y-0">
                   <CustomTextarea
                     form={form}

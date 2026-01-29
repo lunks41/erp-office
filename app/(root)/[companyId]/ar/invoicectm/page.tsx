@@ -246,6 +246,7 @@ export default function InvoiceCtmPage() {
           operationId: invoice.operationId ?? 0,
           operationNo: invoice.operationNo ?? "",
           remarks: invoice.remarks ?? "",
+          billName: invoice.billName ?? "",
           address1: invoice.address1 ?? "",
           address2: invoice.address2 ?? "",
           address3: invoice.address3 ?? "",
@@ -902,6 +903,7 @@ export default function InvoiceCtmPage() {
         remarks: apiInvoice.remarks ?? "",
         addressId: apiInvoice.addressId ?? 0, // Not available in IArInvoiceCtmHd
         contactId: apiInvoice.contactId ?? 0, // Not available in IArInvoiceCtmHd
+        billName: apiInvoice.billName ?? "",
         address1: apiInvoice.address1 ?? "",
         address2: apiInvoice.address2 ?? "",
         address3: apiInvoice.address3 ?? "",

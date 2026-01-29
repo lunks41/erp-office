@@ -245,6 +245,7 @@ export default function CreditNotePage() {
           operationId: creditNote.operationId ?? 0,
           operationNo: creditNote.operationNo ?? "",
           remarks: creditNote.remarks ?? "",
+          billName: creditNote.billName ?? "",
           address1: creditNote.address1 ?? "",
           address2: creditNote.address2 ?? "",
           address3: creditNote.address3 ?? "",
@@ -912,6 +913,7 @@ export default function CreditNotePage() {
         remarks: apiCreditNote.remarks ?? "",
         addressId: apiCreditNote.addressId ?? 0, // Not available in IArCreditNoteHd
         contactId: apiCreditNote.contactId ?? 0, // Not available in IArCreditNoteHd
+        billName: apiCreditNote.billName ?? "",
         address1: apiCreditNote.address1 ?? "",
         address2: apiCreditNote.address2 ?? "",
         address3: apiCreditNote.address3 ?? "",

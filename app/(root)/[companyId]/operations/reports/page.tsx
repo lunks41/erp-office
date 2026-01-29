@@ -62,6 +62,11 @@ export default function ReportsPage({
   params: { companyId: string }
 }) {
   const [hasSearched, setHasSearched] = useState(false)
+  // Committed search value - only updates when Search button is clicked
+  const [committedSearch, setCommittedSearch] = useState<string>("")
+  const [committedTaskId, setCommittedTaskId] = useState<number>(0)
+  const [committedFromDate, setCommittedFromDate] = useState<Date | null>(null)
+  const [committedToDate, setCommittedToDate] = useState<Date | null>(null)
 
   // Calculate default dates: 3 months ago to today
   const today = new Date()
@@ -77,182 +82,183 @@ export default function ReportsPage({
   })
 
   const watchedTaskId = form.watch("taskId")
-  const watchedFromDate = form.watch("fromDate")
-  const watchedToDate = form.watch("toDate")
-  const watchedSearch = form.watch("search")
 
-  // Format dates for API
+  // Format dates for API - use committed values (only update when Search is clicked)
   const startDate = useMemo(
     () =>
-      watchedFromDate
-        ? formatDateForApi(watchedFromDate) || undefined
+      committedFromDate
+        ? formatDateForApi(committedFromDate) || undefined
         : undefined,
-    [watchedFromDate]
+    [committedFromDate]
   )
   const endDate = useMemo(
     () =>
-      watchedToDate ? formatDateForApi(watchedToDate) || undefined : undefined,
-    [watchedToDate]
+      committedToDate
+        ? formatDateForApi(committedToDate) || undefined
+        : undefined,
+    [committedToDate]
   )
 
   // Fetch data using useGetWithDates hook
   // Using Task enum from operations-utils.ts for proper task ID mapping
+  // Use committedSearch instead of watchedSearch to prevent API calls on every keystroke
   const portExpensesQuery = useGetWithDates<IPortExpenses>(
     Reports.getPortExpensesReports,
     "portExpensesReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.PortExpenses
+    hasSearched && committedTaskId === Task.PortExpenses
   )
 
   const launchServiceQuery = useGetWithDates<ILaunchService>(
     Reports.getLaunchServiceReports,
     "launchServiceReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.LaunchServices
+    hasSearched && committedTaskId === Task.LaunchServices
   )
 
   const equipmentUsedQuery = useGetWithDates<IEquipmentUsed>(
     Reports.getEquipmentUsedReports,
     "equipmentUsedReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.EquipmentUsed
+    hasSearched && committedTaskId === Task.EquipmentUsed
   )
 
   const crewSignOnQuery = useGetWithDates<ICrewSignOn>(
     Reports.getCrewSignOnReports,
     "crewSignOnReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.CrewSignOn
+    hasSearched && committedTaskId === Task.CrewSignOn
   )
 
   const crewSignOffQuery = useGetWithDates<ICrewSignOff>(
     Reports.getCrewSignOffReports,
     "crewSignOffReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.CrewSignOff
+    hasSearched && committedTaskId === Task.CrewSignOff
   )
 
   const crewMiscellaneousQuery = useGetWithDates<ICrewMiscellaneous>(
     Reports.getCrewMiscellaneousReports,
     "crewMiscellaneousReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.CrewMiscellaneous
+    hasSearched && committedTaskId === Task.CrewMiscellaneous
   )
 
   const medicalAssistanceQuery = useGetWithDates<IMedicalAssistance>(
     Reports.getMedicalAssistanceReports,
     "medicalAssistanceReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.MedicalAssistance
+    hasSearched && committedTaskId === Task.MedicalAssistance
   )
 
   const consignmentImportQuery = useGetWithDates<IConsignmentImport>(
     Reports.getConsignmentImportReports,
     "consignmentImportReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.ConsignmentImport
+    hasSearched && committedTaskId === Task.ConsignmentImport
   )
 
   const consignmentExportQuery = useGetWithDates<IConsignmentExport>(
     Reports.getConsignmentExportReports,
     "consignmentExportReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.ConsignmentExport
+    hasSearched && committedTaskId === Task.ConsignmentExport
   )
 
   const thirdPartyQuery = useGetWithDates<IThirdParty>(
     Reports.getThirdPartyReports,
     "thirdPartyReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.ThirdParty
+    hasSearched && committedTaskId === Task.ThirdParty
   )
 
   const freshWaterQuery = useGetWithDates<IFreshWater>(
     Reports.getFreshWaterReports,
     "freshWaterReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.FreshWater
+    hasSearched && committedTaskId === Task.FreshWater
   )
 
   const technicianSurveyorQuery = useGetWithDates<ITechnicianSurveyor>(
     Reports.getTechnicianSurveyorReports,
     "technicianSurveyorReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.TechniciansSurveyors
+    hasSearched && committedTaskId === Task.TechniciansSurveyors
   )
 
   const landingItemsQuery = useGetWithDates<ILandingItems>(
     Reports.getLandingItemsReports,
     "landingItemsReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.LandingItems
+    hasSearched && committedTaskId === Task.LandingItems
   )
 
   const otherServiceQuery = useGetWithDates<IOtherService>(
     Reports.getOtherServiceReports,
     "otherServiceReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.OtherService
+    hasSearched && committedTaskId === Task.OtherService
   )
 
   const agencyRemunerationQuery = useGetWithDates<IAgencyRemuneration>(
     Reports.getAgencyRemunerationReports,
     "agencyRemunerationReports",
-    watchedSearch,
+    committedSearch,
     startDate,
     endDate,
     undefined,
-    hasSearched && watchedTaskId === Task.AgencyRemuneration
+    hasSearched && committedTaskId === Task.AgencyRemuneration
   )
 
   // Map taskId (from database) to the correct query using Task enum
+  // Use committedTaskId instead of watchedTaskId to match the queries
   const currentQuery = useMemo(() => {
-    if (!watchedTaskId || watchedTaskId === 0) return null
+    if (!committedTaskId || committedTaskId === 0) return null
 
     // Use Task enum for proper mapping
-    switch (watchedTaskId) {
+    switch (committedTaskId) {
       case Task.PortExpenses:
         return portExpensesQuery
       case Task.LaunchServices:
@@ -287,7 +293,7 @@ export default function ReportsPage({
         return null
     }
   }, [
-    watchedTaskId,
+    committedTaskId,
     portExpensesQuery,
     launchServiceQuery,
     equipmentUsedQuery,
@@ -314,6 +320,13 @@ export default function ReportsPage({
       })
       return
     }
+
+    // Update committed values - these are what the API queries use
+    // This prevents API calls on every keystroke
+    setCommittedSearch(data.search || "")
+    setCommittedTaskId(data.taskId)
+    setCommittedFromDate(data.fromDate)
+    setCommittedToDate(data.toDate)
     setHasSearched(true)
 
     // Manually trigger API call for the selected task
@@ -375,7 +388,7 @@ export default function ReportsPage({
 
   // Render the appropriate table based on selected task
   const renderTable = () => {
-    if (!watchedTaskId || watchedTaskId === 0 || !hasSearched) {
+    if (!committedTaskId || committedTaskId === 0 || !hasSearched) {
       return (
         <div className="text-center">
           <p className="text-muted-foreground">
@@ -398,7 +411,7 @@ export default function ReportsPage({
     const data = currentQuery.data?.data || []
 
     // Use Task enum for proper mapping
-    switch (watchedTaskId) {
+    switch (committedTaskId) {
       case Task.PortExpenses:
         return (
           <div className="flex h-full flex-col">

@@ -433,7 +433,6 @@ export function ChecklistMain({
     }
   }, [customerId, jobData?.customerId, form])
 
-
   // Update exchange rate when accountDate or currencyId changes
   useEffect(() => {
     const updateExchangeRate = async () => {
@@ -905,7 +904,7 @@ export function ChecklistMain({
               }
             )(e)
           }}
-          className="space-y-6"
+          className="space-y-3"
           ref={(ref) => {
             // console.log("Form ref callback called:", ref)
             if (setFormRef) {
@@ -997,20 +996,20 @@ export function ChecklistMain({
                   onChangeEvent={handleGeoLocationChange}
                 />
                 <div className="grid grid-cols-2 gap-2">
-                <CustomInput
-                  form={form}
-                  name="latitude"
-                  label="Latitude"
-                  isRequired={false}
-                  isDisabled={true}
-                />
-                <CustomInput
-                  form={form}
-                  name="longitude"
-                  label="Longitude"
-                  isRequired={false}
-                  isDisabled={true}
-                />
+                  <CustomInput
+                    form={form}
+                    name="latitude"
+                    label="Latitude"
+                    isRequired={false}
+                    isDisabled={true}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="longitude"
+                    label="Longitude"
+                    isRequired={false}
+                    isDisabled={true}
+                  />
                 </div>
 
                 <PortAutocomplete
@@ -1133,7 +1132,7 @@ export function ChecklistMain({
                     name="currencyId"
                     label="Currency"
                     isRequired={true}
-                   // isDisabled={true}
+                    // isDisabled={true}
                     onChangeEvent={handleCurrencyChange}
                   />
                   {/* Exchange Rate */}
@@ -1222,25 +1221,25 @@ export function ChecklistMain({
                     isDisabled={isConfirmed}
                   />
                 </div>
-<div className="grid grid-cols-2 gap-2">
-                {isTaxable && (
-                  <GSTAutocomplete
-                    form={form}
-                    name="gstId"
-                    label="VAT"
-                    isRequired={true}
-                    isDisabled={isConfirmed}
-                  />
-                )}
-                {isTaxable && (
-                  <CustomNumberInput
-                    form={form}
-                    name="gstPercentage"
-                    label="VAT Percentage"
-                    isRequired={true}
-                    isDisabled={isConfirmed}
-                  />
-                )}
+                <div className="grid grid-cols-2 gap-2">
+                  {isTaxable && (
+                    <GSTAutocomplete
+                      form={form}
+                      name="gstId"
+                      label="VAT"
+                      isRequired={true}
+                      isDisabled={isConfirmed}
+                    />
+                  )}
+                  {isTaxable && (
+                    <CustomNumberInput
+                      form={form}
+                      name="gstPercentage"
+                      label="VAT Percentage"
+                      isRequired={true}
+                      isDisabled={isConfirmed}
+                    />
+                  )}
                 </div>
                 <CustomCheckbox
                   form={form}
@@ -1252,9 +1251,16 @@ export function ChecklistMain({
               </div>
             </div>
           </div>
+          <div className="mt-1 mb-1 rounded-md border border-blue-200 bg-blue-50 px-3 py-2">
+            <p className="text-xs text-blue-800">
+              <span className="font-semibold">ℹ️ Note:</span> Updates made here
+              will automatically be reflected in invoices when creating invoices
+              from this job order.
+            </p>
+          </div>
 
           {/* Address and Contact Section */}
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {/* Address Section */}
             <div className="rounded-lg border p-4">
               <div className="mb-2 flex">
@@ -1265,69 +1271,69 @@ export function ChecklistMain({
                   📍 Address Details
                 </Badge>
               </div>
+
               <div className="mb-4 border-b border-gray-200"></div>
 
               <div className="grid gap-2">
-                  <CustomInput
+                <CustomInput
+                  form={form}
+                  name="billName"
+                  label="Bill Name"
+                  isDisabled={!selectedAddress || isConfirmed}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomTextarea
                     form={form}
-                    name="billName"
-                    label="Bill Name"
+                    name="address1"
+                    label="Address Line 1"
                     isDisabled={!selectedAddress || isConfirmed}
                   />
-                  <div className="grid grid-cols-2 gap-2">
-                    <CustomTextarea
-                      form={form}
-                      name="address1"
-                      label="Address Line 1"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                    <CustomTextarea
-                      form={form}
-                      name="address2"
-                      label="Address Line 2"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                    <CustomTextarea
-                      form={form}
-                      name="address3"
-                      label="Address Line 3"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                    <CustomTextarea
-                      form={form}
-                      name="address4"
-                      label="Address Line 4"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    <CountryAutocomplete
-                      form={form}
-                      name="countryId"
-                      label="Country"
-                      isDisabled={isConfirmed}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="pinCode"
-                      label="Pin Code"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="phoneNo"
-                      label="Phone No"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="faxNo"
-                      label="Fax No"
-                      isDisabled={!selectedAddress || isConfirmed}
-                    />
-                  </div>
+                  <CustomTextarea
+                    form={form}
+                    name="address2"
+                    label="Address Line 2"
+                    isDisabled={!selectedAddress || isConfirmed}
+                  />
+                  <CustomTextarea
+                    form={form}
+                    name="address3"
+                    label="Address Line 3"
+                    isDisabled={!selectedAddress || isConfirmed}
+                  />
+                  <CustomTextarea
+                    form={form}
+                    name="address4"
+                    label="Address Line 4"
+                    isDisabled={!selectedAddress || isConfirmed}
+                  />
                 </div>
-             
+                <div className="grid grid-cols-4 gap-2">
+                  <CountryAutocomplete
+                    form={form}
+                    name="countryId"
+                    label="Country"
+                    isDisabled={isConfirmed}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="pinCode"
+                    label="Pin Code"
+                    isDisabled={!selectedAddress || isConfirmed}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="phoneNo"
+                    label="Phone No"
+                    isDisabled={!selectedAddress || isConfirmed}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="faxNo"
+                    label="Fax No"
+                    isDisabled={!selectedAddress || isConfirmed}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Contact Section */}
@@ -1340,32 +1346,33 @@ export function ChecklistMain({
                   👤 Contact Details
                 </Badge>
               </div>
+
               <div className="mb-4 border-b border-gray-200"></div>
 
               <div className="grid gap-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <CustomInput
-                      form={form}
-                      name="contactName"
-                      label="Contact Name"
-                      isDisabled={!selectedContact || isConfirmed}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="emailAdd"
-                      label="Email"
-                      isDisabled={!selectedContact || isConfirmed}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <CustomInput
-                      form={form}
-                      name="mobileNo"
-                      label="Mobile No"
-                      isDisabled={!selectedContact || isConfirmed}
-                    />
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomInput
+                    form={form}
+                    name="contactName"
+                    label="Contact Name"
+                    isDisabled={!selectedContact || isConfirmed}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="emailAdd"
+                    label="Email"
+                    isDisabled={!selectedContact || isConfirmed}
+                  />
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomInput
+                    form={form}
+                    name="mobileNo"
+                    label="Mobile No"
+                    isDisabled={!selectedContact || isConfirmed}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </form>

@@ -284,6 +284,7 @@ export default function ReportsPage() {
       amtDec: parameters.amtDec,
       locAmtDec: parameters.locAmtDec,
       userName: user?.userName || "",
+      userId: user?.userId || "0",
     }
 
     // Store report data in sessionStorage (clean URL approach - same pattern as transaction print)

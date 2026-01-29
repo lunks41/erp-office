@@ -359,6 +359,7 @@ export default function ReportsPage() {
       amtDec: parameters.amtDec,
       locAmtDec: parameters.locAmtDec,
       userName: user?.userName || "",
+      userId: user?.userId || "0",
     }
 
     console.log("reportParams", reportParams)

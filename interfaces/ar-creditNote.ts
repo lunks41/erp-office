@@ -46,6 +46,7 @@ export interface IArCreditNoteHd {
   operationId: number
   operationNo: string
   remarks: string
+  billName: string
   address1: string
   address2: string
   address3: string

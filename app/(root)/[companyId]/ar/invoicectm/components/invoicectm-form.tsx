@@ -265,6 +265,7 @@ export default function InvoiceCtmForm({
 
         // Clear address fields
         form.setValue("addressId", 0)
+        form.setValue("billName", "")
         form.setValue("address1", "")
         form.setValue("address2", "")
         form.setValue("address3", "")

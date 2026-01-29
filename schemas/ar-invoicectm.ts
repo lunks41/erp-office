@@ -78,6 +78,7 @@ export const ArInvoiceCtmHdSchema = (
     // Address and Contact
     addressId: z.number().optional(),
     contactId: z.number().optional(),
+    billName: z.string().optional(),
     address1: required?.m_Address1
       ? z.string().min(1, "Address 1 is required")
       : z.string().optional(),

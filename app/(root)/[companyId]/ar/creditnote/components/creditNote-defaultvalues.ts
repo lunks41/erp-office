@@ -99,6 +99,7 @@ const buildDefaultCreditNote = (dateFormat: string) => ({
   operationId: 0,
   operationNo: "",
   remarks: "",
+  billName: "",
   address1: "",
   address2: "",
   address3: "",
