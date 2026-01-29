@@ -1186,6 +1186,12 @@ export const GLPeriodClose = {
   delete: "/account/deleteglperiodclose",
 }
 
+// General Ledger Opening Balance Endpoints
+export const GLOpeningBalance = {
+  getById: "/account/GetGLOpeningBalance",
+  add: "/account/SaveGLOpeningBalance",
+}
+
 export const Company = {
   get: "/company",
   add: "/company",
@@ -1579,4 +1585,5 @@ export const Inquiry = {
   getGlTransactionInquiry: "/inquiry/GetGlTransactionInquiry",
   getArTransactionInquiry: "/inquiry/GetArTransactionInquiry",
   getApTransactionInquiry: "/inquiry/GetApTransactionInquiry",
+  getInvalidTransactionInquiry: "/inquiry/GetInvalidTransactionInquiry",
 }

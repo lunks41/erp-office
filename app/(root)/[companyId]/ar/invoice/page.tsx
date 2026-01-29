@@ -273,6 +273,7 @@ export default function InvoicePage() {
           otherRemarks: invoice.otherRemarks ?? "",
           advRecAmt: invoice.advRecAmt ?? 0,
           bargeId: invoice.bargeId ?? 0,
+          isPost: invoice.isPost ?? false,
           data_details:
             invoice.data_details?.map((detail) => ({
               ...detail,
@@ -996,6 +997,7 @@ export default function InvoicePage() {
         otherRemarks: apiInvoice.otherRemarks ?? "",
         advRecAmt: apiInvoice.advRecAmt ?? 0,
         bargeId: apiInvoice.bargeId ?? 0,
+        isPost: apiInvoice.isPost ?? false,
         createBy: apiInvoice.createBy ?? "",
         editBy: apiInvoice.editBy ?? "",
         cancelBy: apiInvoice.cancelBy ?? "",
@@ -1583,52 +1585,57 @@ export default function InvoicePage() {
               Clone
             </Button>
 
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={
-                !canView ||
-                !invoice ||
-                invoice.invoiceId === "0" ||
-                deleteMutation.isPending ||
-                isCancelled ||
-                payAmt > 0 ||
-                !canDelete
-              }
-            >
-              {deleteMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Trash2 className="mr-1 h-4 w-4" />
-              )}
-              {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
-            </Button>
+            {/* Cancel button: Show when NOT from OPERATION, OR from OPERATION but unposted (isPost === false) */}
+            {(invoice?.moduleFrom !== "OPERATION" ||
+              invoice?.isPost === false) && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={
+                  !canView ||
+                  !invoice ||
+                  invoice.invoiceId === "0" ||
+                  deleteMutation.isPending ||
+                  isCancelled ||
+                  payAmt > 0 ||
+                  !canDelete
+                }
+              >
+                {deleteMutation.isPending ? (
+                  <Spinner size="sm" className="mr-1" />
+                ) : (
+                  <Trash2 className="mr-1 h-4 w-4" />
+                )}
+                {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
+              </Button>
+            )}
 
-              
-    {invoice?.moduleFrom==="OPERATION" && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleUnpostInvoice}
-              disabled={
-                !canView ||
-                !invoice ||
-                invoice.invoiceId === "0" ||
-                unpostMutation.isPending ||
-                isCancelled ||
-                payAmt > 0 ||
-                !canPost
-              }
-              title="UnPost Invoice"
-            >
-              {unpostMutation.isPending ? (
-                <Spinner size="sm" className="h-4 w-4" />
-              ) : (
-                <Undo2 className="h-4 w-4" />
-              )}
-               {"Un Post"}
-            </Button>
+            {/* UnPost button: Show only when from OPERATION and posted (isPost === true) */}
+            {invoice?.moduleFrom === "OPERATION" &&
+              invoice?.isPost === true && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleUnpostInvoice}
+                disabled={
+                  !canView ||
+                  !invoice ||
+                  invoice.invoiceId === "0" ||
+                  unpostMutation.isPending ||
+                  isCancelled ||
+                  payAmt > 0 ||
+                  !canPost
+                }
+                title="UnPost Invoice"
+              >
+                {unpostMutation.isPending ? (
+                  <Spinner size="sm" className="h-4 w-4" />
+                ) : (
+                  <Undo2 className="h-4 w-4" />
+                )}
+                {"Un Post"}
+              </Button>
             )}
            
           </div>

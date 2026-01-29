@@ -66,3 +66,19 @@ export interface IPaymentHistoryDetails {
   allLocalAmt?: number
   exGainLoss?: number | string
 }
+
+export interface IInvalidTransaction {
+  companyId: number
+  issues: string
+  trnType: string
+  glId: number
+  moduleId: number
+  moduleName: string
+  transactionId: number
+  transactionName: string
+  documentId: number | string
+  documentNo: string
+  accountDate: string | Date
+  totLocalAmt: number
+  seqOrd: number
+}

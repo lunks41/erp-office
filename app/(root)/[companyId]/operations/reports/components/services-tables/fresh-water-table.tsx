@@ -1,17 +1,15 @@
 "use client"
 
-import {
-  IFreshWater
-} from "@/interfaces/checklist"
+import { useCallback, useMemo } from "react"
+import { IFreshWater } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
-import { useCallback, useMemo } from "react"
 
-import { BasicTable } from "@/components/table/table-basic"
-import { Badge } from "@/components/ui/badge"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { BasicTable } from "@/components/table/table-basic"
 
 interface FreshWaterTableProps {
   data: IFreshWater[]
@@ -68,11 +66,20 @@ export function FreshWaterTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IFreshWater>[] = useMemo(
     () => [
-       {
+      {
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "vesselName",
+        header: "Vessel Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -257,8 +264,6 @@ export function FreshWaterTable({
     ],
     [dateFormat, datetimeFormat, formatDateValue, formatDateTimeValue]
   )
-
-  
 
   return (
     <BasicTable

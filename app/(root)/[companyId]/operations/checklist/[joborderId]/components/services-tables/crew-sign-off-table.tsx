@@ -130,6 +130,29 @@ export function CrewSignOffTable({
           ]
         : []),
       {
+        accessorKey: "crewName",
+        header: "Crew Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("crewName") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
+      {
+        accessorKey: "nationalityName",
+        header: "Nationality",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("nationalityName") || "-"}
+          </div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
+
+      {
         accessorKey: "taskStatusName",
         header: "Status",
         cell: ({ row }) => (
@@ -153,38 +176,6 @@ export function CrewSignOffTable({
         enableColumnFilter: true,
       },
       {
-        accessorKey: "chargeName",
-        header: "Charge Name",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
-        ),
-        size: 200,
-        minSize: 150,
-        enableColumnFilter: true,
-      },
-      {
-        accessorKey: "crewName",
-        header: "Crew Name",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("crewName") || "-"}</div>
-        ),
-        size: 200,
-        minSize: 150,
-        enableColumnFilter: true,
-      },
-      {
-        accessorKey: "nationalityName",
-        header: "Nationality",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("nationalityName") || "-"}
-          </div>
-        ),
-        size: 200,
-        minSize: 150,
-        enableColumnFilter: true,
-      },
-      {
         accessorKey: "rankName",
         header: "Rank",
         cell: ({ row }) => (
@@ -194,6 +185,7 @@ export function CrewSignOffTable({
         minSize: 150,
         enableColumnFilter: true,
       },
+
       {
         accessorKey: "flightDetails",
         header: "Flight Details",
@@ -218,6 +210,16 @@ export function CrewSignOffTable({
             {row.getValue("departureDetails") || "-"}
           </div>
         ),
+      },
+      {
+        accessorKey: "chargeName",
+        header: "Charge Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
       },
       {
         accessorKey: "transportName",

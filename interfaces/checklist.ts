@@ -87,6 +87,7 @@ export interface IAgencyRemuneration {
   date: Date | string
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   chargeId: number
@@ -111,6 +112,7 @@ export interface IConsignmentExport {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   chargeId: number
@@ -162,6 +164,7 @@ export interface IConsignmentImport {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   chargeId: number
@@ -214,6 +217,7 @@ export interface ICrewMiscellaneous {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   debitNoteId?: number
   debitNoteNo?: string
@@ -240,6 +244,7 @@ export interface ICrewSignOff {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   chargeId: number
   chargeName?: string
@@ -278,6 +283,7 @@ export interface ICrewSignOn {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   chargeId: number
   chargeName?: string
@@ -318,6 +324,7 @@ export interface IEquipmentUsed {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   chargeId: number
@@ -362,6 +369,7 @@ export interface IFreshWater {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string | null | null
   chargeId: number
@@ -396,6 +404,7 @@ export interface ILandingItems {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
 
@@ -431,6 +440,7 @@ export interface ILaunchService {
   date: Date | string
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   uomId: number
@@ -557,6 +567,7 @@ export interface IMedicalAssistance {
   medicalAssistanceId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   chargeId: number
   chargeName?: string
@@ -600,6 +611,7 @@ export interface IOtherService {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   chargeId: number
   chargeName?: string
@@ -630,6 +642,7 @@ export interface IPortExpenses {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   quantity: number
@@ -667,6 +680,7 @@ export interface ITechnicianSurveyor {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
 
@@ -704,6 +718,7 @@ export interface IThirdParty {
   companyId: number
   jobOrderId: number
   jobOrderNo: string
+  vesselName?: string
   taskId: number
   taskName?: string
   debitNoteId?: number

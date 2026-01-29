@@ -282,6 +282,50 @@ export function LaunchServiceForm({
     }
   }
 
+  const syncServiceDateToTimes = (selectedDate: Date | null) => {
+    if (!selectedDate) return
+
+    const updateDateOnly = (dateToUpdate: Date | null | undefined) => {
+      if (!dateToUpdate || !isValid(dateToUpdate)) {
+        return new Date(selectedDate)
+      }
+
+      return new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        dateToUpdate.getHours(),
+        dateToUpdate.getMinutes(),
+        dateToUpdate.getSeconds(),
+        dateToUpdate.getMilliseconds()
+      )
+    }
+
+    const loadingTime = form.getValues("loadingTime") as Date | null | undefined
+    const leftJetty = form.getValues("leftJetty") as Date | null | undefined
+    const alongsideVessel = form.getValues("alongsideVessel") as
+      | Date
+      | null
+      | undefined
+    const departedFromVessel = form.getValues("departedFromVessel") as
+      | Date
+      | null
+      | undefined
+    const arrivedAtJetty = form.getValues("arrivedAtJetty") as
+      | Date
+      | null
+      | undefined
+
+    form.setValue("loadingTime", updateDateOnly(loadingTime))
+    form.setValue("leftJetty", updateDateOnly(leftJetty))
+    form.setValue("alongsideVessel", updateDateOnly(alongsideVessel))
+    form.setValue("departedFromVessel", updateDateOnly(departedFromVessel))
+    form.setValue("arrivedAtJetty", updateDateOnly(arrivedAtJetty))
+
+    calculateWaitingTime()
+    calculateTimeDiff()
+  }
+
   const onSubmit = (data: LaunchServiceSchemaType) => {
     // Format DateTime fields for API using formatDateTimeForApi
     // This converts Date objects to ISO 8601 format (yyyy-MM-ddTHH:mm:ss.SSSZ)
@@ -312,6 +356,7 @@ export function LaunchServiceForm({
                 isRequired={true}
                 isDisabled={isConfirmed}
                 isFutureShow={true}
+                onChangeEvent={syncServiceDateToTimes}
               />
               <ChargeAutocomplete
                 form={form}

@@ -155,6 +155,8 @@ export const ArInvoiceHdSchema = (
       : z.number().optional(),
     bargeId: z.number().optional(),
 
+    isPost: z.boolean().optional(),
+
     // Nested Details
     data_details: z
       .array(ArInvoiceDtSchema(required, visible))

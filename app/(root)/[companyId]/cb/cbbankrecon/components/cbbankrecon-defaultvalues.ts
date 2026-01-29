@@ -12,7 +12,6 @@ const defaultBankReconDetails = {
   paymentTypeId: 0,
   chequeNo: "",
   chequeDate: new Date(),
-  clearingChequeDate: new Date(),
   customerId: 0,
   supplierId: 0,
   glId: 0,

@@ -196,6 +196,7 @@ export enum InquiryTransactionId {
   aptransaction = 2,
   aptransactiondetails = 3,
   gltransaction = 4,
+  invalidtransaction = 5,
 }
 
 export enum OperationsTransactionId {

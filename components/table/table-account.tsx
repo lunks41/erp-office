@@ -131,7 +131,20 @@ export function AccountBaseTable<T>({
         return {}
       }
     }
-    return {}
+    // If no saved settings, respect columns' hidden property (e.g. opening balance Id columns)
+    const initialVisibility: VisibilityState = {}
+    columns.forEach((col) => {
+      const colMeta = col as {
+        id?: string
+        accessorKey?: string
+        hidden?: boolean
+      }
+      const key = colMeta.id || colMeta.accessorKey
+      if (key && colMeta.hidden === true) {
+        initialVisibility[key] = false
+      }
+    })
+    return initialVisibility
   }
 
   const getInitialColumnSizing = () => {

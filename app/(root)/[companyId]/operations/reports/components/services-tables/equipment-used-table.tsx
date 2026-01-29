@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback, useMemo, useState } from "react"
 import {
   IEquipmentUsed,
   IEquipmentUsedFilter,
@@ -8,12 +9,11 @@ import {
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
-import { useCallback, useMemo, useState } from "react"
 
-import { BasicTable } from "@/components/table/table-basic"
-import { Badge } from "@/components/ui/badge"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { BasicTable } from "@/components/table/table-basic"
 
 interface EquipmentUsedTableProps {
   data: IEquipmentUsed[]
@@ -23,7 +23,6 @@ interface EquipmentUsedTableProps {
 export function EquipmentUsedTable({
   data,
   isLoading = false,
- 
 }: EquipmentUsedTableProps) {
   const { decimals } = useAuthStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -76,6 +75,15 @@ export function EquipmentUsedTable({
         header: "Job Order No",
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "vesselName",
+        header: "Vessel Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -156,7 +164,9 @@ export function EquipmentUsedTable({
         accessorKey: "craneChargeName",
         header: "Crane Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("craneChargeName") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("craneChargeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
@@ -166,23 +176,27 @@ export function EquipmentUsedTable({
         accessorKey: "forkliftChargeName",
         header: "Forklift Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("forkliftChargeName") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("forkliftChargeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
         maxSize: 200,
       },
-        {
+      {
         accessorKey: "stevedoreChargeName",
         header: "Stevedore Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("stevedoreChargeName") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("stevedoreChargeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
         maxSize: 200,
       },
-    
+
       {
         accessorKey: "remarks",
         header: "Remarks",
@@ -196,10 +210,7 @@ export function EquipmentUsedTable({
           const version = row.getValue("editVersion") as number
           return (
             <div className="text-center">
-              <Badge
-                variant="destructive"
-                className="font-mono text-xs"
-              >
+              <Badge variant="destructive" className="font-mono text-xs">
                 v{version || "0"}
               </Badge>
             </div>
@@ -266,8 +277,6 @@ export function EquipmentUsedTable({
     ],
     [formatDateValue, formatDateTimeValue]
   )
-
-  
 
   return (
     <BasicTable

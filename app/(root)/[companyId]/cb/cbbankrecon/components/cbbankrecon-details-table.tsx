@@ -595,43 +595,6 @@ export default function BankReconDetailsTable({
       },
     },
     {
-      accessorKey: "clearingChequeDate",
-      header: "Clearing Cheque Date",
-      size: 150,
-      cell: ({ row }) => {
-        // Convert chequeDate to Date if it's a string
-        const clearingChequeDateRaw = row.original.clearingChequeDate
-        let clearingChequeDateValue: Date | null = null
-
-        if (clearingChequeDateRaw) {
-          if (clearingChequeDateRaw instanceof Date) {
-            clearingChequeDateValue = isValid(clearingChequeDateRaw)
-              ? clearingChequeDateRaw
-              : null
-          } else if (typeof clearingChequeDateRaw === "string") {
-            const parsed = new Date(clearingChequeDateRaw)
-            clearingChequeDateValue =
-              isValid(parsed) && !isNaN(parsed.getTime()) ? parsed : null
-          }
-        }
-
-        return (
-          <StandaloneDatePicker
-            value={clearingChequeDateValue}
-            onChange={(date: Date | null) => {
-              if (onCellUpdate) {
-                onCellUpdate(
-                  row.original.itemNo,
-                  "clearingChequeDate",
-                  date ? date : (null as unknown as Date)
-                )
-              }
-            }}
-          />
-        )
-      },
-    },
-    {
       accessorKey: "customerId",
       header: "Customer",
       size: 80,

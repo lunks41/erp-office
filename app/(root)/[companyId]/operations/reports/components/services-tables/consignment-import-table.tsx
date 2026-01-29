@@ -1,8 +1,7 @@
 "use client"
 
-import {
-  IConsignmentImport
-} from "@/interfaces/checklist"
+import { useCallback, useMemo } from "react"
+import { IConsignmentImport } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
@@ -10,14 +9,13 @@ import {
 } from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
-import { useCallback, useMemo } from "react"
 
-import { BasicTable } from "@/components/table/table-basic"
-import { Badge } from "@/components/ui/badge"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { BasicTable } from "@/components/table/table-basic"
 
-  interface ConsignmentImportTableProps {
+interface ConsignmentImportTableProps {
   data: IConsignmentImport[]
   isLoading?: boolean
 }
@@ -25,7 +23,6 @@ import { TableName } from "@/lib/utils"
 export function ConsignmentImportTable({
   data,
   isLoading = false,
- 
 }: ConsignmentImportTableProps) {
   const { decimals } = useAuthStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -57,11 +54,20 @@ export function ConsignmentImportTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IConsignmentImport>[] = useMemo(
     () => [
-       {
+      {
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "vesselName",
+        header: "Vessel Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -187,7 +193,9 @@ export function ConsignmentImportTable({
         accessorKey: "existPortCustom",
         header: "Exist Port Custom",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("existPortCustom") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("existPortCustom") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
@@ -228,7 +236,6 @@ export function ConsignmentImportTable({
     [formatDateTime]
   )
 
- 
   return (
     <BasicTable
       data={data}

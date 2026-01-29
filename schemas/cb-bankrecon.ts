@@ -106,7 +106,6 @@ export const CbBankReconDtSchema = (
     paymentTypeId: z.number().min(1, "Payment Type is required"),
     chequeNo: z.string().optional().nullable(),
     chequeDate: z.union([z.date(), z.string()]),
-    clearingChequeDate: z.union([z.date(), z.string()]),
 
     // Entity Fields
     customerId: z.number().optional(),

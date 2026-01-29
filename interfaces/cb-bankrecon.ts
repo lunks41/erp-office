@@ -62,7 +62,6 @@ export interface ICbBankReconDt {
   paymentTypeName: string
   chequeNo: string | null
   chequeDate: Date | string
-  clearingChequeDate: Date | string
   customerId: number
   supplierId: number
   glId: number

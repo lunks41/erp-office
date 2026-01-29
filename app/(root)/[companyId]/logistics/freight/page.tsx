@@ -282,6 +282,14 @@ export default function FreightManagementPage() {
                   : modalMode === "edit"
                     ? "Edit"
                     : "View"}
+                   
+                <Badge
+                  variant="destructive"
+                  className="px-2 py-1 text-xs"
+                >
+                  Edit Version No. {selectedItem?.editVersion ?? 0}
+                </Badge>
+                  
               </Badge>
             </div>
             <DialogDescription>

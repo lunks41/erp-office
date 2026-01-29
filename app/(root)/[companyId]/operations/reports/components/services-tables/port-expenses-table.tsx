@@ -1,28 +1,24 @@
 "use client"
 
-import {
-  IPortExpenses
-} from "@/interfaces/checklist"
+import { useCallback, useMemo } from "react"
+import { IPortExpenses } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
-import { useCallback, useMemo } from "react"
 
-import { BasicTable } from "@/components/table/table-basic"
-import { Badge } from "@/components/ui/badge"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { BasicTable } from "@/components/table/table-basic"
 
 interface PortExpensesTableProps {
   data: IPortExpenses[]
   isLoading?: boolean
-  
 }
 
 export function PortExpensesTable({
   data,
   isLoading = false,
-  
 }: PortExpensesTableProps) {
   const { decimals } = useAuthStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -75,6 +71,15 @@ export function PortExpensesTable({
         header: "Job Order No",
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "vesselName",
+        header: "Vessel Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -199,8 +204,6 @@ export function PortExpensesTable({
     ],
     [formatDateValue, formatDateTimeValue]
   )
-
-  
 
   return (
     <BasicTable

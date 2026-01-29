@@ -202,7 +202,6 @@ export function ApTransactionTable({
         accessorKey: "createDate",
         header: "Create Date",
         size: 120,
-        cell: ({ row }) => formatDate(row.original.createDate),
       },
       {
         accessorKey: "transactionId",

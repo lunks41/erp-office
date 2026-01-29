@@ -98,6 +98,7 @@ export function BasicTable<T>({
   }
 
   const getInitialColumnVisibility = (): VisibilityState => {
+    // First, check for saved grid settings
     if (gridSettingsData?.grdColVisible) {
       try {
         return JSON.parse(gridSettingsData.grdColVisible) || {}
@@ -105,7 +106,20 @@ export function BasicTable<T>({
         return {}
       }
     }
-    return {}
+    // If no saved settings, check columns for hidden property
+    const initialVisibility: VisibilityState = {}
+    columns.forEach((col) => {
+      const colMeta = col as {
+        id?: string
+        accessorKey?: string
+        hidden?: boolean
+      }
+      const key = colMeta.id || colMeta.accessorKey
+      if (key && colMeta.hidden === true) {
+        initialVisibility[key] = false
+      }
+    })
+    return initialVisibility
   }
 
   const getInitialColumnSizing = () => {
@@ -135,17 +149,37 @@ export function BasicTable<T>({
   useEffect(() => {
     if (gridSettingsData) {
       try {
-        const colVisible = JSON.parse(gridSettingsData.grdColVisible || "{}")
-        const colSize = JSON.parse(gridSettingsData.grdColSize || "{}")
-        const sort = JSON.parse(gridSettingsData.grdSort || "[]")
+        const hasColVisible =
+          typeof gridSettingsData.grdColVisible === "string" &&
+          gridSettingsData.grdColVisible.trim().length > 0
 
-        setColumnVisibility((prev) => {
-          const newVisibility =
-            JSON.stringify(prev) !== JSON.stringify(colVisible)
-              ? colVisible
-              : prev
-          return newVisibility
-        })
+        const colVisible = hasColVisible
+          ? JSON.parse(gridSettingsData.grdColVisible as string)
+          : undefined
+
+        const colSize =
+          typeof gridSettingsData.grdColSize === "string" &&
+          gridSettingsData.grdColSize.trim().length > 0
+            ? JSON.parse(gridSettingsData.grdColSize as string)
+            : {}
+
+        const sort =
+          typeof gridSettingsData.grdSort === "string" &&
+          gridSettingsData.grdSort.trim().length > 0
+            ? JSON.parse(gridSettingsData.grdSort as string)
+            : []
+
+        // Only override visibility if we actually have saved visibility settings.
+        // This preserves the default "hidden" columns when no layout is saved yet.
+        if (colVisible) {
+          setColumnVisibility((prev) => {
+            const newVisibility =
+              JSON.stringify(prev) !== JSON.stringify(colVisible)
+                ? colVisible
+                : prev
+            return newVisibility
+          })
+        }
 
         setSorting((prev) => {
           const newSorting =

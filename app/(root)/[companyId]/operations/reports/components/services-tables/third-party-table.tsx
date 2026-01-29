@@ -70,12 +70,20 @@ export function ThirdPartyTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IThirdParty>[] = useMemo(
     () => [
-     
       {
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
           <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "vesselName",
+        header: "Vessel Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -233,8 +241,6 @@ export function ThirdPartyTable({
     ],
     [formatDateValue, formatDateTimeValue]
   )
-
-  
 
   return (
     <BasicTable

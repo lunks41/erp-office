@@ -89,3 +89,4 @@ export * from "./cb-pettycash"
 // GL schemas
 export * from "./gl-journal"
 export * from "./gl-contra"
+export * from "./gl-openingbalance"
