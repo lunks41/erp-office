@@ -1,8 +1,8 @@
 "use client"
 
-import {
-  calculatePercentagecAmount
-} from "@/helpers/account"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useParams } from "next/navigation"
+import { calculatePercentagecAmount } from "@/helpers/account"
 import { calculateDebitNoteSummary } from "@/helpers/debit-note-calculations"
 import {
   IBulkChargeData,
@@ -18,12 +18,13 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { ListChecks, Printer, Save, Trash } from "lucide-react"
-import { useParams } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
-import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
+import { getData } from "@/lib/api-client"
+import { JobOrder_DebitNote } from "@/lib/api-routes"
+import { formatDateForApi, parseDate } from "@/lib/date-utils"
+import { TaskIdToName } from "@/lib/operations-utils"
+import { usePersist } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,11 +34,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { usePersist } from "@/hooks/use-common"
-import { getData } from "@/lib/api-client"
-import { JobOrder_DebitNote } from "@/lib/api-routes"
-import { formatDateForApi, parseDate } from "@/lib/date-utils"
-import { TaskIdToName } from "@/lib/operations-utils"
+import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { BulkDebitNoteTable } from "./debit-note-bulk-table"
 import DebitNoteForm from "./debit-note-form"
@@ -426,7 +424,7 @@ export default function DebitNoteDialog({
           createOrUpdateServiceChargeEntry(
             updatedItemNo,
             data.chargeId ?? 0,
-            data.totAmtAftGst,
+            data.totAmt,
             data.serviceCharge,
             data.taskId ?? 0
           )
@@ -442,7 +440,7 @@ export default function DebitNoteDialog({
           createOrUpdateServiceChargeEntry(
             updatedItemNo,
             data.chargeId ?? 0,
-            data.totAmtAftGst,
+            data.totAmt,
             data.serviceCharge ?? 0,
             data.taskId ?? 0
           )
@@ -489,7 +487,7 @@ export default function DebitNoteDialog({
           createOrUpdateServiceChargeEntry(
             newItemNo,
             data.chargeId ?? 0,
-            data.totAmtAftGst,
+            data.totAmt,
             data.serviceCharge,
             data.taskId ?? 0
           )
