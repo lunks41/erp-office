@@ -1,8 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "next/navigation"
-import { calculatePercentagecAmount } from "@/helpers/account"
+import {
+  calculateMultiplierAmount,
+  calculatePercentagecAmount,
+} from "@/helpers/account"
 import { calculateDebitNoteSummary } from "@/helpers/debit-note-calculations"
 import {
   IBulkChargeData,
@@ -234,7 +237,9 @@ export default function DebitNoteDialog({
       chargeId: number,
       totAmtAftGst: number,
       serviceCharge: number,
-      taskId: number
+      taskId: number,
+      gstId: number,
+      gstPercentage: number
     ) => {
       if (serviceCharge <= 0 || totAmtAftGst <= 0) return
 
@@ -247,6 +252,11 @@ export default function DebitNoteDialog({
       const qty = 1
       const unitPrice = serviceChargeAmount // Since qty = 1, unitPrice = totAmt
       const totAmt = serviceChargeAmount
+      const gstAmt = calculateMultiplierAmount(
+        totAmt,
+        gstPercentage / 100,
+        amtDec
+      )
 
       setDetails((prev) => {
         // Check if service charge entry already exists (by refItemNo)
@@ -263,10 +273,10 @@ export default function DebitNoteDialog({
             qty: qty,
             unitPrice: unitPrice,
             totAmt: totAmt,
-            gstId: 0,
-            gstPercentage: 0,
-            gstAmt: 0,
-            totAmtAftGst: totAmt, // Since gstAmt = 0
+            gstId: gstId,
+            gstPercentage: gstPercentage,
+            gstAmt: gstAmt,
+            totAmtAftGst: totAmt + gstAmt,
             remarks: `${serviceCharge}% Service Charges`,
             isServiceCharge: false,
             serviceCharge: 0,
@@ -285,10 +295,10 @@ export default function DebitNoteDialog({
             unitPrice: unitPrice,
             totLocalAmt: 0,
             totAmt: totAmt,
-            gstId: 0,
-            gstPercentage: 0,
-            gstAmt: 0,
-            totAmtAftGst: totAmt, // Since gstAmt = 0
+            gstId: gstId,
+            gstPercentage: gstPercentage,
+            gstAmt: gstAmt,
+            totAmtAftGst: totAmt + gstAmt,
             remarks: `${serviceCharge}% Service Charges`,
             editVersion: 0,
             isServiceCharge: false,
@@ -382,6 +392,35 @@ export default function DebitNoteDialog({
     })
   }, [])
 
+  // Stable callbacks for DebitNoteForm to avoid extra re-renders when dialog re-renders
+  const handleFormCancel = useCallback(() => {
+    setSelectedDebitNoteDetail(undefined)
+  }, [])
+  const handleFormServiceChargeUpdate = useCallback(
+    (
+      itemNo: number,
+      chargeId: number,
+      totAmtAftGst: number,
+      serviceCharge: number,
+      taskId: number,
+      gstId: number,
+      gstPercentage: number
+    ) => {
+      if (itemNo > 0 && serviceCharge > 0 && totAmtAftGst > 0) {
+        createOrUpdateServiceChargeEntry(
+          itemNo,
+          chargeId,
+          totAmtAftGst,
+          serviceCharge,
+          taskId,
+          gstId,
+          gstPercentage
+        )
+      }
+    },
+    [createOrUpdateServiceChargeEntry]
+  )
+
   // Handler for form submission (create or edit) - add to table directly
   const handleFormSubmit = useCallback(
     (data: DebitNoteDtSchemaType) => {
@@ -420,13 +459,15 @@ export default function DebitNoteDialog({
           data.serviceCharge > 0 &&
           data.totAmtAftGst > 0
         ) {
-          // Create or update service charge entry
+          // Create or update service charge entry (use totAmtAftGst for % calculation)
           createOrUpdateServiceChargeEntry(
             updatedItemNo,
             data.chargeId ?? 0,
-            data.totAmt,
+            data.totAmt ?? 0,
             data.serviceCharge,
-            data.taskId ?? 0
+            data.taskId ?? 0,
+            data.gstId,
+            data.gstPercentage
           )
         } else if (wasServiceCharge && !isNowServiceCharge) {
           // Remove service charge entry if unchecked
@@ -440,9 +481,11 @@ export default function DebitNoteDialog({
           createOrUpdateServiceChargeEntry(
             updatedItemNo,
             data.chargeId ?? 0,
-            data.totAmt,
+            data.totAmt ?? 0,
             data.serviceCharge ?? 0,
-            data.taskId ?? 0
+            data.taskId ?? 0,
+            data.gstId,
+            data.gstPercentage
           )
         }
 
@@ -478,7 +521,7 @@ export default function DebitNoteDialog({
 
         setDetails((prev) => [...prev, newItem])
 
-        // Create service charge entry if needed
+        // Create service charge entry if needed (use totAmtAftGst for % calculation)
         if (
           data.isServiceCharge &&
           data.serviceCharge > 0 &&
@@ -487,9 +530,11 @@ export default function DebitNoteDialog({
           createOrUpdateServiceChargeEntry(
             newItemNo,
             data.chargeId ?? 0,
-            data.totAmt,
+            data.totAmt ?? 0,
             data.serviceCharge,
-            data.taskId ?? 0
+            data.taskId ?? 0,
+            data.gstId,
+            data.gstPercentage
           )
         }
 
@@ -855,8 +900,11 @@ export default function DebitNoteDialog({
     handleBulkDialogOpenChange(false)
   }, [selectedBulkItems, handleAddBulkCharges, handleBulkDialogOpenChange])
 
-  // Calculate summary totals using helper function with null safety
-  const summaryTotals = calculateDebitNoteSummary(details ?? [], { amtDec: 2 })
+  // Calculate summary totals (memoized so DebitNoteForm doesn't re-render on every dialog render)
+  const summaryTotals = useMemo(
+    () => calculateDebitNoteSummary(details ?? [], { amtDec: 2 }),
+    [details]
+  )
 
   // Handle Print Debit Note Report
   const handlePrint = useCallback(() => {
@@ -1029,14 +1077,20 @@ export default function DebitNoteDialog({
           {/* Form Section */}
           <div className="mb-2">
             <DebitNoteForm
+              key={
+                modalMode === "edit" || modalMode === "view"
+                  ? `edit-${selectedDebitNoteDetail?.itemNo ?? 0}-${selectedDebitNoteDetail?.gstId ?? 0}`
+                  : "create"
+              }
               debitNoteHd={debitNoteHdState}
-              initialData={
+              editingDetail={
                 modalMode === "edit" || modalMode === "view"
                   ? selectedDebitNoteDetail
                   : undefined
               }
+              existingDetails={details}
               submitAction={handleFormSubmit}
-              onCancelAction={() => setSelectedDebitNoteDetail(undefined)}
+              onCancelAction={handleFormCancel}
               isSubmitting={false}
               isConfirmed={isConfirmed}
               taskId={taskId}
@@ -1044,24 +1098,7 @@ export default function DebitNoteDialog({
               onChargeChange={() => {}}
               summaryTotals={summaryTotals}
               currencyCode={jobOrder?.currencyCode}
-              onServiceChargeUpdate={(
-                itemNo,
-                chargeId,
-                totAmtAftGst,
-                serviceCharge,
-                taskId
-              ) => {
-                // Auto-update service charge entry when parent totAmtAftGst changes
-                if (itemNo > 0 && serviceCharge > 0 && totAmtAftGst > 0) {
-                  createOrUpdateServiceChargeEntry(
-                    itemNo,
-                    chargeId,
-                    totAmtAftGst,
-                    serviceCharge,
-                    taskId
-                  )
-                }
-              }}
+              onServiceChargeUpdate={handleFormServiceChargeUpdate}
             />
           </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { calculateMultiplierAmount } from "@/helpers/account"
 import { IDebitNoteDt, IDebitNoteHd } from "@/interfaces/checklist"
 import { IChargeLookup, IGstLookup } from "@/interfaces/lookup"
@@ -24,7 +24,8 @@ import CustomTextArea from "@/components/custom/custom-textarea"
 
 interface DebitNoteFormProps {
   debitNoteHd?: IDebitNoteHd
-  initialData?: IDebitNoteDt
+  editingDetail?: IDebitNoteDt | null
+  existingDetails?: IDebitNoteDt[]
   submitAction: (data: DebitNoteDtSchemaType) => void
   onCancelAction?: () => void
   isSubmitting?: boolean
@@ -43,13 +44,16 @@ interface DebitNoteFormProps {
     chargeId: number,
     totAmtAftGst: number,
     serviceCharge: number,
-    taskId: number
+    taskId: number,
+    gstId: number,
+    gstPercentage: number
   ) => void // Callback to update service charge entry when parent changes
 }
 
 export default function DebitNoteForm({
   debitNoteHd,
-  initialData,
+  editingDetail,
+  existingDetails = [],
   submitAction,
   onCancelAction,
   isSubmitting = false,
@@ -69,6 +73,7 @@ export default function DebitNoteForm({
   useEffect(() => {
     onServiceChargeUpdateRef.current = onServiceChargeUpdate
   }, [onServiceChargeUpdate])
+
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const priceDec = decimals[0]?.priceDec || 2
@@ -80,18 +85,26 @@ export default function DebitNoteForm({
   // Get GST data for lookups
   const { data: allGst = [] } = useGstLookup()
 
-  const defaultValues = useMemo(
-    () => ({
-      debitNoteId: initialData?.debitNoteId ?? debitNoteHd?.debitNoteId,
-      debitNoteNo: debitNoteHd?.debitNoteNo,
-      itemNo: 0,
+  // Calculate next itemNo based on existing details (like invoice-details-form getNextItemNo)
+  const getNextItemNo = useCallback(() => {
+    if (existingDetails.length === 0) return 1
+    const maxItemNo = Math.max(...existingDetails.map((d) => d.itemNo ?? 0))
+    return maxItemNo + 1
+  }, [existingDetails])
+
+  // Factory for create-mode values (like invoice-details-form createDefaultValues – no separate default object)
+  const createDefaultValues = useCallback(
+    (itemNo: number): DebitNoteDtSchemaType => ({
+      debitNoteId: debitNoteHd?.debitNoteId ?? 0,
+      debitNoteNo: debitNoteHd?.debitNoteNo ?? "",
+      itemNo,
       refItemNo: 0,
       taskId: taskId,
       chargeId: 0,
       qty: 0,
       unitPrice: 0,
       totAmt: 0,
-      gstId: 0,
+      gstId: 1,
       gstPercentage: 0,
       gstAmt: 0,
       totAmtAftGst: 0,
@@ -101,101 +114,62 @@ export default function DebitNoteForm({
       isServiceCharge: false,
       serviceCharge: 0,
     }),
-    [
-      initialData?.debitNoteId,
-      debitNoteHd?.debitNoteId,
-      debitNoteHd?.debitNoteNo,
-      taskId,
-    ]
+    [debitNoteHd?.debitNoteId, debitNoteHd?.debitNoteNo, taskId]
   )
 
+  // Stable initial defaultValues; form syncs from editingDetail only when it actually changes (see useEffect below)
   const form = useForm<DebitNoteDtSchemaType>({
     resolver: zodResolver(debitNoteDtSchema),
-    mode: "onChange", // Validate on blur to show errors after user interaction
-    defaultValues: initialData
-      ? {
-          debitNoteId:
-            initialData?.debitNoteId ?? debitNoteHd?.debitNoteId ?? 0,
-          debitNoteNo:
-            initialData?.debitNoteNo ?? debitNoteHd?.debitNoteNo ?? "",
-          itemNo: initialData?.itemNo ?? 0,
-          refItemNo: initialData?.refItemNo ?? 0,
-          taskId: taskId,
-          chargeId: initialData?.chargeId ?? 0,
-          qty: initialData?.qty ?? 0,
-          unitPrice: initialData?.unitPrice ?? 0,
-          totAmt: initialData?.totAmt ?? 0,
-          gstId: initialData?.gstId ?? 0,
-          gstPercentage: initialData?.gstPercentage ?? 0,
-          gstAmt: initialData?.gstAmt ?? 0,
-          totAmtAftGst: initialData?.totAmtAftGst ?? 0,
-          remarks: initialData?.remarks ?? "",
-          editVersion: initialData?.editVersion ?? 0,
-          totLocalAmt: initialData?.totLocalAmt ?? 0,
-          isServiceCharge: initialData?.isServiceCharge ?? false,
-          serviceCharge: initialData?.serviceCharge ?? 0,
-        }
-      : {
-          ...defaultValues,
-        },
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    defaultValues: createDefaultValues(1),
   })
 
-  // Reset form when initialData changes (for edit mode)
+  const editingDetailRef = useRef(editingDetail)
+  editingDetailRef.current = editingDetail
+
+  // Refs to store original values on focus so we skip calculation on blur when unchanged
+  const originalQtyRef = useRef<number>(0)
+  const originalUnitPriceRef = useRef<number>(0)
+  const originalTotAmtRef = useRef<number>(0)
+
+  // Reset form only when editingDetail identity changes (different row or create vs edit), not on every parent re-render
+  const lastEditingKeyRef = useRef<string | null>(null)
   useEffect(() => {
-    if (initialData) {
+    const editingKey =
+      editingDetail == null
+        ? "create"
+        : `${editingDetail.itemNo}-${editingDetail.gstId ?? 0}`
+    if (lastEditingKeyRef.current === editingKey) return
+    lastEditingKeyRef.current = editingKey
+    if (editingDetail) {
       form.reset({
-        debitNoteId: initialData?.debitNoteId ?? debitNoteHd?.debitNoteId ?? 0,
-        debitNoteNo: initialData?.debitNoteNo ?? debitNoteHd?.debitNoteNo ?? "",
-        itemNo: initialData?.itemNo ?? 0,
-        refItemNo: initialData?.refItemNo ?? 0,
+        debitNoteId:
+          editingDetail.debitNoteId ?? debitNoteHd?.debitNoteId ?? 0,
+        debitNoteNo:
+          editingDetail.debitNoteNo ?? debitNoteHd?.debitNoteNo ?? "",
+        itemNo: editingDetail.itemNo ?? getNextItemNo(),
+        refItemNo: editingDetail.refItemNo ?? 0,
         taskId: taskId,
-        chargeId: initialData?.chargeId ?? 0,
-        qty: initialData?.qty ?? 0,
-        unitPrice: initialData?.unitPrice ?? 0,
-        totAmt: initialData?.totAmt ?? 0,
-        gstId: initialData?.gstId ?? 0,
-        gstPercentage: initialData?.gstPercentage ?? 0,
-        gstAmt: initialData?.gstAmt ?? 0,
-        totAmtAftGst: initialData?.totAmtAftGst ?? 0,
-        remarks: initialData?.remarks ?? "",
-        editVersion: initialData?.editVersion ?? 0,
-        totLocalAmt: initialData?.totLocalAmt ?? 0,
-        isServiceCharge: initialData?.isServiceCharge ?? false,
-        serviceCharge: initialData?.serviceCharge ?? 0,
+        chargeId: editingDetail.chargeId ?? 0,
+        qty: editingDetail.qty ?? 0,
+        unitPrice: editingDetail.unitPrice ?? 0,
+        totAmt: editingDetail.totAmt ?? 0,
+        gstId: editingDetail.gstId ?? 0,
+        gstPercentage: editingDetail.gstPercentage ?? 0,
+        gstAmt: editingDetail.gstAmt ?? 0,
+        totAmtAftGst: editingDetail.totAmtAftGst ?? 0,
+        remarks: editingDetail.remarks ?? "",
+        editVersion: editingDetail.editVersion ?? 0,
+        totLocalAmt: editingDetail.totLocalAmt ?? 0,
+        isServiceCharge: editingDetail.isServiceCharge ?? false,
+        serviceCharge: editingDetail.serviceCharge ?? 0,
       })
     } else {
-      // Reset to default values when initialData is cleared (create mode)
-      form.reset(defaultValues)
-    }
-    // Use itemNo as the key to detect changes - when it changes or becomes undefined, reset form
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialData?.itemNo, form])
-
-  // Watch for isServiceCharge and serviceCharge changes to auto-update service charge entry
-  const isServiceCharge = form.watch("isServiceCharge")
-  const serviceCharge = form.watch("serviceCharge")
-  const totAmtAftGst = form.watch("totAmtAftGst")
-  const itemNo = form.watch("itemNo")
-  const chargeId = form.watch("chargeId")
-
-  useEffect(() => {
-    if (
-      onServiceChargeUpdateRef.current &&
-      isServiceCharge &&
-      serviceCharge > 0 &&
-      totAmtAftGst > 0 &&
-      itemNo > 0
-    ) {
-      onServiceChargeUpdateRef.current(
-        itemNo,
-        chargeId,
-        totAmtAftGst,
-        serviceCharge,
-        taskId
-      )
+      form.reset(createDefaultValues(getNextItemNo()))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isServiceCharge, serviceCharge, totAmtAftGst, itemNo, chargeId, taskId])
+  }, [editingDetail?.itemNo, editingDetail?.gstId, editingDetail == null])
 
   // Helper function to calculate totAmtAftGst = totAmt + gstAmt
   const calculateTotAmtAftGst = useCallback(() => {
@@ -206,29 +180,7 @@ export default function DebitNoteForm({
       form.setValue("totAmtAftGst", calculatedTotAmtAftGst, {
         shouldDirty: false,
       })
-
-      // Auto-update service charge entry if isServiceCharge is checked
-      if (onServiceChargeUpdateRef.current) {
-        const isServiceCharge = form.getValues("isServiceCharge")
-        const serviceCharge = form.getValues("serviceCharge") || 0
-        const itemNo = form.getValues("itemNo") || 0
-        const chargeId = form.getValues("chargeId") || 0
-
-        if (
-          isServiceCharge &&
-          serviceCharge > 0 &&
-          calculatedTotAmtAftGst > 0 &&
-          itemNo > 0
-        ) {
-          onServiceChargeUpdateRef.current(
-            itemNo,
-            chargeId,
-            calculatedTotAmtAftGst,
-            serviceCharge,
-            taskId
-          )
-        }
-      }
+      // Service charge row updates only on form submit (Update button), not here
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, taskId])
@@ -245,14 +197,17 @@ export default function DebitNoteForm({
     })
   }, [form, amtDec, isConfirmed, calculateTotAmtAftGst])
 
-  // Helper function to calculate gstAmt and update related fields
+  // Helper function to calculate gstAmt and update related fields (uses ref so no editingDetail in deps = stable callback)
   const calculateGstAmt = useCallback(() => {
     if (isConfirmed) return
-    const gstId = form.getValues("gstId")
+    const gstId = form.getValues("gstId") ?? 0
+    const current = editingDetailRef.current
+    const effectiveGstId = gstId > 0 ? gstId : (current?.gstId ?? 0)
     const totAmt = form.getValues("totAmt") || 0
-
-    if (gstId && gstId > 0) {
-      const selectedGst = allGst.find((gst: IGstLookup) => gst.gstId === gstId)
+    if (effectiveGstId > 0) {
+      const selectedGst = allGst.find(
+        (gst: IGstLookup) => gst.gstId === effectiveGstId
+      )
       if (selectedGst) {
         const gstPercentage = selectedGst.gstPercentage || 0
         requestAnimationFrame(() => {
@@ -275,87 +230,119 @@ export default function DebitNoteForm({
     }
   }, [form, allGst, amtDec, isConfirmed, calculateTotAmtAftGst])
 
-  // Handler for qty change
+  // When form has gstId but VAT % or Vat Amt is 0 (e.g. after edit load or allGst loaded late), recalc from lookup
+  useEffect(() => {
+    const detail = editingDetailRef.current
+    if (!detail?.gstId || detail.gstId <= 0 || !allGst.length) return
+    const gstPercentage = form.getValues("gstPercentage") ?? 0
+    const gstAmt = form.getValues("gstAmt") ?? 0
+    if (gstPercentage > 0 && gstAmt > 0) return // Already set
+    const timer = setTimeout(() => {
+      calculateGstAmt()
+    }, 0)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingDetail?.itemNo, editingDetail?.gstId, allGst.length, form])
+
+  // Handler for qty change (called from blur when value changed)
   const handleQtyChange = useCallback(() => {
     calculateTotAmt()
   }, [calculateTotAmt])
 
-  // Handler for unitPrice change
+  const handleQtyFocus = useCallback(() => {
+    originalQtyRef.current = form.getValues("qty") ?? 0
+  }, [form])
+
+  const handleQtyBlur = useCallback(() => {
+    const current = form.getValues("qty") ?? 0
+    if (current === originalQtyRef.current) return
+    handleQtyChange()
+  }, [form, handleQtyChange])
+
+  // Handler for unitPrice change (called from blur when value changed)
   const handleUnitPriceChange = useCallback(() => {
     calculateTotAmt()
   }, [calculateTotAmt])
 
-  // Handler for totAmt change (when manually entered)
-  const handleTotAmtChange = useCallback(() => {
-    calculateGstAmt()
-  }, [calculateGstAmt])
+  const handleUnitPriceFocus = useCallback(() => {
+    originalUnitPriceRef.current = form.getValues("unitPrice") ?? 0
+  }, [form])
+
+  const handleUnitPriceBlur = useCallback(() => {
+    const current = form.getValues("unitPrice") ?? 0
+    if (current === originalUnitPriceRef.current) return
+    handleUnitPriceChange()
+  }, [form, handleUnitPriceChange])
+
+  // Handler for totAmt change (when manually entered); uses ref so no editingDetail in deps
+  const handleTotAmtChange = useCallback(
+    (newTotAmt?: number) => {
+      requestAnimationFrame(() => {
+        const totAmt = form.getValues("totAmt") ?? newTotAmt ?? 0
+        const gstId =
+          form.getValues("gstId") ?? editingDetailRef.current?.gstId ?? 0
+        if (gstId > 0 && totAmt >= 0) {
+          const selectedGst = allGst.find(
+            (gst: IGstLookup) => gst.gstId === gstId
+          )
+          if (selectedGst) {
+            const gstPercentage = selectedGst.gstPercentage || 0
+            form.setValue("gstPercentage", gstPercentage, {
+              shouldDirty: false,
+            })
+            const calculatedGstAmt = calculateMultiplierAmount(
+              totAmt,
+              gstPercentage / 100,
+              amtDec
+            )
+            form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
+            calculateTotAmtAftGst()
+          }
+        }
+        if (gstId <= 0) calculateGstAmt()
+      })
+    },
+    [form, allGst, amtDec, calculateGstAmt, calculateTotAmtAftGst]
+  )
+
+  const handleTotAmtFocus = useCallback(() => {
+    originalTotAmtRef.current = form.getValues("totAmt") ?? 0
+  }, [form])
+
+  const handleTotAmtBlur = useCallback(() => {
+    const current = form.getValues("totAmt") ?? 0
+    if (current === originalTotAmtRef.current) return
+    handleTotAmtChange()
+  }, [form, handleTotAmtChange])
 
   // Handler for gstAmt change (when manually entered)
   const handleGstAmtChange = useCallback(() => {
     calculateTotAmtAftGst()
   }, [calculateTotAmtAftGst])
 
-  // Handler for isServiceCharge checkbox change
+  // Handler for isServiceCharge checkbox change (table updates only on Update button)
   const handleIsServiceChargeChange = useCallback(() => {
-    if (!onServiceChargeUpdate) return
+    // No auto-update to table; user must click Update to apply
+  }, [])
 
-    const isServiceCharge = form.getValues("isServiceCharge")
-    const serviceCharge = form.getValues("serviceCharge") || 0
-    const totAmtAftGst = form.getValues("totAmtAftGst") || 0
-    const itemNo = form.getValues("itemNo") || 0
-    const chargeId = form.getValues("chargeId") || 0
-
-    // If service charge is checked and values are valid, trigger update
-    if (
-      isServiceCharge &&
-      serviceCharge > 0 &&
-      totAmtAftGst > 0 &&
-      itemNo > 0
-    ) {
-      onServiceChargeUpdate(
-        itemNo,
-        chargeId,
-        totAmtAftGst,
-        serviceCharge,
-        taskId
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, taskId])
-
-  // Handler for serviceCharge percentage change
+  // Handler for serviceCharge percentage change (table updates only on Update button)
   const handleServiceChargeChange = useCallback(() => {
-    if (!onServiceChargeUpdate) return
-
-    const isServiceCharge = form.getValues("isServiceCharge")
-    const serviceCharge = form.getValues("serviceCharge") || 0
-    const totAmtAftGst = form.getValues("totAmtAftGst") || 0
-    const itemNo = form.getValues("itemNo") || 0
-    const chargeId = form.getValues("chargeId") || 0
-
-    // If service charge is checked and values are valid, trigger update
-    if (
-      isServiceCharge &&
-      serviceCharge > 0 &&
-      totAmtAftGst > 0 &&
-      itemNo > 0
-    ) {
-      onServiceChargeUpdate(
-        itemNo,
-        chargeId,
-        totAmtAftGst,
-        serviceCharge,
-        taskId
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, taskId])
+    // No auto-update to table; user must click Update to apply
+  }, [])
 
   // 4. Handle charge name change - update remarks
   const handleChargeChange = useCallback(
     (selectedCharge: IChargeLookup | null) => {
       if (selectedCharge && selectedCharge.chargeName) {
         const currentRemarks = form.getValues("remarks") || ""
+        // Do not overwrite remarks when they contain predefined "5% Prepayment"
+        const hasPrepaymentRemark = currentRemarks
+          .toLowerCase()
+          .includes("5% prepayment")
+        if (hasPrepaymentRemark) {
+          onChargeChange?.(selectedCharge.chargeName)
+          return
+        }
         // Only update if remarks is empty or if it matches the previous charge name
         if (!currentRemarks || currentRemarks.trim() === "") {
           form.setValue("remarks", selectedCharge.chargeName, {
@@ -383,6 +370,23 @@ export default function DebitNoteForm({
       return
     }
 
+    // Set VAT % and Vat Amt immediately from lookup so they are not zero while API loads
+    const selectedGstSync = allGst.find(
+      (gst: IGstLookup) => gst.gstId === gstId
+    )
+    if (selectedGstSync) {
+      const gstPercentageSync = selectedGstSync.gstPercentage || 0
+      const totAmt = form.getValues("totAmt") || 0
+      form.setValue("gstPercentage", gstPercentageSync, { shouldDirty: false })
+      const calculatedGstAmtSync = calculateMultiplierAmount(
+        totAmt,
+        gstPercentageSync / 100,
+        amtDec
+      )
+      form.setValue("gstAmt", calculatedGstAmtSync, { shouldDirty: false })
+      calculateTotAmtAftGst()
+    }
+
     try {
       // Format date for API (yyyy-MM-dd format)
       const dateValue = debitNoteDate
@@ -406,8 +410,6 @@ export default function DebitNoteForm({
       )
 
       const gstPercentage = res?.data as number
-
-      console.log("gstPercentage", gstPercentage)
 
       if (gstPercentage !== undefined && gstPercentage !== null) {
         requestAnimationFrame(() => {
@@ -456,16 +458,11 @@ export default function DebitNoteForm({
     submitAction(data)
   }
 
+  // Cancel edit / clear form (aligned with invoice-details-form handleCancelEdit)
   const handleCancel = () => {
-    // Reset form to default values
-    form.reset({
-      ...defaultValues,
-    })
-    // Reset refs
-
-    // Notify parent that charge is cleared
+    const nextItemNo = getNextItemNo()
+    form.reset(createDefaultValues(nextItemNo))
     onChargeChange?.("")
-    // Call the onCancelAction callback if provided
     onCancelAction?.()
   }
 
@@ -499,7 +496,8 @@ export default function DebitNoteForm({
                     label="Qty"
                     round={qtyDec}
                     isDisabled={isConfirmed}
-                    onChangeEvent={handleQtyChange}
+                    onFocusEvent={handleQtyFocus}
+                    onBlurEvent={handleQtyBlur}
                   />
                 </div>
 
@@ -510,7 +508,8 @@ export default function DebitNoteForm({
                     label="Unit Price"
                     round={priceDec}
                     isDisabled={isConfirmed}
-                    onChangeEvent={handleUnitPriceChange}
+                    onFocusEvent={handleUnitPriceFocus}
+                    onBlurEvent={handleUnitPriceBlur}
                   />
                 </div>
 
@@ -531,7 +530,8 @@ export default function DebitNoteForm({
                     label="Total Amt"
                     round={amtDec}
                     isDisabled={isConfirmed}
-                    onChangeEvent={handleTotAmtChange}
+                    onFocusEvent={handleTotAmtFocus}
+                    onBlurEvent={handleTotAmtBlur}
                   />
                 </div>
                 <div className="col-span-1">
@@ -561,7 +561,7 @@ export default function DebitNoteForm({
                     label="Vat Amt"
                     round={amtDec}
                     isDisabled={isConfirmed}
-                    onChangeEvent={handleGstAmtChange}
+                    onBlurEvent={handleGstAmtChange}
                   />
                 </div>
 
@@ -595,7 +595,7 @@ export default function DebitNoteForm({
                     label="Service Chg"
                     round={amtDec}
                     isDisabled={isConfirmed}
-                    onChangeEvent={handleServiceChargeChange}
+                    onBlurEvent={handleServiceChargeChange}
                   />
                 </div>
 
@@ -624,7 +624,7 @@ export default function DebitNoteForm({
                     <Button type="submit" disabled={isSubmitting} size="sm">
                       {isSubmitting
                         ? "Saving..."
-                        : initialData
+                        : editingDetail
                           ? "Update"
                           : "Add"}
                     </Button>
