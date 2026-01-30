@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { IServiceLookup } from "@/interfaces/lookup"
+import { IServiceItemNoLookup } from "@/interfaces/lookup"
 import {
   IconCheck,
   IconChevronDown,
@@ -50,7 +50,7 @@ export default function JobOrderServiceMultiSelect<
   className?: string
   isDisabled?: boolean
   isRequired?: boolean
-  onChangeEvent?: (selectedOptions: IServiceLookup[]) => void
+  onChangeEvent?: (selectedOptions: IServiceItemNoLookup[]) => void
 }) {
   const {
     data: services = [],
@@ -70,9 +70,9 @@ export default function JobOrderServiceMultiSelect<
   // Memoize options to prevent unnecessary recalculations
   const options: FieldOption[] = React.useMemo(
     () =>
-      services.map((service: IServiceLookup) => ({
-        value: service.serviceId.toString(),
-        label: service.serviceCode + " - " + service.serviceName,
+      services.map((service: IServiceItemNoLookup) => ({
+        value: service.serviceItemNo.toString(),
+        label: service.serviceItemNoName,
       })),
     [services]
   )
@@ -229,10 +229,13 @@ export default function JobOrderServiceMultiSelect<
         const selectedServices = selectedOptions
           .map((opt) =>
             services.find(
-              (u: IServiceLookup) => u.serviceId.toString() === opt.value
+              (u: IServiceItemNoLookup) =>
+                u.serviceItemNo.toString() === opt.value
             )
           )
-          .filter((service): service is IServiceLookup => service !== undefined)
+          .filter(
+            (service): service is IServiceItemNoLookup => service !== undefined
+          )
         onChangeEvent(selectedServices)
       }
     },

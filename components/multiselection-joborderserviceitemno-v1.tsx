@@ -399,8 +399,7 @@ export default function JobOrderServiceItemNoMultiSelect<
                     menuPosition="fixed"
                     isLoading={isLoading}
                     loadingMessage={() => "Loading services..."}
-                    closeMenuOnSelect={false}
-                    blurInputOnSelect={false}
+                    blurInputOnSelect={true}
                   />
                 </div>
                 {showError && (
@@ -477,8 +476,7 @@ export default function JobOrderServiceItemNoMultiSelect<
           menuPosition="fixed"
           isLoading={isLoading}
           loadingMessage={() => "Loading services..."}
-          closeMenuOnSelect={false}
-          blurInputOnSelect={false}
+          blurInputOnSelect={true}
         />
       </div>
     </div>
