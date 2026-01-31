@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useImperativeHandle } from "react"
+import React, { useEffect, useImperativeHandle, useRef } from "react"
 import {
   calculateMultiplierAmount,
   setToExchangeRateDetails,
@@ -82,6 +82,8 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
 
     const { data: dynamicLookup } = useGetDynamicLookup()
     const isDynamicJobOrder = dynamicLookup?.isJobOrder ?? false
+
+    const originalToTotAmtRef = useRef<number>(0)
 
     // Calculate next itemNo based on existing details
     const getNextItemNo = () => {
@@ -493,13 +495,28 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
       [form, Hdform, exhRateDec, locAmtDec]
     )
 
-    // Handle TO total amount change
+    const handleToTotAmtFocus = React.useCallback(() => {
+      originalToTotAmtRef.current = form.getValues("toTotAmt") ?? 0
+    }, [form])
+
+    const handleToTotAmtBlur = React.useCallback(() => {
+      const current = form.getValues("toTotAmt") ?? 0
+      if (current === originalToTotAmtRef.current) return
+      form.setValue("toTotAmt", current)
+      const toExhRate = form.getValues("toExhRate") || 0
+      const toTotLocalAmt = calculateMultiplierAmount(
+        current,
+        toExhRate,
+        locAmtDec
+      )
+      form.setValue("toTotLocalAmt", toTotLocalAmt)
+    }, [form, locAmtDec])
+
+    // Handle TO total amount change (used when value actually changes)
     const handleToTotAmtChange = React.useCallback(
       (value: number) => {
         form.setValue("toTotAmt", value)
         const toExhRate = form.getValues("toExhRate") || 0
-
-        // Calculate local amount based on exchange rate using helper
         const toTotLocalAmt = calculateMultiplierAmount(
           value,
           toExhRate,
@@ -751,7 +768,8 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
             round={amtDec}
             isRequired={false}
             className="text-right"
-            onChangeEvent={handleToTotAmtChange}
+            onFocusEvent={handleToTotAmtFocus}
+            onBlurEvent={handleToTotAmtBlur}
           />
 
           <CustomNumberInput

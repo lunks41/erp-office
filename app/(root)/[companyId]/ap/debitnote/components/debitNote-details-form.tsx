@@ -143,8 +143,10 @@ const DebitNoteDetailsForm = React.forwardRef<
     // Track if submit was attempted to show errors only after submit
     const [submitAttempted, setSubmitAttempted] = useState(false)
 
-    // Refs to store original values on focus for comparison on change
+    // Refs to store original values on focus so we skip calculation on blur when unchanged
     const originalTotAmtRef = useRef<number>(0)
+    const originalQtyRef = useRef<number>(0)
+    const originalBillQtyRef = useRef<number>(0)
     const originalUnitPriceRef = useRef<number>(0)
     const originalGstPercentageRef = useRef<number>(0)
 
@@ -999,20 +1001,13 @@ const DebitNoteDetailsForm = React.forwardRef<
       form.setValue("gstCtyAmt", rowData.gstCtyAmt)
     }
 
-    // Handle totAmt focus - capture original value
     const handleTotalAmountFocus = () => {
-      originalTotAmtRef.current = form.getValues("totAmt") || 0
+      originalTotAmtRef.current = form.getValues("totAmt") ?? 0
     }
 
-    const handleTotalAmountChange = (value: number) => {
-      const originalTotAmt = originalTotAmtRef.current
-
-      // Only recalculate if value is different from original
-      if (value === originalTotAmt) {
-        return
-      }
-
-      form.setValue("totAmt", value)
+    const handleTotalAmountBlur = () => {
+      const current = form.getValues("totAmt") ?? 0
+      if (current === originalTotAmtRef.current) return
       triggerTotalAmountCalculation()
     }
 
@@ -1082,29 +1077,11 @@ const DebitNoteDetailsForm = React.forwardRef<
       form.setValue("gstCtyAmt", gstCtyAmt)
     }
 
-    const handleDtQtyChange = (value: number) => {
-      form.setValue("qty", value)
-
-      // If m_BillQTY is false, set billQTY = qty
-      if (!visible?.m_BillQTY) {
-        form.setValue("billQTY", value)
-      }
-
-      // Get form values AFTER setting qty/billQTY
+    const applyQtyBasedCalculation = () => {
       const rowData = form.getValues()
-
-      // ✅ Manually ensure the updated values are in rowData
-      rowData.qty = value
-      if (!visible?.m_BillQTY) {
-        rowData.billQTY = value
-      }
-
-      // Sync city exchange rate with exchange rate if needed
       const exchangeRate = Hdform.getValues("exhRate") || 0
       syncCountryExchangeRate(Hdform, exchangeRate, visible)
-
       handleQtyChange(Hdform, rowData, decimals[0], visible)
-      // Update only the calculated fields
       form.setValue("totAmt", rowData.totAmt)
       form.setValue("totLocalAmt", rowData.totLocalAmt)
       form.setValue("totCtyAmt", rowData.totCtyAmt)
@@ -1113,63 +1090,37 @@ const DebitNoteDetailsForm = React.forwardRef<
       form.setValue("gstCtyAmt", rowData.gstCtyAmt)
     }
 
-    const handleBillQtyChange = (value: number) => {
-      form.setValue("billQTY", value)
-
-      // Get form values AFTER setting billQTY
-      const rowData = form.getValues()
-
-      // ✅ Manually ensure the updated value is in rowData
-      rowData.billQTY = value
-
-      // Sync city exchange rate with exchange rate if needed
-      const exchangeRate = Hdform.getValues("exhRate") || 0
-      syncCountryExchangeRate(Hdform, exchangeRate, visible)
-
-      handleQtyChange(Hdform, rowData, decimals[0], visible)
-      // Update only the calculated fields
-      form.setValue("totAmt", rowData.totAmt)
-      form.setValue("totLocalAmt", rowData.totLocalAmt)
-      form.setValue("totCtyAmt", rowData.totCtyAmt)
-      form.setValue("gstAmt", rowData.gstAmt)
-      form.setValue("gstLocalAmt", rowData.gstLocalAmt)
-      form.setValue("gstCtyAmt", rowData.gstCtyAmt)
+    const handleDtQtyFocus = () => {
+      originalQtyRef.current = form.getValues("qty") ?? 0
     }
 
-    // Handle unitPrice focus - capture original value
+    const handleDtQtyBlur = () => {
+      const current = form.getValues("qty") ?? 0
+      if (current === originalQtyRef.current) return
+      if (!visible?.m_BillQTY) {
+        form.setValue("billQTY", current)
+      }
+      applyQtyBasedCalculation()
+    }
+
+    const handleBillQtyFocus = () => {
+      originalBillQtyRef.current = form.getValues("billQTY") ?? 0
+    }
+
+    const handleBillQtyBlur = () => {
+      const current = form.getValues("billQTY") ?? 0
+      if (current === originalBillQtyRef.current) return
+      applyQtyBasedCalculation()
+    }
+
     const handleUnitPriceFocus = () => {
-      originalUnitPriceRef.current = form.getValues("unitPrice") || 0
+      originalUnitPriceRef.current = form.getValues("unitPrice") ?? 0
     }
 
-    const handleUnitPriceChange = (value: number) => {
-      const originalUnitPrice = originalUnitPriceRef.current
-
-      // Only recalculate if value is different from original
-      if (value === originalUnitPrice) {
-        return
-      }
-
-      form.setValue("unitPrice", value)
-
-      // Get form values AFTER setting unitPrice
-      const rowData = form.getValues()
-
-      // ✅ Manually ensure the updated value is in rowData
-      rowData.unitPrice = value
-
-      // Sync city exchange rate with exchange rate if needed
-      const exchangeRate = Hdform.getValues("exhRate") || 0
-      syncCountryExchangeRate(Hdform, exchangeRate, visible)
-
-      // Recalculate using billQTY (not the value parameter)
-      handleQtyChange(Hdform, rowData, decimals[0], visible)
-      // Update only the calculated fields
-      form.setValue("totAmt", rowData.totAmt)
-      form.setValue("totLocalAmt", rowData.totLocalAmt)
-      form.setValue("totCtyAmt", rowData.totCtyAmt)
-      form.setValue("gstAmt", rowData.gstAmt)
-      form.setValue("gstLocalAmt", rowData.gstLocalAmt)
-      form.setValue("gstCtyAmt", rowData.gstCtyAmt)
+    const handleUnitPriceBlur = () => {
+      const current = form.getValues("unitPrice") ?? 0
+      if (current === originalUnitPriceRef.current) return
+      applyQtyBasedCalculation()
     }
 
     return (
@@ -1435,7 +1386,8 @@ const DebitNoteDetailsForm = React.forwardRef<
                 isRequired={required?.m_QTY}
                 round={qtyDec}
                 className="text-right"
-                onChangeEvent={handleDtQtyChange}
+                onFocusEvent={handleDtQtyFocus}
+                onBlurEvent={handleDtQtyBlur}
               />
             )}
 
@@ -1447,7 +1399,8 @@ const DebitNoteDetailsForm = React.forwardRef<
                 label="Bill Quantity"
                 round={qtyDec}
                 className="text-right"
-                onChangeEvent={handleBillQtyChange}
+                onFocusEvent={handleBillQtyFocus}
+                onBlurEvent={handleBillQtyBlur}
               />
             )}
 
@@ -1471,7 +1424,7 @@ const DebitNoteDetailsForm = React.forwardRef<
                 round={priceDec}
                 className="text-right"
                 onFocusEvent={handleUnitPriceFocus}
-                onChangeEvent={handleUnitPriceChange}
+                onBlurEvent={handleUnitPriceBlur}
               />
             )}
 
@@ -1484,7 +1437,7 @@ const DebitNoteDetailsForm = React.forwardRef<
               round={amtDec}
               className="text-right"
               onFocusEvent={handleTotalAmountFocus}
-              onChangeEvent={handleTotalAmountChange}
+              onBlurEvent={handleTotalAmountBlur}
             />
 
             {/* Local Amount */}

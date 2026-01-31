@@ -910,22 +910,14 @@ const GLJournalDetailsForm = React.forwardRef<
       form.setValue("gstCtyAmt", rowData.gstCtyAmt)
     }
 
-    // Handle totAmt focus - capture original value
     const handleTotalAmountFocus = () => {
-      originalTotAmtRef.current = form.getValues("totAmt") || 0
+      originalTotAmtRef.current = form.getValues("totAmt") ?? 0
     }
 
-    const handleTotalAmountChange = (value: number) => {
-      const originalTotAmt = originalTotAmtRef.current
-
-      // Only recalculate if value is different from original
-      if (value === originalTotAmt) {
-        return
-      }
-
-      form.setValue("totAmt", value)
-      // Pass the new value directly to ensure correct calculation
-      triggerTotalAmountCalculation(value)
+    const handleTotalAmountBlur = () => {
+      const current = form.getValues("totAmt") ?? 0
+      if (current === originalTotAmtRef.current) return
+      triggerTotalAmountCalculation(current)
     }
 
     // Handle gstPercentage focus - capture original value
@@ -1253,7 +1245,7 @@ const GLJournalDetailsForm = React.forwardRef<
               round={amtDec}
               className="text-right"
               onFocusEvent={handleTotalAmountFocus}
-              onChangeEvent={handleTotalAmountChange}
+              onBlurEvent={handleTotalAmountBlur}
             />
 
             {/* Local Amount */}

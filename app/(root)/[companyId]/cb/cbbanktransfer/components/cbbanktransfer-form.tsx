@@ -80,6 +80,8 @@ export default function BankTransferForm({
 
   // Ref to prevent circular updates between fromTotAmt and toTotAmt
   const isUpdatingAmounts = React.useRef(false)
+  const originalFromTotAmtRef = React.useRef<number>(0)
+  const originalToTotAmtRef = React.useRef<number>(0)
 
   // Watch paymentTypeId and update cheque payment state
   React.useEffect(() => {
@@ -559,6 +561,26 @@ export default function BankTransferForm({
     [form, locAmtDec]
   )
 
+  const handleFromTotAmtFocus = React.useCallback(() => {
+    originalFromTotAmtRef.current = form.getValues("fromTotAmt") ?? 0
+  }, [form])
+
+  const handleFromTotAmtBlur = React.useCallback(() => {
+    const current = form.getValues("fromTotAmt") ?? 0
+    if (current === originalFromTotAmtRef.current) return
+    handleFromTotAmtChange(current)
+  }, [form, handleFromTotAmtChange])
+
+  const handleToTotAmtFocus = React.useCallback(() => {
+    originalToTotAmtRef.current = form.getValues("toTotAmt") ?? 0
+  }, [form])
+
+  const handleToTotAmtBlur = React.useCallback(() => {
+    const current = form.getValues("toTotAmt") ?? 0
+    if (current === originalToTotAmtRef.current) return
+    handleToTotAmtChange(current)
+  }, [form, handleToTotAmtChange])
+
   // STEP 3: FROM Bank Charge Amount Handler
   const handleFromBankChgAmtChange = React.useCallback(
     (value: number) => {
@@ -919,7 +941,8 @@ export default function BankTransferForm({
                 round={amtDec}
                 isRequired={true}
                 className="text-right"
-                onChangeEvent={handleFromTotAmtChange}
+                onFocusEvent={handleFromTotAmtFocus}
+                onBlurEvent={handleFromTotAmtBlur}
               />
 
               <CustomNumberInput
@@ -999,7 +1022,8 @@ export default function BankTransferForm({
                 round={amtDec}
                 isRequired={true}
                 className="text-right"
-                onChangeEvent={handleToTotAmtChange}
+                onFocusEvent={handleToTotAmtFocus}
+                onBlurEvent={handleToTotAmtBlur}
               />
 
               <CustomNumberInput

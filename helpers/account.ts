@@ -77,7 +77,13 @@ const formatForApi = (
  */
 export const mathRound = (amtValue: number, precision: number): number => {
   const factor = Math.pow(10, precision)
-  return Math.round(amtValue * factor) / factor
+  //return Math.round(amtValue * factor) / factor
+  // Normalize floating-point error (e.g. 118 * 3.6725 → 433.35499...) so
+  // rounding to precision gives the expected result (433.36 not 433.35)
+  const extraPrecision = Math.min(10, 15 - precision)
+  const normalizeFactor = Math.pow(10, precision + extraPrecision)
+  const normalized = Math.round(amtValue * normalizeFactor) / normalizeFactor
+  return Math.round(normalized * factor) / factor
 }
 
 /**

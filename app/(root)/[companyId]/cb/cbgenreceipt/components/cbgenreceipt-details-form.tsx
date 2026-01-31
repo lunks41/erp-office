@@ -863,20 +863,13 @@ const CbGenReceiptDetailsForm = React.forwardRef<
       form.setValue("gstCtyAmt", rowData.gstCtyAmt)
     }
 
-    // Handle totAmt focus - capture original value
     const handleTotalAmountFocus = () => {
-      originalTotAmtRef.current = form.getValues("totAmt") || 0
+      originalTotAmtRef.current = form.getValues("totAmt") ?? 0
     }
 
-    const handleTotalAmountChange = (value: number) => {
-      const originalTotAmt = originalTotAmtRef.current
-
-      // Only recalculate if value is different from original
-      if (value === originalTotAmt) {
-        return
-      }
-
-      form.setValue("totAmt", value)
+    const handleTotalAmountBlur = () => {
+      const current = form.getValues("totAmt") ?? 0
+      if (current === originalTotAmtRef.current) return
       triggerTotalAmountCalculation()
     }
 
@@ -1191,7 +1184,7 @@ const CbGenReceiptDetailsForm = React.forwardRef<
               round={amtDec}
               className="text-right"
               onFocusEvent={handleTotalAmountFocus}
-              onChangeEvent={handleTotalAmountChange}
+              onBlurEvent={handleTotalAmountBlur}
             />
 
             {/* Local Amount */}
