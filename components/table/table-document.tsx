@@ -265,7 +265,7 @@ export function DocumentBaseTable<T>({
                       className={
                         isIndeterminate
                           ? "data-[state=indeterminate]:bg-primary/50"
-                          : ""
+                          : "border-primary border-2"
                       }
                     />
                   )}
@@ -543,7 +543,9 @@ export function DocumentBaseTable<T>({
                       )
                     }
 
-                    return <SortableTableHeader key={header.id} header={header} />
+                    return (
+                      <SortableTableHeader key={header.id} header={header} />
+                    )
                   })}
                 </TableRow>
               ))}
@@ -552,7 +554,9 @@ export function DocumentBaseTable<T>({
             <TableBody>
               <SortableContext
                 items={data.map((item) =>
-                  String((item as Record<string, unknown>)[accessorId as string])
+                  String(
+                    (item as Record<string, unknown>)[accessorId as string]
+                  )
                 )}
                 strategy={verticalListSortingStrategy}
               >
@@ -578,7 +582,9 @@ export function DocumentBaseTable<T>({
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
                             position:
-                              isFirstColumn || isActions ? "sticky" : "relative",
+                              isFirstColumn || isActions
+                                ? "sticky"
+                                : "relative",
                             left: isFirstColumn || isActions ? 0 : "auto",
                             zIndex: isFirstColumn || isActions ? 10 : 1,
                           }}
@@ -614,7 +620,8 @@ export function DocumentBaseTable<T>({
                           width: `${column.getSize()}px`,
                           minWidth: `${column.getSize()}px`,
                           maxWidth: `${column.getSize()}px`,
-                          position: isFirstColumn || isActions ? "sticky" : "relative",
+                          position:
+                            isFirstColumn || isActions ? "sticky" : "relative",
                           left: isFirstColumn || isActions ? 0 : "auto",
                           zIndex: isFirstColumn || isActions ? 10 : 1,
                         }}
@@ -626,7 +633,10 @@ export function DocumentBaseTable<T>({
 
               {table.getRowModel().rows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={tableColumns.length} className="h-7 text-center">
+                  <TableCell
+                    colSpan={tableColumns.length}
+                    className="h-7 text-center"
+                  >
                     {isLoading ? "Loading..." : emptyMessage}
                   </TableCell>
                 </TableRow>

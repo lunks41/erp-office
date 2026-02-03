@@ -52,7 +52,11 @@ export function DebitNoteTableActions<T>({
           checked={isSelected}
           onCheckedChange={(checked) => handleCheckboxChange(!!checked)}
           disabled={!!hasValidDebitNoteId}
-          className={hasValidDebitNoteId ? "cursor-not-allowed opacity-50" : ""}
+          className={
+            hasValidDebitNoteId
+              ? "cursor-not-allowed opacity-50"
+              : "border-primary border-2"
+          }
           title={
             hasValidDebitNoteId
               ? "Cannot select - Debit Note exists"

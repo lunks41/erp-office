@@ -227,6 +227,15 @@ export function ThirdPartyTable({
         minSize: 150,
       },
       {
+        accessorKey: "description",
+        header: "Description",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("description") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+      },
+      {
         accessorKey: "editVersion",
         header: "Version",
         cell: ({ row }) => {

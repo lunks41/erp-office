@@ -105,7 +105,6 @@ export interface IMandatoryFields {
   m_Remarks: boolean
   m_GstId: boolean
   m_DeliveryDate: boolean
-
   m_DepartmentId: boolean
   m_JobOrderId: boolean
   m_EmployeeId: boolean
@@ -124,7 +123,7 @@ export interface IMandatoryFields {
   m_Address3: boolean
   m_Address4: boolean
   m_PinCode: boolean
-  m_Countryd: boolean
+  m_CountryId: boolean
   m_PhoneNo: boolean
   m_ContactName: boolean
   m_MobileNo: boolean

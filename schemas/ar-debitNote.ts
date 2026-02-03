@@ -94,7 +94,7 @@ export const ArDebitNoteHdSchema = (
     pinCode: required?.m_PinCode
       ? z.string().min(1, "Pin Code is required")
       : z.string().optional(),
-    countryId: required?.m_Countryd
+    countryId: required?.m_CountryId
       ? z.number().min(1, "Country is required")
       : z.number().optional(),
     phoneNo: required?.m_PhoneNo

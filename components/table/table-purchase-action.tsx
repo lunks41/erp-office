@@ -35,7 +35,11 @@ export function PurchaseTableActions<T>({
           checked={isSelected}
           onCheckedChange={(checked) => handleCheckboxChange(!!checked)}
           disabled={!!hasValidPurchaseId}
-          className={hasValidPurchaseId ? "cursor-not-allowed opacity-50" : ""}
+          className={
+            hasValidPurchaseId
+              ? "cursor-not-allowed opacity-50"
+              : "border-primary border-2"
+          }
           title={
             hasValidPurchaseId
               ? "Cannot select - Purchase exists"

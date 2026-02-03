@@ -275,7 +275,7 @@ export function TaskTable<T>({
                     className={
                       isIndeterminate
                         ? "data-[state=indeterminate]:bg-primary/50"
-                        : ""
+                        : "border-primary border-2"
                     }
                   />
                   <span className="font-medium">Actions</span>
@@ -290,7 +290,9 @@ export function TaskTable<T>({
               const isSelected = row.getIsSelected()
               return (
                 <TaskTableActions
-                  row={item as T & { debitNoteId?: number; debitNoteNo?: string }}
+                  row={
+                    item as T & { debitNoteId?: number; debitNoteNo?: string }
+                  }
                   idAccessor={accessorId}
                   onView={onSelect}
                   onEditAction={onEditAction}

@@ -154,6 +154,17 @@ export function AgencyRemunerationTable({
         minSize: 100,
       },
       {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {formatDateTimeValue(row.getValue("date"))}
+          </div>
+        ),
+        size: 140,
+        minSize: 120,
+      },
+      {
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (

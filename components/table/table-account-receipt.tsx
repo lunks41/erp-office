@@ -266,7 +266,7 @@ export function AccountReceiptBaseTable<T>({
                       className={
                         isIndeterminate
                           ? "data-[state=indeterminate]:bg-primary/50"
-                          : ""
+                          : "border-primary border-2"
                       }
                     />
                   )}

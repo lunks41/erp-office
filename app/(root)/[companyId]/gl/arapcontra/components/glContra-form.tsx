@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { setExchangeRate } from "@/helpers/account"
+import { calculateMultiplierAmount, setExchangeRate } from "@/helpers/account"
 import {
   ICurrencyLookup,
   ICustomerLookup,
@@ -192,10 +192,6 @@ export default function ContraForm({
   // Handle exchange rate focus - capture original value
   const handleExchangeRateFocus = React.useCallback(() => {
     originalExhRateRef.current = form.getValues("exhRate") || 0
-    console.log(
-      "handleExchangeRateFocus - original value:",
-      originalExhRateRef.current
-    )
   }, [form])
 
   // Handle exchange rate change
@@ -204,30 +200,23 @@ export default function ContraForm({
       const exhRate = parseNumberWithCommas(e.target.value)
       const originalExhRate = originalExhRateRef.current
 
-      console.log("handleExchangeRateChange", {
-        newValue: exhRate,
-        originalValue: originalExhRate,
-        isDifferent: exhRate !== originalExhRate,
-      })
-
-      // Only recalculate if value is different from original
       if (exhRate !== originalExhRate) {
-        console.log("Exchange Rate changed - recalculating amounts")
         form.setValue("exhRate", exhRate, { shouldDirty: true })
-      } else {
-        console.log("Exchange Rate unchanged - skipping recalculation")
+        const totAmt = form.getValues("totAmt") || 0
+        const totLocalAmt = calculateMultiplierAmount(
+          totAmt,
+          exhRate,
+          locAmtDec
+        )
+        form.setValue("totLocalAmt", totLocalAmt, { shouldDirty: true })
       }
     },
-    [form]
+    [form, locAmtDec]
   )
 
   // Handle totAmt focus - capture original value
   const handleTotAmtFocus = React.useCallback(() => {
     originalTotAmtRef.current = form.getValues("totAmt") || 0
-    console.log(
-      "handleTotAmtFocus - original value:",
-      originalTotAmtRef.current
-    )
   }, [form])
 
   // Handle totAmt change
@@ -236,23 +225,19 @@ export default function ContraForm({
       const totAmt = parseNumberWithCommas(e.target.value)
       const originalTotAmt = originalTotAmtRef.current
 
-      console.log("handleTotAmtChange", {
-        newValue: totAmt,
-        originalValue: originalTotAmt,
-        isDifferent: totAmt !== originalTotAmt,
-      })
-
       // Only recalculate if value is different from original
       if (totAmt !== originalTotAmt) {
-        console.log(
-          "Total Amount changed - recalculating amounts and clearing allocations"
-        )
         form.setValue("totAmt", totAmt, { shouldDirty: true })
-      } else {
-        console.log("Total Amount unchanged - skipping recalculation")
+        const exhRate = form.getValues("exhRate") || 0
+        const totLocalAmt = calculateMultiplierAmount(
+          totAmt,
+          exhRate,
+          locAmtDec
+        )
+        form.setValue("totLocalAmt", totLocalAmt, { shouldDirty: true })
       }
     },
-    [form]
+    [form, locAmtDec]
   )
 
   return (

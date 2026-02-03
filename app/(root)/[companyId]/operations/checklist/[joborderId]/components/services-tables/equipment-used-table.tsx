@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo, useState } from "react"
 import {
-  IJobOrderHd,
   IEquipmentUsed,
   IEquipmentUsedFilter,
+  IJobOrderHd,
 } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
@@ -180,6 +180,15 @@ export function EquipmentUsedTable({
         minSize: 100,
       },
       {
+        accessorKey: "referenceNo",
+        header: "Reference No",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("referenceNo") || "-"}</div>
+        ),
+        size: 130,
+        minSize: 100,
+      },
+      {
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
@@ -212,7 +221,9 @@ export function EquipmentUsedTable({
         accessorKey: "craneChargeName",
         header: "Crane Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("craneChargeName") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("craneChargeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
@@ -222,27 +233,128 @@ export function EquipmentUsedTable({
         accessorKey: "forkliftChargeName",
         header: "Forklift Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("forkliftChargeName") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("forkliftChargeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
         maxSize: 200,
       },
-        {
+      {
         accessorKey: "stevedoreChargeName",
         header: "Stevedore Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("stevedoreChargeName") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("stevedoreChargeName") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
         maxSize: 200,
       },
-    
+      {
+        accessorKey: "loadingRefNo",
+        header: "Loading Ref No",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("loadingRefNo") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "craneloading",
+        header: "Crane Load",
+        cell: ({ row }) => {
+          const v = row.getValue("craneloading") as number | null | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 90,
+        minSize: 80,
+      },
+      {
+        accessorKey: "forkliftloading",
+        header: "Forklift Load",
+        cell: ({ row }) => {
+          const v = row.getValue("forkliftloading") as number | null | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "stevedoreloading",
+        header: "Stevedore Load",
+        cell: ({ row }) => {
+          const v = row.getValue("stevedoreloading") as
+            | number
+            | null
+            | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 110,
+        minSize: 90,
+      },
+      {
+        accessorKey: "offloadingRefNo",
+        header: "Offload Ref No",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("offloadingRefNo") || "-"}
+          </div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "craneOffloading",
+        header: "Crane Offload",
+        cell: ({ row }) => {
+          const v = row.getValue("craneOffloading") as number | null | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "forkliftOffloading",
+        header: "Forklift Offload",
+        cell: ({ row }) => {
+          const v = row.getValue("forkliftOffloading") as
+            | number
+            | null
+            | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 110,
+        minSize: 90,
+      },
+      {
+        accessorKey: "stevedoreOffloading",
+        header: "Stevedore Offload",
+        cell: ({ row }) => {
+          const v = row.getValue("stevedoreOffloading") as
+            | number
+            | null
+            | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 120,
+        minSize: 90,
+      },
       {
         accessorKey: "remarks",
         header: "Remarks",
         size: 200,
+        minSize: 150,
+      },
+      {
+        accessorKey: "notes",
+        header: "Notes",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("notes") || "-"}</div>
+        ),
+        size: 180,
         minSize: 150,
       },
       {

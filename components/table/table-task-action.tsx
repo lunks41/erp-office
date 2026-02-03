@@ -51,11 +51,13 @@ export function TaskTableActions<T>({
         checked={isSelected}
         onCheckedChange={handleCheckboxChange}
         disabled={Boolean(hasDebitNote) || isConfirmed}
-        className={hasDebitNote ? "cursor-not-allowed opacity-50" : ""}
-        title={
+        className={
           hasDebitNote
-            ? "Cannot select - Debit Note exists"
-            : "Select row"
+            ? "cursor-not-allowed opacity-50"
+            : "border-primary border-2"
+        }
+        title={
+          hasDebitNote ? "Cannot select - Debit Note exists" : "Select row"
         }
       />
       <Button
@@ -71,9 +73,7 @@ export function TaskTableActions<T>({
         variant="ghost"
         size="icon"
         className={`h-6 w-6 ${
-          hasDebitNote
-            ? "cursor-not-allowed text-gray-400 opacity-50"
-            : ""
+          hasDebitNote ? "cursor-not-allowed text-gray-400 opacity-50" : ""
         }`}
         onClick={() => !hasDebitNote && onEditAction?.(row)}
         disabled={hideEdit || Boolean(hasDebitNote) || isConfirmed}
@@ -93,9 +93,7 @@ export function TaskTableActions<T>({
           !hasDebitNote && onDeleteAction?.(String(row[idAccessor]))
         }
         disabled={hideDelete || Boolean(hasDebitNote) || isConfirmed}
-        title={
-          hasDebitNote ? "Cannot delete - Debit Note exists" : "Delete"
-        }
+        title={hasDebitNote ? "Cannot delete - Debit Note exists" : "Delete"}
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -108,11 +106,11 @@ export function TaskTableActions<T>({
             : "text-purple-600 hover:bg-purple-100"
         }`}
         disabled={hidePurchase || Boolean(hasDebitNote) || isConfirmed}
-        onClick={() => !hasDebitNote && onPurchaseAction?.(String(row[idAccessor]))}
+        onClick={() =>
+          !hasDebitNote && onPurchaseAction?.(String(row[idAccessor]))
+        }
         title={
-          hasDebitNote
-            ? "Cannot purchase - Debit Note exists"
-            : "Purchase"
+          hasDebitNote ? "Cannot purchase - Debit Note exists" : "Purchase"
         }
       >
         <ShoppingCart className="h-4 w-4" />
@@ -129,11 +127,7 @@ export function TaskTableActions<T>({
           hasDebitNote && onDebitNoteAction?.(String(row[idAccessor]))
         }
         disabled={hideDebitNote || !hasDebitNote}
-        title={
-          hasDebitNote
-            ? "View Debit Note"
-            : "No Debit Note available"
-        }
+        title={hasDebitNote ? "View Debit Note" : "No Debit Note available"}
       >
         <Receipt className="h-4 w-4" />
       </Button>

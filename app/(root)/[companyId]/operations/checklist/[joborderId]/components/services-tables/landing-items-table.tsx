@@ -210,11 +210,11 @@ export function LandingItemsTable({
         minSize: 80,
       },
       {
-        accessorKey: "landingTypeName",
-        header: "Landing Type",
+        accessorKey: "landingPurposeName",
+        header: "Landing Purpose",
         cell: ({ row }) => (
           <div className="text-wrap">
-            {row.getValue("landingTypeName") || "-"}
+            {row.getValue("landingPurposeName") || "-"}
           </div>
         ),
         size: 150,

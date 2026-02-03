@@ -82,7 +82,7 @@ export const arinvoiceHdSchema = (
       ? z.string().min(1)
       : z.union([z.string(), z.null()]).optional(),
     pinCode: required?.m_PinCode ? z.string().min(1) : z.string().optional(),
-    countryId: required?.m_Countryd
+    countryId: required?.m_CountryId
       ? z.number().min(1)
       : z.union([z.number(), z.null()]).optional(),
     phoneNo: required?.m_PhoneNo

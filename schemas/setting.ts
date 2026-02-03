@@ -116,7 +116,7 @@ export const mandatoryFieldsSchema = z
     m_Address3: z.boolean(),
     m_Address4: z.boolean(),
     m_PinCode: z.boolean(),
-    m_Countryd: z.boolean(),
+    m_CountryId: z.boolean(),
     m_PhoneNo: z.boolean(),
     m_ContactName: z.boolean(),
     m_MobileNo: z.boolean(),

@@ -429,6 +429,15 @@ export function LaunchServiceTable({
         minSize: 100,
       },
       {
+        accessorKey: "annexure",
+        header: "Annexure",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("annexure") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
         accessorKey: "remarks",
         header: "Remarks",
         size: 200,

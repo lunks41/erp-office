@@ -597,16 +597,16 @@ export function MandatoryTable() {
       size: 100,
     },
     {
-      accessorKey: "m_Countryd",
+      accessorKey: "m_CountryId",
       header: () => (
         <div className="text-center font-medium text-wrap">Country</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
           <Checkbox
-            checked={row.getValue("m_Countryd")}
+            checked={row.getValue("m_CountryId")}
             onCheckedChange={(checked) =>
-              handleFieldChange(row.original, "m_Countryd", checked as boolean)
+              handleFieldChange(row.original, "m_CountryId", checked as boolean)
             }
           />
         </div>

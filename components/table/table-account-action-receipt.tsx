@@ -48,7 +48,11 @@ export function AccountReceiptTableActions<T>({
           checked={isSelected}
           onCheckedChange={(checked) => handleCheckboxChange(!!checked)}
           disabled={!!hasValidAccountId}
-          className={hasValidAccountId ? "cursor-not-allowed opacity-50" : ""}
+          className={
+            hasValidAccountId
+              ? "cursor-not-allowed opacity-50"
+              : "border-primary border-2"
+          }
           title={
             hasValidAccountId
               ? "Cannot select - Debit Note exists"

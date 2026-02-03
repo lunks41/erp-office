@@ -5,7 +5,6 @@ import { Column } from "@tanstack/react-table"
 import {
   Building2,
   ClipboardList,
-  FileText,
   Forward,
   Layout,
   Plus,
@@ -14,8 +13,6 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Trash2,
-  Upload,
-  UploadCloudIcon,
   UploadIcon,
 } from "lucide-react"
 
@@ -378,7 +375,7 @@ export function TaskTableHeader<TData>({
                       : ""
                   }
                 >
-                  <Receipt className="h-4 w-4" />
+                  <Receipt className="h-4 w-4" /> Debit Note
                 </Button>
                 <div className="flex items-center space-x-2">
                   <Checkbox

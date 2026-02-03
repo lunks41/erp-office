@@ -334,6 +334,15 @@ export function MedicalAssistanceTable({
         minSize: 100,
       },
       {
+        accessorKey: "clinicName",
+        header: "Clinic Name",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("clinicName") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
         accessorKey: "remarks",
         header: "Remarks",
         size: 200,

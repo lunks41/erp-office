@@ -243,6 +243,170 @@ export function ConsignmentExportTable({
         minSize: 120,
       },
       {
+        accessorKey: "referenceNo",
+        header: "Reference No",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("referenceNo") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "receiveDate",
+        header: "Receive Date",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {formatDateTime(row.getValue("receiveDate"))}
+          </div>
+        ),
+        size: 130,
+        minSize: 110,
+      },
+      {
+        accessorKey: "deliverDate",
+        header: "Deliver Date",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {formatDateTime(row.getValue("deliverDate"))}
+          </div>
+        ),
+        size: 130,
+        minSize: 110,
+      },
+      {
+        accessorKey: "arrivalDate",
+        header: "Arrival Date",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {formatDateTime(row.getValue("arrivalDate"))}
+          </div>
+        ),
+        size: 130,
+        minSize: 110,
+      },
+      {
+        accessorKey: "clearedBy",
+        header: "Cleared By",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("clearedBy") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "billEntryNo",
+        header: "Bill Entry No",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("billEntryNo") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "declarationNo",
+        header: "Declaration No",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("declarationNo") || "-"}
+          </div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "amountDeposited",
+        header: "Amount Deposited",
+        cell: ({ row }) => {
+          const v = row.getValue("amountDeposited") as number | null | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "refundInstrumentNo",
+        header: "Refund Instrument No",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("refundInstrumentNo") || "-"}
+          </div>
+        ),
+        size: 140,
+        minSize: 120,
+      },
+      {
+        accessorKey: "noOfPcs",
+        header: "No Of Pcs",
+        cell: ({ row }) => {
+          const v = row.getValue("noOfPcs") as number | null | undefined
+          return <div className="text-right">{v != null ? v : "-"}</div>
+        },
+        size: 90,
+        minSize: 80,
+      },
+      {
+        accessorKey: "serviceModeName",
+        header: "Service Mode",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("serviceModeName") || "-"}
+          </div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "landingTypeName",
+        header: "Landing Type",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("landingTypeName") || "-"}
+          </div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+      {
+        accessorKey: "remarks",
+        header: "Remarks",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("remarks") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+      },
+      {
+        accessorKey: "description",
+        header: "Description",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("description") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+      },
+      {
+        accessorKey: "editVersion",
+        header: "Version",
+        cell: ({ row }) => {
+          const item = row.original
+          return (
+            <div className="text-center">
+              <Badge
+                variant="destructive"
+                className="cursor-pointer transition-colors hover:bg-red-700"
+                onClick={() => _handleOpenHistory(item)}
+                title="Click to view history"
+              >
+                {row.getValue("editVersion") ?? "0"}
+              </Badge>
+            </div>
+          )
+        },
+        size: 70,
+        minSize: 60,
+        maxSize: 80,
+      },
+      {
         accessorKey: "poNo",
         header: "PO No",
         size: 150,
@@ -267,7 +431,9 @@ export function ConsignmentExportTable({
         accessorKey: "existPortCustom",
         header: "Exist Port Custom",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("existPortCustom") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("existPortCustom") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
@@ -305,7 +471,7 @@ export function ConsignmentExportTable({
         minSize: 130,
       },
     ],
-    [formatDateTime, canDebitNote]
+    [formatDateTime, _handleOpenHistory, canDebitNote]
   )
 
   // Wrapper functions to handle type differences
