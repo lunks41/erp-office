@@ -16,11 +16,6 @@ import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -28,6 +23,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Form } from "@/components/ui/form"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 
@@ -182,10 +182,7 @@ export function TariffDetailsForm({
 
       if (displayRate > 0 && exhRate > 0) {
         const basicRate = displayRate / exhRate
-        detailsForm.setValue(
-          "basicRate",
-          Number(basicRate.toFixed(amtDec))
-        )
+        detailsForm.setValue("basicRate", Number(basicRate.toFixed(amtDec)))
         detailsForm.trigger("basicRate")
       } else if (displayRate === 0) {
         detailsForm.setValue("basicRate", 0)
@@ -231,13 +228,87 @@ export function TariffDetailsForm({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {editingDetail ? "Edit Detail" : "Add Detail"}      {" Uom : "} {uomCode}
-            </DialogTitle>
+            <div className="flex items-center gap-2">
+              <DialogTitle className="flex-1">
+                {editingDetail ? "Edit Detail" : "Add Detail"}
+                {" Uom : "} {uomCode}
+              </DialogTitle>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-foreground h-8 w-8 shrink-0"
+                    aria-label="Field help"
+                  >
+                    <HelpCircle className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  side="left"
+                  align="end"
+                  className="max-h-[70vh] w-[320px] overflow-y-auto sm:w-[380px]"
+                >
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold">Field help</p>
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <p className="text-foreground mb-0.5 font-semibold">
+                          Local Rate
+                        </p>
+                        <p className="text-muted-foreground">
+                          The rate displayed in your local currency. This is the
+                          amount customers will see. The system automatically
+                          calculates the Basic Rate by dividing this value by
+                          the Exchange Rate when you leave this field.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-foreground mb-0.5 font-semibold">
+                          Minimum Slab
+                        </p>
+                        <p className="text-muted-foreground">
+                          The minimum quantity/unit range for which this rate
+                          applies. This rate will be used when the quantity is
+                          equal to or greater than this value and less than or
+                          equal to the Maximum Slab.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-foreground mb-0.5 font-semibold">
+                          Maximum Slab
+                        </p>
+                        <p className="text-muted-foreground">
+                          The maximum quantity/unit range for which this rate
+                          applies. This rate will be used when the quantity is
+                          between the Minimum Slab and this value (inclusive).
+                          If you need rates for higher quantities, create
+                          additional tariff details with different slab ranges.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-foreground mb-0.5 font-semibold">
+                          Additional Charges
+                        </p>
+                        <p className="text-muted-foreground">
+                          Enable this option to apply additional charges beyond
+                          the base rate. When enabled, you can specify an
+                          Additional Slab (quantity threshold) and Additional
+                          Rate (charge per unit) that applies when the quantity
+                          exceeds the specified threshold. This is useful for
+                          tiered pricing structures.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             <DialogDescription>
               {editingDetail
                 ? "Update tariff detail information"
-                : "Add a new tariff detail"}  
+                : "Add a new tariff detail"}
             </DialogDescription>
           </DialogHeader>
           <Form {...detailsForm}>
@@ -253,27 +324,6 @@ export function TariffDetailsForm({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <label className="text-sm font-medium">Local Rate</label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
-                        >
-                          <HelpCircle className="h-3.5 w-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs">
-                        <div className="space-y-1">
-                          <p className="font-semibold">Local Rate</p>
-                          <p className="text-xs">
-                            The rate displayed in your local currency. This is the
-                            amount customers will see. The system automatically
-                            calculates the Basic Rate by dividing this value by the
-                            Exchange Rate when you leave this field.
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
                     <span className="text-sm text-red-500">*</span>
                   </div>
                   <CustomNumberInput
@@ -295,27 +345,6 @@ export function TariffDetailsForm({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <label className="text-sm font-medium">Min Slab</label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
-                        >
-                          <HelpCircle className="h-3.5 w-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs">
-                        <div className="space-y-1">
-                          <p className="font-semibold">Minimum Slab   </p>
-                          <p className="text-xs">
-                            The minimum quantity/unit range for which this rate
-                            applies. This rate will be used when the quantity is
-                            equal to or greater than this value and less than or
-                            equal to the Maximum Slab.
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
                     <span className="text-sm text-red-500">*</span>
                   </div>
                   <CustomNumberInput
@@ -329,28 +358,6 @@ export function TariffDetailsForm({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <label className="text-sm font-medium">Max Slab</label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
-                        >
-                          <HelpCircle className="h-3.5 w-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs">
-                        <div className="space-y-1">
-                          <p className="font-semibold">Maximum Slab</p>
-                          <p className="text-xs">
-                            The maximum quantity/unit range for which this rate
-                            applies. This rate will be used when the quantity is
-                            between the Minimum Slab and this value (inclusive).
-                            If you need rates for higher quantities, create
-                            additional tariff details with different slab ranges.
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
                     <span className="text-sm text-red-500">*</span>
                   </div>
                   <CustomNumberInput
@@ -366,29 +373,6 @@ export function TariffDetailsForm({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <label className="text-sm font-medium">Additional</label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground flex items-center justify-center"
-                        >
-                          <HelpCircle className="h-3.5 w-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs">
-                        <div className="space-y-1">
-                          <p className="font-semibold">Additional Charges</p>
-                          <p className="text-xs">
-                            Enable this option to apply additional charges beyond
-                            the base rate. When enabled, you can specify an
-                            Additional Slab (quantity threshold) and Additional
-                            Rate (charge per unit) that applies when the quantity
-                            exceeds the specified threshold. This is useful for
-                            tiered pricing structures.
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
                   </div>
                   <CustomSwitch
                     form={detailsForm}
