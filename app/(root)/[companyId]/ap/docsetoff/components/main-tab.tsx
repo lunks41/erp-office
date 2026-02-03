@@ -573,27 +573,6 @@ export default function Main({
 
       const newDetails: ApDocSetOffDtSchemaType[] = transactions.map(
         (transaction, index) => {
-          const totAmt = Number(transaction.totAmt) || 0
-          const balAmt = Number(transaction.balAmt) || 0
-
-          // Determine lowest amount for this transaction
-          // If both are same sign, use the one with smaller absolute value
-          // If different signs, use the negative one (lower)
-          let lowestAmt = 0
-          if (totAmt < 0 && balAmt < 0) {
-            // Both negative: use the one with smaller absolute value (less negative)
-            lowestAmt = Math.max(totAmt, balAmt)
-          } else if (totAmt > 0 && balAmt > 0) {
-            // Both positive: use the smaller one
-            lowestAmt = Math.min(totAmt, balAmt)
-          } else if (totAmt < 0 || balAmt < 0) {
-            // One is negative: use the negative one (lower)
-            lowestAmt = totAmt < 0 ? totAmt : balAmt
-          } else {
-            // One or both are zero: use the non-zero one, or 0 if both are zero
-            lowestAmt = totAmt !== 0 ? totAmt : balAmt
-          }
-
           return {
             companyId: companyId,
             setoffId: form.getValues("setoffId") || "0",
@@ -602,7 +581,7 @@ export default function Main({
             transactionId: transaction.transactionId,
             documentId: String(transaction.documentId),
             documentNo: transaction.documentNo,
-            referenceNo: transaction.referenceNo,
+            referenceNo: transaction.suppNo,
             docCurrencyId: transaction.currencyId,
             docCurrencyCode: transaction.currencyCode || "",
             docExhRate: transaction.exhRate,
@@ -610,7 +589,7 @@ export default function Main({
             docDueDate: transaction.dueDate,
             docTotAmt: transaction.totAmt,
             docTotLocalAmt: transaction.totLocalAmt,
-            docBalAmt: lowestAmt, // Use the minimum amount
+            docBalAmt: transaction.balAmt,
             docBalLocalAmt: transaction.balLocalAmt,
             allocAmt: 0,
             allocLocalAmt: 0,

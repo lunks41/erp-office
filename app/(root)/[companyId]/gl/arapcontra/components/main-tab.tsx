@@ -830,8 +830,6 @@ export default function Main({
 
       const newDetails: GLContraDtSchemaType[] = transactions.map(
         (transaction, index) => {
-          const signedBal = Math.abs(transaction.balAmt)
-          const signedLocalBal = Math.abs(transaction.balLocalAmt)
           return {
             companyId,
             contraId,
@@ -841,7 +839,7 @@ export default function Main({
             transactionId: transaction.transactionId,
             documentId: String(transaction.documentId),
             documentNo: transaction.documentNo,
-            referenceNo: transaction.referenceNo,
+            referenceNo: transaction.suppNo,
             docCurrencyId: transaction.currencyId,
             docCurrencyCode: transaction.currencyCode || "",
             docExhRate: transaction.exhRate,
@@ -849,8 +847,8 @@ export default function Main({
             docDueDate: transaction.dueDate,
             docTotAmt: transaction.totAmt,
             docTotLocalAmt: transaction.totLocalAmt,
-            docBalAmt: -signedBal,
-            docBalLocalAmt: -signedLocalBal,
+            docBalAmt: transaction.balAmt,
+            docBalLocalAmt: transaction.balLocalAmt,
             allocAmt: 0,
             allocLocalAmt: 0,
             docAllocAmt: 0,
