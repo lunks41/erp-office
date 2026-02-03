@@ -470,6 +470,27 @@ export function MandatoryTable() {
       size: 100,
     },
     {
+      accessorKey: "m_PaymentTypeId",
+      header: () => (
+        <div className="text-center font-medium text-wrap">Payment Type</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          <Checkbox
+            checked={row.getValue("m_PaymentTypeId")}
+            onCheckedChange={(checked) =>
+              handleFieldChange(
+                row.original,
+                "m_PaymentTypeId",
+                checked as boolean
+              )
+            }
+          />
+        </div>
+      ),
+      size: 100,
+    },
+    {
       accessorKey: "m_Remarks_Hd",
       header: () => (
         <div className="text-center font-medium text-wrap">Remarks Hd</div>

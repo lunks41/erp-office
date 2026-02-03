@@ -1452,7 +1452,7 @@ export default function AdjustmentPage() {
                 saveMutation.isPending ||
                 updateMutation.isPending ||
                 isCancelled ||
-                payAmt > 0 ||
+                // payAmt > 0 ||
                 (isEdit && !canEdit) ||
                 (!isEdit && !canCreate)
               }

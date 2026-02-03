@@ -262,7 +262,7 @@ export default function CbBankTransferCtmForm({
           form={form}
           name="paymentTypeId"
           label="Payment Type"
-          isRequired={true}
+          isRequired={required?.m_PaymentTypeId}
           onChangeEvent={handlePaymentTypeChange}
         />
 

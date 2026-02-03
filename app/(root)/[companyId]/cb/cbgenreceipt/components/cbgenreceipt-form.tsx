@@ -537,7 +537,7 @@ export default function CbGenReceiptForm({
             form={form}
             name="paymentTypeId"
             label="Pay"
-            isRequired={false}
+            isRequired={required?.m_PaymentTypeId}
             onChangeEvent={handlePaymentTypeChange}
           />
           <CustomInput form={form} name="chequeNo" label="Pay No" />

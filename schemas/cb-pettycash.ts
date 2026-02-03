@@ -32,7 +32,9 @@ export const CbPettyCashHdSchema = (
         : z.number().optional(),
 
     // Payment Type Fields
-    paymentTypeId: z.number().optional(),
+    paymentTypeId: required?.m_PaymentTypeId
+      ? z.number().min(1, "Payment Type is required")
+      : z.number().optional(),
     // Cheque Fields
     chequeNo: z.string().optional(),
     chequeDate: z.union([z.date(), z.string()]),

@@ -817,7 +817,7 @@ export default function RefundForm({
           form={form}
           name="paymentTypeId"
           label="Pay"
-          isRequired={true}
+          isRequired={required?.m_PaymentTypeId}
           onChangeEvent={handlePaymentTypeChange}
         />
         <CustomInput form={form} name="chequeNo" label="Pay No" />

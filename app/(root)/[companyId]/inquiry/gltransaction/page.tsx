@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
+import { IGlTransactionDetails } from "@/interfaces/history"
+import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -12,16 +14,14 @@ import { z } from "zod"
 import { formatDateForApi } from "@/lib/date-utils"
 import { GLTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetGlTransactionInquiry } from "@/hooks/use-inquiry"
-import { IGlTransactionDetails } from "@/interfaces/history"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
-import ChartOfAccountMultiSelect from "@/components/multiselection-chartofaccount"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import ChartOfAccountMultiSelect from "@/components/multiselection-chartofaccountv1"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 import { BasicTable } from "@/components/table/table-basic"
 import { ExtendedColumnDef } from "@/components/table/table-types"
-import { useAuthStore } from "@/stores/auth-store"
 
 // Schema for filter form
 const filterSchema = z.object({
@@ -72,7 +72,13 @@ export default function GlTransactionInquiryPage() {
     isLoading: isLoadingGlTransaction,
     isRefetching: isRefetchingGlTransaction,
     error: glTransactionError,
-  } = useGetGlTransactionInquiry(undefined, glIds, fromDate, toDate, hasSearched)
+  } = useGetGlTransactionInquiry(
+    undefined,
+    glIds,
+    fromDate,
+    toDate,
+    hasSearched
+  )
 
   useEffect(() => {
     if (glTransactionError) {
@@ -394,8 +400,8 @@ export default function GlTransactionInquiryPage() {
             </div>
             <h3 className="mb-2 text-lg font-semibold">Ready to Search</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Select GL codes and date range above, then click &quot;Search&quot;
-              to find GL transactions across all companies.
+              Select GL codes and date range above, then click
+              &quot;Search&quot; to find GL transactions across all companies.
             </p>
           </div>
         ) : (
@@ -418,4 +424,3 @@ export default function GlTransactionInquiryPage() {
     </div>
   )
 }
-

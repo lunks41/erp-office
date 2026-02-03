@@ -117,6 +117,7 @@ export interface IMandatoryFields {
   m_ReferenceNo: boolean
   m_SuppInvoiceNo: boolean
   m_BankId: boolean
+  m_PaymentTypeId: boolean
   m_Remarks_Hd: boolean
   m_Address1: boolean
   m_Address2: boolean

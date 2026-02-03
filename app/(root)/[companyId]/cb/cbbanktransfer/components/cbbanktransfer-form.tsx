@@ -637,7 +637,7 @@ export default function BankTransferForm({
   const handleBankExhRateChange = React.useCallback(
     (value: number) => {
       const bankExhRate = value || 0
-      
+
       // If bankExhRate is zero, reset related fields
       if (bankExhRate === 0) {
         form.setValue("bankTotAmt", 0, {
@@ -656,7 +656,7 @@ export default function BankTransferForm({
       }
 
       const fromTotAmt = form.getValues("fromTotAmt") || 0
-      
+
       form.setValue("bankTotAmt", fromTotAmt, {
         shouldValidate: false,
       })
@@ -668,7 +668,7 @@ export default function BankTransferForm({
         locAmtDec
       )
 
-        form.setValue("bankTotLocalAmt", bankTotLocalAmt, {
+      form.setValue("bankTotLocalAmt", bankTotLocalAmt, {
         shouldValidate: false,
       })
 
@@ -727,7 +727,6 @@ export default function BankTransferForm({
     },
     [form, locAmtDec]
   )
-
 
   return (
     <FormProvider {...form}>
@@ -793,7 +792,7 @@ export default function BankTransferForm({
               form={form}
               name="paymentTypeId"
               label="Payment Type"
-              isRequired={true}
+              isRequired={required?.m_PaymentTypeId}
               onChangeEvent={handlePaymentTypeChange}
             />
 

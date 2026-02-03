@@ -54,7 +54,7 @@ export function PurchaseTable({
         },
         size: 100,
         minSize: 80,
-        enableHiding: true,
+        hidden: true,
       },
       {
         accessorKey: "isAllocated",

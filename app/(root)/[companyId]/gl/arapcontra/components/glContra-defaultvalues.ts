@@ -11,7 +11,7 @@ const buildDefaultContraDetails = (dateFormat: string) => ({
   transactionId: 0,
   documentId: 0,
   documentNo: "",
-  referenceNo: "",
+  docRefNo: "",
   docCurrencyId: 0,
   docCurrencyCode: "",
   docExhRate: 0,

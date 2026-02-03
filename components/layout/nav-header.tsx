@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
@@ -114,7 +115,11 @@ const _data = {
       url: "/logistics",
       items: [
         { title: "Transportation Log", url: "/logistics/log", icon: Truck },
-        { title: "Freight Management", url: "/logistics/freight", icon: Package },
+        {
+          title: "Freight Management",
+          url: "/logistics/freight",
+          icon: Package,
+        },
         { title: "Reports", url: "/logistics/reports", icon: BarChart },
       ],
     },
@@ -138,7 +143,7 @@ export function NavHeader() {
       <div className="flex flex-1 items-center">
         <NavigationMenu>
           <NavigationMenuList>
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link
                   href={getUrlWithCompanyId("/home")}
@@ -150,7 +155,7 @@ export function NavHeader() {
                   Home
                 </Link>
               </NavigationMenuLink>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
 
             {/* Operations Navigation - COMMENTED OUT */}
             {/* <NavigationMenuItem>
@@ -323,9 +328,22 @@ export function NavHeader() {
       {/* Center - Company Name */}
       <div className="flex flex-1 items-center justify-center">
         {currentCompany && (
-          <div className="bg-primary/5 border-primary/10 hover:bg-primary/10 flex items-center gap-2 rounded-lg border px-4 py-2 shadow-sm backdrop-blur-sm transition-all">
-            <Building2 className="text-primary h-4 w-4 flex-shrink-0" />
-            <span className="text-foreground max-w-[200px] truncate text-sm font-semibold sm:max-w-[250px] md:max-w-[300px] lg:max-w-[400px]">
+          <div className="bg-primary/5 border-primary/10 hover:bg-primary/10 flex items-center gap-3 rounded-lg border px-4 py-2.5 shadow-sm backdrop-blur-sm transition-all">
+            <span className="relative flex h-7 w-7 flex-shrink-0 sm:h-8 sm:w-8">
+              <Image
+                src={`/uploads/companies/${currentCompany.companyId}.svg`}
+                alt={currentCompany.companyName || "Company Logo"}
+                width={32}
+                height={32}
+                className="object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"
+                  e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                }}
+              />
+              <Building2 className="text-primary absolute inset-0 hidden h-7 w-7 sm:h-8 sm:w-8" />
+            </span>
+            <span className="text-foreground max-w-[200px] truncate text-base font-semibold sm:max-w-[250px] sm:text-lg md:max-w-[300px] lg:max-w-[400px]">
               {currentCompany.companyName}
             </span>
           </div>

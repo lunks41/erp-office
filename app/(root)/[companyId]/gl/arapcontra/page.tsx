@@ -223,7 +223,7 @@ export default function ArapcontraPage() {
               transactionId: detail.transactionId ?? 0,
               documentId: detail.documentId ?? 0,
               documentNo: detail.documentNo ?? "",
-              referenceNo: detail.referenceNo ?? "",
+              docRefNo: detail.docRefNo ?? "",
               docCurrencyId: detail.docCurrencyId ?? 0,
               docExhRate: detail.docExhRate ?? 0,
               docAccountDate: detail.docAccountDate ?? "",
@@ -654,7 +654,7 @@ export default function ArapcontraPage() {
                 transactionId: detail.transactionId ?? 0,
                 documentId: detail.documentId?.toString() ?? "0",
                 documentNo: detail.documentNo ?? "",
-                referenceNo: detail.referenceNo ?? "",
+                docRefNo: detail.docRefNo ?? "",
                 docCurrencyId: detail.docCurrencyId ?? 0,
                 docExhRate: detail.docExhRate ?? 0,
                 docAccountDate: detail.docAccountDate
@@ -750,7 +750,7 @@ export default function ArapcontraPage() {
                 transactionId: detail.transactionId ?? 0,
                 documentId: detail.documentId?.toString() ?? "0",
                 documentNo: detail.documentNo ?? "",
-                referenceNo: detail.referenceNo ?? "",
+                docRefNo: detail.docRefNo ?? "",
                 docCurrencyId: detail.docCurrencyId ?? 0,
                 docExhRate: detail.docExhRate ?? 0,
                 docAccountDate: detail.docAccountDate
@@ -981,7 +981,7 @@ export default function ArapcontraPage() {
                   transactionId: detail.transactionId ?? 0,
                   documentId: detail.documentId?.toString() ?? "0",
                   documentNo: detail.documentNo ?? "",
-                  referenceNo: detail.referenceNo ?? "",
+                  docRefNo: detail.docRefNo ?? "",
                   docCurrencyId: detail.docCurrencyId ?? 0,
                   docExhRate: detail.docExhRate ?? 0,
                   docAccountDate: detail.docAccountDate

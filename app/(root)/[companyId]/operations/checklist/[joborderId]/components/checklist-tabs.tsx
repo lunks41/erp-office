@@ -9,6 +9,7 @@ import {
   ISaveDebitNoteItem,
 } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
+import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Building2,
@@ -26,6 +27,7 @@ import { z } from "zod"
 import { apiClient } from "@/lib/api-client"
 import { JobOrder } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
+import { ModuleId, OperationsTransactionId } from "@/lib/utils"
 import { useGetJobOrderByIdNo } from "@/hooks/use-checklist"
 import { useDelete } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
@@ -49,6 +51,7 @@ import {
   CompanyAutocomplete,
   CompanyCustomerAutocomplete,
 } from "@/components/autocomplete"
+import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 
 import { ChecklistDetailsForm } from "./checklist-details-form"
 import { ChecklistHistory } from "./checklist-history"
@@ -56,9 +59,6 @@ import { ChecklistMain } from "./checklist-main"
 import { ChecklistLog } from "./checklist-timeline"
 import { TransportationLogTab } from "./checklist-transporationlog"
 import { DebitNoteItemsTable } from "./debit-note-items-table"
-import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
-import { ModuleId, OperationsTransactionId } from "@/lib/utils"
-import { usePermissionStore } from "@/stores/permission-store"
 
 interface ChecklistTabsProps {
   jobData: IJobOrderHd
@@ -75,7 +75,7 @@ export function ChecklistTabs({
   const companyId = params.companyId as string
   const { decimals, user } = useAuthStore()
 
-   const moduleId = ModuleId.operations
+  const moduleId = ModuleId.operations
   const transactionId = OperationsTransactionId.checklist
   const { hasPermission } = usePermissionStore()
   const canView = hasPermission(moduleId, transactionId, "isRead")
@@ -87,7 +87,12 @@ export function ChecklistTabs({
   const [activeTab, setActiveTab] = useState("main")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{
-    type: "clone" | "update" | "cloneCompany" | "generateInvoice" | "deleteJobOrder"
+    type:
+      | "clone"
+      | "update"
+      | "cloneCompany"
+      | "generateInvoice"
+      | "deleteJobOrder"
     title: string
     message: string
   } | null>(null)
@@ -469,16 +474,12 @@ export function ChecklistTabs({
       )
 
       if (response.data.result === 1) {
-        toast.success(
-          response.data.message || "Invoice generated successfully"
-        )
+        toast.success(response.data.message || "Invoice generated successfully")
         // Refresh the job order data to get updated invoiceId
         refetch()
         onUpdateSuccess?.()
       } else {
-        toast.error(
-          response.data.message || "Failed to generate invoice"
-        )
+        toast.error(response.data.message || "Failed to generate invoice")
       }
     } catch (error) {
       console.error("Error generating invoice:", error)
@@ -498,18 +499,14 @@ export function ChecklistTabs({
       )
 
       if (response && response.result === 1) {
-        toast.success(
-          response.message || "Job order deleted successfully"
-        )
+        toast.success(response.message || "Job order deleted successfully")
         // Refetch and navigate or refresh
         refetch()
         onUpdateSuccess?.()
         // Optionally navigate back to checklist list
         // router.push(`/${companyId}/operations/checklist`)
       } else {
-        toast.error(
-          response?.message || "Failed to delete job order"
-        )
+        toast.error(response?.message || "Failed to delete job order")
       }
     } catch (error) {
       console.error("Error deleting job order:", error)
@@ -521,7 +518,12 @@ export function ChecklistTabs({
         jobOrderNo: null,
       })
     }
-  }, [deleteJobOrderConfirmation.jobOrderId, deleteJobOrderMutation, refetch, onUpdateSuccess])
+  }, [
+    deleteJobOrderConfirmation.jobOrderId,
+    deleteJobOrderMutation,
+    refetch,
+    onUpdateSuccess,
+  ])
 
   // Load data when dialog opens
   useEffect(() => {
@@ -634,11 +636,13 @@ export function ChecklistTabs({
               <DropdownMenuItem onClick={() => handlePrint("jobSummary")}>
                 Job Summary
               </DropdownMenuItem>
-              {isConfirmed && currentJobData?.invoiceId && currentJobData?.isPost===true && (
-                <DropdownMenuItem onClick={() => handlePrint("invoice")}>
-                  Invoice Print
-                </DropdownMenuItem>
-              )}
+              {isConfirmed &&
+                currentJobData?.invoiceId &&
+                currentJobData?.isPost === true && (
+                  <DropdownMenuItem onClick={() => handlePrint("invoice")}>
+                    Invoice Print
+                  </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -726,8 +730,11 @@ export function ChecklistTabs({
             </Button>
           )}
 
-            {/* Delete Job Order Button - only show if user has edit permission and Summary tab is active and invoiceId is 0 and isPost is false */}
-            {canEdit && activeTab === "main" && isConfirmed===false && canDelete===true &&  (
+          {/* Delete Job Order Button - only show if user has edit permission and Summary tab is active and invoiceId is 0 and isPost is false */}
+          {canEdit &&
+            activeTab === "main" &&
+            isConfirmed === false &&
+            canDelete === true && (
               <Button
                 size="sm"
                 variant="destructive"
@@ -974,7 +981,7 @@ export function ChecklistTabs({
 
       {/* Debit Note Dialog */}
       <Dialog open={showDebitNoteDialog} onOpenChange={setShowDebitNoteDialog}>
-        <DialogContent className="max-h-[90vh] w-[60vw] !max-w-none overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[80vw] !max-w-none overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Debit Note Details</DialogTitle>
             <DialogDescription>

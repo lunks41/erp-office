@@ -94,6 +94,35 @@ export function DebitNoteItemsTable({
         size: 160,
         minSize: 120,
       },
+      {
+        accessorKey: "totAmt",
+        header: "Total Amount",
+        cell: ({ row }) => (
+          <div className="text-center">{row.getValue("totAmt") || "-"}</div>
+        ),
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "gstAmt",
+        header: "GST Amount",
+        cell: ({ row }) => (
+          <div className="text-center">{row.getValue("gstAmt") || "-"}</div>
+        ),
+        size: 100,
+        minSize: 80,
+      },
+      {
+        accessorKey: "totAmtAftGst",
+        header: "Total Amount After GST",
+        cell: ({ row }) => (
+          <div className="text-center">
+            {row.getValue("totAmtAftGst") || "-"}
+          </div>
+        ),
+        size: 100,
+        minSize: 80,
+      },
     ],
     []
   )

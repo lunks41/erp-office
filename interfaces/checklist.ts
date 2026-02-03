@@ -846,6 +846,9 @@ export interface IDebitNoteItem {
   itemNo: number
   updatedItemNo?: number
   updatedDebitNoteNo?: string
+  totAmt?: number
+  gstAmt?: number
+  totAmtAftGst?: number
 }
 
 export interface ISaveDebitNoteItem {

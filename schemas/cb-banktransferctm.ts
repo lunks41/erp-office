@@ -70,7 +70,9 @@ export const CbBankTransferCtmHdSchema = (
     accountDate: z.union([z.date(), z.string()]),
 
     // Payment Fields
-    paymentTypeId: z.number().min(1, "Payment Type is required"),
+    paymentTypeId: required?.m_PaymentTypeId
+      ? z.number().min(1, "Payment Type is required")
+      : z.number().optional(),
     chequeNo: z.string().optional().nullable(),
     chequeDate: z.union([z.date(), z.string()]),
 
