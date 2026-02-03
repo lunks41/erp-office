@@ -98,7 +98,8 @@ export default function ReportView({
         height: "100%",
         overflow: "hidden",
       }}
-      viewMode="INTERACTIVE"
+      //viewMode="INTERACTIVE"
+      viewMode="PRINT_PREVIEW"
       scaleMode="SPECIFIC"
       scale={1.0}
       enableAccessibility={false}
