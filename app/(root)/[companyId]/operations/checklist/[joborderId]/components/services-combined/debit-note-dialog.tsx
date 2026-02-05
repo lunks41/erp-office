@@ -921,8 +921,20 @@ export default function DebitNoteDialog({
     const debitNoteNo = debitNoteHdState.debitNoteNo || ""
     const jobOrderId = debitNoteHdState.jobOrderId?.toString() || "0"
 
-    // Determine report file and build parameters
-    const reportFile = "checklist/DebitNote.trdp"
+    // Determine report file by taskId: import, export, equipment used, or default
+    let reportFile = ""
+    if (taskId === 8) {
+      reportFile = "debitnote/DebitNote_Import.trdp"
+    } else if (taskId === 9) {
+      reportFile = "debitnote/DebitNote_Export.trdp"
+    } else if (taskId === 3) {
+      reportFile = "debitnote/DebitNote_Used.trdp"
+    } else {
+      reportFile = "debitnote/DebitNote.trdp"
+    }
+
+    console.log("reportFile", reportFile)
+    console.log("taskId", taskId)
     const reportParams: Record<string, string | number> = {
       companyId: companyId,
       debitNoteId: debitNoteId,

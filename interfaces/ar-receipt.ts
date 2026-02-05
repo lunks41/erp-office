@@ -12,6 +12,7 @@ export interface IArReceiptHd {
   bankChgGLId: number
   bankChgAmt: number
   bankChgLocalAmt: number
+  isCustPayBankChg: boolean
   customerId: number
   currencyId: number
   exhRate: number

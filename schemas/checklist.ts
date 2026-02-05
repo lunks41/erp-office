@@ -705,7 +705,7 @@ export const debitNoteDtSchema = z
     totAmtAftGst: z.number().min(0, "Total after GST must be 0 or greater"),
     remarks: z
       .string()
-      .max(500, "Remarks must be less than 500 characters")
+      .max(5000, "Remarks must be less than 500 characters")
       .optional(),
     editVersion: z.number().min(0, "Edit version must be 0 or greater"),
     isServiceCharge: z.boolean(),

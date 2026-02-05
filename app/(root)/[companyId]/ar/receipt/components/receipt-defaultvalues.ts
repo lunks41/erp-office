@@ -42,6 +42,7 @@ const buildDefaultReceipt = (dateFormat: string) => ({
   bankChgGLId: 0,
   bankChgAmt: 0,
   bankChgLocalAmt: 0,
+  isCustPayBankChg: false,
   currencyId: 0,
   exhRate: 0,
   totAmt: 0,

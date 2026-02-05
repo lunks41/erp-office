@@ -37,6 +37,7 @@ export const ArReceiptHdSchema = (
       : z.number().optional(),
     bankChgAmt: z.number(),
     bankChgLocalAmt: z.number(),
+    isCustPayBankChg: z.boolean().optional(),
 
     // Currency Fields
     currencyId: z.number().min(1, "Currency is required"),

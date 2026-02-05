@@ -275,6 +275,15 @@ export default function EditVersionDetails({
       ),
     },
     {
+      accessorKey: "isCustPayBankChg",
+      header: "Is Cust Bank Chg",
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.original.isCustPayBankChg ? "Yes" : "No"}
+        </div>
+      ),
+    },
+    {
       accessorKey: "remarks",
       header: "Remarks",
     },

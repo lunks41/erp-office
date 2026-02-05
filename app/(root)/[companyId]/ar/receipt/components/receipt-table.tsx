@@ -367,6 +367,15 @@ export default function ReceiptTable({
         </div>
       ),
     },
+    {
+      accessorKey: "isCustPayBankChg",
+      header: "Is Cust Bank Chg",
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("isCustPayBankChg") ? "Yes" : "No"}
+        </div>
+      ),
+    },
     ...(visible?.m_Remarks
       ? [
           {

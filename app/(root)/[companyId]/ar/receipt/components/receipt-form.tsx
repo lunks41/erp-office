@@ -44,6 +44,7 @@ import {
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 interface ReceiptFormProps {
@@ -963,6 +964,13 @@ export default function ReceiptForm({
           round={locAmtDec}
           isDisabled={true}
           className="text-right"
+        />
+
+        {/* Is Customer Bank Charge */}
+        <CustomSwitch
+          form={form}
+          name="isCustPayBankChg"
+          label="Is Cust Pay Bank Chg"
         />
 
         {/* Bank Charge GL */}

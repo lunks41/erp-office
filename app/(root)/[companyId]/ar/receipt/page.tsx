@@ -210,6 +210,7 @@ export default function ReceiptPage() {
           bankChgGLId: receipt.bankChgGLId ?? 0,
           bankChgAmt: receipt.bankChgAmt ?? 0,
           bankChgLocalAmt: receipt.bankChgLocalAmt ?? 0,
+          isCustPayBankChg: receipt.isCustPayBankChg ?? false,
           customerId: receipt.customerId ?? 0,
           currencyId: receipt.currencyId ?? 0,
           exhRate: receipt.exhRate ?? 0,
@@ -496,6 +497,7 @@ export default function ReceiptPage() {
         allocTotLocalAmt: 0,
         bankChgAmt: 0,
         bankChgLocalAmt: 0,
+        isCustPayBankChg: false,
         // Clear data details - remove all records
         data_details: [],
       }
@@ -703,6 +705,7 @@ export default function ReceiptPage() {
         bankChgGLId: apiReceipt.bankChgGLId ?? 0,
         bankChgAmt: apiReceipt.bankChgAmt ?? 0,
         bankChgLocalAmt: apiReceipt.bankChgLocalAmt ?? 0,
+        isCustPayBankChg: apiReceipt.isCustPayBankChg ?? false,
         customerId: apiReceipt.customerId ?? 0,
         currencyId: apiReceipt.currencyId ?? 0,
         exhRate: apiReceipt.exhRate ?? 0,
