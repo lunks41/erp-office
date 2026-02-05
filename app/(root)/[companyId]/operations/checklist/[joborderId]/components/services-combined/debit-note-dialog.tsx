@@ -243,6 +243,11 @@ export default function DebitNoteDialog({
     ) => {
       if (serviceCharge <= 0 || totAmtAftGst <= 0) return
 
+      const isPrepaymentTask = taskId === 8 || taskId === 9
+      const chargeRemarks = isPrepaymentTask
+        ? `${serviceCharge}% Prepayment`
+        : `${serviceCharge}% Service Charges`
+
       // Calculate service charge amount = totAmtAftGst * (serviceCharge / 100)
       const serviceChargeAmount = calculatePercentagecAmount(
         totAmtAftGst,
@@ -277,7 +282,7 @@ export default function DebitNoteDialog({
             gstPercentage: gstPercentage,
             gstAmt: gstAmt,
             totAmtAftGst: totAmt + gstAmt,
-            remarks: `${serviceCharge}% Service Charges`,
+            remarks: chargeRemarks,
             isServiceCharge: false,
             serviceCharge: 0,
           }
@@ -299,7 +304,7 @@ export default function DebitNoteDialog({
             gstPercentage: gstPercentage,
             gstAmt: gstAmt,
             totAmtAftGst: totAmt + gstAmt,
-            remarks: `${serviceCharge}% Service Charges`,
+            remarks: chargeRemarks,
             editVersion: 0,
             isServiceCharge: false,
             serviceCharge: 0,

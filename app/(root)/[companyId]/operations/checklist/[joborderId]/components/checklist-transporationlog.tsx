@@ -4,11 +4,13 @@ import { useCallback, useMemo, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import { IJobOrderHd, ITransportationLog } from "@/interfaces/checklist"
 import { TransportationLogSchemaType } from "@/schemas/checklist"
+import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { getData } from "@/lib/api-client"
 import { JobOrder_TransportationLog } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
+import { ModuleId, OperationsTransactionId } from "@/lib/utils"
 import { useDelete, useGetById, usePersist } from "@/hooks/use-common"
 import { useTaskServiceDefaults } from "@/hooks/use-task-service"
 import { Badge } from "@/components/ui/badge"
@@ -25,8 +27,6 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { TransportationLogForm } from "./checklist-transporationlog-form"
 import { TransportationLogTable } from "./checklist-transporationlog-table"
-import { ModuleId, OperationsTransactionId } from "@/lib/utils"
-import { usePermissionStore } from "@/stores/permission-store"
 
 interface TransportationLogTabProps {
   jobData: IJobOrderHd
@@ -317,7 +317,7 @@ export function TransportationLogTab({
         >
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <DialogTitle>Transportation Log</DialogTitle>
+              <DialogTitle>Transportation | Forklift Log</DialogTitle>
               <Badge
                 variant={
                   modalMode === "create"
@@ -345,7 +345,7 @@ export function TransportationLogTab({
               {modalMode === "create"
                 ? "Add a new transportation log entry to this job order."
                 : modalMode === "edit"
-                  ? "Update the transportation log details."
+                  ? "Update the transportation | forklift log details."
                   : "View transportation log details (read-only)."}
             </DialogDescription>
           </DialogHeader>

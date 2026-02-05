@@ -305,7 +305,7 @@ export function TransportationLogForm({
               <CustomInput
                 form={form}
                 name="refNo"
-                label="Slip No"
+                label="Slip No | Tally No"
                 isDisabled={isConfirmed}
               />
               <CustomInput
@@ -329,7 +329,7 @@ export function TransportationLogForm({
               <CustomNumberInput
                 form={form}
                 name="passengerCount"
-                label="Passenger Count"
+                label="Passenger Count | Service Count"
                 isDisabled={isConfirmed}
               />
               <CargoTypeAutocomplete

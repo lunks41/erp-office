@@ -78,6 +78,12 @@ export default function DebitNoteForm({
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const priceDec = decimals[0]?.priceDec || 2
   const qtyDec = decimals[0]?.qtyDec || 2
+
+  // taskId 8 or 9: use Prepayment; otherwise use ServiceCharge (labels and remarks)
+  const isPrepaymentTask = taskId === 8 || taskId === 9
+  const chargeTypeLabel = isPrepaymentTask ? "Prepayment" : "Service Chg"
+  const isChargeLabel = isPrepaymentTask ? "Is Prepayment?" : "Is Sr Chg?"
+
   const { isLoading: _isChartOfAccountLoading } = useChartOfAccountLookup(
     Number(companyId)
   )
@@ -335,11 +341,15 @@ export default function DebitNoteForm({
     (selectedCharge: IChargeLookup | null) => {
       if (selectedCharge && selectedCharge.chargeName) {
         const currentRemarks = form.getValues("remarks") || ""
-        // Do not overwrite remarks when they contain predefined "5% Prepayment"
-        const hasPrepaymentRemark = currentRemarks
-          .toLowerCase()
-          .includes("5% prepayment")
-        if (hasPrepaymentRemark) {
+        const remarksLower = currentRemarks.toLowerCase()
+        // Do not overwrite remarks when they contain predefined Prepayment or Service Charges
+        const hasPrepaymentRemark =
+          (taskId === 8 || taskId === 9) && remarksLower.includes("prepayment")
+        const hasServiceChargeRemark =
+          taskId !== 8 &&
+          taskId !== 9 &&
+          remarksLower.includes("service charge")
+        if (hasPrepaymentRemark || hasServiceChargeRemark) {
           onChargeChange?.(selectedCharge.chargeName)
           return
         }
@@ -354,7 +364,7 @@ export default function DebitNoteForm({
         onChargeChange?.("")
       }
     },
-    [form, onChargeChange]
+    [form, onChargeChange, taskId]
   )
 
   // 5. Handle GST change - get percentage and calculate gstAmt
@@ -576,13 +586,13 @@ export default function DebitNoteForm({
                 </div>
               </div>
 
-              {/* Row 2: Vat, Vat %, Vat Amt, Tot Aft Vat, Is Sr Chg?, Service Chg, Remarks, Action Buttons */}
+              {/* Row 2: Vat, Vat %, Vat Amt, Tot Aft Vat, Is Prepayment/Is Sr Chg?, Prepayment/Service Chg, Remarks, Action Buttons */}
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-1">
                   <CustomCheckbox
                     form={form}
                     name="isServiceCharge"
-                    label="Is Sr Chg?"
+                    label={isChargeLabel}
                     isDisabled={isConfirmed}
                     onBlurEvent={handleIsServiceChargeChange}
                   />
@@ -592,7 +602,7 @@ export default function DebitNoteForm({
                   <CustomNumberInput
                     form={form}
                     name="serviceCharge"
-                    label="Service Chg"
+                    label={chargeTypeLabel}
                     round={amtDec}
                     isDisabled={isConfirmed}
                     onBlurEvent={handleServiceChargeChange}
