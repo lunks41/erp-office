@@ -138,6 +138,10 @@ export default function DebitNoteForm({
   const originalQtyRef = useRef<number>(0)
   const originalUnitPriceRef = useRef<number>(0)
   const originalTotAmtRef = useRef<number>(0)
+  const originalTotLocalAmtRef = useRef<number>(0)
+
+  // Exchange rate from debit note header: totLocalAmt = totAmt * exhRate => totAmt = totLocalAmt / exhRate
+  const exhRate = Math.max(Number(debitNoteHd?.exhRate) || 1, 0.000001)
 
   // Reset form only when editingDetail identity changes (different row or create vs edit), not on every parent re-render
   const lastEditingKeyRef = useRef<string | null>(null)
@@ -150,8 +154,7 @@ export default function DebitNoteForm({
     lastEditingKeyRef.current = editingKey
     if (editingDetail) {
       form.reset({
-        debitNoteId:
-          editingDetail.debitNoteId ?? debitNoteHd?.debitNoteId ?? 0,
+        debitNoteId: editingDetail.debitNoteId ?? debitNoteHd?.debitNoteId ?? 0,
         debitNoteNo:
           editingDetail.debitNoteNo ?? debitNoteHd?.debitNoteNo ?? "",
         itemNo: editingDetail.itemNo ?? getNextItemNo(),
@@ -320,6 +323,24 @@ export default function DebitNoteForm({
     if (current === originalTotAmtRef.current) return
     handleTotAmtChange()
   }, [form, handleTotAmtChange])
+
+  // When user enters totLocalAmt, on blur: unitPrice = exhRate / totLocalAmt, then recalc totAmt, gst and totAmtAftGst
+  const handleTotLocalAmtFocus = useCallback(() => {
+    originalTotLocalAmtRef.current = form.getValues("totLocalAmt") ?? 0
+  }, [form])
+
+  const handleTotLocalAmtBlur = useCallback(() => {
+    const totLocalAmt = Number(form.getValues("totLocalAmt")) || 0
+    if (totLocalAmt === originalTotLocalAmtRef.current) return
+    if (exhRate <= 0 || totLocalAmt <= 0) return
+    const calculatedUnitPrice = Number(
+      (totLocalAmt / exhRate).toFixed(priceDec)
+    )
+    form.setValue("unitPrice", calculatedUnitPrice, { shouldDirty: true })
+    form.trigger("unitPrice")
+    calculateTotAmt()
+    calculateGstAmt()
+  }, [form, exhRate, priceDec, calculateTotAmt, calculateGstAmt])
 
   // Handler for gstAmt change (when manually entered)
   const handleGstAmtChange = useCallback(() => {
@@ -514,22 +535,24 @@ export default function DebitNoteForm({
                 <div className="col-span-1">
                   <CustomNumberInput
                     form={form}
-                    name="unitPrice"
-                    label="Unit Price"
-                    round={priceDec}
+                    name="totLocalAmt"
+                    label="Amt Local"
+                    round={locAmtDec}
                     isDisabled={isConfirmed}
-                    onFocusEvent={handleUnitPriceFocus}
-                    onBlurEvent={handleUnitPriceBlur}
+                    onFocusEvent={handleTotLocalAmtFocus}
+                    onBlurEvent={handleTotLocalAmtBlur}
                   />
                 </div>
 
                 <div className="col-span-1">
                   <CustomNumberInput
                     form={form}
-                    name="totLocalAmt"
-                    label="Amt Local"
-                    round={locAmtDec}
+                    name="unitPrice"
+                    label="Unit Price"
+                    round={priceDec}
                     isDisabled={isConfirmed}
+                    onFocusEvent={handleUnitPriceFocus}
+                    onBlurEvent={handleUnitPriceBlur}
                   />
                 </div>
 
