@@ -196,6 +196,7 @@ const getTransactionIcon = (transactionCode: string) => {
     adjustment: Sliders,
     documentsetoff: FileStack,
     docsetoff: FileStack,
+    jobtransactions: ClipboardList,
     arreports: BarChart,
     payment: MinusCircle,
     batchpayment: FileStack,

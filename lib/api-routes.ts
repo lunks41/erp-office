@@ -1080,6 +1080,12 @@ export const ApDocSetOff = {
 // Alias for ApDocsetoff (casing variant)
 export const ApDocsetoff = ApDocSetOff
 
+// AP Job Transactions (invoice detail job allocation - update only)
+export const ApJobTransaction = {
+  getList: "/account/getjobtransaction",
+  update: "/account/savejobtransaction",
+}
+
 // Cash Book Payment Endpoints
 export const CbGenPayment = {
   get: "/account/getcbgenpayment",

@@ -95,6 +95,7 @@ export * from "./ap-adjustment"
 export * from "./ap-payment"
 export * from "./ap-refund"
 export * from "./ap-docsetoff"
+export * from "./job-transaction"
 
 //account-cb
 export * from "./cb-genpayment"

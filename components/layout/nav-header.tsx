@@ -75,6 +75,11 @@ const _data = {
         { title: "Refund", url: "/ap/refund", icon: Undo2 },
         { title: "Adjustment", url: "/ap/adjustment", icon: Sliders },
         { title: "Doc Setoff", url: "/ap/documentsetoff", icon: FileStack },
+        {
+          title: "Job Transactions",
+          url: "/ap/jobtransactions",
+          icon: ClipboardList,
+        },
         { title: "Reports", url: "/ap/reports", icon: BarChart },
       ],
     },
