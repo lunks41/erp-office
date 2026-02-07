@@ -33,7 +33,7 @@ export function TaskTableActions<T>({
   hideEdit,
   hideDelete,
   hideDebitNote,
-  hidePurchase,
+  hidePurchase: _hidePurchase,
   isSelected = true,
   isConfirmed = false,
 }: TaskTableActionsProps<T>) {
@@ -100,18 +100,10 @@ export function TaskTableActions<T>({
       <Button
         variant="ghost"
         size="icon"
-        className={`h-6 w-6 ${
-          hasDebitNote
-            ? "cursor-not-allowed text-gray-400 opacity-50"
-            : "text-purple-600 hover:bg-purple-100"
-        }`}
-        disabled={hidePurchase || Boolean(hasDebitNote) || isConfirmed}
-        onClick={() =>
-          !hasDebitNote && onPurchaseAction?.(String(row[idAccessor]))
-        }
-        title={
-          hasDebitNote ? "Cannot purchase - Debit Note exists" : "Purchase"
-        }
+        className="h-6 w-6 text-purple-600 hover:bg-purple-100"
+        disabled={isConfirmed}
+        onClick={() => onPurchaseAction?.(String(row[idAccessor]))}
+        title="Purchase"
       >
         <ShoppingCart className="h-4 w-4" />
       </Button>

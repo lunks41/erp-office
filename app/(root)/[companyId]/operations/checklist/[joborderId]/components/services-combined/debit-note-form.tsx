@@ -48,6 +48,8 @@ interface DebitNoteFormProps {
     gstId: number,
     gstPercentage: number
   ) => void // Callback to update service charge entry when parent changes
+  /** When true, form resets to create defaults (e.g. after adding a line item) */
+  shouldResetForm?: boolean
 }
 
 export default function DebitNoteForm({
@@ -64,6 +66,7 @@ export default function DebitNoteForm({
   summaryTotals,
   currencyCode: _currencyCode,
   onServiceChargeUpdate,
+  shouldResetForm = false,
 }: DebitNoteFormProps) {
   const { decimals } = useAuthStore()
 
@@ -153,6 +156,7 @@ export default function DebitNoteForm({
     if (lastEditingKeyRef.current === editingKey) return
     lastEditingKeyRef.current = editingKey
     if (editingDetail) {
+      const gstId = Number(editingDetail.gstId) || 0
       form.reset({
         debitNoteId: editingDetail.debitNoteId ?? debitNoteHd?.debitNoteId ?? 0,
         debitNoteNo:
@@ -164,7 +168,7 @@ export default function DebitNoteForm({
         qty: editingDetail.qty ?? 0,
         unitPrice: editingDetail.unitPrice ?? 0,
         totAmt: editingDetail.totAmt ?? 0,
-        gstId: editingDetail.gstId ?? 0,
+        gstId,
         gstPercentage: editingDetail.gstPercentage ?? 0,
         gstAmt: editingDetail.gstAmt ?? 0,
         totAmtAftGst: editingDetail.totAmtAftGst ?? 0,
@@ -179,6 +183,13 @@ export default function DebitNoteForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingDetail?.itemNo, editingDetail?.gstId, editingDetail == null])
+
+  // Reset form to create-mode defaults when parent signals (e.g. after adding a line item)
+  useEffect(() => {
+    if (shouldResetForm) {
+      form.reset(createDefaultValues(getNextItemNo()))
+    }
+  }, [shouldResetForm, form, createDefaultValues, getNextItemNo])
 
   // Helper function to calculate totAmtAftGst = totAmt + gstAmt
   const calculateTotAmtAftGst = useCallback(() => {
@@ -252,6 +263,16 @@ export default function DebitNoteForm({
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingDetail?.itemNo, editingDetail?.gstId, allGst.length, form])
+
+  // Sync gstId from editingDetail when GST options have loaded (fixes VAT dropdown not showing selected value on edit)
+  useEffect(() => {
+    if (!editingDetail?.gstId || editingDetail.gstId <= 0 || !allGst.length)
+      return
+    const currentGstId = Number(form.getValues("gstId")) || 0
+    const detailGstId = Number(editingDetail.gstId) || 0
+    if (currentGstId === detailGstId) return
+    form.setValue("gstId", detailGstId, { shouldDirty: false })
+  }, [editingDetail?.gstId, editingDetail?.itemNo, allGst.length, form])
 
   // Handler for qty change (called from blur when value changed)
   const handleQtyChange = useCallback(() => {

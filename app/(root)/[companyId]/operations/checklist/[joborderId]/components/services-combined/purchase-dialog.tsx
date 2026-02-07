@@ -1,17 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { IPurchaseData, ISavePurchaseData } from "@/interfaces/checklist"
-import { useQueryClient } from "@tanstack/react-query"
+import { IPurchaseData } from "@/interfaces/checklist"
 
 import { JobOrder_Purchase } from "@/lib/api-routes"
-import { useGet, usePersist } from "@/hooks/use-common"
-import { Button } from "@/components/ui/button"
+import { useGet } from "@/hooks/use-common"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -39,17 +36,10 @@ export function PurchaseDialog({
   serviceItemNo,
   isConfirmed,
 }: PurchaseDialogProps) {
-  const queryClient = useQueryClient()
   const [purchaseData, setPurchaseData] = useState<IPurchaseData[]>([])
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [initialSelectedIds, setInitialSelectedIds] = useState<string[]>([])
   const isUpdatingRef = useRef(false)
-
-  // Mutation for saving purchase data
-  const saveMutation = usePersist<ISavePurchaseData[]>(
-    JobOrder_Purchase.saveBulkList
-  )
 
   // Fetch purchase data when dialog opens
   const { data: purchaseResponse, isLoading } = useGet<IPurchaseData>(
@@ -85,94 +75,20 @@ export function PurchaseDialog({
 
         setInitialSelectedIds(preSelectedIds)
         setSelectedIds(preSelectedIds)
-        setHasUnsavedChanges(false)
       } else {
         // Set empty arrays if no data
         setPurchaseData([])
         setSelectedIds([])
         setInitialSelectedIds([])
-        setHasUnsavedChanges(false)
       }
     }
   }, [purchaseResponse, onOpenChangeAction])
-
-  // Set unsaved changes when selections change from initial state
-  useEffect(() => {
-    const hasChanged =
-      selectedIds.length !== initialSelectedIds.length ||
-      !selectedIds.every((id) => initialSelectedIds.includes(id))
-    setHasUnsavedChanges(hasChanged)
-  }, [selectedIds, initialSelectedIds])
-
-  const totalCount = purchaseData.length
-  const allocatedCount = purchaseData.filter(
-    (item) => item.isAllocated === true
-  ).length
-  const unallocatedCount = purchaseData.filter(
-    (item) => item.isAllocated === false
-  ).length
-
-  // Handle save action
-  const handleSave = useCallback(async () => {
-    try {
-      // Prepare the data to send to API - map ALL items with isAllocated based on selection
-      const purchaseListData: ISavePurchaseData[] = purchaseData.map(
-        (item) => ({
-          jobOrderId,
-          taskId,
-          serviceItemNo,
-          moduleId: item.moduleId,
-          transactionId: item.transactionId,
-          documentId: item.documentId,
-          itemNo: item.itemNo,
-          // Set isAllocated to true if item is in selectedIds, false otherwise
-          isAllocated: selectedIds.includes(
-            `${item.documentId}_${item.itemNo}`
-          ),
-        })
-      )
-
-      // Call the API using mutation
-      const response = await saveMutation.mutateAsync(purchaseListData)
-
-      // usePersist handles toast notifications automatically
-      if (response.result === 1) {
-        // Invalidate purchase list query to refetch fresh data
-        queryClient.invalidateQueries({
-          queryKey: [`purchase-list-${jobOrderId}-${taskId}-${serviceItemNo}`],
-        })
-
-        // Reset unsaved changes flag
-        setHasUnsavedChanges(false)
-
-        // Close dialog after successful save
-        onOpenChangeAction(false)
-      }
-    } catch (_error) {
-      // Error handling is done by usePersist automatically
-    }
-  }, [
-    purchaseData,
-    selectedIds,
-    jobOrderId,
-    taskId,
-    serviceItemNo,
-    onOpenChangeAction,
-    saveMutation,
-    queryClient,
-  ])
-
-  // Handle cancel action
-  const handleCancel = useCallback(() => {
-    onOpenChangeAction(false)
-  }, [onOpenChangeAction])
 
   // Handle bulk selection changes from table
   const handleBulkSelectionChange = useCallback((selectedIds: string[]) => {
     if (isUpdatingRef.current) return
     isUpdatingRef.current = true
     setSelectedIds(selectedIds)
-    // Note: hasUnsavedChanges will be updated automatically by useEffect
     setTimeout(() => {
       isUpdatingRef.current = false
     }, 0)
@@ -191,40 +107,6 @@ export function PurchaseDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <>
-          {/* Data Summary */}
-          <div className="bg-muted/30 mb-4 rounded-lg border p-3">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span className="text-muted-foreground">
-                    Total: {totalCount} items
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-muted-foreground">
-                    Allocated: {allocatedCount} items
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                  <span className="text-muted-foreground">
-                    Unallocated: {unallocatedCount} items
-                  </span>
-                </div>
-              </div>
-              {totalCount > 0 && (
-                <div className="flex items-center gap-2 text-blue-600">
-                  <div className="h-1 w-1 rounded-full bg-blue-500"></div>
-                  <span className="text-xs font-medium">
-                    Purchase data available
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
           {isLoading ? (
             <div className="mb-4 flex items-center justify-center py-8">
               <div className="text-center">
@@ -237,7 +119,7 @@ export function PurchaseDialog({
                 </p>
               </div>
             </div>
-          ) : totalCount === 0 ? (
+          ) : purchaseData.length === 0 ? (
             <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-700">
                 <div className="h-1 w-1 rounded-full bg-gray-500"></div>
@@ -259,29 +141,6 @@ export function PurchaseDialog({
             </div>
           )}
         </>
-
-        <DialogFooter className="flex justify-end gap-2 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isLoading || saveMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={
-              isLoading ||
-              isConfirmed ||
-              saveMutation.isPending ||
-              !hasUnsavedChanges
-            }
-          >
-            {saveMutation.isPending ? "Saving..." : "Save Selected Items"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

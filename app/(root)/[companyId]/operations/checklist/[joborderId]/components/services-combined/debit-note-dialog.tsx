@@ -578,16 +578,27 @@ export default function DebitNoteDialog({
 
   const handleConfirmDeleteDetails = useCallback(() => {
     if (detailsDeleteConfirmation.debitNoteId) {
-      // Remove from local state and rearrange itemNo
+      const deletedItemNo = detailsDeleteConfirmation.debitNoteId
       setDetails((prev) => {
-        const filtered = prev.filter(
-          (item) => item.itemNo !== detailsDeleteConfirmation.debitNoteId
+        // Cascade: also delete rows whose refItemNo points to the deleted item (e.g. Prepayment rows)
+        const childItemNos = new Set(
+          prev
+            .filter((item) => (item.refItemNo ?? 0) === deletedItemNo)
+            .map((item) => item.itemNo)
         )
-        // Rearrange itemNo to maintain sequential order (1, 2, 3, 4...)
-        return filtered.map((item, index) => ({
-          ...item,
-          itemNo: index + 1,
-        }))
+        const toDelete = new Set<number>([deletedItemNo, ...childItemNos])
+        const filtered = prev.filter((item) => !toDelete.has(item.itemNo ?? 0))
+        // Renumber and update refItemNo so it points to new itemNos
+        const oldToNew = new Map<number, number>()
+        filtered.forEach((item, index) => {
+          const oldNo = item.itemNo ?? 0
+          if (oldNo) oldToNew.set(oldNo, index + 1)
+        })
+        return filtered.map((item, index) => {
+          const newItemNo = index + 1
+          const refItemNo = (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
+          return { ...item, itemNo: newItemNo, refItemNo }
+        })
       })
       setDetailsDeleteConfirmation({
         isOpen: false,
@@ -769,17 +780,38 @@ export default function DebitNoteDialog({
       return
     }
 
-    // Remove deleted items from local state and rearrange itemNo
     setDetails((prev) => {
-      const filtered = prev.filter(
-        (item) =>
-          !bulkDeleteConfirmation.selectedIds.includes(item.itemNo.toString())
+      const selectedSet = new Set(
+        bulkDeleteConfirmation.selectedIds.map((id) => Number(id))
       )
-      // Rearrange itemNo to maintain sequential order (1, 2, 3, 4...)
-      return filtered.map((item, index) => ({
-        ...item,
-        itemNo: index + 1,
-      }))
+      // Cascade: also delete rows whose refItemNo points to any selected (deleted) item
+      const toDelete = new Set(selectedSet)
+      let added: boolean
+      do {
+        added = false
+        for (const item of prev) {
+          const ref = item.refItemNo ?? 0
+          if (ref > 0 && toDelete.has(ref) && !toDelete.has(item.itemNo ?? 0)) {
+            toDelete.add(item.itemNo ?? 0)
+            added = true
+          }
+        }
+      } while (added)
+
+      const filtered = prev.filter(
+        (item) => !toDelete.has(item.itemNo ?? 0)
+      )
+      // Renumber and update refItemNo so it points to new itemNos
+      const oldToNew = new Map<number, number>()
+      filtered.forEach((item, index) => {
+        const oldNo = item.itemNo ?? 0
+        if (oldNo) oldToNew.set(oldNo, index + 1)
+      })
+      return filtered.map((item, index) => {
+        const newItemNo = index + 1
+        const refItemNo = (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
+        return { ...item, itemNo: newItemNo, refItemNo }
+      })
     })
 
     setBulkDeleteConfirmation({
@@ -800,11 +832,17 @@ export default function DebitNoteDialog({
   const handleDataReorder = useCallback((newData: IDebitNoteDt[]) => {
     if (!newData?.length) return
 
-    // Update itemNo to reflect the new order (1, 2, 3, 4, 5, 6...)
-    const updatedData = newData.map((item, index) => ({
-      ...item,
-      itemNo: index + 1,
-    }))
+    // Build old itemNo -> new itemNo map so refItemNo stays valid
+    const oldToNew = new Map<number, number>()
+    newData.forEach((item, index) => {
+      const oldNo = item.itemNo ?? 0
+      if (oldNo) oldToNew.set(oldNo, index + 1)
+    })
+    const updatedData = newData.map((item, index) => {
+      const newItemNo = index + 1
+      const refItemNo = (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
+      return { ...item, itemNo: newItemNo, refItemNo }
+    })
 
     setDetails(updatedData)
   }, [])
@@ -1116,6 +1154,7 @@ export default function DebitNoteDialog({
               summaryTotals={summaryTotals}
               currencyCode={jobOrder?.currencyCode}
               onServiceChargeUpdate={handleFormServiceChargeUpdate}
+              shouldResetForm={shouldResetForm}
             />
           </div>
 

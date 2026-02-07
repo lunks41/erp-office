@@ -78,20 +78,22 @@ export function PurchaseTable({
         minSize: 100,
       },
       {
-        accessorKey: "suppInvoiceNo",
-        header: "Supplier Invoice No",
-        size: 180,
-        minSize: 150,
-        enableColumnFilter: true,
-      },
-      {
         accessorKey: "documentNo",
         header: "Document No",
         size: 150,
         minSize: 120,
         enableColumnFilter: true,
       },
-
+      {
+        accessorKey: "itemNo",
+        header: "Item No",
+        size: 100,
+        minSize: 80,
+        cell: ({ row }) => {
+          const itemNo = row.getValue("itemNo")
+          return <span className="font-mono">{String(itemNo)}</span>
+        },
+      },
       {
         accessorKey: "accountDate",
         header: "Account Date",
@@ -102,7 +104,13 @@ export function PurchaseTable({
         size: 120,
         minSize: 100,
       },
-
+      {
+        accessorKey: "suppInvoiceNo",
+        header: "Supplier Invoice No",
+        size: 180,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
       {
         accessorKey: "supplierName",
         header: "Supplier Name",
@@ -160,13 +168,19 @@ export function PurchaseTable({
         minSize: 150,
       },
       {
-        accessorKey: "itemNo",
-        header: "Item No",
-        size: 100,
-        minSize: 80,
+        accessorKey: "isServiceCharge",
+        header: "Service Charge",
         cell: ({ row }) => {
-          const itemNo = row.getValue("itemNo")
-          return <span className="font-mono">{String(itemNo)}</span>
+          const value = row.getValue("isServiceCharge") as boolean
+          return value ? "Yes" : "No"
+        },
+      },
+      {
+        accessorKey: "serviceCharge",
+        header: "Service %",
+        cell: ({ row }) => {
+          const value = row.getValue("serviceCharge") as number
+          return value?.toFixed(2) || "0.00"
         },
       },
     ],
@@ -195,11 +209,8 @@ export function PurchaseTable({
     [onBulkSelectionChange]
   )
 
-  // Filter out columns with hidden: true
-  const visibleColumns = useMemo(
-    () => columns.filter((col) => !(col as { hidden?: boolean }).hidden),
-    [columns]
-  )
+  // All columns are visible for purchase table
+  const visibleColumns = columns
 
   return (
     <PurchaseBaseTable
@@ -217,7 +228,7 @@ export function PurchaseTable({
       onDataReorder={onDataReorder || handleDataReorder}
       isConfirmed={isConfirmed}
       showHeader={false}
-      showActions={false}
+      showActions={true}
       hideCheckbox={false}
       disableOnPurchaseExists={false}
       initialSelectedIds={initialSelectedIds}
