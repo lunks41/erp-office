@@ -12,7 +12,10 @@ export interface IArReceiptHd {
   bankChgGLId: number
   bankChgAmt: number
   bankChgLocalAmt: number
+  recBankChgAmt: number
+  recBankChgLocalAmt: number
   isCustPayBankChg: boolean
+  isMultiCurrency: boolean
   customerId: number
   currencyId: number
   exhRate: number
@@ -86,6 +89,7 @@ export interface IArReceiptDt {
   docBalAmt: number
   docBalLocalAmt: number
   allocAmt: number
+  allocPayAmt: number
   allocLocalAmt: number
   docAllocAmt: number
   docAllocLocalAmt: number

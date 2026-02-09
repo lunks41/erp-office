@@ -13,7 +13,7 @@ import {
   calculateDiffCurrency,
   calculateSameCurrency,
   calculateUnallocated,
-} from "@/helpers/ar-receipt-calculations"
+} from "@/helpers/ar-receipt-calculationsv1"
 import { IArReceiptDt } from "@/interfaces"
 import {
   IBankLookup,
@@ -729,7 +729,7 @@ export default function ReceiptForm({
     [form, recalculateAmountsBasedOnCurrency]
   )
 
-  // Handle rec bank charges amount focus - capture original value
+  // Handle bank charges amount focus - capture original value
   const handleRecBankChgAmtFocus = React.useCallback(() => {
     originalRecBankChgAmtRef.current = form.getValues("recBankChgAmt") || 0
     console.log(
@@ -744,18 +744,20 @@ export default function ReceiptForm({
       const recBankChgAmt = parseNumberWithCommas(e.target.value)
       const originalRecBankChgAmt = originalRecBankChgAmtRef.current
 
-      console.log("handleRecBankChgAmtChange", {
+      console.log("handleBankChgAmtChange", {
         newValue: recBankChgAmt,
         originalValue: originalRecBankChgAmt,
         isDifferent: recBankChgAmt !== originalRecBankChgAmt,
       })
 
+      // Only recalculate if value is different from original
       if (recBankChgAmt !== originalRecBankChgAmt) {
         console.log(
           "Rec Bank Charges Amount changed - recalculating local amount"
         )
         form.setValue("recBankChgAmt", recBankChgAmt, { shouldDirty: true })
 
+        // Calculate bank charges local amount: bankChgAmt * recExhRate
         const recExhRate = form.getValues("recExhRate") || 0
         if (recExhRate > 0) {
           const recBankChgLocalAmt = calculateMultiplierAmount(
@@ -769,6 +771,10 @@ export default function ReceiptForm({
         } else {
           form.setValue("recBankChgLocalAmt", 0, { shouldDirty: true })
         }
+      } else {
+        console.log(
+          "Rec Bank Charges Amount unchanged - skipping recalculation"
+        )
       }
     },
     [form, locAmtDec]
@@ -798,23 +804,14 @@ export default function ReceiptForm({
       const bankChgAmt = parseNumberWithCommas(e.target.value)
       const originalBankChgAmt = originalBankChgAmtRef.current
 
-      console.log("handleBankChgAmtChange", {
-        newValue: bankChgAmt,
-        originalValue: originalBankChgAmt,
-        isDifferent: bankChgAmt !== originalBankChgAmt,
-      })
-
-      // Only recalculate if value is different from original
       if (bankChgAmt !== originalBankChgAmt) {
-        console.log("Bank Charges Amount changed - recalculating local amount")
         form.setValue("bankChgAmt", bankChgAmt, { shouldDirty: true })
 
-        // Calculate bank charges local amount: bankChgAmt * recExhRate
-        const recExhRate = form.getValues("recExhRate") || 0
-        if (recExhRate > 0) {
+        const exhRate = form.getValues("exhRate") || 0
+        if (exhRate > 0) {
           const bankChgLocalAmt = calculateMultiplierAmount(
             bankChgAmt,
-            recExhRate,
+            exhRate,
             locAmtDec
           )
           form.setValue("bankChgLocalAmt", bankChgLocalAmt, {
@@ -823,8 +820,6 @@ export default function ReceiptForm({
         } else {
           form.setValue("bankChgLocalAmt", 0, { shouldDirty: true })
         }
-      } else {
-        console.log("Bank Charges Amount unchanged - skipping recalculation")
       }
     },
     [form, locAmtDec]
@@ -1040,7 +1035,7 @@ export default function ReceiptForm({
 
         <div className="col-span-1 flex flex-row gap-1">
           <div className="flex-1">
-            {/* Rec Bank Charges Amount */}
+            {/* Bank Charges Amount */}
             <CustomNumberInput
               form={form}
               name="recBankChgAmt"
@@ -1051,7 +1046,7 @@ export default function ReceiptForm({
             />
           </div>
           <div className="flex-1">
-            {/* Rec Bank Charges Local Amount */}
+            {/* Bank Charges Local Amount */}
             <CustomNumberInput
               form={form}
               name="recBankChgLocalAmt"

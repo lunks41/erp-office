@@ -123,6 +123,7 @@ export default function Main({
       const resetData = updatedData.map((item) => ({
         ...item,
         allocAmt: 0,
+        allocPayAmt: 0,
       }))
       const resetArr = resetData as unknown as IArReceiptDt[]
 
@@ -547,6 +548,7 @@ export default function Main({
     const updatedData = currentData.map((item) => ({
       ...item,
       allocAmt: 0,
+      allocPayAmt: 0,
     }))
     const arr = updatedData as unknown as IArReceiptDt[]
     const exhRate = Number(form.getValues("exhRate")) || 1
@@ -633,6 +635,7 @@ export default function Main({
           docBalAmt: transaction.balAmt,
           docBalLocalAmt: transaction.balLocalAmt,
           allocAmt: 0,
+          allocPayAmt: 0,
           allocLocalAmt: 0,
           docAllocAmt: 0,
           docAllocLocalAmt: 0,
@@ -761,6 +764,7 @@ export default function Main({
           currencyId={dialogParamsRef.current.currencyId}
           accountDate={dialogParamsRef.current.accountDate}
           isRefund={dialogParamsRef.current.isRefund}
+          isMultiCurrency={false}
           documentId={dialogParamsRef.current.documentId}
           transactionId={dialogParamsRef.current.transactionId}
           visible={visible}

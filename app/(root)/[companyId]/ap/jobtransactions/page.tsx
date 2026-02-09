@@ -4,16 +4,26 @@ import { useCallback, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IJobTransaction } from "@/interfaces"
 import { useQueryClient } from "@tanstack/react-query"
-import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
+import { lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { Search, X } from "lucide-react"
+import { useForm } from "react-hook-form"
 
 import { ApJobTransaction } from "@/lib/api-routes"
+import { formatDateForApi } from "@/lib/date-utils"
 import { useGetWithDates } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Form } from "@/components/ui/form"
+import CustomInput from "@/components/custom/custom-input"
+import { CustomDateNew } from "@/components/custom/custom-date-new"
 
 import { JobTransactionForm } from "./components/job-transaction-form"
 import { JobTransactionTable } from "./components/job-transaction-table"
+
+interface FilterForm extends Record<string, unknown> {
+  fromDate: Date | null
+  toDate: Date | null
+  search: string
+}
 
 export default function JobTransactionsPage() {
   const params = useParams()
@@ -22,28 +32,39 @@ export default function JobTransactionsPage() {
 
   const [editRow, setEditRow] = useState<IJobTransaction | null>(null)
   const [formOpen, setFormOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
   const [hasSearched, setHasSearched] = useState(false)
 
   const today = useMemo(() => new Date(), [])
   const defaultStartDate = useMemo(
-    () => format(startOfMonth(subMonths(today, 1)), "yyyy-MM-dd"),
+    () => startOfMonth(subMonths(today, 1)),
     [today]
   )
-  const defaultEndDate = useMemo(
-    () => format(lastDayOfMonth(today), "yyyy-MM-dd"),
-    [today]
-  )
+  const defaultEndDate = useMemo(() => lastDayOfMonth(today), [today])
 
-  const [fromDate, setFromDate] = useState(defaultStartDate)
-  const [toDate, setToDate] = useState(defaultEndDate)
+  const form = useForm<FilterForm>({
+    defaultValues: {
+      fromDate: defaultStartDate,
+      toDate: defaultEndDate,
+      search: "",
+    },
+  })
+
+  const fromDate = form.watch("fromDate")
+  const toDate = form.watch("toDate")
+  const searchQuery = form.watch("search")
+
+  const fromDateStr = useMemo(
+    () => formatDateForApi(fromDate) ?? "",
+    [fromDate]
+  )
+  const toDateStr = useMemo(() => formatDateForApi(toDate) ?? "", [toDate])
 
   const { data: response, isLoading } = useGetWithDates<IJobTransaction>(
     ApJobTransaction.getList,
     `job-transactions-${companyId}`,
-    searchQuery.trim() || undefined,
-    fromDate,
-    toDate,
+    searchQuery?.trim() || undefined,
+    fromDateStr,
+    toDateStr,
     undefined,
     !!companyId && hasSearched
   )
@@ -57,10 +78,12 @@ export default function JobTransactionsPage() {
 
   const handleCancel = useCallback(() => {
     setHasSearched(false)
-    setFromDate(defaultStartDate)
-    setToDate(defaultEndDate)
-    setSearchQuery("")
-  }, [defaultStartDate, defaultEndDate])
+    form.reset({
+      fromDate: defaultStartDate,
+      toDate: defaultEndDate,
+      search: "",
+    })
+  }, [defaultStartDate, defaultEndDate, form])
 
   const handleEdit = useCallback((row: IJobTransaction) => {
     setEditRow(row)
@@ -90,58 +113,50 @@ export default function JobTransactionsPage() {
         </p>
       </div>
 
-      <div className="bg-muted/30 mb-4 flex flex-wrap items-end gap-3 rounded-lg border p-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-muted-foreground text-xs font-medium">
-            From Date
-          </label>
-          <Input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="h-9 w-[160px]"
+      <Form {...form}>
+        <form
+          className="bg-muted/30 mb-4 flex flex-wrap items-end gap-3 rounded-lg border p-3"
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSearch()
+          }}
+        >
+          <CustomDateNew
+            form={form}
+            name="fromDate"
+            label="From Date"
+            className="w-[160px]"
           />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-muted-foreground text-xs font-medium">
-            To Date
-          </label>
-          <Input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="h-9 w-[160px]"
+          <CustomDateNew
+            form={form}
+            name="toDate"
+            label="To Date"
+            className="w-[160px]"
           />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-muted-foreground text-xs font-medium">
-            Search
-          </label>
-          <Input
-            type="text"
+          <CustomInput
+            form={form}
+            name="search"
+            label="Search"
             placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="h-9 w-[200px]"
+            className="w-[200px]"
           />
-        </div>
-        <div className="flex gap-2">
-          <Button type="button" size="sm" onClick={handleSearch}>
-            <Search className="mr-1 h-4 w-4" />
-            Search
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={handleCancel}
-          >
-            <X className="mr-1 h-4 w-4" />
-            Cancel
-          </Button>
-        </div>
-      </div>
+          <div className="flex gap-2">
+            <Button type="submit" size="sm">
+              <Search className="mr-1 h-4 w-4" />
+              Search
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleCancel}
+            >
+              <X className="mr-1 h-4 w-4" />
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Form>
 
       <JobTransactionTable
         data={list}

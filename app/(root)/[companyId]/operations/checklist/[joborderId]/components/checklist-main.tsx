@@ -1122,6 +1122,13 @@ export function ChecklistMain({
                 >
                   💰 Accounts
                 </Badge>
+                {jobData?.invoiceNo && (
+                  <Badge variant="outline">
+                    <span className="text-xs">
+                      Invoice No: {jobData.invoiceNo}
+                    </span>
+                  </Badge>
+                )}
               </div>
               <div className="mb-4 border-b border-gray-200"></div>
               <div className="grid grid-cols-1 gap-2">

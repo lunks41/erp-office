@@ -226,6 +226,11 @@ export default function CbGenPaymentTable({
         ]
       : []),
     {
+      accessorKey: "supplierRegNo",
+      header: "Supplier Reg No (TRN No.)",
+      size: 130,
+    },
+    {
       accessorKey: "currencyCode",
       header: "Currency Code",
       size: 80,
@@ -272,7 +277,7 @@ export default function CbGenPaymentTable({
           } as ColumnDef<ICbGenPaymentHd>,
         ]
       : []),
-       ...(visible?.m_Remarks
+    ...(visible?.m_Remarks
       ? [
           {
             accessorKey: "remarks",
@@ -410,7 +415,6 @@ export default function CbGenPaymentTable({
         ]
       : []),
 
-   
     {
       accessorKey: "status",
       header: "Status",

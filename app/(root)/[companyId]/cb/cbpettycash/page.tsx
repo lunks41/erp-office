@@ -552,24 +552,13 @@ export default function CbPettyCashPage() {
         createDate: "",
         editDate: "",
         cancelDate: "",
-        // Clear all balance and payment amounts
+        // Clear all balance and payment amounts; keep detail fields: invoiceNo, invoiceDate, supplierRegNo, supplierName, jobOrderId, taskId, serviceItemNo
         data_details:
           cbPettyCash.data_details?.map((detail) => ({
             ...detail,
             paymentId: "0",
             paymentNo: "",
-            invoiceDate: dateStr,
-            invoiceNo: "",
-            supplierName: "",
-            supplierRegNo: "",
-            jobOrderId: 0,
-            jobOrderNo: "",
-            taskId: 0,
-            taskName: "",
-            serviceItemNo: 0,
-            serviceItemNoName: "",
-            serviceCategoryId: 0,
-            serviceCategoryName: "",
+            // Keep from source detail: invoiceNo, invoiceDate, supplierRegNo, supplierName, jobOrderId, jobOrderNo, taskId, taskName, serviceItemNo, serviceItemNoName
             editVersion: 0,
           })) || [],
       }

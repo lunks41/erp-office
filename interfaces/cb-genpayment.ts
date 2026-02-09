@@ -31,6 +31,7 @@ export interface ICbGenPaymentHd {
   totCtyAmtAftGst: number
   remarks: string
   payeeTo: string
+  supplierRegNo: string
   moduleFrom: string
   createById: number
   createDate: Date | string

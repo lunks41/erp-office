@@ -71,6 +71,7 @@ export const CbGenReceiptHdSchema = (
 
     // Address and Contact
     payeeTo: z.string().optional(),
+    supplierRegNo: z.string().optional(),
 
     // Customer Details
     moduleFrom: z.string().optional(),

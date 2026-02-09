@@ -1,43 +1,39 @@
 import { useEffect, useMemo, useState } from "react"
-import { ICbGenReceiptFilter, ICbGenReceiptHd } from "@/interfaces"
+import { IArReceiptFilter, IArReceiptHd } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { X } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 
-import { CbGenReceipt } from "@/lib/api-routes"
+import { ArReceipt } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
-export interface CbGenReceiptTableProps {
-  onCbGenReceiptSelect: (
-    selectedCbGenReceipt: ICbGenReceiptHd | undefined
-  ) => void
-  onFilterChange: (filters: ICbGenReceiptFilter) => void
-  initialFilters?: ICbGenReceiptFilter
+export interface ReceiptTableProps {
+  onReceiptSelect: (selectedReceipt: IArReceiptHd | undefined) => void
+  onFilterChange: (filters: IArReceiptFilter) => void
+  initialFilters?: IArReceiptFilter
   pageSize: number
   onCloseAction?: () => void
   visible?: IVisibleFields
 }
 
-const DEFAULT_PAGE_SIZE = 15
-
-export default function CbGenReceiptTable({
-  onCbGenReceiptSelect,
+export default function ReceiptTable({
+  onReceiptSelect,
   onFilterChange,
   initialFilters,
   pageSize: _pageSize,
   onCloseAction,
   visible,
-}: CbGenReceiptTableProps) {
+}: ReceiptTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
@@ -45,8 +41,8 @@ export default function CbGenReceiptTable({
   const dateFormat = decimals[0]?.dateFormat || clientDateFormat
   //const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
-  const moduleId = ModuleId.cb
-  const transactionId = CBTransactionId.cbgenreceipt
+  const moduleId = ModuleId.ar
+  const transactionId = ARTransactionId.receipt
 
   const today = useMemo(() => new Date(), [])
   const defaultStartDate = useMemo(
@@ -67,11 +63,7 @@ export default function CbGenReceiptTable({
 
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search || "")
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState<number>(
-    typeof _pageSize === "number" && _pageSize > 0
-      ? _pageSize
-      : DEFAULT_PAGE_SIZE
-  )
+  const [pageSize, setPageSize] = useState(_pageSize)
 
   // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
@@ -91,6 +83,7 @@ export default function CbGenReceiptTable({
   useEffect(() => {
     form.setValue("startDate", initialFilters?.startDate || defaultStartDate)
     form.setValue("endDate", initialFilters?.endDate || defaultEndDate)
+
     setSearchStartDate(
       initialFilters?.startDate
         ? formatDateForApi(initialFilters.startDate) || defaultStartDate
@@ -101,41 +94,17 @@ export default function CbGenReceiptTable({
         ? formatDateForApi(initialFilters.endDate) || defaultEndDate
         : defaultEndDate
     )
-
-    const sizeFromFilters =
-      typeof initialFilters?.pageSize === "number" &&
-      initialFilters.pageSize > 0
-        ? initialFilters.pageSize
-        : typeof _pageSize === "number" && _pageSize > 0
-          ? _pageSize
-          : DEFAULT_PAGE_SIZE
-    setPageSize(sizeFromFilters)
-
-    // Update searchQuery when initialFilters change
-    if (initialFilters?.search !== undefined) {
-      setSearchQuery(initialFilters.search)
-    }
-  }, [initialFilters, form, defaultStartDate, defaultEndDate, _pageSize])
-
-  // Update searchQuery when initialFilters.search changes (separate effect to avoid conflicts)
-  useEffect(() => {
-    if (
-      initialFilters?.search !== undefined &&
-      initialFilters.search !== searchQuery
-    ) {
-      setSearchQuery(initialFilters.search)
-    }
-  }, [initialFilters?.search, searchQuery])
+  }, [initialFilters, form, defaultStartDate, defaultEndDate])
 
   // Data fetching - only after search button is clicked OR if dates are already set
   const {
-    data: glJournalsResponse,
-    isLoading: isLoadingCbGenReceipts,
-    isRefetching: isRefetchingCbGenReceipts,
-    refetch: refetchCbGenReceipts,
-  } = useGetWithDatesAndPagination<ICbGenReceiptHd>(
-    `${CbGenReceipt.get}`,
-    TableName.glJournal,
+    data: receiptsResponse,
+    isLoading: isLoadingReceipts,
+    isRefetching: isRefetchingReceipts,
+    refetch: refetchReceipts,
+  } = useGetWithDatesAndPagination<IArReceiptHd>(
+    `${ArReceipt.get}`,
+    TableName.arReceipt,
     searchQuery,
     searchStartDate,
     searchEndDate,
@@ -145,33 +114,55 @@ export default function CbGenReceiptTable({
     hasSearched || Boolean(searchStartDate && searchEndDate) // enabled: If searched OR dates already set
   )
 
-  const data = glJournalsResponse?.data || []
-  const totalRecords = glJournalsResponse?.totalRecords || data.length
-  const isLoading = isLoadingCbGenReceipts || isRefetchingCbGenReceipts
+  const data = receiptsResponse?.data || []
+  const totalRecords = receiptsResponse?.totalRecords || data.length
+  const isLoading = isLoadingReceipts || isRefetchingReceipts
 
-  const getReceiptStatus = (isCancel: boolean) => {
+  const getPaymentStatus = (
+    balAmt: number,
+    payAmt: number,
+    isCancel: boolean
+  ) => {
     if (isCancel) {
       return "Cancelled"
     }
+    // if (balAmt === 0 && payAmt > 0) {
+    //   return "Fully Paid"
+    // } else if (balAmt > 0 && payAmt > 0) {
+    //   return "Partially Paid"
+    // } else if (balAmt > 0 && payAmt === 0) {
+    //   return "Not Paid"
+    // }
+    // else if (balAmt === 0 && payAmt === 0) {
+    //   return "Cancelled"
+    // }
     return ""
   }
 
-  const columns: ColumnDef<ICbGenReceiptHd>[] = [
+  const columns: ColumnDef<IArReceiptHd>[] = [
     {
       accessorKey: "receiptNo",
-      header: "CbGenReceipt No",
+      header: "Receipt No",
     },
     {
-      accessorKey: "receiptStatus",
-      header: "Receipt Status",
+      accessorKey: "paymentStatus",
+      header: "Payment Status",
       size: 120,
       minSize: 100,
       cell: ({ row }) => {
+        const balAmt = row.original.unAllocTotAmt ?? 0
+        const payAmt = row.original.allocTotAmt ?? 0
         const isCancel = row.original.isCancel ?? false
-        const status = getReceiptStatus(isCancel)
+        const status = getPaymentStatus(balAmt, payAmt, isCancel)
 
         const getStatusStyle = (status: string) => {
           switch (status) {
+            // case "Fully Paid":
+            //   return "bg-green-100 text-green-800"
+            // case "Partially Paid":
+            //   return "bg-orange-100 text-orange-800"
+            // case "Not Paid":
+            //   return "bg-red-100 text-red-800"
             case "Cancelled":
               return "bg-gray-100 text-gray-800"
             default:
@@ -181,6 +172,12 @@ export default function CbGenReceiptTable({
 
         const getStatusDot = (status: string) => {
           switch (status) {
+            // case "Fully Paid":
+            //   return "bg-green-400"
+            // case "Partially Paid":
+            //   return "bg-orange-400"
+            // case "Not Paid":
+            //   return "bg-red-400"
             case "Cancelled":
               return "bg-gray-400"
             default:
@@ -216,19 +213,15 @@ export default function CbGenReceiptTable({
         return date ? format(date, dateFormat) : "-"
       },
     },
-    ...(visible?.m_PayeeTo
-      ? [
-          {
-            accessorKey: "payeeTo",
-            header: "Payee To",
-            size: 150,
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
     {
-      accessorKey: "supplierRegNo",
-      header: "Supplier Reg No (TRN No.)",
-      size: 130,
+      accessorKey: "customerCode",
+      header: "Customer Code",
+      size: 100,
+      minSize: 80,
+    },
+    {
+      accessorKey: "customerName",
+      header: "Customer Name",
     },
     {
       accessorKey: "currencyCode",
@@ -246,20 +239,11 @@ export default function CbGenReceiptTable({
       ),
     },
     {
-      accessorKey: "gstAmt",
-      header: "VAT Amount",
+      accessorKey: "totLocalAmt",
+      header: "Total Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.getValue("gstAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "totAmtAftGst",
-      header: "Total After VAT",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
+          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
     },
@@ -274,26 +258,7 @@ export default function CbGenReceiptTable({
                 : null
               return date ? format(date, dateFormat) : "-"
             },
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
-    ...(visible?.m_Remarks
-      ? [
-          {
-            accessorKey: "remarks",
-            header: "Remarks",
-            size: 200,
-            minSize: 150,
-            maxSize: 220,
-            cell: ({ row }) => {
-              const remarks = row.original.remarks ?? ""
-              return (
-                <div className="max-w-[200px] truncate" title={remarks}>
-                  {remarks || "-"}
-                </div>
-              )
-            },
-          } as ColumnDef<ICbGenReceiptHd>,
+          } as ColumnDef<IArReceiptHd>,
         ]
       : []),
     {
@@ -309,112 +274,135 @@ export default function CbGenReceiptTable({
         </div>
       ),
     },
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "ctyExhRate",
-            header: "Country Exchange Rate",
-            cell: ({ row }) => (
-              <div className="text-right">
-                {formatNumber(row.getValue("ctyExhRate"), exhRateDec)}
-              </div>
-            ),
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
     {
-      accessorKey: "creditTermCode",
-      header: "Credit Term Code",
+      accessorKey: "bankCode",
+      header: "Bank Code",
     },
     {
-      accessorKey: "creditTermName",
-      header: "Credit Term Name",
+      accessorKey: "bankName",
+      header: "Bank Name",
     },
     {
-      accessorKey: "totLocalAmt",
-      header: "Total Local Amount",
+      accessorKey: "paymentTypeCode",
+      header: "Receipt Type Code",
+    },
+    {
+      accessorKey: "paymentTypeName",
+      header: "Receipt Type Name",
+    },
+    {
+      accessorKey: "chequeNo",
+      header: "Cheque No",
+    },
+    {
+      accessorKey: "chequeDate",
+      header: "Cheque Date",
+      cell: ({ row }) => {
+        const date = row.original.chequeDate
+          ? new Date(row.original.chequeDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
+    },
+    {
+      accessorKey: "recTotAmt",
+      header: "Pay Total Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "totCtyAmt",
-            header: "Total Country Amount",
-            cell: ({ row }) => (
-              <div className="text-right">
-                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
-              </div>
-            ),
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
-    {
-      accessorKey: "gstAmt",
-      header: "VAT Amount",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("gstAmt"), amtDec)}
+          {formatNumber(row.getValue("recTotAmt"), amtDec)}
         </div>
       ),
     },
     {
-      accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      accessorKey: "recTotLocalAmt",
+      header: "Pay Total Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "gstCtyAmt",
-            header: "GST Country Amount",
-            cell: ({ row }) => (
-              <div className="text-right">
-                {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
-              </div>
-            ),
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
-    {
-      accessorKey: "totAmtAftGst",
-      header: "Total After VAT",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
+          {formatNumber(row.getValue("recTotLocalAmt"), locAmtDec)}
         </div>
       ),
     },
     {
-      accessorKey: "totLocalAmtAftGst",
-      header: "Total Local After VAT",
+      accessorKey: "unAllocTotAmt",
+      header: "Unallocated Amount",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
+          {formatNumber(row.getValue("unAllocTotAmt"), amtDec)}
         </div>
       ),
     },
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "totCtyAmtAftGst",
-            header: "Total Country After VAT",
-            cell: ({ row }) => (
-              <div className="text-right">
-                {formatNumber(row.getValue("totCtyAmtAftGst"), locAmtDec)}
-              </div>
-            ),
-          } as ColumnDef<ICbGenReceiptHd>,
-        ]
-      : []),
+    {
+      accessorKey: "unAllocTotLocalAmt",
+      header: "Unallocated Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("unAllocTotLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "exhGainLoss",
+      header: "Exchange Gain/Loss",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("exhGainLoss"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "recBankChgAmt",
+      header: "Rec Bank Charges Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("recBankChgAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "recBankChgLocalAmt",
+      header: "Rec Bank Charges Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("recBankChgLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "bankChgAmt",
+      header: "Bank Charges Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("bankChgAmt"), amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "bankChgLocalAmt",
+      header: "Bank Charges Local Amount",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("bankChgLocalAmt"), locAmtDec)}
+        </div>
+      ),
+    },
 
+    {
+      accessorKey: "isCustPayBankChg",
+      header: "Is Cust Bank Chg",
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("isCustPayBankChg") ? "Yes" : "No"}
+        </div>
+      ),
+    },
+    ...(visible?.m_Remarks
+      ? [
+          {
+            accessorKey: "remarks",
+            header: "Remarks",
+          } as ColumnDef<IArReceiptHd>,
+        ]
+      : []),
     {
       accessorKey: "status",
       header: "Status",
@@ -461,7 +449,7 @@ export default function CbGenReceiptTable({
     },
   ]
 
-  const handleSearchCbGenReceipt = () => {
+  const handleSearchReceipt = () => {
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
 
@@ -475,7 +463,7 @@ export default function CbGenReceiptTable({
     setHasSearched(true) // Enable the query
     setCurrentPage(1) // Reset to first page when searching
 
-    const newFilters: ICbGenReceiptFilter = {
+    const newFilters: IArReceiptFilter = {
       startDate: startDate,
       endDate: endDate,
       search: searchQuery,
@@ -491,7 +479,7 @@ export default function CbGenReceiptTable({
     setCurrentPage(page)
     // The query will automatically refetch due to query key change
     if (onFilterChange) {
-      const newFilters: ICbGenReceiptFilter = {
+      const newFilters: IArReceiptFilter = {
         startDate: form.getValues("startDate"),
         endDate: form.getValues("endDate"),
         search: searchQuery,
@@ -505,20 +493,18 @@ export default function CbGenReceiptTable({
   }
 
   const handlePageSizeChange = (size: number) => {
-    const nextSize =
-      typeof size === "number" && size > 0 ? size : DEFAULT_PAGE_SIZE
-    setPageSize(nextSize)
+    setPageSize(size)
     setCurrentPage(1) // Reset to first page when changing page size
     // The query will automatically refetch due to query key change
     if (onFilterChange) {
-      const newFilters: ICbGenReceiptFilter = {
+      const newFilters: IArReceiptFilter = {
         startDate: form.getValues("startDate"),
         endDate: form.getValues("endDate"),
         search: searchQuery,
         sortBy: "receiptNo",
         sortOrder: "asc",
         pageNumber: 1,
-        pageSize: nextSize,
+        pageSize: size,
       }
       onFilterChange(newFilters)
     }
@@ -533,14 +519,14 @@ export default function CbGenReceiptTable({
     setSearchQuery(searchValue)
 
     if (onFilterChange) {
-      const newFilters: ICbGenReceiptFilter = {
+      const newFilters: IArReceiptFilter = {
         startDate: form.getValues("startDate"),
         endDate: form.getValues("endDate"),
         search: searchValue,
         sortBy: "receiptNo",
         sortOrder: (filters.sortOrder as "asc" | "desc") || "asc",
         pageNumber: currentPage,
-        pageSize,
+        pageSize: pageSize,
       }
       onFilterChange(newFilters)
     }
@@ -582,7 +568,7 @@ export default function CbGenReceiptTable({
             <Button
               variant="default"
               size="sm"
-              onClick={handleSearchCbGenReceipt}
+              onClick={handleSearchReceipt}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -617,12 +603,13 @@ export default function CbGenReceiptTable({
         isLoading={isLoading}
         moduleId={moduleId}
         transactionId={transactionId}
-        tableName={TableName.glJournal}
-        emptyMessage="No invoices found matching your criteria. Try adjusting the date range or search terms."
-        onRefreshAction={() => refetchCbGenReceipts()}
+        tableName={TableName.arReceipt}
+        emptyMessage="No receipts found matching your criteria. Try adjusting the date range or search terms."
+        onRefreshAction={() => refetchReceipts()}
         onFilterChange={handleDialogFilterChange}
         initialSearchValue={initialFilters?.search}
-        onRowSelect={(row) => onCbGenReceiptSelect(row || undefined)}
+        onRowSelect={(row) => onReceiptSelect(row || undefined)}
+        // Pagination props
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         currentPage={currentPage}
@@ -630,28 +617,6 @@ export default function CbGenReceiptTable({
         totalRecords={totalRecords}
         serverSidePagination={true}
       />
-
-      <div className="mt-3 flex items-center justify-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-          disabled={currentPage <= 1 || isLoading}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <span className="text-muted-foreground text-sm">
-          Page {currentPage}
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={isLoading || currentPage * pageSize >= totalRecords}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
     </div>
   )
 }

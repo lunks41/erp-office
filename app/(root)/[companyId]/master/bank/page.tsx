@@ -599,7 +599,11 @@ export default function BankPage() {
             size="sm"
             onClick={() => document.getElementById("bank-form-submit")?.click()}
             disabled={
-              isSaving || saveMutation.isPending || updateMutation.isPending
+              isSaving ||
+              saveMutation.isPending ||
+              updateMutation.isPending ||
+              canEdit ||
+              canCreate
             }
             className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
           >

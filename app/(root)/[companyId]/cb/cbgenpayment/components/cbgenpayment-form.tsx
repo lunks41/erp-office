@@ -521,6 +521,13 @@ export default function CbGenPaymentForm({
             isRequired={required?.m_ReferenceNo}
           />
 
+          {/* Supplier Reg No */}
+          <CustomInput
+            form={form}
+            name="supplierRegNo"
+            label="Supplier Reg No (TRN No.)"
+          />
+
           {/* Bank */}
           {visible?.m_BankId && (
             <BankAutocomplete

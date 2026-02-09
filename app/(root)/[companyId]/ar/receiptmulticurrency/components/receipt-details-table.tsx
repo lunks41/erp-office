@@ -390,10 +390,10 @@ export default function ReceiptDetailsTable({
     {
       accessorKey: "allocPayAmt",
       header: "Alloc Pay Amt",
-      size: 120,
+      size: 170,
       cell: ({ row }: { row: { original: IArReceiptDt } }) => (
         <div className="text-right">
-          {formatNumber(row.original.allocPayAmt ?? 0, amtDec)}
+          {formatNumber(row.original.allocPayAmt, amtDec)}
         </div>
       ),
     },

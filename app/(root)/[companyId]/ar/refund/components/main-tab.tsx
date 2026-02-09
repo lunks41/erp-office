@@ -712,6 +712,7 @@ export default function Main({
           currencyId={dialogParamsRef.current.currencyId}
           accountDate={dialogParamsRef.current.accountDate}
           isRefund={dialogParamsRef.current.isRefund}
+          isMultiCurrency={false}
           documentId={dialogParamsRef.current.documentId}
           transactionId={dialogParamsRef.current.transactionId}
           visible={visible}

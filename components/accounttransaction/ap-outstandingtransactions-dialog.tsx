@@ -31,6 +31,7 @@ interface ApOutStandingTransactionsDialogProps {
   currencyId?: number
   accountDate?: string
   isRefund?: boolean
+  isMultiCurrency?: boolean
   documentId?: string
   transactionId?: number
   visible: IVisibleFields
@@ -45,6 +46,7 @@ export default function ApOutStandingTransactionsDialog({
   currencyId,
   accountDate,
   isRefund,
+  isMultiCurrency,
   documentId,
   transactionId,
   visible,
@@ -85,7 +87,7 @@ export default function ApOutStandingTransactionsDialog({
     }
 
     // Create a unique key for current params
-    const paramsKey = `${supplierId}-${currencyId}-${accountDate}-${isRefund}-${documentId}`
+    const paramsKey = `${supplierId}-${currencyId}-${accountDate}-${isRefund}-${documentId}-${isMultiCurrency}`
 
     // Prevent duplicate calls with same parameters (only if actively loading)
     if (isLoadingRef.current && lastLoadParamsRef.current === paramsKey) {
@@ -142,6 +144,7 @@ export default function ApOutStandingTransactionsDialog({
         isRefund: isRefund ?? false,
         documentId: documentId ?? "",
         transactionId: transactionId ?? "",
+        isMultiCurrency: isMultiCurrency ?? false,
       }
 
       const response = await getByBody(
@@ -185,6 +188,7 @@ export default function ApOutStandingTransactionsDialog({
     accountDate,
     isRefund,
     documentId,
+    isMultiCurrency,
     dateFormat,
     transactionId,
   ])

@@ -31,6 +31,7 @@ interface ArOutStandingTransactionsDialogProps {
   currencyId?: number
   accountDate?: string
   isRefund?: boolean
+  isMultiCurrency?: boolean
   documentId?: string
   transactionId?: number
   visible: IVisibleFields
@@ -45,6 +46,7 @@ export default function ArOutStandingTransactionsDialog({
   currencyId,
   accountDate,
   isRefund,
+  isMultiCurrency,
   documentId,
   transactionId,
   visible,
@@ -85,7 +87,7 @@ export default function ArOutStandingTransactionsDialog({
     }
 
     // Create a unique key for current params
-    const paramsKey = `${customerId}-${currencyId}-${accountDate}-${isRefund}-${documentId}`
+    const paramsKey = `${customerId}-${currencyId}-${accountDate}-${isRefund}-${documentId}-${isMultiCurrency}`
 
     // Prevent duplicate calls with same parameters (only if actively loading)
     if (isLoadingRef.current && lastLoadParamsRef.current === paramsKey) {
@@ -142,6 +144,7 @@ export default function ArOutStandingTransactionsDialog({
         isRefund: isRefund ?? false,
         documentId: documentId ?? "",
         transactionId: transactionId ?? "",
+        isMultiCurrency: isMultiCurrency ?? false,
       }
 
       const response = await getByBody(
@@ -184,6 +187,7 @@ export default function ArOutStandingTransactionsDialog({
     currencyId,
     accountDate,
     isRefund,
+    isMultiCurrency,
     documentId,
     dateFormat,
     transactionId,

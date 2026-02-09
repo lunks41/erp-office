@@ -76,14 +76,17 @@ const copyRateSchema = z
   )
   .refine(
     (data) => {
-      // Prevent selecting the same customer in both fields
+      // Allow same customer when port is different; disallow only when same customer AND same port
       if (data.fromCustomerId > 0 && data.toCustomerId > 0) {
-        return data.fromCustomerId !== data.toCustomerId
+        if (data.fromCustomerId !== data.toCustomerId) return true // different customer is valid
+        if (data.isAllPorts) return true // same customer, copy to all ports is valid
+        return data.fromPortId !== data.toPortId // same customer: must be different port
       }
       return true
     },
     {
-      message: "From Customer and To Customer cannot be the same",
+      message:
+        "From and To must differ: use a different customer or a different port",
       path: ["toCustomerId"],
     }
   )
@@ -222,24 +225,6 @@ export function CopyRateForm({
     (field: "fromCustomerId" | "toCustomerId") =>
       (selectedCustomer: ICustomerLookup | null) => {
         const customerId = selectedCustomer?.customerId || 0
-
-        // Check if the same customer is already selected in the other field
-        const fromCustomerId = form.getValues("fromCustomerId")
-        const toCustomerId = form.getValues("toCustomerId")
-
-        if (customerId > 0) {
-          if (field === "fromCustomerId" && customerId === toCustomerId) {
-            toast.error("From Customer and To Customer cannot be the same")
-            form.setValue(field, 0)
-            return
-          }
-          if (field === "toCustomerId" && customerId === fromCustomerId) {
-            toast.error("From Customer and To Customer cannot be the same")
-            form.setValue(field, 0)
-            return
-          }
-        }
-
         form.setValue(field, customerId)
       },
     [form]
@@ -256,22 +241,6 @@ export function CopyRateForm({
   // Watch checkbox values to control field states
   const isAllPorts = form.watch("isAllPorts")
   const isAllTasks = form.watch("isAllTasks")
-
-  // Watch both customer IDs to prevent same selection
-  const fromCustomerId = form.watch("fromCustomerId")
-  const toCustomerId = form.watch("toCustomerId")
-
-  // Clear the other field if same customer is selected (backup check)
-  useEffect(() => {
-    if (
-      fromCustomerId > 0 &&
-      toCustomerId > 0 &&
-      fromCustomerId === toCustomerId
-    ) {
-      // Clear the "to" field if it matches "from"
-      form.setValue("toCustomerId", 0)
-    }
-  }, [fromCustomerId, toCustomerId, form])
 
   // Handle All Ports checkbox change - clear fromPortId and toPortId when checked
   useEffect(() => {
@@ -452,9 +421,9 @@ export function CopyRateForm({
                   Important Note
                 </p>
                 <p className="text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
-                  The same customer cannot be selected for both &quot;From&quot;
-                  and &quot;To&quot; fields. You must select different customers
-                  to copy rates between them.
+                  You can copy between different customers or the same customer
+                  with different ports. From and To must differ by customer and/or
+                  port (e.g. same customer, different port).
                 </p>
               </div>
             </div>

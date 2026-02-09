@@ -37,7 +37,10 @@ export const ArReceiptHdSchema = (
       : z.number().optional(),
     bankChgAmt: z.number(),
     bankChgLocalAmt: z.number(),
+    recBankChgAmt: z.number(),
+    recBankChgLocalAmt: z.number(),
     isCustPayBankChg: z.boolean().optional(),
+    isMultiCurrency: z.boolean().optional(),
 
     // Currency Fields
     currencyId: z.number().min(1, "Currency is required"),
@@ -142,6 +145,7 @@ export const ArReceiptDtSchema = (
 
     // Allocated Amount Fields
     allocAmt: z.number("Allocated Amount is required"),
+    allocPayAmt: z.number().optional(),
     allocLocalAmt: z.number("Allocated Local Amount is required"),
     docAllocAmt: z.number("Document Allocated Amount is required"),
     docAllocLocalAmt: z.number("Document Allocated Local Amount is required"),

@@ -74,6 +74,7 @@ const buildDefaultCbGenReceipt = (dateFormat: string) => ({
   totCtyAmtAftGst: 0,
   remarks: "",
   payeeTo: "",
+  supplierRegNo: "",
   moduleFrom: "",
   createById: 0,
   createDate: format(new Date(), dateFormat),

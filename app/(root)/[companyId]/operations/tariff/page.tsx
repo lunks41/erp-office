@@ -845,9 +845,11 @@ export default function TariffPage() {
   const handleCustomerChange = useCallback(
     (selectedCustomer: ICustomerLookup | null) => {
       if (selectedCustomer) {
-        form.setValue("customerId", selectedCustomer.customerId || 0)
+        form.setValue("customerId", selectedCustomer.customerId)
+        form.setValue("currencyId", selectedCustomer.currencyId)
       } else {
         form.setValue("customerId", 0)
+        form.setValue("currencyId", 0)
       }
       // Reset search state when customer changes
       setHasSearched(false)

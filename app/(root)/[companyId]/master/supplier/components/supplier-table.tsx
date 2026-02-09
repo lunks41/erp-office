@@ -78,7 +78,7 @@ export function SupplierTable({
     },
     {
       accessorKey: "supplierRegNo",
-      header: "Registration No",
+      header: "Supplier Reg No (TRN No.)",
       size: 120,
       minSize: 50,
     },

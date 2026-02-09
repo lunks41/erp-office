@@ -16,6 +16,8 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { getData } from "@/lib/api-client"
+import { BasicSetting } from "@/lib/api-routes"
 import { useCompanyCustomerLookup, useUomLookup } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Form } from "@/components/ui/form"
@@ -39,8 +41,6 @@ import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { TariffDetailsForm } from "./tariff-details-form"
-import { getData } from "@/lib/api-client"
-import { BasicSetting } from "@/lib/api-routes"
 
 interface TariffFormProps {
   initialData?: ITariffHd
@@ -81,11 +81,17 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     const { data: customers = [] } = useCompanyCustomerLookup(companyId)
     const { data: uoms = [] } = useUomLookup()
 
-    // Extract currency ID to prevent infinite loop - useMemo ensures stable reference
-    const firstCustomerCurrencyId = customers[0]?.currencyId
+    // Currency from the selected customer (customerId / initialData.customerId), not from first customer
     const defaultCurrencyId = useMemo(() => {
-      return firstCustomerCurrencyId || 0
-    }, [firstCustomerCurrencyId])
+      const selectedCustomerId = initialData?.customerId ?? customerId
+      if (selectedCustomerId && customers.length > 0) {
+        const customer = customers.find(
+          (c) => c.customerId === selectedCustomerId
+        )
+        return customer?.currencyId ?? 0
+      }
+      return 0
+    }, [initialData?.customerId, customerId, customers])
 
     const form = useForm<TariffHdSchemaType>({
       resolver: zodResolver(tariffHdSchema),
@@ -128,7 +134,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         try {
           // Use current date in yyyy-MM-dd format
           const currentDate = format(new Date(), "yyyy-MM-dd")
-          
+
           const res = await getData(
             `${BasicSetting.getExchangeRate}/${currencyId}/${currentDate}`
           )
@@ -242,6 +248,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     }, [defaultCurrencyId, handleExchangeRateChange, form])
 
     // Watch form values
+    const watchedCustomerId = form.watch("customerId")
     const watchedDetails = form.watch("data_details") || []
     const watchedExhRate = form.watch("exhRate") || 1
     const watchedUomId = form.watch("uomId")
@@ -321,12 +328,12 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
       async (selectedCustomer: ICustomerLookup | null) => {
         const newCurrencyId = selectedCustomer?.currencyId || 0
         form.setValue("currencyId", newCurrencyId)
-        
+
         // Fetch exchange rate when currency changes
         if (newCurrencyId > 0) {
           await handleExchangeRateChange(newCurrencyId)
         }
-        
+
         form.trigger()
       },
       [form, handleExchangeRateChange]
@@ -398,13 +405,15 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 onChangeEvent={handleCustomerChange}
               />
 
-              <CurrencyAutocomplete
-                form={form}
-                name="currencyId"
-                label="Currency"
-                isRequired
-                isDisabled={true}
-              />
+              {watchedCustomerId > 0 && (
+                <CurrencyAutocomplete
+                  form={form}
+                  name="currencyId"
+                  label="Currency"
+                  isRequired
+                  isDisabled={true}
+                />
+              )}
               <PortAutocomplete
                 key={`port-${mode}-${portId}`}
                 form={form}
