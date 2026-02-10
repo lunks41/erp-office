@@ -653,8 +653,7 @@ export default function SupplierPage() {
               isSaving ||
               saveMutation.isPending ||
               updateMutation.isPending ||
-              canEdit ||
-              canCreate
+              (isEdit ? !canEdit : !canCreate)
             }
             className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
           >

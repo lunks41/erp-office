@@ -233,6 +233,10 @@ export default function InvoiceTable({
       header: "Reference No",
     },
     {
+      accessorKey: "jobOrderNo",
+      header: "Job Order No",
+    },
+    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {

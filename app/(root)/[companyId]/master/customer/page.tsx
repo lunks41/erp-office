@@ -642,14 +642,13 @@ export default function CustomerPage() {
             onClick={() =>
               document.getElementById("customer-form-submit")?.click()
             }
-            className={`w-full sm:w-auto ${isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}`}
             disabled={
               isSaving ||
               saveMutation.isPending ||
               updateMutation.isPending ||
-              canEdit ||
-              canCreate
+              (isEdit ? !canEdit : !canCreate)
             }
+            className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
           >
             {isSaving || saveMutation.isPending || updateMutation.isPending ? (
               <Spinner size="sm" className="mr-1" />
