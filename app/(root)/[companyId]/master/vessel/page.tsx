@@ -275,7 +275,6 @@ export default function VesselPage() {
               imoCode: vesselData.imoCode,
               grt: vesselData.grt,
               licenseNo: vesselData.licenseNo,
-              vesselType: vesselData.vesselType,
               flag: vesselData.flag,
               isActive: vesselData.isActive,
               remarks: vesselData.remarks,
@@ -284,6 +283,9 @@ export default function VesselPage() {
               createDate: vesselData.createDate,
               editDate: vesselData.editDate,
               companyId: vesselData.companyId,
+              vesselTypeId: vesselData.vesselTypeId,
+              vesselTypeCode: vesselData.vesselTypeCode,
+              vesselTypeName: vesselData.vesselTypeName,
             }
 
             setExistingVessel(validVesselData)

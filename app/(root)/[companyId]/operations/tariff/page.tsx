@@ -77,7 +77,7 @@ const CATEGORY_CONFIG: Record<
   },
   launchServices: {
     id: "launchServices",
-    label: "Launch Services",
+    label: "Launch Service",
     taskId: Task.LaunchServices,
   },
   equipmentUsed: {
@@ -87,12 +87,12 @@ const CATEGORY_CONFIG: Record<
   },
   crewSignOn: {
     id: "crewSignOn",
-    label: "Crew Sign On",
+    label: "Crew SignOn",
     taskId: Task.CrewSignOn,
   },
   crewSignOff: {
     id: "crewSignOff",
-    label: "Crew Sign Off",
+    label: "Crew SignOff",
     taskId: Task.CrewSignOff,
   },
   crewMiscellaneous: {
@@ -127,7 +127,7 @@ const CATEGORY_CONFIG: Record<
   },
   techniciansSurveyors: {
     id: "techniciansSurveyors",
-    label: "Technicians & Surveyors",
+    label: "Technician Surveyor",
     taskId: Task.TechniciansSurveyors,
   },
   landingItems: {
@@ -1034,38 +1034,75 @@ export default function TariffPage() {
           onValueChange={handleCategoryChange}
           className="mb-6"
         >
-          <div className="overflow-x-auto">
-            <TabsList className="touch-target flex h-14 w-max">
-              {categories.map((category) => (
-                <TabsTrigger
-                  key={category.id}
-                  value={category.id}
-                  className="text-fluid-xs relative flex items-center space-x-2 px-4 py-2"
-                  disabled={isTabLoading && activeCategory === category.id}
-                >
-                  {category.label}
-                  {isTabLoading && activeCategory === category.id && (
-                    <RefreshCcwIcon className="h-3 w-3 animate-spin" />
-                  )}
-                  <Badge
-                    variant={
-                      isLoading ||
-                      (isTabLoading && activeCategory === category.id)
-                        ? "secondary"
-                        : category.count && category.count > 0
-                          ? "destructive"
-                          : "outline"
-                    }
-                    className="text-fluid-xs font-medium"
-                  >
-                    {isLoading ||
-                    (isTabLoading && activeCategory === category.id)
-                      ? "..."
-                      : category.count || 0}
-                  </Badge>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="bg-card rounded-lg border shadow-sm">
+            <div>
+              <TabsList className="flex h-auto w-full flex-col gap-1 p-1">
+                {/* Row 1 */}
+                <div className="flex w-full flex-wrap items-center gap-1">
+                  {categories.slice(0, 8).map((category) => (
+                    <TabsTrigger
+                      key={category.id}
+                      value={category.id}
+                      className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0 text-xs"
+                      disabled={isTabLoading && activeCategory === category.id}
+                    >
+                      {category.label}
+                      {isTabLoading && activeCategory === category.id && (
+                        <RefreshCcwIcon className="h-3 w-3 animate-spin" />
+                      )}
+                      <Badge
+                        variant={
+                          isLoading ||
+                          (isTabLoading && activeCategory === category.id)
+                            ? "secondary"
+                            : category.count && category.count > 0
+                              ? "destructive"
+                              : "outline"
+                        }
+                        className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                      >
+                        {isLoading ||
+                        (isTabLoading && activeCategory === category.id)
+                          ? "..."
+                          : category.count || 0}
+                      </Badge>
+                    </TabsTrigger>
+                  ))}
+                </div>
+                {/* Row 2 */}
+                <div className="flex w-full flex-wrap items-center gap-1">
+                  {categories.slice(8).map((category) => (
+                    <TabsTrigger
+                      key={category.id}
+                      value={category.id}
+                      className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0 text-xs"
+                      disabled={isTabLoading && activeCategory === category.id}
+                    >
+                      {category.label}
+                      {isTabLoading && activeCategory === category.id && (
+                        <RefreshCcwIcon className="h-3 w-3 animate-spin" />
+                      )}
+                      <Badge
+                        variant={
+                          isLoading ||
+                          (isTabLoading && activeCategory === category.id)
+                            ? "secondary"
+                            : category.count && category.count > 0
+                              ? "destructive"
+                              : "outline"
+                        }
+                        className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                      >
+                        {isLoading ||
+                        (isTabLoading && activeCategory === category.id)
+                          ? "..."
+                          : category.count || 0}
+                      </Badge>
+                    </TabsTrigger>
+                  ))}
+                </div>
+              </TabsList>
+            </div>
           </div>
         </Tabs>
       )}

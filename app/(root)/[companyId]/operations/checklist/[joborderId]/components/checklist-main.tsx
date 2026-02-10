@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { useParams } from "next/navigation"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
 import { IJobOrderHd } from "@/interfaces/checklist"
 import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
@@ -67,8 +68,29 @@ export function ChecklistMain({
   isConfirmed,
   onUpdateSuccess,
 }: ChecklistMainProps) {
+  const params = useParams()
+  const companyId = params?.companyId as string | undefined
   const { decimals } = useAuthStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
+
+  const handleInvoiceNoDoubleClick = useCallback(() => {
+    const invoiceId = jobData?.invoiceId
+    if (
+      !companyId ||
+      invoiceId === undefined ||
+      invoiceId === null ||
+      Number(invoiceId) <= 0
+    )
+      return
+    const docId = String(invoiceId).trim()
+    if (!docId) return
+    const targetPath = `/${companyId}/ar/invoice`
+    const storageKey = `history-doc:${targetPath}`
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(storageKey, docId)
+      window.open(targetPath, "_blank", "noopener,noreferrer")
+    }
+  }, [companyId, jobData?.invoiceId])
 
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
@@ -1115,7 +1137,7 @@ export function ChecklistMain({
 
             {/* Accounts Card - 25% */}
             <div className="w-[25%] rounded-lg border p-4">
-              <div className="mb-2 flex">
+              <div className="mb-2 flex items-center gap-2">
                 <Badge
                   variant="outline"
                   className="border-green-300 bg-green-100 px-4 py-2 text-sm font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
@@ -1123,7 +1145,20 @@ export function ChecklistMain({
                   💰 Accounts
                 </Badge>
                 {jobData?.invoiceNo && (
-                  <Badge variant="outline">
+                  <Badge
+                    variant="outline"
+                    role="button"
+                    tabIndex={0}
+                    className="cursor-pointer border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800 shadow-sm transition-colors hover:bg-blue-100"
+                    title="Double-click to open AR Invoice"
+                    onDoubleClick={handleInvoiceNoDoubleClick}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        handleInvoiceNoDoubleClick()
+                      }
+                    }}
+                  >
                     <span className="text-xs">
                       Invoice No: {jobData.invoiceNo}
                     </span>

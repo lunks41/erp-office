@@ -1,10 +1,12 @@
 import {
   ICloneUserGroupRights,
+  ICloneUserGroupReportRights,
   IResetPassword,
   IShareData,
   IUser,
   IUserGroup,
   IUserGroupRights,
+  IUserGroupReportRights,
   IUserRights,
   IUserRightsv1,
 } from "@/interfaces/admin"
@@ -26,6 +28,7 @@ import {
   User,
   UserGroup,
   UserGroupRights,
+  UserGroupReportRights,
   UserRights,
 } from "@/lib/api-routes"
 
@@ -474,6 +477,53 @@ export const useCloneUserGroupRightsSave = () => {
       return apiClient
         .post(
           `${UserGroupRights.clone}/${data.fromUserGroupId}/${data.toUserGroupId}`,
+          data
+        )
+        .then((res) => res.data)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["user"] }),
+  })
+}
+
+/**
+ * User Group Report Rights
+ * -----------------------
+ */
+export const useUserGroupReportRightbyidGet = (userGroupId: number) => {
+  return useQuery({
+    queryKey: ["usergroupreportright", userGroupId],
+    placeholderData: keepPreviousData,
+    staleTime: 600000,
+    queryFn: async () => {
+      return await getData(`${UserGroupReportRights.get}/${userGroupId}`)
+    },
+    refetchOnWindowFocus: false,
+  })
+}
+
+export const useUserGroupReportRightSave = () => {
+  return useMutation({
+    mutationFn: async ({ data }: { data: IUserGroupReportRights[] }) => {
+      try {
+        return await saveData(UserGroupReportRights.add, data)
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          console.error("Error saving user group report rights:", error)
+          throw error.response?.data || "Error saving user group report rights."
+        }
+        throw new Error("An unexpected error occurred")
+      }
+    },
+  })
+}
+
+export const useCloneUserGroupReportRightsSave = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (data: ICloneUserGroupReportRights) => {
+      return apiClient
+        .post(
+          `${UserGroupReportRights.clone}/${data.fromUserGroupId}/${data.toUserGroupId}`,
           data
         )
         .then((res) => res.data)

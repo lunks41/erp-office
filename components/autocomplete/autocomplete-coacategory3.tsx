@@ -59,7 +59,7 @@ export default function COACategory3Autocomplete<
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
       return (
-        <components.DropdownIndicator {...props}>
+        <components.DropdownIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
           <IconChevronDown size={12} className="size-4 shrink-0 opacity-50" />
         </components.DropdownIndicator>
       )
@@ -70,7 +70,7 @@ export default function COACategory3Autocomplete<
   const ClearIndicator = React.memo(
     (props: ClearIndicatorProps<FieldOption>) => {
       return (
-        <components.ClearIndicator {...props}>
+        <components.ClearIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
           <IconX size={10} className="size-3 shrink-0" />
         </components.ClearIndicator>
       )
@@ -98,12 +98,12 @@ export default function COACategory3Autocomplete<
     () => ({
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
         cn(
-          "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50",
+          "border-gray-400 dark:border-gray-500 data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50",
           "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-3 pr-0 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
           "focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
           state.isFocused
             ? "border-ring ring-[3px] ring-ring/50"
-            : "border-input",
+            : "border-gray-400 dark:border-gray-500",
           state.isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
           "h-9 min-h-9"
         ),

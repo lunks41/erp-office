@@ -216,6 +216,9 @@ const getTransactionIcon = (transactionCode: string) => {
     usergroup: Users,
     userrights: ShieldCheck,
     usergrouprights: Shield,
+    // Report-oriented rights
+    usergroupreportrights: BarChart,
+    userreportrights: BarChart,
     sharedata: Share,
     profile: UserRoundPen,
     auditlog: History,
@@ -245,6 +248,7 @@ const getTransactionIcon = (transactionCode: string) => {
     geolocation: MapPin,
     transportlocation: MapPin,
     transportmode: Sliders,
+    vesseltype: Ship,
     // Cash Book transactions
     cbbankrecon: Scale,
     cbbanktransfer: ArrowLeftRight,

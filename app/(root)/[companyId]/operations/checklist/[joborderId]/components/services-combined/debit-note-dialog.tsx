@@ -596,7 +596,8 @@ export default function DebitNoteDialog({
         })
         return filtered.map((item, index) => {
           const newItemNo = index + 1
-          const refItemNo = (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
+          const refItemNo =
+            (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
           return { ...item, itemNo: newItemNo, refItemNo }
         })
       })
@@ -798,9 +799,7 @@ export default function DebitNoteDialog({
         }
       } while (added)
 
-      const filtered = prev.filter(
-        (item) => !toDelete.has(item.itemNo ?? 0)
-      )
+      const filtered = prev.filter((item) => !toDelete.has(item.itemNo ?? 0))
       // Renumber and update refItemNo so it points to new itemNos
       const oldToNew = new Map<number, number>()
       filtered.forEach((item, index) => {
@@ -809,7 +808,8 @@ export default function DebitNoteDialog({
       })
       return filtered.map((item, index) => {
         const newItemNo = index + 1
-        const refItemNo = (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
+        const refItemNo =
+          (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
         return { ...item, itemNo: newItemNo, refItemNo }
       })
     })
@@ -840,7 +840,8 @@ export default function DebitNoteDialog({
     })
     const updatedData = newData.map((item, index) => {
       const newItemNo = index + 1
-      const refItemNo = (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
+      const refItemNo =
+        (item.refItemNo ?? 0) > 0 ? (oldToNew.get(item.refItemNo!) ?? 0) : 0
       return { ...item, itemNo: newItemNo, refItemNo }
     })
 
@@ -1017,7 +1018,7 @@ export default function DebitNoteDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[95vh] w-[80vw] !max-w-none overflow-y-auto"
+        className="max-h-[95vh] w-[90vw] !max-w-none overflow-y-auto"
         onPointerDownOutside={(e) => {
           e.preventDefault()
         }}

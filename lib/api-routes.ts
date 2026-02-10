@@ -120,6 +120,13 @@ export const UserGroupRights = {
   clone: "/admin/cloneusergrouprights",
 }
 
+// User Group Report Rights Endpoints
+export const UserGroupReportRights = {
+  get: "/admin/getusergroupreportrightsbyid",
+  add: "/admin/saveusergroupreportrights",
+  clone: "/admin/cloneusergroupreportrights",
+}
+
 // Share Data Endpoints
 export const ShareData = {
   get: "/admin/getsharedata",
@@ -283,6 +290,7 @@ export const Lookup = {
   getGeoLocation: "/master/getgeolocationlookup",
   getSupplyType: "/master/getsupplytypelookup",
   getCargoType: "/master/getcargotypelookup",
+  getVesselType: "/master/getvesseltypelookup",
   getPassType: "/master/getpasstypelookup",
   getLandingType: "/master/getlandingtypelookup",
   getLandingPurpose: "/master/getLandingPurposelookup",
@@ -486,6 +494,14 @@ export const CargoType = {
   getByCode: "/master/getcargotypebycode",
   add: "/master/savecargotype",
   delete: "/master/deletecargotype",
+}
+
+// VesselType Endpoints
+export const VesselType = {
+  get: "/master/getvesseltype",
+  getByCode: "/master/getvesseltypebycode",
+  add: "/master/savevesseltype",
+  delete: "/master/deletevesseltype",
 }
 
 // Rank Endpoints

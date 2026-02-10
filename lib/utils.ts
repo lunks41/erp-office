@@ -163,6 +163,7 @@ export enum MasterTransactionId {
   geoLocation = 69,
   supplyType = 68,
   cargoType = 70,
+  vesselType = 71,
 }
 
 export enum AdminTransactionId {
@@ -170,6 +171,7 @@ export enum AdminTransactionId {
   userRights = 2,
   userGroup = 3,
   userGroupRights = 4,
+  userGroupReportRights = 10,
   userRoles = 5,
   userProfile = 6,
   shareData = 7,
@@ -394,6 +396,7 @@ export enum TableName {
   userRole = "AdmUserRole",
   userGroup = "AdmUserGroup",
   userGroupRights = "AdmUserGroupRights",
+  userGroupReportRights = "AdmUserGroupReportRights",
   userRights = "AdmUserRights",
   userProfile = "AdmUserProfile",
   shareData = "AdmShareData",
@@ -469,6 +472,7 @@ export enum TableName {
   geoLocation = "M_GeoLocation",
   supplyType = "M_SupplyType",
   cargoType = "M_CargoType",
+  vesselType = "M_VesselType",
   rank = "M_Rank",
   voyage = "M_Voyage",
   workLocation = "M_WorkLocation",

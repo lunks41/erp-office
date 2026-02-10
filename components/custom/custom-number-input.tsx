@@ -92,12 +92,12 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
                 disabled={isDisabled}
                 tabIndex={isDisabled ? -1 : undefined}
                 className={cn(
-                  "border-input ring-offset-background flex h-9 w-full rounded-md border px-3 py-1.5 text-right text-sm",
+                  "ring-offset-background flex h-9 w-full rounded-md border px-3 py-1.5 text-right text-sm",
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-                  showError ? "border-destructive" : "border-input",
+                  showError && "border-destructive",
                   isDisabled
                     ? "cursor-not-allowed border-gray-300 bg-gray-200 opacity-60 dark:border-gray-600 dark:bg-gray-700"
-                    : "bg-muted/5",
+                    : "bg-muted/5 border-gray-400 dark:border-gray-500",
                   "hide-number-spinners"
                 )}
               />

@@ -1,14 +1,21 @@
 "use client"
 
+import { useCallback, useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 import { ApiResponse } from "@/interfaces/auth"
 import { IFreight } from "@/interfaces/freight"
 import { FreightSchemaType } from "@/schemas/freight"
+import { useAuthStore } from "@/stores/auth-store"
+import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useParams } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { Eraser, Search } from "lucide-react"
 
-import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
+import { Freight } from "@/lib/api-routes"
+import { formatDateForApi } from "@/lib/date-utils"
+import { LogisticsTransactionId, ModuleId } from "@/lib/utils"
+import { useGet, useGetById, usePersist } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -16,18 +23,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import {
-  useGet,
-  useGetById,
-  usePersist,
-} from "@/hooks/use-common"
-import { Freight } from "@/lib/api-routes"
-import { formatDateForApi } from "@/lib/date-utils"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
-import { LogisticsTransactionId, ModuleId } from "@/lib/utils"
-import { useAuthStore } from "@/stores/auth-store"
-import { usePermissionStore } from "@/stores/permission-store"
 import { FreightForm } from "./components/freight-form"
 import { FreightTable } from "./components/freight-table"
 
@@ -55,6 +54,10 @@ export default function FreightManagementPage() {
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  // Local search state
+  const [searchInput, setSearchInput] = useState("")
+  const [committedSearch, setCommittedSearch] = useState("")
+
   // State for save confirmation
   const [saveConfirmation, setSaveConfirmation] = useState<{
     isOpen: boolean
@@ -65,7 +68,6 @@ export default function FreightManagementPage() {
     formData: null,
     operationType: "create",
   })
-
 
   // Data fetching
   const {
@@ -95,7 +97,8 @@ export default function FreightManagementPage() {
     "freightById",
     selectedItemId,
     {
-      enabled: !!selectedItemId && (modalMode === "view" || modalMode === "edit"),
+      enabled:
+        !!selectedItemId && (modalMode === "view" || modalMode === "edit"),
     }
   )
 
@@ -118,7 +121,6 @@ export default function FreightManagementPage() {
     setModalMode("view")
     setIsModalOpen(true)
   }, [])
-
 
   const handleEdit = useCallback((item: IFreight) => {
     setSelectedItem(item)
@@ -148,18 +150,16 @@ export default function FreightManagementPage() {
         ...saveConfirmation.formData,
         companyId: companyId,
         receiveDate:
-          formatDateForApi(saveConfirmation.formData.receiveDate) ||
-          undefined,
+          formatDateForApi(saveConfirmation.formData.receiveDate) || undefined,
         arrivalDate:
-          formatDateForApi(saveConfirmation.formData.arrivalDate) ||
-          undefined,
+          formatDateForApi(saveConfirmation.formData.arrivalDate) || undefined,
         deliverDate:
-          formatDateForApi(saveConfirmation.formData.deliverDate) ||
-          undefined,
+          formatDateForApi(saveConfirmation.formData.deliverDate) || undefined,
         chargeId: saveConfirmation.formData.chargeId ?? undefined,
         carrierId: saveConfirmation.formData.carrierId ?? undefined,
         serviceModeId: saveConfirmation.formData.serviceModeId ?? undefined,
-        consignmentTypeId: saveConfirmation.formData.consignmentTypeId ?? undefined,
+        consignmentTypeId:
+          saveConfirmation.formData.consignmentTypeId ?? undefined,
         landingTypeId: saveConfirmation.formData.landingTypeId ?? undefined,
         uomId: saveConfirmation.formData.uomId ?? undefined,
         debitNoteId: saveConfirmation.formData.debitNoteId ?? undefined,
@@ -224,6 +224,36 @@ export default function FreightManagementPage() {
     refetch()
   }, [refetch])
 
+  // Handlers for search box
+  const handleSearchClick = useCallback(() => {
+    setCommittedSearch(searchInput.trim())
+  }, [searchInput])
+
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("")
+    setCommittedSearch("")
+  }, [])
+
+  const filteredData =
+    committedSearch.trim().length === 0
+      ? data || []
+      : (data || []).filter((item) => {
+          const term = committedSearch.toLowerCase()
+
+          const fields = [
+            item.referenceNo,
+            item.awbNo,
+            item.declarationNo,
+            item.billEntryNo,
+            item.jobOrderNo,
+            item.vesselName,
+          ]
+
+          return fields.some((field) =>
+            field ? field.toString().toLowerCase().includes(term) : false
+          )
+        })
+
   return (
     <>
       <div className="@container flex flex-1 flex-col p-4">
@@ -239,9 +269,47 @@ export default function FreightManagementPage() {
           </div>
         </div>
 
+        {/* Search box + actions */}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="w-full max-w-xs sm:max-w-sm">
+            <Input
+              type="text"
+              placeholder="Search by Ref / AWB / Job Order..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  handleSearchClick()
+                }
+              }}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={handleSearchClick}
+            className="flex items-center gap-1 px-2 sm:px-3"
+            size="sm"
+          >
+            <Search className="h-4 w-4" />
+            <span>Search</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClearSearch}
+            className="flex items-center gap-1 px-2 sm:px-3"
+            size="sm"
+            disabled={!searchInput && !committedSearch}
+          >
+            <Eraser className="h-4 w-4" />
+            <span>Clear</span>
+          </Button>
+        </div>
+
         <div className="overflow-x-auto">
           <FreightTable
-            data={data || []}
+            data={filteredData}
             onFreightSelect={handleSelect}
             onEditActionFreight={handleEdit}
             onCreateActionFreight={handleCreateFreight}
@@ -282,14 +350,10 @@ export default function FreightManagementPage() {
                   : modalMode === "edit"
                     ? "Edit"
                     : "View"}
-                   
-                <Badge
-                  variant="destructive"
-                  className="px-2 py-1 text-xs"
-                >
+
+                <Badge variant="destructive" className="px-2 py-1 text-xs">
                   Edit Version No. {selectedItem?.editVersion ?? 0}
                 </Badge>
-                  
               </Badge>
             </div>
             <DialogDescription>

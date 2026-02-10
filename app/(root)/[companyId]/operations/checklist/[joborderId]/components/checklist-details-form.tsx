@@ -158,324 +158,327 @@ export function ChecklistDetailsForm({
         onValueChange={setActiveTab}
         className="space-y-2"
       >
-        <div className="bg-card rounded-lg border p-2 shadow-sm">
+        <div className="bg-card rounded-lg border shadow-sm">
           <div>
-            <TabsList className="flex h-auto w-full flex-wrap gap-1 p-0.5">
-              <TabsTrigger
-                value="port-expenses"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">🏢</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Port Expenses
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.portExpense && data?.portExpense > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+            <TabsList className="flex h-auto w-full flex-col gap-1 p-1">
+              {/* Row 1 */}
+              <div className="flex w-full flex-wrap items-center gap-1">
+                <TabsTrigger value="port-expenses" className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0">
+                  <span className="text-xs">🏢</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Port Expenses
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.portExpense && data?.portExpense > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.portExpense || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="launch-services"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.portExpense || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="launch-services"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">🚤</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Launch Services
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.launchService && data?.launchService > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">🚤</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Launch Service
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.launchService && data?.launchService > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.launchService || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="equipment-used"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.launchService || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="equipment-used"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">🔧</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Equipment Used
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.equipmentUsed && data?.equipmentUsed > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">🔧</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Equipment Used
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.equipmentUsed && data?.equipmentUsed > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.equipmentUsed || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="crew-sign-on"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.equipmentUsed || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="crew-sign-on"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">👥</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Crew Sign On
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.crewSignOn && data?.crewSignOn > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">👥</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Crew SignOn
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.crewSignOn && data?.crewSignOn > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.crewSignOn || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="crew-sign-off"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.crewSignOn || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="crew-sign-off"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">👋</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Crew Sign Off
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.crewSignOff && data?.crewSignOff > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">👋</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Crew SignOff
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.crewSignOff && data?.crewSignOff > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.crewSignOff || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="crew-miscellaneous"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.crewSignOff || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="crew-miscellaneous"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">📋</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Crew Miscellaneous
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.crewMiscellaneous && data?.crewMiscellaneous > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">📋</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Crew Miscellaneous
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.crewMiscellaneous && data?.crewMiscellaneous > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.crewMiscellaneous || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="medical-assistance"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.crewMiscellaneous || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="medical-assistance"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">🏥</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Medical Assistance
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.medicalAssistance && data?.medicalAssistance > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">🏥</span>
+                  <span className="text-xs whitespace-nowrap">Medical Assistance</span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.medicalAssistance && data?.medicalAssistance > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.medicalAssistance || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="consignment-import"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.medicalAssistance || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="consignment-import"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">📥</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Consignment Import
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.consignmentImport && data?.consignmentImport > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">📥</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Consignment Import
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.consignmentImport && data?.consignmentImport > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.consignmentImport || 0}
+                  </Badge>
+                </TabsTrigger>
+              </div>
+              {/* Row 2 */}
+              <div className="flex w-full flex-wrap items-center gap-1">
+                <TabsTrigger
+                  value="consignment-export"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.consignmentImport || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="consignment-export"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">📤</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Consignment Export
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.consignmentExport && data?.consignmentExport > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">📤</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Consignment Export
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.consignmentExport && data?.consignmentExport > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.consignmentExport || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="third-party"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.consignmentExport || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="third-party"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">🤝</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  3rd Party
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.thirdParty && data?.thirdParty > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">🤝</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Third Party
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.thirdParty && data?.thirdParty > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.thirdParty || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="fresh-water"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.thirdParty || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="fresh-water"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">💧</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Fresh Water
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.freshWater && data?.freshWater > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">💧</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Fresh Water
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.freshWater && data?.freshWater > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.freshWater || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="technician-surveyor"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.freshWater || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="technician-surveyor"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">🔍</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Technicians & Surveyors
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.technicianSurveyor && data?.technicianSurveyor > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">🔍</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Technician Surveyor
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.technicianSurveyor &&
+                            data?.technicianSurveyor > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.technicianSurveyor || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="landing-items"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.technicianSurveyor || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="landing-items"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">📦</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Landing Items
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.landingItems && data?.landingItems > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">📦</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Landing Items
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.landingItems && data?.landingItems > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.landingItems || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="other-service"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.landingItems || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="other-service"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">⚙️</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Other Services
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.otherService && data?.otherService > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
+                  <span className="text-xs">⚙️</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Other Service
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.otherService && data?.otherService > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.otherService || 0}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="agency-remuneration"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
-                  {isLoading ? "..." : data?.otherService || 0}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="agency-remuneration"
-                className="relative flex min-w-0 flex-row items-center gap-1 px-2 py-1 text-[10px]"
-              >
-                <span className="text-[10px]">💰</span>
-                <span className="text-[10px] break-words whitespace-normal">
-                  Agency Remuneration
-                </span>
-                <Badge
-                  variant={
-                    isLoading
-                      ? "secondary"
-                      : data?.agencyRemuneration && data?.agencyRemuneration > 0
-                        ? "destructive"
-                        : "outline"
-                  }
-                  className="h-4 px-1 text-[9px] font-medium"
-                >
-                  {isLoading ? "..." : data?.agencyRemuneration || 0}
-                </Badge>
-              </TabsTrigger>
+                  <span className="text-xs">💰</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Agency Remuneration
+                  </span>
+                  <Badge
+                    variant={
+                      isLoading
+                        ? "secondary"
+                        : data?.agencyRemuneration &&
+                            data?.agencyRemuneration > 0
+                          ? "destructive"
+                          : "outline"
+                    }
+                    className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                  >
+                    {isLoading ? "..." : data?.agencyRemuneration || 0}
+                  </Badge>
+                </TabsTrigger>
+              </div>
             </TabsList>
           </div>
         </div>

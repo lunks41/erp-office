@@ -84,9 +84,9 @@ export function VesselTable({
       enableColumnFilter: true,
     },
     {
-      accessorKey: "vesselType",
+      accessorKey: "vesselTypeCode",
       header: "Type",
-      cell: ({ row }) => <div>{row.getValue("vesselType") || "-"}</div>,
+      cell: ({ row }) => <div>{row.getValue("vesselTypeCode") || "-"}</div>,
       size: 80,
       minSize: 50,
     },

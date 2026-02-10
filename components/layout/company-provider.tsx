@@ -117,12 +117,11 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
             //   "🔄 COMPANY SWITCH NEEDED: URL company differs from current company"
             // )
             // console.log("🔄 Switching to company:", companyId)
-            switchCompany(companyId)
+            setIsCompanySwitching(true)
+            switchCompany(companyId).finally(() => {
+              setIsCompanySwitching(false)
+            })
           }
-          // else {
-          //   console.log("✅ Company already selected, no switch needed")
-          // }
-          // Don't redirect - stay on the current page
         } else {
           // console.log("❌ Company not found, redirecting to company-select")
           router.push("/company-select")

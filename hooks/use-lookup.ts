@@ -69,6 +69,7 @@ import {
   IUserLookup,
   IUserRoleLookup,
   IVesselLookup,
+  IVesselTypeLookup,
   IVisaLookup,
   IVoyageLookup,
   IWorkLocationLookup,
@@ -1539,6 +1540,22 @@ export const useSupplyTypeLookup = () => {
     queryFn: async () => {
       try {
         const data = await getData(Lookup.getSupplyType)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+    refetchOnWindowFocus: false,
+  })
+}
+
+export const useVesselTypeLookup = () => {
+  return useQuery<IVesselTypeLookup[]>({
+    queryKey: ["vesselType-lookUp"],
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      try {
+        const data = await getData(Lookup.getVesselType)
         return data?.data || []
       } catch (error) {
         handleApiError(error)

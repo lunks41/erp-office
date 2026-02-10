@@ -113,6 +113,16 @@ export interface IUserGroupRights {
   isDebitNote: boolean
 }
 
+export interface IUserGroupReportRights {
+  userGroupId: number
+  moduleId: number
+  moduleName: string
+  transactionId: number
+  transactionName: string
+  isExport: boolean
+  isPrint: boolean
+}
+
 export interface IShareData {
   userGroupId: number
   moduleId: number
@@ -149,6 +159,11 @@ export interface IUserRights {
 }
 
 export interface ICloneUserGroupRights {
+  fromUserGroupId: number
+  toUserGroupId: number
+}
+
+export interface ICloneUserGroupReportRights {
   fromUserGroupId: number
   toUserGroupId: number
 }

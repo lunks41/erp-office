@@ -424,6 +424,11 @@ export interface ICargoTypeLookup {
   cargoTypeCode: string
   cargoTypeName: string
 }
+export interface IVesselTypeLookup {
+  vesselTypeId: number
+  vesselTypeCode: string
+  vesselTypeName: string
+}
 export interface IStatusLookup {
   statusId: number
   statusCode: string

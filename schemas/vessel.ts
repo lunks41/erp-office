@@ -27,11 +27,6 @@ export const vesselSchema = z.object({
     .string()
     .max(150, { message: "license number cannot exceed 150 characters" })
     .optional(),
-  vesselType: z
-    .string()
-    .min(1, { message: "vessel type is required" })
-    .max(150, { message: "vessel type cannot exceed 150 characters" })
-    .optional(),
   flag: z
     .string()
     .max(150, { message: "flag cannot exceed 150 characters" })
@@ -55,6 +50,7 @@ export const vesselSchema = z.object({
     .optional()
     .nullable(),
   isActive: z.boolean(),
+  vesselTypeId: z.number().min(1, { message: "vessel type is required" }),
   remarks: z
     .string()
     .max(255, { message: "Remarks cannot exceed 255 characters" })

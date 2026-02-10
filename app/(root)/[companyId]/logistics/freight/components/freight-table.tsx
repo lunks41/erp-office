@@ -66,7 +66,6 @@ export function FreightTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IFreight>[] = useMemo(
     () => [
-     
       {
         accessorKey: "referenceNo",
         header: "Reference No",
@@ -101,7 +100,9 @@ export function FreightTable({
         accessorKey: "declarationNo",
         header: "Declaration No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("declarationNo") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("declarationNo") || "-"}
+          </div>
         ),
         size: 130,
         minSize: 120,
@@ -139,7 +140,7 @@ export function FreightTable({
         size: 120,
         minSize: 100,
       },
-     
+
       {
         accessorKey: "noOfPcs",
         header: "No of Pcs",
@@ -172,12 +173,14 @@ export function FreightTable({
         accessorKey: "amountDeposited",
         header: "Amount Deposited",
         cell: ({ row }) => (
-          <div className="text-right">{row.getValue("amountDeposited") || "-"}</div>
+          <div className="text-right">
+            {row.getValue("amountDeposited") || "-"}
+          </div>
         ),
         size: 130,
         minSize: 120,
       },
-       {
+      {
         accessorKey: "remarks",
         header: "Remarks",
         cell: ({ row }) => (
@@ -199,6 +202,17 @@ export function FreightTable({
         enableColumnFilter: true,
       },
       {
+        accessorKey: "refundInstrumentNo",
+        header: "Refund Instrument No",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("refundInstrumentNo") || "-"}
+          </div>
+        ),
+        size: 130,
+        minSize: 120,
+      },
+      {
         accessorKey: "chargeName",
         header: "Charge",
         cell: ({ row }) => (
@@ -208,7 +222,7 @@ export function FreightTable({
         minSize: 120,
         enableColumnFilter: true,
       },
-      
+
       {
         accessorKey: "uomName",
         header: "UOM",
@@ -250,8 +264,8 @@ export function FreightTable({
         size: 200,
         minSize: 150,
       },
-     
-       {
+
+      {
         accessorKey: "deliverDate",
         header: "Delivery Date",
         cell: ({ row }) => (
@@ -284,6 +298,7 @@ export function FreightTable({
         size: 150,
         minSize: 130,
       },
+
       {
         accessorKey: "chargeName",
         header: "Charge",
@@ -294,7 +309,7 @@ export function FreightTable({
         minSize: 120,
         enableColumnFilter: true,
       },
-       {
+      {
         accessorKey: "deliverDate",
         header: "Delivery Date",
         cell: ({ row }) => (
@@ -305,6 +320,7 @@ export function FreightTable({
         size: 120,
         minSize: 100,
       },
+
       {
         accessorKey: "landingTypeName",
         header: "Landing Type",
@@ -320,7 +336,9 @@ export function FreightTable({
         accessorKey: "pickupLocation",
         header: "Pickup Location",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("pickupLocation") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("pickupLocation") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,
@@ -347,7 +365,7 @@ export function FreightTable({
         size: 120,
         minSize: 100,
       },
-       {
+      {
         accessorKey: "jobOrderNo",
         header: "Job Order",
         cell: ({ row }) => (
@@ -376,7 +394,9 @@ export function FreightTable({
         accessorKey: "existPortCustom",
         header: "Exist Port Custom",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("existPortCustom") || "-"}</div>
+          <div className="text-wrap">
+            {row.getValue("existPortCustom") || "-"}
+          </div>
         ),
         size: 150,
         minSize: 120,

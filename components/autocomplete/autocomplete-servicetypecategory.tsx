@@ -62,7 +62,7 @@ export default function ServiceTypeCategoryAutocomplete<
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
       return (
-        <components.DropdownIndicator {...props}>
+        <components.DropdownIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
           <IconChevronDown size={12} className="size-4 shrink-0 opacity-50" />
         </components.DropdownIndicator>
       )
@@ -73,7 +73,7 @@ export default function ServiceTypeCategoryAutocomplete<
   const ClearIndicator = React.memo(
     (props: ClearIndicatorProps<FieldOption>) => {
       return (
-        <components.ClearIndicator {...props}>
+        <components.ClearIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
           <IconX size={10} className="size-3 shrink-0" />
         </components.ClearIndicator>
       )

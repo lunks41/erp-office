@@ -11,13 +11,13 @@ import { useForm } from "react-hook-form"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
+import { VesselTypeAutocomplete } from "@/components/autocomplete"
 import CustomAccordion, {
   CustomAccordionContent,
   CustomAccordionItem,
   CustomAccordionTrigger,
 } from "@/components/custom/custom-accordion"
 import CustomInput from "@/components/custom/custom-input"
-import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
@@ -25,7 +25,6 @@ const defaultValues = {
   vesselId: 0,
   vesselName: "",
   vesselCode: "",
-  vesselType: "",
   callSign: "",
   imoCode: "",
   grt: "",
@@ -36,6 +35,7 @@ const defaultValues = {
   dwt: undefined,
   remarks: "",
   isActive: true,
+  vesselTypeId: 0,
 }
 interface VesselFormProps {
   initialData?: IVessel | null
@@ -64,7 +64,6 @@ export function VesselForm({
           vesselId: initialData.vesselId ?? 0,
           vesselName: initialData.vesselName ?? "",
           vesselCode: initialData.vesselCode ?? "",
-          vesselType: initialData.vesselType ?? "",
           callSign: initialData.callSign ?? "",
           imoCode: initialData.imoCode ?? "",
           grt: initialData.grt ?? "",
@@ -75,6 +74,7 @@ export function VesselForm({
           dwt: initialData.dwt ?? undefined,
           remarks: initialData.remarks ?? "",
           isActive: initialData.isActive ?? true,
+          vesselTypeId: initialData.vesselTypeId ?? 0,
         }
       : {
           ...defaultValues,
@@ -89,7 +89,6 @@ export function VesselForm({
             vesselId: initialData.vesselId ?? 0,
             vesselName: initialData.vesselName ?? "",
             vesselCode: initialData.vesselCode ?? "",
-            vesselType: initialData.vesselType ?? "",
             callSign: initialData.callSign ?? "",
             imoCode: initialData.imoCode ?? "",
             grt: initialData.grt ?? "",
@@ -100,6 +99,7 @@ export function VesselForm({
             dwt: initialData.dwt ?? undefined,
             remarks: initialData.remarks ?? "",
             isActive: initialData.isActive ?? true,
+            vesselTypeId: initialData.vesselTypeId ?? 0,
           }
         : {
             ...defaultValues,
@@ -123,7 +123,7 @@ export function VesselForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <div className="grid gap-2">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <CustomInput
                 form={form}
                 name="vesselCode"
@@ -162,9 +162,9 @@ export function VesselForm({
                 isDisabled={isReadOnly}
                 isRequired
               />
-              <CustomInput
+              <VesselTypeAutocomplete
                 form={form}
-                name="vesselType"
+                name="vesselTypeId"
                 label="Vessel Type"
                 isDisabled={isReadOnly}
                 isRequired
@@ -183,26 +183,23 @@ export function VesselForm({
                 isDisabled={isReadOnly}
               />
 
-              <CustomNumberInput
+              <CustomInput
                 form={form}
                 name="nrt"
                 label="NRT"
                 isDisabled={isReadOnly}
-                round={2}
               />
-              <CustomNumberInput
+              <CustomInput
                 form={form}
                 name="loa"
                 label="LOA"
                 isDisabled={isReadOnly}
-                round={2}
               />
-              <CustomNumberInput
+              <CustomInput
                 form={form}
                 name="dwt"
                 label="DWT"
                 isDisabled={isReadOnly}
-                round={2}
               />
             </div>
 

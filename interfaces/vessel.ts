@@ -7,7 +7,9 @@ export interface IVessel {
   imoCode: string
   grt: string
   licenseNo: string
-  vesselType: string
+  vesselTypeId: number
+  vesselTypeCode: string
+  vesselTypeName: string
   flag: string
   nrt?: number | null
   loa?: number | null

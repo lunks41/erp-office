@@ -60,7 +60,7 @@ export default function CustomSelect({
       >
         <SelectTrigger
           className={cn(
-            "w-full",
+            "w-full border-gray-400 dark:border-gray-500",
             error && "border-destructive focus-visible:ring-destructive"
           )}
         >
