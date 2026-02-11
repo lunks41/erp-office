@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   DndContext,
   DragEndEvent,
@@ -174,6 +174,16 @@ export function DebitNoteBaseTable<T>({
   }, [initialSelectedIds, data, accessorId])
 
   const [rowSelection, setRowSelection] = useState(getInitialRowSelection)
+  const prevDataLengthRef = useRef(data?.length ?? 0)
+
+  // Clear row selection when data length decreases (e.g. after successful delete)
+  useEffect(() => {
+    const currentLength = data?.length ?? 0
+    if (currentLength < prevDataLengthRef.current) {
+      setRowSelection({})
+    }
+    prevDataLengthRef.current = currentLength
+  }, [data?.length])
 
   const selectedRowsCount = Object.keys(rowSelection).length
   const hasSelectedRows = selectedRowsCount > 0

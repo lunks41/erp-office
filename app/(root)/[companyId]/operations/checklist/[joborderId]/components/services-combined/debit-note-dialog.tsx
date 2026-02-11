@@ -1154,6 +1154,7 @@ export default function DebitNoteDialog({
               onChargeChange={() => {}}
               summaryTotals={summaryTotals}
               currencyCode={jobOrder?.currencyCode}
+              baseCurrencyCode={jobOrder?.baseCurrencyCode}
               onServiceChargeUpdate={handleFormServiceChargeUpdate}
               shouldResetForm={shouldResetForm}
             />

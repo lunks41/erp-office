@@ -9,6 +9,8 @@ export interface IJobOrderHd {
   currencyId?: number
   currencyCode?: string
   currencyName?: string
+  baseCurrencyId?: number
+  baseCurrencyCode?: string
   exhRate?: number
   vesselId: number
   vesselName?: string

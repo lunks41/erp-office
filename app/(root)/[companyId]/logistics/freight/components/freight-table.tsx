@@ -212,47 +212,7 @@ export function FreightTable({
         size: 130,
         minSize: 120,
       },
-      {
-        accessorKey: "chargeName",
-        header: "Charge",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-        enableColumnFilter: true,
-      },
 
-      {
-        accessorKey: "uomName",
-        header: "UOM",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("uomName") || "-"}</div>
-        ),
-        size: 100,
-        minSize: 80,
-      },
-      {
-        accessorKey: "debitNoteNo",
-        header: "Debit Note No",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("debitNoteNo") || "-"}</div>
-        ),
-        size: 130,
-        minSize: 120,
-        enableColumnFilter: true,
-      },
-      {
-        accessorKey: "taskStatusName",
-        header: "Task Status",
-        cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("taskStatusName") || "-"}
-          </div>
-        ),
-        size: 120,
-        minSize: 100,
-      },
       {
         accessorKey: "description",
         header: "Description",
@@ -299,16 +259,6 @@ export function FreightTable({
         minSize: 130,
       },
 
-      {
-        accessorKey: "chargeName",
-        header: "Charge",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-        enableColumnFilter: true,
-      },
       {
         accessorKey: "deliverDate",
         header: "Delivery Date",
@@ -357,15 +307,6 @@ export function FreightTable({
         enableColumnFilter: true,
       },
       {
-        accessorKey: "createBy",
-        header: "Create By",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
-        ),
-        size: 120,
-        minSize: 100,
-      },
-      {
         accessorKey: "jobOrderNo",
         header: "Job Order",
         cell: ({ row }) => (
@@ -375,6 +316,16 @@ export function FreightTable({
         minSize: 100,
         enableColumnFilter: true,
       },
+      {
+        accessorKey: "createBy",
+        header: "Create By",
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
+      },
+
       {
         accessorKey: "isCleared",
         header: "Is Cleared",

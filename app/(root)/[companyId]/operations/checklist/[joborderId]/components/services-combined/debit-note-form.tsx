@@ -15,11 +15,10 @@ import { BasicSetting } from "@/lib/api-routes"
 import { parseDate } from "@/lib/date-utils"
 import { useChartOfAccountLookup, useGstLookup } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
 import { ChargeAutocomplete, GSTAutocomplete } from "@/components/autocomplete"
-import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextArea from "@/components/custom/custom-textarea"
 
 interface DebitNoteFormProps {
@@ -39,6 +38,7 @@ interface DebitNoteFormProps {
     totalAfterVat: number
   } // Summary totals from table
   currencyCode?: string // Currency code for remarks update
+  baseCurrencyCode?: string // Base/local currency code for labels (e.g. "Base Local (SGD)")
   onServiceChargeUpdate?: (
     itemNo: number,
     chargeId: number,
@@ -64,7 +64,8 @@ export default function DebitNoteForm({
   companyId,
   onChargeChange,
   summaryTotals,
-  currencyCode: _currencyCode,
+  currencyCode,
+  baseCurrencyCode,
   onServiceChargeUpdate,
   shouldResetForm = false,
 }: DebitNoteFormProps) {
@@ -205,42 +206,32 @@ export default function DebitNoteForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, taskId])
 
-  // Helper function to calculate totAmt = qty * unitPrice
-  const calculateTotAmt = useCallback(() => {
-    if (isConfirmed) return
-    const qty = form.getValues("qty") || 0
-    const unitPrice = form.getValues("unitPrice") || 0
-    const calculatedTotAmt = calculateMultiplierAmount(qty, unitPrice, amtDec)
-    requestAnimationFrame(() => {
-      form.setValue("totAmt", calculatedTotAmt, { shouldDirty: false })
-      calculateTotAmtAftGst()
-    })
-  }, [form, amtDec, isConfirmed, calculateTotAmtAftGst])
-
   // Helper function to calculate gstAmt and update related fields (uses ref so no editingDetail in deps = stable callback)
   const calculateGstAmt = useCallback(() => {
     if (isConfirmed) return
-    const gstId = form.getValues("gstId") ?? 0
+    const gstId = Number(form.getValues("gstId")) || 0
     const current = editingDetailRef.current
-    const effectiveGstId = gstId > 0 ? gstId : (current?.gstId ?? 0)
+    const effectiveGstId =
+      gstId > 0 ? gstId : Number(current?.gstId) || 0
     const totAmt = form.getValues("totAmt") || 0
+    const gstPct = Number(form.getValues("gstPercentage")) || 0
     if (effectiveGstId > 0) {
       const selectedGst = allGst.find(
-        (gst: IGstLookup) => gst.gstId === effectiveGstId
+        (gst: IGstLookup) => Number(gst.gstId) === effectiveGstId
       )
-      if (selectedGst) {
-        const gstPercentage = selectedGst.gstPercentage || 0
-        requestAnimationFrame(() => {
+      const gstPercentage =
+        gstPct > 0 ? gstPct : (selectedGst?.gstPercentage ?? 0)
+      requestAnimationFrame(() => {
+        if (gstPct <= 0 && selectedGst)
           form.setValue("gstPercentage", gstPercentage, { shouldDirty: false })
-          const calculatedGstAmt = calculateMultiplierAmount(
-            totAmt,
-            gstPercentage / 100,
-            amtDec
-          )
-          form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
-          calculateTotAmtAftGst()
-        })
-      }
+        const calculatedGstAmt = calculateMultiplierAmount(
+          totAmt,
+          gstPercentage / 100,
+          amtDec
+        )
+        form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
+        calculateTotAmtAftGst()
+      })
     } else {
       requestAnimationFrame(() => {
         form.setValue("gstPercentage", 0, { shouldDirty: false })
@@ -249,6 +240,18 @@ export default function DebitNoteForm({
       })
     }
   }, [form, allGst, amtDec, isConfirmed, calculateTotAmtAftGst])
+
+  // Helper function to calculate totAmt = qty * unitPrice, then gstAmt and totAmtAftGst
+  const calculateTotAmt = useCallback(() => {
+    if (isConfirmed) return
+    const qty = form.getValues("qty") || 0
+    const unitPrice = form.getValues("unitPrice") || 0
+    const calculatedTotAmt = calculateMultiplierAmount(qty, unitPrice, amtDec)
+    requestAnimationFrame(() => {
+      form.setValue("totAmt", calculatedTotAmt, { shouldDirty: false })
+      calculateGstAmt()
+    })
+  }, [form, amtDec, isConfirmed, calculateGstAmt])
 
   // When form has gstId but VAT % or Vat Amt is 0 (e.g. after edit load or allGst loaded late), recalc from lookup
   useEffect(() => {
@@ -273,6 +276,75 @@ export default function DebitNoteForm({
     if (currentGstId === detailGstId) return
     form.setValue("gstId", detailGstId, { shouldDirty: false })
   }, [editingDetail?.gstId, editingDetail?.itemNo, allGst.length, form])
+
+  // Parse GST percentage from API response (handles: number, { data: number }, { data: { data: number } })
+  const parseGstPercentageFromResponse = useCallback(
+    (
+      res: number | { data?: number | { data?: number } } | null | undefined
+    ) => {
+      if (res === null || res === undefined) return undefined
+      if (typeof res === "number" && !Number.isNaN(res)) return res
+      const raw = (res as { data?: number | { data?: number } }).data
+      if (typeof raw === "number" && !Number.isNaN(raw)) return raw
+      if (raw && typeof raw === "object" && "data" in raw) {
+        const inner = Number((raw as { data?: number }).data)
+        return Number.isNaN(inner) ? undefined : inner
+      }
+      return undefined
+    },
+    []
+  )
+
+  // Fetch GST percentage from API when editing (same as checklist-main) so VAT % matches gstId for debit note date
+  useEffect(() => {
+    if (!editingDetail?.gstId || editingDetail.gstId <= 0 || !debitNoteHd)
+      return
+    // If GST percentage is already available from the row, skip API call
+    const gstId = Number(editingDetail.gstId) || 0
+    const debitNoteDate = debitNoteHd.debitNoteDate || new Date()
+    const dateValue = debitNoteDate
+    const date =
+      dateValue instanceof Date
+        ? dateValue
+        : parseDate(
+            typeof dateValue === "string" ? dateValue : String(dateValue)
+          ) || new Date(dateValue)
+    if (!date || isNaN(date.getTime())) return
+
+    const fetchGstPercentage = async () => {
+      try {
+        const dt = format(date, "yyyy-MM-dd")
+        const res = await getData(
+          `${BasicSetting.getGstPercentage}/${gstId}/${dt}`
+        )
+        const gstPercentage = parseGstPercentageFromResponse(res)
+        if (gstPercentage !== undefined && gstPercentage !== null) {
+          form.setValue("gstPercentage", gstPercentage, { shouldDirty: false })
+          form.trigger("gstPercentage")
+          const totAmt = form.getValues("totAmt") || 0
+          const calculatedGstAmt = calculateMultiplierAmount(
+            totAmt,
+            gstPercentage / 100,
+            amtDec
+          )
+          form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
+          calculateTotAmtAftGst()
+        }
+      } catch (error) {
+        console.error("Error fetching GST percentage on edit:", error)
+      }
+    }
+    fetchGstPercentage()
+  }, [
+    editingDetail?.gstId,
+    editingDetail?.gstPercentage,
+    editingDetail?.itemNo,
+    debitNoteHd,
+    form,
+    amtDec,
+    calculateTotAmtAftGst,
+    parseGstPercentageFromResponse,
+  ])
 
   // Handler for qty change (called from blur when value changed)
   const handleQtyChange = useCallback(() => {
@@ -304,35 +376,15 @@ export default function DebitNoteForm({
     handleUnitPriceChange()
   }, [form, handleUnitPriceChange])
 
-  // Handler for totAmt change (when manually entered); uses ref so no editingDetail in deps
+  // Handler for totAmt change (when manually entered) - recalc gstAmt same as qty/unitPrice (use form gstPercentage or lookup)
   const handleTotAmtChange = useCallback(
     (newTotAmt?: number) => {
-      requestAnimationFrame(() => {
-        const totAmt = form.getValues("totAmt") ?? newTotAmt ?? 0
-        const gstId =
-          form.getValues("gstId") ?? editingDetailRef.current?.gstId ?? 0
-        if (gstId > 0 && totAmt >= 0) {
-          const selectedGst = allGst.find(
-            (gst: IGstLookup) => gst.gstId === gstId
-          )
-          if (selectedGst) {
-            const gstPercentage = selectedGst.gstPercentage || 0
-            form.setValue("gstPercentage", gstPercentage, {
-              shouldDirty: false,
-            })
-            const calculatedGstAmt = calculateMultiplierAmount(
-              totAmt,
-              gstPercentage / 100,
-              amtDec
-            )
-            form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
-            calculateTotAmtAftGst()
-          }
-        }
-        if (gstId <= 0) calculateGstAmt()
-      })
+      if (newTotAmt !== undefined) {
+        form.setValue("totAmt", newTotAmt, { shouldDirty: false })
+      }
+      calculateGstAmt()
     },
-    [form, allGst, amtDec, calculateGstAmt, calculateTotAmtAftGst]
+    [form, calculateGstAmt]
   )
 
   const handleTotAmtFocus = useCallback(() => {
@@ -409,102 +461,57 @@ export default function DebitNoteForm({
     [form, onChargeChange, taskId]
   )
 
-  // 5. Handle GST change - get percentage and calculate gstAmt
-  const handleGstChange = useCallback(async () => {
-    const gstId = form.getValues("gstId")
-    const debitNoteDate = debitNoteHd?.debitNoteDate || new Date()
+  // 5. Handle GST change - get percentage from API then calculate (use selectedGst so gstId is correct when form not yet updated)
+  const handleGstChange = useCallback(
+    async (selectedGst: IGstLookup | null) => {
+      const gstId = selectedGst?.gstId ?? form.getValues("gstId")
 
-    // Check if gstId exists before making API call
-    if (!gstId || gstId === 0) {
-      form.setValue("gstPercentage", 0, { shouldDirty: false })
-      form.setValue("gstAmt", 0, { shouldDirty: false })
-      calculateTotAmtAftGst()
-      return
-    }
-
-    // Set VAT % and Vat Amt immediately from lookup so they are not zero while API loads
-    const selectedGstSync = allGst.find(
-      (gst: IGstLookup) => gst.gstId === gstId
-    )
-    if (selectedGstSync) {
-      const gstPercentageSync = selectedGstSync.gstPercentage || 0
-      const totAmt = form.getValues("totAmt") || 0
-      form.setValue("gstPercentage", gstPercentageSync, { shouldDirty: false })
-      const calculatedGstAmtSync = calculateMultiplierAmount(
-        totAmt,
-        gstPercentageSync / 100,
-        amtDec
-      )
-      form.setValue("gstAmt", calculatedGstAmtSync, { shouldDirty: false })
-      calculateTotAmtAftGst()
-    }
-
-    try {
-      // Format date for API (yyyy-MM-dd format)
-      const dateValue = debitNoteDate
-      const date =
-        dateValue instanceof Date
-          ? dateValue
-          : parseDate(
-              typeof dateValue === "string" ? dateValue : String(dateValue)
-            ) || new Date(dateValue)
-
-      if (!date || isNaN(date.getTime())) {
-        console.error("Invalid date for GST percentage lookup")
+      if (!gstId || gstId === 0) {
+        form.setValue("gstPercentage", 0, { shouldDirty: false })
+        form.setValue("gstAmt", 0, { shouldDirty: false })
+        calculateTotAmtAftGst()
         return
       }
 
-      const formattedDate = format(date, "yyyy-MM-dd")
-
-      // Fetch GST percentage from API based on gstId and date
-      const res = await getData(
-        `${BasicSetting.getGstPercentage}/${gstId}/${formattedDate}`
-      )
-
-      const gstPercentage = res?.data as number
-
-      if (gstPercentage !== undefined && gstPercentage !== null) {
-        requestAnimationFrame(() => {
-          // Set the GST percentage
-          form.setValue("gstPercentage", gstPercentage, { shouldDirty: false })
-          form.trigger("gstPercentage")
-
-          // Calculate GST amount from the fetched percentage
-          const totAmt = form.getValues("totAmt") || 0
-          const calculatedGstAmt = calculateMultiplierAmount(
-            totAmt,
-            gstPercentage / 100,
-            amtDec
-          )
-          form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
-
-          // Recalculate total amount after GST
-          calculateTotAmtAftGst()
-        })
+      let gstPercentage: number | undefined
+      try {
+        const dateValue = debitNoteHd?.debitNoteDate || new Date()
+        const date =
+          dateValue instanceof Date
+            ? dateValue
+            : parseDate(
+                typeof dateValue === "string" ? dateValue : String(dateValue)
+              ) || new Date(dateValue)
+        if (!date || isNaN(date.getTime())) {
+          throw new Error("Invalid debit note date")
+        }
+        const res = await getData(
+          `${BasicSetting.getGstPercentage}/${gstId}/${format(date, "yyyy-MM-dd")}`
+        )
+        gstPercentage = parseGstPercentageFromResponse(res)
+      } catch (error) {
+        console.error("Error fetching GST percentage:", error)
+        const fallback = allGst.find((gst: IGstLookup) => gst.gstId === gstId)
+        gstPercentage = fallback?.gstPercentage ?? 0
       }
-    } catch (error) {
-      console.error("Error fetching GST percentage:", error)
-      // Fallback to using GST lookup data if API fails
-      const selectedGst = allGst.find((gst: IGstLookup) => gst.gstId === gstId)
-      if (selectedGst) {
-        const gstPercentage = selectedGst.gstPercentage || 0
-        requestAnimationFrame(() => {
-          form.setValue("gstPercentage", gstPercentage, {
-            shouldDirty: false,
-          })
-          // Calculate GST amount from the lookup percentage
-          const totAmt = form.getValues("totAmt") || 0
-          const calculatedGstAmt = calculateMultiplierAmount(
-            totAmt,
-            gstPercentage / 100,
-            amtDec
-          )
-          form.setValue("gstAmt", calculatedGstAmt, { shouldDirty: false })
-          calculateTotAmtAftGst()
-        })
-      }
-    }
-  }, [form, debitNoteHd, allGst, amtDec, calculateTotAmtAftGst])
+
+      const pct = gstPercentage ?? 0
+      form.setValue("gstPercentage", pct, { shouldDirty: false })
+      form.trigger("gstPercentage")
+      const totAmt = form.getValues("totAmt") || 0
+      const gstAmt = calculateMultiplierAmount(totAmt, pct / 100, amtDec)
+      form.setValue("gstAmt", gstAmt, { shouldDirty: false })
+      calculateTotAmtAftGst()
+    },
+    [
+      form,
+      debitNoteHd,
+      allGst,
+      amtDec,
+      calculateTotAmtAftGst,
+      parseGstPercentageFromResponse,
+    ]
+  )
 
   const onSubmit = (data: DebitNoteDtSchemaType) => {
     submitAction(data)
@@ -522,222 +529,218 @@ export default function DebitNoteForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-12 gap-2"
+        className="flex w-full gap-3"
       >
         {/* Left Section: Form Fields */}
-        <Card className="col-span-10">
-          <CardContent className="bg-transparent px-3 py-0">
-            <div className="space-y-2">
-              {/* Row 1: Charge, Qty, Unit Price, Amt Local, Total Amt */}
-              <div className="grid grid-cols-10 gap-2">
-                <div className="col-span-2">
-                  <ChargeAutocomplete
-                    form={form}
-                    name="chargeId"
-                    label="Charge Name"
-                    isRequired={true}
-                    isDisabled={isConfirmed}
-                    onChangeEvent={handleChargeChange}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="qty"
-                    label="Qty"
-                    round={qtyDec}
-                    isDisabled={isConfirmed}
-                    onFocusEvent={handleQtyFocus}
-                    onBlurEvent={handleQtyBlur}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="totLocalAmt"
-                    label="Amt Local"
-                    round={locAmtDec}
-                    isDisabled={isConfirmed}
-                    onFocusEvent={handleTotLocalAmtFocus}
-                    onBlurEvent={handleTotLocalAmtBlur}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="unitPrice"
-                    label="Unit Price"
-                    round={priceDec}
-                    isDisabled={isConfirmed}
-                    onFocusEvent={handleUnitPriceFocus}
-                    onBlurEvent={handleUnitPriceBlur}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="totAmt"
-                    label="Total Amt"
-                    round={amtDec}
-                    isDisabled={isConfirmed}
-                    onFocusEvent={handleTotAmtFocus}
-                    onBlurEvent={handleTotAmtBlur}
-                  />
-                </div>
-                <div className="col-span-1">
-                  <GSTAutocomplete
-                    form={form}
-                    name="gstId"
-                    label="Vat"
-                    isDisabled={isConfirmed}
-                    onChangeEvent={handleGstChange}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="gstPercentage"
-                    label="Vat %"
-                    round={amtDec}
-                    isDisabled={true}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="gstAmt"
-                    label="Vat Amt"
-                    round={amtDec}
-                    isDisabled={isConfirmed}
-                    onBlurEvent={handleGstAmtChange}
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="totAmtAftGst"
-                    label="Tot Aft Vat"
-                    round={amtDec}
-                    isDisabled={true}
-                  />
-                </div>
+        <div className="w-[88%] min-w-0">
+          <div className="space-y-2">
+            {/* Row 1: Charge, Qty, Unit Price, Amt Local, Total Amt */}
+            <div className="grid grid-cols-10 gap-2">
+              <div className="col-span-2">
+                <ChargeAutocomplete
+                  form={form}
+                  name="chargeId"
+                  label="Charge Name"
+                  isRequired={true}
+                  isDisabled={isConfirmed}
+                  onChangeEvent={handleChargeChange}
+                />
               </div>
 
-              {/* Row 2: Vat, Vat %, Vat Amt, Tot Aft Vat, Is Prepayment/Is Sr Chg?, Prepayment/Service Chg, Remarks, Action Buttons */}
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-1">
-                  <CustomCheckbox
-                    form={form}
-                    name="isServiceCharge"
-                    label={isChargeLabel}
-                    isDisabled={isConfirmed}
-                    onBlurEvent={handleIsServiceChargeChange}
-                  />
-                </div>
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="qty"
+                  label="Qty"
+                  round={qtyDec}
+                  isDisabled={isConfirmed}
+                  onFocusEvent={handleQtyFocus}
+                  onBlurEvent={handleQtyBlur}
+                />
+              </div>
 
-                <div className="col-span-1">
-                  <CustomNumberInput
-                    form={form}
-                    name="serviceCharge"
-                    label={chargeTypeLabel}
-                    round={amtDec}
-                    isDisabled={isConfirmed}
-                    onBlurEvent={handleServiceChargeChange}
-                  />
-                </div>
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="totLocalAmt"
+                  label={
+                    (baseCurrencyCode ?? currencyCode)
+                      ? `Base  (${baseCurrencyCode ?? currencyCode})`
+                      : "Base "
+                  }
+                  round={locAmtDec}
+                  isDisabled={isConfirmed}
+                  onFocusEvent={handleTotLocalAmtFocus}
+                  onBlurEvent={handleTotLocalAmtBlur}
+                />
+              </div>
 
-                <div className="col-span-5">
-                  <CustomTextArea
-                    form={form}
-                    name="remarks"
-                    label="Remarks"
-                    isDisabled={isConfirmed}
-                    isRequired={true}
-                  />
-                </div>
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="unitPrice"
+                  label="Unit Price"
+                  round={priceDec}
+                  isDisabled={isConfirmed}
+                  onFocusEvent={handleUnitPriceFocus}
+                  onBlurEvent={handleUnitPriceBlur}
+                />
+              </div>
 
-                {/* Action Buttons */}
-                <div className="col-span-2 flex items-end justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={handleCancel}
-                    disabled={isConfirmed}
-                    size="sm"
-                  >
-                    {isConfirmed ? "Close" : "Cancel"}
-                  </Button>
-                  {!isConfirmed && (
-                    <Button type="submit" disabled={isSubmitting} size="sm">
-                      {isSubmitting
-                        ? "Saving..."
-                        : editingDetail
-                          ? "Update"
-                          : "Add"}
-                    </Button>
-                  )}
-                </div>
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="totAmt"
+                  label="Total Amt"
+                  round={amtDec}
+                  isDisabled={isConfirmed}
+                  onFocusEvent={handleTotAmtFocus}
+                  onBlurEvent={handleTotAmtBlur}
+                />
+              </div>
+              <div className="col-span-1 border-l border-slate-200 pl-2">
+                <GSTAutocomplete
+                  form={form}
+                  name="gstId"
+                  label={`VAT (${form.watch("gstPercentage") ?? 0}%)`}
+                  isDisabled={isConfirmed}
+                  onChangeEvent={handleGstChange}
+                />
+              </div>
+
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="gstPercentage"
+                  label="VAT %"
+                  round={amtDec}
+                  isDisabled={true}
+                />
+              </div>
+
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="gstAmt"
+                  label="VAT Amt"
+                  round={amtDec}
+                  isDisabled={isConfirmed}
+                  onBlurEvent={handleGstAmtChange}
+                />
+              </div>
+
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="totAmtAftGst"
+                  label="Tot Aft VAT"
+                  round={amtDec}
+                  isDisabled={true}
+                />
               </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Row 2: Vat, Vat %, Vat Amt, Tot Aft Vat, Is Prepayment/Is Sr Chg?, Prepayment/Service Chg, Remarks, Action Buttons */}
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-1">
+                <CustomSwitch
+                  form={form}
+                  name="isServiceCharge"
+                  label={isChargeLabel}
+                  isDisabled={isConfirmed}
+                  onBlurEvent={handleIsServiceChargeChange}
+                />
+              </div>
+
+              <div className="col-span-1">
+                <CustomNumberInput
+                  form={form}
+                  name="serviceCharge"
+                  label={chargeTypeLabel}
+                  round={amtDec}
+                  isDisabled={isConfirmed}
+                  onBlurEvent={handleServiceChargeChange}
+                />
+              </div>
+
+              <div className="col-span-6">
+                <CustomTextArea
+                  form={form}
+                  name="remarks"
+                  label="Remarks"
+                  isDisabled={isConfirmed}
+                  isRequired={true}
+                  minRows={3}
+                  maxRows={6}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="col-span-2 flex items-end justify-end gap-2">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={isConfirmed}
+                  size="sm"
+                >
+                  {isConfirmed ? "Close" : "Cancel"}
+                </Button>
+                {!isConfirmed && (
+                  <Button type="submit" disabled={isSubmitting} size="sm">
+                    {isSubmitting
+                      ? "Saving..."
+                      : editingDetail
+                        ? "Update"
+                        : "Add"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Right Section: Summary Box */}
-        <Card className="col-span-2">
-          <CardContent className="bg-transparent px-3 py-0">
-            <div className="w-full rounded-md border border-blue-200 bg-blue-50 p-3 shadow-sm">
-              {/* Header */}
-              <div className="mb-2 border-b border-blue-300 pb-2 text-center text-sm font-bold text-blue-800">
-                Total Summary
+        <div className="w-[12%] min-w-0 shrink-0">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-2 shadow-sm">
+            <div className="mb-3 border-b border-slate-200 pb-2 text-center text-sm font-semibold text-slate-700">
+              Total Summary
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-slate-600">Amt</span>
+                <span className="font-medium text-slate-800 tabular-nums">
+                  {(summaryTotals?.totalAmount || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
               </div>
-
-              {/* Summary Values */}
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-blue-600">Amt</span>
-                  <span className="font-medium text-gray-700">
-                    {(summaryTotals?.totalAmount || 0).toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
-                    )}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-blue-600">VAT</span>
-                  <span className="font-medium text-gray-700">
-                    {(summaryTotals?.vatAmount || 0).toLocaleString(undefined, {
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-slate-600">VAT</span>
+                <span className="font-medium text-slate-800 tabular-nums">
+                  {(summaryTotals?.vatAmount || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+              <hr className="border-slate-200" />
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-slate-800">Total</span>
+                <span className="font-semibold text-slate-900 tabular-nums">
+                  {(summaryTotals?.totalAfterVat || 0).toLocaleString(
+                    undefined,
+                    {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-                <hr className="my-1 border-blue-300" />
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-blue-800">Total</span>
-                  <span className="font-bold text-blue-900">
-                    {(summaryTotals?.totalAfterVat || 0).toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
-                    )}
-                  </span>
-                </div>
+                    }
+                  )}
+                </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </form>
     </Form>
   )
