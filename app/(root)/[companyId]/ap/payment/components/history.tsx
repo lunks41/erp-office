@@ -15,6 +15,7 @@ interface HistoryProps {
 }
 
 export default function History({ form, isEdit: _isEdit }: HistoryProps) {
+  console.log("form values", form.getValues())
   const { decimals } = useAuthStore()
   const _dateFormat = decimals[0]?.dateFormat || "yyyy-MM-dd"
 

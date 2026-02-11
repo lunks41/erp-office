@@ -14,11 +14,13 @@ import {
   calculateTotalAmounts,
   recalculateAllDetailsLocalAndCtyAmounts,
 } from "@/helpers/ap-creditNote-calculations"
+import { ApiResponse } from "@/interfaces/auth"
 import {
   IApCreditNoteDt,
   IApCreditNoteFilter,
   IApCreditNoteHd,
 } from "@/interfaces"
+import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
   ApCreditNoteDtSchemaType,
@@ -53,6 +55,7 @@ import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { APTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
+import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -1196,6 +1199,31 @@ export default function CreditNotePage() {
   const isEdit = Boolean(creditNoteNo)
   const isCancelled = creditNote?.isCancel === true
 
+  // Check if document has history payment-details; if yes, lock update/delete/cancel
+  const watchedCreditNoteId = form.watch("creditNoteId")
+  const effectiveDocIdForHistory =
+    watchedCreditNoteId != null &&
+    String(watchedCreditNoteId).trim() !== "" &&
+    String(watchedCreditNoteId) !== "undefined"
+      ? String(watchedCreditNoteId).trim()
+      : ""
+
+  const { data: paymentHistoryResponse } =
+    useGetPaymentDetails<IPaymentHistoryDetails>(
+      Number(moduleId),
+      Number(transactionId),
+      effectiveDocIdForHistory || "0",
+      {
+        enabled:
+          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+      }
+    )
+
+  const historyRawData =
+    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const hasPaymentHistory =
+    Array.isArray(historyRawData) && historyRawData.length > 0
+
   // Generic function to copy text to clipboard
   const copyToClipboard = useCallback(async (textToCopy: string) => {
     if (!textToCopy || textToCopy.trim() === "") {
@@ -1423,7 +1451,8 @@ export default function CreditNotePage() {
                 isCancelled ||
                 payAmt > 0 ||
                 (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
+                (!isEdit && !canCreate) ||
+                (isEdit && hasPaymentHistory)
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
@@ -1486,7 +1515,8 @@ export default function CreditNotePage() {
                 deleteMutation.isPending ||
                 isCancelled ||
                 payAmt > 0 ||
-                !canDelete
+                !canDelete ||
+                hasPaymentHistory
               }
             >
               {deleteMutation.isPending ? (

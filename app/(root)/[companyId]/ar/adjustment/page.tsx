@@ -14,11 +14,13 @@ import {
   calculateTotalAmounts,
   recalculateAllDetailsLocalAndCtyAmounts,
 } from "@/helpers/ar-adjustment-calculations"
+import { ApiResponse } from "@/interfaces/auth"
 import {
   IArAdjustmentDt,
   IArAdjustmentFilter,
   IArAdjustmentHd,
 } from "@/interfaces"
+import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
   ArAdjustmentDtSchemaType,
@@ -54,6 +56,7 @@ import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
+import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -1217,6 +1220,31 @@ export default function AdjustmentPage() {
   const isEdit = Boolean(adjustmentNo)
   const isCancelled = adjustment?.isCancel === true
 
+  // Check if document has history payment-details; if yes, lock update/delete/cancel
+  const watchedAdjustmentId = form.watch("adjustmentId")
+  const effectiveDocIdForHistory =
+    watchedAdjustmentId != null &&
+    String(watchedAdjustmentId).trim() !== "" &&
+    String(watchedAdjustmentId) !== "undefined"
+      ? String(watchedAdjustmentId).trim()
+      : ""
+
+  const { data: paymentHistoryResponse } =
+    useGetPaymentDetails<IPaymentHistoryDetails>(
+      Number(moduleId),
+      Number(transactionId),
+      effectiveDocIdForHistory || "0",
+      {
+        enabled:
+          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+      }
+    )
+
+  const historyRawData =
+    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const hasPaymentHistory =
+    Array.isArray(historyRawData) && historyRawData.length > 0
+
   // Generic function to copy text to clipboard
   const copyToClipboard = useCallback(async (textToCopy: string) => {
     if (!textToCopy || textToCopy.trim() === "") {
@@ -1454,7 +1482,8 @@ export default function AdjustmentPage() {
                 isCancelled ||
                 // payAmt > 0 ||
                 (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
+                (!isEdit && !canCreate) ||
+                (isEdit && hasPaymentHistory)
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
@@ -1517,7 +1546,8 @@ export default function AdjustmentPage() {
                 deleteMutation.isPending ||
                 isCancelled ||
                 payAmt > 0 ||
-                !canDelete
+                !canDelete ||
+                hasPaymentHistory
               }
             >
               {deleteMutation.isPending ? (

@@ -69,12 +69,16 @@ export default function FreightManagementPage() {
     operationType: "create",
   })
 
-  // Data fetching
+  // Data fetching: pass committedSearch so Search button triggers API call with searchString
   const {
     data: response,
     refetch,
     isLoading: isLoadingFreight,
-  } = useGet<IFreight>(`${Freight.get}`, "freight")
+  } = useGet<IFreight>(
+    `${Freight.get}`,
+    "freight",
+    committedSearch.trim() || undefined
+  )
 
   const { data } = (response as ApiResponse<IFreight>) ?? {
     result: 0,
@@ -234,25 +238,8 @@ export default function FreightManagementPage() {
     setCommittedSearch("")
   }, [])
 
-  const filteredData =
-    committedSearch.trim().length === 0
-      ? data || []
-      : (data || []).filter((item) => {
-          const term = committedSearch.toLowerCase()
-
-          const fields = [
-            item.referenceNo,
-            item.awbNo,
-            item.declarationNo,
-            item.billEntryNo,
-            item.jobOrderNo,
-            item.vesselName,
-          ]
-
-          return fields.some((field) =>
-            field ? field.toString().toLowerCase().includes(term) : false
-          )
-        })
+  // API returns filtered data when searchString is sent; no client-side filter needed
+  const tableData = data || []
 
   return (
     <>
@@ -309,7 +296,7 @@ export default function FreightManagementPage() {
 
         <div className="overflow-x-auto">
           <FreightTable
-            data={filteredData}
+            data={tableData}
             onFreightSelect={handleSelect}
             onEditActionFreight={handleEdit}
             onCreateActionFreight={handleCreateFreight}

@@ -14,11 +14,13 @@ import {
   calculateTotalAmounts,
   recalculateAllDetailsLocalAndCtyAmounts,
 } from "@/helpers/ar-invoice-calculations"
+import { ApiResponse } from "@/interfaces/auth"
 import {
   IArInvoiceCtmDt,
   IArInvoiceCtmFilter,
   IArInvoiceCtmHd,
 } from "@/interfaces"
+import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
   ArInvoiceCtmDtSchemaType,
@@ -54,6 +56,7 @@ import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
+import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -1232,6 +1235,31 @@ export default function InvoiceCtmPage() {
   const isEdit = Boolean(invoiceNo)
   const isCancelled = invoice?.isCancel === true
 
+  // Check if document has history payment-details; if yes, lock update/delete/cancel
+  const watchedInvoiceId = form.watch("invoiceId")
+  const effectiveDocIdForHistory =
+    watchedInvoiceId != null &&
+    String(watchedInvoiceId).trim() !== "" &&
+    String(watchedInvoiceId) !== "undefined"
+      ? String(watchedInvoiceId).trim()
+      : ""
+
+  const { data: paymentHistoryResponse } =
+    useGetPaymentDetails<IPaymentHistoryDetails>(
+      Number(moduleId),
+      Number(transactionId),
+      effectiveDocIdForHistory || "0",
+      {
+        enabled:
+          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+      }
+    )
+
+  const historyRawData =
+    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const hasPaymentHistory =
+    Array.isArray(historyRawData) && historyRawData.length > 0
+
   // Generic function to copy text to clipboard
   const copyToClipboard = useCallback(async (textToCopy: string) => {
     if (!textToCopy || textToCopy.trim() === "") {
@@ -1455,7 +1483,8 @@ export default function InvoiceCtmPage() {
                 isCancelled ||
                 payAmt > 0 ||
                 (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
+                (!isEdit && !canCreate) ||
+                (isEdit && hasPaymentHistory)
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
@@ -1524,7 +1553,8 @@ export default function InvoiceCtmPage() {
                 deleteMutation.isPending ||
                 isCancelled ||
                 payAmt > 0 ||
-                !canDelete
+                !canDelete ||
+                hasPaymentHistory
               }
             >
               {deleteMutation.isPending ? (

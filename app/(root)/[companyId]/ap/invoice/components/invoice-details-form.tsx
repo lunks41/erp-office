@@ -1219,7 +1219,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 p-2 gap-y-2 ${
+            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 gap-y-2 p-2 ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
@@ -1646,7 +1646,6 @@ const InvoiceDetailsForm = React.forwardRef<
                 disabled={existingDetails.length === 0 || isCancelled}
               >
                 <Repeat className="mr-1 h-4 w-4" />
-                Repeat
               </Button>
             </div>
           </form>

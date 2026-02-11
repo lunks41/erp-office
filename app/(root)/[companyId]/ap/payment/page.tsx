@@ -7,7 +7,9 @@ import {
   setExchangeRate,
   setPayExchangeRate,
 } from "@/helpers/account"
+import { ApiResponse } from "@/interfaces/auth"
 import { IApPaymentFilter, IApPaymentHd } from "@/interfaces"
+import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
   ApPaymentDtSchemaType,
@@ -43,6 +45,7 @@ import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { APTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
+import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -999,6 +1002,33 @@ export default function PaymentPage() {
   const isEdit = Boolean(paymentNo)
   const isCancelled = payment?.isCancel === true
 
+  // Check if payment has history payment-details; if yes, lock update/delete/cancel
+  const watchedPaymentId = form.watch("paymentId")
+  const effectivePaymentIdForHistory =
+    watchedPaymentId != null &&
+    String(watchedPaymentId).trim() !== "" &&
+    String(watchedPaymentId) !== "undefined"
+      ? String(watchedPaymentId).trim()
+      : ""
+
+  const { data: paymentHistoryResponse } =
+    useGetPaymentDetails<IPaymentHistoryDetails>(
+      Number(moduleId),
+      Number(transactionId),
+      effectivePaymentIdForHistory || "0",
+      {
+        enabled:
+          !!effectivePaymentIdForHistory &&
+          effectivePaymentIdForHistory !== "0",
+      }
+    )
+
+  const historyRawData =
+    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+
+  const hasPaymentHistory =
+    Array.isArray(historyRawData) && historyRawData.length > 0
+
   // Generic function to copy text to clipboard
   const copyToClipboard = useCallback(async (textToCopy: string) => {
     if (!textToCopy || textToCopy.trim() === "") {
@@ -1186,6 +1216,7 @@ export default function PaymentPage() {
                 isCancelled ||
                 (isEdit && !canEdit) ||
                 (!isEdit && !canCreate)
+                || (isEdit && hasPaymentHistory)
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
@@ -1256,7 +1287,8 @@ export default function PaymentPage() {
                 payment.paymentId === "0" ||
                 deleteMutation.isPending ||
                 isCancelled ||
-                !canDelete
+                !canDelete ||
+                hasPaymentHistory
               }
             >
               {deleteMutation.isPending ? (

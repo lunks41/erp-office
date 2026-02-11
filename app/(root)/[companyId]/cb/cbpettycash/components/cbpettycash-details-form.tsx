@@ -1,5 +1,12 @@
 "use client"
 
+import React, {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import {
   handleGstPercentageChange,
   handleTotalamountChange,
@@ -35,16 +42,29 @@ import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { PlusIcon, Repeat } from "lucide-react"
-import React, {
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { CbPettyCash } from "@/lib/api-routes"
+import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
+import { useGetByBody } from "@/hooks/use-common"
+import {
+  useChartOfAccountLookup,
+  useGetDynamicLookup,
+  useGstLookup,
+} from "@/hooks/use-lookup"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   BargeAutocomplete,
   ChartOfAccountAutocomplete,
@@ -69,26 +89,6 @@ import {
 } from "@/components/custom"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { useGetByBody } from "@/hooks/use-common"
-import {
-  useChartOfAccountLookup,
-  useGetDynamicLookup,
-  useGstLookup,
-} from "@/hooks/use-lookup"
-import { CbPettyCash } from "@/lib/api-routes"
-import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 
 import { getDefaultValues } from "./cbpettycash-defaultvalues"
 
@@ -179,10 +179,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
 
     // Handle query response
     useEffect(() => {
-      if (
-        checkDuplicateSupplierInvoiceQuery.data &&
-        shouldCheckDuplicate
-      ) {
+      if (checkDuplicateSupplierInvoiceQuery.data && shouldCheckDuplicate) {
         const response = checkDuplicateSupplierInvoiceQuery.data
         // Check if result > 0 (duplicates found)
         if (response?.result > 0 && response?.message) {
@@ -191,27 +188,18 @@ const CbPettyCashDetailsForm = React.forwardRef<
         }
         setShouldCheckDuplicate(false)
       }
-    }, [
-      checkDuplicateSupplierInvoiceQuery.data,
-      shouldCheckDuplicate,
-    ])
+    }, [checkDuplicateSupplierInvoiceQuery.data, shouldCheckDuplicate])
 
     // Handle query error
     useEffect(() => {
-      if (
-        checkDuplicateSupplierInvoiceQuery.error &&
-        shouldCheckDuplicate
-      ) {
+      if (checkDuplicateSupplierInvoiceQuery.error && shouldCheckDuplicate) {
         console.error(
           "Error checking duplicate supplier invoice:",
           checkDuplicateSupplierInvoiceQuery.error
         )
         setShouldCheckDuplicate(false)
       }
-    }, [
-      checkDuplicateSupplierInvoiceQuery.error,
-      shouldCheckDuplicate,
-    ])
+    }, [checkDuplicateSupplierInvoiceQuery.error, shouldCheckDuplicate])
 
     // Track if submit was attempted to show errors only after submit
     const [submitAttempted, setSubmitAttempted] = useState(false)
@@ -1920,7 +1908,6 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 disabled={existingDetails.length === 0 || isCancelled}
               >
                 <Repeat className="mr-1 h-4 w-4" />
-                Repeat
               </Button>
             </div>
           </form>
@@ -1975,7 +1962,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 </p>
                 {apiDuplicateMessage && (
                   <div className="border-destructive/30 bg-destructive/5 max-h-96 overflow-y-auto rounded-md border p-4 text-sm">
-                    <pre className="whitespace-pre-wrap font-mono text-xs">
+                    <pre className="font-mono text-xs whitespace-pre-wrap">
                       {apiDuplicateMessage}
                     </pre>
                   </div>
