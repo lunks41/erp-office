@@ -80,6 +80,15 @@ export default function Main({
     }, 0)
   }, [dataDetails])
 
+  // Calculate sum of allocPayAmt (payable allocation amounts) from receipt details
+  const totalPayAllocAmt = useMemo(() => {
+    return dataDetails.reduce((sum, detail) => {
+      const payAllocAmt =
+        Number((detail as unknown as IArReceiptDt).allocPayAmt) || 0
+      return sum + payAllocAmt
+    }, 0)
+  }, [dataDetails])
+
   // Clear dialog params when dialog closes
   useEffect(() => {
     if (!showTransactionDialog) {
@@ -128,8 +137,9 @@ export default function Main({
 
       const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
       const exhRate = Number(form.getValues("exhRate")) || 1
+      const recExhRate = Number(form.getValues("recExhRate")) || 1
       for (let i = 0; i < resetArr.length; i++) {
-        calauteLocalAmtandGainLoss(resetArr, i, exhRate, dec)
+        calauteLocalAmtandGainLoss(resetArr, i, exhRate, recExhRate, dec)
       }
 
       const finalResetData: ArReceiptDtSchemaType[] = resetData.map(
@@ -255,6 +265,7 @@ export default function Main({
       if (rowIndex === -1 || rowIndex >= arr.length) return
 
       const exhRate = Number(form.getValues("exhRate"))
+      const recExhRate = Number(form.getValues("recExhRate")) || 1
       const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
       const totAmt = Number(form.getValues("totAmt")) || 0
 
@@ -292,7 +303,7 @@ export default function Main({
         }
       }
 
-      calauteLocalAmtandGainLoss(arr, rowIndex, exhRate, dec)
+      calauteLocalAmtandGainLoss(arr, rowIndex, exhRate, recExhRate, dec)
 
       const sumAllocAmt = arr.reduce((s, r) => s + (Number(r.allocAmt) || 0), 0)
       let sumAllocLocalAmt = arr.reduce(
@@ -420,28 +431,36 @@ export default function Main({
 
   const handleAutoAllocation = useCallback(() => {
     const currentData = form.getValues("data_details") || []
+    const exhRate = Number(form.getValues("exhRate")) || 1
+    const recExhRate = Number(form.getValues("recExhRate")) || 1
+    const recCurrencyId = Number(form.getValues("recCurrencyId")) || 0
 
     if (!validateAllocation(currentData)) return
 
-    const totAmt = Number(form.getValues("totAmt")) || 0
-    console.log("totAmt", totAmt)
+    const totAmt = Number(form.getValues("recTotAmt")) || 0
+    console.log("recTotAmt", totAmt)
     const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
     const result = autoAllocateAmounts(
       currentData as unknown as IArReceiptDt[],
       totAmt,
-      dec
+      dec,
+      recCurrencyId,
+      recExhRate
     )
     const updatedData =
       result.updatedDetails as unknown as ArReceiptDtSchemaType[]
 
     const arr = updatedData as unknown as IArReceiptDt[]
-    const exhRate = Number(form.getValues("exhRate")) || 1
+
     for (let i = 0; i < arr.length; i++) {
-      calauteLocalAmtandGainLoss(arr, i, exhRate, dec)
+      calauteLocalAmtandGainLoss(arr, i, exhRate, recExhRate, dec)
     }
     const totLocalAmt = Number(form.getValues("totLocalAmt")) || 0
     console.log("totLocalAmt", totLocalAmt)
-    const sumAllocAmt = arr.reduce((s, r) => s + (Number(r.allocAmt) || 0), 0)
+    const sumAllocAmt = arr.reduce(
+      (s, r) => s + (Number(r.allocPayAmt) || 0),
+      0
+    )
     const sumAllocLocalAmt = arr.reduce(
       (s, r) => s + (Number(r.allocLocalAmt) || 0),
       0
@@ -550,9 +569,10 @@ export default function Main({
     }))
     const arr = updatedData as unknown as IArReceiptDt[]
     const exhRate = Number(form.getValues("exhRate")) || 1
+    const recExhRate = Number(form.getValues("recExhRate")) || 1
     const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
     for (let i = 0; i < arr.length; i++) {
-      calauteLocalAmtandGainLoss(arr, i, exhRate, dec)
+      calauteLocalAmtandGainLoss(arr, i, exhRate, recExhRate, dec)
     }
     const sumAllocAmt = 0
     const sumAllocLocalAmt = 0
@@ -711,6 +731,7 @@ export default function Main({
             <RotateCcw className="h-4 w-4" />
             Reset Alloc
           </Button>
+
           <Badge
             variant="secondary"
             className="border-blue-200 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
@@ -724,6 +745,13 @@ export default function Main({
             Total Local:{" "}
             {(form.getValues("allocTotLocalAmt") || 0).toFixed(locAmtDec)}
           </Badge>
+          <Badge
+            variant="secondary"
+            className="border-red-200 bg-red-100 px-3 py-1 text-sm font-medium text-red-800"
+          >
+            Total Pay Alloc: {totalPayAllocAmt.toFixed(amtDec)}
+          </Badge>
+
           <Badge
             variant="outline"
             className="border-orange-200 bg-orange-50 px-3 py-1 text-sm font-medium text-orange-800"

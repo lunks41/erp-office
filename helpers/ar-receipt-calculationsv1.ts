@@ -182,17 +182,32 @@ export const applyCentDiffAdjustment = (
 export const autoAllocateAmounts = (
   details: IArReceiptDt[],
   totAmt: number,
-  decimals?: IDecimal
+  decimals?: IDecimal,
+  recCurrencyId?: number,
+  recExhRate?: number
 ) => {
   const updatedDetails = (details || []).map((d) => ({ ...d }))
 
   if (totAmt === 0) {
+    debugger
     // Rule 1: totAmt == 0 → allocAmt = docBalAmt for all
     updatedDetails.forEach((row) => {
       const balanceAmount = Number(row.docBalAmt) || 0
-      row.allocAmt = balanceAmount
+      const docCurrencyId = Number(row.docCurrencyId) || 0
+      if (recCurrencyId !== docCurrencyId) {
+        debugger
+        row.allocAmt = calculateDivisionAmount(
+          balanceAmount,
+          recExhRate || 1,
+          decimals?.amtDec || 2
+        )
+      } else {
+        debugger
+        row.allocAmt = balanceAmount
+      }
     })
   } else {
+    debugger
     // Rule 2: totAmt <> 0 → allocate with negatives first
     let remainingAllocationAmt = Number(totAmt) || 0
 
@@ -210,18 +225,42 @@ export const autoAllocateAmounts = (
     })
 
     sorted.forEach((row) => {
+      debugger
       const balanceAmount = Number(row.docBalAmt) || 0
+      const docCurrencyId = Number(row.docCurrencyId) || 0
+      const docExhRate = Number(row.docExhRate) || 0
+      const allocAmtFromBalance =
+        recCurrencyId !== docCurrencyId
+          ? calculateDivisionAmount(
+              balanceAmount,
+              recExhRate || 1,
+              decimals?.amtDec || 2
+            )
+          : balanceAmount
 
       if (balanceAmount < 0) {
-        // Fully take negatives first; increases remaining
-        row.allocAmt = balanceAmount
+        // Fully take negatives first; increases remaining (use receipt-currency alloc amount)
+        row.allocAmt = allocAmtFromBalance
         remainingAllocationAmt = decimals
           ? calculateSubtractionAmount(
               remainingAllocationAmt,
-              balanceAmount,
+              recCurrencyId !== docCurrencyId
+                ? calculateMultiplierAmount(
+                    allocAmtFromBalance,
+                    docExhRate || 1,
+                    decimals?.amtDec || 2
+                  )
+                : allocAmtFromBalance,
               decimals.amtDec
             )
-          : remainingAllocationAmt - balanceAmount // subtracting a negative adds
+          : remainingAllocationAmt -
+            (recCurrencyId !== docCurrencyId
+              ? calculateMultiplierAmount(
+                  allocAmtFromBalance,
+                  docExhRate || 1,
+                  decimals || 2
+                )
+              : allocAmtFromBalance) // subtracting a negative adds
         return
       }
 
@@ -230,15 +269,24 @@ export const autoAllocateAmounts = (
         return
       }
 
-      if (remainingAllocationAmt >= balanceAmount) {
-        row.allocAmt = balanceAmount
+      if (remainingAllocationAmt >= allocAmtFromBalance) {
+        debugger
+        row.allocAmt =
+          recCurrencyId !== docCurrencyId
+            ? calculateMultiplierAmount(
+                allocAmtFromBalance,
+                recExhRate || 1,
+                decimals?.amtDec || 2
+              )
+            : allocAmtFromBalance
+
         remainingAllocationAmt = decimals
           ? calculateSubtractionAmount(
               remainingAllocationAmt,
-              balanceAmount,
+              allocAmtFromBalance,
               decimals.amtDec
             )
-          : remainingAllocationAmt - balanceAmount
+          : remainingAllocationAmt - allocAmtFromBalance
       } else {
         row.allocAmt = remainingAllocationAmt
         remainingAllocationAmt = 0
@@ -261,6 +309,7 @@ export const calauteLocalAmtandGainLoss = (
   details: IArReceiptDt[],
   rowNumber: number,
   exhRate: number,
+  recExhRate: number,
   decimals: IDecimal
 ) => {
   if (!details || rowNumber < 0 || rowNumber >= details.length) {
@@ -275,6 +324,7 @@ export const calauteLocalAmtandGainLoss = (
     details[rowNumber].allocLocalAmt = 0
     details[rowNumber].docAllocAmt = 0
     details[rowNumber].docAllocLocalAmt = 0
+    details[rowNumber].allocPayAmt = 0
     details[rowNumber].centDiff = 0
     details[rowNumber].exhGainLoss = 0
     return details[rowNumber]
@@ -282,14 +332,22 @@ export const calauteLocalAmtandGainLoss = (
 
   const allocLocalAmt = calculateMultiplierAmount(
     allocAmt,
-    exhRate,
+    details[rowNumber].docExhRate,
     decimals.locAmtDec
+  )
+
+  const allocPayAmt = calculateDivisionAmount(
+    allocLocalAmt,
+    recExhRate,
+    decimals.amtDec
   )
 
   const docAllocAmt = allocAmt
 
   const isFullBalanceAllocation =
     calculateSubtractionAmount(docBalAmt, allocAmt, decimals.amtDec) === 0
+
+  debugger
 
   const docAllocLocalAmt = isFullBalanceAllocation
     ? docBalLocalAmt
@@ -308,6 +366,7 @@ export const calauteLocalAmtandGainLoss = (
   const centDiff = 0
 
   details[rowNumber].allocLocalAmt = allocLocalAmt
+  details[rowNumber].allocPayAmt = allocPayAmt
   details[rowNumber].docAllocAmt = docAllocAmt
   details[rowNumber].docAllocLocalAmt = docAllocLocalAmt
   details[rowNumber].centDiff = centDiff
