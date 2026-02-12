@@ -31,24 +31,9 @@ export const vesselSchema = z.object({
     .string()
     .max(150, { message: "flag cannot exceed 150 characters" })
     .optional(),
-  nrt: z
-    .number()
-    .min(0, { message: "NRT must be a positive number" })
-    .max(99999999.99, { message: "NRT cannot exceed 99999999.99" })
-    .optional()
-    .nullable(),
-  loa: z
-    .number()
-    .min(0, { message: "LOA must be a positive number" })
-    .max(99999999.99, { message: "LOA cannot exceed 99999999.99" })
-    .optional()
-    .nullable(),
-  dwt: z
-    .number()
-    .min(0, { message: "DWT must be a positive number" })
-    .max(99999999.99, { message: "DWT cannot exceed 99999999.99" })
-    .optional()
-    .nullable(),
+  nrt: z.string().optional().nullable(),
+  loa: z.string().optional().nullable(),
+  dwt: z.string().optional().nullable(),
   isActive: z.boolean(),
   vesselTypeId: z.number().min(1, { message: "vessel type is required" }),
   remarks: z

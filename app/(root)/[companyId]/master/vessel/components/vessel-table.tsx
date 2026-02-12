@@ -114,30 +114,21 @@ export function VesselTable({
     {
       accessorKey: "nrt",
       header: "NRT",
-      cell: ({ row }) => {
-        const value = row.getValue("nrt") as number | null | undefined
-        return <div>{value != null ? value.toFixed(2) : "-"}</div>
-      },
+      cell: ({ row }) => <div>{row.getValue("nrt") || "-"}</div>,
       size: 120,
       minSize: 50,
     },
     {
       accessorKey: "loa",
       header: "LOA",
-      cell: ({ row }) => {
-        const value = row.getValue("loa") as number | null | undefined
-        return <div>{value != null ? value.toFixed(2) : "-"}</div>
-      },
+      cell: ({ row }) => <div>{row.getValue("loa") || "-"}</div>,
       size: 120,
       minSize: 50,
     },
     {
       accessorKey: "dwt",
       header: "DWT",
-      cell: ({ row }) => {
-        const value = row.getValue("dwt") as number | null | undefined
-        return <div>{value != null ? value.toFixed(2) : "-"}</div>
-      },
+      cell: ({ row }) => <div>{row.getValue("dwt") || "-"}</div>,
       size: 120,
       minSize: 50,
     },

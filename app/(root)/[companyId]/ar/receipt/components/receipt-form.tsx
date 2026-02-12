@@ -780,9 +780,7 @@ export default function ReceiptForm({
     const exhRate = form.getValues("exhRate") || 0
 
     if (exhRate > 0) {
-      const bankChgAmt = Number(
-        (recBankChgLocalAmt / exhRate).toFixed(amtDec)
-      )
+      const bankChgAmt = Number((recBankChgLocalAmt / exhRate).toFixed(amtDec))
       form.setValue("bankChgAmt", bankChgAmt, { shouldDirty: true })
       form.setValue("bankChgLocalAmt", recBankChgLocalAmt, {
         shouldDirty: true,
@@ -958,7 +956,7 @@ export default function ReceiptForm({
           isDisabled={true}
         />
 
-        {/* Pay Currency */}
+        {/* Rec Currency */}
         <CurrencyAutocomplete
           form={form}
           name="recCurrencyId"
@@ -966,7 +964,7 @@ export default function ReceiptForm({
           onChangeEvent={handlePayCurrencyChange}
         />
 
-        {/* Pay Exchange Rate - Enabled when currencies are different */}
+        {/* Rec Exchange Rate - Enabled when currencies are different */}
         <CustomNumberInput
           form={form}
           name="recExhRate"
@@ -979,7 +977,7 @@ export default function ReceiptForm({
           onBlurEvent={handleRecExchangeRateChange}
         />
 
-        {/* Pay Total Amount - Read-only when currencies are equal */}
+        {/* Rec Total Amount - Read-only when currencies are equal */}
         <CustomNumberInput
           form={form}
           name="recTotAmt"
@@ -990,7 +988,7 @@ export default function ReceiptForm({
           onBlurEvent={handleRecTotAmtChange}
         />
 
-        {/* Pay Total Local Amount - Always read-only */}
+        {/* Rec Total Local Amount - Always read-only */}
         <CustomNumberInput
           form={form}
           name="recTotLocalAmt"

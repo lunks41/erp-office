@@ -11,9 +11,9 @@ export interface IVessel {
   vesselTypeCode: string
   vesselTypeName: string
   flag: string
-  nrt?: number | null
-  loa?: number | null
-  dwt?: number | null
+  nrt?: string
+  loa?: string
+  dwt?: string
   createBy: string
   editBy: string | null
   createDate: Date | string

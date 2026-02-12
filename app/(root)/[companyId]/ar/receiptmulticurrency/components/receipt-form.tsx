@@ -786,9 +786,7 @@ export default function ReceiptForm({
     const exhRate = form.getValues("exhRate") || 0
 
     if (exhRate > 0) {
-      const bankChgAmt = Number(
-        (recBankChgLocalAmt / exhRate).toFixed(amtDec)
-      )
+      const bankChgAmt = Number((recBankChgLocalAmt / exhRate).toFixed(amtDec))
       form.setValue("bankChgAmt", bankChgAmt, { shouldDirty: true })
       form.setValue("bankChgLocalAmt", recBankChgLocalAmt, {
         shouldDirty: true,
@@ -957,7 +955,7 @@ export default function ReceiptForm({
         <CurrencyAutocomplete
           form={form}
           name="recCurrencyId"
-          label="Pay Currency"
+          label="Rec Currency"
           onChangeEvent={handlePayCurrencyChange}
         />
 

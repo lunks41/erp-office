@@ -216,6 +216,18 @@ export default function BankTransferForm({
     }
   }
 
+  // When Exchange Gain/Loss is cleared, keep as zero
+  const handleExhGainLossBlur = React.useCallback(() => {
+    const val = form.getValues("exhGainLoss")
+    if (
+      val === undefined ||
+      val === null ||
+      (typeof val === "number" && Number.isNaN(val))
+    ) {
+      form.setValue("exhGainLoss", 0, { shouldDirty: false })
+    }
+  }, [form])
+
   // Handle FROM bank selection
   const handleFromBankChange = React.useCallback(
     async (selectedBank: IBankLookup | null) => {
@@ -861,6 +873,7 @@ export default function BankTransferForm({
               round={locAmtDec}
               className="text-right"
               isDisabled={false}
+              onBlurEvent={handleExhGainLossBlur}
             />
 
             {/* Remarks */}

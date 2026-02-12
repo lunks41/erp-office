@@ -828,7 +828,7 @@ export default function RefundForm({
           isFutureShow={true}
         />
 
-        {/* Pay Currency */}
+        {/* Rec Currency */}
         <CurrencyAutocomplete
           form={form}
           name="recCurrencyId"
