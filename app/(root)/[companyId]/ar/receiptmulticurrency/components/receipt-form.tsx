@@ -190,6 +190,7 @@ export default function ReceiptForm({
         const updatedDetails = [...dataDetails]
         const arr = updatedDetails as unknown as IArReceiptDt[]
         const exhRateForDetails = form.getValues("exhRate") || 0
+        const recExhRateForDetails = form.getValues("recExhRate") || 0
         const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
 
         // Clear all allocations only when clearAllocations flag is true
@@ -201,7 +202,13 @@ export default function ReceiptForm({
 
         // Payalculate local amounts and gain/loss for all rows
         for (let i = 0; i < arr.length; i++) {
-          calauteLocalAmtandGainLoss(arr, i, exhRateForDetails, dec)
+          calauteLocalAmtandGainLoss(
+            arr,
+            i,
+            exhRateForDetails,
+            recExhRateForDetails,
+            dec
+          )
         }
 
         // Payalculate header totals from recalculated details
@@ -1048,7 +1055,7 @@ export default function ReceiptForm({
             <CustomNumberInput
               form={form}
               name="recBankChgLocalAmt"
-              label="Rec Bank Locmt"
+              label="Rec Bank Loc"
               round={locAmtDec}
               isDisabled={true}
             />

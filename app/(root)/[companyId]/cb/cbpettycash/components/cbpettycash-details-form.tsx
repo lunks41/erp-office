@@ -1755,28 +1755,6 @@ const CbPettyCashDetailsForm = React.forwardRef<
               onBlurEvent={handleTotalAmountBlur}
             />
 
-            {/* Local Amount */}
-            <CustomNumberInput
-              form={form}
-              name="totLocalAmt"
-              label="Total Local Amount"
-              round={locAmtDec}
-              className="text-right"
-              isDisabled={true}
-            />
-
-            {/* Country Amount */}
-            {visible?.m_CtyCurr && (
-              <CustomNumberInput
-                form={form}
-                name="totCtyAmt"
-                label="Total Country Amount"
-                round={ctyAmtDec}
-                className="text-right"
-                isDisabled={true}
-              />
-            )}
-
             {/* GST */}
             {visible?.m_GstId && (
               <GSTAutocomplete
@@ -1788,39 +1766,73 @@ const CbPettyCashDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Percentage */}
-            {visible?.m_GstId && (
-              <CustomNumberInput
-                form={form}
-                name="gstPercentage"
-                label="VAT Percentage"
-                round={amtDec}
-                className="text-right"
-                onFocusEvent={handleGstPercentageFocus}
-                onChangeEvent={handleGstPercentageManualChange}
-              />
-            )}
+            <div className="col-span-1 flex flex-row gap-1">
+              <div className="flex-1">
+                {" "}
+                {/* GST Percentage */}
+                {visible?.m_GstId && (
+                  <CustomNumberInput
+                    form={form}
+                    name="gstPercentage"
+                    label="VAT %"
+                    round={amtDec}
+                    className="text-right"
+                    onFocusEvent={handleGstPercentageFocus}
+                    onChangeEvent={handleGstPercentageManualChange}
+                  />
+                )}
+              </div>
+              <div className="flex-1">
+                {/* GST Amount */}
+                {visible?.m_GstId && (
+                  <CustomNumberInput
+                    form={form}
+                    name="gstAmt"
+                    label="VAT Amt"
+                    round={amtDec}
+                    isDisabled={false}
+                    className="text-right"
+                    onChangeEvent={handleGstAmountChange}
+                  />
+                )}
+              </div>
+            </div>
 
-            {/* GST Amount */}
-            {visible?.m_GstId && (
-              <CustomNumberInput
-                form={form}
-                name="gstAmt"
-                label="VAT Amount"
-                round={amtDec}
-                isDisabled={false}
-                className="text-right"
-                onChangeEvent={handleGstAmountChange}
-              />
-            )}
+            <div className="col-span-1 flex flex-row gap-1">
+              <div className="flex-1">
+                {" "}
+                {/* Local Amount */}
+                <CustomNumberInput
+                  form={form}
+                  name="totLocalAmt"
+                  label="Tot Loc Amt"
+                  round={locAmtDec}
+                  className="text-right"
+                  isDisabled={true}
+                />
+              </div>
+              <div className="flex-1">
+                {/* GST Local Amount */}
+                {visible?.m_GstId && (
+                  <CustomNumberInput
+                    form={form}
+                    name="gstLocalAmt"
+                    label="VAT Loc Amt"
+                    round={locAmtDec}
+                    className="text-right"
+                    isDisabled={true}
+                  />
+                )}
+              </div>
+            </div>
 
-            {/* GST Local Amount */}
-            {visible?.m_GstId && (
+            {/* Country Amount */}
+            {visible?.m_CtyCurr && (
               <CustomNumberInput
                 form={form}
-                name="gstLocalAmt"
-                label="VAT Local Amount"
-                round={locAmtDec}
+                name="totCtyAmt"
+                label="Total Cty Amt"
+                round={ctyAmtDec}
                 className="text-right"
                 isDisabled={true}
               />
@@ -1831,7 +1843,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
               <CustomNumberInput
                 form={form}
                 name="gstCtyAmt"
-                label="GST Country Amount"
+                label="GST Cty Amt"
                 round={ctyAmtDec}
                 className="text-right"
                 isDisabled={true}

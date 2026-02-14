@@ -20,6 +20,7 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 
 interface IReportFormData extends Record<string, unknown> {
   customerId: string
+  customerName: string
   currencyId: string
   fromDate: string
   toDate: string
@@ -36,6 +37,7 @@ interface IReportParameters {
   toDate: string | null
   asOfDate: string | null
   customerId: number | null
+  customerName: string | null
   currencyId: number
   reportType: number
   amtDec: number
@@ -66,6 +68,7 @@ const AS_DATE_REPORTS = [
   "ar-outstanding-details",
   "ar-outstanding-summary",
   "statement-of-account",
+  "statement-of-account-new",
 ]
 
 const REPORT_CATEGORIES = [
@@ -106,6 +109,12 @@ const REPORT_CATEGORIES = [
         name: "AR Subsequent Receipt",
         reportFile: "ar/ArSubsequentReceipt.trdp",
         reportType: 0,
+      },
+      {
+        id: "statement-of-account-new",
+        name: "Statement Of Account New",
+        reportFile: "ar/ArStatementOfAccountv2.trdp",
+        reportType: 1,
       },
       {
         id: "statement-of-account",
@@ -173,6 +182,7 @@ export default function ReportsPage() {
   const form = useForm<IReportFormData>({
     defaultValues: {
       customerId: "",
+      customerName: "",
       currencyId: "0",
       fromDate: getCurrentDate(),
       toDate: getCurrentDate(),
@@ -324,10 +334,15 @@ export default function ReportsPage() {
       data.asOfDate || getCurrentDate()
     )
 
+    const custId = data.customerId ? Number(data.customerId) : 0
     return {
       companyId,
       companyName: companyName || "",
-      customerId: data.customerId ? Number(data.customerId) : 0,
+      customerId: custId,
+      customerName:
+        custId > 0 && data.customerName
+          ? String(data.customerName).trim()
+          : null,
       currencyId: data.currencyId ? Number(data.currencyId) : 0,
       fromDate: formattedFromDate,
       toDate: formattedToDate,
@@ -354,6 +369,7 @@ export default function ReportsPage() {
       toDate: parameters.toDate,
       asOfDate: parameters.asOfDate,
       customerId: parameters.customerId,
+      customerName: parameters.customerName ?? "",
       currencyId: parameters.currencyId,
       reportType: parameters.reportType,
       amtDec: parameters.amtDec,
@@ -396,10 +412,18 @@ export default function ReportsPage() {
     }
   }
 
+  const handleCustomerChange = (selectedOption: { customerName?: string } | null) => {
+    form.setValue(
+      "customerName",
+      selectedOption?.customerName?.trim() ?? ""
+    )
+  }
+
   const handleClear = () => {
     const currentDate = getCurrentDate()
     form.reset({
       customerId: "",
+      customerName: "",
       fromDate: currentDate,
       toDate: currentDate,
       asOfDate: currentDate,
@@ -503,13 +527,14 @@ export default function ReportsPage() {
                 onSubmit={form.handleSubmit(handleViewReport)}
                 className="space-y-4"
               >
-                {/* Customer */}
+                {/* Customer — customerName passed to report when customerId > 0 (special chars e.g. apostrophe, & are safe in JSON/params) */}
                 <CompanyCustomerAutocomplete
                   form={form}
                   name="customerId"
                   label="Customer"
                   companyId={companyId}
                   isRequired={false}
+                  onChangeEvent={handleCustomerChange}
                 />
 
                 {/* Currency */}

@@ -108,12 +108,12 @@ export default function ArOutStandingTransactionsTable({
     },
     {
       accessorKey: "referenceNo",
-      header: "Reference No",
+      header: "Ref No",
       size: 120,
     },
     {
       accessorKey: "currencyCode",
-      header: "Currency Code",
+      header: "Currency",
       size: 100,
     },
     {
