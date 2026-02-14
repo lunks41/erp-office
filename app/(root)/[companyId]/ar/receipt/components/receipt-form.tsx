@@ -1070,6 +1070,7 @@ export default function ReceiptForm({
               round={amtDec}
               onFocusEvent={handleBankChgAmtFocus}
               onBlurEvent={handleBankChgAmtChange}
+              isDisabled={true}
             />
           </div>
           <div className="flex-1">

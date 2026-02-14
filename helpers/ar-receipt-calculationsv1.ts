@@ -1,11 +1,119 @@
 import {
+  calculateAdditionAmount,
   calculateDivisionAmount,
   calculateMultiplierAmount,
   calculateSubtractionAmount,
   mathRound,
 } from "@/helpers/account"
 import { IArReceiptDt, IDecimal } from "@/interfaces"
-import { de } from "date-fns/locale"
+
+// ============================================================================
+// PRECISION — ENTERPRISE ROUNDING
+// ============================================================================
+
+/** Tolerance for treating allocation as "full" when difference is within 0.01 (rule 6). */
+const ROUNDING_TOLERANCE = 0.01
+
+/** Default decimals when not provided (avoid undefined in math). */
+const DEFAULT_DECIMALS: IDecimal = {
+  amtDec: 2,
+  locAmtDec: 2,
+  ctyAmtDec: 2,
+  priceDec: 2,
+  qtyDec: 2,
+  exhRateDec: 4,
+  dateFormat: "dd/MM/yyyy",
+  longDateFormat: "dd/MM/yyyy HH:mm",
+}
+
+function getDecimals(decimals?: IDecimal): IDecimal {
+  return decimals && typeof decimals.amtDec === "number" ? decimals : DEFAULT_DECIMALS
+}
+
+// ============================================================================
+// ALLOC AMOUNTS — allocAmt, allocLocalAmt, allocPayAmt (TABLE FORM)
+// ============================================================================
+//
+// ┌─────────────┬──────────────────┬─────────────────────────┬────────────────────────────────────────────┐
+// │ Field       │ Currency          │ Formula                  │ Where set / how to add                      │
+// ├─────────────┼──────────────────┼─────────────────────────┼────────────────────────────────────────────┤
+// │ allocAmt    │ Document currency │ (input: auto or manual)  │ autoAllocateAmounts or user →              │
+// │             │ (e.g. USD, AED)   │                         │ calculateManualAllocation; details[i].allocAmt │
+// ├─────────────┼──────────────────┼─────────────────────────┼────────────────────────────────────────────┤
+// │ allocLocalAmt│ Local (e.g. AED) │ allocAmt * docExhRate   │ calauteLocalAmtandGainLoss:                 │
+// │             │                  │ (Rule 3)                │ calculateMultiplierAmount(allocAmt,        │
+// │             │                  │                         │   docExhRate, decimals.locAmtDec)           │
+// ├─────────────┼──────────────────┼─────────────────────────┼────────────────────────────────────────────┤
+// │ allocPayAmt │ Receiving currency│ allocLocalAmt/recExhRate│ calauteLocalAmtandGainLoss:                 │
+// │             │ (receipt currency)│ (Rule 4)                │ calculateDivisionAmount(allocLocalAmt,       │
+// │             │                  │ = (allocAmt*docExh)/recExh│   recExhRate, decimals.amtDec)             │
+// └─────────────┴──────────────────┴─────────────────────────┴────────────────────────────────────────────┘
+//
+// FLOW (per row):
+//   allocAmt ──(× docExhRate)──► allocLocalAmt ──(÷ recExhRate)──► allocPayAmt
+//
+// TOTALS & UNALLOCATED:
+//   sum(allocPayAmt) - recTotAmt = unAllocAmt  (Rule 5)
+//
+// EXAMPLE ROW (doc USD, docExhRate 3.6725, recExhRate 1, AED local/receiving):
+//   allocAmt=250 → allocLocalAmt=250*3.6725=918.13 → allocPayAmt=918.13/1=918.13
+//
+// ---------------------------------------------------------------------------
+// FULL EXAMPLE (recTotAmt = 3672.50 AED, recExhRate = 1) — correct: last row partial.
+// ---------------------------------------------------------------------------
+//
+//   Doc No        | Cur | docExhRate | docBalAmt  | allocAmt   | allocLocalAmt | allocPayAmt
+//   --------------|-----|------------|------------|------------|---------------|-------------
+//   RCT25-12-099  | USD | 3.6725     | -1962.06   | -1962.06   | -7205.67      | -7205.67
+//   AM-2512-0036  | AED | 1          | 9826.81    | 9826.81    | 9826.81       | 9826.81
+//   AM-DI2602001  | USD | 3.6725     | 250        | 250        | 918.13        | 918.13
+//   AM-DI2601021  | AED | 1          | 1000       | 133.23     | 133.23        | 133.23   ← last row partial
+//   --------------|-----|------------|------------|------------|---------------|-------------
+//   (totals)      |     |            |            |            |               | 3672.50
+//
+//   Check (Rule 5): unAllocAmt = -recTotAmt + sum(allocPayAmt)
+//   = (-3672.50) + (-7205.67 + 9826.81 + 918.13 + 133.23) = -3672.50 + 3672.50 = 0
+//
+//   Last invoice (AM-DI2601021): partial allocAmt = 133.23 so sum(allocPayAmt) exactly matches recTotAmt.
+//   Row 4: allocLocalAmt = 133.23 * 1 = 133.23; allocPayAmt = 133.23 / 1 = 133.23
+//
+// ---------------------------------------------------------------------------
+// DETAIL TABLE COLUMNS (UI) → FIELDS:
+// ┌─────────────────┬──────────────────┐
+// │ Table column    │ Field / source   │
+// ├─────────────────┼──────────────────┤
+// │ Bal Amt         │ docBalAmt        │
+// │ Bal Loc An      │ docBalLocalAmt   │
+// │ Exh Rate        │ docExhRate       │
+// │ Alloc Amt       │ allocAmt (edit)  │
+// │ Alloc Loc Amt   │ allocLocalAmt    │
+// │ Alloc Pay Amt   │ allocPayAmt      │
+// └─────────────────┴──────────────────┘
+//
+// ============================================================================
+
+/**
+ * AllocPayAmt in receiving currency: allocLocalAmt / RecExhRate.
+ * allocLocalAmt = allocAmt * docExhRate (rule 3).
+ * So allocPayAmt = (allocAmt * docExhRate) / recExhRate — rounded to amtDec.
+ */
+function allocPayAmtFromAlloc(
+  allocAmt: number,
+  docExhRate: number,
+  recExhRate: number,
+  amtDec: number
+): number {
+  if (recExhRate === 0) return 0
+  const allocLocalAmt = calculateMultiplierAmount(allocAmt, docExhRate, amtDec)
+  return calculateDivisionAmount(allocLocalAmt, recExhRate, amtDec)
+}
+
+/**
+ * Whether a difference is within rounding tolerance (rule 6).
+ */
+function withinTolerance(diff: number, tolerance: number = ROUNDING_TOLERANCE): boolean {
+  return Math.abs(diff) <= tolerance
+}
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -173,168 +281,171 @@ export const applyCentDiffAdjustment = (
 // ============================================================================
 
 /**
- * Auto allocation over details.
- * Conditions:
- * 1) If totAmt == 0: set allocAmt = docBalAmt for all rows
- * 2) If totAmt > 0: sort rows placing negative docBalAmt first, then allocate
- *    by consuming remaining amount across positives; negatives are fully taken first
- * After allocation, computes local amounts, doc allocations, gain/loss, sums, and unallocated.
+ * Auto-allocate receipt amount (recTotAmt, in receiving currency) across details.
+ *
+ * Rule 1: recTotAmt === 0 → allocAmt = docBalAmt for all rows (full allocation).
+ *
+ * Rule 2: recTotAmt > 0 (process when user clicks Auto Alloc):
+ *   1. Effective amount = recTotAmt + (all -ve amount from details).
+ *   2. Allocate positives using min(remainingRec, maxPayForRow); last row (by itemNo) gets the remainder.
+ *
+ * allocPayAmt = allocLocalAmt / RecExhRate; allocLocalAmt = allocAmt * docExhRate.
+ * Rule 6: if diff = sum(allocPayAmt) - recTotAmt is non-zero but |diff| <= 0.01, set last partial row to full docBalAmt to absorb rounding; when diff === 0 keep last row partial.
+ *
+ * ---------------------------------------------------------------------------
+ * EXAMPLE (as in AR receipt allocation table), recTotAmt = 3672.50 AED, recExhRate = 1:
+ *
+ * INPUT TABLE (details):
+ *   itemNo | Doc No        | Cur | docExhRate | docBalAmt  | docBalLocalAmt
+ *   -------|---------------|-----|------------|------------|----------------
+ *   1      | RCT25-12-099  | USD | 3.6725     | -1962.06   | -7205.68
+ *   2      | AM-2512-0036  | AED | 1          | 9826.81    | 9826.81
+ *   3      | AM-DI2602001  | USD | 3.6725     | 250        | 918.13
+ *   4      | AM-DI2601021  | AED | 1          | 1000       | 1000
+ *
+ * SORT: negatives first, then positives by itemNo → order: 1, 2, 3, 4.
+ *
+ * ALLOCATION LOOP:
+ *   Row 1 (neg): allocAmt = -1962.06, allocPayAmt = -7205.67 → runningSumPay = -7205.67
+ *   remainingRec = 3672.50 - (-7205.67) = 10878.17 (effective = recTotAmt + |negatives|)
+ *
+ *   Row 2: remainingRec = 1051.36, maxPayForRow = 9826.81 → full → allocAmt = 9826.81, runningSumPay = 2621.14
+ *   Row 3: remainingRec = 1051.36, maxPayForRow = 918.13  → full → allocAmt = 250,    runningSumPay = 3539.27
+ *   Row 4: remainingRec = 133.23, maxPayForRow = 1000    → partial → allocAmt = 133.23, lastPartialIndex = 3
+ *
+ * OUTPUT: allocAmt = -1962.06, 9826.81, 250, 133.23 (last row partial so sum(allocPayAmt) = recTotAmt).
+ * When diff === 0 we keep last row partial (133.23). Rule 6 only runs when diff !== 0 but within 0.01.
  */
 export const autoAllocateAmounts = (
   details: IArReceiptDt[],
-  totAmt: number,
+  recTotAmt: number,
   decimals?: IDecimal,
   recCurrencyId?: number,
   recExhRate?: number
 ) => {
+  const dec = getDecimals(decimals)
+  const amtDec = dec.amtDec
+  const locAmtDec = dec.locAmtDec
+  const recRate = Number(recExhRate) || 1
   const updatedDetails = (details || []).map((d) => ({ ...d }))
 
-  if (totAmt === 0) {
-    debugger
-    // Rule 1: totAmt == 0 → allocAmt = docBalAmt for all
+  if (recTotAmt === 0) {
     updatedDetails.forEach((row) => {
-      const balanceAmount = Number(row.docBalAmt) || 0
-      const docCurrencyId = Number(row.docCurrencyId) || 0
-      if (recCurrencyId !== docCurrencyId) {
-        debugger
-        row.allocAmt = calculateDivisionAmount(
-          balanceAmount,
-          recExhRate || 1,
-          decimals?.amtDec || 2
-        )
-      } else {
-        debugger
-        row.allocAmt = balanceAmount
-      }
+      const docBal = Number(row.docBalAmt) || 0
+      row.allocAmt = mathRound(docBal, amtDec)
     })
-  } else {
-    debugger
-    // Rule 2: totAmt <> 0 → allocate with negatives first
-    let remainingAllocationAmt = Number(totAmt) || 0
-
-    // Keep original order reference
-    const byItemNo = new Map<number, IArReceiptDt>()
-    updatedDetails.forEach((r) => byItemNo.set(r.itemNo, r))
-
-    // Sort: negatives first, keep relative order otherwise
-    const sorted = [...updatedDetails].sort((a, b) => {
-      const aBal = Number(a.docBalAmt) || 0
-      const bBal = Number(b.docBalAmt) || 0
-      if (aBal < 0 && bBal >= 0) return -1
-      if (aBal >= 0 && bBal < 0) return 1
-      return 0
-    })
-
-    sorted.forEach((row) => {
-      debugger
-      const balanceAmount = Number(row.docBalAmt) || 0
-      const docCurrencyId = Number(row.docCurrencyId) || 0
-      const docExhRate = Number(row.docExhRate) || 0
-
-      if (balanceAmount < 0) {
-        debugger
-        const allocAmtFromBalanceNegative =
-          recCurrencyId !== docCurrencyId
-            ? calculateDivisionAmount(
-                balanceAmount,
-                recExhRate || 1,
-                decimals?.amtDec || 2
-              )
-            : balanceAmount
-        // Fully take negatives first; increases remaining (use receipt-currency alloc amount)
-        row.allocAmt = allocAmtFromBalanceNegative
-        remainingAllocationAmt = decimals
-          ? calculateSubtractionAmount(
-              remainingAllocationAmt,
-              recCurrencyId !== docCurrencyId
-                ? calculateMultiplierAmount(
-                    allocAmtFromBalanceNegative,
-                    docExhRate || 1,
-                    decimals?.amtDec || 2
-                  )
-                : allocAmtFromBalanceNegative,
-              decimals.amtDec
-            )
-          : remainingAllocationAmt -
-            (recCurrencyId !== docCurrencyId
-              ? calculateMultiplierAmount(
-                  allocAmtFromBalanceNegative,
-                  docExhRate || 1,
-                  decimals || 2
-                )
-              : allocAmtFromBalanceNegative) // subtracting a negative adds
-        return
-      }
-
-      if (remainingAllocationAmt <= 0) {
-        row.allocAmt = 0
-        return
-      }
-
-      const allocAmtFromBalancePositive =
-        recCurrencyId !== docCurrencyId
-          ? calculateMultiplierAmount(
-              balanceAmount,
-              docExhRate || 1,
-              decimals?.amtDec || 2
-            )
-          : balanceAmount
-
-      if (remainingAllocationAmt >= allocAmtFromBalancePositive) {
-        debugger
-
-        const currentCurrencyDiff = calculateDivisionAmount(
-          balanceAmount,
-          recExhRate || 1,
-          decimals?.amtDec || 2
-        )
-
-        // Compare ignoring minor decimal rounding (e.g. 9826.81 vs 9826.80 → use balanceAmount).
-        // Use epsilon + small buffer so floating-point noise (e.g. 0.010000000000000009) still counts as ≤ 0.01.
-        const amtDec = decimals?.amtDec ?? 2
-        const epsilon = Math.pow(10, -amtDec) + 1e-8
-        const otherCurrencyDiff =
-          Math.abs(balanceAmount - currentCurrencyDiff) <= epsilon
-            ? balanceAmount
-            : currentCurrencyDiff
-
-        row.allocAmt =
-          recCurrencyId !== docCurrencyId
-            ? otherCurrencyDiff
-            : allocAmtFromBalancePositive
-
-        remainingAllocationAmt = decimals
-          ? calculateSubtractionAmount(
-              remainingAllocationAmt,
-              allocAmtFromBalancePositive,
-              decimals.amtDec
-            )
-          : remainingAllocationAmt - allocAmtFromBalancePositive
-      } else {
-        debugger
-
-        row.allocAmt =
-          recCurrencyId !== docCurrencyId
-            ? calculateDivisionAmount(
-                remainingAllocationAmt,
-                docExhRate || 1,
-                decimals?.amtDec || 2
-              )
-            : remainingAllocationAmt
-        remainingAllocationAmt = 0
-      }
-    })
-
-    // Write back allocations to objects in original order
-    sorted.forEach((r) => {
-      const target = byItemNo.get(r.itemNo)
-      if (target) target.allocAmt = r.allocAmt
-    })
+    return { updatedDetails }
   }
 
-  return {
-    updatedDetails,
+  const byItemNo = new Map<number, IArReceiptDt>()
+  updatedDetails.forEach((r) => byItemNo.set(r.itemNo, r))
+
+  // Negatives first; then positives by itemNo ascending so the last row in table gets the remainder (partial)
+  const sorted = [...updatedDetails].sort((a, b) => {
+    const aBal = Number(a.docBalAmt) || 0
+    const bBal = Number(b.docBalAmt) || 0
+    if (aBal < 0 && bBal >= 0) return -1
+    if (aBal >= 0 && bBal < 0) return 1
+    if (aBal >= 0 && bBal >= 0) return (a.itemNo ?? 0) - (b.itemNo ?? 0)
+    return 0
+  })
+
+  // remainingRec = recTotAmt - sum(allocPayAmt so far); allocate so sum(allocPayAmt) → recTotAmt
+  let runningSumPay = 0
+  let lastPartialIndex = -1
+
+  sorted.forEach((row, idx) => {
+    const docBal = Number(row.docBalAmt) || 0
+    const docBalLocalAmt = Number(row.docBalLocalAmt) || 0
+    const docExhRate = Number(row.docExhRate) || 0
+    const remainingRec = mathRound(
+      calculateSubtractionAmount(recTotAmt, runningSumPay, amtDec),
+      amtDec
+    )
+
+    if (docBal < 0) {
+      row.allocAmt = mathRound(docBal, amtDec)
+      const pay = allocPayAmtFromAlloc(row.allocAmt, docExhRate, recRate, amtDec)
+      runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
+      return
+    }
+
+    if (remainingRec <= 0) {
+      row.allocAmt = 0
+      return
+    }
+
+    const docBalLocal =
+      docExhRate !== 0
+        ? calculateMultiplierAmount(docBal, docExhRate, locAmtDec)
+        : docBalLocalAmt
+    const maxPayForRow =
+      recRate !== 0
+        ? calculateDivisionAmount(docBalLocal, recRate, amtDec)
+        : 0
+
+    const payToUse =
+      maxPayForRow > 0 ? Math.min(remainingRec, maxPayForRow) : 0
+
+    if (payToUse <= 0) {
+      row.allocAmt = 0
+      return
+    }
+
+    if (payToUse >= maxPayForRow) {
+      row.allocAmt = mathRound(docBal, amtDec)
+      const pay = allocPayAmtFromAlloc(row.allocAmt, docExhRate, recRate, amtDec)
+      runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
+    } else {
+      const allocAmtFromRemaining =
+        docExhRate !== 0 && recRate !== 0
+          ? calculateDivisionAmount(payToUse * recRate, docExhRate, amtDec)
+          : payToUse
+      const clamp = Math.min(
+        Math.abs(docBal),
+        Math.abs(allocAmtFromRemaining)
+      )
+      row.allocAmt = mathRound(Math.sign(docBal) * clamp, amtDec)
+      const pay = allocPayAmtFromAlloc(row.allocAmt, docExhRate, recRate, amtDec)
+      runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
+      lastPartialIndex = idx
+    }
+  })
+
+  sorted.forEach((r) => {
+    const target = byItemNo.get(r.itemNo)
+    if (target) target.allocAmt = r.allocAmt
+  })
+
+  const sumPay = updatedDetails.reduce(
+    (acc, row) =>
+      calculateAdditionAmount(
+        acc,
+        allocPayAmtFromAlloc(
+          Number(row.allocAmt) || 0,
+          Number(row.docExhRate) || 0,
+          recRate,
+          amtDec
+        ),
+        amtDec
+      ),
+    0
+  )
+  const diff = mathRound(sumPay - recTotAmt, amtDec)
+
+  // Rule 6: only absorb rounding by setting last partial row to full when there is a small non-zero gap.
+  // When diff === 0 the last row partial is correct (e.g. 133.23); do not expand to full.
+  if (diff !== 0 && withinTolerance(diff) && lastPartialIndex >= 0) {
+    const row = sorted[lastPartialIndex]
+    const docBal = Number(row.docBalAmt) || 0
+    if (docBal > 0 && (Number(row.allocAmt) || 0) < docBal) {
+      row.allocAmt = mathRound(docBal, amtDec)
+      const target = byItemNo.get(row.itemNo)
+      if (target) target.allocAmt = row.allocAmt
+    }
   }
+
+  return { updatedDetails }
 }
 
 export const calauteLocalAmtandGainLoss = (
@@ -379,8 +490,6 @@ export const calauteLocalAmtandGainLoss = (
   const isFullBalanceAllocation =
     calculateSubtractionAmount(docBalAmt, allocAmt, decimals.amtDec) === 0
 
-  debugger
-
   const docAllocLocalAmt = isFullBalanceAllocation
     ? docBalLocalAmt
     : calculateMultiplierAmount(
@@ -407,115 +516,93 @@ export const calauteLocalAmtandGainLoss = (
   return details[rowNumber]
 }
 
+/**
+ * Manual allocation: cap allocAmt by doc balance and by remaining receipt in receiving currency.
+ * remainingRec = recTotAmt - sum(other rows' allocPayAmt); allocPayAmt = allocLocalAmt/RecExhRate = (allocAmt*docExhRate)/recExhRate.
+ * All arithmetic uses decimals.amtDec for precision.
+ */
 export const calculateManualAllocation = (
   details: IArReceiptDt[],
   rowNumber: number,
   allocAmt: number,
-  totAmt?: number,
+  recTotAmt?: number,
+  recExhRate?: number,
   decimals?: IDecimal
 ): { result: IArReceiptDt; wasAutoSetToZero: boolean } => {
   if (!details || rowNumber < 0 || rowNumber >= details.length) {
     return { result: details[rowNumber], wasAutoSetToZero: false }
   }
 
-  const currentBalance = Number(details[rowNumber].docBalAmt) || 0
-  let finalAllocation = Number(allocAmt) || 0
-  const originalRequestedAllocation = finalAllocation
+  const dec = getDecimals(decimals)
+  const amtDec = dec.amtDec
+  const docBalAmt = Number(details[rowNumber].docBalAmt) || 0
+  const docExhRate = Number(details[rowNumber].docExhRate) || 0
+  let finalAlloc = mathRound(Number(allocAmt) || 0, amtDec)
+  const originalRequested = finalAlloc
   let wasAutoSetToZero = false
 
-  // Helper function to subtract amount from remaining with decimals support
-  const subtractFromRemaining = (remaining: number, amount: number) => {
-    return decimals
-      ? calculateSubtractionAmount(remaining, amount, decimals.amtDec)
-      : remaining - amount
-  }
-
-  // Helper function to validate and clamp allocation to balance limits
-  const clampAllocationToBalance = (allocation: number, balance: number) => {
+  const clampToBalance = (allocation: number, balance: number): number => {
     if (balance === 0) return 0
-
-    const maxAbsBalance = Math.abs(balance)
-    const absAllocation = Math.abs(allocation)
-    if (absAllocation > maxAbsBalance) {
-      return Math.sign(balance) * maxAbsBalance
-    }
-    return allocation
+    const maxAbs = Math.abs(balance)
+    const absAlloc = Math.abs(allocation)
+    return mathRound(
+      Math.sign(balance) * Math.min(absAlloc, maxAbs),
+      amtDec
+    )
   }
 
-  // If totAmt is provided, calculate with negatives-first logic
-  if (totAmt !== undefined && totAmt > 0) {
-    let remainingAllocationAmt = Number(totAmt) || 0
+  const recRate = Number(recExhRate) || 1
+  const recTotal = Number(recTotAmt) ?? 0
 
-    // Process all other rows to calculate remaining allocation
+  if (recTotal > 0 && recRate > 0) {
+    let sumOtherPay = 0
     details.forEach((row, idx) => {
-      if (idx === rowNumber) return // Skip current row
-
-      const rowBalance = Number(row.docBalAmt) || 0
-      const rowAllocatedAmt = Number(row.allocAmt) || 0
-
-      // First, handle unallocated negative balances (adds to remaining)
-      if (rowBalance < 0 && rowAllocatedAmt === 0) {
-        remainingAllocationAmt = subtractFromRemaining(
-          remainingAllocationAmt,
-          rowBalance
-        )
-      }
-
-      // Then, subtract already allocated amounts
-      if (rowAllocatedAmt !== 0) {
-        remainingAllocationAmt = subtractFromRemaining(
-          remainingAllocationAmt,
-          rowAllocatedAmt
-        )
-      }
+      if (idx === rowNumber) return
+      const rowAlloc = Number(row.allocAmt) || 0
+      const rowDocExh = Number(row.docExhRate) || 0
+      const pay = allocPayAmtFromAlloc(rowAlloc, rowDocExh, recRate, amtDec)
+      sumOtherPay = calculateAdditionAmount(sumOtherPay, pay, amtDec)
     })
+    const remainingRec = calculateSubtractionAmount(recTotal, sumOtherPay, amtDec)
 
-    // Handle current row based on its balance type
-    if (currentBalance < 0) {
-      // For negative balance, take it fully if desired amount allows
-      if (finalAllocation < 0) {
-        finalAllocation = currentBalance // Take full negative balance
-        remainingAllocationAmt = subtractFromRemaining(
-          remainingAllocationAmt,
-          finalAllocation
-        )
+    if (docBalAmt < 0) {
+      if (finalAlloc < 0) {
+        finalAlloc = mathRound(docBalAmt, amtDec)
       } else {
-        finalAllocation = 0 // Don't take if trying to allocate positive to negative
+        finalAlloc = 0
       }
-    } else if (currentBalance > 0) {
-      // For positive balance, validate against remaining amount
-      finalAllocation = clampAllocationToBalance(
-        finalAllocation,
-        currentBalance
+    } else if (docBalAmt > 0) {
+      finalAlloc = clampToBalance(finalAlloc, docBalAmt)
+      const payForRequested = allocPayAmtFromAlloc(
+        finalAlloc,
+        docExhRate,
+        recRate,
+        amtDec
       )
-
-      // Check if allocation is valid against remaining amount
-      if (
-        remainingAllocationAmt <= 0 ||
-        finalAllocation > remainingAllocationAmt
-      ) {
-        // Only mark as auto-set if user actually requested an allocation
-        if (originalRequestedAllocation > 0 && remainingAllocationAmt <= 0) {
+      if (remainingRec <= 0) {
+        if (originalRequested > 0) wasAutoSetToZero = true
+        finalAlloc = 0
+      } else if (payForRequested > remainingRec) {
+        const maxAllocFromRemaining =
+          docExhRate !== 0
+            ? calculateDivisionAmount(
+                remainingRec * recRate,
+                docExhRate,
+                amtDec
+              )
+            : remainingRec
+        finalAlloc = clampToBalance(maxAllocFromRemaining, docBalAmt)
+        if (originalRequested > 0 && finalAlloc < originalRequested) {
           wasAutoSetToZero = true
         }
-        finalAllocation = 0
-        wasAutoSetToZero = true
-      } else {
-        // Valid allocation, reduce remaining
-        remainingAllocationAmt = subtractFromRemaining(
-          remainingAllocationAmt,
-          finalAllocation
-        )
       }
     } else {
-      // currentBalance === 0, no allocation
-      finalAllocation = 0
+      finalAlloc = 0
     }
   } else {
-    // No totAmt validation, just enforce basic constraints
-    finalAllocation = clampAllocationToBalance(finalAllocation, currentBalance)
+    finalAlloc = clampToBalance(finalAlloc, docBalAmt)
   }
 
-  details[rowNumber].allocAmt = finalAllocation
+  details[rowNumber].allocAmt = finalAlloc
   return { result: details[rowNumber], wasAutoSetToZero }
 }

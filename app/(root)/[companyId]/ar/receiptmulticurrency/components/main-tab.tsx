@@ -268,12 +268,14 @@ export default function Main({
       const recExhRate = Number(form.getValues("recExhRate")) || 1
       const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
       const totAmt = Number(form.getValues("totAmt")) || 0
+      const recTotAmt = Number(form.getValues("recTotAmt")) || 0
 
       const { result, wasAutoSetToZero } = calculateManualAllocation(
         arr,
         rowIndex,
         allocValue,
-        totAmt,
+        recTotAmt,
+        recExhRate,
         dec
       )
 
