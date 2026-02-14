@@ -152,14 +152,17 @@ export default function Main({
 
       const resetSumAllocAmt = 0
       const resetSumAllocLocalAmt = 0
+      const resetSumAllocPayAmt = 0
       const resetSumExhGainLoss = 0
 
       const totAmt = Number(form.getValues("totAmt")) || 0
       const totLocalAmt = Number(form.getValues("totLocalAmt")) || 0
+      const recTotAmt = Number(form.getValues("recTotAmt")) || 0
+      const recTotLocalAmt = Number(form.getValues("recTotLocalAmt")) || 0
       const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-        totAmt,
-        totLocalAmt,
-        resetSumAllocAmt,
+        recTotAmt,
+        recTotLocalAmt,
+        resetSumAllocPayAmt,
         resetSumAllocLocalAmt,
         dec
       )
@@ -269,6 +272,7 @@ export default function Main({
       const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
       const totAmt = Number(form.getValues("totAmt")) || 0
       const recTotAmt = Number(form.getValues("recTotAmt")) || 0
+      const recTotLocalAmt = Number(form.getValues("recTotLocalAmt")) || 0
 
       const { result, wasAutoSetToZero } = calculateManualAllocation(
         arr,
@@ -312,6 +316,10 @@ export default function Main({
         (s, r) => s + (Number(r.allocLocalAmt) || 0),
         0
       )
+      let sumAllocPayAmt = arr.reduce(
+        (s, r) => s + (Number(r.allocPayAmt) || 0),
+        0
+      )
       let sumExhGainLoss = arr.reduce(
         (s, r) => s + (Number(r.exhGainLoss) || 0),
         0
@@ -320,9 +328,9 @@ export default function Main({
       const totLocalAmt = Number(form.getValues("totLocalAmt"))
 
       let { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-        totAmt,
-        totLocalAmt,
-        sumAllocAmt,
+        recTotAmt,
+        recTotLocalAmt,
+        sumAllocPayAmt,
         sumAllocLocalAmt,
         dec
       )
@@ -344,9 +352,9 @@ export default function Main({
           0
         )
         const recalculatedUnallocated = calculateUnallocated(
-          totAmt,
-          totLocalAmt,
-          sumAllocAmt,
+          recTotAmt,
+          recTotLocalAmt,
+          sumAllocPayAmt,
           sumAllocLocalAmt,
           dec
         )
@@ -439,12 +447,12 @@ export default function Main({
 
     if (!validateAllocation(currentData)) return
 
-    const totAmt = Number(form.getValues("recTotAmt")) || 0
-    console.log("recTotAmt", totAmt)
+    const recTotAmt = Number(form.getValues("recTotAmt")) || 0
+    console.log("recTotAmt", recTotAmt)
     const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
     const result = autoAllocateAmounts(
       currentData as unknown as IArReceiptDt[],
-      totAmt,
+      recTotAmt,
       dec,
       recCurrencyId,
       recExhRate
@@ -457,8 +465,8 @@ export default function Main({
     for (let i = 0; i < arr.length; i++) {
       calauteLocalAmtandGainLoss(arr, i, exhRate, recExhRate, dec)
     }
-    const totLocalAmt = Number(form.getValues("totLocalAmt")) || 0
-    console.log("totLocalAmt", totLocalAmt)
+    const recTotLocalAmt = Number(form.getValues("recTotLocalAmt")) || 0
+    console.log("recTotLocalAmt", recTotLocalAmt)
     const sumAllocAmt = arr.reduce(
       (s, r) => s + (Number(r.allocPayAmt) || 0),
       0
@@ -467,23 +475,27 @@ export default function Main({
       (s, r) => s + (Number(r.allocLocalAmt) || 0),
       0
     )
+    let sumAllocPayAmt = arr.reduce(
+      (s, r) => s + (Number(r.allocPayAmt) || 0),
+      0
+    )
     let sumExhGainLoss = arr.reduce(
       (s, r) => s + (Number(r.exhGainLoss) || 0),
       0
     )
 
     // If totAmt was 0, update it with the calculated sumAllocAmt
-    const finalTotAmt = totAmt === 0 ? sumAllocAmt : totAmt
-    const finalTotLocalAmt = totLocalAmt === 0 ? sumAllocLocalAmt : totLocalAmt
+    const finalTotAmt = recTotAmt === 0 ? sumAllocPayAmt : recTotAmt
+    const finalTotLocalAmt = recTotLocalAmt === 0 ? sumAllocLocalAmt : recTotLocalAmt
     console.log("finalTotAmt", finalTotAmt)
-    console.log("sumAllocAmt", sumAllocAmt)
+    console.log("sumAllocAmt", sumAllocAmt) 
     console.log("sumAllocLocalAmt", sumAllocLocalAmt)
     console.log("finalTotLocalAmt", finalTotLocalAmt)
 
     let { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
       finalTotAmt,
       finalTotLocalAmt,
-      sumAllocAmt,
+      sumAllocPayAmt,
       sumAllocLocalAmt,
       dec
     )
@@ -508,7 +520,7 @@ export default function Main({
       const recalculatedUnallocated = calculateUnallocated(
         finalTotAmt,
         finalTotLocalAmt,
-        sumAllocAmt,
+        sumAllocPayAmt,
         sumAllocLocalAmt,
         dec
       )
@@ -528,8 +540,8 @@ export default function Main({
     })
     setDataDetails(updatedData)
 
-    console.log("totAmt", totAmt)
-    console.log("sumAllocAmt", sumAllocAmt)
+    console.log("recTotAmt", recTotAmt)
+    console.log("sumAllocPayAmt", sumAllocPayAmt)
     console.log("sumAllocLocalAmt", sumAllocLocalAmt)
     console.log("sumExhGainLoss", sumExhGainLoss)
     console.log("sumCentDiff", sumCentDiff)
@@ -537,7 +549,7 @@ export default function Main({
     console.log("unAllocLocalAmt", unAllocLocalAmt)
 
     // Update totAmt if it was 0
-    if (totAmt === 0) {
+    if (recTotAmt === 0) {
       form.setValue("totAmt", sumAllocAmt, { shouldDirty: true })
       form.setValue("totLocalAmt", sumAllocLocalAmt, { shouldDirty: true })
       form.setValue("recTotAmt", sumAllocAmt, { shouldDirty: true })
@@ -579,11 +591,11 @@ export default function Main({
     const sumAllocAmt = 0
     const sumAllocLocalAmt = 0
     const sumExhGainLoss = 0
-    const totAmt = Number(form.getValues("totAmt")) || 0
-    const totLocalAmt = Number(form.getValues("totLocalAmt")) || 0
+    const recTotAmt = Number(form.getValues("recTotAmt")) || 0
+    const recTotLocalAmt = Number(form.getValues("recTotLocalAmt")) || 0
     const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-      totAmt,
-      totLocalAmt,
+      recTotAmt,
+      recTotLocalAmt,
       sumAllocAmt,
       sumAllocLocalAmt,
       dec

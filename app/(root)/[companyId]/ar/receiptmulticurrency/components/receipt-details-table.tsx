@@ -514,6 +514,7 @@ export default function ReceiptDetailsTable({
         }
         onBulkSelectionChange={() => {}}
         onDataReorder={isCancelled ? undefined : onDataReorder}
+        renumberOnReorder="itemNo"
         onDeleteAction={isCancelled ? undefined : handleDeleteRequest}
         showHeader={true}
         showActions={true}

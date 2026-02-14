@@ -134,7 +134,7 @@ export default function ReceiptForm({
 
         // Calculate unallocated amounts
         const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-          totAmt,
+          recTotAmt,
           newTotLocalAmt,
           allocTotAmt,
           allocTotLocalAmt,
@@ -173,8 +173,8 @@ export default function ReceiptForm({
 
         // Calculate unallocated amounts
         const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-          newTotAmt,
-          newTotLocalAmt,
+          newRecTotAmt,
+          newRecTotLocalAmt,
           allocTotAmt,
           allocTotLocalAmt,
           decimals[0]
@@ -226,11 +226,11 @@ export default function ReceiptForm({
         )
 
         // Payalculate unallocated amounts with updated totals
-        const currentTotAmt = form.getValues("totAmt") || 0
-        const currentTotLocalAmt = form.getValues("totLocalAmt") || 0
+        const currentRecTotAmt = form.getValues("recTotAmt") || 0
+        const currentRecTotLocalAmt = form.getValues("recTotLocalAmt") || 0
         const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-          currentTotAmt,
-          currentTotLocalAmt,
+          currentRecTotAmt,
+          currentRecTotLocalAmt,
           sumAllocAmt,
           sumAllocLocalAmt,
           dec

@@ -68,6 +68,8 @@ interface AccountReceiptBaseTableProps<T> {
   onBulkSelectionChange?: (selectedIds: string[]) => void
   onPurchaseAction?: (itemId: string) => void
   onDataReorder?: (newData: T[]) => void
+  /** Key to renumber sequentially (e.g. itemNo) after drag reorder. Applied as 1, 2, 3... by position. */
+  renumberOnReorder?: keyof T
   isConfirmed?: boolean
   showHeader?: boolean
   showActions?: boolean
@@ -97,6 +99,7 @@ export function AccountReceiptBaseTable<T>({
   onBulkDeleteAction,
   onBulkSelectionChange,
   onDataReorder,
+  renumberOnReorder,
   isConfirmed,
   showHeader = true,
   showActions = true,
@@ -376,7 +379,15 @@ export function AccountReceiptBaseTable<T>({
       )
 
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newData = arrayMove(data, oldIndex, newIndex)
+        let newData = arrayMove(data, oldIndex, newIndex)
+
+        // Renumber the specified key (e.g. itemNo) by position when reordering
+        if (renumberOnReorder) {
+          newData = newData.map((item, index) => ({
+            ...item,
+            [renumberOnReorder]: index + 1,
+          })) as T[]
+        }
 
         // Call the callback to update the parent component's data
         if (onDataReorder) {
