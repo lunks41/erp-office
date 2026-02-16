@@ -7,8 +7,8 @@ import {
   setExchangeRate,
   setRecExchangeRate,
 } from "@/helpers/account"
-import { ApiResponse } from "@/interfaces/auth"
 import { IArReceiptFilter, IArReceiptHd } from "@/interfaces"
+import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
@@ -44,8 +44,8 @@ import { ArReceipt, BasicSetting } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
-import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
+import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -663,7 +663,7 @@ export default function ReceiptPage() {
 
     // Store report data in sessionStorage
     const reportData = {
-      reportFile: "ar/ArReceipt.trdp",
+      reportFile: "ar/ArReceiptMulti.trdp",
       parameters: reportParams,
     }
 
@@ -1025,13 +1025,13 @@ export default function ReceiptPage() {
       Number(transactionId),
       effectiveDocIdForHistory || "0",
       {
-        enabled:
-          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+        enabled: !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
       }
     )
 
-  const historyRawData =
-    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const historyRawData = (
+    paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>
+  )?.data
   const hasPaymentHistory =
     Array.isArray(historyRawData) && historyRawData.length > 0
 
