@@ -228,7 +228,6 @@ export const applyCentDiffAdjustment = (
   unAllocLocalAmt: number,
   decimals: IDecimal
 ): boolean => {
-  debugger
   if (!Array.isArray(details) || details.length === 0) {
     return false
   }
@@ -254,25 +253,16 @@ export const applyCentDiffAdjustment = (
   }
 
   const targetIndex = details.findIndex((row) => Number(row.exhGainLoss) !== 0)
-
-  if (targetIndex === -1) {
-    let resetPerformed = false
-    details.forEach((row) => {
-      if (Number(row.centDiff) !== 0) {
-        row.centDiff = 0
-        resetPerformed = true
-      }
-    })
-    return resetPerformed
-  }
+  // When no row has exhGainLoss, apply cent-diff to first detail row (index 0)
+  const applyIndex = targetIndex === -1 ? 0 : targetIndex
 
   details.forEach((row, idx) => {
-    if (idx !== targetIndex && Number(row.centDiff) !== 0) {
+    if (idx !== applyIndex && Number(row.centDiff) !== 0) {
       row.centDiff = 0
     }
   })
 
-  const targetRow = details[targetIndex]
+  const targetRow = details[applyIndex]
   const existingCentDiff = Number(targetRow.centDiff) || 0
   targetRow.centDiff = mathRound(
     existingCentDiff + roundedUnAllocLocal,
