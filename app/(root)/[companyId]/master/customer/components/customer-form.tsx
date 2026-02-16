@@ -66,6 +66,7 @@ export default function CustomerForm({
         isVendor: false,
         isTrader: false,
         isSupplier: false,
+        isCredit: false,
         remarks: "",
         isActive: true,
       } as z.infer<typeof customerSchema>),
@@ -91,6 +92,7 @@ export default function CustomerForm({
         isVendor: false,
         isTrader: false,
         isSupplier: false,
+        isCredit: false,
         remarks: "",
         isActive: true,
       }
@@ -224,6 +226,7 @@ export default function CustomerForm({
                 name="isSupplier"
                 label="Is Supplier"
               />
+              <CustomCheckbox form={form} name="isCredit" label="Is Credit" />
               <CustomCheckbox
                 form={form}
                 name="isActive"

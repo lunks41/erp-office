@@ -27,7 +27,9 @@ const DEFAULT_DECIMALS: IDecimal = {
 }
 
 function getDecimals(decimals?: IDecimal): IDecimal {
-  return decimals && typeof decimals.amtDec === "number" ? decimals : DEFAULT_DECIMALS
+  return decimals && typeof decimals.amtDec === "number"
+    ? decimals
+    : DEFAULT_DECIMALS
 }
 
 // ============================================================================
@@ -111,7 +113,10 @@ function allocPayAmtFromAlloc(
 /**
  * Whether a difference is within rounding tolerance (rule 6).
  */
-function withinTolerance(diff: number, tolerance: number = ROUNDING_TOLERANCE): boolean {
+function withinTolerance(
+  diff: number,
+  tolerance: number = ROUNDING_TOLERANCE
+): boolean {
   return Math.abs(diff) <= tolerance
 }
 
@@ -365,7 +370,12 @@ export const autoAllocateAmounts = (
 
     if (docBal < 0) {
       row.allocAmt = mathRound(docBal, amtDec)
-      const pay = allocPayAmtFromAlloc(row.allocAmt, docExhRate, recRate, amtDec)
+      const pay = allocPayAmtFromAlloc(
+        row.allocAmt,
+        docExhRate,
+        recRate,
+        amtDec
+      )
       runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
       return
     }
@@ -380,12 +390,9 @@ export const autoAllocateAmounts = (
         ? calculateMultiplierAmount(docBal, docExhRate, locAmtDec)
         : docBalLocalAmt
     const maxPayForRow =
-      recRate !== 0
-        ? calculateDivisionAmount(docBalLocal, recRate, amtDec)
-        : 0
+      recRate !== 0 ? calculateDivisionAmount(docBalLocal, recRate, amtDec) : 0
 
-    const payToUse =
-      maxPayForRow > 0 ? Math.min(remainingRec, maxPayForRow) : 0
+    const payToUse = maxPayForRow > 0 ? Math.min(remainingRec, maxPayForRow) : 0
 
     if (payToUse <= 0) {
       row.allocAmt = 0
@@ -394,22 +401,35 @@ export const autoAllocateAmounts = (
 
     if (payToUse >= maxPayForRow) {
       row.allocAmt = mathRound(docBal, amtDec)
-      const pay = allocPayAmtFromAlloc(row.allocAmt, docExhRate, recRate, amtDec)
+      const pay = allocPayAmtFromAlloc(
+        row.allocAmt,
+        docExhRate,
+        recRate,
+        amtDec
+      )
       runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
+      console.log("if pay", pay)
+      console.log("if allocAmt", row.allocAmt)
     } else {
       const allocAmtFromRemaining =
         docExhRate !== 0 && recRate !== 0
           ? calculateDivisionAmount(payToUse * recRate, docExhRate, amtDec)
           : payToUse
-      const clamp = Math.min(
-        Math.abs(docBal),
-        Math.abs(allocAmtFromRemaining)
-      )
+      const clamp = Math.min(Math.abs(docBal), Math.abs(allocAmtFromRemaining))
       row.allocAmt = mathRound(Math.sign(docBal) * clamp, amtDec)
-      const pay = allocPayAmtFromAlloc(row.allocAmt, docExhRate, recRate, amtDec)
+      const pay = allocPayAmtFromAlloc(
+        row.allocAmt,
+        docExhRate,
+        recRate,
+        amtDec
+      )
+
       runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
       lastPartialIndex = idx
+      console.log("else pay", pay)
+      console.log("else allocAmt", row.allocAmt)
     }
+    console.log("runningSumPay", runningSumPay)
   })
 
   sorted.forEach((r) => {
@@ -545,10 +565,7 @@ export const calculateManualAllocation = (
     if (balance === 0) return 0
     const maxAbs = Math.abs(balance)
     const absAlloc = Math.abs(allocation)
-    return mathRound(
-      Math.sign(balance) * Math.min(absAlloc, maxAbs),
-      amtDec
-    )
+    return mathRound(Math.sign(balance) * Math.min(absAlloc, maxAbs), amtDec)
   }
 
   const recRate = Number(recExhRate) || 1
@@ -563,7 +580,11 @@ export const calculateManualAllocation = (
       const pay = allocPayAmtFromAlloc(rowAlloc, rowDocExh, recRate, amtDec)
       sumOtherPay = calculateAdditionAmount(sumOtherPay, pay, amtDec)
     })
-    const remainingRec = calculateSubtractionAmount(recTotal, sumOtherPay, amtDec)
+    const remainingRec = calculateSubtractionAmount(
+      recTotal,
+      sumOtherPay,
+      amtDec
+    )
 
     if (docBalAmt < 0) {
       if (finalAlloc < 0) {

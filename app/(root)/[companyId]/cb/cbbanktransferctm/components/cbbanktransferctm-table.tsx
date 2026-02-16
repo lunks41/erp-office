@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ICbBankTransferCtmFilter, ICbBankTransferCtmHd } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
-import { format, subMonths } from "date-fns"
+import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { CbBankTransferCtm } from "@/lib/api-routes"
@@ -11,7 +11,9 @@ import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetWithDates } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
 export interface CbBankTransferCtmTableProps {
@@ -42,31 +44,71 @@ export default function CbBankTransferCtmTable({
   const moduleId = ModuleId.cb
   const transactionId = CBTransactionId.cbbanktransferctm
 
+  const today = useMemo(() => new Date(), [])
+  const defaultStartDate = useMemo(
+    () => format(startOfMonth(subMonths(today, 1)), "yyyy-MM-dd"),
+    [today]
+  )
+  const defaultEndDate = useMemo(
+    () => format(lastDayOfMonth(today), "yyyy-MM-dd"),
+    [today]
+  )
+
   const form = useForm({
     defaultValues: {
-      startDate:
-        initialFilters?.startDate ||
-        format(subMonths(new Date(), 1), "yyyy-MM-dd"),
-      endDate: initialFilters?.endDate || format(new Date(), "yyyy-MM-dd"),
+      startDate: initialFilters?.startDate || defaultStartDate,
+      endDate: initialFilters?.endDate || defaultEndDate,
+      filterSearch: initialFilters?.search ?? "",
     },
   })
 
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search || "")
+  const [hasSearched, setHasSearched] = useState(false)
+  const [isAllTime, setIsAllTime] = useState(false)
+  const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
+    initialFilters?.startDate
+      ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+      : defaultStartDate
+  )
+  const [searchEndDate, setSearchEndDate] = useState<string | undefined>(
+    initialFilters?.endDate
+      ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+      : defaultEndDate
+  )
 
-  // Data fetching - only when table is opened
+  useEffect(() => {
+    form.setValue("startDate", initialFilters?.startDate || defaultStartDate)
+    form.setValue("endDate", initialFilters?.endDate || defaultEndDate)
+    if (initialFilters?.search !== undefined) {
+      setSearchQuery(initialFilters.search)
+      form.setValue("filterSearch", initialFilters.search)
+    }
+    setSearchStartDate(
+      initialFilters?.startDate
+        ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+        : defaultStartDate
+    )
+    setSearchEndDate(
+      initialFilters?.endDate
+        ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+        : defaultEndDate
+    )
+  }, [initialFilters, form, defaultStartDate, defaultEndDate])
+
+  // Data fetching - only when Search is clicked
   const {
     data: bankTransferCtmsResponse,
     isLoading: isLoadingBankTransferCtms,
     isRefetching: isRefetchingBankTransferCtms,
-    refetch: refetchBankTransferCtms,
+    refetch: _refetchBankTransferCtms,
   } = useGetWithDates<ICbBankTransferCtmHd>(
     `${CbBankTransferCtm.get}`,
     TableName.cbBankTransferCtm,
     searchQuery,
-    formatDateForApi(form.watch("startDate")) || "",
-    formatDateForApi(form.watch("endDate")) || "",
-    undefined, // options
-    true // enabled: Fetch when table is opened
+    searchStartDate ?? "",
+    searchEndDate ?? "",
+    undefined,
+    hasSearched || Boolean(searchStartDate && searchEndDate)
   )
 
   const data = bankTransferCtmsResponse?.data || []
@@ -233,27 +275,34 @@ export default function CbBankTransferCtmTable({
   ]
 
   const handleSearchBankTransferCtm = () => {
+    const filterSearchValue = form.getValues("filterSearch") ?? ""
+    setSearchQuery(filterSearchValue)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
+    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
+    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+
+    setSearchStartDate(formattedStartDate)
+    setSearchEndDate(formattedEndDate)
+    setHasSearched(true)
 
     const newFilters: ICbBankTransferCtmFilter = {
-      startDate: startDate,
-      endDate: endDate,
-      search: searchQuery,
+      startDate: isAllTime ? "" : startDate,
+      endDate: isAllTime ? "" : endDate,
+      search: filterSearchValue,
       sortBy: "transferNo",
       sortOrder: "asc",
     }
     onFilterChange(newFilters)
   }
 
-  const handleDialogFilterChange = (filters: {
+  const _handleDialogFilterChange = (filters: {
     search?: string
     sortOrder?: string
   }) => {
-    // Update local searchQuery state when search changes from dialog
     const searchValue = filters.search || ""
     setSearchQuery(searchValue)
-
     if (onFilterChange) {
       const newFilters: ICbBankTransferCtmFilter = {
         startDate: form.getValues("startDate"),
@@ -266,15 +315,25 @@ export default function CbBankTransferCtmTable({
     }
   }
 
-  // Update searchQuery when initialFilters.search changes
-  useEffect(() => {
-    if (
-      initialFilters?.search !== undefined &&
-      initialFilters.search !== searchQuery
-    ) {
-      setSearchQuery(initialFilters.search)
+  const handleClear = () => {
+    form.setValue("startDate", defaultStartDate)
+    form.setValue("endDate", defaultEndDate)
+    form.setValue("filterSearch", "")
+    setSearchQuery("")
+    setIsAllTime(false)
+    setSearchStartDate(defaultStartDate)
+    setSearchEndDate(defaultEndDate)
+    setHasSearched(false)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+        search: "",
+        sortBy: "transferNo",
+        sortOrder: "asc",
+      })
     }
-  }, [initialFilters?.search, searchQuery])
+  }
 
   return (
     <div className="w-full overflow-auto">
@@ -291,8 +350,9 @@ export default function CbBankTransferCtmTable({
                 <CustomDateNew
                   form={form}
                   name="startDate"
-                  isRequired={true}
+                  isRequired={!isAllTime}
                   size="sm"
+                  isDisabled={isAllTime}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -302,13 +362,29 @@ export default function CbBankTransferCtmTable({
                 <CustomDateNew
                   form={form}
                   name="endDate"
-                  isRequired={true}
+                  isRequired={!isAllTime}
                   size="sm"
+                  isDisabled={isAllTime}
                 />
               </div>
             </div>
 
-            {/* Search Button */}
+            <CustomInput
+              form={form}
+              name="filterSearch"
+              placeholder="Search..."
+              className="w-48"
+            />
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={isAllTime}
+                onCheckedChange={(checked) => setIsAllTime(checked === true)}
+              />
+              <span className="text-muted-foreground whitespace-nowrap">
+                All data
+              </span>
+            </label>
+
             <Button
               variant="default"
               size="sm"
@@ -316,6 +392,9 @@ export default function CbBankTransferCtmTable({
               disabled={isLoading}
             >
               Search
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleClear}>
+              Clear
             </Button>
 
             {/* Close Button */}
@@ -341,9 +420,6 @@ export default function CbBankTransferCtmTable({
         transactionId={transactionId}
         tableName={TableName.cbBankTransferCtm}
         emptyMessage="No Bank Transfer CTMs found matching your criteria. Try adjusting the date range or search terms."
-        onRefreshAction={() => refetchBankTransferCtms()}
-        onFilterChange={handleDialogFilterChange}
-        initialSearchValue={initialFilters?.search}
         onRowSelect={(row) => onCbBankTransferCtmSelect(row || undefined)}
       />
     </div>

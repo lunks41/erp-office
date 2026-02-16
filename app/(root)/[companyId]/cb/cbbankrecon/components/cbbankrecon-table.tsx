@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ICbBankReconFilter, ICbBankReconHd } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
-import { format, subMonths } from "date-fns"
+import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { CbBankRecon } from "@/lib/api-routes"
@@ -10,8 +10,10 @@ import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetWithDates } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
 export interface BankReconTableProps {
@@ -32,33 +34,73 @@ export default function BankReconTable({
   const moduleId = ModuleId.cb
   const transactionId = CBTransactionId.cbbankrecon
 
+  const today = useMemo(() => new Date(), [])
+  const defaultStartDate = useMemo(
+    () => format(startOfMonth(subMonths(today, 1)), "yyyy-MM-dd"),
+    [today]
+  )
+  const defaultEndDate = useMemo(
+    () => format(lastDayOfMonth(today), "yyyy-MM-dd"),
+    [today]
+  )
+
   const form = useForm({
     defaultValues: {
-      startDate:
-        initialFilters?.startDate ||
-        format(subMonths(new Date(), 1), "yyyy-MM-dd"),
-      endDate: initialFilters?.endDate || format(new Date(), "yyyy-MM-dd"),
+      startDate: initialFilters?.startDate || defaultStartDate,
+      endDate: initialFilters?.endDate || defaultEndDate,
+      filterSearch: initialFilters?.search ?? "",
     },
   })
 
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search || "")
   const [currentPage] = useState(1)
   const [pageSize] = useState(10)
+  const [hasSearched, setHasSearched] = useState(false)
+  const [isAllTime, setIsAllTime] = useState(false)
+  const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
+    initialFilters?.startDate
+      ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+      : defaultStartDate
+  )
+  const [searchEndDate, setSearchEndDate] = useState<string | undefined>(
+    initialFilters?.endDate
+      ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+      : defaultEndDate
+  )
 
-  // Data fetching - only when table is opened
+  useEffect(() => {
+    form.setValue("startDate", initialFilters?.startDate || defaultStartDate)
+    form.setValue("endDate", initialFilters?.endDate || defaultEndDate)
+    if (initialFilters?.search !== undefined) {
+      setSearchQuery(initialFilters.search)
+      form.setValue("filterSearch", initialFilters.search)
+    }
+    setSearchStartDate(
+      initialFilters?.startDate
+        ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+        : defaultStartDate
+    )
+    setSearchEndDate(
+      initialFilters?.endDate
+        ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+        : defaultEndDate
+    )
+  }, [initialFilters, form, defaultStartDate, defaultEndDate])
+
+  // Data fetching - only when Search is clicked
   const {
     data: bankReconsResponse,
     isLoading: isLoadingBankRecons,
     isRefetching: isRefetchingBankRecons,
-    refetch: refetchBankRecons,
+    refetch: _refetchBankRecons,
   } = useGetWithDates<ICbBankReconHd>(
     `${CbBankRecon.get}`,
     TableName.cbBankRecon,
     searchQuery,
-    formatDateForApi(form.watch("startDate")) || "",
-    formatDateForApi(form.watch("endDate")) || "",
-    undefined, // options
-    true // enabled: Fetch when table is opened
+    searchStartDate ?? "",
+    searchEndDate ?? "",
+    undefined,
+    hasSearched || Boolean(searchStartDate && searchEndDate)
   )
 
   const data = bankReconsResponse?.data || []
@@ -238,12 +280,24 @@ export default function BankReconTable({
     },
   ]
 
-  const handleSearchInvoice = () => {
+  const handleSearchBankRecon = () => {
+    const filterSearchValue = form.getValues("filterSearch") ?? ""
+    setSearchQuery(filterSearchValue)
+
+    const startDate = form.getValues("startDate")
+    const endDate = form.getValues("endDate")
+    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
+    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+
+    setSearchStartDate(formattedStartDate)
+    setSearchEndDate(formattedEndDate)
+    setHasSearched(true)
+
     const newFilters: ICbBankReconFilter = {
-      startDate: form.getValues("startDate"),
-      endDate: form.getValues("endDate"),
-      search: searchQuery,
-      sortBy: "invoiceNo",
+      startDate: isAllTime ? "" : startDate,
+      endDate: isAllTime ? "" : endDate,
+      search: filterSearchValue,
+      sortBy: "reconNo",
       sortOrder: "asc",
       pageNumber: currentPage,
       pageSize: pageSize,
@@ -251,20 +305,18 @@ export default function BankReconTable({
     onFilterChange(newFilters)
   }
 
-  const handleDialogFilterChange = (filters: {
+  const _handleDialogFilterChange = (filters: {
     search?: string
     sortOrder?: string
   }) => {
-    // Update local searchQuery state when search changes from dialog
     const searchValue = filters.search || ""
     setSearchQuery(searchValue)
-
     if (onFilterChange) {
       const newFilters: ICbBankReconFilter = {
         startDate: form.getValues("startDate"),
         endDate: form.getValues("endDate"),
         search: searchValue,
-        sortBy: "invoiceNo",
+        sortBy: "reconNo",
         sortOrder: (filters.sortOrder as "asc" | "desc") || "asc",
         pageNumber: currentPage,
         pageSize: pageSize,
@@ -273,64 +325,90 @@ export default function BankReconTable({
     }
   }
 
-  // Update searchQuery when initialFilters.search changes
-  useEffect(() => {
-    if (
-      initialFilters?.search !== undefined &&
-      initialFilters.search !== searchQuery
-    ) {
-      setSearchQuery(initialFilters.search)
+  const handleClear = () => {
+    form.setValue("startDate", defaultStartDate)
+    form.setValue("endDate", defaultEndDate)
+    form.setValue("filterSearch", "")
+    setSearchQuery("")
+    setIsAllTime(false)
+    setSearchStartDate(defaultStartDate)
+    setSearchEndDate(defaultEndDate)
+    setHasSearched(false)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+        search: "",
+        sortBy: "reconNo",
+        sortOrder: "asc",
+        pageNumber: 1,
+        pageSize,
+      })
     }
-  }, [initialFilters?.search, searchQuery])
-
-  // Show loading spinner while data is loading
-  if (isLoadingBankRecons) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
-          <p className="mt-4 text-sm text-gray-600">
-            Loading bank reconciliations...
-          </p>
-          <p className="mt-2 text-xs text-gray-500">
-            Please wait while we fetch the bank reconciliation list
-          </p>
-        </div>
-      </div>
-    )
   }
 
   return (
     <div className="w-full overflow-auto">
-      <FormProvider {...form}>
-        <div className="mb-4 flex items-center gap-2">
-          {/* From Date */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">From Date:</span>
-            <CustomDateNew
-              form={form}
-              name="startDate"
-              isRequired={true}
-              size="sm"
-            />
-          </div>
+      <div className="bg-card mb-2 rounded-lg border p-3">
+        <FormProvider {...form}>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-sm font-medium">
+                  From:
+                </span>
+                <CustomDateNew
+                  form={form}
+                  name="startDate"
+                  isRequired={!isAllTime}
+                  size="sm"
+                  isDisabled={isAllTime}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-sm font-medium">
+                  To:
+                </span>
+                <CustomDateNew
+                  form={form}
+                  name="endDate"
+                  isRequired={!isAllTime}
+                  size="sm"
+                  isDisabled={isAllTime}
+                />
+              </div>
+            </div>
 
-          {/* To Date */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">To Date:</span>
-            <CustomDateNew
+            <CustomInput
               form={form}
-              name="endDate"
-              isRequired={true}
-              size="sm"
+              name="filterSearch"
+              placeholder="Search..."
+              className="w-48"
             />
-          </div>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={isAllTime}
+                onCheckedChange={(checked) => setIsAllTime(checked === true)}
+              />
+              <span className="text-muted-foreground whitespace-nowrap">
+                All data
+              </span>
+            </label>
 
-          <Button variant="outline" size="sm" onClick={handleSearchInvoice}>
-            Search Invoice
-          </Button>
-        </div>
-      </FormProvider>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleSearchBankRecon}
+              disabled={isLoading}
+            >
+              Search
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleClear}>
+              Clear
+            </Button>
+          </div>
+        </FormProvider>
+      </div>
       <Separator className="mb-4" />
 
       <DialogDataTable
@@ -341,9 +419,6 @@ export default function BankReconTable({
         transactionId={transactionId}
         tableName={TableName.cbBankRecon}
         emptyMessage="No data found."
-        onRefreshAction={() => refetchBankRecons()}
-        onFilterChange={handleDialogFilterChange}
-        initialSearchValue={initialFilters?.search}
         onRowSelect={(row) => onBankReconSelect(row || undefined)}
       />
     </div>

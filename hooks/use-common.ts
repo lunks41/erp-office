@@ -18,6 +18,7 @@ type QueryParams = {
   pageSize?: string
   startDate?: string
   endDate?: string
+  isAllTime?: string
 }
 
 const baseQueryConfig = {
@@ -248,11 +249,20 @@ export function useGetWithDatesAndPagination<T>(
   endDate?: string,
   pageNumber: number = 1,
   pageSize: number = 50,
+  isAllTime?: boolean,
   options?: Partial<UseQueryOptions<ApiResponse<T>>>,
   enabled?: boolean
 ) {
   return useQuery<ApiResponse<T>>({
-    queryKey: [queryKey, filters, startDate, endDate, pageNumber, pageSize],
+    queryKey: [
+      queryKey,
+      filters,
+      startDate,
+      endDate,
+      pageNumber,
+      pageSize,
+      isAllTime,
+    ],
     queryFn: async () => {
       const params: QueryParams = {
         ...baseQueryConfig,
@@ -264,6 +274,7 @@ export function useGetWithDatesAndPagination<T>(
         startDate: startDate?.trim() || "",
         endDate: endDate?.trim() || "",
         pageNumber: pageNumber.toString(),
+        isAllTime: isAllTime ? "true" : "false",
         pageSize: pageSize.toString(),
       }
       return await getData(cleanUrl(baseUrl), params)
@@ -338,8 +349,6 @@ export function useDeleteWithRemarks<T = unknown>(baseUrl: string) {
     onError: handleMutationError,
   })
 }
-
-
 
 /**
  * Specialized grid layout update

@@ -304,9 +304,9 @@ export function DialogDataTable<T>({
       lastSentSearch.current = undefined // Reset last sent value
     }
 
-    // For client-side filtering, apply immediately
-    if (!serverSidePagination && data && data.length > 0) {
-      table.setGlobalFilter(query) // Apply filter to local data immediately
+    // Always filter the current table data (client-side) — search box only filters loaded rows
+    if (data && data.length > 0) {
+      table.setGlobalFilter(query)
     }
 
     // Reset editing flag after a short delay to allow sync from parent if needed

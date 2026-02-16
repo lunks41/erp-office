@@ -13,8 +13,10 @@ import { formatNumber } from "@/lib/format-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Spinner } from "@/components/ui/spinner"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
 export interface ReceiptTableProps {
@@ -58,6 +60,7 @@ export default function ReceiptTable({
     defaultValues: {
       startDate: initialFilters?.startDate || defaultStartDate,
       endDate: initialFilters?.endDate || defaultEndDate,
+      filterSearch: initialFilters?.search ?? "",
     },
   })
 
@@ -67,6 +70,7 @@ export default function ReceiptTable({
 
   // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
+  const [isAllTime, setIsAllTime] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -81,37 +85,54 @@ export default function ReceiptTable({
 
   // Update form values when initialFilters change (when dialog reopens)
   useEffect(() => {
-    form.setValue("startDate", initialFilters?.startDate || defaultStartDate)
-    form.setValue("endDate", initialFilters?.endDate || defaultEndDate)
-
+    // Preserve "" for isAllTime so we don't overwrite with defaults and trigger a second API call
+    const start =
+      initialFilters?.startDate === ""
+        ? ""
+        : initialFilters?.startDate || defaultStartDate
+    const end =
+      initialFilters?.endDate === ""
+        ? ""
+        : initialFilters?.endDate || defaultEndDate
+    form.setValue("startDate", start)
+    form.setValue("endDate", end)
+    if (initialFilters?.search !== undefined) {
+      setSearchQuery(initialFilters.search)
+      form.setValue("filterSearch", initialFilters.search)
+    }
     setSearchStartDate(
-      initialFilters?.startDate
-        ? formatDateForApi(initialFilters.startDate) || defaultStartDate
-        : defaultStartDate
+      initialFilters?.startDate === ""
+        ? ""
+        : initialFilters?.startDate
+          ? formatDateForApi(initialFilters.startDate) || defaultStartDate
+          : defaultStartDate
     )
     setSearchEndDate(
-      initialFilters?.endDate
-        ? formatDateForApi(initialFilters.endDate) || defaultEndDate
-        : defaultEndDate
+      initialFilters?.endDate === ""
+        ? ""
+        : initialFilters?.endDate
+          ? formatDateForApi(initialFilters.endDate) || defaultEndDate
+          : defaultEndDate
     )
   }, [initialFilters, form, defaultStartDate, defaultEndDate])
 
-  // Data fetching - only after search button is clicked OR if dates are already set
+  // Data fetching - only when Search is clicked
   const {
     data: receiptsResponse,
     isLoading: isLoadingReceipts,
     isRefetching: isRefetchingReceipts,
-    refetch: refetchReceipts,
+    refetch: _refetchReceipts,
   } = useGetWithDatesAndPagination<IArReceiptHd>(
     `${ArReceipt.get}`,
     TableName.arReceipt,
     searchQuery,
-    searchStartDate,
-    searchEndDate,
+    searchStartDate ?? "",
+    searchEndDate ?? "",
     currentPage,
     pageSize,
-    undefined, // options
-    hasSearched || Boolean(searchStartDate && searchEndDate) // enabled: If searched OR dates already set
+    isAllTime,
+    undefined,
+    hasSearched || Boolean(searchStartDate && searchEndDate)
   )
 
   const data = receiptsResponse?.data || []
@@ -431,23 +452,23 @@ export default function ReceiptTable({
   ]
 
   const handleSearchReceipt = () => {
+    const filterSearchValue = form.getValues("filterSearch") ?? ""
+    setSearchQuery(filterSearchValue)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
+    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
+    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
 
-    // Format dates to yyyy-MM-dd format for API
-    const formattedStartDate = formatDateForApi(startDate) || ""
-    const formattedEndDate = formatDateForApi(endDate) || ""
-
-    // Store the search dates (formatted for API)
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)
-    setHasSearched(true) // Enable the query
-    setCurrentPage(1) // Reset to first page when searching
+    setHasSearched(true)
+    setCurrentPage(1)
 
     const newFilters: IArReceiptFilter = {
-      startDate: startDate,
-      endDate: endDate,
-      search: searchQuery,
+      startDate: isAllTime ? "" : startDate,
+      endDate: isAllTime ? "" : endDate,
+      search: filterSearchValue,
       sortBy: "receiptNo",
       sortOrder: "asc",
       pageNumber: 1, // Always start from page 1 when searching
@@ -491,7 +512,7 @@ export default function ReceiptTable({
     }
   }
 
-  const handleDialogFilterChange = (filters: {
+  const _handleDialogFilterChange = (filters: {
     search?: string
     sortOrder?: string
   }) => {
@@ -513,6 +534,29 @@ export default function ReceiptTable({
     }
   }
 
+  const handleClear = () => {
+    form.setValue("startDate", defaultStartDate)
+    form.setValue("endDate", defaultEndDate)
+    form.setValue("filterSearch", "")
+    setSearchQuery("")
+    setIsAllTime(false)
+    setSearchStartDate(defaultStartDate)
+    setSearchEndDate(defaultEndDate)
+    setHasSearched(false)
+    setCurrentPage(1)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+        search: "",
+        sortBy: "receiptNo",
+        sortOrder: "asc",
+        pageNumber: 1,
+        pageSize,
+      })
+    }
+  }
+
   return (
     <div className="w-full overflow-auto">
       {/* Compact Filter Section */}
@@ -528,8 +572,9 @@ export default function ReceiptTable({
                 <CustomDateNew
                   form={form}
                   name="startDate"
-                  isRequired={true}
+                  isRequired={!isAllTime}
                   size="sm"
+                  isDisabled={isAllTime}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -539,13 +584,29 @@ export default function ReceiptTable({
                 <CustomDateNew
                   form={form}
                   name="endDate"
-                  isRequired={true}
+                  isRequired={!isAllTime}
                   size="sm"
+                  isDisabled={isAllTime}
                 />
               </div>
             </div>
 
-            {/* Search Button */}
+            <CustomInput
+              form={form}
+              name="filterSearch"
+              placeholder="Search..."
+              className="w-48"
+            />
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={isAllTime}
+                onCheckedChange={(checked) => setIsAllTime(checked === true)}
+              />
+              <span className="text-muted-foreground whitespace-nowrap">
+                All data
+              </span>
+            </label>
+
             <Button
               variant="default"
               size="sm"
@@ -560,6 +621,9 @@ export default function ReceiptTable({
               ) : (
                 "Search"
               )}
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleClear}>
+              Clear
             </Button>
 
             {/* Close Button */}
@@ -586,9 +650,6 @@ export default function ReceiptTable({
         transactionId={transactionId}
         tableName={TableName.arReceipt}
         emptyMessage="No receipts found matching your criteria. Try adjusting the date range or search terms."
-        onRefreshAction={() => refetchReceipts()}
-        onFilterChange={handleDialogFilterChange}
-        initialSearchValue={initialFilters?.search}
         onRowSelect={(row) => onReceiptSelect(row || undefined)}
         // Pagination props
         onPageChange={handlePageChange}

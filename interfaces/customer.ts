@@ -28,6 +28,7 @@ export interface ICustomer {
   isVendor: boolean
   isTrader: boolean
   isSupplier: boolean
+  isCredit: boolean
   remarks: string
   isActive: boolean
   createById: number

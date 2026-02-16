@@ -13,8 +13,10 @@ import { formatNumber } from "@/lib/format-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Spinner } from "@/components/ui/spinner"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
 export interface CbGenPaymentTableProps {
@@ -62,6 +64,7 @@ export default function CbGenPaymentTable({
     defaultValues: {
       startDate: initialFilters?.startDate || defaultStartDate,
       endDate: initialFilters?.endDate || defaultEndDate,
+      filterSearch: initialFilters?.search ?? "",
     },
   })
 
@@ -75,6 +78,7 @@ export default function CbGenPaymentTable({
 
   // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
+  const [isAllTime, setIsAllTime] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -91,6 +95,10 @@ export default function CbGenPaymentTable({
   useEffect(() => {
     form.setValue("startDate", initialFilters?.startDate || defaultStartDate)
     form.setValue("endDate", initialFilters?.endDate || defaultEndDate)
+    if (initialFilters?.search !== undefined) {
+      setSearchQuery(initialFilters.search)
+      form.setValue("filterSearch", initialFilters.search)
+    }
     setSearchStartDate(
       initialFilters?.startDate
         ? formatDateForApi(initialFilters.startDate) || defaultStartDate
@@ -127,22 +135,23 @@ export default function CbGenPaymentTable({
     }
   }, [initialFilters?.search, searchQuery])
 
-  // Data fetching - only after search button is clicked OR if dates are already set
+  // Data fetching - only when Search is clicked
   const {
     data: glJournalsResponse,
     isLoading: isLoadingCbGenPayments,
     isRefetching: isRefetchingCbGenPayments,
-    refetch: refetchCbGenPayments,
+    refetch: _refetchCbGenPayments,
   } = useGetWithDatesAndPagination<ICbGenPaymentHd>(
     `${CbGenPayment.get}`,
     TableName.glJournal,
     searchQuery,
-    searchStartDate,
-    searchEndDate,
+    searchStartDate ?? "",
+    searchEndDate ?? "",
     currentPage,
     pageSize,
-    undefined, // options
-    hasSearched || Boolean(searchStartDate && searchEndDate) // enabled: If searched OR dates already set
+    isAllTime,
+    undefined,
+    hasSearched || Boolean(searchStartDate && searchEndDate)
   )
 
   const data = glJournalsResponse?.data || []
@@ -462,23 +471,23 @@ export default function CbGenPaymentTable({
   ]
 
   const handleSearchCbGenPayment = () => {
+    const filterSearchValue = form.getValues("filterSearch") ?? ""
+    setSearchQuery(filterSearchValue)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
+    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
+    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
 
-    // Format dates to yyyy-MM-dd format for API
-    const formattedStartDate = formatDateForApi(startDate) || ""
-    const formattedEndDate = formatDateForApi(endDate) || ""
-
-    // Store the search dates (formatted for API)
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)
-    setHasSearched(true) // Enable the query
-    setCurrentPage(1) // Reset to first page when searching
+    setHasSearched(true)
+    setCurrentPage(1)
 
     const newFilters: ICbGenPaymentFilter = {
-      startDate: startDate,
-      endDate: endDate,
-      search: searchQuery,
+      startDate: isAllTime ? "" : startDate,
+      endDate: isAllTime ? "" : endDate,
+      search: filterSearchValue,
       sortBy: "paymentNo",
       sortOrder: "asc",
       pageNumber: 1, // Always start from page 1 when searching
@@ -524,7 +533,7 @@ export default function CbGenPaymentTable({
     }
   }
 
-  const handleDialogFilterChange = (filters: {
+  const _handleDialogFilterChange = (filters: {
     search?: string
     sortOrder?: string
   }) => {
@@ -546,6 +555,29 @@ export default function CbGenPaymentTable({
     }
   }
 
+  const handleClear = () => {
+    form.setValue("startDate", defaultStartDate)
+    form.setValue("endDate", defaultEndDate)
+    form.setValue("filterSearch", "")
+    setSearchQuery("")
+    setIsAllTime(false)
+    setSearchStartDate(defaultStartDate)
+    setSearchEndDate(defaultEndDate)
+    setHasSearched(false)
+    setCurrentPage(1)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+        search: "",
+        sortBy: "paymentNo",
+        sortOrder: "asc",
+        pageNumber: 1,
+        pageSize,
+      })
+    }
+  }
+
   return (
     <div className="w-full overflow-auto">
       {/* Compact Filter Section */}
@@ -561,8 +593,9 @@ export default function CbGenPaymentTable({
                 <CustomDateNew
                   form={form}
                   name="startDate"
-                  isRequired={true}
+                  isRequired={!isAllTime}
                   size="sm"
+                  isDisabled={isAllTime}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -572,13 +605,29 @@ export default function CbGenPaymentTable({
                 <CustomDateNew
                   form={form}
                   name="endDate"
-                  isRequired={true}
+                  isRequired={!isAllTime}
                   size="sm"
+                  isDisabled={isAllTime}
                 />
               </div>
             </div>
 
-            {/* Search Button */}
+            <CustomInput
+              form={form}
+              name="filterSearch"
+              placeholder="Search..."
+              className="w-48"
+            />
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={isAllTime}
+                onCheckedChange={(checked) => setIsAllTime(checked === true)}
+              />
+              <span className="text-muted-foreground whitespace-nowrap">
+                All data
+              </span>
+            </label>
+
             <Button
               variant="default"
               size="sm"
@@ -593,6 +642,9 @@ export default function CbGenPaymentTable({
               ) : (
                 "Search"
               )}
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleClear}>
+              Clear
             </Button>
 
             {/* Close Button */}
@@ -619,9 +671,6 @@ export default function CbGenPaymentTable({
         transactionId={transactionId}
         tableName={TableName.glJournal}
         emptyMessage="No invoices found matching your criteria. Try adjusting the date range or search terms."
-        onRefreshAction={() => refetchCbGenPayments()}
-        onFilterChange={handleDialogFilterChange}
-        initialSearchValue={initialFilters?.search}
         onRowSelect={(row) => onCbGenPaymentSelect(row || undefined)}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
