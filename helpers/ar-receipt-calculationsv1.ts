@@ -228,6 +228,7 @@ export const applyCentDiffAdjustment = (
   unAllocLocalAmt: number,
   decimals: IDecimal
 ): boolean => {
+  debugger
   if (!Array.isArray(details) || details.length === 0) {
     return false
   }
@@ -493,11 +494,22 @@ export const calauteLocalAmtandGainLoss = (
     return details[rowNumber]
   }
 
-  const allocLocalAmt = calculateMultiplierAmount(
-    allocAmt,
-    details[rowNumber].docExhRate,
-    decimals.locAmtDec
-  )
+  const isFullBalanceAllocation =
+    calculateSubtractionAmount(docBalAmt, allocAmt, decimals.amtDec) === 0
+
+  console.log("isFullBalanceAllocation", isFullBalanceAllocation)
+  console.log("docBalAmt", docBalAmt)
+  console.log("allocAmt", allocAmt)
+
+  const allocLocalAmt = isFullBalanceAllocation
+    ? docBalLocalAmt
+    : calculateMultiplierAmount(
+        allocAmt,
+        details[rowNumber].docExhRate,
+        decimals.locAmtDec
+      )
+
+  console.log("allocLocalAmt", allocLocalAmt)
 
   const allocPayAmt = calculateDivisionAmount(
     allocLocalAmt,
@@ -506,9 +518,6 @@ export const calauteLocalAmtandGainLoss = (
   )
 
   const docAllocAmt = allocAmt
-
-  const isFullBalanceAllocation =
-    calculateSubtractionAmount(docBalAmt, allocAmt, decimals.amtDec) === 0
 
   const docAllocLocalAmt = isFullBalanceAllocation
     ? docBalLocalAmt
