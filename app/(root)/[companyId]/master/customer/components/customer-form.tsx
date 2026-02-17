@@ -21,6 +21,7 @@ import {
   default as CustomerAutocomplete,
   default as SupplierAutocomplete,
 } from "@/components/autocomplete/autocomplete-customer"
+import CustomerCodeLookupInput from "@/components/lookup/customer-code-lookup-input"
 import CustomAccordion, {
   CustomAccordionContent,
   CustomAccordionItem,
@@ -121,7 +122,7 @@ export default function CustomerForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <div className="grid gap-2">
             <div className="grid grid-cols-6 gap-2">
-              <CustomInput
+              <CustomerCodeLookupInput
                 form={form}
                 name="customerCode"
                 label="Customer Code"
@@ -129,8 +130,7 @@ export default function CustomerForm({
                 isDisabled={
                   initialData?.customerId ? initialData.customerId > 0 : false
                 }
-                onBlurEvent={() => {
-                  const customerCode = form.getValues("customerCode")
+                onSelect={(customerCode) => {
                   if (customerCode && onCustomerLookup) {
                     onCustomerLookup(customerCode, "0")
                   }

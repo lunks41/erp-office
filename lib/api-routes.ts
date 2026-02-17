@@ -322,6 +322,8 @@ export const Lookup = {
   getVoyageDynamic: "/master/getvoyagelookup_v1",
   getCustomerDynamic: "/master/getcustomerlookup_v1",
   getSupplierDynamic: "/master/getsupplierlookup_v1",
+  getCustomerCodeLookup: "/master/GetCustomerCodeLookup",
+  getSupplierCodeLookup: "/master/GetSupplierCodeLookup",
   getProductDynamic: "/master/getproductlookup_v1",
   getJobOrderDynamic: "/master/getjoborderlookup_v1",
 

@@ -766,8 +766,9 @@ export default function ReceiptForm({
 
         // Calculate bank charges local amount: bankChgAmt * recExhRate
         const recExhRate = form.getValues("recExhRate") || 0
+        let recBankChgLocalAmt = 0
         if (recExhRate > 0) {
-          const recBankChgLocalAmt = calculateMultiplierAmount(
+          recBankChgLocalAmt = calculateMultiplierAmount(
             recBankChgAmt,
             recExhRate,
             locAmtDec
@@ -778,13 +779,28 @@ export default function ReceiptForm({
         } else {
           form.setValue("recBankChgLocalAmt", 0, { shouldDirty: true })
         }
+
+        // Sync Bank Chg Amt and Bank Locmt from rec amounts (same as handleBankChgAmtFocus)
+        const exhRate = form.getValues("exhRate") || 0
+        if (exhRate > 0) {
+          const bankChgAmt = Number(
+            (recBankChgLocalAmt / exhRate).toFixed(amtDec)
+          )
+          form.setValue("bankChgAmt", bankChgAmt, { shouldDirty: true })
+          form.setValue("bankChgLocalAmt", recBankChgLocalAmt, {
+            shouldDirty: true,
+          })
+        } else {
+          form.setValue("bankChgAmt", 0, { shouldDirty: true })
+          form.setValue("bankChgLocalAmt", 0, { shouldDirty: true })
+        }
       } else {
         console.log(
           "Rec Bank Charges Amount unchanged - skipping recalculation"
         )
       }
     },
-    [form, locAmtDec]
+    [form, locAmtDec, amtDec]
   )
 
   // Handle bank charges amount focus - sync from rec: bankChgAmt = recBankChgLocalAmt/exhRate, bankChgLocalAmt = recBankChgLocalAmt

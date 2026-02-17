@@ -1344,6 +1344,62 @@ export const useCustomerLookup = () => {
     enabled: true,
   })
 }
+
+/**
+ * Customer code lookup - search by typing (for input-as-dropdown).
+ * Call GetCustomerCodeLookup with searchString query param.
+ */
+export const useCustomerCodeLookup = (searchString: string) => {
+  return useQuery<ICustomerLookup[]>({
+    queryKey: ["customer-code-lookup", searchString],
+    ...defaultQueryConfig,
+    queryFn: async () => {
+      try {
+        const params = new URLSearchParams()
+        if (searchString?.trim()) {
+          params.append("searchString", searchString.trim())
+        }
+        const url = searchString?.trim()
+          ? `${Lookup.getCustomerCodeLookup}?${params.toString()}`
+          : Lookup.getCustomerCodeLookup
+        const raw = await getData(url)
+        const list = Array.isArray(raw) ? raw : (raw?.data ?? [])
+        return list
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+    enabled: true,
+  })
+}
+
+/**
+ * Supplier code lookup - search by typing (for input-as-dropdown).
+ * Call GetSupplierCodeLookup with searchString query param.
+ */
+export const useSupplierCodeLookup = (searchString: string) => {
+  return useQuery<ISupplierLookup[]>({
+    queryKey: ["supplier-code-lookup", searchString],
+    ...defaultQueryConfig,
+    queryFn: async () => {
+      try {
+        const params = new URLSearchParams()
+        if (searchString?.trim()) {
+          params.append("searchString", searchString.trim())
+        }
+        const url = searchString?.trim()
+          ? `${Lookup.getSupplierCodeLookup}?${params.toString()}`
+          : Lookup.getSupplierCodeLookup
+        const raw = await getData(url)
+        const list = Array.isArray(raw) ? raw : (raw?.data ?? [])
+        return list
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+    enabled: true,
+  })
+}
 export const useCompanyCustomerLookup = (companyId: number) => {
   return useQuery<ICustomerLookup[]>({
     queryKey: ["customer-lookUp", companyId],
