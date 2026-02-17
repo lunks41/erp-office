@@ -132,7 +132,7 @@ export default function ReceiptPage() {
   }, [searchParams])
 
   const autoLoadStorageKey = useMemo(
-    () => `history-doc:/${companyId}/ar/receipt`,
+    () => `history-doc:/${companyId}/ar/receiptmulticurrency`,
     [companyId]
   )
 

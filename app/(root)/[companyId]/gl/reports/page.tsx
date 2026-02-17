@@ -430,6 +430,11 @@ export default function ReportsPage() {
     const parameters = buildReportParameters(data)
     const report = selectedReportObjects[0] // Only one report can be selected
 
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : (process.env.NEXT_PUBLIC_APP_URL ?? "")
+
     const reportParams = {
       companyId: parameters.companyId,
       companyName: companyName || "",
@@ -445,7 +450,7 @@ export default function ReportsPage() {
       gstId: parameters.gstId || 0,
       amtDec: amtDec,
       locAmtDec: locAmtDec,
-      url: "",
+      url: baseUrl,
       userName: user?.userName || "",
       isMonthly: false,
       userId: user?.userId || "0",
