@@ -243,6 +243,7 @@ export default function BankReconSelectionDialog({
             onFilterChange={handleDialogFilterChange}
             initialSearchValue={searchQuery}
             onRowSelect={handleRowSelect}
+            showSearch={false}
           />
         </div>
       </DialogContent>

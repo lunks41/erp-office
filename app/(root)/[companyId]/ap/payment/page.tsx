@@ -1355,6 +1355,7 @@ export default function PaymentPage() {
               pageSize={pageSize || 50}
               onCloseAction={() => setShowListDialog(false)}
               visible={visible}
+              isDialogOpen={showListDialog}
             />
           </div>
         </DialogContent>

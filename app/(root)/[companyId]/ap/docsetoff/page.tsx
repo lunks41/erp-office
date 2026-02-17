@@ -1288,6 +1288,7 @@ export default function DocSetOffPage() {
               initialFilters={filters}
               pageSize={pageSize || 50}
               onCloseAction={() => setShowListDialog(false)}
+              isDialogOpen={showListDialog}
             />
           </div>
         </DialogContent>

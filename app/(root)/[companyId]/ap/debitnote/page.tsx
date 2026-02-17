@@ -1623,6 +1623,7 @@ export default function DebitNotePage() {
               initialFilters={filters}
               pageSize={pageSize || 50}
               onCloseAction={() => setShowListDialog(false)}
+              isDialogOpen={showListDialog}
             />
           </div>
         </DialogContent>

@@ -26,6 +26,8 @@ export interface InvoiceTableProps {
   pageSize: number
   onCloseAction?: () => void
   visible?: IVisibleFields
+  /** When true, list dialog is open – enables initial API fetch when dialog opens */
+  isDialogOpen?: boolean
 }
 
 export default function InvoiceTable({
@@ -35,6 +37,7 @@ export default function InvoiceTable({
   pageSize: _pageSize,
   onCloseAction,
   visible,
+  isDialogOpen = false,
 }: InvoiceTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -68,9 +71,10 @@ export default function InvoiceTable({
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(_pageSize)
 
-  // State to track if search has been clicked
+  // State to track if search has been clicked (or dialog opened for initial load)
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -126,7 +130,11 @@ export default function InvoiceTable({
     }
   }, [initialFilters?.search, searchQuery])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
+  // Data fetching when dialog is open (use isAllTimeCommitted to avoid refetch on checkbox toggle)
   const {
     data: invoicesResponse,
     isLoading: isLoadingInvoices,
@@ -140,9 +148,9 @@ export default function InvoiceTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = invoicesResponse?.data || []
@@ -497,6 +505,8 @@ export default function InvoiceTable({
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
+    setIsAllTimeCommitted(isAllTime)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
     const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
@@ -582,10 +592,11 @@ export default function InvoiceTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -699,6 +710,7 @@ export default function InvoiceTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
 
       <div className="mt-3 flex items-center justify-center gap-2">

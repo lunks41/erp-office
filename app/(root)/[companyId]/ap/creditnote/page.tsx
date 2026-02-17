@@ -1582,6 +1582,7 @@ export default function CreditNotePage() {
               initialFilters={filters}
               pageSize={pageSize || 50}
               onCloseAction={() => setShowListDialog(false)}
+              isDialogOpen={showListDialog}
             />
           </div>
         </DialogContent>

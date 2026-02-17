@@ -63,6 +63,7 @@ interface DialogDataTableProps<T> {
   pageSize?: number
   totalRecords?: number
   serverSidePagination?: boolean
+  showSearch?: boolean // When false, hide the header search box (default true)
 }
 
 export function DialogDataTable<T>({
@@ -84,6 +85,7 @@ export function DialogDataTable<T>({
   pageSize: propPageSize, // Page size from props
   totalRecords,
   serverSidePagination = false, // Whether to use server-side pagination
+  showSearch = true,
 }: DialogDataTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -479,6 +481,7 @@ export function DialogDataTable<T>({
         moduleId={moduleId || 1}
         transactionId={transactionId || 1}
         onResetLayout={handleResetLayout}
+        showSearch={showSearch}
       />
       <DndContext
         sensors={sensors}

@@ -1318,6 +1318,7 @@ export default function RefundPage() {
               initialFilters={filters}
               pageSize={pageSize || 50}
               onCloseAction={() => setShowListDialog(false)}
+              isDialogOpen={showListDialog}
             />
           </div>
         </DialogContent>

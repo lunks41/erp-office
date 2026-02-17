@@ -19,6 +19,11 @@ interface BankTableProps {
   totalRecords?: number
   onSelect?: (bank: IBank | null) => void
   onFilterChange?: (filters: IBankFilter) => void
+  onPageChange?: (page: number) => void
+  onPageSizeChange?: (pageSize: number) => void
+  currentPage?: number
+  pageSize?: number
+  serverSidePagination?: boolean
   initialSearchValue?: string // Initial search value to sync with parent filters
   onRefreshAction?: () => void
   moduleId: number
@@ -31,6 +36,11 @@ export function BankTable({
   totalRecords = 0,
   onSelect,
   onFilterChange,
+  onPageChange,
+  onPageSizeChange,
+  currentPage = 1,
+  pageSize = 50,
+  serverSidePagination = false,
   initialSearchValue,
   onRefreshAction,
   moduleId,
@@ -219,6 +229,11 @@ export function BankTable({
         onRefreshAction={onRefreshAction}
         onFilterChange={handleDialogFilterChange}
         initialSearchValue={initialSearchValue}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        serverSidePagination={serverSidePagination}
         onRowSelect={onSelect}
       />
     </div>

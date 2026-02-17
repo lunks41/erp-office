@@ -4,7 +4,7 @@ import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { X } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { ArInvoice } from "@/lib/api-routes"
@@ -26,6 +26,8 @@ export interface InvoiceTableProps {
   pageSize: number
   onCloseAction?: () => void
   visible?: IVisibleFields
+  /** When true, list dialog is open – enables initial API fetch when dialog opens */
+  isDialogOpen?: boolean
 }
 
 const DEFAULT_PAGE_SIZE = 15
@@ -37,6 +39,7 @@ export default function InvoiceTable({
   pageSize: _pageSize,
   onCloseAction,
   visible,
+  isDialogOpen = false,
 }: InvoiceTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -74,10 +77,12 @@ export default function InvoiceTable({
       : DEFAULT_PAGE_SIZE
   )
 
-  // State to track if search has been clicked
+  // State to track if search has been clicked (or dialog opened for initial load)
   const [hasSearched, setHasSearched] = useState(false)
-  // When true, fetch all data without date filter
+  // When true, fetch all data without date filter (UI state)
   const [isAllTime, setIsAllTime] = useState(false)
+  // Committed value for API – only updated when Search is clicked (prevents refetch on checkbox toggle)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -144,7 +149,12 @@ export default function InvoiceTable({
     }
   }, [initialFilters?.search, searchQuery])
 
-  // Data fetching - only when Search is clicked (searchStartDate/searchEndDate set in handleSearchInvoice)
+  // When list dialog opens, enable initial fetch (so API is called on open)
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
+  // Data fetching when dialog is open: after Search click or on initial open (no refetch on checkbox toggle – use isAllTimeCommitted)
   const {
     data: invoicesResponse,
     isLoading: isLoadingInvoices,
@@ -158,9 +168,9 @@ export default function InvoiceTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate) // enabled: only after Search click
+    hasSearched
   )
 
   const data = invoicesResponse?.data || []
@@ -528,6 +538,9 @@ export default function InvoiceTable({
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
 
+    // Commit current isAllTime so API uses it (avoids refetch when only toggling checkbox)
+    setIsAllTimeCommitted(isAllTime)
+
     // Format dates to yyyy-MM-dd format for API (empty when isAllTime)
     const formattedStartDate = isAllTime
       ? ""
@@ -617,10 +630,12 @@ export default function InvoiceTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    // Keep hasSearched true so the query stays enabled and refetches with default params
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -738,6 +753,7 @@ export default function InvoiceTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
     </div>
   )

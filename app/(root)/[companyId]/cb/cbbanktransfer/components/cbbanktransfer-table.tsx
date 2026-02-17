@@ -25,6 +25,7 @@ export interface BankTransferTableProps {
   onFilterChange: (filters: ICbBankTransferFilter) => void
   initialFilters?: ICbBankTransferFilter
   pageSize: number
+  isDialogOpen?: boolean
 }
 
 const DEFAULT_PAGE_SIZE = 15
@@ -34,6 +35,7 @@ export default function BankTransferTable({
   onFilterChange,
   initialFilters,
   pageSize: _pageSize,
+  isDialogOpen = false,
 }: BankTransferTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -71,9 +73,9 @@ export default function BankTransferTable({
       : DEFAULT_PAGE_SIZE
   )
 
-  // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -130,7 +132,10 @@ export default function BankTransferTable({
     }
   }, [initialFilters?.search, searchQuery])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: bankTransfersResponse,
     isLoading: isLoadingBankTransfers,
@@ -144,9 +149,9 @@ export default function BankTransferTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = bankTransfersResponse?.data || []
@@ -439,6 +444,8 @@ export default function BankTransferTable({
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
+    setIsAllTimeCommitted(isAllTime)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
     const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
@@ -526,10 +533,11 @@ export default function BankTransferTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -630,6 +638,7 @@ export default function BankTransferTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
 
       <div className="mt-3 flex items-center justify-center gap-2">

@@ -1070,6 +1070,7 @@ export default function ReceiptForm({
               name="bankChgAmt"
               label="Bank Chg Amt"
               round={amtDec}
+              isDisabled={true}
               onFocusEvent={handleBankChgAmtFocus}
               onBlurEvent={handleBankChgAmtChange}
             />

@@ -1013,6 +1013,7 @@ export default function BankReconPage() {
                 onBankReconSelect={handleBankReconSelect}
                 onFilterChange={handleFilterChange}
                 initialFilters={filters}
+                isDialogOpen={showListDialog}
               />
             )}
           </div>

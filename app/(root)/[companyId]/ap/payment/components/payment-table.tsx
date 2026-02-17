@@ -26,6 +26,7 @@ export interface PaymentTableProps {
   pageSize: number
   onCloseAction?: () => void
   visible?: IVisibleFields
+  isDialogOpen?: boolean
 }
 
 export default function PaymentTable({
@@ -35,6 +36,7 @@ export default function PaymentTable({
   pageSize: _pageSize,
   onCloseAction,
   visible,
+  isDialogOpen = false,
 }: PaymentTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -68,9 +70,9 @@ export default function PaymentTable({
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(_pageSize)
 
-  // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -116,7 +118,10 @@ export default function PaymentTable({
     )
   }, [initialFilters, form, defaultStartDate, defaultEndDate])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: paymentsResponse,
     isLoading: isLoadingPayments,
@@ -130,9 +135,9 @@ export default function PaymentTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = paymentsResponse?.data || []
@@ -446,6 +451,8 @@ export default function PaymentTable({
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
+    setIsAllTimeCommitted(isAllTime)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
     const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
@@ -531,10 +538,11 @@ export default function PaymentTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -649,6 +657,7 @@ export default function PaymentTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
     </div>
   )

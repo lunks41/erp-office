@@ -338,6 +338,7 @@ export default function InvoiceTable({
         onFilterChange={handleDialogFilterChange}
         initialSearchValue={initialFilters?.search}
         onRowSelect={(row) => onInvoiceSelect(row || undefined)}
+        showSearch={false}
       />
     </div>
   )

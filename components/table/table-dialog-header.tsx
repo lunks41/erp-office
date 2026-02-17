@@ -58,6 +58,7 @@ type DialogDataTableHeaderProps<TData> = {
   moduleId: number
   transactionId: number
   onResetLayout?: () => void // Callback to reset layout in parent component
+  showSearch?: boolean // When false, hide the search box (default true)
 }
 export function DialogDataTableHeader<TData>({
   onRefreshAction,
@@ -69,6 +70,7 @@ export function DialogDataTableHeader<TData>({
   moduleId,
   transactionId,
   onResetLayout,
+  showSearch = true,
 }: DialogDataTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
   const [activeButton, setActiveButton] = useState<"show" | "hide" | null>(null)
@@ -274,12 +276,14 @@ export function DialogDataTableHeader<TData>({
       </div>
       {/* Search Input */}
       <div className="flex items-center gap-2">
-        <Input
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-[300px]"
-        />
+        {showSearch && (
+          <Input
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="max-w-[300px]"
+          />
+        )}
         {/* Column Visibility Toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

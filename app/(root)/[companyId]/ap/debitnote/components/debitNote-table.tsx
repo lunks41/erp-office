@@ -30,6 +30,7 @@ export interface DebitNoteTableProps {
   initialFilters?: IApDebitNoteFilter
   pageSize: number
   onCloseAction?: () => void
+  isDialogOpen?: boolean
 }
 
 export default function DebitNoteTable({
@@ -38,6 +39,7 @@ export default function DebitNoteTable({
   initialFilters,
   pageSize: _pageSize,
   onCloseAction,
+  isDialogOpen = false,
 }: DebitNoteTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -71,9 +73,9 @@ export default function DebitNoteTable({
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(_pageSize)
 
-  // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -119,7 +121,10 @@ export default function DebitNoteTable({
     )
   }, [initialFilters, form, defaultStartDate, defaultEndDate])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: debitNotesResponse,
     isLoading: isLoadingDebitNotes,
@@ -133,9 +138,9 @@ export default function DebitNoteTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = debitNotesResponse?.data || []
@@ -435,6 +440,8 @@ export default function DebitNoteTable({
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
+    setIsAllTimeCommitted(isAllTime)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
     const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
@@ -520,10 +527,11 @@ export default function DebitNoteTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -638,6 +646,7 @@ export default function DebitNoteTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
     </div>
   )

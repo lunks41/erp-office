@@ -20,12 +20,14 @@ export interface BankReconTableProps {
   onBankReconSelect: (selectedBankRecon: ICbBankReconHd | undefined) => void
   onFilterChange: (filters: ICbBankReconFilter) => void
   initialFilters?: ICbBankReconFilter
+  isDialogOpen?: boolean
 }
 
 export default function BankReconTable({
   onBankReconSelect,
   onFilterChange,
   initialFilters,
+  isDialogOpen = false,
 }: BankReconTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -87,7 +89,10 @@ export default function BankReconTable({
     )
   }, [initialFilters, form, defaultStartDate, defaultEndDate])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: bankReconsResponse,
     isLoading: isLoadingBankRecons,
@@ -100,7 +105,7 @@ export default function BankReconTable({
     searchStartDate ?? "",
     searchEndDate ?? "",
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = bankReconsResponse?.data || []
@@ -333,7 +338,7 @@ export default function BankReconTable({
     setIsAllTime(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -420,6 +425,7 @@ export default function BankReconTable({
         tableName={TableName.cbBankRecon}
         emptyMessage="No data found."
         onRowSelect={(row) => onBankReconSelect(row || undefined)}
+        showSearch={false}
       />
     </div>
   )

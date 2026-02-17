@@ -28,6 +28,7 @@ export interface CbGenReceiptTableProps {
   pageSize: number
   onCloseAction?: () => void
   visible?: IVisibleFields
+  isDialogOpen?: boolean
 }
 
 const DEFAULT_PAGE_SIZE = 15
@@ -39,6 +40,7 @@ export default function CbGenReceiptTable({
   pageSize: _pageSize,
   onCloseAction,
   visible,
+  isDialogOpen = false,
 }: CbGenReceiptTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -76,9 +78,9 @@ export default function CbGenReceiptTable({
       : DEFAULT_PAGE_SIZE
   )
 
-  // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -135,7 +137,10 @@ export default function CbGenReceiptTable({
     }
   }, [initialFilters?.search, searchQuery])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: glJournalsResponse,
     isLoading: isLoadingCbGenReceipts,
@@ -149,9 +154,9 @@ export default function CbGenReceiptTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = glJournalsResponse?.data || []
@@ -474,6 +479,8 @@ export default function CbGenReceiptTable({
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
+    setIsAllTimeCommitted(isAllTime)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
     const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
@@ -561,10 +568,11 @@ export default function CbGenReceiptTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -678,6 +686,7 @@ export default function CbGenReceiptTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
 
       <div className="mt-3 flex items-center justify-center gap-2">

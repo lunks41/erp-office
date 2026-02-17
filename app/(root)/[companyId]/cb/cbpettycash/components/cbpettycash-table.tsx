@@ -26,6 +26,7 @@ export interface CbPettyCashTableProps {
   pageSize: number
   onCloseAction?: () => void
   visible?: IVisibleFields
+  isDialogOpen?: boolean
 }
 
 const DEFAULT_PAGE_SIZE = 15
@@ -37,6 +38,7 @@ export default function CbPettyCashTable({
   pageSize: _pageSize,
   onCloseAction,
   visible,
+  isDialogOpen = false,
 }: CbPettyCashTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -74,9 +76,9 @@ export default function CbPettyCashTable({
       : DEFAULT_PAGE_SIZE
   )
 
-  // State to track if search has been clicked
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   // Store the actual search dates - initialize from initialFilters if available
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
@@ -133,7 +135,10 @@ export default function CbPettyCashTable({
     }
   }, [initialFilters?.search, searchQuery])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: glJournalsResponse,
     isLoading: isLoadingCbPettyCashs,
@@ -147,9 +152,9 @@ export default function CbPettyCashTable({
     searchEndDate ?? "",
     currentPage,
     pageSize,
-    isAllTime,
+    isAllTimeCommitted,
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = glJournalsResponse?.data || []
@@ -476,6 +481,8 @@ export default function CbPettyCashTable({
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
+    setIsAllTimeCommitted(isAllTime)
+
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
     const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
@@ -563,10 +570,11 @@ export default function CbPettyCashTable({
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
     setCurrentPage(1)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -680,6 +688,7 @@ export default function CbPettyCashTable({
         pageSize={pageSize}
         totalRecords={totalRecords}
         serverSidePagination={true}
+        showSearch={false}
       />
 
       <div className="mt-3 flex items-center justify-center gap-2">

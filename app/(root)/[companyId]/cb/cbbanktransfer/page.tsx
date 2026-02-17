@@ -1273,6 +1273,7 @@ export default function BankTransferPage() {
               onFilterChange={handleFilterChange}
               initialFilters={filters}
               pageSize={pageSize}
+              isDialogOpen={showListDialog}
             />
           </div>
         </DialogContent>

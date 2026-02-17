@@ -85,6 +85,8 @@ export default function BankPage() {
     sortOrder: "asc",
   })
   const [key, setKey] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(50)
 
   // State for code availability check
   const [showLoadDialog, setShowLoadDialog] = useState(false)
@@ -147,8 +149,8 @@ export default function BankPage() {
     `${Bank.get}`,
     "banks",
     filters.search,
-    1,
-    50,
+    currentPage,
+    pageSize,
     { enabled: showListDialog }
   )
 
@@ -179,6 +181,7 @@ export default function BankPage() {
       result: 0,
       message: "",
       data: [],
+      totalRecords: 0,
     }
 
   // Mutations
@@ -500,7 +503,22 @@ export default function BankPage() {
     }
   }
 
-  const handleFilterChange = (newFilters: IBankFilter) => setFilters(newFilters)
+  const handleFilterChange = useCallback(
+    (newFilters: IBankFilter) => {
+      setFilters(newFilters)
+      setCurrentPage(1)
+    },
+    []
+  )
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
+  }, [])
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size)
+    setCurrentPage(1)
+  }, [])
 
   const handleBankLookup = async (bankCode: string, bankName: string) => {
     if (!bankCode && !bankName) {
@@ -740,9 +758,15 @@ export default function BankPage() {
           <BankTable
             data={banksData || []}
             isLoading={isLoadingBanks}
+            totalRecords={totalRecords ?? 0}
             onSelect={handleBankSelect}
             onFilterChange={handleFilterChange}
             initialSearchValue={filters.search}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            serverSidePagination={true}
             onRefreshAction={() => refetchBanks()}
             moduleId={moduleId}
             transactionId={transactionId}

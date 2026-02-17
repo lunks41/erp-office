@@ -25,6 +25,7 @@ export interface CbBankTransferCtmTableProps {
   pageSize?: number
   onCloseAction?: () => void
   visible?: IVisibleFields
+  isDialogOpen?: boolean
 }
 
 export default function CbBankTransferCtmTable({
@@ -34,6 +35,7 @@ export default function CbBankTransferCtmTable({
   pageSize: _pageSize,
   onCloseAction,
   visible: _visible,
+  isDialogOpen = false,
 }: CbBankTransferCtmTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -95,7 +97,10 @@ export default function CbBankTransferCtmTable({
     )
   }, [initialFilters, form, defaultStartDate, defaultEndDate])
 
-  // Data fetching - only when Search is clicked
+  useEffect(() => {
+    if (isDialogOpen) setHasSearched(true)
+  }, [isDialogOpen])
+
   const {
     data: bankTransferCtmsResponse,
     isLoading: isLoadingBankTransferCtms,
@@ -108,7 +113,7 @@ export default function CbBankTransferCtmTable({
     searchStartDate ?? "",
     searchEndDate ?? "",
     undefined,
-    hasSearched || Boolean(searchStartDate && searchEndDate)
+    hasSearched
   )
 
   const data = bankTransferCtmsResponse?.data || []
@@ -323,7 +328,7 @@ export default function CbBankTransferCtmTable({
     setIsAllTime(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
-    setHasSearched(false)
+    setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
         startDate: defaultStartDate,
@@ -421,6 +426,7 @@ export default function CbBankTransferCtmTable({
         tableName={TableName.cbBankTransferCtm}
         emptyMessage="No Bank Transfer CTMs found matching your criteria. Try adjusting the date range or search terms."
         onRowSelect={(row) => onCbBankTransferCtmSelect(row || undefined)}
+        showSearch={false}
       />
     </div>
   )
