@@ -102,6 +102,8 @@ export default function ReceiptForm({
   const originalRecTotAmtRef = React.useRef<number>(0)
   const originalBankChgAmtRef = React.useRef<number>(0)
   const originalRecBankChgAmtRef = React.useRef<number>(0)
+  // Bank's currency: when recCurrencyId equals this, do not overwrite recCurrencyId on currencyId change
+  const bankCurrencyIdRef = React.useRef<number>(0)
 
   // Function to update currency comparison state
   const updateCurrencyComparison = React.useCallback(() => {
@@ -439,6 +441,7 @@ export default function ReceiptForm({
   const handleBankChange = React.useCallback(
     async (selectedBank: IBankLookup | null) => {
       const recCurrencyId = selectedBank?.currencyId || 0
+      bankCurrencyIdRef.current = recCurrencyId
 
       // Update recCurrencyId from bank's currency
       form.setValue("recCurrencyId", recCurrencyId)
@@ -559,8 +562,16 @@ export default function ReceiptForm({
         const receiptId = form.getValues("receiptId")
         let currentPayCurrency = form.getValues("recCurrencyId") || 0
         const isNewReceipt = !isEdit || !receiptId || receiptId === "0"
+        const bankCurrencyId = bankCurrencyIdRef.current
+        const recCurrencyIsBankCurrency =
+          currentPayCurrency > 0 && currentPayCurrency === bankCurrencyId
 
-        if (currencyId > 0 && (isNewReceipt || currentPayCurrency === 0)) {
+        // Do not overwrite recCurrencyId when it is the bank's currency (user set it via bank selection)
+        if (
+          currencyId > 0 &&
+          (isNewReceipt || currentPayCurrency === 0) &&
+          !recCurrencyIsBankCurrency
+        ) {
           form.setValue("recCurrencyId", currencyId, { shouldDirty: true })
           currentPayCurrency = currencyId
         }
