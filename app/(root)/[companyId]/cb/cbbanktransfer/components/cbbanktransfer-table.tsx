@@ -3,7 +3,6 @@ import { ICbBankTransfer, ICbBankTransferFilter } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
-import { ChevronLeft, ChevronRight } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { CbBankTransfer } from "@/lib/api-routes"
@@ -173,7 +172,7 @@ export default function BankTransferTable({
         return date ? format(date, dateFormat) : "-"
       },
     },
-     {
+    {
       accessorKey: "fromBankName",
       header: "From Bank Name",
     },
@@ -181,7 +180,7 @@ export default function BankTransferTable({
       accessorKey: "fromCurrencyCode",
       header: "From Currency Code",
     },
-     {
+    {
       accessorKey: "fromTotAmt",
       header: "From Total Amount",
       cell: ({ row }) => (
@@ -237,16 +236,16 @@ export default function BankTransferTable({
       accessorKey: "fromBankCode",
       header: "From Bank Code",
     },
-   
+
     {
       accessorKey: "fromCurrencyName",
       header: "From Currency Name",
     },
-     {
+    {
       accessorKey: "remarks",
       header: "Remarks",
     },
-    
+
     {
       accessorKey: "fromExhRate",
       header: "From Exchange Rate",
@@ -300,11 +299,11 @@ export default function BankTransferTable({
         </div>
       ),
     },
-     {
+    {
       accessorKey: "toBankCode",
       header: "To Bank Code",
     },
-   
+
     {
       accessorKey: "toCurrencyName",
       header: "To Currency Name",
@@ -448,8 +447,10 @@ export default function BankTransferTable({
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)
@@ -640,28 +641,6 @@ export default function BankTransferTable({
         serverSidePagination={true}
         showSearch={false}
       />
-
-      <div className="mt-3 flex items-center justify-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-          disabled={currentPage <= 1 || isLoading}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <span className="text-muted-foreground text-sm">
-          Page {currentPage}
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={isLoading || currentPage * pageSize >= totalRecords}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
     </div>
   )
 }

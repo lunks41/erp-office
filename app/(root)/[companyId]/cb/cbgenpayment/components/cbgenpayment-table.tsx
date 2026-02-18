@@ -4,7 +4,7 @@ import { IVisibleFields } from "@/interfaces/setting"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { X } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { CbGenPayment } from "@/lib/api-routes"
@@ -690,28 +690,6 @@ export default function CbGenPaymentTable({
         serverSidePagination={true}
         showSearch={false}
       />
-
-      <div className="mt-3 flex items-center justify-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-          disabled={currentPage <= 1 || isLoading}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <span className="text-muted-foreground text-sm">
-          Page {currentPage}
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={isLoading || currentPage * pageSize >= totalRecords}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
     </div>
   )
 }

@@ -596,22 +596,16 @@ export default function BankTransferForm({
     // Derive TO bank charge from totals: toBankChgLocalAmt = fromTotLocalAmt - toTotLocalAmt, toBankChgAmt = toBankChgLocalAmt / toExhRate
     const toTotLocalAmt = form.getValues("toTotLocalAmt") ?? 0
     const fromTotLocalAmt = form.getValues("fromTotLocalAmt") ?? 0
-    const toExhRate = form.getValues("toExhRate") || 0
     const toBankChgLocalAmt = calculateSubtractionAmount(
       fromTotLocalAmt,
       toTotLocalAmt,
       locAmtDec
     )
-    const toBankChgAmt =
-      toExhRate > 0
-        ? calculateDivisionAmount(toBankChgLocalAmt, toExhRate, amtDec)
-        : 0
 
-    form.setValue("toBankChgLocalAmt", toBankChgLocalAmt, {
+    form.setValue("exhGainLoss", toBankChgLocalAmt, {
       shouldValidate: false,
     })
-    form.setValue("toBankChgAmt", toBankChgAmt, { shouldValidate: false })
-  }, [form, handleToTotAmtChange, amtDec, locAmtDec])
+  }, [form, handleToTotAmtChange, locAmtDec])
 
   // STEP 3: FROM Bank Charge Amount Handler
   const handleFromBankChgAmtChange = React.useCallback(
