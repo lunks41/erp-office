@@ -29,6 +29,10 @@ import { FormProvider, UseFormReturn } from "react-hook-form"
 import { clientDateFormat } from "@/lib/date-utils"
 import { parseNumberWithCommas } from "@/lib/utils"
 import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup"
+
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
 import {
   BankAutocomplete,
   BankChartOfAccountAutocomplete,
@@ -822,7 +826,12 @@ export default function RefundForm({
           isRequired={required?.m_PaymentTypeId}
           onChangeEvent={handlePaymentTypeChange}
         />
-        <CustomInput form={form} name="chequeNo" label="Pay No" />
+        <CustomInput
+          form={form}
+          name="chequeNo"
+          label="Pay No"
+          isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequeRefund}
+        />
         <CustomDateNew
           form={form}
           name="chequeDate"

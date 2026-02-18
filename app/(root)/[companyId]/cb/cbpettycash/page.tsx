@@ -52,7 +52,11 @@ import { BasicSetting, CbPettyCash } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
-import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
+import {
+  useGetRequiredFields,
+  useGetVisibleFields,
+  usePaymentTypeLookup,
+} from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -199,14 +203,31 @@ export default function CbPettyCashPage() {
     moduleId,
     transactionId
   )
+  const { data: paymentTypes = [] } = usePaymentTypeLookup()
 
   // Use nullish coalescing to handle fallback values
   const visible: IVisibleFields = visibleFieldsData ?? null
   const required: IMandatoryFields = requiredFieldsData ?? null
 
+  const chequePaymentTypeIds = useMemo(
+    () =>
+      paymentTypes
+        .filter(
+          (pt) =>
+            pt.paymentTypeName?.toLowerCase().includes("cheque") ||
+            pt.paymentTypeCode?.toLowerCase().includes("cheque")
+        )
+        .map((pt) => pt.paymentTypeId),
+    [paymentTypes]
+  )
+  const pettyCashSchema = useMemo(
+    () => CbPettyCashHdSchema(required, visible, { chequePaymentTypeIds }),
+    [required, visible, chequePaymentTypeIds]
+  )
+
   // Add form state management
   const form = useForm<CbPettyCashHdSchemaType>({
-    resolver: zodResolver(CbPettyCashHdSchema(required, visible)),
+    resolver: zodResolver(pettyCashSchema),
     defaultValues: cbPettyCash
       ? {
           paymentId: cbPettyCash.paymentId?.toString() ?? "0",
@@ -389,25 +410,50 @@ export default function CbPettyCashPage() {
       )
 
       // Validate the form data using the schema
-      const validationResult = CbPettyCashHdSchema(required, visible).safeParse(
-        formValues
-      )
+      const validationResult = pettyCashSchema.safeParse(formValues)
 
       if (!validationResult.success) {
         console.error("Form validation failed:", validationResult.error)
 
-        // Set field-level errors on the form so FormMessage components can display them
+        const fieldLabelMap: Record<string, string> = {
+          referenceNo: "Reference No",
+          accountDate: "Account Date",
+          bankId: "Bank",
+          paymentTypeId: "Pay",
+          chequeNo: "Pay No",
+          chequeDate: "Pay Date",
+          currencyId: "Currency",
+          totAmt: "Total Amount",
+          remarks: "Remarks",
+        }
+        const failedFields: string[] = []
         validationResult.error.issues.forEach((error) => {
-          const fieldPath = error.path.join(
-            "."
-          ) as keyof CbPettyCashHdSchemaType
+          const pathKey = error.path.join(".")
+          const fieldPath = pathKey as keyof CbPettyCashHdSchemaType
           form.setError(fieldPath, {
             type: "validation",
             message: error.message,
           })
+          const label =
+            fieldLabelMap[pathKey] ??
+            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+          if (!failedFields.includes(label)) failedFields.push(label)
         })
-
-        toast.error("Please check form data and try again")
+        if (failedFields.length > 0) {
+          toast.error(
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div>Please check form data and try again.</div>
+              <div style={{ marginTop: 4 }}>Missing or invalid:</div>
+              {failedFields.map((f) => (
+                <div key={f} style={{ paddingLeft: 8 }}>
+                  {f}
+                </div>
+              ))}
+            </div>
+          )
+        } else {
+          toast.error("Please check form data and try again.")
+        }
         return
       }
 

@@ -41,6 +41,10 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { CbGenReceiptDetailsFormRef } from "./cbgenreceipt-details-form"
 
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
 interface CbGenReceiptFormProps {
   form: UseFormReturn<CbGenReceiptHdSchemaType>
   onSuccessAction: (action: string) => Promise<void>
@@ -75,6 +79,7 @@ export default function CbGenReceiptForm({
 
   // State to control payee selection dialog
   const [isPayeeDialogOpen, setIsPayeeDialogOpen] = React.useState(false)
+  const [isChequeReceipt, setIsChequeReceipt] = React.useState(false)
 
   // Refs to store original values on focus for comparison on change
   const originalExhRateRef = React.useRef<number>(0)
@@ -331,6 +336,8 @@ export default function CbGenReceiptForm({
             .includes("cheque") ||
           selectedPaymentType?.paymentTypeCode?.toLowerCase().includes("cheque")
 
+        setIsChequeReceipt(isCheque)
+
         // Clear cheque number if not cheque payment, but keep chequeDate
         if (!isCheque) {
           form.setValue("chequeNo", "")
@@ -351,6 +358,7 @@ export default function CbGenReceiptForm({
           }
         }
       } else {
+        setIsChequeReceipt(false)
         // No payment type selected, clear cheque number but keep chequeDate
         form.setValue("chequeNo", "")
         // Do not clear chequeDate - keep it as requested
@@ -547,7 +555,12 @@ export default function CbGenReceiptForm({
             isRequired={required?.m_PaymentTypeId}
             onChangeEvent={handlePaymentTypeChange}
           />
-          <CustomInput form={form} name="chequeNo" label="Pay No" />
+          <CustomInput
+            form={form}
+            name="chequeNo"
+            label="Pay No"
+            isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequeReceipt}
+          />
           <CustomDateNew
             form={form}
             name="chequeDate"

@@ -32,6 +32,10 @@ import {
   CurrencyAutocomplete,
   PaymentTypeAutocomplete,
 } from "@/components/autocomplete"
+
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
 import PayeeSelectionDialog from "@/components/common/payee-selection-dialog"
 import { CustomInputGroup } from "@/components/custom"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
@@ -75,6 +79,7 @@ export default function CbGenPaymentForm({
 
   // State to control payee selection dialog
   const [isPayeeDialogOpen, setIsPayeeDialogOpen] = React.useState(false)
+  const [isChequePayment, setIsChequePayment] = React.useState(false)
 
   // Refs to store original values on focus for comparison on change
   const originalExhRateRef = React.useRef<number>(0)
@@ -331,6 +336,8 @@ export default function CbGenPaymentForm({
             .includes("cheque") ||
           selectedPaymentType?.paymentTypeCode?.toLowerCase().includes("cheque")
 
+        setIsChequePayment(isCheque)
+
         // Clear cheque number if not cheque payment, but keep chequeDate
         if (!isCheque) {
           form.setValue("chequeNo", "")
@@ -351,6 +358,7 @@ export default function CbGenPaymentForm({
           }
         }
       } else {
+        setIsChequePayment(false)
         // No payment type selected, clear cheque number but keep chequeDate
         form.setValue("chequeNo", "")
         // Do not clear chequeDate - keep it as requested
@@ -547,7 +555,12 @@ export default function CbGenPaymentForm({
             isRequired={required?.m_PaymentTypeId}
             onChangeEvent={handlePaymentTypeChange}
           />
-          <CustomInput form={form} name="chequeNo" label="Pay No" />
+          <CustomInput
+            form={form}
+            name="chequeNo"
+            label="Pay No"
+            isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequePayment}
+          />
           <CustomDateNew
             form={form}
             name="chequeDate"

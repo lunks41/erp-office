@@ -42,6 +42,10 @@ import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
 interface RefundFormProps {
   form: UseFormReturn<ArRefundHdSchemaType>
   onSuccessAction: (action: string) => Promise<void>
@@ -820,7 +824,12 @@ export default function RefundForm({
           isRequired={required?.m_PaymentTypeId}
           onChangeEvent={handlePaymentTypeChange}
         />
-        <CustomInput form={form} name="chequeNo" label="Pay No" />
+        <CustomInput
+          form={form}
+          name="chequeNo"
+          label="Pay No"
+          isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequeRefund}
+        />
         <CustomDateNew
           form={form}
           name="chequeDate"

@@ -33,7 +33,11 @@ import { BasicSetting, CbBankTransfer } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
-import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
+import {
+  useGetRequiredFields,
+  useGetVisibleFields,
+  usePaymentTypeLookup,
+} from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -175,10 +179,27 @@ export default function BankTransferPage() {
     moduleId,
     transactionId
   )
+  const { data: paymentTypes = [] } = usePaymentTypeLookup()
 
   // Use nullish coalescing to handle fallback values
   const visible: IVisibleFields = visibleFieldsData ?? null
   const required: IMandatoryFields = requiredFieldsData ?? null
+
+  const chequePaymentTypeIds = useMemo(
+    () =>
+      paymentTypes
+        .filter(
+          (pt) =>
+            pt.paymentTypeName?.toLowerCase().includes("cheque") ||
+            pt.paymentTypeCode?.toLowerCase().includes("cheque")
+        )
+        .map((pt) => pt.paymentTypeId),
+    [paymentTypes]
+  )
+  const bankTransferSchema = useMemo(
+    () => CbBankTransferSchema(required, visible, { chequePaymentTypeIds }),
+    [required, visible, chequePaymentTypeIds]
+  )
 
   const defaultBankTransferValues = useMemo(
     () => getDefaultValues(dateFormat).defaultBankTransfer,
@@ -187,7 +208,7 @@ export default function BankTransferPage() {
 
   // Add form state management
   const form = useForm<CbBankTransferSchemaType>({
-    resolver: zodResolver(CbBankTransferSchema(required, visible)),
+    resolver: zodResolver(bankTransferSchema),
     defaultValues: bankTransfer
       ? {
           transferId: bankTransfer.transferId?.toString() ?? "0",
@@ -521,26 +542,50 @@ export default function BankTransferPage() {
       }
 
       // Validate the form data using the schema
-      const validationResult = CbBankTransferSchema(
-        required,
-        visible
-      ).safeParse(formValues)
+      const validationResult = bankTransferSchema.safeParse(formValues)
 
       if (!validationResult.success) {
         console.error("Form validation failed:", validationResult.error)
 
-        // Set field-level errors on the form so FormMessage components can display them
+        const fieldLabelMap: Record<string, string> = {
+          referenceNo: "Reference No",
+          accountDate: "Account Date",
+          fromBankId: "From Bank",
+          toBankId: "To Bank",
+          paymentTypeId: "Pay",
+          chequeNo: "Pay No",
+          fromTotAmt: "From Total Amount",
+          toTotAmt: "To Total Amount",
+          remarks: "Remarks",
+        }
+        const failedFields: string[] = []
         validationResult.error.issues.forEach((error) => {
-          const fieldPath = error.path.join(
-            "."
-          ) as keyof CbBankTransferSchemaType
+          const pathKey = error.path.join(".")
+          const fieldPath = pathKey as keyof CbBankTransferSchemaType
           form.setError(fieldPath, {
             type: "validation",
             message: error.message,
           })
+          const label =
+            fieldLabelMap[pathKey] ??
+            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+          if (!failedFields.includes(label)) failedFields.push(label)
         })
-
-        toast.error("Please check form data and try again")
+        if (failedFields.length > 0) {
+          toast.error(
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div>Please check form data and try again.</div>
+              <div style={{ marginTop: 4 }}>Missing or invalid:</div>
+              {failedFields.map((f) => (
+                <div key={f} style={{ paddingLeft: 8 }}>
+                  {f}
+                </div>
+              ))}
+            </div>
+          )
+        } else {
+          toast.error("Please check form data and try again.")
+        }
         return
       }
 

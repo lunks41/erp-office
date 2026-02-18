@@ -388,18 +388,42 @@ export default function CreditNotePage() {
       if (!validationResult.success) {
         console.error("Form validation failed:", validationResult.error)
 
-        // Set field-level errors on the form so FormMessage components can display them
+        const fieldLabelMap: Record<string, string> = {
+          referenceNo: "Reference No",
+          accountDate: "Account Date",
+          supplierId: "Supplier",
+          currencyId: "Currency",
+          totAmt: "Total Amount",
+          remarks: "Remarks",
+        }
+        const failedFields: string[] = []
         validationResult.error.issues.forEach((error) => {
-          const fieldPath = error.path.join(
-            "."
-          ) as keyof ApCreditNoteHdSchemaType
+          const pathKey = error.path.join(".")
+          const fieldPath = pathKey as keyof ApCreditNoteHdSchemaType
           form.setError(fieldPath, {
             type: "validation",
             message: error.message,
           })
+          const label =
+            fieldLabelMap[pathKey] ??
+            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+          if (!failedFields.includes(label)) failedFields.push(label)
         })
-
-        toast.error("Please check form data and try again")
+        if (failedFields.length > 0) {
+          toast.error(
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div>Please check form data and try again.</div>
+              <div style={{ marginTop: 4 }}>Missing or invalid:</div>
+              {failedFields.map((f) => (
+                <div key={f} style={{ paddingLeft: 8 }}>
+                  {f}
+                </div>
+              ))}
+            </div>
+          )
+        } else {
+          toast.error("Please check form data and try again.")
+        }
         return
       }
 

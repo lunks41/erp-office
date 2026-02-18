@@ -377,35 +377,43 @@ export default function InvoicePage() {
 
       if (!validationResult.success) {
         console.error("Form validation failed:", validationResult.error)
-        console.error(
-          "Validation errors:",
-          JSON.stringify(validationResult.error.issues, null, 2)
-        )
 
-        // Collect all error messages
-        const errorMessages = validationResult.error.issues.map((error) => {
-          const fieldPath = error.path.join(".")
-          return `${fieldPath}: ${error.message}`
-        })
-
-        // Set field-level errors on the form so FormMessage components can display them
+        const fieldLabelMap: Record<string, string> = {
+          referenceNo: "Reference No",
+          accountDate: "Account Date",
+          customerId: "Customer",
+          currencyId: "Currency",
+          totAmt: "Total Amount",
+          remarks: "Remarks",
+        }
+        const failedFields: string[] = []
         validationResult.error.issues.forEach((error) => {
-          const fieldPath = error.path.join(".") as keyof ArInvoiceHdSchemaType
+          const pathKey = error.path.join(".")
+          const fieldPath = pathKey as keyof ArInvoiceHdSchemaType
           form.setError(fieldPath, {
             type: "validation",
             message: error.message,
           })
+          const label =
+            fieldLabelMap[pathKey] ??
+            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+          if (!failedFields.includes(label)) failedFields.push(label)
         })
-
-        // Show detailed error message
-        const errorMessage =
-          errorMessages.length > 0
-            ? `Validation failed:\n${errorMessages.slice(0, 3).join("\n")}${errorMessages.length > 3 ? `\n... and ${errorMessages.length - 3} more errors` : ""}`
-            : "Please check form data and try again"
-
-        toast.error(errorMessage, {
-          duration: 5000,
-        })
+        if (failedFields.length > 0) {
+          toast.error(
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div>Please check form data and try again.</div>
+              <div style={{ marginTop: 4 }}>Missing or invalid:</div>
+              {failedFields.map((f) => (
+                <div key={f} style={{ paddingLeft: 8 }}>
+                  {f}
+                </div>
+              ))}
+            </div>
+          )
+        } else {
+          toast.error("Please check form data and try again.")
+        }
         return
       }
 

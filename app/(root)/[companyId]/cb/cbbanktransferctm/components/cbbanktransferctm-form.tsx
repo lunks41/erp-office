@@ -31,6 +31,10 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { CbBankTransferCtmDetailsFormRef } from "./cbbanktransferctm-details-form"
 
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
 interface CbBankTransferCtmFormProps {
   form: UseFormReturn<CbBankTransferCtmHdSchemaType>
   onSuccessAction: (action: string) => Promise<void>
@@ -83,10 +87,20 @@ export default function CbBankTransferCtmForm({
   )
 
   // Handle payment type change
+  const [isChequePayment, setIsChequePayment] = React.useState(false)
+
   const handlePaymentTypeChange = React.useCallback(
     (selectedPaymentType: IPaymentTypeLookup | null) => {
-      if (!selectedPaymentType) {
-        // No payment type selected, set chequeDate to accountDate
+      if (selectedPaymentType) {
+        const isCheque =
+          selectedPaymentType.paymentTypeName
+            ?.toLowerCase()
+            .includes("cheque") ||
+          selectedPaymentType.paymentTypeCode?.toLowerCase().includes("cheque")
+        setIsChequePayment(!!isCheque)
+        if (!isCheque) form.setValue("chequeNo", "")
+      } else {
+        setIsChequePayment(false)
         form.setValue("chequeNo", "")
         const accountDate = form.getValues("accountDate")
         form.setValue("chequeDate", accountDate || "")
@@ -270,7 +284,7 @@ export default function CbBankTransferCtmForm({
           form={form}
           name="chequeNo"
           label="Cheque No"
-          isRequired={false}
+          isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequePayment}
         />
 
         {/* Cheque Date */}

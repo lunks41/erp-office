@@ -1,10 +1,25 @@
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import * as z from "zod"
 
+const requireChequeNoWhenCheque =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
+export type CbGenReceiptHdSchemaOptions = {
+  chequePaymentTypeIds?: number[]
+}
+
 export const CbGenReceiptHdSchema = (
   required: IMandatoryFields,
-  visible: IVisibleFields
+  visible: IVisibleFields,
+  options?: CbGenReceiptHdSchemaOptions
 ) => {
+  const { chequePaymentTypeIds } = options ?? {}
+  const isChequeType = (paymentTypeId: number | undefined) =>
+    paymentTypeId != null &&
+    (chequePaymentTypeIds?.length ?? 0) > 0 &&
+    chequePaymentTypeIds!.includes(paymentTypeId)
+
   return z.object({
     // Core Fields
 
@@ -94,6 +109,18 @@ export const CbGenReceiptHdSchema = (
       .array(CbGenReceiptDtSchema(required, visible))
       .min(1, "At least one payment detail is required"),
   })
+  .refine(
+    (data) => {
+      if (!requireChequeNoWhenCheque || !isChequeType(data.paymentTypeId))
+        return true
+      const no = data.chequeNo
+      return typeof no === "string" && no.trim().length > 0
+    },
+    {
+      message: "Pay No is required when payment type is Cheque",
+      path: ["chequeNo"],
+    }
+  )
 }
 
 export type CbGenReceiptHdSchemaType = z.infer<

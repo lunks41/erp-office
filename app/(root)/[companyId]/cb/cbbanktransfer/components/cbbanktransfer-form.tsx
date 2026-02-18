@@ -42,6 +42,10 @@ import CustomInputGroup from "@/components/custom/custom-input-group"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
 interface BankTransferFormProps {
   form: UseFormReturn<CbBankTransferSchemaType>
   onSuccessAction: (action: string) => Promise<void>
@@ -849,7 +853,7 @@ export default function BankTransferForm({
               form={form}
               name="chequeNo"
               label="Cheque No"
-              isRequired={false}
+              isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequePayment}
             />
 
             <CustomDateNew

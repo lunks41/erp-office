@@ -1,10 +1,25 @@
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import * as z from "zod"
 
+const requireChequeNoWhenCheque =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
+export type CbBankReconHdSchemaOptions = {
+  chequePaymentTypeIds?: number[]
+}
+
 export const CbBankReconHdSchema = (
   required: IMandatoryFields,
-  visible: IVisibleFields
+  visible: IVisibleFields,
+  options?: CbBankReconHdSchemaOptions
 ) => {
+  const { chequePaymentTypeIds } = options ?? {}
+  const isChequeType = (paymentTypeId: number | undefined) =>
+    paymentTypeId != null &&
+    (chequePaymentTypeIds?.length ?? 0) > 0 &&
+    chequePaymentTypeIds!.includes(paymentTypeId)
+
   return z.object({
     // Core Fields
     companyId: z.number().optional(),
@@ -62,7 +77,20 @@ export const CbBankReconHdSchema = (
     data_details: z
       .array(CbBankReconDtSchema(required, visible))
       .min(1, "At least one reconciliation detail is required"),
-  })
+  }).refine(
+    (data) => {
+      if (!requireChequeNoWhenCheque || !data.data_details?.length) return true
+      return data.data_details.every((row, index) => {
+        if (!isChequeType(row.paymentTypeId)) return true
+        const no = row.chequeNo
+        return typeof no === "string" && no.trim().length > 0
+      })
+    },
+    {
+      message: "Pay No is required when payment type is Cheque (check detail rows)",
+      path: ["data_details"],
+    }
+  )
 }
 
 export type CbBankReconHdSchemaType = z.infer<
