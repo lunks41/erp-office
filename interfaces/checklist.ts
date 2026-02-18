@@ -32,6 +32,7 @@ export interface IJobOrderHd {
   isps?: string
   etaDate?: Date | string | null
   etdDate?: Date | string | null
+  etbDate?: Date | string | null
   ownerName?: string
   ownerAgent?: string
   masterName?: string

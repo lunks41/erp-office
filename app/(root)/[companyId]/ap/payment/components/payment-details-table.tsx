@@ -303,7 +303,7 @@ export default function PaymentDetailsTable({
     },
     {
       accessorKey: "docExhRate",
-      header: "Exh Rate",
+      header: "Ex. Rate",
       size: 100,
       cell: ({ row }: { row: { original: IApPaymentDt } }) => (
         <div className="text-right">

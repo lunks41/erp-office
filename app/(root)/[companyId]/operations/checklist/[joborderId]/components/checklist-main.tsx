@@ -162,6 +162,9 @@ export function ChecklistMain({
       etdDate: jobData?.etdDate
         ? parseDate(jobData.etdDate as string) || undefined
         : undefined,
+      etbDate: jobData?.etbDate
+        ? parseDate(jobData.etbDate as string) || undefined
+        : undefined,
       ownerName: jobData?.ownerName ?? "",
       ownerAgent: jobData?.ownerAgent ?? "",
       masterName: jobData?.masterName ?? "",
@@ -318,6 +321,9 @@ export function ChecklistMain({
         : undefined,
       etdDate: jobData?.etdDate
         ? parseDate(jobData.etdDate as string) || undefined
+        : undefined,
+      etbDate: jobData?.etbDate
+        ? parseDate(jobData.etbDate as string) || undefined
         : undefined,
       ownerName: jobData?.ownerName ?? "",
       ownerAgent: jobData?.ownerAgent ?? "",
@@ -551,6 +557,9 @@ export function ChecklistMain({
       etdDate: apiJobOrder.etdDate
         ? parseDate(apiJobOrder.etdDate as string) || undefined
         : undefined,
+      etbDate: apiJobOrder.etbDate
+        ? parseDate(apiJobOrder.etbDate as string) || undefined
+        : undefined,
       ownerName: apiJobOrder.ownerName ?? "",
       ownerAgent: apiJobOrder.ownerAgent ?? "",
       masterName: apiJobOrder.masterName ?? "",
@@ -625,6 +634,7 @@ export function ChecklistMain({
       // Format DateTime fields - use formatDateTimeForApi for fields with time
       const etaDateFormatted = formatDateTimeForApi(data.etaDate)
       const etdDateFormatted = formatDateTimeForApi(data.etdDate)
+      const etbDateFormatted = formatDateTimeForApi(data.etbDate)
 
       const formData: Partial<IJobOrderHd> = {
         ...formValues,
@@ -636,6 +646,7 @@ export function ChecklistMain({
         // Converts to ISO 8601 format (yyyy-MM-ddTHH:mm:ss.SSSZ)
         etaDate: etaDateFormatted,
         etdDate: etdDateFormatted,
+        etbDate: etbDateFormatted,
 
         invoiceId: jobData?.invoiceId ?? "",
         invoiceNo: jobData?.invoiceNo ?? "",
@@ -1066,6 +1077,14 @@ export function ChecklistMain({
                   isDisabled={isConfirmed}
                   isFutureShow={true}
                   onBlurEvent={handleEtdDateBlur}
+                />
+                <CustomDateTimePicker
+                  form={form}
+                  name="etbDate"
+                  label="ETB Date"
+                  isRequired={false}
+                  isDisabled={isConfirmed}
+                  isFutureShow={true}
                 />
                 <CustomInput
                   form={form}

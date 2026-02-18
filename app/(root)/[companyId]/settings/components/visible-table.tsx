@@ -194,7 +194,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_GstId",
       header: () => (
-        <div className="text-center font-medium text-wrap">GST</div>
+        <div className="text-center font-medium text-wrap">VAT</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -681,7 +681,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_GstNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">GST No</div>
+        <div className="text-center font-medium text-wrap">VAT No</div>
       ),
 
       cell: ({ row }) => (

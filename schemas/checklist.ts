@@ -42,6 +42,7 @@ export const JobOrderHdSchema = z
       .optional(),
     etaDate: z.union([z.date(), z.string(), z.null()]).optional(),
     etdDate: z.union([z.date(), z.string(), z.null()]).optional(),
+    etbDate: z.union([z.date(), z.string(), z.null()]).optional(),
     ownerName: z
       .string()
       .max(200, "Owner Name must be less than 200 characters")

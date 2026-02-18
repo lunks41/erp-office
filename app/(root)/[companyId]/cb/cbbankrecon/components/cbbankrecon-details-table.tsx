@@ -633,7 +633,7 @@ export default function BankReconDetailsTable({
     },
     {
       accessorKey: "exhRate",
-      header: "Exh Rate",
+      header: "Ex. Rate",
       size: 100,
       cell: ({ row }) => (
         <div className="text-right">

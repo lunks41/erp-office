@@ -213,6 +213,16 @@ export function InquiryTable({
         },
       },
       {
+        accessorKey: "etbDate",
+        header: "ETB",
+        cell: ({ row }) => {
+          const date = row.original.etbDate
+            ? new Date(row.original.etbDate)
+            : null
+          return date && isValid(date) ? format(date, datetimeFormat) : "-"
+        },
+      },
+      {
         accessorKey: "vesselDistance",
         header: "Dist. In.",
         size: 80,

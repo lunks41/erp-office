@@ -234,6 +234,18 @@ export function ChecklistTable({
         minSize: 120,
       },
       {
+        accessorKey: "etbDate",
+        header: "ETB",
+        cell: ({ row }) => {
+          const date = row.original.etbDate
+            ? new Date(row.original.etbDate)
+            : null
+          return date && isValid(date) ? format(date, datetimeFormat) : "-"
+        },
+        size: 160,
+        minSize: 120,
+      },
+      {
         accessorKey: "vesselDistance",
         header: "Dist. In.",
         cell: ({ row }) => {

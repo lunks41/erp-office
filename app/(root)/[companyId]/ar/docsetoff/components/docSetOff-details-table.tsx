@@ -299,7 +299,7 @@ export default function DocSetOffDetailsTable({
     },
     {
       accessorKey: "docExhRate",
-      header: "Exh Rate",
+      header: "Ex. Rate",
       size: 100,
       cell: ({ row }: { row: { original: IArDocSetOffDt } }) => (
         <div className="text-right">

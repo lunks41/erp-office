@@ -299,7 +299,7 @@ export default function RefundDetailsTable({
     },
     {
       accessorKey: "docExhRate",
-      header: "Exh Rate",
+      header: "Ex. Rate",
       size: 100,
       cell: ({ row }: { row: { original: IArRefundDt } }) => (
         <div className="text-right">

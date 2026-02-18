@@ -121,6 +121,7 @@ export default function NewChecklistPage() {
       nextPortId: 0,
       etaDate: undefined,
       etdDate: undefined,
+      etbDate: undefined,
       ownerName: "",
       ownerAgent: "",
       masterName: "",
@@ -503,6 +504,7 @@ export default function NewChecklistPage() {
         // Convert null to undefined to match IJobOrderHd interface (Date | string | undefined, not null)
         etaDate: formatDateTimeForApi(values.etaDate),
         etdDate: formatDateTimeForApi(values.etdDate),
+        etbDate: formatDateTimeForApi(values.etbDate),
       }
 
       const response = await saveJobOrderMutation.mutateAsync(
@@ -702,6 +704,13 @@ export default function NewChecklistPage() {
                     isRequired={false}
                     isFutureShow={true}
                     onBlurEvent={handleEtdDateBlur}
+                  />
+                  <CustomDateTimePicker
+                    form={form}
+                    name="etbDate"
+                    label="ETB Date"
+                    isRequired={false}
+                    isFutureShow={true}
                   />
                   <CustomInput
                     form={form}

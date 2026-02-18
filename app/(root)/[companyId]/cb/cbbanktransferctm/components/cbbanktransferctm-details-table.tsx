@@ -82,7 +82,7 @@ export default function CbBankTransferCtmDetailsTable({
     },
     {
       accessorKey: "toExhRate",
-      header: "To Exh Rate",
+      header: "To Ex. Rate",
       size: 100,
       cell: ({ row }) => (
         <div className="text-right">
@@ -158,7 +158,7 @@ export default function CbBankTransferCtmDetailsTable({
     // Bank Exchange Fields
     {
       accessorKey: "toBankExhRate",
-      header: "To Bank Exh Rate",
+      header: "To Bank Ex. Rate",
       size: 120,
       cell: ({ row }) => (
         <div className="text-right">

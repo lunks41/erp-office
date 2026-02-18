@@ -242,7 +242,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_GstId",
       header: () => (
-        <div className="text-center font-medium text-wrap">GST</div>
+        <div className="text-center font-medium text-wrap">VAT</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">

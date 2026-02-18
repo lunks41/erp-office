@@ -309,7 +309,7 @@ export default function ArGLContraDetailsTable({
     },
     {
       accessorKey: "docExhRate",
-      header: "Exh Rate",
+      header: "Ex. Rate",
       size: 100,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
         <div className="text-right">

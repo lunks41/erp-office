@@ -299,7 +299,7 @@ export default function ReceiptDetailsTable({
     },
     {
       accessorKey: "docExhRate",
-      header: "Exh Rate",
+      header: "Ex. Rate",
       size: 100,
       cell: ({ row }: { row: { original: IArReceiptDt } }) => (
         <div className="text-right">

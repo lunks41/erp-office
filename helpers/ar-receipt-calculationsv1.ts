@@ -86,7 +86,7 @@ function getDecimals(decimals?: IDecimal): IDecimal {
 // ├─────────────────┼──────────────────┤
 // │ Bal Amt         │ docBalAmt        │
 // │ Bal Loc An      │ docBalLocalAmt   │
-// │ Exh Rate        │ docExhRate       │
+// │ Ex. Rate        │ docExhRate       │
 // │ Alloc Amt       │ allocAmt (edit)  │
 // │ Alloc Loc Amt   │ allocLocalAmt    │
 // │ Alloc Pay Amt   │ allocPayAmt      │
