@@ -84,6 +84,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
     const isDynamicJobOrder = dynamicLookup?.isJobOrder ?? false
 
     const originalToTotAmtRef = useRef<number>(0)
+    const lastSyncedTransferIdRef = useRef<string | undefined>(undefined)
 
     // Calculate next itemNo based on existing details
     const getNextItemNo = () => {
@@ -146,6 +147,23 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
 
     const watchedJobOrderId = form.watch("jobOrderId")
     const watchedTaskId = form.watch("taskId")
+    const watchedTransferId = form.watch("transferId")
+
+    // When form is loaded with existing detail (from DB), sync "original" ref so blur does not overwrite
+    React.useEffect(() => {
+      const transferId =
+        typeof watchedTransferId === "string"
+          ? watchedTransferId
+          : String(watchedTransferId ?? "")
+      if (transferId && transferId !== "0") {
+        if (lastSyncedTransferIdRef.current !== transferId) {
+          lastSyncedTransferIdRef.current = transferId
+          originalToTotAmtRef.current = form.getValues("toTotAmt") ?? 0
+        }
+      } else {
+        lastSyncedTransferIdRef.current = undefined
+      }
+    }, [watchedTransferId, form])
 
     // Helper function to populate code/name fields from lookup data
     const populateCodeNameFields = (

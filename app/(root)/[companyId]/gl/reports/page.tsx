@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { IChartOfAccountLookup } from "@/interfaces/lookup"
 import { useAuthStore } from "@/stores/auth-store"
 import { IconCopy, IconEye, IconX } from "@tabler/icons-react"
-import { format, parse } from "date-fns"
+import { format, parse, startOfMonth, startOfYear, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { formatDateForApi } from "@/lib/date-utils"
@@ -185,13 +185,24 @@ export default function ReportsPage() {
     return format(new Date(), dateFormat)
   }
 
+  // fromDate: start of (today - 2 months), but not before 1 Jan current year
+  const getDefaultFromDate = () => {
+    const now = new Date()
+    const twoMonthsAgo = subMonths(now, 2)
+    const firstOfTwoMonthsAgo = startOfMonth(twoMonthsAgo)
+    const firstOfYear = startOfYear(now)
+    const fromDate =
+      firstOfTwoMonthsAgo < firstOfYear ? firstOfYear : firstOfTwoMonthsAgo
+    return format(fromDate, dateFormat)
+  }
+
   const form = useForm<IReportFormData>({
     defaultValues: {
       fromGlId: "",
       toGlId: "",
       sameToGl: false,
       glIds: [],
-      fromDate: getCurrentDate(),
+      fromDate: getDefaultFromDate(),
       toDate: getCurrentDate(),
       asOfDate: getCurrentDate(),
       currencyId: "0",
@@ -497,7 +508,7 @@ export default function ReportsPage() {
       toGlId: "",
       sameToGl: false,
       glIds: [],
-      fromDate: currentDate,
+      fromDate: getDefaultFromDate(),
       toDate: currentDate,
       asOfDate: currentDate,
       currencyId: "0",

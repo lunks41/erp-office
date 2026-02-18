@@ -1,11 +1,28 @@
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import * as z from "zod"
 
+const requireChequeNoWhenCheque =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
+export type ArReceiptHdSchemaOptions = {
+  /** When REQUIRE_CHEQUE_NO_WHEN_CHEQUE env is true, payment type IDs in this list require chequeNo */
+  chequePaymentTypeIds?: number[]
+}
+
 export const ArReceiptHdSchema = (
   required: IMandatoryFields,
-  visible: IVisibleFields
+  visible: IVisibleFields,
+  options?: ArReceiptHdSchemaOptions
 ) => {
-  return z.object({
+  const { chequePaymentTypeIds } = options ?? {}
+  const isChequeType = (paymentTypeId: number | undefined) =>
+    paymentTypeId != null &&
+    (chequePaymentTypeIds?.length ?? 0) > 0 &&
+    chequePaymentTypeIds!.includes(paymentTypeId)
+
+  return z
+    .object({
     // Core Fields
 
     receiptId: z.string().optional(),
@@ -105,6 +122,18 @@ export const ArReceiptHdSchema = (
     // Nested Details
     data_details: z.array(ArReceiptDtSchema(required, visible)).optional(),
   })
+  .refine(
+    (data) => {
+      if (!requireChequeNoWhenCheque || !isChequeType(data.paymentTypeId))
+        return true
+      const no = data.chequeNo
+      return typeof no === "string" && no.trim().length > 0
+    },
+    {
+      message: "Pay No is required when payment type is Cheque",
+      path: ["chequeNo"],
+    }
+  )
 }
 
 export type ArReceiptHdSchemaType = z.infer<

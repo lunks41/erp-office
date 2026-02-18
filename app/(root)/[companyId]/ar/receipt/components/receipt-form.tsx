@@ -47,6 +47,11 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
+// From env: require Pay No (chequeNo) when payment type is Cheque. Set NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE=false in .env to disable.
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
+
 interface ReceiptFormProps {
   form: UseFormReturn<ArReceiptHdSchemaType>
   onSuccessAction: (action: string) => Promise<void>
@@ -87,8 +92,8 @@ export default function ReceiptForm({
   // State to track if currencies are the same
   const [isCurrenciesEqual, setIsCurrenciesEqual] = React.useState(true)
 
-  // State to track if receipt type is cheque
-  const [, setIsChequeReceipt] = React.useState(false)
+  // State to track if receipt type is cheque (used to make chequeNo required when REQUIRE_CHEQUE_NO_WHEN_CHEQUE is true)
+  const [isChequeReceipt, setIsChequeReceipt] = React.useState(false)
 
   // Refs to store original values on focus for comparison on blur
   const originalExhRateRef = React.useRef<number>(0)
@@ -905,17 +910,6 @@ export default function ReceiptForm({
           isRequired={required?.m_ReferenceNo}
         />
 
-        {/* Bank */}
-        {visible?.m_BankId && (
-          <BankAutocomplete
-            form={form}
-            name="bankId"
-            label="Bank"
-            isRequired={required?.m_BankId}
-            onChangeEvent={handleBankChange}
-          />
-        )}
-
         {/* Currency */}
         <CurrencyAutocomplete
           form={form}
@@ -938,6 +932,17 @@ export default function ReceiptForm({
           onBlurEvent={handleExchangeRateChange}
         />
 
+        {/* Bank */}
+        {visible?.m_BankId && (
+          <BankAutocomplete
+            form={form}
+            name="bankId"
+            label="Rec Bank"
+            isRequired={required?.m_BankId}
+            onChangeEvent={handleBankChange}
+          />
+        )}
+
         {/* Receipt Type */}
         <PaymentTypeAutocomplete
           form={form}
@@ -946,7 +951,12 @@ export default function ReceiptForm({
           isRequired={required?.m_PaymentTypeId}
           onChangeEvent={handlePaymentTypeChange}
         />
-        <CustomInput form={form} name="chequeNo" label="Pay No" />
+        <CustomInput
+          form={form}
+          name="chequeNo"
+          label="Pay No"
+          isRequired={REQUIRE_CHEQUE_NO_WHEN_CHEQUE && isChequeReceipt}
+        />
         <CustomDateNew
           form={form}
           name="chequeDate"
@@ -976,7 +986,7 @@ export default function ReceiptForm({
         <CurrencyAutocomplete
           form={form}
           name="recCurrencyId"
-          label="Pay Currency"
+          label="Rec Currency"
           onChangeEvent={handlePayCurrencyChange}
         />
 
@@ -1069,7 +1079,7 @@ export default function ReceiptForm({
             <CustomNumberInput
               form={form}
               name="recBankChgLocalAmt"
-              label="Rec Bank Locmt"
+              label="Rec Bank Loc"
               round={locAmtDec}
               isDisabled={true}
             />

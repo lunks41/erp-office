@@ -82,6 +82,26 @@ export default function BankTransferForm({
   const isUpdatingAmounts = React.useRef(false)
   const originalFromTotAmtRef = React.useRef<number>(0)
   const originalToTotAmtRef = React.useRef<number>(0)
+  const lastSyncedTransferIdRef = React.useRef<string | undefined>(undefined)
+
+  // When form is loaded with existing transaction (from DB), sync "original" refs
+  // so blur handlers do not treat current values as "changed" and overwrite DB data
+  const watchedTransferId = form.watch("transferId")
+  React.useEffect(() => {
+    const transferId =
+      typeof watchedTransferId === "string"
+        ? watchedTransferId
+        : String(watchedTransferId ?? "")
+    if (transferId && transferId !== "0") {
+      if (lastSyncedTransferIdRef.current !== transferId) {
+        lastSyncedTransferIdRef.current = transferId
+        originalFromTotAmtRef.current = form.getValues("fromTotAmt") ?? 0
+        originalToTotAmtRef.current = form.getValues("toTotAmt") ?? 0
+      }
+    } else {
+      lastSyncedTransferIdRef.current = undefined
+    }
+  }, [watchedTransferId, form])
 
   // Watch paymentTypeId and update cheque payment state
   React.useEffect(() => {
