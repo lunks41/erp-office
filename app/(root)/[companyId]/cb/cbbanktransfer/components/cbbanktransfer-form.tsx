@@ -24,6 +24,7 @@ import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 
 import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup"
+import { Badge } from "@/components/ui/badge"
 import {
   BankAutocomplete,
   BankChartOfAccountAutocomplete,
@@ -660,7 +661,7 @@ export default function BankTransferForm({
   )
 
   // STEP 5: Bank Exchange Rate Handler
-  const handleBankExhRateChange = React.useCallback(
+  const _handleBankExhRateChange = React.useCallback(
     (value: number) => {
       const bankExhRate = value || 0
 
@@ -729,7 +730,7 @@ export default function BankTransferForm({
   )
 
   // STEP 6: Bank Total Amount Handler
-  const handleBankTotAmtChange = React.useCallback(
+  const _handleBankTotAmtChange = React.useCallback(
     (value: number) => {
       const bankTotAmt = value || 0
       const bankExhRate = form.getValues("bankExhRate") || 0
@@ -1088,7 +1089,7 @@ export default function BankTransferForm({
               round={amtDec}
               isRequired={false}
               className="text-right"
-              //onChangeEvent={handleBankTotAmtChange}
+              //onChangeEvent={_handleBankTotAmtChange}
             />
 
             <CustomNumberInput
@@ -1102,6 +1103,50 @@ export default function BankTransferForm({
             />
           </div>
         </div> */}
+
+        {/* ============ NOTES ============ */}
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-800 dark:bg-amber-950/20">
+          <h3 className="mb-3 text-sm font-semibold text-amber-800 dark:text-amber-200">
+            Notes
+          </h3>
+          <ul className="space-y-2 text-sm text-amber-900 dark:text-amber-100">
+            <li className="flex flex-wrap items-start gap-2">
+              <Badge variant="secondary" className="shrink-0 font-medium">
+                1
+              </Badge>
+              <span>
+                In <Badge variant="outline">To Bank Details</Badge>, enter the
+                amount actually received in{" "}
+                <Badge variant="outline">To Total Amount</Badge>.
+              </span>
+            </li>
+            <li className="flex flex-wrap items-start gap-2">
+              <Badge variant="secondary" className="shrink-0 font-medium">
+                2
+              </Badge>
+              <span>
+                The difference between{" "}
+                <Badge variant="outline">From Total Local Amt</Badge> and{" "}
+                <Badge variant="outline">To Total Local Amt</Badge> is posted to{" "}
+                <Badge variant="outline">Exchange Gain/Loss</Badge> in the
+                header (&quot;Exchange different&quot;). The GL account is
+                defined in Settings.
+              </span>
+            </li>
+            <li className="flex flex-wrap items-start gap-2">
+              <Badge variant="secondary" className="shrink-0 font-medium">
+                3
+              </Badge>
+              <span>
+                For bank charges: enter the amount in{" "}
+                <Badge variant="outline">From Bank Charge Amt</Badge> or{" "}
+                <Badge variant="outline">To Bank Charge Amt</Badge> and select
+                the correct <Badge variant="outline">From Bank Charge GL</Badge>{" "}
+                or <Badge variant="outline">To Bank Charge GL</Badge>.
+              </span>
+            </li>
+          </ul>
+        </div>
       </form>
 
       {/* Payee Selection Dialog */}

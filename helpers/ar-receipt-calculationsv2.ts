@@ -5,7 +5,6 @@ import {
   mathRound,
 } from "@/helpers/account"
 import { IArReceiptDt, IDecimal } from "@/interfaces"
-import { de } from "date-fns/locale"
 
 // ============================================================================
 // UTILITY FUNCTIONS

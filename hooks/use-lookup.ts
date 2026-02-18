@@ -50,7 +50,6 @@ import {
   IRankLookup,
   IServiceCategoryLookup,
   IServiceItemNoLookup,
-  IServiceLookup,
   IServiceModeLookup,
   IServiceTypeCategoryLookup,
   IStatusTypeLookup,

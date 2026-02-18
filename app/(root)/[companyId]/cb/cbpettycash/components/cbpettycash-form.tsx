@@ -25,7 +25,7 @@ import { format } from "date-fns"
 import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 
-import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
+import { clientDateFormat } from "@/lib/date-utils"
 import { parseNumberWithCommas } from "@/lib/utils"
 import {
   BankAutocomplete,

@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import {
@@ -26,11 +25,8 @@ import {
   Undo2,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import {
   NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 
@@ -132,11 +128,11 @@ const _data = {
 }
 
 export function NavHeader() {
-  const pathname = usePathname()
+  const _pathname = usePathname()
   const { currentCompany } = useAuthStore()
 
-  // Function to add company ID to URL
-  const getUrlWithCompanyId = (url: string) => {
+  // Function to add company ID to URL (used in commented-out nav items)
+  const _getUrlWithCompanyId = (url: string) => {
     if (!currentCompany?.companyId) return url
     if (url === "#") return url
     return `/${currentCompany.companyId}${url}`
@@ -151,10 +147,10 @@ export function NavHeader() {
             {/* <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link
-                  href={getUrlWithCompanyId("/home")}
+                  href={_getUrlWithCompanyId("/home")}
                   className={cn(
                     "hover:text-primary text-sm leading-none font-medium transition-colors",
-                    pathname === getUrlWithCompanyId("/home") && "text-primary"
+                    _pathname === _getUrlWithCompanyId("/home") && "text-primary"
                   )}
                 >
                   Home
@@ -166,7 +162,7 @@ export function NavHeader() {
             {/* <NavigationMenuItem>
           <NavigationMenuTrigger
             className={
-              pathname.startsWith(getUrlWithCompanyId(data.projectNav[0].url))
+              _pathname.startsWith(_getUrlWithCompanyId(data.projectNav[0].url))
                 ? "text-primary"
                 : ""
             }
@@ -179,10 +175,10 @@ export function NavHeader() {
                 <li key={item.title}>
                   <NavigationMenuLink asChild>
                     <Link
-                      href={getUrlWithCompanyId(item.url)}
+                      href={_getUrlWithCompanyId(item.url)}
                       className={cn(
                         "hover:bg-primary/20 hover:text-primary rounded-md text-sm leading-none font-medium transition duration-300 ease-in-out",
-                        pathname === getUrlWithCompanyId(item.url) &&
+                        _pathname === _getUrlWithCompanyId(item.url) &&
                           "bg-primary/10 text-primary"
                       )}
                     >
@@ -199,7 +195,7 @@ export function NavHeader() {
             {/* <NavigationMenuItem>
           <NavigationMenuTrigger
             className={
-              pathname.startsWith(getUrlWithCompanyId(data.accountNav[0].url))
+              _pathname.startsWith(_getUrlWithCompanyId(data.accountNav[0].url))
                 ? "text-primary"
                 : ""
             }
@@ -212,10 +208,10 @@ export function NavHeader() {
                 <li key={item.title}>
                   <NavigationMenuLink asChild>
                     <Link
-                      href={getUrlWithCompanyId(item.url)}
+                      href={_getUrlWithCompanyId(item.url)}
                       className={cn(
                         "hover:bg-primary/20 hover:text-primary rounded-md text-sm leading-none font-medium transition duration-300 ease-in-out",
-                        pathname === getUrlWithCompanyId(item.url) &&
+                        _pathname === _getUrlWithCompanyId(item.url) &&
                           "bg-primary/10 text-primary"
                       )}
                     >
@@ -232,7 +228,7 @@ export function NavHeader() {
             {/* <NavigationMenuItem>
           <NavigationMenuTrigger
             className={
-              pathname.startsWith(getUrlWithCompanyId(data.accountNav[1].url))
+              _pathname.startsWith(_getUrlWithCompanyId(data.accountNav[1].url))
                 ? "text-primary"
                 : ""
             }
@@ -245,10 +241,10 @@ export function NavHeader() {
                 <li key={item.title}>
                   <NavigationMenuLink asChild>
                     <Link
-                      href={getUrlWithCompanyId(item.url)}
+                      href={_getUrlWithCompanyId(item.url)}
                       className={cn(
                         "hover:bg-primary/20 hover:text-primary rounded-md text-sm leading-none font-medium transition duration-300 ease-in-out",
-                        pathname === getUrlWithCompanyId(item.url) &&
+                        _pathname === _getUrlWithCompanyId(item.url) &&
                           "bg-primary/10 text-primary"
                       )}
                     >
@@ -265,7 +261,7 @@ export function NavHeader() {
             {/* <NavigationMenuItem>
           <NavigationMenuTrigger
             className={
-              pathname.startsWith(getUrlWithCompanyId(data.accountNav[2].url))
+              _pathname.startsWith(_getUrlWithCompanyId(data.accountNav[2].url))
                 ? "text-primary"
                 : ""
             }
@@ -278,10 +274,10 @@ export function NavHeader() {
                 <li key={item.title}>
                   <NavigationMenuLink asChild>
                     <Link
-                      href={getUrlWithCompanyId(item.url)}
+                      href={_getUrlWithCompanyId(item.url)}
                       className={cn(
                         "hover:bg-primary/20 hover:text-primary rounded-md text-sm leading-none font-medium transition duration-300 ease-in-out",
-                        pathname === getUrlWithCompanyId(item.url) &&
+                        _pathname === _getUrlWithCompanyId(item.url) &&
                           "bg-primary/10 text-primary"
                       )}
                     >
@@ -298,7 +294,7 @@ export function NavHeader() {
             {/* <NavigationMenuItem>
           <NavigationMenuTrigger
             className={
-              pathname.startsWith(getUrlWithCompanyId(data.accountNav[3].url))
+              _pathname.startsWith(_getUrlWithCompanyId(data.accountNav[3].url))
                 ? "text-primary"
                 : ""
             }
@@ -311,10 +307,10 @@ export function NavHeader() {
                 <li key={item.title}>
                   <NavigationMenuLink asChild>
                     <Link
-                      href={getUrlWithCompanyId(item.url)}
+                      href={_getUrlWithCompanyId(item.url)}
                       className={cn(
                         "hover:bg-primary/20 hover:text-primary rounded-md text-sm leading-none font-medium transition duration-300 ease-in-out",
-                        pathname === getUrlWithCompanyId(item.url) &&
+                        _pathname === _getUrlWithCompanyId(item.url) &&
                           "bg-primary/10 text-primary"
                       )}
                     >

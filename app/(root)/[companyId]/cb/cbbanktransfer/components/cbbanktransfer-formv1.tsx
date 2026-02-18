@@ -715,7 +715,7 @@ export default function BankTransferForm({
   )
 
   // STEP 6: Bank Total Amount Handler
-  const handleBankTotAmtChange = React.useCallback(
+  const _handleBankTotAmtChange = React.useCallback(
     (value: number) => {
       const bankTotAmt = value || 0
       const bankExhRate = form.getValues("bankExhRate") || 0
@@ -1074,7 +1074,7 @@ export default function BankTransferForm({
               round={amtDec}
               isRequired={false}
               className="text-right"
-              //onChangeEvent={handleBankTotAmtChange}
+              //onChangeEvent={_handleBankTotAmtChange}
             />
 
             <CustomNumberInput

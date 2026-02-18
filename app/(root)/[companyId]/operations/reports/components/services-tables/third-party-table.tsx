@@ -1,17 +1,13 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
-import {
-  IJobOrderHd,
-  IThirdParty,
-  IThirdPartyFilter,
-} from "@/interfaces/checklist"
+import { useCallback, useMemo } from "react"
+import { IThirdParty } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
-import { OperationsTransactionId, TableName } from "@/lib/utils"
+import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { BasicTable } from "@/components/table/table-basic"
 

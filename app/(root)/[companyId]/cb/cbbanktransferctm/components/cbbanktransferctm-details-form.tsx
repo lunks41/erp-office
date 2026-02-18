@@ -513,7 +513,7 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
     }, [form, locAmtDec])
 
     // Handle TO total amount change (used when value actually changes)
-    const handleToTotAmtChange = React.useCallback(
+    const _handleToTotAmtChange = React.useCallback(
       (value: number) => {
         form.setValue("toTotAmt", value)
         const toExhRate = form.getValues("toExhRate") || 0

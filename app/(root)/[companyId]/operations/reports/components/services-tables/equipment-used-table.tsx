@@ -1,11 +1,7 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
-import {
-  IEquipmentUsed,
-  IEquipmentUsedFilter,
-  IJobOrderHd,
-} from "@/interfaces/checklist"
+import { useCallback, useMemo } from "react"
+import { IEquipmentUsed } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"

@@ -219,7 +219,7 @@ export default function BankReconDetailsTable({
   )
 
   // Standalone date picker component for table cells (mimics CustomDateNew)
-  const StandaloneDatePicker = ({
+  const _StandaloneDatePicker = ({
     value,
     onChange,
   }: {

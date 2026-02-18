@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 
 import {
-  deleteData,
   getById,
   getData,
   postData,
