@@ -217,11 +217,11 @@ export default function CreditNoteDetailsTable({
       accessorKey: "totLocalAmt",
       header: "Local Amount",
       size: 100,
-            cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
-                {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
-              </div>
-            ),
+      cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
+        <div className="text-right">
+          {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
+        </div>
+      ),
     },
     ...(visible?.m_CtyCurr
       ? [
@@ -250,7 +250,7 @@ export default function CreditNoteDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
               <div className="text-right">

@@ -293,7 +293,7 @@ export default function DebitNoteTable({
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}

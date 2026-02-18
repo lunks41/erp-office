@@ -144,11 +144,11 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
     },
     {
       accessorKey: "gstCode",
-      header: "GST Code",
+      header: "VAT Code",
     },
     {
       accessorKey: "gstName",
-      header: "GST Name",
+      header: "VAT Name",
     },
     {
       accessorKey: "gstAmt",
@@ -158,7 +158,7 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) =>
         row.original.gstLocalAmt
           ? row.original.gstLocalAmt.toFixed(locAmtDec)

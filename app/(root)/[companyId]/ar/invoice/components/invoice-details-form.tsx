@@ -707,8 +707,7 @@ const InvoiceDetailsForm = React.forwardRef<
         form.setValue("productCode", selectedOption.productCode || "")
         form.setValue("productName", selectedOption.productName || "")
         form.setValue("remarks", selectedOption.productName || "")
-      }
-      else {
+      } else {
         form.setValue("remarks", "")
         form.setValue("productId", 0)
         form.setValue("productCode", "")
@@ -1304,7 +1303,7 @@ const InvoiceDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Local Amount */}
+            {/* VAT Local Amount */}
             {visible?.m_GstId && (
               <CustomNumberInput
                 form={form}

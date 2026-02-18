@@ -163,11 +163,11 @@ export default function GLPostDetails({ journalId }: GLPostDetailsProps) {
     },
     {
       accessorKey: "gstCode",
-      header: "GST Code",
+      header: "VAT Code",
     },
     {
       accessorKey: "gstName",
-      header: "GST Name",
+      header: "VAT Name",
     },
     {
       accessorKey: "gstAmt",
@@ -182,7 +182,7 @@ export default function GLPostDetails({ journalId }: GLPostDetailsProps) {
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {row.original.gstLocalAmt

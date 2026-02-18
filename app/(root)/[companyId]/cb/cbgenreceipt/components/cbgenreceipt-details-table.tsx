@@ -196,7 +196,7 @@ export default function CbGenReceiptDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbGenReceiptDt, unknown>) => (
               <div className="text-right">

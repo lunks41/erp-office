@@ -260,7 +260,7 @@ export default function Main({
         existingDetails={dataDetails as ArInvoiceDtSchemaType[]}
         defaultGlId={defaults.ar.invoiceGlId}
         defaultUomId={defaults.common.uomId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

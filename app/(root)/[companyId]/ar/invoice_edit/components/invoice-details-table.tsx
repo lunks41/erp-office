@@ -1279,7 +1279,7 @@ export default function InvoiceDetailsTable({
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       size: 120,
       cell: ({ row }: { row: { original: InvoiceDetailRow } }) => (
         <CustomNumberInputCellRefs
@@ -1289,7 +1289,7 @@ export default function InvoiceDetailsTable({
           className="text-right"
           onBlurEvent={() =>
             setTimeout(() => {
-              // If there is any logic to update GST Local Amount, place it here
+              // If there is any logic to update VAT Local Amount, place it here
             }, 0)
           }
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -237,7 +237,7 @@ export default function CbPettyCashTable({
           } as ColumnDef<ICbPettyCashHd>,
         ]
       : []),
-      {
+    {
       accessorKey: "bankName",
       header: "Bank Name",
       size: 80,
@@ -276,7 +276,7 @@ export default function CbPettyCashTable({
         </div>
       ),
     },
-     ...(visible?.m_Remarks
+    ...(visible?.m_Remarks
       ? [
           {
             accessorKey: "remarks",
@@ -295,7 +295,7 @@ export default function CbPettyCashTable({
           } as ColumnDef<ICbPettyCashHd>,
         ]
       : []),
-  
+
     {
       accessorKey: "currencyName",
       header: "Currency Name",
@@ -363,7 +363,7 @@ export default function CbPettyCashTable({
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
@@ -402,7 +402,7 @@ export default function CbPettyCashTable({
         </div>
       ),
     },
-      ...(visible?.m_TrnDate
+    ...(visible?.m_TrnDate
       ? [
           {
             accessorKey: "trnDate",
@@ -430,7 +430,6 @@ export default function CbPettyCashTable({
         ]
       : []),
 
-   
     {
       accessorKey: "status",
       header: "Status",
@@ -485,8 +484,10 @@ export default function CbPettyCashTable({
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)

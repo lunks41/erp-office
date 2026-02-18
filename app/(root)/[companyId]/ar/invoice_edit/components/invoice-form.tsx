@@ -475,7 +475,7 @@ export default function InvoiceForm({
           className="text-right"
         />
 
-        {/* GST Local Amount */}
+        {/* VAT Local Amount */}
         <CustomNumberInput
           form={form}
           name="gstLocalAmt"

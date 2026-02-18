@@ -243,7 +243,7 @@ export default function EditVersionDetails({
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {row.original.gstLocalAmt

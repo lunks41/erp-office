@@ -311,7 +311,7 @@ export default function InvoiceTable({
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
@@ -509,8 +509,10 @@ export default function InvoiceTable({
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)

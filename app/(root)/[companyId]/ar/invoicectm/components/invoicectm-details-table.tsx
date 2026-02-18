@@ -229,7 +229,7 @@ export default function InvoiceCtmDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArInvoiceCtmDt> }) => (
               <div className="text-right">

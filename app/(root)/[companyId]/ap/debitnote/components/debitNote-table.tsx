@@ -1,28 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
-import { IApDebitNoteFilter, IApDebitNoteHd } from "@/interfaces";
-import { useAuthStore } from "@/stores/auth-store";
-import { ColumnDef } from "@tanstack/react-table";
-import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns";
-import { X } from "lucide-react";
-import { FormProvider, useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react"
+import { IApDebitNoteFilter, IApDebitNoteHd } from "@/interfaces"
+import { useAuthStore } from "@/stores/auth-store"
+import { ColumnDef } from "@tanstack/react-table"
+import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
+import { X } from "lucide-react"
+import { FormProvider, useForm } from "react-hook-form"
 
-
-
-import { ApDebitNote } from "@/lib/api-routes";
-import { clientDateFormat, formatDateForApi } from "@/lib/date-utils";
-import { formatNumber } from "@/lib/format-utils";
-import { APTransactionId, ModuleId, TableName } from "@/lib/utils";
-import { useGetWithDatesAndPagination } from "@/hooks/use-common";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Spinner } from "@/components/ui/spinner";
-import { CustomDateNew } from "@/components/custom/custom-date-new";
-import CustomInput from "@/components/custom/custom-input";
-import { DialogDataTable } from "@/components/table/table-dialog";
-
-
-
-
+import { ApDebitNote } from "@/lib/api-routes"
+import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
+import { formatNumber } from "@/lib/format-utils"
+import { APTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Spinner } from "@/components/ui/spinner"
+import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
+import { DialogDataTable } from "@/components/table/table-dialog"
 
 export interface DebitNoteTableProps {
   onDebitNoteSelect: (selectedDebitNote: IApDebitNoteHd | undefined) => void
@@ -301,7 +295,7 @@ export default function DebitNoteTable({
     },
     {
       accessorKey: "gstLocalAmt",
-      header: "GST Local Amount",
+      header: "VAT Local Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
@@ -444,8 +438,10 @@ export default function DebitNoteTable({
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)

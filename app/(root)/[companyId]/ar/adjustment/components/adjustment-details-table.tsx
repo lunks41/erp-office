@@ -243,7 +243,7 @@ export default function AdjustmentDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
               <div className="text-right">

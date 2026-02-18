@@ -252,7 +252,7 @@ export default function CbPettyCashDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
               <div className="text-right">

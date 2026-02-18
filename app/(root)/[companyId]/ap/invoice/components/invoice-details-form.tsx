@@ -1573,7 +1573,7 @@ const InvoiceDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Local Amount */}
+            {/* VAT Local Amount */}
             {visible?.m_GstId && (
               <CustomNumberInput
                 form={form}

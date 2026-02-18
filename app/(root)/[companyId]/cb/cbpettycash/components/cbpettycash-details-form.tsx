@@ -1812,7 +1812,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 />
               </div>
               <div className="flex-1">
-                {/* GST Local Amount */}
+                {/* VAT Local Amount */}
                 {visible?.m_GstId && (
                   <CustomNumberInput
                     form={form}

@@ -578,7 +578,7 @@ export default function InvoiceTable({
       },
       {
         accessorKey: "gstLocalAmtDisplay",
-        header: "GST Local Amount",
+        header: "VAT Local Amount",
         align: "right",
         size: 180,
         minSize: 150,
@@ -748,7 +748,7 @@ export default function InvoiceTable({
       "Total Amount",
       "Total Local Amount",
       "GST Amount",
-      "GST Local Amount",
+      "VAT Local Amount",
       "Total After GST",
       "Total Local After GST",
       "Remarks",

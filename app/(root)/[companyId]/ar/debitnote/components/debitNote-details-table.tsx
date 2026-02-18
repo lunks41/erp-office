@@ -229,7 +229,7 @@ export default function DebitNoteDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArDebitNoteDt> }) => (
               <div className="text-right">

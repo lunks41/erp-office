@@ -261,7 +261,7 @@ export default function Main({
         required={required}
         existingDetails={dataDetails as CbPettyCashDtSchemaType[]}
         defaultGlId={defaults.cb.pettyCashGlId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

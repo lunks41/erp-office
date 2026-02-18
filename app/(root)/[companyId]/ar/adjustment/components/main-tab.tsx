@@ -261,7 +261,7 @@ export default function Main({
         existingDetails={dataDetails as ArAdjustmentDtSchemaType[]}
         defaultGlId={defaults.ar.adjustmentGlId}
         defaultUomId={defaults.common.uomId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

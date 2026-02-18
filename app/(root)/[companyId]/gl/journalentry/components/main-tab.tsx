@@ -261,7 +261,7 @@ export default function Main({
         required={required}
         existingDetails={dataDetails as GLJournalDtSchemaType[]}
         defaultGlId={defaults.ap.invoiceGlId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

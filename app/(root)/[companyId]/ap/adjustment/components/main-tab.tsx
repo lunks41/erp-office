@@ -261,7 +261,7 @@ export default function Main({
         existingDetails={dataDetails as ApAdjustmentDtSchemaType[]}
         defaultGlId={defaults.ap.adjustmentGlId}
         defaultUomId={defaults.common.uomId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

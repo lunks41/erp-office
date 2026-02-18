@@ -266,7 +266,7 @@ export default function InvoiceDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 170,
             cell: ({ row }: CellContext<IApInvoiceDt, unknown>) => (
               <div className="text-right">

@@ -264,7 +264,7 @@ export default function Main({
         existingDetails={dataDetails as ApInvoiceDtSchemaType[]}
         defaultGlId={defaults.ap.invoiceGlId}
         defaultUomId={defaults.common.uomId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

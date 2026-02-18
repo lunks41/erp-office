@@ -260,7 +260,7 @@ export default function Main({
         existingDetails={dataDetails as ArDebitNoteDtSchemaType[]}
         defaultGlId={defaults.ar.debitNoteGlId}
         defaultUomId={defaults.common.uomId}
-        defaultGstId={defaults.common.gstId}
+        defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
 

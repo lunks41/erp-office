@@ -229,7 +229,7 @@ export default function CreditNoteDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArCreditNoteDt> }) => (
               <div className="text-right">

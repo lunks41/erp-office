@@ -242,7 +242,7 @@ export default function GLJournalDetailsTable({
       ? [
           {
             accessorKey: "gstLocalAmt",
-            header: "GST Local Amount",
+            header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: CellContext<IGLJournalDt, unknown>) => (
               <div className="text-right">

@@ -806,7 +806,7 @@ const DebitNoteDetailsForm = React.forwardRef<
     }
 
     // Handle job order selection
-     const handleJobOrderChange = (selectedOption: IJobOrderLookup | null) => {
+    const handleJobOrderChange = (selectedOption: IJobOrderLookup | null) => {
       if (selectedOption) {
         form.setValue("jobOrderId", selectedOption.jobOrderId, {
           shouldValidate: true,
@@ -1499,7 +1499,7 @@ const DebitNoteDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Local Amount */}
+            {/* VAT Local Amount */}
             {visible?.m_GstId && (
               <CustomNumberInput
                 form={form}
