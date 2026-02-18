@@ -5,7 +5,6 @@ import {
   calculateDivisionAmount,
   calculateMultiplierAmount,
   calculateMultiplierWithDivisionAmount,
-  calculateSubtractionAmount,
   setFromExchangeRate,
   setToExchangeRate,
 } from "@/helpers/account"
@@ -592,26 +591,7 @@ export default function BankTransferForm({
     const current = form.getValues("toTotAmt") ?? 0
     if (current === originalToTotAmtRef.current) return
     handleToTotAmtChange(current)
-
-    // Derive TO bank charge from totals: toBankChgLocalAmt = fromTotLocalAmt - toTotLocalAmt, toBankChgAmt = toBankChgLocalAmt / toExhRate
-    const toTotLocalAmt = form.getValues("toTotLocalAmt") ?? 0
-    const fromTotLocalAmt = form.getValues("fromTotLocalAmt") ?? 0
-    const toExhRate = form.getValues("toExhRate") || 0
-    const toBankChgLocalAmt = calculateSubtractionAmount(
-      fromTotLocalAmt,
-      toTotLocalAmt,
-      locAmtDec
-    )
-    const toBankChgAmt =
-      toExhRate > 0
-        ? calculateDivisionAmount(toBankChgLocalAmt, toExhRate, amtDec)
-        : 0
-
-    form.setValue("toBankChgLocalAmt", toBankChgLocalAmt, {
-      shouldValidate: false,
-    })
-    form.setValue("toBankChgAmt", toBankChgAmt, { shouldValidate: false })
-  }, [form, handleToTotAmtChange, amtDec, locAmtDec])
+  }, [form, handleToTotAmtChange])
 
   // STEP 3: FROM Bank Charge Amount Handler
   const handleFromBankChgAmtChange = React.useCallback(
@@ -1072,7 +1052,7 @@ export default function BankTransferForm({
         </div>
 
         {/* ============ SECTION 4: BANK EXCHANGE ============ */}
-        {/* <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-700 dark:bg-purple-900/20">
+        <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-700 dark:bg-purple-900/20">
           <h3 className="mb-3 text-sm font-semibold text-purple-700 dark:text-purple-300">
             Bank Exchange Details
           </h3>
@@ -1107,7 +1087,7 @@ export default function BankTransferForm({
               className="text-right"
             />
           </div>
-        </div> */}
+        </div>
       </form>
 
       {/* Payee Selection Dialog */}
