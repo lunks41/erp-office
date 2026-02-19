@@ -17,6 +17,7 @@ import {
   CurrencyAutocomplete,
 } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import { CustomDateWithPresets } from "@/components/custom/custom-date-with-presets"
 
 interface IReportFormData extends Record<string, unknown> {
   customerId: string
@@ -429,11 +430,10 @@ export default function ReportsPage() {
     }
   }
 
-  const handleCustomerChange = (selectedOption: { customerName?: string } | null) => {
-    form.setValue(
-      "customerName",
-      selectedOption?.customerName?.trim() ?? ""
-    )
+  const handleCustomerChange = (
+    selectedOption: { customerName?: string } | null
+  ) => {
+    form.setValue("customerName", selectedOption?.customerName?.trim() ?? "")
   }
 
   const handleClear = () => {
@@ -544,23 +544,23 @@ export default function ReportsPage() {
                 onSubmit={form.handleSubmit(handleViewReport)}
                 className="space-y-4"
               >
-                {/* Customer — customerName passed to report when customerId > 0 (special chars e.g. apostrophe, & are safe in JSON/params) */}
-                <CompanyCustomerAutocomplete
-                  form={form}
-                  name="customerId"
-                  label="Customer"
-                  companyId={companyId}
-                  isRequired={false}
-                  onChangeEvent={handleCustomerChange}
-                />
-
-                {/* Currency */}
-                <CurrencyAutocomplete
-                  form={form}
-                  name="currencyId"
-                  label="Currency"
-                  isRequired={true}
-                />
+                {/* Customer & Currency side by side */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <CompanyCustomerAutocomplete
+                    form={form}
+                    name="customerId"
+                    label="Customer"
+                    companyId={companyId}
+                    isRequired={false}
+                    onChangeEvent={handleCustomerChange}
+                  />
+                  <CurrencyAutocomplete
+                    form={form}
+                    name="currencyId"
+                    label="Currency"
+                    isRequired={true}
+                  />
+                </div>
 
                 {/* Date Selection Checkboxes */}
                 <div className="flex items-center gap-4">
@@ -637,9 +637,9 @@ export default function ReportsPage() {
                   />
                 </div>
 
-                {/* As Date - Show only for non-TrsDate reports */}
+                {/* As Date - Show only for non-TrsDate reports (with preset shortcuts) */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CustomDateNew
+                  <CustomDateWithPresets
                     form={form}
                     name="asOfDate"
                     label="As Date:"

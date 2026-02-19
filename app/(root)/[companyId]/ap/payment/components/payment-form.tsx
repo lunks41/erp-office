@@ -87,7 +87,7 @@ export default function PaymentForm({
   const [isCurrenciesEqual, setIsCurrenciesEqual] = React.useState(true)
 
   // State to track if payment type is cheque
-  const [, setIsChequePayment] = React.useState(false)
+  const [isChequePayment, setIsChequePayment] = React.useState(false)
 
   // Refs to store original values on focus for comparison on blur
   const originalExhRateRef = React.useRef<number>(0)

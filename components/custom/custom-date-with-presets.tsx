@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { useAuthStore } from "@/stores/auth-store"
 import {
@@ -7,6 +9,8 @@ import {
   isValid,
   parse,
   startOfToday,
+  subDays,
+  subMonths,
 } from "date-fns"
 import { CalendarIcon, X } from "lucide-react"
 import { Control, FieldValues, Path, useWatch } from "react-hook-form"
@@ -14,6 +18,7 @@ import { Control, FieldValues, Path, useWatch } from "react-hook-form"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import {
   FormControl,
   FormField,
@@ -28,7 +33,115 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-interface CustomDateNewProps<T extends FieldValues = FieldValues> {
+// ---- CalendarWithPresets (merged from calendar-with-presets.tsx) ----
+
+export interface CalendarWithPresetsProps {
+  selected?: Date
+  onSelect: (date: Date) => void
+  minDate?: Date
+  maxDate?: Date
+  className?: string
+  hidePresets?: boolean
+  month?: Date
+  onMonthChange?: (date: Date) => void
+  fromYear?: number
+  toYear?: number
+  disabled?: (date: Date) => boolean
+  initialFocus?: boolean
+}
+
+const PRESETS = [
+  { label: "Today", getDate: () => startOfToday() },
+  { label: "Last week", getDate: () => subDays(startOfToday(), 7) },
+  { label: "Last 1 month", getDate: () => subMonths(startOfToday(), 1) },
+  { label: "Last 2 months", getDate: () => subMonths(startOfToday(), 2) },
+] as const
+
+function isPresetInRange(
+  date: Date,
+  minDate?: Date,
+  maxDate?: Date
+): boolean {
+  if (!date || !isValid(date)) return false
+  if (minDate && isValid(minDate) && isBefore(date, minDate)) return false
+  if (maxDate && isValid(maxDate) && isAfter(date, maxDate)) return false
+  return true
+}
+
+export function CalendarWithPresets({
+  selected,
+  onSelect,
+  minDate,
+  maxDate,
+  className,
+  hidePresets = false,
+  month,
+  onMonthChange,
+  fromYear,
+  toYear,
+  disabled,
+  initialFocus,
+}: CalendarWithPresetsProps) {
+  const handlePresetClick = React.useCallback(
+    (presetDate: Date) => {
+      if (isPresetInRange(presetDate, minDate, maxDate)) {
+        onSelect(presetDate)
+      }
+    },
+    [onSelect, minDate, maxDate]
+  )
+
+  return (
+    <Card
+      className={cn(
+        "mx-auto w-fit max-w-[300px] border-0 gap-0 py-0 shadow-none",
+        className
+      )}
+    >
+      <CardContent className="p-0 [--cell-size:--spacing(9.5)]">
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={(date) => date && onSelect(date)}
+          month={month}
+          onMonthChange={onMonthChange}
+          fromYear={fromYear}
+          toYear={toYear}
+          captionLayout="dropdown"
+          disabled={disabled}
+          initialFocus={initialFocus}
+          fixedWeeks
+          className="p-3"
+        />
+      </CardContent>
+      {!hidePresets && (
+        <CardFooter className="grid grid-cols-2 gap-2 border-t px-3 py-3 [.border-t]:pt-3">
+          {PRESETS.map((preset) => {
+            const presetDate = preset.getDate()
+            const inRange = isPresetInRange(presetDate, minDate, maxDate)
+            return (
+              <Button
+                key={preset.label}
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-w-0"
+                onClick={() => handlePresetClick(presetDate)}
+                disabled={!inRange}
+              >
+                {preset.label}
+              </Button>
+            )
+          })}
+        </CardFooter>
+      )}
+    </Card>
+  )
+}
+
+// ---- CustomDateWithPresets ----
+
+interface CustomDateWithPresetsProps<T extends FieldValues = FieldValues> {
   form: { control: Control<T> }
   label?: string
   name: Path<T>
@@ -45,7 +158,7 @@ interface CustomDateNewProps<T extends FieldValues = FieldValues> {
   isFutureShow?: boolean
 }
 
-export const CustomDateNew = <T extends FieldValues = FieldValues>({
+export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
   form,
   label,
   name,
@@ -60,7 +173,7 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   dateFormat = "dd/MM/yyyy",
   size = "default",
   isFutureShow = false,
-}: CustomDateNewProps<T>) => {
+}: CustomDateWithPresetsProps<T>) {
   const { decimals } = useAuthStore()
   const decimalDateFormat =
     decimals[0]?.dateFormat || dateFormat || "dd/MM/yyyy"
@@ -70,7 +183,6 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   const [month, setMonth] = React.useState<Date | undefined>(undefined)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Format date for display
   const formatDateForDisplay = React.useCallback(
     (date: Date | undefined): string => {
       if (!date || !isValid(date)) return ""
@@ -79,95 +191,60 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
     [decimalDateFormat]
   )
 
-  // Parse user input string to Date
   const parseUserInput = React.useCallback(
     (input: string | Date | null | undefined): Date | undefined => {
-      // Handle null/undefined
       if (!input) return undefined
-
-      // Handle Date objects - return as-is if valid
       if (input instanceof Date) {
         return isValid(input) ? input : undefined
       }
-
-      // Handle non-string values
       if (typeof input !== "string") return undefined
-
-      // Handle empty strings
       if (input.trim() === "") return undefined
-
-      // Array of possible date formats to try
       const formats = [
-        decimalDateFormat, // Primary configured format (e.g., dd/MM/yyyy or dd/MMM/yyyy)
-        "dd/MMM/yyyy", // Support for short month names with slashes
-        "dd-MMM-yyyy", // Support for short month names with hyphen
-        "dd MMM yyyy", // Support for short month names with spaces
-        "dd/MM/yy", // Alternative: 15/10/25
-        "dd-MM-yy", // Alternative: 15-10-25
-        "dd-MM-yyyy", // Alternative: 15-10-2025
-        "yyyy-MM-dd", // ISO format: 2025-10-15
-        "yyyy-MMM-dd", // API format: 2025-Oct-15
-        "MM/dd/yyyy", // US format: 10/15/2025
-        "yyyy/MM/dd", // Alternative ISO: 2025/10/15
+        decimalDateFormat,
+        "dd/MMM/yyyy",
+        "dd-MMM-yyyy",
+        "dd MMM yyyy",
+        "dd/MM/yy",
+        "dd-MM-yy",
+        "dd-MM-yyyy",
+        "yyyy-MM-dd",
+        "yyyy-MMM-dd",
+        "MM/dd/yyyy",
+        "yyyy/MM/dd",
       ]
-
-      // Try each format
       for (const formatStr of formats) {
         const parsedDate = parse(input, formatStr, new Date())
         if (isValid(parsedDate)) {
-          // Fix 2-digit year parsing: if year is less than 100, assume 2000s
           const year = parsedDate.getFullYear()
-          if (year < 100) {
-            parsedDate.setFullYear(2000 + year)
-          }
+          if (year < 100) parsedDate.setFullYear(2000 + year)
           return parsedDate
         }
       }
-
-      // If all formats fail, try native Date constructor
       const nativeDate = new Date(input)
-      if (isValid(nativeDate)) {
-        return nativeDate
-      }
-
-      return undefined
+      return isValid(nativeDate) ? nativeDate : undefined
     },
     [decimalDateFormat]
   )
 
-  // Check if date is valid
-  const isValidDateValue = React.useCallback(
-    (date: Date | undefined): boolean => {
-      if (!date || !isValid(date)) return false
-      return true
-    },
-    []
-  )
+  const isValidDateValue = React.useCallback((date: Date | undefined): boolean => {
+    return !!(date && isValid(date))
+  }, [])
 
-  // Validate date against min/max constraints
   const validateDateConstraints = React.useCallback(
     (date: Date | undefined): boolean => {
       if (!date || !isValid(date)) return false
-
-      // Check max date (including isFutureShow logic)
       let effectiveMaxDate: Date | undefined
       if (isFutureShow) {
-        // If isFutureShow is true, allow future dates
-        // If maxDate is provided, use it; otherwise allow 2 years into the future
         if (maxDate) {
-          effectiveMaxDate =
-            maxDate instanceof Date ? maxDate : new Date(maxDate)
+          effectiveMaxDate = maxDate instanceof Date ? maxDate : new Date(maxDate)
         } else {
-          // Set max date to 2 years from now to allow future dates
           const futureDate = new Date()
           futureDate.setFullYear(futureDate.getFullYear() + 2)
           effectiveMaxDate = futureDate
         }
       } else {
-        // If isFutureShow is false, limit to today
         effectiveMaxDate = new Date()
       }
-
       if (
         effectiveMaxDate &&
         isValid(effectiveMaxDate) &&
@@ -175,75 +252,53 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
       ) {
         return false
       }
-
-      // Check min date
       if (minDate) {
         const minDateObj = minDate instanceof Date ? minDate : new Date(minDate)
-        if (isValid(minDateObj) && isBefore(date, minDateObj)) {
-          return false
-        }
+        if (isValid(minDateObj) && isBefore(date, minDateObj)) return false
       }
-
       return true
     },
     [isFutureShow, maxDate, minDate]
   )
 
-  // Watch the field value
   const fieldValue = useWatch({ control: form.control, name })
 
-  // Sync local value with form field value
   React.useEffect(() => {
     const parsedFieldDate = parseUserInput(fieldValue as string)
     const displayValue = formatDateForDisplay(parsedFieldDate)
-
-    // Only update if input is not focused (to preserve typing)
     if (
       displayValue &&
       displayValue !== value &&
       document.activeElement !== inputRef.current
     ) {
       setValue(displayValue)
-      if (parsedFieldDate) {
-        setMonth(parsedFieldDate)
-      }
+      if (parsedFieldDate) setMonth(parsedFieldDate)
     } else if (!fieldValue) {
       setValue("")
     }
   }, [fieldValue, formatDateForDisplay, parseUserInput, value])
 
-  // Calculate min/max dates for calendar
   const calendarMinDate = React.useMemo(() => {
     return minDate
-      ? minDate instanceof Date
-        ? minDate
-        : new Date(minDate)
+      ? minDate instanceof Date ? minDate : new Date(minDate)
       : undefined
   }, [minDate])
 
   const calendarMaxDate = React.useMemo(() => {
     if (isFutureShow) {
-      // If isFutureShow is true, allow future dates
-      // If maxDate is provided, use it; otherwise allow 2 years into the future
-      if (maxDate) {
-        return maxDate instanceof Date ? maxDate : new Date(maxDate)
-      }
-      // Set max date to 2 years from now
+      if (maxDate) return maxDate instanceof Date ? maxDate : new Date(maxDate)
       const futureDate = new Date()
       futureDate.setFullYear(futureDate.getFullYear() + 2)
       return futureDate
     }
-    // If isFutureShow is false, limit to today
     return new Date()
   }, [isFutureShow, maxDate])
 
-  // Calculate year range for calendar dropdown
   const fromYear = React.useMemo(() => {
     if (minDate) {
       const minDateObj = minDate instanceof Date ? minDate : new Date(minDate)
       return minDateObj.getFullYear()
     }
-    // Default to 100 years ago
     return new Date().getFullYear() - 100
   }, [minDate])
 
@@ -253,10 +308,8 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
         const maxDateObj = maxDate instanceof Date ? maxDate : new Date(maxDate)
         return maxDateObj.getFullYear()
       }
-      // Show 2 years into the future when isFutureShow is true
       return new Date().getFullYear() + 2
     }
-    // If isFutureShow is false, limit to current year
     return new Date().getFullYear()
   }, [isFutureShow, maxDate])
 
@@ -274,12 +327,9 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
         render={({ field }) => {
           const currentDate = parseUserInput(value)
 
-          const handleInputChange = (
-            e: React.ChangeEvent<HTMLInputElement>
-          ) => {
+          const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const inputValue = e.target.value
             setValue(inputValue)
-
             const parsedDate = parseUserInput(inputValue)
             if (
               isValidDateValue(parsedDate) &&
@@ -287,74 +337,46 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
             ) {
               const formattedDate = formatDateForDisplay(parsedDate)
               field.onChange(formattedDate)
-              setMonth(parsedDate)
-              if (onChangeEvent) {
-                onChangeEvent(parsedDate!)
-              }
+              setMonth(parsedDate!)
+              onChangeEvent?.(parsedDate!)
             } else if (inputValue === "") {
               field.onChange("")
-              if (onChangeEvent) {
-                onChangeEvent(null)
-              }
+              onChangeEvent?.(null)
             }
           }
 
           const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
             const parsedDate = parseUserInput(value)
-
             if (
               isValidDateValue(parsedDate) &&
               validateDateConstraints(parsedDate)
             ) {
-              // Reformat to ensure consistent display
               const formattedDate = formatDateForDisplay(parsedDate)
               setValue(formattedDate)
               field.onChange(formattedDate)
             } else if (value === "") {
               field.onChange("")
             } else {
-              // Invalid date - clear it
               setValue("")
               field.onChange("")
             }
-
             field.onBlur()
             onBlurEvent?.(e)
           }
 
-          const handleCalendarSelect = (date: Date | undefined) => {
-            if (date) {
-              const formattedDate = formatDateForDisplay(date)
-              setValue(formattedDate)
-              field.onChange(formattedDate)
-              setMonth(date)
-              if (onChangeEvent) {
-                onChangeEvent(date)
-              }
-              setOpen(false)
-            }
+          const handleCalendarSelect = (date: Date) => {
+            const formattedDate = formatDateForDisplay(date)
+            setValue(formattedDate)
+            field.onChange(formattedDate)
+            setMonth(date)
+            onChangeEvent?.(date)
+            setOpen(false)
           }
 
           const handleClear = () => {
             setValue("")
             field.onChange("")
-            if (onChangeEvent) {
-              onChangeEvent(null)
-            }
-          }
-
-          const handleTodayClick = () => {
-            const today = startOfToday()
-            if (validateDateConstraints(today)) {
-              const formattedDate = formatDateForDisplay(today)
-              setValue(formattedDate)
-              field.onChange(formattedDate)
-              setMonth(today)
-              if (onChangeEvent) {
-                onChangeEvent(today)
-              }
-              setOpen(false)
-            }
+            onChangeEvent?.(null)
           }
 
           return (
@@ -375,21 +397,15 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                     value={value}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
-                    onClick={(e) => {
-                      e.currentTarget.select()
-                    }}
+                    onClick={(e) => e.currentTarget.select()}
                     onKeyDown={(e) => {
                       if (e.key === "ArrowDown") {
                         e.preventDefault()
                         setOpen(true)
                       }
-                      if (e.key === "Escape") {
-                        setOpen(false)
-                      }
+                      if (e.key === "Escape") setOpen(false)
                     }}
                   />
-
-                  {/* Clear Button */}
                   {value && !isDisabled && (
                     <Button
                       type="button"
@@ -408,8 +424,6 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                       <span className="sr-only">Clear date</span>
                     </Button>
                   )}
-
-                  {/* Calendar Popover */}
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -439,48 +453,27 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                       align="end"
                       alignOffset={-8}
                       side="bottom"
-                      sideOffset={10}
-                      avoidCollisions={false}
+                      sideOffset={8}
+                      collisionPadding={12}
                     >
-                      <Calendar
-                        mode="single"
+                      <CalendarWithPresets
                         selected={currentDate}
-                        captionLayout="dropdown"
+                        onSelect={handleCalendarSelect}
+                        minDate={calendarMinDate}
+                        maxDate={calendarMaxDate}
                         month={month}
                         onMonthChange={setMonth}
-                        onSelect={handleCalendarSelect}
                         fromYear={fromYear}
                         toYear={toYear}
                         disabled={(date) => {
-                          if (
-                            calendarMinDate &&
-                            isBefore(date, calendarMinDate)
-                          ) {
+                          if (calendarMinDate && isBefore(date, calendarMinDate))
                             return true
-                          }
-                          if (
-                            calendarMaxDate &&
-                            isAfter(date, calendarMaxDate)
-                          ) {
+                          if (calendarMaxDate && isAfter(date, calendarMaxDate))
                             return true
-                          }
                           return false
                         }}
                         initialFocus
                       />
-                      {/* Footer with Today button */}
-                      <div className="border-t p-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          onClick={handleTodayClick}
-                          disabled={!validateDateConstraints(startOfToday())}
-                        >
-                          Today
-                        </Button>
-                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>

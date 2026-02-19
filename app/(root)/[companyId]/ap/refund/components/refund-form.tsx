@@ -86,7 +86,7 @@ export default function RefundForm({
   const [isCurrenciesEqual, setIsCurrenciesEqual] = React.useState(true)
 
   // State to track if refund type is cheque
-  const [, setIsChequeRefund] = React.useState(false)
+  const [isChequeRefund, setIsChequeRefund] = React.useState(false)
 
   // Refs to store original values on focus for comparison on blur
   const originalExhRateRef = React.useRef<number>(0)

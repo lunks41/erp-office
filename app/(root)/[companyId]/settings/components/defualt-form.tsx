@@ -34,7 +34,7 @@ import {
   UomAutocomplete,
 } from "@/components/autocomplete"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
-import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSelect from "@/components/custom/custom-select"
 import { LockSkeleton } from "@/components/skeleton/lock-skeleton"
 
 type DefaultSettingResponse = IApiSuccessResponse<DefaultSettingSchemaType>
@@ -60,8 +60,8 @@ export function DefaultForm() {
   const form = useForm<DefaultSettingSchemaType>({
     resolver: zodResolver(defaultSettingSchema),
     defaultValues: {
-      trn_Grd_TotRec: 0,
-      m_Grd_TotRec: 0,
+      trn_Grd_TotRec: 50,
+      m_Grd_TotRec: 50,
       ar_IN_GLId: 0,
       ar_CN_GLId: 0,
       ar_DN_GLId: 0,
@@ -99,8 +99,8 @@ export function DefaultForm() {
 
       if (result === 1 && data) {
         form.reset({
-          trn_Grd_TotRec: data.trn_Grd_TotRec ?? 0,
-          m_Grd_TotRec: data.m_Grd_TotRec ?? 0,
+          trn_Grd_TotRec: data.trn_Grd_TotRec ?? 50,
+          m_Grd_TotRec: data.m_Grd_TotRec ?? 50,
           ar_IN_GLId: data.ar_IN_GLId ?? 0,
           ar_CN_GLId: data.ar_CN_GLId ?? 0,
           ar_DN_GLId: data.ar_DN_GLId ?? 0,
@@ -226,12 +226,16 @@ export function DefaultForm() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <CustomNumberInput
-              form={form}
+            <CustomSelect
               name="trn_Grd_TotRec"
               label="Transaction Grid Records"
               isRequired
-              round={0}
+              placeholder="Select records"
+              options={[
+                { value: 50, label: "50" },
+                { value: 100, label: "100" },
+                { value: 500, label: "500" },
+              ]}
             />
             <p className="text-muted-foreground text-xs">
               Number of records to display in transaction-related grids (e.g.,
@@ -239,12 +243,16 @@ export function DefaultForm() {
             </p>
           </div>
           <div className="space-y-2">
-            <CustomNumberInput
-              form={form}
+            <CustomSelect
               name="m_Grd_TotRec"
               label="Master Grid Records"
               isRequired
-              round={0}
+              placeholder="Select records"
+              options={[
+                { value: 50, label: "50" },
+                { value: 100, label: "100" },
+                { value: 500, label: "500" },
+              ]}
             />
             <p className="text-muted-foreground text-xs">
               Number of records to display in master data grids (e.g.,

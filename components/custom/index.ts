@@ -2,6 +2,11 @@ export { default as CustomAccordion } from "./custom-accordion"
 export { default as CustomCheckbox } from "./custom-checkbox"
 export * from "./custom-date-new"
 export * from "./custom-date-no-past"
+export {
+  CalendarWithPresets,
+  CustomDateWithPresets,
+} from "./custom-date-with-presets"
+export type { CalendarWithPresetsProps } from "./custom-date-with-presets"
 export * from "./custom-date-time-picker"
 export { default as CustomInput } from "./custom-input"
 export { default as CustomInputGroup } from "./custom-input-group"

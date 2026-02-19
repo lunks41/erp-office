@@ -28,6 +28,7 @@ import {
   GSTAutocomplete,
 } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import { CustomDateWithPresets } from "@/components/custom/custom-date-with-presets"
 import ChartOfAccountMultiSelect from "@/components/multiselection-chartofaccount"
 
 interface IReportFormData extends Record<string, unknown> {
@@ -603,8 +604,8 @@ export default function ReportsPage() {
         </Card>
 
         {/* Report Parameters Card */}
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="gap-1">
+          <CardHeader className="pb-1">
             <CardTitle className="flex items-center gap-2">
               Report Parameters
               {selectedReports.length > 0 && (
@@ -614,7 +615,7 @@ export default function ReportsPage() {
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="pt-0">
             <FormProvider {...form}>
               <form
                 onSubmit={form.handleSubmit(handleViewReport)}
@@ -784,9 +785,9 @@ export default function ReportsPage() {
                   />
                 </div>
 
-                {/* As Date - Show only for non-TrsDate reports */}
+                {/* As Date - Show only for non-TrsDate reports (with preset shortcuts) */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CustomDateNew
+                  <CustomDateWithPresets
                     form={form}
                     name="asOfDate"
                     label="As Date:"

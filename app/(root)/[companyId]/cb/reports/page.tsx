@@ -17,6 +17,7 @@ import {
   CurrencyAutocomplete,
 } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
+import { CustomDateWithPresets } from "@/components/custom/custom-date-with-presets"
 
 interface IReportFormData extends Record<string, unknown> {
   bankId: string
@@ -437,20 +438,22 @@ export default function ReportsPage() {
                 className="space-y-4"
               >
                 {/* Bank */}
-                <BankAutocomplete
-                  form={form}
-                  name="bankId"
-                  label="Bank"
-                  isRequired={false}
-                />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <BankAutocomplete
+                    form={form}
+                    name="bankId"
+                    label="Bank"
+                    isRequired={false}
+                  />
 
-                {/* Currency */}
-                <CurrencyAutocomplete
-                  form={form}
-                  name="currencyId"
-                  label="Currency"
-                  isRequired={true}
-                />
+                  {/* Currency */}
+                  <CurrencyAutocomplete
+                    form={form}
+                    name="currencyId"
+                    label="Currency"
+                    isRequired={true}
+                  />
+                </div>
 
                 {/* Date Selection Checkboxes */}
                 <div className="flex items-center gap-4">
@@ -516,9 +519,9 @@ export default function ReportsPage() {
                   />
                 </div>
 
-                {/* As Date - Show only for non-TrsDate reports */}
+                {/* As Date - Show only for non-TrsDate reports (with preset shortcuts) */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CustomDateNew
+                  <CustomDateWithPresets
                     form={form}
                     name="asOfDate"
                     label="As Date:"
