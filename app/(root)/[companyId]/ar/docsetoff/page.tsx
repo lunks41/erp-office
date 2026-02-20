@@ -363,6 +363,27 @@ export default function DocSetOffPage() {
       //check totamt and totlocalamt should be zero
       if (formValues.allocTotAmt === 0) {
         toast.error("Allocated Total Amount should not be zero")
+        setIsSaving(false)
+        return
+      }
+
+      // Check if totalSetOffAmt (sum of all allocAmt) is zero
+      const rawSetOffAmt = (formValues.data_details || []).reduce(
+        (sum, detail) => {
+          const allocAmt =
+            Number((detail as ArDocSetOffDtSchemaType).allocAmt) || 0
+          return sum + allocAmt
+        },
+        0
+      )
+      const totalSetOffAmt =
+        Math.abs(rawSetOffAmt) < 1e-9 ? 0 : rawSetOffAmt
+
+      if (totalSetOffAmt !== 0) {
+        toast.warning(
+          `You cannot save. SetOff Amount must be zero. Current value: ${totalSetOffAmt.toFixed(2)}`
+        )
+        setIsSaving(false)
         return
       }
 

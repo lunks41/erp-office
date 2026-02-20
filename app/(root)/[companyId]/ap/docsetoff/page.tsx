@@ -374,7 +374,7 @@ export default function DocSetOffPage() {
 
       // Check if totalSetOffAmt (sum of all allocAmt) is zero
       // This ensures all allocations are balanced before saving
-      const totalSetOffAmt = (formValues.data_details || []).reduce(
+      const rawSetOffAmt = (formValues.data_details || []).reduce(
         (sum, detail) => {
           const allocAmt =
             Number((detail as ApDocSetOffDtSchemaType).allocAmt) || 0
@@ -382,6 +382,9 @@ export default function DocSetOffPage() {
         },
         0
       )
+      // Treat -0 or floating-point near-zero as zero (allow save)
+      const totalSetOffAmt =
+        Math.abs(rawSetOffAmt) < 1e-9 ? 0 : rawSetOffAmt
 
       if (totalSetOffAmt !== 0) {
         toast.warning(
