@@ -27,10 +27,8 @@ const siteConfig = {
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
     "Comprehensive Enterprise Resource Planning system for shipping, logistics, and maritime operations. Streamline your business processes with integrated modules for accounting, project management, and document control.",
   links: {
-    twitter:
-      process.env.NEXT_PUBLIC_SITE_TWITTER || "https://twitter.com/erp",
-    github:
-      process.env.NEXT_PUBLIC_SITE_GITHUB || "https://github.com/erp",
+    twitter: process.env.NEXT_PUBLIC_SITE_TWITTER || "https://twitter.com/erp",
+    github: process.env.NEXT_PUBLIC_SITE_GITHUB || "https://github.com/erp",
   },
 }
 
@@ -57,11 +55,11 @@ export const metadata: Metadata = {
   ],
   authors: [
     {
-      name: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AHHA Technologies",
+      name: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AMES Technologies",
       url: process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com",
     },
   ],
-  creator: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AHHA Technologies",
+  creator: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AMES Technologies",
   openGraph: {
     type: "website",
     locale: "en_US",

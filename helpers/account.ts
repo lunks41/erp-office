@@ -761,6 +761,7 @@ export const setAddressContactDetails = async (
         const data = addresses.data[0]
 
         await form.setValue("addressId", data?.addressId)
+        await form.setValue("billName", data?.billName ?? "")
         await form.setValue("address1", data?.address1)
         await form.setValue("address2", data?.address2)
         await form.setValue("address3", data?.address3)
@@ -770,6 +771,7 @@ export const setAddressContactDetails = async (
         await form.setValue("phoneNo", data?.phoneNo)
 
         await form?.trigger("addressId")
+        await form?.trigger("billName")
         await form?.trigger("address1")
         await form?.trigger("address2")
         await form?.trigger("address3")
@@ -781,6 +783,7 @@ export const setAddressContactDetails = async (
         await form?.clearErrors()
       } else {
         await form.setValue("addressId", 0)
+        await form.setValue("billName", "")
         await form.setValue("address1", "")
         await form.setValue("address2", "")
         await form.setValue("address3", "")
@@ -790,6 +793,7 @@ export const setAddressContactDetails = async (
         await form.setValue("phoneNo", "")
 
         await form?.trigger("addressId")
+        await form?.trigger("billName")
         await form?.trigger("address1")
         await form?.trigger("address2")
         await form?.trigger("address3")

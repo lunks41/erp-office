@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useAuthStore } from "@/stores/auth-store"
 import {
+  endOfYear,
   format,
   isAfter,
   isBefore,
@@ -11,6 +12,7 @@ import {
   startOfToday,
   subDays,
   subMonths,
+  subYears,
 } from "date-fns"
 import { CalendarIcon, X } from "lucide-react"
 import { Control, FieldValues, Path, useWatch } from "react-hook-form"
@@ -55,13 +57,13 @@ const PRESETS = [
   { label: "Last week", getDate: () => subDays(startOfToday(), 7) },
   { label: "Last 1 month", getDate: () => subMonths(startOfToday(), 1) },
   { label: "Last 2 months", getDate: () => subMonths(startOfToday(), 2) },
+  {
+    label: "Last year",
+    getDate: () => endOfYear(subYears(startOfToday(), 1)),
+  },
 ] as const
 
-function isPresetInRange(
-  date: Date,
-  minDate?: Date,
-  maxDate?: Date
-): boolean {
+function isPresetInRange(date: Date, minDate?: Date, maxDate?: Date): boolean {
   if (!date || !isValid(date)) return false
   if (minDate && isValid(minDate) && isBefore(date, minDate)) return false
   if (maxDate && isValid(maxDate) && isAfter(date, maxDate)) return false
@@ -94,7 +96,7 @@ export function CalendarWithPresets({
   return (
     <Card
       className={cn(
-        "mx-auto w-fit max-w-[300px] border-0 gap-0 py-0 shadow-none",
+        "mx-auto w-fit max-w-[300px] gap-0 border-0 py-0 shadow-none",
         className
       )}
     >
@@ -226,9 +228,12 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
     [decimalDateFormat]
   )
 
-  const isValidDateValue = React.useCallback((date: Date | undefined): boolean => {
-    return !!(date && isValid(date))
-  }, [])
+  const isValidDateValue = React.useCallback(
+    (date: Date | undefined): boolean => {
+      return !!(date && isValid(date))
+    },
+    []
+  )
 
   const validateDateConstraints = React.useCallback(
     (date: Date | undefined): boolean => {
@@ -236,7 +241,8 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
       let effectiveMaxDate: Date | undefined
       if (isFutureShow) {
         if (maxDate) {
-          effectiveMaxDate = maxDate instanceof Date ? maxDate : new Date(maxDate)
+          effectiveMaxDate =
+            maxDate instanceof Date ? maxDate : new Date(maxDate)
         } else {
           const futureDate = new Date()
           futureDate.setFullYear(futureDate.getFullYear() + 2)
@@ -280,7 +286,9 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
 
   const calendarMinDate = React.useMemo(() => {
     return minDate
-      ? minDate instanceof Date ? minDate : new Date(minDate)
+      ? minDate instanceof Date
+        ? minDate
+        : new Date(minDate)
       : undefined
   }, [minDate])
 
@@ -327,7 +335,9 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
         render={({ field }) => {
           const currentDate = parseUserInput(value)
 
-          const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const handleInputChange = (
+            e: React.ChangeEvent<HTMLInputElement>
+          ) => {
             const inputValue = e.target.value
             setValue(inputValue)
             const parsedDate = parseUserInput(inputValue)
@@ -466,7 +476,10 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
                         fromYear={fromYear}
                         toYear={toYear}
                         disabled={(date) => {
-                          if (calendarMinDate && isBefore(date, calendarMinDate))
+                          if (
+                            calendarMinDate &&
+                            isBefore(date, calendarMinDate)
+                          )
                             return true
                           if (calendarMaxDate && isAfter(date, calendarMaxDate))
                             return true

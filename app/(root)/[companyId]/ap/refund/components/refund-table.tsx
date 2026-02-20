@@ -33,6 +33,7 @@ export default function RefundTable({
   initialFilters,
   pageSize: _pageSize,
   onCloseAction,
+  isDialogOpen,
 }: RefundTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
