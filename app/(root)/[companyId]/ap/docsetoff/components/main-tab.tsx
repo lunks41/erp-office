@@ -103,14 +103,17 @@ export default function Main({
   }, [dataDetails, calculateTotalBalanceAmt])
 
   // Calculate running sum of all allocAmt values (including negatives)
+  // Normalize so -0 or floating-point near-zero displays as 0.00 (not -0.00)
   const totalSetOffAmt = useMemo(() => {
-    return dataDetails.reduce((sum, detail) => {
+    const raw = dataDetails.reduce((sum, detail) => {
       const allocAmt =
         Number((detail as unknown as IApDocSetOffDt).allocAmt) || 0
       return sum + allocAmt
     }, 0)
+    return Math.abs(raw) < 1e-9 ? 0 : raw
   }, [dataDetails])
 
+  console.log("totalSetOffAmt", totalSetOffAmt)
   // Helper function to update balTotAmt and unAllocTotAmt based on current details
   const updateBalanceAndUnallocatedTotals = useCallback(
     (details: ApDocSetOffDtSchemaType[], allocTotAmt?: number) => {

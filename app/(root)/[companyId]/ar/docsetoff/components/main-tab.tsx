@@ -97,14 +97,16 @@ export default function Main({
       }
     })
 
+    const rawSetOff = positive - negativeAbs
+    // Normalize so -0 or floating-point near-zero displays as 0.00 (not -0.00)
+    const totalSetOff = Math.abs(rawSetOff) < 1e-9 ? 0 : rawSetOff
+
     return {
       positive,
       negativeAbs,
       matched:
-        positive - negativeAbs === 0
-          ? Math.min(positive, negativeAbs)
-          : positive - negativeAbs,
-      totalSetOff: positive - negativeAbs,
+        totalSetOff === 0 ? Math.min(positive, negativeAbs) : rawSetOff,
+      totalSetOff,
     }
   }, [dataDetails])
 
