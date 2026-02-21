@@ -7,8 +7,8 @@ import {
   setExchangeRate,
   setPayExchangeRate,
 } from "@/helpers/account"
-import { ApiResponse } from "@/interfaces/auth"
 import { IApPaymentFilter, IApPaymentHd } from "@/interfaces"
+import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
@@ -44,12 +44,12 @@ import { ApPayment, BasicSetting } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { APTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
+import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import {
   useGetRequiredFields,
   useGetVisibleFields,
   usePaymentTypeLookup,
 } from "@/hooks/use-lookup"
-import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -238,6 +238,8 @@ export default function PaymentPage() {
           chequeNo: payment.chequeNo ?? "",
           chequeDate: payment.chequeDate ?? new Date(),
           bankChgGLId: payment.bankChgGLId ?? 0,
+          isBankCharges: payment.isBankCharges ?? false,
+          isAdjCharges: payment.isAdjCharges ?? false,
           bankChgAmt: payment.bankChgAmt ?? 0,
           bankChgLocalAmt: payment.bankChgLocalAmt ?? 0,
           supplierId: payment.supplierId ?? 0,
@@ -381,7 +383,9 @@ export default function PaymentPage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -553,6 +557,8 @@ export default function PaymentPage() {
         allocTotLocalAmt: 0,
         bankChgAmt: 0,
         bankChgLocalAmt: 0,
+        isBankCharges: false,
+        isAdjCharges: false,
         // Clear data details - remove all records
         data_details: [],
       }
@@ -678,7 +684,9 @@ export default function PaymentPage() {
   }
 
   // Handle Print Payment Report
-  const handlePrintPayment = (reportType: "Payment" | "ChequePayment" = "Payment") => {
+  const handlePrintPayment = (
+    reportType: "Payment" | "ChequePayment" = "Payment"
+  ) => {
     if (!payment || payment.paymentId === "0") {
       toast.error("Please select a payment to print")
       return
@@ -708,7 +716,9 @@ export default function PaymentPage() {
 
     // Determine report file based on type
     const reportFile =
-      reportType === "ChequePayment" ? "ap/ApChequePayment.trdp" : "ap/ApPayment.trdp"
+      reportType === "ChequePayment"
+        ? "ap/ApChequePayment.trdp"
+        : "ap/ApPayment.trdp"
 
     // Store report data in sessionStorage
     const reportData = {
@@ -762,6 +772,8 @@ export default function PaymentPage() {
             )
           : dateFormat,
         bankChgGLId: apiPayment.bankChgGLId ?? 0,
+        isBankCharges: apiPayment.isBankCharges ?? false,
+        isAdjCharges: apiPayment.isAdjCharges ?? false,
         bankChgAmt: apiPayment.bankChgAmt ?? 0,
         bankChgLocalAmt: apiPayment.bankChgLocalAmt ?? 0,
         supplierId: apiPayment.supplierId ?? 0,
@@ -1073,8 +1085,9 @@ export default function PaymentPage() {
       }
     )
 
-  const historyRawData =
-    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const historyRawData = (
+    paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>
+  )?.data
 
   const hasPaymentHistory =
     Array.isArray(historyRawData) && historyRawData.length > 0
@@ -1265,8 +1278,8 @@ export default function PaymentPage() {
                 updateMutation.isPending ||
                 isCancelled ||
                 (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
-                || (isEdit && hasPaymentHistory)
+                (!isEdit && !canCreate) ||
+                (isEdit && hasPaymentHistory)
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
@@ -1301,7 +1314,9 @@ export default function PaymentPage() {
                 <DropdownMenuItem onClick={() => handlePrintPayment("Payment")}>
                   1. Payment
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handlePrintPayment("ChequePayment")}>
+                <DropdownMenuItem
+                  onClick={() => handlePrintPayment("ChequePayment")}
+                >
                   2. ChequePayment
                 </DropdownMenuItem>
               </DropdownMenuContent>

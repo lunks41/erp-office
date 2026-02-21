@@ -66,6 +66,7 @@ export interface IFinance {
   exhGain_GlId: number
   exhLoss_GlId: number
   bankCharge_GlId: number
+  adjCharge_GlId: number
   profitLoss_GlId: number
   retEarning_GlId: number
   saleGst_GlId: number

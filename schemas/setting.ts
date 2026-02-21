@@ -173,6 +173,7 @@ export const financeSettingSchema = z
     exhGain_GlId: z.number().min(0, "Exchange Gain Account is required"),
     exhLoss_GlId: z.number().min(0, "Exchange Loss Account is required"),
     bankCharge_GlId: z.number().min(0, "Bank Charges Account is required"),
+    adjCharge_GlId: z.number().min(0, "Adj Charges Account is required"),
     profitLoss_GlId: z.number().min(0, "Profit & Loss Account is required"),
     retEarning_GlId: z.number().min(0, "Retained Earnings Account is required"),
     saleGst_GlId: z.number().min(0, "Sales GST Account is required"),

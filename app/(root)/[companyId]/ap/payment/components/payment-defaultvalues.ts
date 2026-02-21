@@ -40,6 +40,8 @@ const buildDefaultPayment = (dateFormat: string) => ({
   chequeNo: "",
   chequeDate: format(new Date(), dateFormat),
   bankChgGLId: 0,
+  isBankCharges: false,
+  isAdjCharges: false,
   bankChgAmt: 0,
   bankChgLocalAmt: 0,
   currencyId: 0,

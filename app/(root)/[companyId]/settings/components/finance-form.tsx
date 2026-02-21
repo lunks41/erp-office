@@ -51,6 +51,7 @@ export function FinanceForm() {
       exhGain_GlId: 0,
       exhLoss_GlId: 0,
       bankCharge_GlId: 0,
+      adjCharge_GlId: 0,
       profitLoss_GlId: 0,
       retEarning_GlId: 0,
       saleGst_GlId: 0,
@@ -85,6 +86,7 @@ export function FinanceForm() {
           exhGain_GlId: data.exhGain_GlId ?? 0,
           exhLoss_GlId: data.exhLoss_GlId ?? 0,
           bankCharge_GlId: data.bankCharge_GlId ?? 0,
+          adjCharge_GlId: data.adjCharge_GlId ?? 0,
           profitLoss_GlId: data.profitLoss_GlId ?? 0,
           retEarning_GlId: data.retEarning_GlId ?? 0,
           saleGst_GlId: data.saleGst_GlId ?? 0,
@@ -109,6 +111,7 @@ export function FinanceForm() {
       exhGain_GlId: formData.exhGain_GlId ?? 0,
       exhLoss_GlId: formData.exhLoss_GlId ?? 0,
       bankCharge_GlId: formData.bankCharge_GlId ?? 0,
+      adjCharge_GlId: formData.adjCharge_GlId ?? 0,
       profitLoss_GlId: formData.profitLoss_GlId ?? 0,
       retEarning_GlId: formData.retEarning_GlId ?? 0,
       saleGst_GlId: formData.saleGst_GlId ?? 0,
@@ -155,7 +158,7 @@ export function FinanceForm() {
           <Skeleton className="h-10 w-32" />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          {Array.from({ length: 11 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <Skeleton key={i} className="h-10" />
           ))}
         </div>
@@ -224,6 +227,13 @@ export function FinanceForm() {
             form={form}
             name="bankCharge_GlId"
             label="Bank Charges Account"
+            isRequired={true}
+            companyId={Number(companyId)}
+          />
+          <ChartOfAccountAutocomplete
+            form={form}
+            name="adjCharge_GlId"
+            label="Adj Charges Account"
             isRequired={true}
             companyId={Number(companyId)}
           />

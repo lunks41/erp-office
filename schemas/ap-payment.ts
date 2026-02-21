@@ -20,108 +20,113 @@ export const ApPaymentHdSchema = (
     (chequePaymentTypeIds?.length ?? 0) > 0 &&
     chequePaymentTypeIds!.includes(paymentTypeId)
 
-  return z.object({
-    // Core Fields
+  return z
+    .object({
+      // Core Fields
 
-    paymentId: z.string().optional(),
-    paymentNo: z.string().optional(),
-    referenceNo: required?.m_ReferenceNo
-      ? z.string().min(1, "Reference No is required")
-      : z.string().optional(),
-    trnDate: visible?.m_TrnDate
-      ? z.union([z.date(), z.string()])
-      : z.union([z.date(), z.string()]).optional(),
-    accountDate: z.union([z.date(), z.string()]),
-    supplierId: z.number().min(1, "Supplier is required"),
-    // Bank Fields
-    bankId:
-      required?.m_BankId && visible?.m_BankId
-        ? z.number().min(1, "Bank is required")
+      paymentId: z.string().optional(),
+      paymentNo: z.string().optional(),
+      referenceNo: required?.m_ReferenceNo
+        ? z.string().min(1, "Reference No is required")
+        : z.string().optional(),
+      trnDate: visible?.m_TrnDate
+        ? z.union([z.date(), z.string()])
+        : z.union([z.date(), z.string()]).optional(),
+      accountDate: z.union([z.date(), z.string()]),
+      supplierId: z.number().min(1, "Supplier is required"),
+      // Bank Fields
+      bankId:
+        required?.m_BankId && visible?.m_BankId
+          ? z.number().min(1, "Bank is required")
+          : z.number().optional(),
+      // Payment Type Fields
+      paymentTypeId: required?.m_PaymentTypeId
+        ? z.number().min(1, "Payment Type is required")
         : z.number().optional(),
-    // Payment Type Fields
-    paymentTypeId: required?.m_PaymentTypeId
-      ? z.number().min(1, "Payment Type is required")
-      : z.number().optional(),
-    // Cheque Fields
-    chequeNo: z.string().optional(),
-    chequeDate: z.union([z.date(), z.string()]),
+      // Cheque Fields
+      chequeNo: z.string().optional(),
+      chequeDate: z.union([z.date(), z.string()]),
 
-    // Bank Charge GL Fields
-    bankChgGLId: visible?.m_BankChgGLId
-      ? z.number().min(0, "Bank Charge GL is required")
-      : z.number().optional(),
+      // Bank Charge GL Fields
+      bankChgGLId: visible?.m_BankChgGLId
+        ? z.number().min(0, "Bank Charge GL is required")
+        : z.number().optional(),
+      isBankCharges: z.boolean().optional(),
+      isAdjCharges: z.boolean().optional(),
     bankChgAmt: z.number(),
     bankChgLocalAmt: z.number(),
 
-    // Currency Fields
-    currencyId: z.number().min(1, "Currency is required"),
-    exhRate: z.number().min(0, "Exchange Rate is required"),
+      // Currency Fields
+      currencyId: z.number().min(1, "Currency is required"),
+      exhRate: z.number().min(0, "Exchange Rate is required"),
 
-    // Amounts
-    totAmt: required?.m_TotAmt ? z.number().min(0) : z.number().optional(),
-    totLocalAmt: z.number().optional(),
+      // Amounts
+      totAmt: required?.m_TotAmt ? z.number().min(0) : z.number().optional(),
+      totLocalAmt: z.number().optional(),
 
-    // Paying Currency Fields
-    payCurrencyId: z.number().min(1, "Paying   Currency is required"),
-    payExhRate: z.number().min(0, "Paying Exchange Rate is required"),
-    payTotAmt: z.number().min(0, "Paying Total Amount is required"),
-    payTotLocalAmt: z.number().min(0, "Paying Total Local Amount is required"),
+      // Paying Currency Fields
+      payCurrencyId: z.number().min(1, "Paying   Currency is required"),
+      payExhRate: z.number().min(0, "Paying Exchange Rate is required"),
+      payTotAmt: z.number().min(0, "Paying Total Amount is required"),
+      payTotLocalAmt: z
+        .number()
+        .min(0, "Paying Total Local Amount is required"),
 
-    // Unallocated Amount Fields
-    unAllocTotAmt: z.number().min(0, "Unallocated Total Amount is required"),
-    unAllocTotLocalAmt: z
-      .number()
-      .min(0, "Unallocated Total Local Amount is required"),
-    exhGainLoss: z.number().optional(),
+      // Unallocated Amount Fields
+      unAllocTotAmt: z.number().min(0, "Unallocated Total Amount is required"),
+      unAllocTotLocalAmt: z
+        .number()
+        .min(0, "Unallocated Total Local Amount is required"),
+      exhGainLoss: z.number().optional(),
 
-    remarks: required?.m_Remarks_Hd
-      ? z.string().min(3, "Remarks must be at least 3 characters")
-      : z.string().optional(),
+      remarks: required?.m_Remarks_Hd
+        ? z.string().min(3, "Remarks must be at least 3 characters")
+        : z.string().optional(),
 
-    // Document Fields
-    docExhRate: z.number().min(0, "Document Exchange Rate is required"),
-    docTotAmt: z.number().min(0, "Document Total Amount is required"),
-    docTotLocalAmt: z
-      .number()
-      .min(0, "Document Total Local Amount is required"),
-    // Allocated Amount Fields
-    allocTotAmt: z.number().min(0, "Allocated Total Amount is required"),
-    allocTotLocalAmt: z
-      .number()
-      .min(0, "Allocated Total Local Amount is required"),
+      // Document Fields
+      docExhRate: z.number().min(0, "Document Exchange Rate is required"),
+      docTotAmt: z.number().min(0, "Document Total Amount is required"),
+      docTotLocalAmt: z
+        .number()
+        .min(0, "Document Total Local Amount is required"),
+      // Allocated Amount Fields
+      allocTotAmt: z.number().min(0, "Allocated Total Amount is required"),
+      allocTotLocalAmt: z
+        .number()
+        .min(0, "Allocated Total Local Amount is required"),
 
-    // Module From Field
-    moduleFrom: z.string().optional(),
+      // Module From Field
+      moduleFrom: z.string().optional(),
 
-    // Audit Fields
-    editVersion: z.number().optional(),
-    createBy: z.string().optional(),
-    createDate: z.string().optional(),
-    editBy: z.string().optional(),
-    editDate: z.string().optional(),
-    cancelBy: z.string().optional(),
-    cancelDate: z.string().optional(),
-    isCancel: z.boolean().optional(),
-    cancelRemarks: z.string().optional(),
-    appBy: z.string().optional(),
-    appDate: z.string().optional(),
-    appStatusId: z.number().optional(),
+      // Audit Fields
+      editVersion: z.number().optional(),
+      createBy: z.string().optional(),
+      createDate: z.string().optional(),
+      editBy: z.string().optional(),
+      editDate: z.string().optional(),
+      cancelBy: z.string().optional(),
+      cancelDate: z.string().optional(),
+      isCancel: z.boolean().optional(),
+      cancelRemarks: z.string().optional(),
+      appBy: z.string().optional(),
+      appDate: z.string().optional(),
+      appStatusId: z.number().optional(),
 
-    // Nested Details
-    data_details: z.array(ApPaymentDtSchema(required, visible)).optional(),
-  })
-  .refine(
-    (data) => {
-      if (!requireChequeNoWhenCheque || !isChequeType(data.paymentTypeId))
-        return true
-      const no = data.chequeNo
-      return typeof no === "string" && no.trim().length > 0
-    },
-    {
-      message: "Pay No is required when payment type is Cheque",
-      path: ["chequeNo"],
-    }
-  )
+      // Nested Details
+      data_details: z.array(ApPaymentDtSchema(required, visible)).optional(),
+    })
+    .refine(
+      (data) => {
+        if (!requireChequeNoWhenCheque || !isChequeType(data.paymentTypeId))
+          return true
+        const no = data.chequeNo
+        return typeof no === "string" && no.trim().length > 0
+      },
+      {
+        message: "Pay No is required when payment type is Cheque",
+        path: ["chequeNo"],
+      }
+    )
 }
 
 export type ApPaymentHdSchemaType = z.infer<
