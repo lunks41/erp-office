@@ -10,6 +10,8 @@ export interface IApRefundHd {
   chequeNo: string | null
   chequeDate: Date | string
   bankChgGLId: number
+  isBankCharges: boolean
+  isAdjCharges: boolean
   bankChgAmt: number
   bankChgLocalAmt: number
   supplierId: number

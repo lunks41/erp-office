@@ -232,6 +232,8 @@ export default function RefundPage() {
           chequeNo: refund.chequeNo ?? "",
           chequeDate: refund.chequeDate ?? new Date(),
           bankChgGLId: refund.bankChgGLId ?? 0,
+          isBankCharges: refund.isBankCharges ?? false,
+          isAdjCharges: refund.isAdjCharges ?? false,
           bankChgAmt: refund.bankChgAmt ?? 0,
           bankChgLocalAmt: refund.bankChgLocalAmt ?? 0,
           customerId: refund.customerId ?? 0,
@@ -539,6 +541,8 @@ export default function RefundPage() {
         allocTotLocalAmt: 0,
         bankChgAmt: 0,
         bankChgLocalAmt: 0,
+        isBankCharges: false,
+        isAdjCharges: false,
         // Clear data details - remove all records
         data_details: [],
       }
@@ -743,6 +747,8 @@ export default function RefundPage() {
             )
           : dateFormat,
         bankChgGLId: apiRefund.bankChgGLId ?? 0,
+        isBankCharges: apiRefund.isBankCharges ?? false,
+        isAdjCharges: apiRefund.isAdjCharges ?? false,
         bankChgAmt: apiRefund.bankChgAmt ?? 0,
         bankChgLocalAmt: apiRefund.bankChgLocalAmt ?? 0,
         customerId: apiRefund.customerId ?? 0,
