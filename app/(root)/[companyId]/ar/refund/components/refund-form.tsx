@@ -952,27 +952,24 @@ export default function RefundForm({
 
         {/* Bank Charges / Adj Charges Amount - shown when isBankCharges or isAdjCharges */}
         {(isBankCharges || isAdjCharges) && (
-          <div className="col-span-2 flex flex-row items-end gap-2">
-            <div className="min-w-0 flex-1">
-              <CustomNumberInput
-                form={form}
-                name="bankChgAmt"
-                label={isBankCharges ? "Bank Chrg" : "Adj Chrg"}
-                round={amtDec}
-                onFocusEvent={handleBankChgAmtFocus}
-                onBlurEvent={handleBankChgAmtChange}
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <CustomNumberInput
-                form={form}
-                name="bankChgLocalAmt"
-                label={isBankCharges ? "Bank Chrg Loc" : "Adj Chrg Loc"}
-                round={locAmtDec}
-                isDisabled={true}
-              />
-            </div>
-          </div>
+          <>
+            <CustomNumberInput
+              form={form}
+              name="bankChgAmt"
+              label={isBankCharges ? "Bank Chrg" : "Adj Chrg"}
+              round={amtDec}
+              onFocusEvent={handleBankChgAmtFocus}
+              onBlurEvent={handleBankChgAmtChange}
+            />
+
+            <CustomNumberInput
+              form={form}
+              name="bankChgLocalAmt"
+              label={isBankCharges ? "Bank Chrg Loc" : "Adj Chrg Loc"}
+              round={locAmtDec}
+              isDisabled={true}
+            />
+          </>
         )}
 
         {/* Exchange Gain/Loss */}

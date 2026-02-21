@@ -29,10 +29,6 @@ import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 import { clientDateFormat } from "@/lib/date-utils"
 import { parseNumberWithCommas } from "@/lib/utils"
 import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup"
-
-const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
-  typeof process !== "undefined" &&
-  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
 import {
   BankAutocomplete,
   BankChartOfAccountAutocomplete,
@@ -46,6 +42,10 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
 
 interface RefundFormProps {
   form: UseFormReturn<ApRefundHdSchemaType>
@@ -954,27 +954,24 @@ export default function RefundForm({
 
         {/* Bank Charges / Adj Charges Amount - shown when isBankCharges or isAdjCharges */}
         {(isBankCharges || isAdjCharges) && (
-          <div className="col-span-2 flex flex-row items-end gap-2">
-            <div className="min-w-0 flex-1">
-              <CustomNumberInput
-                form={form}
-                name="bankChgAmt"
-                label={isBankCharges ? "Bank Chrg" : "Adj Chrg"}
-                round={amtDec}
-                onFocusEvent={handleBankChgAmtFocus}
-                onBlurEvent={handleBankChgAmtChange}
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <CustomNumberInput
-                form={form}
-                name="bankChgLocalAmt"
-                label={isBankCharges ? "Bank Chrg Loc" : "Adj Chrg Loc"}
-                round={locAmtDec}
-                isDisabled={true}
-              />
-            </div>
-          </div>
+          <>
+            <CustomNumberInput
+              form={form}
+              name="bankChgAmt"
+              label={isBankCharges ? "Bank Chrg" : "Adj Chrg"}
+              round={amtDec}
+              onFocusEvent={handleBankChgAmtFocus}
+              onBlurEvent={handleBankChgAmtChange}
+            />
+
+            <CustomNumberInput
+              form={form}
+              name="bankChgLocalAmt"
+              label={isBankCharges ? "Bank Chrg Loc" : "Adj Chrg Loc"}
+              round={locAmtDec}
+              isDisabled={true}
+            />
+          </>
         )}
 
         {/* Exchange Gain/Loss */}

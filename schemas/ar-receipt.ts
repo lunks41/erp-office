@@ -52,6 +52,8 @@ export const ArReceiptHdSchema = (
     bankChgGLId: visible?.m_BankChgGLId
       ? z.number().min(0, "Bank Charge GL is required")
       : z.number().optional(),
+    isBankCharges: z.boolean().optional(),
+    isAdjCharges: z.boolean().optional(),
     bankChgAmt: z.number(),
     bankChgLocalAmt: z.number(),
     recBankChgAmt: z.number(),
