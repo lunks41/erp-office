@@ -62,7 +62,7 @@ export function ThemeSelector() {
           <Button
             variant="outline"
             size="sm"
-            className="gap-2"
+            className="h-8 gap-2 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC]"
             aria-label="Theme Selector"
           >
             {currentTheme.icon}

@@ -414,7 +414,7 @@ export function ScreenLock({ variant = "icon", className }: ScreenLockProps) {
             <Button
               variant="outline"
               size="icon"
-              className={`h-8 w-8 rounded-md ${className || ""}`}
+              className={`h-8 w-8 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC] ${className || ""}`}
               onClick={handleLockScreen}
               aria-label="Lock screen"
             >

@@ -326,266 +326,54 @@ interface MenuItem {
   }
 }
 
-interface MenuGroup {
-  title: string
-  url: string
-  icon: React.ComponentType<{ className?: string }>
-  items?: MenuItem[]
-  isDirectLink?: boolean
-}
-
-// Transaction-type grouping for AR, AP, CB, GL (URLs unchanged)
-const ACCOUNT_MODULES = ["ar", "ap", "cb", "gl"] as const
-
-const ACCOUNT_CATEGORY_ORDER = [
-  "overview",
-  "invoice",
-  "creditnote",
-  "debitnote",
-  "receipt",
-  "payment",
-  "refund",
-  "bank",
-  "pettycash",
-  "gl",
-  "adjustment",
-  "setoff",
-  "reports",
-  "other",
-] as const
-
-const ACCOUNT_CATEGORY_CONFIG: Record<
-  string,
-  { category: string; displayLabel: string; icon: React.ComponentType<{ className?: string }> }
-> = {
-  "ar_overview": { category: "overview", displayLabel: "AR Overview", icon: BarChart },
-  "ap_overview": { category: "overview", displayLabel: "AP Overview", icon: BarChart },
-  "cb_overview": { category: "overview", displayLabel: "CB Overview", icon: BarChart },
-  "gl_overview": { category: "overview", displayLabel: "GL Overview", icon: BarChart },
-  "ar_invoice": { category: "invoice", displayLabel: "AR Invoice", icon: Receipt },
-  "ap_invoice": { category: "invoice", displayLabel: "AP Invoice", icon: Receipt },
-  "ar_invoicectm": { category: "invoice", displayLabel: "AR Invoice CTM", icon: Receipt },
-  "ar_creditnote": { category: "creditnote", displayLabel: "AR Credit Note", icon: FilePlus },
-  "ap_creditnote": { category: "creditnote", displayLabel: "AP Credit Note", icon: FilePlus },
-  "ar_debitnote": { category: "debitnote", displayLabel: "AR Debit Note", icon: FileMinus },
-  "ap_debitnote": { category: "debitnote", displayLabel: "AP Debit Note", icon: FileMinus },
-  "ar_receipt": { category: "receipt", displayLabel: "AR Receipt", icon: PlusCircle },
-  "cb_cbgenreceipt": { category: "receipt", displayLabel: "CB Receipt", icon: PlusCircle },
-  "ar_receiptmulticurrency": { category: "receipt", displayLabel: "AR Receipt Multicurrency", icon: PlusCircle },
-  "ap_payment": { category: "payment", displayLabel: "AP Payment", icon: MinusCircle },
-  "cb_cbgenpayment": { category: "payment", displayLabel: "CB Payment", icon: MinusCircle },
-  "ar_refund": { category: "refund", displayLabel: "AR Refund", icon: Undo2 },
-  "ap_refund": { category: "refund", displayLabel: "AP Refund", icon: Undo2 },
-  "ar_docsetoff": { category: "setoff", displayLabel: "AR Doc Setoff", icon: FileStack },
-  "ar_documentsetoff": { category: "setoff", displayLabel: "AR Doc Setoff", icon: FileStack },
-  "ap_docsetoff": { category: "setoff", displayLabel: "AP Doc Setoff", icon: FileStack },
-  "ap_documentsetoff": { category: "setoff", displayLabel: "AP Doc Setoff", icon: FileStack },
-  "gl_arapcontra": { category: "setoff", displayLabel: "GL Contra", icon: ArrowLeftRight },
-  "cb_cbbanktransfer": { category: "bank", displayLabel: "CB Bank Transfer", icon: ArrowLeftRight },
-  "cb_cbbanktransferctm": { category: "bank", displayLabel: "CB Bank Transfer CTM", icon: ArrowLeftRight },
-  "cb_cbbankrecon": { category: "bank", displayLabel: "CB Bank Reconciliation", icon: Scale },
-  "gl_journalentry": { category: "gl", displayLabel: "GL Journal", icon: BookOpen },
-  "cb_cbpettycash": { category: "pettycash", displayLabel: "Petty Cash", icon: HandCoins },
-  "ar_adjustment": { category: "adjustment", displayLabel: "AR Adjustment", icon: Sliders },
-  "ap_adjustment": { category: "adjustment", displayLabel: "AP Adjustment", icon: Sliders },
-  "ar_reports": { category: "reports", displayLabel: "AR Reports", icon: BarChart },
-  "ap_reports": { category: "reports", displayLabel: "AP Reports", icon: BarChart },
-  "cb_reports": { category: "reports", displayLabel: "CB Reports", icon: BarChart },
-  "gl_reports": { category: "reports", displayLabel: "GL Reports", icon: BarChart },
-  "ap_jobtransactions": { category: "other", displayLabel: "Job Transactions", icon: ClipboardList },
-  "gl_yearendprocess": { category: "other", displayLabel: "Year-End Process", icon: CalendarCheck },
-  "gl_periodclose": { category: "other", displayLabel: "GL Period Close", icon: Lock },
-  "gl_openingbalance": { category: "other", displayLabel: "Opening Balance", icon: Scale },
-  "ar_invoice_edit": { category: "other", displayLabel: "AR Invoice Edit", icon: Pencil },
-  "gl_fixedasset": { category: "other", displayLabel: "Fixed Asset", icon: Landmark },
-}
-
-const ACCOUNT_CATEGORY_META: Record<
-  string,
-  { title: string; icon: React.ComponentType<{ className?: string }>; isDirectLink: boolean }
-> = {
-  overview: { title: "Overview", icon: BarChart, isDirectLink: false },
-  invoice: { title: "Invoice", icon: Receipt, isDirectLink: false },
-  creditnote: { title: "Credit Note", icon: FilePlus, isDirectLink: false },
-  debitnote: { title: "Debit Note", icon: FileMinus, isDirectLink: false },
-  receipt: { title: "Receipt", icon: PlusCircle, isDirectLink: false },
-  payment: { title: "Payment", icon: MinusCircle, isDirectLink: false },
-  refund: { title: "Refund", icon: Undo2, isDirectLink: false },
-  setoff: { title: "Setoff", icon: FileStack, isDirectLink: false },
-  bank: { title: "Bank", icon: ArrowLeftRight, isDirectLink: false },
-  gl: { title: "Journal Entry", icon: BookOpen, isDirectLink: true },
-  pettycash: { title: "Petty Cash", icon: HandCoins, isDirectLink: true },
-  adjustment: { title: "Adjustment", icon: Sliders, isDirectLink: false },
-  reports: { title: "Reports", icon: BarChart, isDirectLink: false },
-  other: { title: "Other", icon: FolderKanban, isDirectLink: false },
-}
-
-const getModuleDisplayPrefix = (moduleCode: string) => {
-  const m = moduleCode.toUpperCase()
-  return m === "AR" ? "AR" : m === "AP" ? "AP" : m === "CB" ? "CB" : m === "GL" ? "GL" : moduleCode
-}
-
-const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
-  const categoryMap = new Map<string, MenuItem[]>()
-  const directLinkMap = new Map<string, MenuItem>()
-
-  transactions.forEach((t) => {
-    const mod = t.moduleCode.toLowerCase()
-    const trn = t.transactionCode.toLowerCase()
-    const key = `${mod}_${trn}`
-    const config = ACCOUNT_CATEGORY_CONFIG[key]
-    const category = config?.category ?? "other"
-    const displayLabel = config?.displayLabel ?? `${getModuleDisplayPrefix(t.moduleCode)} ${t.transactionName}`
-    const icon = config?.icon ?? getTransactionIcon(trn)
-
-    if (!ACCOUNT_CATEGORY_META[category]) return
-    const url = `/${mod}/${trn}`
-    const menuItem: MenuItem = {
-      title: displayLabel,
-      url,
-      icon,
-      permissions: {
-        read: t.isRead,
-        create: t.isCreate,
-        edit: t.isEdit,
-        delete: t.isDelete,
-        export: t.isExport,
-        print: t.isPrint,
-        post: t.isPost,
-      },
-    }
-
-    const meta = ACCOUNT_CATEGORY_META[category]
-    if (meta?.isDirectLink) {
-      directLinkMap.set(category, menuItem)
-    } else {
-      const list = categoryMap.get(category) ?? []
-      list.push(menuItem)
-      categoryMap.set(category, list)
-    }
-  })
-
-  const groups: MenuGroup[] = []
-  for (const cat of ACCOUNT_CATEGORY_ORDER) {
-    const meta = ACCOUNT_CATEGORY_META[cat]
-    if (!meta) continue
-
-    if (meta.isDirectLink) {
-      const item = directLinkMap.get(cat)
-      if (item) {
-        groups.push({
-          title: meta.title,
-          url: item.url,
-          icon: meta.icon,
-          items: [],
-          isDirectLink: true,
-        })
-      }
-    } else {
-      const items = categoryMap.get(cat) ?? []
-      if (items.length > 0) {
-        groups.push({
-          title: meta.title,
-          url: `#`,
-          icon: meta.icon,
-          items,
-          isDirectLink: false,
-        })
-      }
-    }
-  }
-  return groups
-}
-
-const buildOtherModulesMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
+const buildDynamicMenu = (transactions: IUserTransaction[]) => {
   const menuMap = new Map<
     string,
-    { title: string; url: string; icon: React.ComponentType<{ className?: string }>; items: MenuItem[] }
+    {
+      title: string
+      url: string
+      icon: React.ComponentType<{ className?: string }>
+      items: MenuItem[]
+    }
   >()
 
-  transactions.forEach((t) => {
-    const mod = t.moduleCode.toLowerCase()
-    if (ACCOUNT_MODULES.includes(mod as (typeof ACCOUNT_MODULES)[number])) return
+  const visibleTransactions = transactions.filter(
+    (transaction) => transaction.isVisible === true
+  )
 
-    const moduleKey = `${t.moduleId}_${t.moduleName}`
+  visibleTransactions.forEach((transaction) => {
+    const moduleKey = `${transaction.moduleId}_${transaction.moduleName}`
     if (!menuMap.has(moduleKey)) {
       menuMap.set(moduleKey, {
-        title: t.moduleName,
-        url: `/${mod}`,
-        icon: getModuleIcon(mod),
+        title: transaction.moduleName,
+        url: `/${transaction.moduleCode.toLowerCase()}`,
+        icon: getModuleIcon(transaction.moduleCode.toLowerCase()),
         items: [],
       })
     }
-    const data = menuMap.get(moduleKey)!
-    const trn = t.transactionCode.toLowerCase()
-    // Exclude operations/reports – moved to Reports as "Checklist Report"
-    if (mod === "operations" && trn === "reports") return
-    data.items.push({
-      title: t.transactionName,
-      url: `/${mod}/${trn}`,
-      icon: getTransactionIcon(trn),
-      permissions: {
-        read: t.isRead,
-        create: t.isCreate,
-        edit: t.isEdit,
-        delete: t.isDelete,
-        export: t.isExport,
-        print: t.isPrint,
-        post: t.isPost,
-      },
-    })
-  })
-
-  return Array.from(menuMap.values()).filter((m) => m.items.length > 0)
-}
-
-const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
-  const visible = transactions.filter((t) => t.isVisible === true)
-  const accountTxs = visible.filter((t) =>
-    ACCOUNT_MODULES.includes(t.moduleCode.toLowerCase() as (typeof ACCOUNT_MODULES)[number])
-  )
-  const otherTxs = visible.filter(
-    (t) => !ACCOUNT_MODULES.includes(t.moduleCode.toLowerCase() as (typeof ACCOUNT_MODULES)[number])
-  )
-
-  const accountMenu = buildAccountMenu(accountTxs)
-  const otherMenu = buildOtherModulesMenu(otherTxs)
-
-  // Add "Checklist Report" (operations/reports) to Reports group if user has permission
-  const opsReports = otherTxs.find(
-    (t) => t.moduleCode.toLowerCase() === "operations" && t.transactionCode.toLowerCase() === "reports"
-  )
-  if (opsReports?.isVisible) {
-    const reportsGroup = accountMenu.find((g) => g.title === "Reports")
-    if (reportsGroup?.items) {
-      reportsGroup.items.push({
-        title: "Checklist Report",
-        url: "/operations/reports",
-        icon: BarChart,
+    const moduleData = menuMap.get(moduleKey)
+    if (moduleData) {
+      moduleData.items.push({
+        title: transaction.transactionName,
+        url: `/${transaction.moduleCode.toLowerCase()}/${transaction.transactionCode.toLowerCase()}`,
+        icon: getTransactionIcon(transaction.transactionCode.toLowerCase()),
         permissions: {
-          read: opsReports.isRead,
-          create: opsReports.isCreate,
-          edit: opsReports.isEdit,
-          delete: opsReports.isDelete,
-          export: opsReports.isExport,
-          print: opsReports.isPrint,
-          post: opsReports.isPost,
+          read: transaction.isRead,
+          create: transaction.isCreate,
+          edit: transaction.isEdit,
+          delete: transaction.isDelete,
+          export: transaction.isExport,
+          print: transaction.isPrint,
+          post: transaction.isPost,
         },
       })
     }
-  }
+  })
 
-  const master = otherMenu.find((m) => m.url === "/master")
-  const operations = otherMenu.find((m) => m.url === "/operations")
-  const rest = otherMenu.filter(
-    (m) => m.url !== "/master" && m.url !== "/operations"
+  const filteredMenu = Array.from(menuMap.values()).filter(
+    (module) => module.items.length > 0
   )
-  return [
-    ...(master ? [master] : []),
-    ...(operations ? [operations] : []),
-    ...accountMenu,
-    ...rest,
-  ]
+  return filteredMenu
 }
 
 // Type definition for main navigation menu items
@@ -681,12 +469,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       }
     }
     for (const group of dynamicMenu) {
-      if (group.isDirectLink && currentPath === getUrlWithCompanyId(group.url)) {
-        setSelectedMenu(group.title)
-        setOpenMenu(null)
-        setSelectedSubMenu(null)
-        return
-      }
       for (const subItem of group.items || []) {
         if (currentPath === getUrlWithCompanyId(subItem.url)) {
           setSelectedMenu(group.title)
@@ -934,25 +716,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               </div>
             ) : (
               dynamicMenu.map((group) => (
-                <SidebarMenuItem key={`${group.title}-${group.url}`}>
-                  {group.isDirectLink ? (
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={group.title}
-                      onMouseEnter={() => handleMouseEnter(group.title)}
-                      onMouseLeave={() => setHoveredMenu(null)}
-                      className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
-                        isMenuActive(group.title) || hoveredMenu === group.title
-                          ? "bg-primary/20 text-primary"
-                          : ""
-                      }`}
-                    >
-                      <Link href={getUrlWithCompanyId(group.url)}>
-                        {group.icon && <group.icon className="h-4 w-4" />}
-                        <span>{group.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  ) : group.items && group.items.length > 0 && sidebarState === "collapsed" && !isMobile ? (
+                <SidebarMenuItem key={group.title}>
+                  {group.items && sidebarState === "collapsed" && !isMobile ? (
                     <Popover open={hoveredMenu === group.title}>
                       <PopoverTrigger asChild>
                         <SidebarMenuButton

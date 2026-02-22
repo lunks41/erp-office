@@ -30,7 +30,7 @@ export function ModeSwitcher() {
     <Button
       variant="outline"
       size="icon"
-      className="group/toggle size-8"
+      className="group/toggle size-8 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC]"
       onClick={toggleTheme}
       aria-label="Toggle theme"
     >

@@ -1,7 +1,6 @@
 import { cookies } from "next/headers"
 
 import { SkipLink } from "@/components/ui/accessibility"
-import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
   SidebarProvider,
@@ -40,17 +39,12 @@ export default async function AppLayout({
               rel="stylesheet"
               href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-ocean-blue.css"
             />
-            <div className="flex h-14 w-full items-center gap-2 px-3 sm:gap-3 sm:px-4 lg:px-6">
+            <div className="flex h-14 w-full items-center gap-2 px-3 sm:px-4 lg:px-6">
               {/* Mobile Navigation */}
               <MobileNav />
 
               {/* Desktop Sidebar Trigger */}
               <SidebarTrigger className="-ml-1.5 hidden md:flex" />
-
-              <Separator
-                orientation="vertical"
-                className="mr-2 hidden h-6 data-[orientation=vertical]:h-6 md:block"
-              />
 
               <NavHeader />
 
