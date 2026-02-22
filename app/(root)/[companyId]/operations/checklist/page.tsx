@@ -15,9 +15,10 @@ import { formatDateForApi } from "@/lib/date-utils"
 import { OperationsStatus } from "@/lib/operations-utils"
 import { ModuleId, OperationsTransactionId, cn } from "@/lib/utils"
 import { searchJobOrdersDirect } from "@/hooks/use-checklist"
-import { useGetWithDates } from "@/hooks/use-common"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -51,6 +52,9 @@ export default function ChecklistPage() {
   const [searchInput, setSearchInput] = useState("") // This is for the input field only
   const [selectedStatus, setSelectedStatus] = useState("Pending")
   const [isLoading, setIsLoading] = useState(true)
+  const [isAllTime, setIsAllTime] = useState(false)
+  // When user types in search box → true (fetch all data); when empty → false
+  const isAllTimeCommitted = (searchQuery ?? "").trim().length > 0
 
   // Add this at the top of your component
   const today = new Date()
@@ -65,6 +69,8 @@ export default function ChecklistPage() {
     formatDateForInput(defaultStartDate)
   )
   const [endDate, setEndDate] = useState(formatDateForInput(today))
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(2000)
 
   // Initialize form for date filters
   const dateFilterForm = useForm<DateFilterFormType>({
@@ -75,19 +81,24 @@ export default function ChecklistPage() {
     },
   })
 
-  // API hooks for job order using api-client.ts through useGetHeader
+  // API hooks for job order using useGetWithDatesAndPagination
   const {
     data: jobOrderResponse,
     refetch: refetchJobOrder,
     isLoading: isLoadingJobOrder,
     isRefetching: isRefetchingJobOrder,
     error: jobOrderError,
-  } = useGetWithDates<IJobOrderHd>(
+  } = useGetWithDatesAndPagination<IJobOrderHd>(
     JobOrder.get,
     "jobOrderHd",
     searchQuery,
-    startDate,
-    endDate
+    isAllTimeCommitted ? "" : startDate,
+    isAllTimeCommitted ? "" : endDate,
+    currentPage,
+    pageSize,
+    isAllTimeCommitted,
+    undefined,
+    true
   )
 
   // Simulate loading
@@ -133,9 +144,11 @@ export default function ChecklistPage() {
   const handleClear = () => {
     setStartDate(formatDateForInput(defaultStartDate))
     setEndDate(formatDateForInput(today))
-    setSearchQuery("") // Clear the search query used for API
+    setSearchQuery("") // Clear the search query → isAllTimeCommitted becomes false
     setSearchInput("") // Clear the input field
     setSelectedStatus("All")
+    setIsAllTime(false) // Uncheck "All data" when Clear is clicked
+    setCurrentPage(1)
     // Reset form values
     dateFilterForm.reset({
       startDate: format(defaultStartDate, "dd/MM/yyyy"),
@@ -147,7 +160,7 @@ export default function ChecklistPage() {
 
   const handleSearchClick = async () => {
     try {
-      // Update the searchQuery state which triggers the API call
+      // Update the searchQuery state which triggers the API call (isAllTimeCommitted derived from searchQuery)
       setSearchQuery(searchInput)
 
       // Change tab to "All" when searching
@@ -156,8 +169,8 @@ export default function ChecklistPage() {
       // Use enhanced search function from api-client.ts
       const searchParams = {
         searchString: searchInput, // Use the input value
-        startDate: startDate,
-        endDate: endDate,
+        startDate: isAllTime ? "" : startDate,
+        endDate: isAllTime ? "" : endDate,
       }
 
       await searchJobOrdersDirect(searchParams)
@@ -269,6 +282,8 @@ export default function ChecklistPage() {
                   onChangeEvent={handleStartDateChange}
                   className="w-full sm:w-[150px]"
                   isFutureShow={true}
+                  isRequired={!isAllTime}
+                  isDisabled={isAllTime}
                 />
               </div>
               <div className="flex items-center gap-1">
@@ -281,9 +296,21 @@ export default function ChecklistPage() {
                   onChangeEvent={handleEndDateChange}
                   isFutureShow={true}
                   className="w-full sm:w-[150px]"
+                  isRequired={!isAllTime}
+                  isDisabled={isAllTime}
                 />
               </div>
             </Form>
+            {/* All data checkbox */}
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={isAllTime}
+                onCheckedChange={(checked) => setIsAllTime(checked === true)}
+              />
+              <span className="text-muted-foreground whitespace-nowrap">
+                All data
+              </span>
+            </label>
             <div className="flex items-center gap-1">
               <Input
                 type="text"

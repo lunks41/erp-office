@@ -8,7 +8,7 @@ import { FormProvider, useForm } from "react-hook-form"
 import { CbBankRecon } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
-import { useGetWithDates } from "@/hooks/use-common"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
@@ -55,10 +55,11 @@ export default function BankReconTable({
   })
 
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search || "")
-  const [currentPage] = useState(1)
-  const [pageSize] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
       ? formatDateForApi(initialFilters.startDate) || defaultStartDate
@@ -98,17 +99,21 @@ export default function BankReconTable({
     isLoading: isLoadingBankRecons,
     isRefetching: isRefetchingBankRecons,
     refetch: _refetchBankRecons,
-  } = useGetWithDates<ICbBankReconHd>(
+  } = useGetWithDatesAndPagination<ICbBankReconHd>(
     `${CbBankRecon.get}`,
     TableName.cbBankRecon,
     searchQuery,
-    searchStartDate ?? "",
-    searchEndDate ?? "",
+    isAllTimeCommitted ? "" : (searchStartDate ?? ""),
+    isAllTimeCommitted ? "" : (searchEndDate ?? ""),
+    currentPage,
+    pageSize,
+    isAllTimeCommitted,
     undefined,
     hasSearched
   )
 
   const data = bankReconsResponse?.data || []
+  const totalRecords = bankReconsResponse?.totalRecords ?? data.length
   const isLoading = isLoadingBankRecons || isRefetchingBankRecons
 
   const formatNumber = (value: number, decimals: number) => {
@@ -288,14 +293,18 @@ export default function BankReconTable({
   const handleSearchBankRecon = () => {
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
+    setIsAllTimeCommitted(isAllTime)
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)
+    setCurrentPage(1)
     setHasSearched(true)
 
     const newFilters: ICbBankReconFilter = {
@@ -304,7 +313,7 @@ export default function BankReconTable({
       search: filterSearchValue,
       sortBy: "reconNo",
       sortOrder: "asc",
-      pageNumber: currentPage,
+      pageNumber: 1,
       pageSize: pageSize,
     }
     onFilterChange(newFilters)
@@ -330,14 +339,48 @@ export default function BankReconTable({
     }
   }
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: form.getValues("startDate"),
+        endDate: form.getValues("endDate"),
+        search: searchQuery,
+        sortBy: "reconNo",
+        sortOrder: "asc",
+        pageNumber: page,
+        pageSize,
+      })
+    }
+  }
+
+  const handlePageSizeChange = (size: number) => {
+    const nextSize = typeof size === "number" && size > 0 ? size : 10
+    setPageSize(nextSize)
+    setCurrentPage(1)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: form.getValues("startDate"),
+        endDate: form.getValues("endDate"),
+        search: searchQuery,
+        sortBy: "reconNo",
+        sortOrder: "asc",
+        pageNumber: 1,
+        pageSize: nextSize,
+      })
+    }
+  }
+
   const handleClear = () => {
     form.setValue("startDate", defaultStartDate)
     form.setValue("endDate", defaultEndDate)
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
+    setCurrentPage(1)
     setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
@@ -426,6 +469,12 @@ export default function BankReconTable({
         emptyMessage="No data found."
         onRowSelect={(row) => onBankReconSelect(row || undefined)}
         showSearch={false}
+        serverSidePagination={true}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalRecords={totalRecords}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     </div>
   )

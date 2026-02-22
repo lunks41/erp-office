@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form"
 
 import { ApJobTransaction } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
-import { useGetWithDates } from "@/hooks/use-common"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import CustomInput from "@/components/custom/custom-input"
@@ -33,6 +33,8 @@ export default function JobTransactionsPage() {
   const [editRow, setEditRow] = useState<IJobTransaction | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(2000)
 
   const today = useMemo(() => new Date(), [])
   const defaultStartDate = useMemo(
@@ -59,15 +61,19 @@ export default function JobTransactionsPage() {
   )
   const toDateStr = useMemo(() => formatDateForApi(toDate) ?? "", [toDate])
 
-  const { data: response, isLoading } = useGetWithDates<IJobTransaction>(
-    ApJobTransaction.getList,
-    `job-transactions-${companyId}`,
-    searchQuery?.trim() || undefined,
-    fromDateStr,
-    toDateStr,
-    undefined,
-    !!companyId && hasSearched
-  )
+  const { data: response, isLoading } =
+    useGetWithDatesAndPagination<IJobTransaction>(
+      ApJobTransaction.getList,
+      `job-transactions-${companyId}`,
+      searchQuery?.trim() || undefined,
+      fromDateStr,
+      toDateStr,
+      currentPage,
+      pageSize,
+      false,
+      undefined,
+      !!companyId && hasSearched
+    )
 
   const list: IJobTransaction[] =
     response?.result === 1 && Array.isArray(response?.data) ? response.data : []

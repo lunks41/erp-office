@@ -9,7 +9,7 @@ import { FormProvider, useForm } from "react-hook-form"
 import { CbBankTransferCtm } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
-import { useGetWithDates } from "@/hooks/use-common"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
@@ -65,8 +65,11 @@ export default function CbBankTransferCtmTable({
   })
 
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search || "")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(_pageSize || 15)
   const [hasSearched, setHasSearched] = useState(false)
   const [isAllTime, setIsAllTime] = useState(false)
+  const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false)
   const [searchStartDate, setSearchStartDate] = useState<string | undefined>(
     initialFilters?.startDate
       ? formatDateForApi(initialFilters.startDate) || defaultStartDate
@@ -106,17 +109,21 @@ export default function CbBankTransferCtmTable({
     isLoading: isLoadingBankTransferCtms,
     isRefetching: isRefetchingBankTransferCtms,
     refetch: _refetchBankTransferCtms,
-  } = useGetWithDates<ICbBankTransferCtmHd>(
+  } = useGetWithDatesAndPagination<ICbBankTransferCtmHd>(
     `${CbBankTransferCtm.get}`,
     TableName.cbBankTransferCtm,
     searchQuery,
-    searchStartDate ?? "",
-    searchEndDate ?? "",
+    isAllTimeCommitted ? "" : (searchStartDate ?? ""),
+    isAllTimeCommitted ? "" : (searchEndDate ?? ""),
+    currentPage,
+    pageSize,
+    isAllTimeCommitted,
     undefined,
     hasSearched
   )
 
   const data = bankTransferCtmsResponse?.data || []
+  const totalRecords = bankTransferCtmsResponse?.totalRecords ?? data.length
   const isLoading = isLoadingBankTransferCtms || isRefetchingBankTransferCtms
 
   const formatNumber = (value: number, decimals: number) => {
@@ -282,6 +289,7 @@ export default function CbBankTransferCtmTable({
   const handleSearchBankTransferCtm = () => {
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
+    setIsAllTimeCommitted(isAllTime)
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
@@ -290,6 +298,7 @@ export default function CbBankTransferCtmTable({
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)
+    setCurrentPage(1)
     setHasSearched(true)
 
     const newFilters: ICbBankTransferCtmFilter = {
@@ -320,14 +329,44 @@ export default function CbBankTransferCtmTable({
     }
   }
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: form.getValues("startDate"),
+        endDate: form.getValues("endDate"),
+        search: searchQuery,
+        sortBy: "transferNo",
+        sortOrder: "asc",
+      })
+    }
+  }
+
+  const handlePageSizeChange = (size: number) => {
+    const nextSize = typeof size === "number" && size > 0 ? size : 15
+    setPageSize(nextSize)
+    setCurrentPage(1)
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: form.getValues("startDate"),
+        endDate: form.getValues("endDate"),
+        search: searchQuery,
+        sortBy: "transferNo",
+        sortOrder: "asc",
+      })
+    }
+  }
+
   const handleClear = () => {
     form.setValue("startDate", defaultStartDate)
     form.setValue("endDate", defaultEndDate)
     form.setValue("filterSearch", "")
     setSearchQuery("")
     setIsAllTime(false)
+    setIsAllTimeCommitted(false)
     setSearchStartDate(defaultStartDate)
     setSearchEndDate(defaultEndDate)
+    setCurrentPage(1)
     setHasSearched(true)
     if (onFilterChange) {
       onFilterChange({
@@ -427,6 +466,12 @@ export default function CbBankTransferCtmTable({
         emptyMessage="No Bank Transfer CTMs found matching your criteria. Try adjusting the date range or search terms."
         onRowSelect={(row) => onCbBankTransferCtmSelect(row || undefined)}
         showSearch={false}
+        serverSidePagination={true}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalRecords={totalRecords}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     </div>
   )

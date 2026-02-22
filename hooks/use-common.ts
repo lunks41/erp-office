@@ -138,6 +138,7 @@ export function useGetByParams<T>(
 
 /**
  * GET with date range filters
+ * @param isAllTime - When true, fetch all data without date filter (pass empty dates to API)
  */
 export function useGetWithDates<T>(
   baseUrl: string,
@@ -146,16 +147,18 @@ export function useGetWithDates<T>(
   startDate?: string,
   endDate?: string,
   options?: Partial<UseQueryOptions<ApiResponse<T>>>,
-  enabled?: boolean
+  enabled?: boolean,
+  isAllTime?: boolean
 ) {
   return useQuery<ApiResponse<T>>({
-    queryKey: [queryKey, filters, startDate, endDate],
+    queryKey: [queryKey, filters, startDate, endDate, isAllTime],
     queryFn: async () => {
       const params: QueryParams = {
         ...baseQueryConfig,
         searchString: filters?.trim() || "",
-        startDate: startDate?.trim() || "",
-        endDate: endDate?.trim() || "",
+        startDate: isAllTime ? "" : (startDate?.trim() || ""),
+        endDate: isAllTime ? "" : (endDate?.trim() || ""),
+        isAllTime: isAllTime ? "true" : "false",
       }
       return await getData(cleanUrl(baseUrl), params)
     },

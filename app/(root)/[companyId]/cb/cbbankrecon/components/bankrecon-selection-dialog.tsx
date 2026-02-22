@@ -11,7 +11,7 @@ import { Search } from "lucide-react"
 import { CbBankRecon } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
-import { useGetWithDates } from "@/hooks/use-common"
+import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -55,6 +55,8 @@ export default function BankReconSelectionDialog({
   })
 
   const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(50)
 
   // Data fetching - only when dialog is opened and bankId is provided
   const {
@@ -62,14 +64,17 @@ export default function BankReconSelectionDialog({
     isLoading: isLoadingBankRecons,
     isRefetching: isRefetchingBankRecons,
     refetch: refetchBankRecons,
-  } = useGetWithDates<ICbBankReconHd>(
+  } = useGetWithDatesAndPagination<ICbBankReconHd>(
     `${CbBankRecon.get}`,
     TableName.cbBankRecon,
     searchQuery,
     formatDateForApi(form.watch("startDate")) || "",
     formatDateForApi(form.watch("endDate")) || "",
-    undefined, // options
-    open && !!bankId && bankId > 0 // enabled: Fetch when dialog is opened and bankId is valid
+    currentPage,
+    pageSize,
+    false,
+    undefined,
+    open && !!bankId && bankId > 0
   )
 
   const data = bankReconsResponse?.data || []

@@ -27,7 +27,7 @@ import { getById } from "@/lib/api-client"
 import { ArInvoice } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
-import { useDelete, useGetWithDates, usePersist } from "@/hooks/use-common"
+import { useDelete, useGetWithDatesAndPagination, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
 import {
@@ -174,12 +174,17 @@ export default function InvoicePage() {
     refetch: refetchInvoices,
     isLoading: isLoadingInvoices,
     isRefetching: isRefetchingInvoices,
-  } = useGetWithDates<IArInvoiceHd>(
+  } = useGetWithDatesAndPagination<IArInvoiceHd>(
     `${ArInvoice.get}`,
     TableName.arInvoice,
     filters.search,
     filters.startDate ? formatDateForApi(filters.startDate) || "" : "",
-    filters.endDate ? formatDateForApi(filters.endDate) || "" : ""
+    filters.endDate ? formatDateForApi(filters.endDate) || "" : "",
+    filters.pageNumber ?? 1,
+    filters.pageSize ?? 10,
+    false,
+    undefined,
+    true
   )
 
   const { data: invoicesData } =
