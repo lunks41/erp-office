@@ -29,6 +29,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
+import { dateSortingFn } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"
 // Virtual scrolling removed - using empty rows instead
@@ -128,12 +129,25 @@ export function DialogDataTable<T>({
     return {}
   }
 
+  const getInitialColumnOrder = (): string[] => {
+    if (gridSettingsData?.grdColOrder) {
+      try {
+        const parsed = JSON.parse(gridSettingsData.grdColOrder)
+        return Array.isArray(parsed) ? parsed : []
+      } catch {
+        return []
+      }
+    }
+    return []
+  }
+
   const [sorting, setSorting] = useState<SortingState>(getInitialSorting)
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     getInitialColumnVisibility
   )
   const [columnSizing, setColumnSizing] = useState(getInitialColumnSizing)
+  const [columnOrder, setColumnOrder] = useState<string[]>(getInitialColumnOrder)
   const [searchQuery, setSearchQuery] = useState(initialSearchValue || "")
   const [currentPage, setCurrentPage] = useState(propCurrentPage || 1)
   const [pageSize, setPageSize] = useState(propPageSize || 50)
@@ -155,6 +169,7 @@ export function DialogDataTable<T>({
         const colVisible = JSON.parse(gridSettingsData.grdColVisible || "{}")
         const colSize = JSON.parse(gridSettingsData.grdColSize || "{}")
         const sort = JSON.parse(gridSettingsData.grdSort || "[]")
+        const colOrder = JSON.parse(gridSettingsData.grdColOrder || "[]")
 
         setColumnVisibility((prev) => {
           const newVisibility =
@@ -176,6 +191,12 @@ export function DialogDataTable<T>({
               JSON.stringify(prev) !== JSON.stringify(colSize) ? colSize : prev
             return newSizing
           })
+        }
+
+        if (Array.isArray(colOrder) && colOrder.length > 0) {
+          setColumnOrder((prev) =>
+            JSON.stringify(prev) !== JSON.stringify(colOrder) ? colOrder : prev
+          )
         }
       } catch (error) {
         console.error("Error parsing grid settings:", error)
@@ -200,7 +221,16 @@ export function DialogDataTable<T>({
     }
   }, [initialSearchValue]) // Only depend on initialSearchValue to avoid loops
 
-  const tableColumns: ColumnDef<T>[] = [...columns]
+  // Auto-apply date sorting to date columns (accessorKey ends with "Date")
+  const tableColumns: ColumnDef<T>[] = columns.map((col) => {
+    const accessorKey =
+      (col as ColumnDef<T> & { accessorKey?: string }).accessorKey
+    const isDateColumn =
+      typeof accessorKey === "string" &&
+      accessorKey.endsWith("Date") &&
+      !col.sortingFn
+    return isDateColumn ? { ...col, sortingFn: dateSortingFn } : col
+  })
 
   // Determine if we're using server-side pagination
   const isServerSidePagination = serverSidePagination
@@ -212,6 +242,7 @@ export function DialogDataTable<T>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnOrderChange: setColumnOrder,
     onColumnSizingChange: setColumnSizing,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -229,6 +260,7 @@ export function DialogDataTable<T>({
       sorting, // Current sorting state
       columnFilters, // Current filter state
       columnVisibility, // Current visibility state
+      columnOrder, // Column order for drag-and-drop reordering
       columnSizing, // Current column sizes
       rowSelection, // Current selected rows
       pagination: serverSidePagination
@@ -246,19 +278,6 @@ export function DialogDataTable<T>({
     },
   })
 
-  useEffect(() => {
-    if (gridSettingsData && table) {
-      try {
-        const colOrder = JSON.parse(gridSettingsData.grdColOrder || "[]")
-        if (colOrder.length > 0) {
-          table.setColumnOrder(colOrder)
-        }
-      } catch (error) {
-        console.error("Error parsing column order:", error)
-      }
-    }
-  }, [gridSettingsData, table])
-
   // Sync internal state with props when they change
   useEffect(() => {
     if (propCurrentPage !== undefined && propCurrentPage !== currentPage) {
@@ -275,8 +294,12 @@ export function DialogDataTable<T>({
   // Virtual scrolling removed - using empty rows instead
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, {})
   )
 
@@ -411,21 +434,21 @@ export function DialogDataTable<T>({
     const { active, over } = event
 
     if (active && over && active.id !== over.id) {
-      const oldIndex = table
-        .getAllColumns()
-        .findIndex((col) => col.id === active.id)
+      const currentOrder =
+        columnOrder.length > 0
+          ? columnOrder
+          : table.getAllColumns().map((col) => col.id)
+      const oldIndex = currentOrder.indexOf(active.id as string)
+      const newIndex = currentOrder.indexOf(over.id as string)
 
-      const newIndex = table
-        .getAllColumns()
-        .findIndex((col) => col.id === over.id)
-
-      const newColumnOrder = arrayMove(
-        table.getAllColumns(),
-        oldIndex,
-        newIndex
-      )
-
-      table.setColumnOrder(newColumnOrder.map((col) => col.id))
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newColumnOrder = arrayMove(
+          [...currentOrder],
+          oldIndex,
+          newIndex
+        ) as string[]
+        setColumnOrder(newColumnOrder)
+      }
     }
   }
 
@@ -459,6 +482,9 @@ export function DialogDataTable<T>({
     // Reset sorting
     setSorting([])
 
+    // Reset column order to default
+    setColumnOrder([])
+
     // Reset column sizes to default
     setColumnSizing({})
   }, [table])
@@ -471,11 +497,7 @@ export function DialogDataTable<T>({
         searchQuery={searchQuery}
         onSearchChange={handleSearch}
         onRefreshAction={onRefreshAction}
-        //columns={table.getAllLeafColumns()}
-        columns={table
-          .getHeaderGroups()
-          .flatMap((group) => group.headers)
-          .map((header) => header.column)}
+        columns={table.getAllLeafColumns()}
         data={data}
         tableName={tableName}
         moduleId={moduleId || 1}

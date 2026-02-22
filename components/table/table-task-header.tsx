@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dialog"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -105,7 +104,6 @@ export function TaskTableHeader<TData>({
   canDebitNote = true,
 }: TaskTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
-  const [activeButton, setActiveButton] = useState<"show" | "hide" | null>(null)
   const [debitNoteNo, setDebitNoteNo] = useState("")
   const [showDebitNoteInput, setShowDebitNoteInput] = useState(false)
   // State for debit note confirmation dialog
@@ -159,14 +157,6 @@ export function TaskTableHeader<TData>({
       return headerText.toLowerCase().includes(columnSearch.toLowerCase())
     })
   }, [columns, columnSearch, hasDebitNoteInSelection, hideColumnsOnDebitNote])
-  const handleShowAll = useCallback(() => {
-    columns.forEach((column) => column.toggleVisibility(true))
-    setActiveButton("show")
-  }, [columns])
-  const handleHideAll = useCallback(() => {
-    columns.forEach((column) => column.toggleVisibility(false))
-    setActiveButton("hide")
-  }, [columns])
   const handleDebitNoteClick = useCallback(() => {
     // Check if any selected items have existing debit notes
     const hasExistingDebitNotes = hasValidDebitNoteIds
@@ -485,42 +475,28 @@ export function TaskTableHeader<TData>({
                     className="mb-2"
                   />
                 </div>
-                <div className="flex gap-2 p-2">
-                  <Button
-                    variant={activeButton === "show" ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={handleShowAll}
-                    title="Show all columns"
-                  >
-                    Show All
-                  </Button>
-                  <Button
-                    variant={activeButton === "hide" ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={handleHideAll}
-                    title="Hide all columns"
-                  >
-                    Hide All
-                  </Button>
-                </div>
-                <DropdownMenuItem className="my-1 h-px p-0" disabled />
                 {filteredColumns.map((column) => (
-                  <DropdownMenuCheckboxItem
+                  <DropdownMenuItem
                     key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
                     onSelect={(e) => {
                       e.preventDefault()
+                      column.toggleVisibility(!column.getIsVisible())
                     }}
+                    className="flex cursor-pointer items-center gap-2"
                   >
-                    {typeof column.columnDef.header === "string"
-                      ? column.columnDef.header
-                      : column.id}
-                  </DropdownMenuCheckboxItem>
+                    <Checkbox
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(value === true)
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <span>
+                      {typeof column.columnDef.header === "string"
+                        ? column.columnDef.header
+                        : column.id}
+                    </span>
+                  </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>

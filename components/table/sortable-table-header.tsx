@@ -7,16 +7,6 @@
 // Drag and Drop functionality
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-// Icons from Tabler Icons
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconDotsVertical,
-  IconEye,
-  IconSortAscending,
-  IconSortDescending,
-  IconX,
-} from "@tabler/icons-react"
 // TanStack Table types and utilities
 import { Header, flexRender } from "@tanstack/react-table"
 // Lucide React icons for sorting indicators
@@ -29,13 +19,6 @@ import {
 import { cn } from "@/lib/utils"
 // Utility functions and UI components
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { TableHead } from "@/components/ui/table"
 
 // ============================================================================
@@ -59,7 +42,7 @@ interface SortableTableHeaderProps<TData> {
  * - Smooth drag and drop with visual feedback
  * - Animated sorting indicators
  * - Hover effects and transitions
- * - Column management (pin, hide, resize)
+ * - Column management (resize)
  * - Accessibility support
  * - Performance optimized with CSS transforms
  *
@@ -84,18 +67,10 @@ export function SortableTableHeader<TData>({
   })
 
   const isSorted = header.column.getIsSorted()
-  const canSort = header.column.getCanSort()
-  const canHide = header.column.getCanHide()
   const canResize = header.column.getCanResize()
   const isResizing = header.column.getIsResizing()
 
   const handleSortToggle = header.column.getToggleSortingHandler()
-  const handlePinLeft = () => header.column.pin("left")
-  const handlePinRight = () => header.column.pin("right")
-  const handleToggleVisibility = () => header.column.toggleVisibility()
-  const handleClearSort = () => header.column.clearSorting()
-  const handleSortAscending = () => header.column.toggleSorting(false)
-  const handleSortDescending = () => header.column.toggleSorting(true)
 
   return (
     <TableHead
@@ -111,7 +86,7 @@ export function SortableTableHeader<TData>({
         ...style,
       }}
       className={cn(
-        "bg-muted group hover:bg-muted/80 transition-colors sticky top-0 z-30",
+        "bg-muted group hover:bg-muted/80 sticky top-0 z-30 transition-colors",
         isDragging && "z-10 cursor-grabbing",
         className
       )}
@@ -119,14 +94,22 @@ export function SortableTableHeader<TData>({
       <div className="flex items-center justify-between pl-3">
         {header.isPlaceholder ? null : (
           <>
-            <div className="flex items-center">
+            <div className="flex min-w-0 flex-1 items-center gap-0.5">
               <div
                 {...attributes}
                 {...listeners}
-                className="flex cursor-grab items-center active:cursor-grabbing"
+                className="flex min-w-0 flex-1 cursor-grab items-center gap-0.5 overflow-hidden active:cursor-grabbing"
                 aria-label="Drag to reorder column"
+                title="Drag to reorder column"
               >
-                <span className="font-medium">
+                <span
+                  className="min-w-0 flex-1 font-medium break-words"
+                  title={
+                    typeof header.column.columnDef.header === "string"
+                      ? header.column.columnDef.header
+                      : String(header.column.id)
+                  }
+                >
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
@@ -137,67 +120,18 @@ export function SortableTableHeader<TData>({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground size-7"
+                className="text-muted-foreground size-5 shrink-0"
                 onClick={handleSortToggle}
                 aria-label={`Sort column ${header.column.id}`}
               >
                 {isSorted === "asc" && (
-                  <ArrowUpNarrowWide className="h-4 w-4" />
+                  <ArrowUpNarrowWide className="h-3 w-3" />
                 )}
                 {isSorted === "desc" && (
-                  <ArrowDownNarrowWide className="h-4 w-4" />
+                  <ArrowDownNarrowWide className="h-3 w-3" />
                 )}
-                {!isSorted && <ArrowUpDown className="h-4 w-4" />}
+                {!isSorted && <ArrowUpDown className="h-3 w-3" />}
               </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground h-4 w-4"
-                    aria-label="Column options"
-                  >
-                    <IconDotsVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {canHide && (
-                    <DropdownMenuItem onClick={handleToggleVisibility}>
-                      <IconEye className="mr-2 h-4 w-4" />
-                      Hide column
-                    </DropdownMenuItem>
-                  )}
-
-                  <DropdownMenuItem onClick={handlePinLeft}>
-                    <IconArrowLeft className="mr-2 h-4 w-4" />
-                    Pin to left
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={handlePinRight}>
-                    <IconArrowRight className="mr-2 h-4 w-4" />
-                    Pin to right
-                  </DropdownMenuItem>
-
-                  {canSort && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleClearSort}>
-                        <IconX className="mr-2 h-4 w-4" />
-                        Clear sort
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSortAscending}>
-                        <IconSortAscending className="mr-2 h-4 w-4" />
-                        Sort ascending
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSortDescending}>
-                        <IconSortDescending className="mr-2 h-4 w-4" />
-                        Sort descending
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </>
         )}

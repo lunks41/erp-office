@@ -17,12 +17,12 @@ import { useDelete, usePersist } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 
 // Import autoTable plugin
 import "jspdf-autotable"
@@ -82,7 +82,6 @@ export function AccountReceiptTableHeader<TData>({
   onResetLayout,
 }: AccountReceiptTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
-  const [activeButton, setActiveButton] = useState<"show" | "hide" | null>(null)
   // Filter columns based on search - memoized to prevent re-renders
   const filteredColumns = useMemo(() => {
     return columns.filter((column) => {
@@ -93,14 +92,6 @@ export function AccountReceiptTableHeader<TData>({
       return headerText.toLowerCase().includes(columnSearch.toLowerCase())
     })
   }, [columns, columnSearch])
-  const handleShowAll = useCallback(() => {
-    columns.forEach((column) => column.toggleVisibility(true))
-    setActiveButton("show")
-  }, [columns])
-  const handleHideAll = useCallback(() => {
-    columns.forEach((column) => column.toggleVisibility(false))
-    setActiveButton("hide")
-  }, [columns])
   // Add the save mutation for grid settings
   const saveGridSettings = usePersist<IGridSetting>(UserGrid.add)
   const resetDefaultLayout = useDelete<IGridSetting>(UserGrid.delete)
@@ -349,42 +340,28 @@ export function AccountReceiptTableHeader<TData>({
                     className="mb-2"
                   />
                 </div>
-                <div className="flex gap-2 p-2">
-                  <Button
-                    variant={activeButton === "show" ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={handleShowAll}
-                    title="Show all columns"
-                  >
-                    Show All
-                  </Button>
-                  <Button
-                    variant={activeButton === "hide" ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={handleHideAll}
-                    title="Hide all columns"
-                  >
-                    Hide All
-                  </Button>
-                </div>
-                <DropdownMenuItem className="my-1 h-px p-0" disabled />
                 {filteredColumns.map((column) => (
-                  <DropdownMenuCheckboxItem
+                  <DropdownMenuItem
                     key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
                     onSelect={(e) => {
                       e.preventDefault()
+                      column.toggleVisibility(!column.getIsVisible())
                     }}
+                    className="flex cursor-pointer items-center gap-2"
                   >
-                    {typeof column.columnDef.header === "string"
-                      ? column.columnDef.header
-                      : column.id}
-                  </DropdownMenuCheckboxItem>
+                    <Checkbox
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(value === true)
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <span>
+                      {typeof column.columnDef.header === "string"
+                        ? column.columnDef.header
+                        : column.id}
+                    </span>
+                  </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>

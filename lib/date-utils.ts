@@ -181,3 +181,30 @@ export const formatDateTimeForApi = (
   // Use the existing formatDateWithoutTimezone function which already formats as ISO 8601
   return formatDateWithoutTimezone(date)
 }
+
+/**
+ * Get timestamp for table sorting - handles Date, string (ISO or dd/MM/yyyy), null, undefined
+ */
+export const getDateTimestamp = (val: unknown): number => {
+  if (!val) return 0
+  let date: Date | null = null
+  if (typeof val === "string") {
+    date = parseDate(val)
+  } else if (val instanceof Date && isValid(val) && !isNaN(val.getTime())) {
+    date = val
+  }
+  return date ? date.getTime() : 0
+}
+
+/**
+ * TanStack Table sortingFn for date columns - ensures correct chronological order
+ */
+export const dateSortingFn = <T>(
+  rowA: { getValue: (columnId: string) => unknown },
+  rowB: { getValue: (columnId: string) => unknown },
+  columnId: string
+): number => {
+  const tsA = getDateTimestamp(rowA.getValue(columnId))
+  const tsB = getDateTimestamp(rowB.getValue(columnId))
+  return tsA - tsB
+}

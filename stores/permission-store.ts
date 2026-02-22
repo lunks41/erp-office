@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware"
 interface PermissionState {
   permissions: Record<string, IUserTransactionRights>
   setPermissions: (permissions: IUserTransactionRights[]) => void
+  clearPermissions: () => void
   getPermissions: (
     moduleId: number,
     transactionId: number
@@ -40,6 +41,8 @@ export const usePermissionStore = create<PermissionState>()(
             permissions: newPermissions,
           }
         }),
+
+      clearPermissions: () => set({ permissions: {} }),
 
       getPermissions: (moduleId: number, transactionId: number) => {
         const key = `${moduleId}-${transactionId}`

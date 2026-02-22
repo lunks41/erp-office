@@ -17,7 +17,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { IconGripVertical } from "@tabler/icons-react"
+import { GripVertical } from "lucide-react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -207,7 +207,7 @@ export function DocumentOperationsTable<T>({
         size="icon"
         className="text-muted-foreground size-7 cursor-grab hover:bg-transparent active:cursor-grabbing"
       >
-        <IconGripVertical className="text-muted-foreground size-3" />
+        <GripVertical className="text-muted-foreground size-3" />
         <span className="sr-only">Drag to reorder</span>
       </Button>
     )

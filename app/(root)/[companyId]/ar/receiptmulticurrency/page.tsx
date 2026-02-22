@@ -234,6 +234,8 @@ export default function ReceiptPage() {
           chequeNo: receipt.chequeNo ?? "",
           chequeDate: receipt.chequeDate ?? new Date(),
           bankChgGLId: receipt.bankChgGLId ?? 0,
+          isBankCharges: receipt.isBankCharges ?? false,
+          isAdjCharges: receipt.isAdjCharges ?? false,
           bankChgAmt: receipt.bankChgAmt ?? 0,
           bankChgLocalAmt: receipt.bankChgLocalAmt ?? 0,
           recBankChgAmt: receipt.recBankChgAmt ?? 0,
@@ -564,6 +566,8 @@ export default function ReceiptPage() {
         bankChgLocalAmt: 0,
         recBankChgAmt: 0,
         recBankChgLocalAmt: 0,
+        isBankCharges: false,
+        isAdjCharges: false,
         isCustPayBankChg: false,
         isMultiCurrency: true,
         // Clear data details - remove all records
@@ -771,6 +775,8 @@ export default function ReceiptPage() {
             )
           : dateFormat,
         bankChgGLId: apiReceipt.bankChgGLId ?? 0,
+        isBankCharges: apiReceipt.isBankCharges ?? false,
+        isAdjCharges: apiReceipt.isAdjCharges ?? false,
         bankChgAmt: apiReceipt.bankChgAmt ?? 0,
         bankChgLocalAmt: apiReceipt.bankChgLocalAmt ?? 0,
         recBankChgAmt: apiReceipt.recBankChgAmt ?? 0,

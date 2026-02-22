@@ -194,11 +194,8 @@ export function LoginForm({
         // Successful login - redirect to company selection
         router.push("/company-select")
       } else {
-        // Login failed - check for specific messages
-        if (loginResponse.user?.isLocked === true) {
-          setMessage(loginResponse.message || "Account is locked")
-        }
-        // Error will be displayed via the useEffect that watches auth store error
+        // Login failed - error displayed via useEffect that syncs auth store error to errors.general
+        // (do not also set message - that would duplicate the same alert)
       }
     } catch (error) {
       // Handle unexpected errors

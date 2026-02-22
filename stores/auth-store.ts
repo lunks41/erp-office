@@ -672,6 +672,8 @@ export const useAuthStore = create<AuthState>()(
             //   newCompanyId: companyId,
             // })
             get().setCurrentTabCompanyId(companyId)
+            // Clear permissions immediately so components don't use stale data
+            usePermissionStore.getState().clearPermissions()
             // console.log("📊 After sessionStorage update:", {
             //   newSessionStorage: sessionStorage.getItem("tab_company_id"),
             //   matches: sessionStorage.getItem("tab_company_id") === companyId,

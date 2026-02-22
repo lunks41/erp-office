@@ -26,7 +26,7 @@ import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
 import { format } from "date-fns"
-import { FormProvider, UseFormReturn } from "react-hook-form"
+import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
 import { clientDateFormat } from "@/lib/date-utils"
 import { parseNumberWithCommas } from "@/lib/utils"
@@ -41,6 +41,7 @@ import {
   JobOrderAutocomplete,
   PaymentTypeAutocomplete,
 } from "@/components/autocomplete"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
@@ -102,6 +103,18 @@ export default function ReceiptForm({
   const originalRecTotAmtRef = React.useRef<number>(0)
   const originalBankChgAmtRef = React.useRef<number>(0)
   const originalRecBankChgAmtRef = React.useRef<number>(0)
+
+  const isBankCharges = useWatch({
+    control: form.control,
+    name: "isBankCharges",
+    defaultValue: false,
+  })
+  const isAdjCharges = useWatch({
+    control: form.control,
+    name: "isAdjCharges",
+    defaultValue: false,
+  })
+
   // Bank's currency: when recCurrencyId equals this, do not overwrite recCurrencyId on currencyId change
   const bankCurrencyIdRef = React.useRef<number>(0)
 
@@ -862,6 +875,18 @@ export default function ReceiptForm({
     [form, locAmtDec]
   )
 
+  const handleIsBankChargesChange = React.useCallback(() => {
+    if (form.getValues("isBankCharges")) {
+      form.setValue("isAdjCharges", false, { shouldDirty: true })
+    }
+  }, [form])
+
+  const handleIsAdjChargesChange = React.useCallback(() => {
+    if (form.getValues("isAdjCharges")) {
+      form.setValue("isBankCharges", false, { shouldDirty: true })
+    }
+  }, [form])
+
   return (
     <FormProvider {...form}>
       <form
@@ -1075,54 +1100,61 @@ export default function ReceiptForm({
           />
         )}
 
-        <div className="col-span-1 flex flex-row gap-1">
-          <div className="flex-1">
-            {/* Bank Charges Amount */}
+        {/* Bank Charges / Adj Charges - mutually exclusive, stacked vertically */}
+        <div className="col-span-1 flex flex-col gap-0.5">
+          <CustomCheckbox
+            form={form}
+            name="isBankCharges"
+            label="Bank Charges"
+            onBlurEvent={handleIsBankChargesChange}
+          />
+          <CustomCheckbox
+            form={form}
+            name="isAdjCharges"
+            label="Adj Charges"
+            onBlurEvent={handleIsAdjChargesChange}
+          />
+        </div>
+
+        {/* Rec Bank / Bank Charges Amount - shown when isBankCharges or isAdjCharges */}
+        {(isBankCharges || isAdjCharges) && (
+          <>
             <CustomNumberInput
               form={form}
               name="recBankChgAmt"
-              label="Rec Bank Amt"
+              label={isBankCharges ? "Rec Bank Amt" : "Rec Adj Amt"}
               round={amtDec}
               onFocusEvent={handleRecBankChgAmtFocus}
               onBlurEvent={handleRecBankChgAmtChange}
             />
-          </div>
-          <div className="flex-1">
-            {/* Bank Charges Local Amount */}
+
             <CustomNumberInput
               form={form}
               name="recBankChgLocalAmt"
-              label="Rec Bank Loc"
+              label={isBankCharges ? "Rec Bank Loc" : "Rec Adj Loc"}
               round={locAmtDec}
               isDisabled={true}
             />
-          </div>
-        </div>
 
-        <div className="col-span-1 flex flex-row gap-1">
-          <div className="flex-1">
-            {/* Bank Charges Amount */}
             <CustomNumberInput
               form={form}
               name="bankChgAmt"
-              label="Bank Chg Amt"
+              label={isBankCharges ? "Bank Chrg Amt" : "Adj Chrg Amt"}
               round={amtDec}
               isDisabled={true}
               onFocusEvent={handleBankChgAmtFocus}
               onBlurEvent={handleBankChgAmtChange}
             />
-          </div>
-          <div className="flex-1">
-            {/* Bank Charges Local Amount */}
+
             <CustomNumberInput
               form={form}
               name="bankChgLocalAmt"
-              label="Bank Locmt"
+              label={isBankCharges ? "Bank Locmt" : "Adj Locmt"}
               round={locAmtDec}
               isDisabled={true}
             />
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Exchange Gain/Loss */}
         <CustomNumberInput
