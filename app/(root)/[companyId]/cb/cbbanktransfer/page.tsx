@@ -568,7 +568,9 @@ export default function BankTransferPage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -819,7 +821,7 @@ export default function BankTransferPage() {
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )

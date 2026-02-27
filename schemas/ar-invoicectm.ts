@@ -209,6 +209,10 @@ export const ArInvoiceCtmDtSchema = (
     totAmt: required?.m_TotAmt ? z.number() : z.number().optional(),
     totLocalAmt: z.number(),
     totCtyAmt: visible?.m_CtyCurr ? z.number() : z.number().optional(),
+    taskId: z.number().optional(),
+    taskName: z.string().optional(),
+    serviceItemNo: z.number().optional(),
+    serviceItemNoName: z.string().optional(),
 
     // Remarks
     debitNoteNo: z.string().optional(),

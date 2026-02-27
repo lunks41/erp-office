@@ -72,6 +72,54 @@ export interface IErrorLog {
   createDate: Date | string
 }
 
+// Activation - cancelled documents (accounts)
+export interface IActiveDocument {
+  documentType: string
+  documentId: number
+  documentNo: string
+  accountDate?: string | null
+  referenceNo?: string | null
+  moduleId?: number | null
+  transactionId?: number | null
+  totAmt: number
+  gstAmt: number
+  totAmtAftGst: number
+  createById?: number | null
+  createBy?: string | null
+  createDate?: string | null
+  editById?: number | null
+  editBy?: string | null
+  editDate?: string | null
+  cancelById?: number | null
+  cancelBy?: string | null
+  cancelDate?: string | null
+}
+
+export interface IActivateAccountRequest {
+  documentType: string
+  documentNo: string
+  documentId: number
+  moduleId?: number | null
+  transactionId?: number | null
+}
+
+// Activation - job order status
+export interface IJobOrderStatus {
+  jobOrderId: number
+  jobOrderNo: string
+  vesselId?: number | null
+  vesselName?: string | null
+  customerId?: number | null
+  customerName?: string | null
+  jobStatusId: number
+  jobStatusName?: string | null
+}
+
+export interface ISaveJobOrderStatusRequest {
+  jobOrderId: number
+  jobStatusId: number
+}
+
 export interface IUserFilter {
   isActive?: boolean
   search?: string

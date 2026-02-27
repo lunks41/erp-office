@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
-import { format, parse, startOfMonth, startOfYear, subMonths } from "date-fns"
+import {
+  endOfMonth,
+  format,
+  parse,
+  startOfMonth,
+  startOfYear,
+  subDays,
+  subMonths,
+} from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 
 import { formatDateForApi } from "@/lib/date-utils"
@@ -13,6 +21,14 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
   BankAutocomplete,
   CurrencyAutocomplete,
 } from "@/components/autocomplete"
@@ -20,12 +36,14 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { CustomDateWithPresets } from "@/components/custom/custom-date-with-presets"
 
 interface IReportFormData extends Record<string, unknown> {
-  bankId: string
-  bankName: string
-  currencyId: string
   fromDate: string
   toDate: string
   asOfDate: string
+  bankId: string
+  bankName: string
+  currencyId: string
+  dateRangeMode: "preset" | "custom"
+  dateRangePreset: string
   useTrsDate: boolean
   useAsDate: boolean
   reportType: number
@@ -53,8 +71,20 @@ interface IReport {
   reportType?: number
 }
 
+const DATE_RANGE_PRESETS = [
+  { value: "current-day", label: "Current Day" },
+  { value: "last-week", label: "Last Week" },
+  { value: "last-month", label: "Last Month" },
+  { value: "last-3-period", label: "Last 3 period" },
+  { value: "last-6-period", label: "Last 6 period" },
+  { value: "previous-year", label: "Previous year" },
+] as const
+
 // Reports that use TrsDate (From/To Date)
 const TRS_DATE_REPORTS = ["payment-register", "receipt-register"]
+
+// Reports that use AsDate only (single date) - Bank Register
+const AS_DATE_REPORTS = ["bank-register"]
 
 const REPORT_CATEGORIES = [
   {
@@ -110,12 +140,14 @@ export default function ReportsPage() {
 
   const form = useForm<IReportFormData>({
     defaultValues: {
-      bankId: "",
-      bankName: "",
-      currencyId: "0",
       fromDate: getDefaultFromDate(),
       toDate: getCurrentDate(),
       asOfDate: getCurrentDate(),
+      bankId: "",
+      bankName: "",
+      currencyId: "0",
+      dateRangeMode: "preset",
+      dateRangePreset: "current-day",
       useTrsDate: true,
       useAsDate: false,
       reportType: 0,
@@ -203,6 +235,59 @@ export default function ReportsPage() {
     }
   }
 
+  // Apply preset date range to form (fromDate, toDate, asOfDate)
+  const applyPresetDates = (preset: string) => {
+    const now = new Date()
+    let from: Date
+    let to: Date
+    switch (preset) {
+      case "current-day":
+        from = now
+        to = now
+        break
+      case "last-week":
+        from = subDays(now, 7)
+        to = now
+        break
+      case "last-month":
+        from = startOfMonth(subMonths(now, 1))
+        to = endOfMonth(subMonths(now, 1))
+        break
+      case "last-3-period":
+        from = startOfMonth(subMonths(now, 3))
+        to = now
+        break
+      case "last-6-period":
+        from = startOfMonth(subMonths(now, 6))
+        to = now
+        break
+      case "previous-year": {
+        const prevYear = now.getFullYear() - 1
+        from = new Date(prevYear, 0, 1)
+        to = new Date(prevYear, 11, 31)
+        break
+      }
+      default:
+        from = now
+        to = now
+    }
+    form.setValue("fromDate", format(from, dateFormat))
+    form.setValue("toDate", format(to, dateFormat))
+    form.setValue("asOfDate", format(to, dateFormat))
+  }
+
+  const handleDateRangePresetChange = (value: string) => {
+    form.setValue("dateRangePreset", value)
+    form.setValue("dateRangeMode", "preset")
+    applyPresetDates(value)
+  }
+
+  // Apply initial preset on first load so dates match "Current Day"
+  useEffect(() => {
+    applyPresetDates("current-day")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const getAllReports = (): IReport[] => {
     return REPORT_CATEGORIES.flatMap((category) =>
       category.reports.map((report) => ({
@@ -217,6 +302,7 @@ export default function ReportsPage() {
     if (selectedReports.length > 0) {
       const selectedReportId = selectedReports[0]
       const usesTrsDate = TRS_DATE_REPORTS.includes(selectedReportId)
+      const usesAsDate = AS_DATE_REPORTS.includes(selectedReportId)
       const allReports = getAllReports()
       const selectedReport = allReports.find((r) => r.id === selectedReportId)
 
@@ -224,10 +310,14 @@ export default function ReportsPage() {
         // Set TrsDate to true and disable AsDate
         form.setValue("useTrsDate", true)
         form.setValue("useAsDate", false)
-      } else {
+      } else if (usesAsDate) {
         // Set AsDate to true and disable TrsDate
         form.setValue("useTrsDate", false)
         form.setValue("useAsDate", true)
+      } else {
+        // Default: allow manual control
+        form.setValue("useTrsDate", false)
+        form.setValue("useAsDate", false)
       }
 
       // Set reportType from the selected report
@@ -245,6 +335,10 @@ export default function ReportsPage() {
     const allReports = getAllReports()
     return allReports.filter((report) => selectedReports.includes(report.id))
   }
+
+  // Check if selected report requires AsDate only (Bank Register)
+  const requiresAsDate =
+    selectedReports.length > 0 && AS_DATE_REPORTS.includes(selectedReports[0])
 
   const buildReportParameters = (
     data: IReportFormData,
@@ -346,6 +440,8 @@ export default function ReportsPage() {
       toDate: currentDate,
       asOfDate: currentDate,
       currencyId: "0",
+      dateRangeMode: "preset",
+      dateRangePreset: "current-day",
       useTrsDate: true,
       useAsDate: false,
       reportType: 0,
@@ -455,81 +551,100 @@ export default function ReportsPage() {
                   />
                 </div>
 
-                {/* Date Selection Checkboxes */}
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center space-x-1.5">
-                    <Checkbox
-                      id="useTrsDate"
-                      checked={form.watch("useTrsDate")}
-                      onCheckedChange={(checked) => {
-                        const isChecked = checked as boolean
-                        form.setValue("useTrsDate", isChecked)
-                        if (isChecked) {
-                          form.setValue("useAsDate", false)
+                {/* Date Range Preset / Custom - hide for AsDate-only reports (Bank Register) */}
+                {!requiresAsDate && (
+                  <div className="space-y-2 rounded-md border p-3">
+                    <label className="text-sm font-medium">Date Range</label>
+                    <RadioGroup
+                      value={form.watch("dateRangeMode")}
+                      onValueChange={(value: "preset" | "custom") => {
+                        form.setValue("dateRangeMode", value)
+                        if (value === "preset") {
+                          applyPresetDates(form.getValues("dateRangePreset"))
                         }
                       }}
-                    />
-                    <label
-                      htmlFor="useTrsDate"
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="flex flex-wrap items-center gap-4"
                     >
-                      Trs Date:
-                    </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <RadioGroupItem value="preset" id="cb-date-range-preset" />
+                        <label
+                          htmlFor="cb-date-range-preset"
+                          className="text-sm font-normal"
+                        >
+                          Preset Date Range
+                        </label>
+                        <Select
+                          value={form.watch("dateRangePreset")}
+                          onValueChange={handleDateRangePresetChange}
+                        >
+                          <SelectTrigger className="h-8 w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DATE_RANGE_PRESETS.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>
+                                {p.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="custom" id="cb-date-range-custom" />
+                        <label
+                          htmlFor="cb-date-range-custom"
+                          className="text-sm font-normal"
+                        >
+                          Custom Date Range
+                        </label>
+                      </div>
+                    </RadioGroup>
                   </div>
+                )}
 
-                  <div className="flex items-center space-x-1.5">
-                    <Checkbox
-                      id="useAsDate"
-                      checked={form.watch("useAsDate")}
-                      onCheckedChange={(checked) => {
-                        const isChecked = checked as boolean
-                        form.setValue("useAsDate", isChecked)
-                        if (isChecked) {
-                          form.setValue("useTrsDate", false)
-                        }
-                      }}
+                {/* Date Range - Show From/To Date for TrsDate reports (hidden for Bank Register) */}
+                {!requiresAsDate && (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <CustomDateNew
+                      form={form}
+                      name="fromDate"
+                      label="From Date:"
+                      isRequired={false}
+                      isDisabled={
+                        form.watch("dateRangeMode") === "preset" ||
+                        form.watch("useAsDate")
+                      }
+                      onChangeEvent={handleFromDateChange}
                     />
-                    <label
-                      htmlFor="useAsDate"
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      As Date:
-                    </label>
+                    <CustomDateNew
+                      form={form}
+                      name="toDate"
+                      label="To Date:"
+                      isRequired={false}
+                      isDisabled={
+                        form.watch("dateRangeMode") === "preset" ||
+                        form.watch("useAsDate")
+                      }
+                      isFutureShow={true}
+                      onChangeEvent={handleToDateChange}
+                    />
                   </div>
-                </div>
+                )}
 
-                {/* Date Range - Show From/To Date for TrsDate reports */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CustomDateNew
-                    form={form}
-                    name="fromDate"
-                    label="From Date:"
-                    isRequired={false}
-                    isDisabled={form.watch("useAsDate")}
-                    onChangeEvent={handleFromDateChange}
-                  />
-                  <CustomDateNew
-                    form={form}
-                    name="toDate"
-                    label="To Date:"
-                    isRequired={false}
-                    isDisabled={form.watch("useAsDate")}
-                    isFutureShow={true}
-                    onChangeEvent={handleToDateChange}
-                  />
-                </div>
-
-                {/* As Date - Show only for non-TrsDate reports (with preset shortcuts) */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CustomDateWithPresets
-                    form={form}
-                    name="asOfDate"
-                    label="As Date:"
-                    isRequired={false}
-                    isDisabled={form.watch("useTrsDate")}
-                    onChangeEvent={handleAsDateChange}
-                  />
-                </div>
+                {/* As Date - hide for pure TrsDate reports (Payment/Receipt Register); only show for Bank Register or mixed cases */}
+                {(!TRS_DATE_REPORTS.includes(selectedReports[0] || "") ||
+                  requiresAsDate) && (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <CustomDateWithPresets
+                      form={form}
+                      name="asOfDate"
+                      label="As Date:"
+                      isRequired={false}
+                      isDisabled={!requiresAsDate && form.watch("useTrsDate")}
+                      onChangeEvent={handleAsDateChange}
+                    />
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-4">

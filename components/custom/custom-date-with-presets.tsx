@@ -56,9 +56,10 @@ const PRESETS = [
   { label: "Today", getDate: () => startOfToday() },
   { label: "Last week", getDate: () => subDays(startOfToday(), 7) },
   { label: "Last 1 month", getDate: () => subMonths(startOfToday(), 1) },
-  { label: "Last 2 months", getDate: () => subMonths(startOfToday(), 2) },
+  { label: "Last 3 period", getDate: () => subMonths(startOfToday(), 3) },
+  { label: "Last 6 period", getDate: () => subMonths(startOfToday(), 6) },
   {
-    label: "Last year",
+    label: "Previous year",
     getDate: () => endOfYear(subYears(startOfToday(), 1)),
   },
 ] as const

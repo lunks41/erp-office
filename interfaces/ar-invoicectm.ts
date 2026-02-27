@@ -140,6 +140,10 @@ export interface IArInvoiceCtmDt {
   departmentId: number
   departmentCode: string
   departmentName: string
+  taskId: number
+  taskName: string
+  serviceItemNo: number
+  serviceItemNoName: string
 
   employeeId: number
   employeeCode: string

@@ -16,24 +16,27 @@ export default function ReportWindowViewerPage() {
   } | null>(null)
 
   useEffect(() => {
-    // Get data from sessionStorage (clean URL approach)
+    // Use localStorage so the popup can read data (sessionStorage is not shared with new windows)
+    // Delay removeItem so React Strict Mode (dev) double-mount doesn't clear before second read
+    const storageKey = `report_window_${companyId}`
     try {
-      const storedData = sessionStorage.getItem(`report_window_${companyId}`)
+      const storedData = localStorage.getItem(storageKey)
       if (storedData) {
         const parsed = JSON.parse(storedData)
         setReportData({
           reportFile: parsed.reportFile,
           parameters: parsed.parameters,
         })
-        // Clean up sessionStorage after reading
-        sessionStorage.removeItem(`report_window_${companyId}`)
-        return
+        // Clear after a short delay so dev Strict Mode's second mount can still read
+        const clearTimer = setTimeout(() => {
+          localStorage.removeItem(storageKey)
+        }, 300)
+        return () => clearTimeout(clearTimer)
       }
     } catch (error) {
-      console.error("Error reading from sessionStorage:", error)
+      console.error("Error reading report data:", error)
     }
 
-    // If no data found, set reportData to null to show error state
     setReportData(null)
   }, [companyId])
 

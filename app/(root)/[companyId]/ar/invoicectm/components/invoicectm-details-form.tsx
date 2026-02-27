@@ -27,6 +27,8 @@ import {
   IGstLookup,
   IPortLookup,
   IProductLookup,
+  IServiceItemNoLookup,
+  ITaskLookup,
   IUomLookup,
   IVesselLookup,
   IVoyageLookup,
@@ -56,6 +58,8 @@ import {
   DepartmentAutocomplete,
   EmployeeAutocomplete,
   GSTAutocomplete,
+  JobOrderServiceAutocomplete,
+  JobOrderTaskAutocomplete,
   PortAutocomplete,
   ProductAutocomplete,
   UomAutocomplete,
@@ -209,6 +213,10 @@ const InvoiceCtmDetailsForm = React.forwardRef<
             gstAmt: editingDetail.gstAmt ?? 0,
             gstLocalAmt: editingDetail.gstLocalAmt ?? 0,
             gstCtyAmt: editingDetail.gstCtyAmt ?? 0,
+            taskId: editingDetail.taskId ?? 0,
+            taskName: editingDetail.taskName ?? "",
+            serviceItemNo: editingDetail.serviceItemNo ?? 0,
+            serviceItemNoName: editingDetail.serviceItemNoName ?? "",
             deliveryDate: editingDetail.deliveryDate ?? "",
             departmentId: editingDetail.departmentId ?? 0,
             departmentCode: editingDetail.departmentCode ?? "",
@@ -241,6 +249,11 @@ const InvoiceCtmDetailsForm = React.forwardRef<
           }
         : createDefaultValues(getNextItemNo()),
     })
+
+    // Read job order selection from header form to drive task/service lookups
+    const headerJobOrderId = Hdform.watch("jobOrderId") || 0
+    // Watch taskId in the detail form so Service list refreshes when task changes
+    const watchedTaskId = form.watch("taskId") || 0
 
     // Fetch lookup data for autocomplete fields
     const { data: chartOfAccounts } = useChartOfAccountLookup(companyId)
@@ -502,6 +515,10 @@ const InvoiceCtmDetailsForm = React.forwardRef<
           gstAmt: editingDetail.gstAmt ?? 0,
           gstLocalAmt: editingDetail.gstLocalAmt ?? 0,
           gstCtyAmt: editingDetail.gstCtyAmt ?? 0,
+          taskId: editingDetail.taskId ?? 0,
+          taskName: editingDetail.taskName ?? "",
+          serviceItemNo: editingDetail.serviceItemNo ?? 0,
+          serviceItemNoName: editingDetail.serviceItemNoName ?? "",
           deliveryDate: editingDetail.deliveryDate ?? "",
           departmentId: editingDetail.departmentId ?? 0,
           departmentCode: editingDetail.departmentCode ?? "",
@@ -659,6 +676,10 @@ const InvoiceCtmDetailsForm = React.forwardRef<
           gstAmt: updatedData.gstAmt ?? 0,
           gstLocalAmt: updatedData.gstLocalAmt ?? 0,
           gstCtyAmt: updatedData.gstCtyAmt ?? 0,
+          taskId: updatedData.taskId ?? 0,
+          taskName: updatedData.taskName ?? "",
+          serviceItemNo: updatedData.serviceItemNo ?? 0,
+          serviceItemNoName: updatedData.serviceItemNoName ?? "",
           deliveryDate: updatedData.deliveryDate ?? "",
           departmentId: updatedData.departmentId ?? 0,
           departmentCode: updatedData.departmentCode ?? "",
@@ -784,6 +805,44 @@ const InvoiceCtmDetailsForm = React.forwardRef<
         })
         form.setValue("departmentCode", selectedOption.departmentCode || "")
         form.setValue("departmentName", selectedOption.departmentName || "")
+      }
+    }
+
+    // Handle task selection
+    const handleTaskChange = (selectedOption: ITaskLookup | null) => {
+      if (selectedOption) {
+        form.setValue("taskId", selectedOption.taskId, {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+        form.setValue("taskName", selectedOption.taskName || "")
+        // Reset service when task changes
+        form.setValue("serviceItemNo", 0, { shouldValidate: true })
+        form.setValue("serviceItemNoName", "")
+      } else {
+        form.setValue("taskId", 0, { shouldValidate: true })
+        form.setValue("taskName", "")
+        form.setValue("serviceItemNo", 0, { shouldValidate: true })
+        form.setValue("serviceItemNoName", "")
+      }
+    }
+
+    // Handle service selection
+    const handleServiceChange = (
+      selectedOption: IServiceItemNoLookup | null
+    ) => {
+      if (selectedOption) {
+        form.setValue("serviceItemNo", selectedOption.serviceItemNo, {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+        form.setValue(
+          "serviceItemNoName",
+          selectedOption.serviceItemNoName || ""
+        )
+      } else {
+        form.setValue("serviceItemNo", 0, { shouldValidate: true })
+        form.setValue("serviceItemNoName", "")
       }
     }
 
@@ -1067,6 +1126,8 @@ const InvoiceCtmDetailsForm = React.forwardRef<
             <input type="hidden" {...form.register("vesselCode")} />
             <input type="hidden" {...form.register("vesselName")} />
             <input type="hidden" {...form.register("voyageNo")} />
+            <input type="hidden" {...form.register("taskName")} />
+            <input type="hidden" {...form.register("serviceItemNoName")} />
 
             {/* Section Header */}
             <div className="col-span-8 mb-1">
@@ -1090,15 +1151,28 @@ const InvoiceCtmDetailsForm = React.forwardRef<
               </div>
             </div>
 
-            {/* Item No */}
-            <CustomNumberInput
-              form={form}
-              name="itemNo"
-              label="Item No"
-              round={0}
-              className="text-right"
-              isDisabled={true}
-            />
+            {/* Item No / Seq No */}
+            <div className="col-span-1 flex flex-row gap-1">
+              <div className="flex-1">
+                <CustomNumberInput
+                  form={form}
+                  name="itemNo"
+                  label="Item No"
+                  round={0}
+                  className="text-right"
+                  isDisabled={true}
+                />
+              </div>
+              <div className="flex-1">
+                <CustomNumberInput
+                  form={form}
+                  name="seqNo"
+                  label="Seq No"
+                  round={0}
+                  className="text-right"
+                />
+              </div>
+            </div>
 
             {/* Product */}
             {visible?.m_ProductId && (
@@ -1130,6 +1204,31 @@ const InvoiceCtmDetailsForm = React.forwardRef<
                 isRequired={required?.m_DepartmentId}
                 onChangeEvent={handleDepartmentChange}
               />
+            )}
+
+            {headerJobOrderId > 0 && (
+              <>
+                <JobOrderTaskAutocomplete
+                  key={`task-${headerJobOrderId}`}
+                  form={form}
+                  name="taskId"
+                  jobOrderId={headerJobOrderId}
+                  label="Task"
+                  //isRequired={required?.m_JobOrderId && isJobSpecific}
+                  onChangeEvent={handleTaskChange}
+                />
+
+                <JobOrderServiceAutocomplete
+                  key={`service-${headerJobOrderId}-${watchedTaskId}`}
+                  form={form}
+                  name="serviceItemNo"
+                  jobOrderId={headerJobOrderId}
+                  taskId={watchedTaskId}
+                  label="Service"
+                  //isRequired={required?.m_JobOrderId && isJobSpecific}
+                  onChangeEvent={handleServiceChange}
+                />
+              </>
             )}
 
             {/* Employee */}

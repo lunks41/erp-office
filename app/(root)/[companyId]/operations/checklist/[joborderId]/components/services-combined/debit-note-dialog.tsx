@@ -999,7 +999,7 @@ export default function DebitNoteDialog({
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )

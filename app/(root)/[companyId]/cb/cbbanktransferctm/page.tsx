@@ -395,10 +395,15 @@ export default function CbBankTransferCtmPage() {
             type: "validation",
             message: error.message,
           })
-          const topLevelKey = typeof error.path[0] === "number" ? String(error.path[0]) : (error.path[0] as string)
+          const topLevelKey =
+            typeof error.path[0] === "number"
+              ? String(error.path[0])
+              : (error.path[0] as string)
           const label =
             fieldLabelMap[topLevelKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         form.trigger()
@@ -453,7 +458,9 @@ export default function CbBankTransferCtmPage() {
       )
       const locAmtDec = decimals[0]?.locAmtDec || 2
       const validation = validateFromTotLocalAmt(
-        formValues.fromTotLocalAmt + formValues.fromBankChgLocalAmt + (formValues.exhGainLoss || 0),
+        formValues.fromTotLocalAmt +
+          formValues.fromBankChgLocalAmt +
+          (formValues.exhGainLoss || 0),
         formValues.data_details as unknown as ICbBankTransferCtmDt[],
         locAmtDec
       )
@@ -750,7 +757,7 @@ export default function CbBankTransferCtmPage() {
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )
@@ -829,25 +836,24 @@ export default function CbBankTransferCtmPage() {
             )
           : "",
         editDate: apiCbBankTransferCtm.editDate
-          ? (parseDate(apiCbBankTransferCtm.editDate as unknown as string) ||
-              null)
+          ? parseDate(apiCbBankTransferCtm.editDate as unknown as string) ||
+            null
           : null,
         cancelDate: apiCbBankTransferCtm.cancelDate
-          ? (parseDate(apiCbBankTransferCtm.cancelDate as unknown as string) ||
-              null)
+          ? parseDate(apiCbBankTransferCtm.cancelDate as unknown as string) ||
+            null
           : null,
         cancelRemarks: apiCbBankTransferCtm.cancelRemarks ?? null,
         isPost: apiCbBankTransferCtm.isPost ?? false,
         postBy: apiCbBankTransferCtm.postBy ?? "",
         postDate: apiCbBankTransferCtm.postDate
-          ? (parseDate(apiCbBankTransferCtm.postDate as unknown as string) ||
-              null)
+          ? parseDate(apiCbBankTransferCtm.postDate as unknown as string) ||
+            null
           : null,
         appStatusId: apiCbBankTransferCtm.appStatusId ?? null,
         appBy: apiCbBankTransferCtm.appBy ?? "",
         appDate: apiCbBankTransferCtm.appDate
-          ? (parseDate(apiCbBankTransferCtm.appDate as unknown as string) ||
-              null)
+          ? parseDate(apiCbBankTransferCtm.appDate as unknown as string) || null
           : null,
         isCancel: apiCbBankTransferCtm.isCancel ?? false,
         data_details:
@@ -965,11 +971,7 @@ export default function CbBankTransferCtmPage() {
 
       return null
     },
-    [
-      dateFormat,
-      form,
-      transformToSchemaType,
-    ]
+    [dateFormat, form, transformToSchemaType]
   )
 
   const handleCbBankTransferCtmSelect = async (

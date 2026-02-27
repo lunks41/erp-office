@@ -12,6 +12,7 @@ import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
+  MenuListProps,
   MultiValue,
   OptionProps,
   SingleValue,
@@ -126,6 +127,46 @@ export default function ChartOfAccountMultiSelect<
   })
   Option.displayName = "Option"
 
+  const MenuList = React.useCallback(
+    function ScrollAwareMenuList(
+      props: MenuListProps<FieldOption, true>
+    ) {
+      const { innerRef, children, selectProps } = props
+      const scrollToValue = (selectProps as {
+        scrollToValueAfterSelect?: string | null
+        clearScrollToValue?: () => void
+      }).scrollToValueAfterSelect
+      const clearScroll = (selectProps as { clearScrollToValue?: () => void })
+        .clearScrollToValue
+      const optsRef = React.useRef<FieldOption[]>([])
+      optsRef.current = Array.isArray(selectProps.options)
+        ? [...selectProps.options]
+        : []
+
+      React.useEffect(() => {
+        if (!scrollToValue || !innerRef || typeof innerRef === "function")
+          return
+        const el = (innerRef as React.RefObject<HTMLDivElement>)?.current
+        if (!el?.children?.length) return
+
+        const opts = optsRef.current
+        const index = opts.findIndex((o) => o.value === scrollToValue)
+        if (index < 0) return
+
+        // Scroll to show the next option (so user sees codes after the one they selected)
+        const nextIndex = Math.min(index + 1, el.children.length - 1)
+        const child = el.children[nextIndex] as HTMLElement
+        if (child?.scrollIntoView) {
+          child.scrollIntoView({ block: "nearest", behavior: "smooth" })
+        }
+        clearScroll?.()
+      }, [scrollToValue, innerRef, clearScroll])
+
+      return <components.MenuList {...props}>{children}</components.MenuList>
+    },
+    []
+  )
+
   const selectClassNames = React.useMemo(
     () => ({
       control: () =>
@@ -198,6 +239,12 @@ export default function ChartOfAccountMultiSelect<
       // Mark that an option was selected (not just cleared)
       isOptionSelectedRef.current = selectedOptions.length > 0
 
+      // Scroll menu to show next code after selected (so list doesn't reset to top)
+      if (selectedOptions.length > 0) {
+        const lastSelected = selectedOptions[selectedOptions.length - 1]
+        setScrollToValueAfterSelect(lastSelected.value)
+      }
+
       if (form && name) {
         // Convert array to comma-separated string
         const values = selectedOptions.map((opt) => opt.value)
@@ -250,12 +297,20 @@ export default function ChartOfAccountMultiSelect<
     return null
   }, [form, name, options])
 
+  // Scroll menu to "next" option after selection so list doesn't jump back to top
+  const [scrollToValueAfterSelect, setScrollToValueAfterSelect] =
+    React.useState<string | null>(null)
+
+  // Control filter input: clear after selection so "next list" shows without typing
+  const [filterInput, setFilterInput] = React.useState("")
+
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
 
   const handleMenuClose = React.useCallback(() => {
+    setFilterInput("")
     if (!isTabPressedRef.current && isOptionSelectedRef.current) {
       requestAnimationFrame(() => {
         if (selectControlRef.current) {
@@ -330,7 +385,7 @@ export default function ChartOfAccountMultiSelect<
         <FormField
           control={form.control}
           name={name}
-          render={({ field, fieldState: { error } }) => {
+          render={({ field: _field, fieldState: { error } }) => {
             const showError = !!error
             return (
               <FormItem>
@@ -377,6 +432,8 @@ export default function ChartOfAccountMultiSelect<
                     onChange={handleChange}
                     onMenuClose={handleMenuClose}
                     value={getValue()}
+                    inputValue={filterInput}
+                    onInputChange={(val) => setFilterInput(val)}
                     placeholder="Select Chart of Account..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
@@ -387,7 +444,13 @@ export default function ChartOfAccountMultiSelect<
                       DropdownIndicator,
                       ClearIndicator,
                       Option,
+                      MenuList,
                     }}
+                    {...({
+                      scrollToValueAfterSelect,
+                      clearScrollToValue: () =>
+                        setScrollToValueAfterSelect(null),
+                    } as Record<string, unknown>)}
                     className="react-select-container"
                     classNamePrefix="react-select__"
                     menuPortalTarget={
@@ -455,6 +518,8 @@ export default function ChartOfAccountMultiSelect<
           onChange={handleChange}
           onMenuClose={handleMenuClose}
           value={getValue()}
+          inputValue={filterInput}
+          onInputChange={(val) => setFilterInput(val)}
           placeholder="Select Chart of Account..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}
@@ -465,7 +530,12 @@ export default function ChartOfAccountMultiSelect<
             DropdownIndicator,
             ClearIndicator,
             Option,
+            MenuList,
           }}
+          {...({
+            scrollToValueAfterSelect,
+            clearScrollToValue: () => setScrollToValueAfterSelect(null),
+          } as Record<string, unknown>)}
           className="react-select-container"
           classNamePrefix="react-select__"
           menuPortalTarget={

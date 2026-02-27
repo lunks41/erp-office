@@ -180,6 +180,25 @@ export default function InvoiceCtmDetailsTable({
           },
         ]
       : []),
+
+    ...(visible?.m_JobOrderIdHd
+      ? [
+          {
+            accessorKey: "taskName",
+            header: "Task",
+            size: 100,
+          },
+        ]
+      : []),
+    ...(visible?.m_JobOrderIdHd
+      ? [
+          {
+            accessorKey: "serviceItemNoName",
+            header: "Service",
+            size: 100,
+          },
+        ]
+      : []),
     ...(visible?.m_BillQTY
       ? [
           {

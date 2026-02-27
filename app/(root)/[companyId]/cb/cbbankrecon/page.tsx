@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { ICbBankReconFilter, ICbBankReconHd } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
@@ -11,6 +11,7 @@ import {
 } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
+import type { ZodIssue } from "zod"
 import { format, subMonths } from "date-fns"
 import {
   Copy,
@@ -35,11 +36,7 @@ import {
   usePaymentTypeLookup,
 } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -247,8 +244,8 @@ export default function BankReconPage() {
           remarks: "Remarks",
         }
         const failedFields: string[] = []
-        validationResult.error.issues.forEach((error) => {
-          const pathKey = error.path.join(".")
+        validationResult.error.issues.forEach((error: ZodIssue) => {
+          const pathKey = error.path.map(String).join(".")
           const fieldPath = pathKey as keyof CbBankReconHdSchemaType
           form.setError(fieldPath, {
             type: "validation",
@@ -256,7 +253,9 @@ export default function BankReconPage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s: string) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -469,7 +468,7 @@ export default function BankReconPage() {
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )
@@ -535,8 +534,7 @@ export default function BankReconPage() {
       editById: apiBankRecon.editById ?? undefined,
       editDate: apiBankRecon.editDate
         ? format(
-            parseDate(apiBankRecon.editDate as unknown as string) ||
-              new Date(),
+            parseDate(apiBankRecon.editDate as unknown as string) || new Date(),
             decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
           )
         : "",
@@ -555,8 +553,7 @@ export default function BankReconPage() {
       postById: apiBankRecon.postById ?? undefined,
       postDate: apiBankRecon.postDate
         ? format(
-            parseDate(apiBankRecon.postDate as unknown as string) ||
-              new Date(),
+            parseDate(apiBankRecon.postDate as unknown as string) || new Date(),
             decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
           )
         : "",
@@ -564,8 +561,7 @@ export default function BankReconPage() {
       appById: apiBankRecon.appById ?? null,
       appDate: apiBankRecon.appDate
         ? format(
-            parseDate(apiBankRecon.appDate as unknown as string) ||
-              new Date(),
+            parseDate(apiBankRecon.appDate as unknown as string) || new Date(),
             decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
           )
         : "",
@@ -963,9 +959,7 @@ export default function BankReconPage() {
               variant="outline"
               size="sm"
               onClick={() => setShowCloneConfirm(true)}
-              disabled={
-                !bankRecon || bankRecon.reconId === "0" || isCancelled
-              }
+              disabled={!bankRecon || bankRecon.reconId === "0" || isCancelled}
             >
               <Copy className="mr-1 h-4 w-4" />
               Clone

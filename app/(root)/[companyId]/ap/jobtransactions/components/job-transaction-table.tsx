@@ -143,7 +143,7 @@ export function JobTransactionTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border">
+    <div className="max-h-[calc(100vh-260px)] overflow-auto rounded-md border bg-card">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

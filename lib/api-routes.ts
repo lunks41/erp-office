@@ -95,6 +95,14 @@ export const User = {
   resetPassword: "/admin/resetpassword",
 }
 
+// Admin Activation Endpoints
+export const AdminActivation = {
+  getCancelledDocuments: "/admin/Activation/GetCancelledDocuments",
+  activateAccount: "/admin/Activation/ActivateAccount",
+  getJobOrdersByStatus: "/admin/Activation/GetJobOrdersByStatus",
+  updateJobOrderStatus: "/admin/Activation/UpdateJobOrderStatus",
+}
+
 // User Group Endpoints
 export const UserGroup = {
   get: "/admin/getusergroup",

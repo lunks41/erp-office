@@ -7,8 +7,8 @@ import {
   setExchangeRate,
   setPayExchangeRate,
 } from "@/helpers/account"
-import { ApiResponse } from "@/interfaces/auth"
 import { IApRefundFilter, IApRefundHd } from "@/interfaces"
+import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
@@ -44,12 +44,12 @@ import { ApRefund, BasicSetting } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { APTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
+import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import {
   useGetRequiredFields,
   useGetVisibleFields,
   usePaymentTypeLookup,
 } from "@/hooks/use-lookup"
-import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -371,7 +371,9 @@ export default function RefundPage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -702,7 +704,7 @@ export default function RefundPage() {
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )
@@ -1049,13 +1051,13 @@ export default function RefundPage() {
       Number(transactionId),
       effectiveDocIdForHistory || "0",
       {
-        enabled:
-          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+        enabled: !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
       }
     )
 
-  const historyRawData =
-    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const historyRawData = (
+    paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>
+  )?.data
   const hasPaymentHistory =
     Array.isArray(historyRawData) && historyRawData.length > 0
 

@@ -339,7 +339,9 @@ export default function DocSetOffPage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -376,8 +378,7 @@ export default function DocSetOffPage() {
         },
         0
       )
-      const totalSetOffAmt =
-        Math.abs(rawSetOffAmt) < 1e-9 ? 0 : rawSetOffAmt
+      const totalSetOffAmt = Math.abs(rawSetOffAmt) < 1e-9 ? 0 : rawSetOffAmt
 
       if (totalSetOffAmt !== 0) {
         toast.warning(
@@ -674,7 +675,7 @@ export default function DocSetOffPage() {
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )

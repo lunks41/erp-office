@@ -580,10 +580,32 @@ const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
   const rest = otherMenu.filter(
     (m) => m.url !== "/master" && m.url !== "/operations"
   )
+
+  // Activation menu (Account & Job screens)
+  const activationMenu: MenuGroup = {
+    title: "Activation",
+    url: "#",
+    icon: CheckCircle,
+    isDirectLink: false,
+    items: [
+      {
+        title: "Account",
+        url: "/admin/activation/account",
+        icon: Landmark,
+      },
+      {
+        title: "Job",
+        url: "/admin/activation/job",
+        icon: Briefcase,
+      },
+    ],
+  }
+
   return [
     ...(master ? [master] : []),
     ...(operations ? [operations] : []),
     ...accountMenu,
+    activationMenu,
     ...rest,
   ]
 }
@@ -651,13 +673,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     return buildDynamicMenu(transactions)
   }, [transactions])
 
+  // Use currentCompany when available; fall back to companyId from URL (e.g. /123/ar/...) so links work before store syncs
+  const companyIdFromPath = pathname.split("/")[1]
+  const effectiveCompanyId = currentCompany?.companyId ?? companyIdFromPath
+
   const getUrlWithCompanyId = React.useCallback(
     (url: string) => {
-      if (!currentCompany?.companyId) return url
+      if (!effectiveCompanyId) return url
       if (url === "#") return url
-      return `/${currentCompany.companyId}${url}`
+      return `/${effectiveCompanyId}${url}`
     },
-    [currentCompany?.companyId]
+    [effectiveCompanyId]
   )
 
   React.useEffect(() => {
