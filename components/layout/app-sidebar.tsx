@@ -536,7 +536,24 @@ const buildOtherModulesMenu = (transactions: IUserTransaction[]): MenuGroup[] =>
     })
   })
 
-  return Array.from(menuMap.values()).filter((m) => m.items.length > 0)
+  const groups = Array.from(menuMap.values()).filter((m) => m.items.length > 0)
+
+  // Ensure Inquiry module always shows Universal Inquiry entry
+  const inquiryGroup = groups.find((m) => m.url === "/inquiry")
+  if (inquiryGroup) {
+    const hasUniversal = inquiryGroup.items.some(
+      (item) => item.url === "/inquiry/universal"
+    )
+    if (!hasUniversal) {
+      inquiryGroup.items.push({
+        title: "Universal Inquiry",
+        url: "/inquiry/universal",
+        icon: Search,
+      })
+    }
+  }
+
+  return groups
 }
 
 const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {

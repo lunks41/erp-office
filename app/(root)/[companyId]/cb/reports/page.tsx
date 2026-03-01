@@ -406,9 +406,9 @@ export default function ReportsPage() {
     }
 
     try {
-      // Use a fixed key per company - will be overwritten each time a new report is opened
+      // Use localStorage so the popup window can read (sessionStorage is not shared with new windows)
       // This matches the key used by `/[companyId]/reports/window`
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )

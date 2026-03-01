@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
@@ -30,7 +31,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   ChartOfAccountAutocomplete,
   CurrencyAutocomplete,
@@ -95,6 +95,7 @@ const DATE_RANGE_PRESETS = [
 const TRS_DATE_REPORTS: string[] = [
   "gl-ledger",
   "combined-vat-computation",
+  "combined-vat-computation-v1",
   "vat-authority",
   "vat-details",
   "vat-summary",
@@ -168,6 +169,11 @@ const REPORT_CATEGORIES = [
         id: "combined-vat-computation",
         name: "Combined VAT Computation",
         reportFile: "gl/CombinedGstComputation.trdp",
+      },
+      {
+        id: "combined-vat-computation-v1",
+        name: "VAT Computation (v1)",
+        reportFile: "gl/CombinedGstComputationv1.trdp",
       },
       {
         id: "vat-authority",
@@ -552,9 +558,9 @@ export default function ReportsPage() {
     }
 
     try {
-      // Use a fixed key per company - will be overwritten each time a new report is opened
+      // Use localStorage so the popup window can read (sessionStorage is not shared with new windows)
       // This matches the key used by `/[companyId]/reports/window`
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )
@@ -751,7 +757,9 @@ export default function ReportsPage() {
                             label="To GL Name"
                             companyId={companyId}
                             isRequired={false}
-                            isDisabled={form.watch("sameToGl") || hasMultiSelect}
+                            isDisabled={
+                              form.watch("sameToGl") || hasMultiSelect
+                            }
                             onChangeEvent={handleToGlChange}
                           />
                         </div>
@@ -822,10 +830,7 @@ export default function ReportsPage() {
                         </Select>
                       </div>
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem
-                          value="custom"
-                          id="date-range-custom"
-                        />
+                        <RadioGroupItem value="custom" id="date-range-custom" />
                         <label
                           htmlFor="date-range-custom"
                           className="text-sm font-normal"
