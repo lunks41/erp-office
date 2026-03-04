@@ -50,6 +50,10 @@ export const CbBankReconHdSchema = (
     totAmt: z.number().optional(),
     opBalAmt: z.number().optional(),
     clBalAmt: z.number().optional(),
+    debitTotAmt: z.number().optional(),
+    creditTotAmt: z.number().optional(),
+    allocTotAmt: z.number().optional(),
+    unAllocTotAmt: z.number().optional(),
 
     // Audit Fields
     createById: z.number().optional(),

@@ -140,16 +140,16 @@ const REPORT_CATEGORIES = [
       },
       {
         id: "statement-of-account-new",
-        name: "Statement Of Account",
+        name: "Statement Of Account(New)",
         reportFile: "ar/ArStatementOfAccountv2.trdp",
         reportType: 1,
       },
-      // {
-      //   id: "statement-of-account",
-      //   name: "Statement Of Account",
-      //   reportFile: "ar/ArStatementOfAccount.trdp",
-      //   reportType: 1,
-      // },
+      {
+        id: "statement-of-account",
+        name: "Statement Of Account",
+        reportFile: "ar/ArStatementOfAccount.trdp",
+        reportType: 1,
+      },
       {
         id: "monthly-receivable",
         name: "Monthly Receivable",

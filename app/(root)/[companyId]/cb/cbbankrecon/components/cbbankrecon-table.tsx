@@ -129,31 +129,6 @@ export default function BankReconTable({
       header: "Reconciliation No",
     },
     {
-      accessorKey: "prevReconId",
-      header: "Previous Reconciliation ID",
-      cell: ({ row }) => (
-        <div className="text-right">{row.original.prevReconId || "-"}</div>
-      ),
-    },
-    {
-      accessorKey: "prevReconNo",
-      header: "Previous Reconciliation No",
-    },
-    {
-      accessorKey: "referenceNo",
-      header: "Reference No",
-    },
-    {
-      accessorKey: "trnDate",
-      header: "Transaction Date",
-      cell: ({ row }) => {
-        const date = row.original.trnDate
-          ? new Date(row.original.trnDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
-      },
-    },
-    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
@@ -164,36 +139,15 @@ export default function BankReconTable({
       },
     },
     {
-      accessorKey: "bankId",
-      header: "Bank ID",
-      cell: ({ row }) => (
-        <div className="text-right">{row.original.bankId}</div>
-      ),
-    },
-    {
-      accessorKey: "currencyId",
-      header: "Currency ID",
-      cell: ({ row }) => (
-        <div className="text-right">{row.original.currencyId}</div>
-      ),
-    },
-    {
-      accessorKey: "fromDate",
-      header: "From Date",
+      accessorKey: "bankName",
+      header: "Bank Name",
       cell: ({ row }) => {
-        const date = row.original.fromDate
-          ? new Date(row.original.fromDate)
-          : null
-        return date ? format(date, dateFormat) : "-"
+        return row.original.bankName || "-"
       },
     },
     {
-      accessorKey: "toDate",
-      header: "To Date",
-      cell: ({ row }) => {
-        const date = row.original.toDate ? new Date(row.original.toDate) : null
-        return date ? format(date, dateFormat) : "-"
-      },
+      accessorKey: "prevReconNo",
+      header: "Previous Reconciliation No",
     },
     {
       accessorKey: "totAmt",
@@ -221,6 +175,60 @@ export default function BankReconTable({
           {formatNumber(row.getValue("clBalAmt"), amtDec)}
         </div>
       ),
+    },
+    {
+      accessorKey: "debitTotAmt",
+      header: "Debit Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.debitTotAmt ?? 0, amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "creditTotAmt",
+      header: "Credit Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.creditTotAmt ?? 0, amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "allocTotAmt",
+      header: "Allocated Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.allocTotAmt ?? 0, amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "unAllocTotAmt",
+      header: "Unallocated Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.unAllocTotAmt ?? 0, amtDec)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "fromDate",
+      header: "From Date",
+      cell: ({ row }) => {
+        const date = row.original.fromDate
+          ? new Date(row.original.fromDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
+    },
+    {
+      accessorKey: "toDate",
+      header: "To Date",
+      cell: ({ row }) => {
+        const date = row.original.toDate ? new Date(row.original.toDate) : null
+        return date ? format(date, dateFormat) : "-"
+      },
     },
     {
       accessorKey: "remarks",
@@ -272,20 +280,6 @@ export default function BankReconTable({
       header: "Cancelled",
       cell: ({ row }) => (
         <div className="text-center">{row.original.isCancel ? "✓" : ""}</div>
-      ),
-    },
-    {
-      accessorKey: "isPost",
-      header: "Posted",
-      cell: ({ row }) => (
-        <div className="text-center">{row.original.isPost ? "✓" : ""}</div>
-      ),
-    },
-    {
-      accessorKey: "appStatusId",
-      header: "Approval Status",
-      cell: ({ row }) => (
-        <div className="text-right">{row.original.appStatusId || "-"}</div>
       ),
     },
   ]

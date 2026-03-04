@@ -138,6 +138,10 @@ export default function BankReconPage() {
           totAmt: bankRecon.totAmt ?? 0,
           opBalAmt: bankRecon.opBalAmt ?? 0,
           clBalAmt: bankRecon.clBalAmt ?? 0,
+          debitTotAmt: bankRecon.debitTotAmt ?? 0,
+          creditTotAmt: bankRecon.creditTotAmt ?? 0,
+          allocTotAmt: bankRecon.allocTotAmt ?? 0,
+          unAllocTotAmt: bankRecon.unAllocTotAmt ?? 0,
           createById: bankRecon.createById ?? 0,
           createBy: bankRecon.createBy ?? "",
           createDate: bankRecon.createDate ?? "",
@@ -349,6 +353,10 @@ export default function BankReconPage() {
         totAmt: 0,
         opBalAmt: 0,
         clBalAmt: 0,
+        debitTotAmt: 0,
+        creditTotAmt: 0,
+        allocTotAmt: 0,
+        unAllocTotAmt: 0,
         // Reset data details
         data_details: [],
       }
@@ -524,6 +532,10 @@ export default function BankReconPage() {
       totAmt: apiBankRecon.totAmt ?? 0,
       opBalAmt: apiBankRecon.opBalAmt ?? 0,
       clBalAmt: apiBankRecon.clBalAmt ?? 0,
+      debitTotAmt: apiBankRecon.debitTotAmt ?? 0,
+      creditTotAmt: apiBankRecon.creditTotAmt ?? 0,
+      allocTotAmt: apiBankRecon.allocTotAmt ?? 0,
+      unAllocTotAmt: apiBankRecon.unAllocTotAmt ?? 0,
       createById: apiBankRecon.createById ?? 0,
       createDate: apiBankRecon.createDate
         ? format(

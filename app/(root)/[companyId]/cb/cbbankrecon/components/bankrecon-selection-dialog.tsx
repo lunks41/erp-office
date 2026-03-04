@@ -160,6 +160,46 @@ export default function BankReconSelectionDialog({
       ),
     },
     {
+      accessorKey: "debitTotAmt",
+      header: "Debit Total",
+      size: 120,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.debitTotAmt ?? 0, 2)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "creditTotAmt",
+      header: "Credit Total",
+      size: 120,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.creditTotAmt ?? 0, 2)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "allocTotAmt",
+      header: "Allocated Total",
+      size: 120,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.allocTotAmt ?? 0, 2)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "unAllocTotAmt",
+      header: "Unallocated Total",
+      size: 120,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatNumber(row.original.unAllocTotAmt ?? 0, 2)}
+        </div>
+      ),
+    },
+    {
       accessorKey: "referenceNo",
       header: "Reference No",
       size: 120,

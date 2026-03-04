@@ -41,18 +41,23 @@ export default function Main({
     if (dataDetails.length === 0) {
       // Reset all amounts to 0 if no details
       form.setValue("totAmt", 0)
+      form.setValue("debitTotAmt", 0)
+      form.setValue("creditTotAmt", 0)
+      form.setValue("allocTotAmt", 0)
+      form.setValue("unAllocTotAmt", 0)
       return
     }
 
-    // Calculate base currency totals
+    // Calculate base currency totals and debit/credit
     const totals = calculateTotalAmounts(
       dataDetails as unknown as ICbBankReconDt[],
       amtDec
     )
     form.setValue("totAmt", totals.totAmt)
-
-    // Note: Bank reconciliation header doesn't have totLocalAmt field
-    // This is just calculated from details
+    form.setValue("debitTotAmt", totals.debitTotAmt)
+    form.setValue("creditTotAmt", totals.creditTotAmt)
+    form.setValue("allocTotAmt", totals.allocTotAmt)
+    form.setValue("unAllocTotAmt", totals.unAllocTotAmt)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataDetails.length, amtDec, locAmtDec])

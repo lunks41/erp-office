@@ -190,6 +190,50 @@ export default function EditVersionDetails({
       ),
     },
     {
+      accessorKey: "debitTotAmt",
+      header: "Debit Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.debitTotAmt != null
+            ? row.original.debitTotAmt.toFixed(amtDec)
+            : "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "creditTotAmt",
+      header: "Credit Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.creditTotAmt != null
+            ? row.original.creditTotAmt.toFixed(amtDec)
+            : "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "allocTotAmt",
+      header: "Allocated Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.allocTotAmt != null
+            ? row.original.allocTotAmt.toFixed(amtDec)
+            : "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "unAllocTotAmt",
+      header: "Unallocated Total",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.unAllocTotAmt != null
+            ? row.original.unAllocTotAmt.toFixed(amtDec)
+            : "-"}
+        </div>
+      ),
+    },
+    {
       accessorKey: "createById",
       header: "Created By ID",
       cell: ({ row }) => (

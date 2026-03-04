@@ -5,7 +5,7 @@ import {
 import { ICbBankReconDt, IDecimal } from "@/interfaces"
 
 /**
- * Calculate total amounts (base currency)
+ * Calculate total amounts (base currency) and debit/credit/alloc totals
  */
 export const calculateTotalAmounts = (
   details: ICbBankReconDt[],
@@ -13,18 +13,37 @@ export const calculateTotalAmounts = (
 ) => {
   const totals = {
     totAmt: 0,
+    debitTotAmt: 0,
+    creditTotAmt: 0,
+    allocTotAmt: 0,
+    unAllocTotAmt: 0,
   }
 
   details.forEach((detail) => {
-    totals.totAmt = calculateAdditionAmount(
-      totals.totAmt,
-      Number(detail.totAmt) || 0,
-      amtDec
-    )
+    const amt = Number(detail.totAmt) || 0
+    totals.totAmt = calculateAdditionAmount(totals.totAmt, amt, amtDec)
+    if (detail.isDebit) {
+      totals.debitTotAmt = calculateAdditionAmount(
+        totals.debitTotAmt,
+        amt,
+        amtDec
+      )
+    } else {
+      totals.creditTotAmt = calculateAdditionAmount(
+        totals.creditTotAmt,
+        amt,
+        amtDec
+      )
+    }
+    // allocTotAmt / unAllocTotAmt can be set by backend; client keeps 0 here
   })
 
   return {
     totAmt: totals.totAmt,
+    debitTotAmt: totals.debitTotAmt,
+    creditTotAmt: totals.creditTotAmt,
+    allocTotAmt: totals.allocTotAmt,
+    unAllocTotAmt: totals.unAllocTotAmt,
   }
 }
 

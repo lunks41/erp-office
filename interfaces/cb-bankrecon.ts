@@ -8,13 +8,20 @@ export interface ICbBankReconHd {
   trnDate: Date | string
   accountDate: Date | string
   bankId: number
+  bankName: string
   currencyId: number
+  currencyCode: string
+  currencyName: string
   fromDate: Date | string
   toDate: Date | string
   remarks: string
   totAmt: number
   opBalAmt: number
   clBalAmt: number
+  debitTotAmt: number
+  creditTotAmt: number
+  allocTotAmt: number
+  unAllocTotAmt: number
   createById: number
   createDate: Date | string
   editById: number | null

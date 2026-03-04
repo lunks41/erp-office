@@ -5,7 +5,7 @@ import { IBankLookup, ICurrencyLookup } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankReconHdSchemaType } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
-import { isAfter, isValid } from "date-fns"
+import { endOfMonth, isAfter, isValid, startOfMonth } from "date-fns"
 import { Plus } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
@@ -92,7 +92,8 @@ export default function BankReconForm({
   const bankId = form.watch("bankId")
   const isBankSelected = bankId && bankId > 0
 
-  // Watch fromDate and toDate for validation
+  // Watch accountDate, fromDate and toDate for validation
+  const accountDate = form.watch("accountDate")
   const fromDate = form.watch("fromDate")
   const toDate = form.watch("toDate")
 
@@ -108,6 +109,41 @@ export default function BankReconForm({
     if (toDate instanceof Date) return isValid(toDate) ? toDate : null
     return parseDate(toDate as string)
   }, [toDate])
+
+  // Keep From/To Date in sync with Account Date month on load/reset/change
+  React.useEffect(() => {
+    if (!accountDate) return
+
+    let accDate: Date | null = null
+    if (accountDate instanceof Date) {
+      accDate = isValid(accountDate) ? accountDate : null
+    } else {
+      accDate = parseDate(accountDate as string)
+    }
+
+    if (!accDate || !isValid(accDate)) return
+
+    const monthStart = startOfMonth(accDate)
+    const monthEnd = endOfMonth(accDate)
+    form.setValue("fromDate", monthStart)
+    form.setValue("toDate", monthEnd)
+    form.trigger("fromDate")
+    form.trigger("toDate")
+  }, [accountDate, form])
+
+  // When Account Date changes, set From/To Date to the month range of Account Date
+  const handleAccountDateChange = React.useCallback(
+    (date: Date | null) => {
+      if (!date || !isValid(date)) return
+      const monthStart = startOfMonth(date)
+      const monthEnd = endOfMonth(date)
+      form.setValue("fromDate", monthStart)
+      form.setValue("toDate", monthEnd)
+      form.trigger("fromDate")
+      form.trigger("toDate")
+    },
+    [form]
+  )
 
   // Handle From Date change - validate that it's not greater than To Date
   const handleFromDateChange = React.useCallback(
@@ -152,6 +188,7 @@ export default function BankReconForm({
           label="Account Date"
           isRequired={true}
           isFutureShow={false}
+          onChangeEvent={handleAccountDateChange}
         />
 
         {/* Bank */}
@@ -231,6 +268,42 @@ export default function BankReconForm({
           form={form}
           name="totAmt"
           label="Total Amount"
+          round={amtDec}
+          isDisabled={true}
+          className="text-right"
+        />
+
+        {/* Debit Total / Credit Total */}
+        <CustomNumberInput
+          form={form}
+          name="debitTotAmt"
+          label="Debit Total"
+          round={amtDec}
+          isDisabled={true}
+          className="text-right"
+        />
+        <CustomNumberInput
+          form={form}
+          name="creditTotAmt"
+          label="Credit Total"
+          round={amtDec}
+          isDisabled={true}
+          className="text-right"
+        />
+
+        {/* Allocated / Unallocated Total */}
+        <CustomNumberInput
+          form={form}
+          name="allocTotAmt"
+          label="Allocated Total"
+          round={amtDec}
+          isDisabled={true}
+          className="text-right"
+        />
+        <CustomNumberInput
+          form={form}
+          name="unAllocTotAmt"
+          label="Unallocated Total"
           round={amtDec}
           isDisabled={true}
           className="text-right"
