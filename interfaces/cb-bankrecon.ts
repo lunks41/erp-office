@@ -58,6 +58,7 @@ export interface ICbBankReconDt {
   reconId: string
   reconNo: string
   itemNo: number
+  seqNo: number
   isSel: boolean
   moduleId: number
   transactionId: number
@@ -76,6 +77,11 @@ export interface ICbBankReconDt {
   exhRate: number
   totAmt: number
   totLocalAmt: number
+  debitAmt: number
+  creditAmt: number
+  debitLocalAmt: number
+  creditLocalAmt: number
+  trnType: string
   paymentFromTo: string | null
   remarks: string
   editVersion: number

@@ -24,6 +24,7 @@ import {
   TableName,
   cn,
 } from "@/lib/utils"
+import { parseDate as parseClientDate } from "@/lib/date-utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -85,6 +86,44 @@ export default function BankReconDetailsTable({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Helper: format any date-like value using decimal date format
+  const formatCellDate = useCallback(
+    (value: Date | string | null | undefined): string => {
+      if (!value) return "-"
+
+      let date: Date | null = null
+
+      if (value instanceof Date) {
+        date = isValid(value) ? value : null
+      } else if (typeof value === "string") {
+        // 1) Try decimals dateFormat first
+        try {
+          const parsed = parse(value, dateFormat, new Date())
+          if (isValid(parsed) && !isNaN(parsed.getTime())) {
+            date = parsed
+          }
+        } catch {
+          // ignore and try next strategy
+        }
+
+        // 2) Fall back to shared client parser (supports multiple formats)
+        if (!date) {
+          const parsed = parseClientDate(value)
+          if (parsed && isValid(parsed) && !isNaN(parsed.getTime())) {
+            date = parsed
+          }
+        }
+      }
+
+      if (!date || !isValid(date) || isNaN(date.getTime())) {
+        return "-"
+      }
+
+      return format(date, dateFormat)
+    },
+    [dateFormat]
+  )
 
   // Wrapper functions to convert string to number
   const handleDelete = (itemId: string) => {
@@ -441,8 +480,26 @@ export default function BankReconDetailsTable({
     )
   }
 
-  // Define columns - ALL fields from ICbBankReconDt interface
+  // Define columns - all fields from ICbBankReconDt in interface order
   const columns: ExtendedColumnDef<ICbBankReconDt>[] = [
+    {
+      accessorKey: "reconId",
+      header: "Recon ID",
+      size: 80,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.reconId ?? "-"}</div>
+      ),
+      hidden: true,
+    },
+    {
+      accessorKey: "reconNo",
+      header: "Recon No",
+      size: 100,
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.reconNo ?? "-"}</div>
+      ),
+      hidden: true,
+    },
     {
       accessorKey: "itemNo",
       header: "Item No",
@@ -451,6 +508,7 @@ export default function BankReconDetailsTable({
         <div className="text-right">{row.original.itemNo}</div>
       ),
     },
+
     {
       accessorKey: "isSel",
       header: "Sel",
@@ -544,22 +602,25 @@ export default function BankReconDetailsTable({
       accessorKey: "docReferenceNo",
       header: "Doc Reference",
       size: 120,
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.docReferenceNo ?? "-"}</div>
+      ),
     },
     {
       accessorKey: "accountDate",
       header: "Account Date",
       size: 100,
       cell: ({ row }) => {
-        if (!row.original.accountDate) return "-"
-        const date = new Date(row.original.accountDate)
-        return isValid(date) && !isNaN(date.getTime())
-          ? format(date, dateFormat)
-          : "-"
+        return formatCellDate(row.original.accountDate as unknown as
+          | Date
+          | string
+          | null
+          | undefined)
       },
     },
     {
       accessorKey: "paymentTypeId",
-      header: "Payment Type",
+      header: "Payment Type ID",
       size: 80,
       cell: ({ row }) => (
         <div className="text-right">{row.original.paymentTypeId}</div>
@@ -571,7 +632,7 @@ export default function BankReconDetailsTable({
       header: "Payment Type",
       size: 100,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.paymentTypeName}</div>
+        <div className="text-sm">{row.original.paymentTypeName ?? "-"}</div>
       ),
     },
     {
@@ -579,7 +640,7 @@ export default function BankReconDetailsTable({
       header: "Cheque No",
       size: 100,
       cell: ({ row }) => (
-        <div className="text-sm">{row.original.chequeNo || "-"}</div>
+        <div className="text-sm">{row.original.chequeNo ?? "-"}</div>
       ),
     },
     {
@@ -587,11 +648,11 @@ export default function BankReconDetailsTable({
       header: "Cheque Date",
       size: 100,
       cell: ({ row }) => {
-        if (!row.original.chequeDate) return "-"
-        const date = new Date(row.original.chequeDate)
-        return isValid(date) && !isNaN(date.getTime())
-          ? format(date, dateFormat)
-          : "-"
+        return formatCellDate(row.original.chequeDate as unknown as
+          | Date
+          | string
+          | null
+          | undefined)
       },
     },
     {
@@ -599,7 +660,7 @@ export default function BankReconDetailsTable({
       header: "Customer",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.customerId || "-"}</div>
+        <div className="text-right">{row.original.customerId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -608,7 +669,7 @@ export default function BankReconDetailsTable({
       header: "Supplier",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.supplierId || "-"}</div>
+        <div className="text-right">{row.original.supplierId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -617,7 +678,7 @@ export default function BankReconDetailsTable({
       header: "GL Account",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.glId || "-"}</div>
+        <div className="text-right">{row.original.glId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -637,11 +698,110 @@ export default function BankReconDetailsTable({
       size: 100,
       cell: ({ row }) => (
         <div className="text-right">
-          {row.original.exhRate.toLocaleString(undefined, {
+          {(row.original.exhRate ?? 0).toLocaleString(undefined, {
             minimumFractionDigits: exhRateDec,
             maximumFractionDigits: exhRateDec,
           })}
         </div>
+      ),
+    },
+
+    {
+      accessorKey: "debitAmt",
+      header: "Debit Amt",
+      size: 120,
+      cell: ({ row }) => {
+        const value = row.original.isDebit ? (row.original.totAmt ?? 0) : 0
+        return (
+          <div className="text-right">
+            {value.toLocaleString(undefined, {
+              minimumFractionDigits: amtDec,
+              maximumFractionDigits: amtDec,
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "creditAmt",
+      header: "Credit Amt",
+      size: 120,
+      cell: ({ row }) => {
+        const value = !row.original.isDebit ? (row.original.totAmt ?? 0) : 0
+        return (
+          <div className="text-right">
+            {value.toLocaleString(undefined, {
+              minimumFractionDigits: amtDec,
+              maximumFractionDigits: amtDec,
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "debitLocalAmt",
+      header: "Debit Local",
+      size: 120,
+      cell: ({ row }) => {
+        const value = row.original.isDebit ? (row.original.totLocalAmt ?? 0) : 0
+        return (
+          <div className="text-right">
+            {value.toLocaleString(undefined, {
+              minimumFractionDigits: locAmtDec,
+              maximumFractionDigits: locAmtDec,
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "creditLocalAmt",
+      header: "Credit Local",
+      size: 120,
+      cell: ({ row }) => {
+        const value = !row.original.isDebit
+          ? (row.original.totLocalAmt ?? 0)
+          : 0
+        return (
+          <div className="text-right">
+            {value.toLocaleString(undefined, {
+              minimumFractionDigits: locAmtDec,
+              maximumFractionDigits: locAmtDec,
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "trnType",
+      header: "Trn Type",
+      size: 80,
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.trnType ?? "-"}</div>
+      ),
+    },
+    {
+      accessorKey: "paymentFromTo",
+      header: "Payment From/To",
+      size: 150,
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.paymentFromTo ?? "-"}</div>
+      ),
+    },
+    {
+      accessorKey: "remarks",
+      header: "Remarks",
+      size: 200,
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.remarks ?? "-"}</div>
+      ),
+    },
+    {
+      accessorKey: "editVersion",
+      header: "Ver",
+      size: 50,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.editVersion ?? 0}</div>
       ),
     },
     {
@@ -650,7 +810,7 @@ export default function BankReconDetailsTable({
       size: 120,
       cell: ({ row }) => (
         <div className="text-right">
-          {row.original.totAmt.toLocaleString(undefined, {
+          {(row.original.totAmt ?? 0).toLocaleString(undefined, {
             minimumFractionDigits: amtDec,
             maximumFractionDigits: amtDec,
           })}
@@ -663,7 +823,7 @@ export default function BankReconDetailsTable({
       size: 120,
       cell: ({ row }) => (
         <div className="text-right">
-          {row.original.totLocalAmt.toLocaleString(undefined, {
+          {(row.original.totLocalAmt ?? 0).toLocaleString(undefined, {
             minimumFractionDigits: locAmtDec,
             maximumFractionDigits: locAmtDec,
           })}
@@ -671,21 +831,11 @@ export default function BankReconDetailsTable({
       ),
     },
     {
-      accessorKey: "paymentFromTo",
-      header: "Payment From/To",
-      size: 150,
-    },
-    {
-      accessorKey: "remarks",
-      header: "Remarks",
-      size: 200,
-    },
-    {
-      accessorKey: "editVersion",
-      header: "Ver",
-      size: 50,
+      accessorKey: "seqNo",
+      header: "Seq No",
+      size: 60,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.editVersion}</div>
+        <div className="text-right">{row.original.seqNo ?? "-"}</div>
       ),
     },
   ]

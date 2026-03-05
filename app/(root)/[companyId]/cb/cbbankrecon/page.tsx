@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
-import { ICbBankReconFilter, ICbBankReconHd } from "@/interfaces"
+import { ICbBankReconDt, ICbBankReconFilter, ICbBankReconHd } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
   CbBankReconDtSchemaType,
@@ -213,8 +213,9 @@ export default function BankReconPage() {
 
   // Mutations
   const saveMutation = usePersist<CbBankReconHdSchemaType>(`${CbBankRecon.add}`)
-  const updateMutation = usePersist<CbBankReconHdSchemaType>(
-    `${CbBankRecon.add}`
+  const updateMutation = usePersist<CbBankReconHdSchemaType>(`${CbBankRecon.add}`)
+  const refreshMutation = usePersist<CbBankReconHdSchemaType>(
+    `${CbBankRecon.refresh}`
   )
   const deleteMutation = useDeleteWithRemarks(`${CbBankRecon.delete}`)
 
@@ -740,6 +741,126 @@ export default function BankReconPage() {
     }
   }
 
+  // Handle Refresh (recalculate reconciliation details without saving)
+  const handleRefreshBankRecon = async () => {
+    try {
+      const formValues = form.getValues()
+
+      // Build payload for RefreshCBBankReconViewModel
+      const payload = {
+        bankId: formValues.bankId ?? 0,
+        currencyId: formValues.currencyId ?? 0,
+        prevReconId: (formValues.prevReconId ?? 0).toString(),
+        reconId: formValues.reconId ?? "0",
+        fromDate: formatDateForApi(formValues.fromDate as unknown as Date) || "",
+        toDate: formatDateForApi(formValues.toDate as unknown as Date) || "",
+      }
+
+      const response = await refreshMutation.mutateAsync(
+        payload as unknown as CbBankReconHdSchemaType
+      )
+
+      if (response.result === 1) {
+        // Support both shapes:
+        // 1) API returns header with data_details
+        // 2) API returns array of detail rows directly
+        let details: ICbBankReconDt[] = []
+
+        if (Array.isArray(response.data)) {
+          details = response.data as unknown as ICbBankReconDt[]
+        } else if (response.data && (response.data as ICbBankReconHd).data_details) {
+          details = (response.data as ICbBankReconHd).data_details
+        }
+
+        if (!details || details.length === 0) {
+          toast.error("No reconciliation details returned from refresh")
+          return
+        }
+
+        // Determine starting numbers for itemNo and seqNo
+        let maxItemNo = 0
+        let maxSeqNo = 0
+        details.forEach((d) => {
+          if (d.itemNo && d.itemNo > maxItemNo) maxItemNo = d.itemNo
+          if (d.seqNo && d.seqNo > maxSeqNo) maxSeqNo = d.seqNo
+        })
+
+        let currentItemNo = maxItemNo
+        let currentSeqNo = maxSeqNo
+
+        // Map API details into form schema type and normalize numbering
+        const mappedDetails: CbBankReconDtSchemaType[] = details.map(
+          (detail) => {
+            let itemNo = detail.itemNo ?? 0
+            let seqNo = detail.seqNo ?? 0
+
+            if (!itemNo || itemNo <= 0) {
+              currentItemNo += 1
+              itemNo = currentItemNo
+            }
+
+            if (!seqNo || seqNo <= 0) {
+              currentSeqNo += 1
+              seqNo = currentSeqNo
+            }
+
+            return {
+              ...(detail as unknown as CbBankReconDtSchemaType),
+              reconId: detail.reconId?.toString() ?? "0",
+              reconNo: detail.reconNo ?? "",
+              itemNo,
+              // seqNo is used for display only; keep it on the object
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ...( { seqNo } as any ),
+              isSel: detail.isSel ?? false,
+              moduleId: detail.moduleId ?? 0,
+              transactionId: detail.transactionId ?? 0,
+              documentId: detail.documentId ?? 0,
+              documentNo: detail.documentNo ?? "",
+              docReferenceNo: detail.docReferenceNo ?? "",
+              accountDate: detail.accountDate
+                ? format(
+                    parseDate(detail.accountDate as string) || new Date(),
+                    clientDateFormat
+                  )
+                : "",
+              paymentTypeId: detail.paymentTypeId ?? 0,
+              chequeNo: detail.chequeNo ?? "",
+              chequeDate: detail.chequeDate
+                ? format(
+                    parseDate(detail.chequeDate as string) || new Date(),
+                    clientDateFormat
+                  )
+                : "",
+              customerId: detail.customerId ?? 0,
+              supplierId: detail.supplierId ?? 0,
+              glId: detail.glId ?? 0,
+              isDebit: detail.isDebit ?? false,
+              exhRate: detail.exhRate ?? 0,
+              totAmt: detail.totAmt ?? 0,
+              totLocalAmt: detail.totLocalAmt ?? 0,
+              paymentFromTo: detail.paymentFromTo ?? "",
+              remarks: detail.remarks ?? "",
+              editVersion: detail.editVersion ?? 0,
+            }
+          }
+        )
+
+        form.setValue("data_details", mappedDetails, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        })
+        form.trigger("data_details")
+      } else {
+        toast.error(response.message || "Failed to refresh Bank Reconciliation")
+      }
+    } catch (error) {
+      console.error("Refresh error:", error)
+      toast.error("Network error while refreshing Bank Reconciliation")
+    }
+  }
+
   // Determine mode and bank recon ID from URL
   const reconNo = form.getValues("reconNo")
   const isEdit = Boolean(reconNo)
@@ -1001,9 +1122,7 @@ export default function BankReconPage() {
         <TabsContent value="main">
           <Main
             form={form}
-            onSuccessAction={async () => {
-              handleSaveBankRecon()
-            }}
+            onRefreshAction={handleRefreshBankRecon}
             isEdit={isEdit}
             visible={visible}
             required={required}

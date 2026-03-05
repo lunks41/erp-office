@@ -28,7 +28,9 @@ import { format, isValid, parse } from "date-fns"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { ApInvoice } from "@/lib/api-routes"
 import { useGetDynamicLookup } from "@/hooks/use-lookup"
+import { useGetById } from "@/hooks/use-common"
 import {
   BankAutocomplete,
   CreditTermAutocomplete,
@@ -454,6 +456,62 @@ export default function InvoiceForm({
     [decimals, form, recalculateHeaderTotals, visible, detailsFormRef]
   )
 
+  // ================= Duplicate Supplier Invoice Check =================
+  const [showDuplicateDialog, setShowDuplicateDialog] = React.useState(false)
+  const [duplicateInvoices, setDuplicateInvoices] = React.useState<
+    Array<Record<string, any>>
+  >([])
+
+  const suppInvoiceNoValue = useWatch({
+    control: form.control,
+    name: "suppInvoiceNo",
+  }) as string | undefined
+
+  // Build route param as {InvoiceId}/{SuppInvoiceNo}
+  const duplicateRouteParam = React.useMemo(() => {
+    const supp = (suppInvoiceNoValue || "").trim()
+    const invoiceId = form.getValues("invoiceId") || "0"
+    if (!supp) return ""
+    return `${invoiceId}/${encodeURIComponent(supp)}`
+  }, [suppInvoiceNoValue, form])
+
+  const duplicateCheckQuery = useGetById<any>(
+    ApInvoice.checkDuplicateSuppInvoiceNo,
+    "checkDuplicateSuppInvoiceNo",
+    duplicateRouteParam,
+    {
+      enabled: false,
+    }
+  )
+
+  const checkDuplicateSuppInvoiceNo = async () => {
+    if (!duplicateRouteParam) return
+
+    try {
+      const { data } = await duplicateCheckQuery.refetch()
+      if (!data) return
+
+      // Backend: result == 1 => data available; result == -1 => not available
+      if (data.result === 1 && data.data) {
+        const items = Array.isArray(data.data) ? data.data : [data.data]
+        setDuplicateInvoices(items)
+        setShowDuplicateDialog(true)
+      }
+    } catch (error) {
+      console.error("Error checking duplicate supplier invoice no:", error)
+    }
+  }
+
+  const handleOpenDuplicateInvoice = (invoiceId?: string | number) => {
+    if (!invoiceId || !_companyId) return
+    if (typeof window === "undefined") return
+
+    const targetPath = `/${_companyId}/ap/invoice`
+    const storageKey = `history-doc:${targetPath}`
+    window.localStorage.setItem(storageKey, String(invoiceId))
+    window.open(targetPath, "_blank", "noopener,noreferrer")
+  }
+
   // Handle city exchange rate focus - capture original value
   const handleCountryExchangeRateFocus = React.useCallback(() => {
     originalCtyExhRateRef.current = form.getValues("ctyExhRate") || 0
@@ -556,12 +614,13 @@ export default function InvoiceForm({
             />
           )}
           {/*flag*/}
-          {/* customerInvoiceNo */}
+          {/* Supplier Invoice No (duplicate check on blur) */}
           <CustomInput
             form={form}
             name="suppInvoiceNo"
             label="Supplier Invoice No."
             isRequired={required?.m_SuppInvoiceNo}
+            onBlurEvent={checkDuplicateSuppInvoiceNo}
           />
 
           {/* Reference No */}
@@ -836,6 +895,74 @@ export default function InvoiceForm({
             </div>
           </div>
         </div>
+        {/* Duplicate Supplier Invoice Dialog */}
+        {showDuplicateDialog && duplicateInvoices.length > 0 && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-xl shadow-amber-400/40">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-amber-900">
+                  Duplicate Supplier Invoice Found
+                </h2>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-amber-700 hover:text-amber-900"
+                  onClick={() => setShowDuplicateDialog(false)}
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                {duplicateInvoices.map((inv, index) => (
+                  <div
+                    key={index}
+                    className="rounded-md border border-amber-300 bg-amber-100/80 p-3 text-xs shadow-sm"
+                  >
+                    <div className="mb-2 flex items-center justify-between text-amber-900">
+                      <button
+                        type="button"
+                        className="font-semibold underline decoration-amber-700 decoration-dotted underline-offset-2 hover:text-amber-900 hover:decoration-solid"
+                        onClick={() => handleOpenDuplicateInvoice(inv.invoiceId)}
+                      >
+                        Invoice No: {inv.invoiceNo}
+                      </button>
+                      <span className="text-amber-800">
+                        Date: {inv.accountDate}
+                      </span>
+                    </div>
+                    <div className="mb-1 text-amber-900">
+                      Supplier:{" "}
+                      <span className="font-medium">
+                        {inv.supplierCode} - {inv.supplierName}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-amber-900">
+                      <div>
+                        <div>Total Amt: {inv.totAmt}</div>
+                        <div>GST Amt: {inv.gstAmt}</div>
+                        <div>Total After GST: {inv.totAftGstAmt}</div>
+                      </div>
+                      <div>
+                        <div>Total Local: {inv.totLocalAmt}</div>
+                        <div>GST Local: {inv.gstLocalAmt}</div>
+                        <div>
+                          Total Local After GST: {inv.totLocalAmtAftGst}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 border-t border-amber-300 pt-1 text-amber-900">
+                      <div>
+                        Created By:{" "}
+                        <span className="font-medium">{inv.createBy}</span>
+                      </div>
+                      <div>Created Date: {inv.createDate}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </form>
     </FormProvider>
   )

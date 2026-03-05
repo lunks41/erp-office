@@ -14,7 +14,7 @@ import BankReconForm from "./cbbankrecon-form"
 
 interface MainProps {
   form: UseFormReturn<CbBankReconHdSchemaType>
-  onSuccessAction: (action: string) => Promise<void>
+  onRefreshAction: () => Promise<void>
   isEdit: boolean
   visible: IVisibleFields
   required: IMandatoryFields
@@ -23,7 +23,7 @@ interface MainProps {
 
 export default function Main({
   form,
-  onSuccessAction,
+  onRefreshAction,
   isEdit,
   visible,
   required,
@@ -112,7 +112,7 @@ export default function Main({
     <div className="w-full space-y-4">
       <BankReconForm
         form={form}
-        onSuccessAction={onSuccessAction}
+        onRefreshAction={onRefreshAction}
         isEdit={isEdit}
         visible={visible}
         required={required}

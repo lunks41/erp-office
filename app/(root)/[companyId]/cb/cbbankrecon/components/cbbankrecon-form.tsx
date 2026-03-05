@@ -26,7 +26,7 @@ import BankReconSelectionDialog from "./bankrecon-selection-dialog"
 
 interface BankReconFormProps {
   form: UseFormReturn<CbBankReconHdSchemaType>
-  onSuccessAction: (action: string) => Promise<void>
+  onRefreshAction: () => Promise<void>
   isEdit: boolean
   visible: IVisibleFields
   required: IMandatoryFields
@@ -35,7 +35,7 @@ interface BankReconFormProps {
 
 export default function BankReconForm({
   form,
-  onSuccessAction,
+  onRefreshAction,
   isEdit: _isEdit,
   visible: _visible,
   required,
@@ -46,10 +46,6 @@ export default function BankReconForm({
 
   const [isBankReconDialogOpen, setIsBankReconDialogOpen] =
     React.useState(false)
-
-  const onSubmit = async () => {
-    await onSuccessAction("save")
-  }
 
   // Handle bank selection
   const handleBankChange = React.useCallback(
@@ -88,8 +84,9 @@ export default function BankReconForm({
     [form]
   )
 
-  // Watch bankId to conditionally show plus button
+  // Watch core fields
   const bankId = form.watch("bankId")
+  const currencyId = form.watch("currencyId")
   const isBankSelected = bankId && bankId > 0
 
   // Watch accountDate, fromDate and toDate for validation
@@ -109,6 +106,15 @@ export default function BankReconForm({
     if (toDate instanceof Date) return isValid(toDate) ? toDate : null
     return parseDate(toDate as string)
   }, [toDate])
+
+  // Enable Refresh only when mandatory filters are filled
+  const isRefreshEnabled =
+    !!bankId &&
+    bankId > 0 &&
+    !!currencyId &&
+    currencyId > 0 &&
+    !!parsedFromDate &&
+    !!parsedToDate
 
   // Keep From/To Date in sync with Account Date month on load/reset/change
   React.useEffect(() => {
@@ -178,8 +184,7 @@ export default function BankReconForm({
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-7 gap-2 rounded-md p-2"
+        className="grid grid-cols-8 gap-2 rounded-md p-2"
       >
         {/* Account Date */}
         <CustomDateNew
@@ -315,16 +320,19 @@ export default function BankReconForm({
           name="remarks"
           label="Remarks"
           isRequired={required?.m_Remarks}
-          className="col-span-3"
+          className="col-span-1"
         />
 
         {/* Action buttons */}
         <div className="col-span-1 flex items-center gap-2">
           <Button
-            type="submit"
+            type="button"
             size="sm"
             className="ml-auto"
-            disabled={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting || !isRefreshEnabled}
+            onClick={async () => {
+              await onRefreshAction()
+            }}
           >
             Refresh
           </Button>

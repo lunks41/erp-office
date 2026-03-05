@@ -1038,6 +1038,8 @@ export const ApInvoice = {
   get: "/account/getapinvoice",
   getByIdNo: "/account/getapinvoicebyidno",
   add: "/account/saveapinvoice",
+  checkDuplicateSuppInvoiceNo:
+    "/account/GetCheckDuplicateSuppInvoiceNo",
   delete: "/account/deleteapinvoice",
   history: "/account/gethistoryapinvoicebyid",
   historyDetails: "/account/gethistoryapinvoicedetailsbyid",
@@ -1164,6 +1166,7 @@ export const CbBankRecon = {
   get: "/account/getcbbankrecon",
   getByIdNo: "/account/getcbbankreconbyidno",
   add: "/account/savecbbankrecon",
+  refresh: "/account/GetRefreshCBBankRecon",
   delete: "/account/deletecbbankrecon",
   history: "/account/gethistorycbbankreconbyid",
   historyDetails: "/account/gethistorycbbankrecondetailsbyid",

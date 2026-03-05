@@ -29,7 +29,7 @@
     "@emotion/react": "^11.14.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.2.2",
-    "@progress/telerik-react-report-viewer": "^28.25.1119",
+    "@progress/telerik-react-report-viewer": "29.26.211",
     "@radix-ui/react-accessible-icon": "^1.1.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
