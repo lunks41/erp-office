@@ -1050,6 +1050,8 @@ export const ApCreditNote = {
   get: "/account/getapcreditnote",
   getByIdNo: "/account/getapcreditnotebyidno",
   add: "/account/saveapcreditnote",
+  checkDuplicateSuppCreditNoteNo:
+    "/account/GetCheckDuplicateSuppCreditNoteNo",
   delete: "/account/deleteapcreditnote",
   history: "/account/gethistoryapcreditnotebyid",
   historyDetails: "/account/gethistoryapcreditnotedetailsbyid",

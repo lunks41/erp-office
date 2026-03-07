@@ -30,6 +30,8 @@ import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { ApCreditNote } from "@/lib/api-routes"
+import { useGetById } from "@/hooks/use-common"
 import { useGetDynamicLookup } from "@/hooks/use-lookup"
 import {
   BankAutocomplete,
@@ -57,6 +59,24 @@ interface CreditNoteFormProps {
   companyId: number
   defaultCurrencyId?: number
   detailsFormRef?: React.RefObject<CreditNoteDetailsFormRef | null>
+}
+
+type DuplicateSupplierCreditNote = {
+  creditNoteId?: string | number | null
+  creditNoteNo?: string
+  invoiceId?: string | number | null
+  invoiceNo?: string
+  accountDate?: string
+  supplierCode?: string
+  supplierName?: string
+  totAmt?: number
+  totLocalAmt?: number
+  gstAmt?: number
+  gstLocalAmt?: number
+  totAftGstAmt?: number
+  totLocalAmtAftGst?: number
+  createBy?: string
+  createDate?: string
 }
 
 export default function CreditNoteForm({
@@ -503,6 +523,67 @@ export default function CreditNoteForm({
     [decimals, form, recalculateHeaderTotals, visible, detailsFormRef]
   )
 
+  // ================= Duplicate Supplier Credit Note Check =================
+  const [showDuplicateCreditDialog, setShowDuplicateCreditDialog] =
+    React.useState(false)
+  const [duplicateCreditNotes, setDuplicateCreditNotes] = React.useState<
+    DuplicateSupplierCreditNote[]
+  >([])
+
+  const suppCreditNoteNoValue = useWatch({
+    control: form.control,
+    name: "suppCreditNoteNo",
+  }) as string | undefined
+
+  // Build route param as {CreditNoteId}/{SuppCreditNoteNo}
+  const duplicateCreditRouteParam = React.useMemo(() => {
+    const supp = (suppCreditNoteNoValue || "").trim()
+    const creditNoteId = form.getValues("creditNoteId") || "0"
+    if (!supp) return ""
+    return `${creditNoteId}/${encodeURIComponent(supp)}`
+  }, [suppCreditNoteNoValue, form])
+
+  const duplicateCreditCheckQuery = useGetById<DuplicateSupplierCreditNote[]>(
+    ApCreditNote.checkDuplicateSuppCreditNoteNo,
+    "checkDuplicateSuppCreditNoteNo",
+    duplicateCreditRouteParam,
+    {
+      enabled: false,
+    }
+  )
+
+  const checkDuplicateSuppCreditNoteNo = async () => {
+    if (!duplicateCreditRouteParam) return
+
+    try {
+      const { data } = await duplicateCreditCheckQuery.refetch()
+      if (!data) return
+
+      // Backend: result == 1 => data available; result == -1 => not available
+      if (data.result === 1 && data.data) {
+        const items: DuplicateSupplierCreditNote[] = Array.isArray(data.data)
+          ? (data.data as DuplicateSupplierCreditNote[])
+          : [data.data as DuplicateSupplierCreditNote]
+        setDuplicateCreditNotes(items)
+        setShowDuplicateCreditDialog(true)
+      }
+    } catch (error) {
+      console.error("Error checking duplicate supplier credit note no:", error)
+    }
+  }
+
+  const handleOpenDuplicateCreditNote = (
+    creditNoteId?: string | number | null
+  ) => {
+    if (!creditNoteId || !_companyId) return
+    if (typeof window === "undefined") return
+
+    const pagePath = `/${_companyId}/ap/creditnote`
+    const storageKey = `history-doc:/${_companyId}/ap/creditNote`
+    window.localStorage.setItem(storageKey, String(creditNoteId))
+    window.open(pagePath, "_blank", "noopener,noreferrer")
+  }
+
   // Handle city exchange rate focus - capture original value
   const handleCountryExchangeRateFocus = React.useCallback(() => {
     originalCtyExhRateRef.current = form.getValues("ctyExhRate") || 0
@@ -672,8 +753,9 @@ export default function CreditNoteForm({
           <CustomInput
             form={form}
             name="suppCreditNoteNo"
-            label="Customer CreditNote No."
+            label="Supplier Credit Note No."
             isRequired={required?.m_SuppInvoiceNo}
+            onBlurEvent={checkDuplicateSuppCreditNoteNo}
           />
 
           {/* Reference No */}
@@ -850,9 +932,6 @@ export default function CreditNoteForm({
           />
         </div>
 
-        {/* {form.watch("creditNoteId") != "0" && (
-          <>
-            {/* Summary Box */}
         {/* Right Section: Summary Box */}
         <div className="col-span-2 ml-2 flex flex-col justify-start">
           <div className="w-full rounded-md border border-blue-200 bg-blue-50 p-3 shadow-sm">
@@ -959,6 +1038,79 @@ export default function CreditNoteForm({
             </div>
           </div>
         </div>
+
+        {/* Duplicate Supplier Credit Note Dialog */}
+        {showDuplicateCreditDialog && duplicateCreditNotes.length > 0 && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-xl shadow-amber-400/40">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-amber-900">
+                  Duplicate Supplier Credit Note Found
+                </h2>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-amber-700 hover:text-amber-900"
+                  onClick={() => setShowDuplicateCreditDialog(false)}
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                {duplicateCreditNotes.map((cn, index) => (
+                  <div
+                    key={index}
+                    className="rounded-md border border-amber-300 bg-amber-100/80 p-3 text-xs shadow-sm"
+                  >
+                    <div className="mb-2 flex items-center justify-between text-amber-900">
+                      <button
+                        type="button"
+                        className="font-semibold underline decoration-amber-700 decoration-dotted underline-offset-2 hover:text-amber-900 hover:decoration-solid"
+                        onClick={() =>
+                          handleOpenDuplicateCreditNote(
+                            cn.creditNoteId ?? cn.invoiceId
+                          )
+                        }
+                      >
+                        Credit Note No: {cn.creditNoteNo ?? cn.invoiceNo}
+                      </button>
+                      <span className="text-amber-800">
+                        Date: {cn.accountDate}
+                      </span>
+                    </div>
+                    <div className="mb-1 text-amber-900">
+                      Supplier:{" "}
+                      <span className="font-medium">
+                        {cn.supplierCode} - {cn.supplierName}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-amber-900">
+                      <div>
+                        <div>Total Amt: {cn.totAmt}</div>
+                        <div>GST Amt: {cn.gstAmt}</div>
+                        <div>Total After GST: {cn.totAftGstAmt}</div>
+                      </div>
+                      <div>
+                        <div>Total Local: {cn.totLocalAmt}</div>
+                        <div>GST Local: {cn.gstLocalAmt}</div>
+                        <div>
+                          Total Local After GST: {cn.totLocalAmtAftGst}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 border-t border-amber-300 pt-1 text-amber-900">
+                      <div>
+                        Created By:{" "}
+                        <span className="font-medium">{cn.createBy}</span>
+                      </div>
+                      <div>Created Date: {cn.createDate}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </form>
       <InvoiceSelectionDialog
         open={showInvoiceDialog}

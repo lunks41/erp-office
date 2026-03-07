@@ -57,6 +57,22 @@ interface InvoiceFormProps {
   detailsFormRef?: React.RefObject<InvoiceDetailsFormRef | null>
 }
 
+type DuplicateSupplierInvoice = {
+  invoiceId?: string | number | null
+  invoiceNo?: string
+  accountDate?: string
+  supplierCode?: string
+  supplierName?: string
+  totAmt?: number
+  totLocalAmt?: number
+  gstAmt?: number
+  gstLocalAmt?: number
+  totAftGstAmt?: number
+  totLocalAmtAftGst?: number
+  createBy?: string
+  createDate?: string
+}
+
 export default function InvoiceForm({
   form,
   onSuccessAction,
@@ -459,7 +475,7 @@ export default function InvoiceForm({
   // ================= Duplicate Supplier Invoice Check =================
   const [showDuplicateDialog, setShowDuplicateDialog] = React.useState(false)
   const [duplicateInvoices, setDuplicateInvoices] = React.useState<
-    Array<Record<string, any>>
+    DuplicateSupplierInvoice[]
   >([])
 
   const suppInvoiceNoValue = useWatch({
@@ -475,7 +491,7 @@ export default function InvoiceForm({
     return `${invoiceId}/${encodeURIComponent(supp)}`
   }, [suppInvoiceNoValue, form])
 
-  const duplicateCheckQuery = useGetById<any>(
+  const duplicateCheckQuery = useGetById<DuplicateSupplierInvoice[]>(
     ApInvoice.checkDuplicateSuppInvoiceNo,
     "checkDuplicateSuppInvoiceNo",
     duplicateRouteParam,
@@ -493,7 +509,9 @@ export default function InvoiceForm({
 
       // Backend: result == 1 => data available; result == -1 => not available
       if (data.result === 1 && data.data) {
-        const items = Array.isArray(data.data) ? data.data : [data.data]
+        const items: DuplicateSupplierInvoice[] = Array.isArray(data.data)
+          ? (data.data as DuplicateSupplierInvoice[])
+          : [data.data as DuplicateSupplierInvoice]
         setDuplicateInvoices(items)
         setShowDuplicateDialog(true)
       }
@@ -922,7 +940,12 @@ export default function InvoiceForm({
                       <button
                         type="button"
                         className="font-semibold underline decoration-amber-700 decoration-dotted underline-offset-2 hover:text-amber-900 hover:decoration-solid"
-                        onClick={() => handleOpenDuplicateInvoice(inv.invoiceId)}
+                        onClick={() =>
+                          handleOpenDuplicateInvoice(
+                            (inv.invoiceId as string | number | undefined) ??
+                              undefined
+                          )
+                        }
                       >
                         Invoice No: {inv.invoiceNo}
                       </button>
