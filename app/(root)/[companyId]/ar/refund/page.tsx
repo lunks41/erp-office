@@ -697,14 +697,14 @@ export default function RefundPage() {
 
     console.log("reportParams", reportParams)
 
-    // Store report data in sessionStorage
+    // Store report data in localStorage (to match receipt/AP refund behaviour)
     const reportData = {
       reportFile: "ar/ArRefund.trdp",
       parameters: reportParams,
     }
 
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         `report_window_${companyId}`,
         JSON.stringify(reportData)
       )
