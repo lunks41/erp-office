@@ -1,20 +1,16 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { endOfMonth, format, startOfMonth } from "date-fns"
 import {
   AlertTriangle,
-  BarChart3,
   BookOpen,
   CheckCircle2,
   Clock,
-  DollarSign,
   Download,
   FileText,
-  Plus,
   Settings,
   TrendingDown,
   TrendingUp,

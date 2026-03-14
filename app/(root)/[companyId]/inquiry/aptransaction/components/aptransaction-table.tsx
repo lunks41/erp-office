@@ -30,7 +30,7 @@ interface ApTransactionTableProps {
 
 export function ApTransactionTable({
   data,
-  isLoading = false,
+  isLoading: _isLoading = false,
   moduleId = ModuleId.ap,
   transactionId = APTransactionId.payment,
   onRefreshAction,
@@ -222,7 +222,7 @@ export function ApTransactionTable({
         hidden: true,
       },
     ],
-    [dateFormat, formatDate, amtDec, locAmtDec, exhRateDec, companyMap]
+    [formatDate, amtDec, locAmtDec, exhRateDec, companyMap]
   )
 
   // Filter out columns with hidden: true

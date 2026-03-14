@@ -47,11 +47,11 @@ export function TransportationLogTab({
   const moduleId = ModuleId.operations
   const transactionId = OperationsTransactionId.transportationLog
   const { hasPermission } = usePermissionStore()
-  const canView = hasPermission(moduleId, transactionId, "isRead")
-  const canEdit = hasPermission(moduleId, transactionId, "isEdit")
-  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
-  const canCreate = hasPermission(moduleId, transactionId, "isCreate")
-  const canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
+  const _canView = hasPermission(moduleId, transactionId, "isRead")
+  const _canEdit = hasPermission(moduleId, transactionId, "isEdit")
+  const _canDelete = hasPermission(moduleId, transactionId, "isDelete")
+  const _canCreate = hasPermission(moduleId, transactionId, "isCreate")
+  const _canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
 
   // Get default values for Transportation task - use taskId from initialData or a default value
   // Since Task.Transportation doesn't exist, we'll use 0 as default

@@ -55,7 +55,7 @@ export default function BankReconSelectionDialog({
   })
 
   const [searchQuery, setSearchQuery] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, _setCurrentPage] = useState(1)
   const [pageSize] = useState(50)
 
   // Data fetching - only when dialog is opened and bankId is provided

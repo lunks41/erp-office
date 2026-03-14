@@ -33,7 +33,7 @@ export default function JobTransactionsPage() {
   const [editRow, setEditRow] = useState<IJobTransaction | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, _setCurrentPage] = useState(1)
   const [pageSize] = useState(2000)
 
   const today = useMemo(() => new Date(), [])

@@ -118,7 +118,7 @@ export function LoanRequestTable({
     })
   }
 
-  const handleSkipRequestSubmit = async (data: unknown) => {
+  const handleSkipRequestSubmit = async (_data: unknown) => {
     try {
       setShowSkipRequestForm(false)
       setSelectedLoan(null)

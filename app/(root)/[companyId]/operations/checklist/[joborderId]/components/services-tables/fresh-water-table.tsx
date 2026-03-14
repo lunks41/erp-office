@@ -332,8 +332,6 @@ export function FreshWaterTable({
       },
     ],
     [
-      dateFormat,
-      datetimeFormat,
       formatDateValue,
       formatDateTimeValue,
       handleOpenHistory,

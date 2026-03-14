@@ -284,7 +284,8 @@ export function MainTable<T>({
       setSearchQuery(initialSearchValue)
       searchQueryRef.current = initialSearchValue
     }
-  }, [initialSearchValue]) // Only depend on initialSearchValue to avoid loops
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally omit searchQuery to avoid sync loops
+  }, [initialSearchValue])
 
   // ============================================================================
   // EFFECT: UPDATE STATE WHEN GRID SETTINGS CHANGE

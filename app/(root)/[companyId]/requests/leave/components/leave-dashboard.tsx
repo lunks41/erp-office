@@ -128,7 +128,7 @@ export function LeaveDashboard({
     }
   }
 
-  const _handleBalanceSubmit = async (data: LeaveBalanceSchemaType) => {
+  const _handleBalanceSubmit = async (_data: LeaveBalanceSchemaType) => {
     // TODO: Implement balance submit logic
     return {
       result: -1,

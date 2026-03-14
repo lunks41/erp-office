@@ -68,7 +68,6 @@ import {
 } from "@/components/confirmation"
 
 //import { Table } from "@/components/ui/table"
-//import InvoiceTable from "@/components/table/tblcmp"
 
 import History from "./components/history"
 import { getDefaultValues } from "./components/invoice-defaultvalues"

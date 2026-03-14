@@ -74,6 +74,7 @@ export function PayRunPreviewForm({
 
     // Don't automatically increment refreshKey on mount
     // Only increment when we actually need to refresh data (after save)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- omit employee to avoid refetch loops
   }, [employee?.payrollEmployeeId])
 
   console.log(

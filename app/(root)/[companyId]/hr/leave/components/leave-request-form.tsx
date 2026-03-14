@@ -70,6 +70,7 @@ export function LeaveRequestForm({ onSubmit }: LeaveRequestFormProps) {
     } else {
       form.setValue("totalDays", 0)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- form.watch in deps intentionally; adding calculateDays causes unnecessary recalc
   }, [form.watch("startDate"), form.watch("endDate"), form])
 
   const handleSubmit = async (data: LeaveRequestSchemaType) => {

@@ -67,7 +67,10 @@ export function AttendanceBulkForm({
 
   // Fetch employees
   const { data: employeesResponse, isLoading } = useGetEmployees()
-  const employees = employeesResponse?.data || []
+  const employees = useMemo(
+    () => employeesResponse?.data || [],
+    [employeesResponse?.data]
+  )
 
   // Bulk attendance save hook
   const bulkSaveAttendance = usePersist<AttendanceFormValue[]>(

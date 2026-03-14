@@ -10,7 +10,7 @@ interface HistoryProps {
 }
 
 export default function History({ form, isEdit: _isEdit }: HistoryProps) {
-  const accountDetails = {
+  const _accountDetails = {
     createBy:
       (form.getValues() as IGLOpeningBalance).createById?.toString() || "",
     createDate: (form.getValues() as IGLOpeningBalance).createDate || "",

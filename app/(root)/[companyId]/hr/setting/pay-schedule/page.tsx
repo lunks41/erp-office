@@ -51,7 +51,7 @@ export default function PaySchedulePage() {
         },
       })
     },
-    [editingItem, createMutation, refetch]
+    [createMutation, refetch]
   )
 
   return (

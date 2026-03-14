@@ -212,7 +212,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="bargeCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Barge Count</FormLabel>
@@ -259,7 +259,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="vesselCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Vessel Count</FormLabel>
@@ -306,7 +306,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="voyageCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Voyage Count</FormLabel>
@@ -353,7 +353,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="customerCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Customer Count</FormLabel>
@@ -400,7 +400,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="supplierCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Supplier Count</FormLabel>
@@ -447,7 +447,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="productCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Product Count</FormLabel>
@@ -494,7 +494,7 @@ export function DynamicLookupForm() {
             <FormField
               control={form.control}
               name="jobOrderCount"
-              render={({ field }) => (
+              render={({ field: _field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel>Job Order Count</FormLabel>

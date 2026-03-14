@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ApiResponse } from "@/interfaces/auth"
 import {
@@ -64,7 +64,11 @@ export default function PayRunPreviewPage() {
   )
 
   // Cast the data to the correct type
-  const employees = (payRunData?.data as unknown as IPayrollEmployeeHd[]) || []
+  const employees = useMemo(
+    () =>
+      (payRunData?.data as unknown as IPayrollEmployeeHd[]) || [],
+    [payRunData?.data]
+  )
 
   // Helper function to get dashboard details data
   const getDashboardDetails = () => {

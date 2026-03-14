@@ -36,14 +36,14 @@ export default function FreightManagementPage() {
   const moduleId = ModuleId.logistics
   const transactionId = LogisticsTransactionId.freight
 
-  const queryClient = useQueryClient()
+  const _queryClient = useQueryClient()
   const { hasPermission } = usePermissionStore()
-  const { decimals } = useAuthStore()
+  const { decimals: _decimals } = useAuthStore()
 
-  const canView = hasPermission(moduleId, transactionId, "isRead")
-  const canEdit = hasPermission(moduleId, transactionId, "isEdit")
-  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
-  const canCreate = hasPermission(moduleId, transactionId, "isCreate")
+  const _canView = hasPermission(moduleId, transactionId, "isRead")
+  const _canEdit = hasPermission(moduleId, transactionId, "isEdit")
+  const _canDelete = hasPermission(moduleId, transactionId, "isDelete")
+  const _canCreate = hasPermission(moduleId, transactionId, "isCreate")
 
   // States
   const [selectedItem, setSelectedItem] = useState<IFreight | undefined>(
@@ -73,7 +73,7 @@ export default function FreightManagementPage() {
   const {
     data: response,
     refetch,
-    isLoading: isLoadingFreight,
+    isLoading: _isLoadingFreight,
   } = useGet<IFreight>(
     `${Freight.get}`,
     "freight",
@@ -94,8 +94,8 @@ export default function FreightManagementPage() {
   const selectedItemId = selectedItem?.consignmentImportId?.toString() || ""
   const {
     data: itemResponse,
-    refetch: refetchItem,
-    isLoading: isLoadingItem,
+    refetch: _refetchItem,
+    isLoading: _isLoadingItem,
   } = useGetById<IFreight>(
     `${Freight.getById}`,
     "freightById",

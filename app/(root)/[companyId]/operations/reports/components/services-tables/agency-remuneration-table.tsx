@@ -1,11 +1,7 @@
 "use client"
 
 import { useCallback, useMemo } from "react"
-import {
-  IAgencyRemuneration,
-  IAgencyRemunerationFilter,
-  IJobOrderHd,
-} from "@/interfaces/checklist"
+import { IAgencyRemuneration } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"

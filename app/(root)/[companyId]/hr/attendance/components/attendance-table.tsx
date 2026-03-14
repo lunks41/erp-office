@@ -65,7 +65,10 @@ export function AttendanceTable({
       selectedMonthYear
     )
 
-  const employees = employeesResponse?.data || []
+  const employees = useMemo(
+    () => employeesResponse?.data || [],
+    [employeesResponse?.data]
+  )
   // Generate days for selected month
   const days = useMemo(() => {
     try {
@@ -173,7 +176,8 @@ export function AttendanceTable({
         onAttendanceChange(attendanceRecords)
       }
     }
-  }, [attendanceRecords]) // Remove onAttendanceChange from dependencies to prevent infinite loop
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- onAttendanceChange omitted to prevent infinite loop
+  }, [attendanceRecords])
 
   const getAttendanceCounts = (employeeId: string) => {
     const employee = bulkData.find((emp) => emp.employeeId === employeeId)

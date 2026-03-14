@@ -199,7 +199,7 @@ export const getDateTimestamp = (val: unknown): number => {
 /**
  * TanStack Table sortingFn for date columns - ensures correct chronological order
  */
-export const dateSortingFn = <T>(
+export const dateSortingFn = <_T>(
   rowA: { getValue: (columnId: string) => unknown },
   rowB: { getValue: (columnId: string) => unknown },
   columnId: string

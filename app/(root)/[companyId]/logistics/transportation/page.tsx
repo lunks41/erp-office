@@ -38,14 +38,14 @@ export default function TransportPage() {
   const moduleId = ModuleId.logistics
   const transactionId = LogisticsTransactionId.transportation
 
-  const queryClient = useQueryClient()
+  const _queryClient = useQueryClient()
   const { hasPermission } = usePermissionStore()
-  const { decimals } = useAuthStore()
+  const { decimals: _decimals } = useAuthStore()
 
-  const canView = hasPermission(moduleId, transactionId, "isRead")
-  const canEdit = hasPermission(moduleId, transactionId, "isEdit")
-  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
-  const canCreate = hasPermission(moduleId, transactionId, "isCreate")
+  const _canView = hasPermission(moduleId, transactionId, "isRead")
+  const _canEdit = hasPermission(moduleId, transactionId, "isEdit")
+  const _canDelete = hasPermission(moduleId, transactionId, "isDelete")
+  const _canCreate = hasPermission(moduleId, transactionId, "isCreate")
 
   // Get default values for Transportation task - use taskId from initialData or a default value
   // Since Task.Transportation doesn't exist, we'll use 0 as default
@@ -76,7 +76,7 @@ export default function TransportPage() {
   const {
     data: response,
     refetch,
-    isLoading: isLoadingTransportationLog,
+    isLoading: _isLoadingTransportationLog,
   } = useGet<ITransportationLog>(
     `${TransportationLog.get}`,
     "transportationLog"
@@ -100,8 +100,8 @@ export default function TransportPage() {
   const selectedItemId = selectedItem?.itemNo?.toString() || ""
   const {
     data: itemResponse,
-    refetch: refetchItem,
-    isLoading: isLoadingItem,
+    refetch: _refetchItem,
+    isLoading: _isLoadingItem,
   } = useGetById<ITransportationLog>(
     `${TransportationLog.getById}`,
     "transportationLogById",

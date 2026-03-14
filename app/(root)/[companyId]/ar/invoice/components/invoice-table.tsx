@@ -173,7 +173,10 @@ export default function InvoiceTable({
     hasSearched
   )
 
-  const data = invoicesResponse?.data || []
+  const data = useMemo(
+    () => invoicesResponse?.data || [],
+    [invoicesResponse?.data]
+  )
   const totalRecords = invoicesResponse?.totalRecords || data.length
   const isLoading = isLoadingInvoices || isRefetchingInvoices
 

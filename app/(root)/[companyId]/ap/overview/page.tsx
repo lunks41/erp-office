@@ -1,20 +1,15 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { endOfMonth, format, startOfMonth } from "date-fns"
 import {
   AlertTriangle,
-  BarChart3,
   Clock,
-  CreditCard,
   DollarSign,
   Download,
   FileText,
-  Mail,
-  Plus,
   Settings,
   TrendingDown,
 } from "lucide-react"

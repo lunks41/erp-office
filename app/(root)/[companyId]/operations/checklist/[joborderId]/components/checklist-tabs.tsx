@@ -78,11 +78,11 @@ export function ChecklistTabs({
   const moduleId = ModuleId.operations
   const transactionId = OperationsTransactionId.checklist
   const { hasPermission } = usePermissionStore()
-  const canView = hasPermission(moduleId, transactionId, "isRead")
+  const _canView = hasPermission(moduleId, transactionId, "isRead")
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
   const canDelete = hasPermission(moduleId, transactionId, "isDelete")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
-  const canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
+  const _canDebitNote = hasPermission(moduleId, transactionId, "isDebitNote")
 
   const [activeTab, setActiveTab] = useState("main")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)

@@ -26,7 +26,7 @@ import { Separator } from "../ui/separator"
 
 // Constants
 // ---------
-const INACTIVITY_TIMEOUT = 45 * 60 * 1000 // 45 minutes in milliseconds
+const _INACTIVITY_TIMEOUT = 45 * 60 * 1000 // 45 minutes in milliseconds
 const LOCK_STATE_KEY = "appLocked"
 const BROADCAST_CHANNEL = "auth"
 const MAX_FAILED_ATTEMPTS = 3
@@ -77,7 +77,7 @@ export function ScreenLock({ variant = "icon", className }: ScreenLockProps) {
   const [isClient, setIsClient] = useState(false)
   const [isLocked, setIsLocked] = useState(false)
   const [password, setPassword] = useState("")
-  const [lastActivity, setLastActivity] = useState(Date.now())
+  const [_lastActivity, setLastActivity] = useState(Date.now())
   const [error, setError] = useState("")
   const [message, setMessage] = useState("")
   const [failedAttempts, setFailedAttempts] = useState(0)
@@ -329,7 +329,7 @@ export function ScreenLock({ variant = "icon", className }: ScreenLockProps) {
   //   ]
   //   events.forEach((event) => window.addEventListener(event, updateActivity))
   //   const inactivityCheck = setInterval(() => {
-  //     if (Date.now() - lastActivity > INACTIVITY_TIMEOUT) {
+  //     if (Date.now() - lastActivity > _INACTIVITY_TIMEOUT) {
   //       lockScreen()
   //     }
   //   }, 1000)

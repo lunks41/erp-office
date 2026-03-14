@@ -102,7 +102,7 @@ export function TaskTable<T>({
   canView = true,
   canEdit = true,
   canDelete = true,
-  canCreate = true,
+  canCreate: _canCreate = true,
   canDebitNote = true,
 }: TaskTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(

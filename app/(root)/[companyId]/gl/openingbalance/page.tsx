@@ -43,7 +43,7 @@ export default function OpeningBalancePage() {
   const { hasPermission } = usePermissionStore()
   const { decimals, user } = useAuthStore()
   const { defaults } = useUserSettingDefaults()
-  const pageSize = defaults?.common?.trnGridTotalRecords || 100
+  const _pageSize = defaults?.common?.trnGridTotalRecords || 100
 
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
@@ -72,9 +72,9 @@ export default function OpeningBalancePage() {
 
   const canView = hasPermission(moduleId, transactionId, "isRead")
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
-  const canDelete = hasPermission(moduleId, transactionId, "isDelete")
+  const _canDelete = hasPermission(moduleId, transactionId, "isDelete")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
-  const canPost = hasPermission(moduleId, transactionId, "isPost")
+  const _canPost = hasPermission(moduleId, transactionId, "isPost")
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -82,7 +82,7 @@ export default function OpeningBalancePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [openingBalance, setOpeningBalance] =
     useState<GLOpeningBalanceSchemaType | null>(null)
-  const [searchNo, setSearchNo] = useState("")
+  const [_searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [documentIdToFetch, setDocumentIdToFetch] = useState<
     string | undefined
@@ -104,7 +104,7 @@ export default function OpeningBalancePage() {
   }, [searchParams])
 
   // Fetch opening balance by ID using useGetById hook
-  const { data: fetchedOpeningBalance, isLoading: isLoadingOpeningBalance } =
+  const { data: fetchedOpeningBalance, isLoading: _isLoadingOpeningBalance } =
     useGetById<IGLOpeningBalance>(
       GLOpeningBalance.getById,
       "gl-opening-balance",
@@ -364,7 +364,7 @@ export default function OpeningBalancePage() {
     setDocumentIdToFetch(undefined)
 
     // Get current date/time and user name - always set for reset (new opening balance)
-    const currentDateTime = decimals[0]?.longDateFormat
+    const _currentDateTime = decimals[0]?.longDateFormat
       ? format(new Date(), decimals[0].longDateFormat)
       : format(new Date(), "dd/MM/yyyy HH:mm:ss")
 

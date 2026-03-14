@@ -262,7 +262,7 @@ export function FreshWaterTable({
         maxSize: 200,
       },
     ],
-    [dateFormat, datetimeFormat, formatDateValue, formatDateTimeValue]
+    [formatDateValue, formatDateTimeValue]
   )
 
   return (

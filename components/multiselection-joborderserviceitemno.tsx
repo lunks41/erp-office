@@ -333,7 +333,7 @@ export default function JobOrderServiceItemNoMultiSelect<
         <FormField
           control={form.control}
           name={name}
-          render={({ field, fieldState: { error } }) => {
+          render={({ field: _field, fieldState: { error } }) => {
             const showError = !!error
             return (
               <FormItem>

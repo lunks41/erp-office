@@ -1,13 +1,10 @@
 import { ApiResponse } from "@/interfaces/auth"
 import { IGlTransactionDetails } from "@/interfaces/history"
 import { useAuthStore } from "@/stores/auth-store"
-import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
 
 import { clientDateFormat } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetGlPostDetails } from "@/hooks/use-histoy"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGlPostDetailsColumns } from "@/components/gl-post-details-columns"
 import { BasicTable } from "@/components/table/table-basic"

@@ -251,7 +251,7 @@ export function ConsignmentExportTab({
     }
   }
 
-  const handleBulkDelete = useCallback(
+  const _handleBulkDelete = useCallback(
     (selectedIds: string[]) => {
       if (selectedIds.length === 0) {
         toast.error("Please select at least one consignment export to delete")

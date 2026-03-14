@@ -229,7 +229,7 @@ export default function ProfilePage() {
     })
   }
 
-  const getInitials = (name: string) => {
+  const _getInitials = (name: string) => {
     return name
       .split(" ")
       .map((word) => word.charAt(0))

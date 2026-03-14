@@ -258,6 +258,7 @@ export default function BankReconDetailsTable({
   )
 
   // Standalone date picker component for table cells (mimics CustomDateNew)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- reserved for future table cell date editing
   const StandaloneDatePicker = ({
     value,
     onChange,

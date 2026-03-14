@@ -252,7 +252,7 @@ export function ConsignmentImportTab({
     }
   }
 
-  const handleBulkDelete = useCallback((selectedIds: string[]) => {
+  const _handleBulkDelete = useCallback((selectedIds: string[]) => {
     if (selectedIds.length === 0) {
       toast.error("Please select at least one consignment import to delete")
       return
