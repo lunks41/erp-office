@@ -1088,8 +1088,8 @@ export default function ReceiptForm({
           label="Is Cust Pay Bank Chg"
         />
 
-        {/* Bank Charge GL */}
-        {visible?.m_BankChgGLId && (
+        {/* Bank Charge GL - hidden */}
+        {false && visible?.m_BankChgGLId && (
           <BankChartOfAccountAutocomplete
             form={form}
             name="bankChgGLId"

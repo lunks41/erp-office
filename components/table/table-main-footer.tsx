@@ -1,3 +1,5 @@
+import React from "react"
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,6 +24,7 @@ interface MainTableFooterProps {
   onPageChange: (page: number) => void
   onPageSizeChange?: (pageSize: number) => void
   pageSizeOptions?: number[]
+  extraRightContent?: React.ReactNode
 }
 
 export function MainTableFooter({
@@ -32,17 +35,27 @@ export function MainTableFooter({
   onPageChange,
   onPageSizeChange,
   pageSizeOptions = [50, 100, 500],
+  extraRightContent,
 }: MainTableFooterProps) {
   return (
-    <div className="flex items-center justify-between pt-2">
-      <div className="text-muted-foreground flex-1 text-sm">
-        <span>
-          {totalRecords} record{totalRecords !== 1 ? "s" : ""} | Page{" "}
-          {currentPage} of {totalPages || 1}
-        </span>
+    <div className="sticky bottom-0 z-20 mt-1 bg-background pt-2">
+      {/* Top line: records + optional total amount (or other summary) */}
+      <div className="flex items-center justify-between">
+        <div className="text-muted-foreground flex-1 text-sm">
+          <span>
+            {totalRecords} record{totalRecords !== 1 ? "s" : ""} | Page{" "}
+            {currentPage} of {totalPages || 1}
+          </span>
+        </div>
+        {extraRightContent && (
+          <div className="text-right text-sm font-semibold">
+            {extraRightContent}
+          </div>
+        )}
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Second line: rows-per-page + pager controls */}
+      <div className="mt-1 flex items-center justify-between">
         {/* Page size selector */}
         {onPageSizeChange && (
           <div className="flex items-center gap-2">

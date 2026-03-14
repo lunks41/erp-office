@@ -614,69 +614,6 @@ export default function APDashboardPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Quick Actions Panel */}
-      <Card className="sticky bottom-4 border-2">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common AP operations</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-            <Button
-              asChild
-              className="flex h-auto flex-col gap-2 py-4"
-              variant="outline"
-            >
-              <Link href={`/${companyId}/ap/invoice`}>
-                <Plus className="h-5 w-5" />
-                <span className="text-xs">New Invoice</span>
-              </Link>
-            </Button>
-            <Button
-              asChild
-              className="flex h-auto flex-col gap-2 py-4"
-              variant="outline"
-            >
-              <Link href={`/${companyId}/ap/payment`}>
-                <CreditCard className="h-5 w-5" />
-                <span className="text-xs">Make Payment</span>
-              </Link>
-            </Button>
-            <Button
-              className="flex h-auto flex-col gap-2 py-4"
-              variant="outline"
-            >
-              <FileText className="h-5 w-5" />
-              <span className="text-xs">Generate Statement</span>
-            </Button>
-            <Button
-              className="flex h-auto flex-col gap-2 py-4"
-              variant="outline"
-            >
-              <Mail className="h-5 w-5" />
-              <span className="text-xs">Send Reminders</span>
-            </Button>
-            <Button
-              asChild
-              className="flex h-auto flex-col gap-2 py-4"
-              variant="outline"
-            >
-              <Link href={`/${companyId}/ap/reports`}>
-                <BarChart3 className="h-5 w-5" />
-                <span className="text-xs">Aging Report</span>
-              </Link>
-            </Button>
-            <Button
-              className="flex h-auto flex-col gap-2 py-4"
-              variant="outline"
-            >
-              <Download className="h-5 w-5" />
-              <span className="text-xs">Export Data</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Auto-refresh Settings */}
       <div className="flex items-center justify-between rounded-lg border p-4">
         <div className="space-y-0.5">

@@ -177,6 +177,40 @@ export default function InvoiceTable({
   const totalRecords = invoicesResponse?.totalRecords || data.length
   const isLoading = isLoadingInvoices || isRefetchingInvoices
 
+  // Sum amounts for the current page (footer aggregates)
+  const {
+    totalTotAmt,
+    totalGstAmt,
+    totalTotAmtAftGst,
+    totalTotLocalAmt,
+    totalGstLocalAmt,
+    totalTotLocalAmtAftGst,
+  } = useMemo(() => {
+    return data.reduce(
+      (acc, row) => {
+        const toNumber = (v: unknown) =>
+          typeof v === "number" ? v : Number(v) || 0
+
+        acc.totalTotAmt += toNumber(row.totAmt)
+        acc.totalGstAmt += toNumber(row.gstAmt)
+        acc.totalTotAmtAftGst += toNumber(row.totAmtAftGst)
+        acc.totalTotLocalAmt += toNumber(row.totLocalAmt)
+        acc.totalGstLocalAmt += toNumber(row.gstLocalAmt)
+        acc.totalTotLocalAmtAftGst += toNumber(row.totLocalAmtAftGst)
+
+        return acc
+      },
+      {
+        totalTotAmt: 0,
+        totalGstAmt: 0,
+        totalTotAmtAftGst: 0,
+        totalTotLocalAmt: 0,
+        totalGstLocalAmt: 0,
+        totalTotLocalAmtAftGst: 0,
+      }
+    )
+  }, [data])
+
   const getPaymentStatus = (
     balAmt: number,
     payAmt: number,
@@ -754,6 +788,37 @@ export default function InvoiceTable({
         totalRecords={totalRecords}
         serverSidePagination={true}
         showSearch={false}
+        columnFooters={{
+          totAmt: formatNumber(totalTotAmt, amtDec),
+          gstAmt: formatNumber(totalGstAmt, amtDec),
+          totAmtAftGst: formatNumber(totalTotAmtAftGst, amtDec),
+          totLocalAmt: formatNumber(totalTotLocalAmt, locAmtDec),
+          gstLocalAmt: formatNumber(totalGstLocalAmt, locAmtDec),
+          totLocalAmtAftGst: formatNumber(totalTotLocalAmtAftGst, locAmtDec),
+        }}
+        footerRightContent={
+          <div className="flex flex-wrap items-center justify-end gap-4 text-xs sm:text-sm">
+            <span>
+              Total Amount: {formatNumber(totalTotAmt, amtDec)}
+            </span>
+            <span>
+              VAT Amount: {formatNumber(totalGstAmt, amtDec)}
+            </span>
+            <span>
+              Total After VAT: {formatNumber(totalTotAmtAftGst, amtDec)}
+            </span>
+            <span>
+              Total Local Amount: {formatNumber(totalTotLocalAmt, locAmtDec)}
+            </span>
+            <span>
+              VAT Local Amount: {formatNumber(totalGstLocalAmt, locAmtDec)}
+            </span>
+            <span>
+              Total Local After VAT:{" "}
+              {formatNumber(totalTotLocalAmtAftGst, locAmtDec)}
+            </span>
+          </div>
+        }
       />
     </div>
   )

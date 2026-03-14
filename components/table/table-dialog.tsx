@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   DndContext,
@@ -65,6 +66,8 @@ interface DialogDataTableProps<T> {
   totalRecords?: number
   serverSidePagination?: boolean
   showSearch?: boolean // When false, hide the header search box (default true)
+  footerRightContent?: ReactNode // Optional extra content on the right side of footer
+  columnFooters?: Record<string, ReactNode> // Per-column footer content (aligned with accessorKey)
 }
 
 export function DialogDataTable<T>({
@@ -87,6 +90,8 @@ export function DialogDataTable<T>({
   totalRecords,
   serverSidePagination = false, // Whether to use server-side pagination
   showSearch = true,
+  footerRightContent,
+  columnFooters,
 }: DialogDataTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -667,6 +672,53 @@ export function DialogDataTable<T>({
                   </TableRow>
                 ))}
 
+                {/* Footer aggregate row per column (e.g. totals) */}
+                {table.getRowModel().rows.length > 0 &&
+                  columnFooters &&
+                  Object.keys(columnFooters).length > 0 && (
+                    <TableRow className="h-7 bg-muted/40">
+                      {table.getAllLeafColumns().map((column, cellIndex) => {
+                        const isActions = column.id === "actions"
+                        const isFirstColumn = cellIndex === 0
+                        const accessorKey = (column.columnDef as { accessorKey?: string })
+                          .accessorKey
+
+                        const columnSize = clampColumnSize(
+                          column.id,
+                          column.getSize()
+                        )
+
+                        return (
+                          <TableCell
+                            key={`footer-${column.id}`}
+                            className={`px-2 py-1 font-semibold ${
+                              isFirstColumn || isActions
+                                ? "bg-background sticky left-0 z-10"
+                                : "text-right"
+                            }`}
+                            style={{
+                              width: `${columnSize}px`,
+                              minWidth: `${columnSize}px`,
+                              maxWidth: `${columnSize}px`,
+                              position:
+                                isFirstColumn || isActions
+                                  ? "sticky"
+                                  : "relative",
+                              left: isFirstColumn || isActions ? 0 : "auto",
+                              zIndex: isFirstColumn || isActions ? 10 : 1,
+                            }}
+                          >
+                            {accessorKey && columnFooters[accessorKey]
+                              ? columnFooters[accessorKey]
+                              : isFirstColumn
+                                ? "Total"
+                                : null}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
+                  )}
+
                 {/* Show empty state or loading message when no data */}
                 {table.getRowModel().rows.length === 0 && (
                   <TableRow>
@@ -693,6 +745,7 @@ export function DialogDataTable<T>({
         onPageChange={handlePageChange} // Page change handler
         onPageSizeChange={handlePageSizeChange} // Page size change handler
         pageSizeOptions={[50, 100, 500]} // Available page size options
+        extraRightContent={footerRightContent}
       />
     </>
   )

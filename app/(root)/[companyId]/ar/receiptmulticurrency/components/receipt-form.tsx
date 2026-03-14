@@ -1,52 +1,32 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  calculateMultiplierAmount,
-  setDueDate,
-  setExchangeRate,
-  setExchangeRateLocal,
-  setRecExchangeRate,
-} from "@/helpers/account"
-import {
-  calauteLocalAmtandGainLoss,
-  calculateDiffCurrency,
-  calculateSameCurrency,
-  calculateUnallocated,
-} from "@/helpers/ar-receipt-calculationsv1"
-import { IArReceiptDt } from "@/interfaces"
-import {
-  IBankLookup,
-  ICurrencyLookup,
-  ICustomerLookup,
-  IJobOrderLookup,
-  IPaymentTypeLookup,
-} from "@/interfaces/lookup"
-import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
-import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
-import { format } from "date-fns"
-import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
+import * as React from "react";
+import { calculateMultiplierAmount, setDueDate, setExchangeRate, setExchangeRateLocal, setRecExchangeRate } from "@/helpers/account";
+import { calauteLocalAmtandGainLoss, calculateDiffCurrency, calculateSameCurrency, calculateUnallocated } from "@/helpers/ar-receipt-calculationsv1";
+import { IArReceiptDt } from "@/interfaces";
+import { IBankLookup, ICurrencyLookup, ICustomerLookup, IJobOrderLookup, IPaymentTypeLookup } from "@/interfaces/lookup";
+import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting";
+import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas";
+import { useAuthStore } from "@/stores/auth-store";
+import { format } from "date-fns";
+import { FormProvider, UseFormReturn, useWatch } from "react-hook-form";
 
-import { clientDateFormat } from "@/lib/date-utils"
-import { parseNumberWithCommas } from "@/lib/utils"
-import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup"
-import {
-  BankAutocomplete,
-  BankChartOfAccountAutocomplete,
-  CurrencyAutocomplete,
-  CustomerAutocomplete,
-  DynamicCustomerAutocomplete,
-  DynamicJobOrderAutocomplete,
-  JobOrderAutocomplete,
-  PaymentTypeAutocomplete,
-} from "@/components/autocomplete"
-import CustomCheckbox from "@/components/custom/custom-checkbox"
-import { CustomDateNew } from "@/components/custom/custom-date-new"
-import CustomInput from "@/components/custom/custom-input"
-import CustomNumberInput from "@/components/custom/custom-number-input"
-import CustomSwitch from "@/components/custom/custom-switch"
-import CustomTextarea from "@/components/custom/custom-textarea"
+
+
+import { clientDateFormat } from "@/lib/date-utils";
+import { parseNumberWithCommas } from "@/lib/utils";
+import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup";
+import { BankAutocomplete, BankChartOfAccountAutocomplete, CurrencyAutocomplete, CustomerAutocomplete, DynamicCustomerAutocomplete, DynamicJobOrderAutocomplete, JobOrderAutocomplete, PaymentTypeAutocomplete } from "@/components/autocomplete";
+import CustomCheckbox from "@/components/custom/custom-checkbox";
+import { CustomDateNew } from "@/components/custom/custom-date-new";
+import CustomInput from "@/components/custom/custom-input";
+import CustomNumberInput from "@/components/custom/custom-number-input";
+import CustomSwitch from "@/components/custom/custom-switch";
+import CustomTextarea from "@/components/custom/custom-textarea";
+
+
+
+
 
 // From env: require Pay No (chequeNo) when payment type is Cheque. Set NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE=false in .env to disable.
 const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
@@ -130,6 +110,7 @@ export default function ReceiptForm({
   // Common function to recalculate amounts based on currency comparison
   const recalculateAmountsBasedOnCurrency = React.useCallback(
     (clearAllocations = false) => {
+      debugger
       const currencyId = form.getValues("currencyId") || 0
       const recCurrencyId = form.getValues("recCurrencyId") || 0
       const totAmt = form.getValues("totAmt") || 0
@@ -152,10 +133,10 @@ export default function ReceiptForm({
         })
         form.setValue("totLocalAmt", newTotLocalAmt, { shouldDirty: true })
 
-        // Calculate unallocated amounts
+        // Calculate unallocated amounts using the newly computed values (not stale recTotAmt)
         const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
-          recTotAmt,
-          newTotLocalAmt,
+          newRecTotAmt,
+          newRecTotLocalAmt,
           allocTotAmt,
           allocTotLocalAmt,
           decimals[0]
@@ -854,14 +835,17 @@ export default function ReceiptForm({
       const bankChgAmt = parseNumberWithCommas(e.target.value)
       const originalBankChgAmt = originalBankChgAmtRef.current
 
+      // Only recalculate if value is different from original
       if (bankChgAmt !== originalBankChgAmt) {
+        console.log("Bank Charges Amount changed - recalculating local amount")
         form.setValue("bankChgAmt", bankChgAmt, { shouldDirty: true })
 
-        const exhRate = form.getValues("exhRate") || 0
-        if (exhRate > 0) {
+        // Calculate bank charges local amount: bankChgAmt * recExhRate
+        const recExhRate = form.getValues("recExhRate") || 0
+        if (recExhRate > 0) {
           const bankChgLocalAmt = calculateMultiplierAmount(
             bankChgAmt,
-            exhRate,
+            recExhRate,
             locAmtDec
           )
           form.setValue("bankChgLocalAmt", bankChgLocalAmt, {
@@ -870,6 +854,8 @@ export default function ReceiptForm({
         } else {
           form.setValue("bankChgLocalAmt", 0, { shouldDirty: true })
         }
+      } else {
+        console.log("Bank Charges Amount unchanged - skipping recalculation")
       }
     },
     [form, locAmtDec]
@@ -1090,8 +1076,8 @@ export default function ReceiptForm({
           label="Is Cust Pay Bank Chg"
         />
 
-        {/* Bank Charge GL */}
-        {visible?.m_BankChgGLId && (
+        {/* Bank Charge GL - hidden */}
+        {false && visible?.m_BankChgGLId && (
           <BankChartOfAccountAutocomplete
             form={form}
             name="bankChgGLId"
