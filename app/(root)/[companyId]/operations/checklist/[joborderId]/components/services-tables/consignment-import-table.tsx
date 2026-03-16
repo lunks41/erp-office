@@ -48,6 +48,7 @@ interface ConsignmentImportTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: IConsignmentImport) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -75,6 +76,7 @@ export function ConsignmentImportTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   canView = true,
@@ -521,6 +523,7 @@ export function ConsignmentImportTable({
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

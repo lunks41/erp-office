@@ -33,6 +33,7 @@ interface OtherServiceTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: IOtherService) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -59,6 +60,7 @@ export function OtherServiceTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   // Permission props
@@ -349,6 +351,7 @@ export function OtherServiceTable({
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

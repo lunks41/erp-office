@@ -380,7 +380,7 @@ const ACCOUNT_CATEGORY_CONFIG: Record<
   "ar_documentsetoff": { category: "setoff", displayLabel: "AR Doc Setoff", icon: FileStack },
   "ap_docsetoff": { category: "setoff", displayLabel: "AP Doc Setoff", icon: FileStack },
   "ap_documentsetoff": { category: "setoff", displayLabel: "AP Doc Setoff", icon: FileStack },
-  "gl_arapcontra": { category: "setoff", displayLabel: "GL Contra", icon: ArrowLeftRight },
+  "gl_arapcontra": { category: "setoff", displayLabel: "Ar-Ap Contra", icon: ArrowLeftRight },
   "cb_cbbanktransfer": { category: "bank", displayLabel: "CB Bank Transfer", icon: ArrowLeftRight },
   "cb_cbbanktransferctm": { category: "bank", displayLabel: "CB Bank Transfer CTM", icon: ArrowLeftRight },
   "cb_cbbankrecon": { category: "bank", displayLabel: "CB Bank Reconciliation", icon: Scale },

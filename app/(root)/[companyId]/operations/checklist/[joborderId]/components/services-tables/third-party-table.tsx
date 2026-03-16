@@ -33,6 +33,7 @@ interface ThirdPartyTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: IThirdParty) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -59,6 +60,7 @@ export function ThirdPartyTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   canView = true,
@@ -362,6 +364,7 @@ export function ThirdPartyTable({
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

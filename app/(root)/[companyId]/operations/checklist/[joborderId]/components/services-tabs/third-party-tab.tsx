@@ -42,6 +42,7 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -118,6 +119,14 @@ export function ThirdPartyTab({
   // Key to reset table selection state
   const [tableResetKey, setTableResetKey] = useState(0)
 
+  const [cloneSaveConfirmation, setCloneSaveConfirmation] = useState<{
+    isOpen: boolean
+    sourceItem: IThirdParty | null
+  }>({
+    isOpen: false,
+    sourceItem: null,
+  })
+
   // Clone Task Dialog State
   const [showCloneTaskDialog, setShowCloneTaskDialog] = useState(false)
   const [showCloneTaskConfirmDialog, setShowCloneTaskConfirmDialog] =
@@ -144,9 +153,9 @@ export function ThirdPartyTab({
 
   const jobDataProps = useMemo(
     () => ({
-      jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
-      createById: jobData?.createById,
+      jobOrderId: jobData?.jobOrderId ?? 0,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
+      createById: jobData?.createById ?? 0,
     }),
     [jobData]
   )
@@ -399,6 +408,10 @@ export function ThirdPartyTab({
   const handleCombinedService = useCallback((selectedIds: string[]) => {
     setSelectedItems(selectedIds)
     setShowCombinedServiceModal(true)
+  }, [])
+
+  const handleCloneRow = useCallback((item: IThirdParty) => {
+    setCloneSaveConfirmation({ isOpen: true, sourceItem: item })
   }, [])
 
   // Handler for clone task from table header - receives selectedIds from table
@@ -657,6 +670,7 @@ export function ThirdPartyTab({
             onEditActionThirdParty={handleEdit}
             onCreateActionThirdParty={handleCreate}
             onCombinedService={handleCombinedService}
+            onCloneRow={handleCloneRow}
             onCloneTask={handleCloneTaskClick}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
@@ -784,6 +798,33 @@ export function ThirdPartyTab({
           isConfirmed={isConfirmed}
         />
       )}
+      <SaveConfirmation
+        open={cloneSaveConfirmation.isOpen}
+        onOpenChange={(isOpen: boolean) =>
+          setCloneSaveConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Clone Third Party Service"
+        itemName={`Third Party ${
+          cloneSaveConfirmation.sourceItem?.chargeName ?? ""
+        }`}
+        onConfirm={async () => {
+          const src = cloneSaveConfirmation.sourceItem
+          if (!src) return
+          const submitData: ThirdPartySchemaType = {
+            ...(src as unknown as ThirdPartySchemaType),
+            thirdPartyId: 0,
+            debitNoteId: 0,
+            deliverDate: formatDateForApi(src.deliverDate) || undefined,
+            ...jobDataProps,
+          }
+          const response = await saveMutation.mutateAsync(submitData)
+          if (response?.result === 1) {
+            refetch()
+            onTaskAdded?.()
+          }
+          setCloneSaveConfirmation({ isOpen: false, sourceItem: null })
+        }}
+      />
       {/* Delete Confirmation */}
       <DeleteConfirmation
         open={deleteConfirmation.isOpen}

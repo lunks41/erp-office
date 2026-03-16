@@ -41,6 +41,7 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -119,6 +120,15 @@ export function CrewMiscellaneousTab({
   // Key to reset table selection state
   const [tableResetKey, setTableResetKey] = useState(0)
 
+  // Clone single Crew Miscellaneous confirmation state
+  const [cloneSaveConfirmation, setCloneSaveConfirmation] = useState<{
+    isOpen: boolean
+    sourceItem: ICrewMiscellaneous | null
+  }>({
+    isOpen: false,
+    sourceItem: null,
+  })
+
   // Clone Task Dialog State
   const [showCloneTaskDialog, setShowCloneTaskDialog] = useState(false)
   const [showCloneTaskConfirmDialog, setShowCloneTaskConfirmDialog] =
@@ -145,9 +155,9 @@ export function CrewMiscellaneousTab({
 
   const jobDataProps = useMemo(
     () => ({
-      jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
-      createById: jobData?.createById,
+      jobOrderId: jobData?.jobOrderId ?? 0,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
+      createById: jobData?.createById ?? 0,
     }),
     [jobData]
   )
@@ -395,6 +405,11 @@ export function CrewMiscellaneousTab({
   const handleCombinedService = useCallback((selectedIds: string[]) => {
     setSelectedItems(selectedIds)
     setShowCombinedServiceModal(true)
+  }, [])
+
+  // Single-row clone handler (called from Actions column)
+  const handleCloneRow = useCallback((item: ICrewMiscellaneous) => {
+    setCloneSaveConfirmation({ isOpen: true, sourceItem: item })
   }, [])
 
   // Handler for clone task from table header - receives selectedIds from table
@@ -666,6 +681,7 @@ export function CrewMiscellaneousTab({
             onCreateActionCrewMiscellaneous={handleCreate}
             onCombinedService={handleCombinedService}
             onCloneTask={handleCloneTaskClick}
+            onCloneRow={handleCloneRow}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
             onRefreshAction={handleRefreshCrewMiscellaneous}
@@ -792,6 +808,33 @@ export function CrewMiscellaneousTab({
           isConfirmed={isConfirmed}
         />
       )}
+      {/* Single-row Clone Save Confirmation */}
+      <SaveConfirmation
+        open={cloneSaveConfirmation.isOpen}
+        onOpenChange={(isOpen: boolean) =>
+          setCloneSaveConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Clone Crew Miscellaneous"
+        itemName={`Crew Miscellaneous ${
+          cloneSaveConfirmation.sourceItem?.description ?? ""
+        }`}
+        onConfirm={async () => {
+          const src = cloneSaveConfirmation.sourceItem
+          if (!src) return
+          const submitData: CrewMiscellaneousSchemaType = {
+            ...(src as unknown as CrewMiscellaneousSchemaType),
+            crewMiscellaneousId: 0,
+            debitNoteId: 0,
+            ...jobDataProps,
+          }
+          const response = await saveMutation.mutateAsync(submitData)
+          if (response?.result === 1) {
+            refetch()
+            onTaskAdded?.()
+          }
+          setCloneSaveConfirmation({ isOpen: false, sourceItem: null })
+        }}
+      />
       {/* Delete Confirmation */}
       <DeleteConfirmation
         open={deleteConfirmation.isOpen}

@@ -42,6 +42,7 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -124,6 +125,15 @@ export function LaunchServicesTab({
     useState(false)
   const [isCloning, setIsCloning] = useState(false)
 
+  // Clone single Launch Service confirmation state
+  const [cloneSaveConfirmation, setCloneSaveConfirmation] = useState<{
+    isOpen: boolean
+    sourceItem: ILaunchService | null
+  }>({
+    isOpen: false,
+    sourceItem: null,
+  })
+
   // Clone Task Form Schema
   const cloneTaskSchema = z.object({
     toCompanyId: z.number().min(1, "Please select a company"),
@@ -145,7 +155,7 @@ export function LaunchServicesTab({
   const jobDataProps = useMemo(
     () => ({
       jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
       createById: jobData?.createById,
     }),
     [jobData]
@@ -317,6 +327,11 @@ export function LaunchServicesTab({
       })
     }
   }
+
+  // Single-row clone handler (called from Actions column)
+  const handleCloneRow = useCallback((item: ILaunchService) => {
+    setCloneSaveConfirmation({ isOpen: true, sourceItem: item })
+  }, [])
 
   const handleCreate = () => {
     setSelectedItem(undefined)
@@ -660,6 +675,7 @@ export function LaunchServicesTab({
             onCreateActionLaunchService={handleCreate}
             onCombinedService={handleCombinedService}
             onCloneTask={handleCloneTaskClick}
+            onCloneRow={handleCloneRow}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
             onRefreshAction={handleRefreshLaunchServices}
@@ -675,6 +691,37 @@ export function LaunchServicesTab({
           />
         </div>
       </div>
+      <SaveConfirmation
+        open={cloneSaveConfirmation.isOpen}
+        onOpenChange={(isOpen: boolean) =>
+          setCloneSaveConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Clone Launch Service"
+        itemName={`Launch Service ${
+          cloneSaveConfirmation.sourceItem?.chargeName ?? ""
+        }`}
+        onConfirm={async () => {
+          const src = cloneSaveConfirmation.sourceItem
+          if (!src) return
+
+          const submitData: LaunchServiceSchemaType = {
+            ...(src as unknown as LaunchServiceSchemaType),
+            launchServiceId: 0,
+            // Clear any existing debit note linkage on cloned record
+            debitNoteId: 0,
+            date: formatDateForApi(src.date) as string,
+            ...jobDataProps,
+          }
+
+          const response = await saveMutation.mutateAsync(submitData)
+          if (response?.result === 1) {
+            refetch()
+            onTaskAdded?.()
+          }
+
+          setCloneSaveConfirmation({ isOpen: false, sourceItem: null })
+        }}
+      />
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
           className="max-h-[90vh] w-[80vw] !max-w-none overflow-y-auto"

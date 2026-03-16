@@ -1,4 +1,4 @@
-import { Eye, Pencil, Receipt, ShoppingCart, Trash2 } from "lucide-react"
+import { Copy, Eye, Pencil, Receipt, ShoppingCart, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -8,6 +8,7 @@ interface TaskTableActionsProps<T> {
   onView?: (row: T) => void
   onEditAction?: (row: T) => void
   onDeleteAction?: (id: string) => void
+  onCloneAction?: (row: T) => void
   onDebitNoteAction?: (id: string) => void
   onPurchaseAction?: (id: string) => void
   onSelect?: (row: T, checked: boolean) => void
@@ -25,6 +26,7 @@ export function TaskTableActions<T>({
   onView,
   onEditAction,
   onDeleteAction,
+  onCloneAction,
   onDebitNoteAction,
   onPurchaseAction,
   onSelect,
@@ -96,6 +98,16 @@ export function TaskTableActions<T>({
         title={hasDebitNote ? "Cannot delete - Debit Note exists" : "Delete"}
       >
         <Trash2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 text-[#2f6abb] hover:bg-[#e6edf9]"
+        disabled={isConfirmed}
+        onClick={() => onCloneAction?.(row)}
+        title="Clone"
+      >
+        <Copy className="h-4 w-4" />
       </Button>
       <Button
         variant="ghost"

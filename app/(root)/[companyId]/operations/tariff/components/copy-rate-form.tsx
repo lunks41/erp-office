@@ -1,7 +1,7 @@
 //copy-rate-form.tsx
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { ICustomerLookup, IPortLookup } from "@/interfaces/lookup"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, XIcon } from "lucide-react"
@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { copyRateDirect, useGetTariffByTask } from "@/hooks/use-tariff"
+import { copyRateDirect } from "@/hooks/use-tariff"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
@@ -19,8 +19,6 @@ import {
   TaskAutocomplete,
 } from "@/components/autocomplete"
 import { CustomCheckbox } from "@/components/custom"
-
-import { TariffTable } from "./tariff-table"
 
 const copyRateSchema = z
   .object({
@@ -103,7 +101,6 @@ export function CopyRateForm({
   onSaveConfirmation,
 }: CopyRateFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [showTable, setShowTable] = useState(false)
 
   const form = useForm<CopyRateSchemaType>({
     resolver: zodResolver(copyRateSchema),
@@ -121,8 +118,7 @@ export function CopyRateForm({
     },
   })
 
-  // Direct API function using api-client.ts
-
+  // Watch key fields to drive validation-side effects
   const watchedValues = form.watch([
     "fromCustomerId",
     "fromPortId",
@@ -136,38 +132,15 @@ export function CopyRateForm({
   const watchedIsAllPorts = watchedValues[3]
   const watchedIsAllTasks = watchedValues[4]
 
-  const { data: tariffResponse, isLoading: isLoadingTariffs } =
-    useGetTariffByTask(
-      watchedFromCustomerId,
-      watchedFromPortId,
-      watchedFromTaskId,
-      watchedFromCustomerId > 0 &&
-        (watchedIsAllPorts || watchedFromPortId > 0) &&
-        !watchedIsAllTasks &&
-        watchedFromTaskId > 0
-    )
-
-  const tariffData = useMemo(() => {
-    return tariffResponse?.data
-      ? Array.isArray(tariffResponse.data)
-        ? tariffResponse.data
-        : [tariffResponse.data]
-      : []
-  }, [tariffResponse?.data])
-
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Don't show table if isAllTasks is selected
-      if (watchedIsAllTasks) {
-        setShowTable(false)
-      } else if (
+      if (
         watchedFromCustomerId > 0 &&
         (watchedIsAllPorts || watchedFromPortId > 0) &&
         watchedFromTaskId > 0
       ) {
-        setShowTable(true)
-      } else {
-        setShowTable(false)
+        // valid combination – nothing to do here currently,
+        // but keep this placeholder if additional side-effects are needed later
       }
     }, 300)
 
@@ -428,31 +401,6 @@ export function CopyRateForm({
               </div>
             </div>
           </div>
-
-          {/* Rates Selection Table */}
-          {showTable && (
-            <div className="bg-card w-full space-y-3 rounded-lg border p-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Select Rates to Copy</h3>
-                {form.watch("multipleId") && (
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                    <span className="text-muted-foreground text-sm font-medium">
-                      Selected:{" "}
-                      {
-                        form.watch("multipleId")?.split(",").filter(Boolean)
-                          .length
-                      }{" "}
-                      rate(s)
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="bg-background max-h-[50vh] w-full overflow-auto rounded-md border">
-                <TariffTable data={tariffData} isLoading={isLoadingTariffs} />
-              </div>
-            </div>
-          )}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button

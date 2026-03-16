@@ -44,6 +44,7 @@ interface MedicalAssistanceTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: IMedicalAssistance) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -71,6 +72,7 @@ export function MedicalAssistanceTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   // Permission props
@@ -465,6 +467,7 @@ export function MedicalAssistanceTable({
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

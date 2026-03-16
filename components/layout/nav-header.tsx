@@ -152,7 +152,7 @@ export function NavHeader() {
   const glItems = [
     { title: "GL Overview", url: "/gl/overview", canView: canViewGlOverview },
     { title: "Journal Entry", url: "/gl/journalentry", canView: canViewGlJournalEntry },
-    { title: "GL Contra", url: "/gl/arapcontra", canView: canViewGlArapcontra },
+    { title: "Ar-Ap Contra", url: "/gl/arapcontra", canView: canViewGlArapcontra },
     { title: "GL Reports", url: "/gl/reports", canView: canViewGlReports },
   ].filter((i) => i.canView)
 

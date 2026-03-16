@@ -33,6 +33,7 @@ interface EquipmentUsedTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: IEquipmentUsed) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -59,6 +60,7 @@ export function EquipmentUsedTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   // Permission props
@@ -485,6 +487,7 @@ export function EquipmentUsedTable({
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

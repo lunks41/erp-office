@@ -345,9 +345,9 @@ export function TaskTableHeader<TData>({
             )}
 
             {canDebitNote && (
-              <div className="flex items-center gap-2">
+              <div className="ml-4 flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="default"
                   onClick={handleDebitNoteClick}
                   title={
                     !hasSelectedRows
@@ -361,8 +361,8 @@ export function TaskTableHeader<TData>({
                   }
                   className={
                     !hasSelectedRows || hasValidDebitNoteIds || isConfirmed
-                      ? "cursor-not-allowed opacity-50"
-                      : ""
+                      ? "cursor-not-allowed bg-[#2f6abb] text-white opacity-50 hover:bg-[#255499]"
+                      : "bg-[#2f6abb] text-white hover:bg-[#255499]"
                   }
                 >
                   <Receipt className="h-4 w-4" /> Debit Note

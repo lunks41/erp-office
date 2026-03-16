@@ -1079,7 +1079,7 @@ export default function DebitNoteDialog({
                 </div>
               </DialogDescription>
             </div>
-            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">
+            <div className="mr-10 flex flex-nowrap items-center gap-2 overflow-x-auto">
               {/* Action Buttons */}
               <Button
                 size="sm"
@@ -1093,23 +1093,12 @@ export default function DebitNoteDialog({
                 Save
               </Button>
               <Button
-                variant="destructive"
-                size="sm"
-                disabled={isConfirmed || !debitNoteHdState?.debitNoteId}
-                onClick={handleDeleteDebitNote}
-                className="h-8 px-2"
-                tabIndex={101}
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </Button>
-              <Button
                 size="sm"
                 variant="outline"
                 disabled={!debitNoteHdState?.debitNoteId}
                 onClick={handlePrint}
                 className="h-8 px-2"
-                tabIndex={102}
+                tabIndex={101}
               >
                 <Printer className="mr-2 h-4 w-4" />
                 Print
@@ -1120,10 +1109,21 @@ export default function DebitNoteDialog({
                 disabled={isConfirmed}
                 onClick={() => setBulkChargesDialog({ isOpen: true })}
                 className="h-8 px-2"
-                tabIndex={103}
+                tabIndex={102}
               >
                 <ListChecks className="mr-2 h-4 w-4" />
                 Bulk Charges
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isConfirmed || !debitNoteHdState?.debitNoteId}
+                onClick={handleDeleteDebitNote}
+                className="ml-4 h-8 px-2"
+                tabIndex={103}
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
               </Button>
             </div>
           </div>

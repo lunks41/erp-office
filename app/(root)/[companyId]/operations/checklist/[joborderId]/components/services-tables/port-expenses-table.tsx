@@ -33,6 +33,7 @@ interface PortExpensesTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (portExpense: IPortExpenses) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -59,6 +60,7 @@ export function PortExpensesTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   canView = true,
@@ -320,6 +322,7 @@ export function PortExpensesTable({
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

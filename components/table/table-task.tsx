@@ -62,6 +62,7 @@ interface TaskTableProps<T> {
   onPurchaseAction?: (itemId: string) => void
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: T) => void
   isConfirmed?: boolean
   showHeader?: boolean
   showActions?: boolean
@@ -94,6 +95,7 @@ export function TaskTable<T>({
   onPurchaseAction,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   showHeader = true,
   showActions = true,
@@ -283,8 +285,8 @@ export function TaskTable<T>({
               )
             },
             enableHiding: false,
-            size: 190,
-            minSize: 160,
+            size: 220,
+            minSize: 200,
             cell: ({ row }) => {
               const item = row.original
               const isSelected = row.getIsSelected()
@@ -297,6 +299,18 @@ export function TaskTable<T>({
                   onView={onSelect}
                   onEditAction={onEditAction}
                   onDeleteAction={onDeleteAction}
+                  onCloneAction={(cloneRow) => {
+                    if (onCloneRow) {
+                      onCloneRow(cloneRow as T)
+                      return
+                    }
+                    if (!onEditAction) return
+                    const cloned = {
+                      ...(cloneRow as Record<string, unknown>),
+                      [accessorId as string]: 0,
+                    } as T
+                    onEditAction(cloned)
+                  }}
                   onDebitNoteAction={handleDebitNoteFromActions}
                   onPurchaseAction={onPurchaseAction}
                   onSelect={(_, checked) => {

@@ -44,6 +44,7 @@ interface AgencyRemunerationTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: IAgencyRemuneration) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -71,6 +72,7 @@ export function AgencyRemunerationTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   canView = true,
@@ -305,6 +307,7 @@ export function AgencyRemunerationTable({
         onPurchaseAction={canDebitNote ? onPurchaseAction : undefined}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

@@ -44,6 +44,7 @@ interface TechnicianSurveyorTableProps {
   transactionId?: number
   onCombinedService?: (selectedIds: string[]) => void
   onCloneTask?: (selectedIds: string[]) => void
+  onCloneRow?: (row: ITechnicianSurveyor) => void
   isConfirmed?: boolean
   jobData?: IJobOrderHd | null // Job order data for document upload
   // Permission props
@@ -71,6 +72,7 @@ export function TechnicianSurveyorTable({
   transactionId,
   onCombinedService,
   onCloneTask,
+  onCloneRow,
   isConfirmed,
   jobData,
   // Permission props
@@ -431,6 +433,7 @@ export function TechnicianSurveyorTable({
         onPurchaseAction={onPurchaseAction}
         onCombinedService={onCombinedService}
         onCloneTask={onCloneTask}
+        onCloneRow={onCloneRow}
         isConfirmed={isConfirmed}
         showHeader={true}
         showActions={true}

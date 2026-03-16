@@ -1,7 +1,7 @@
 //copy-company-rate-form.tsx
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { ICustomerLookup, IPortLookup } from "@/interfaces/lookup"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, XIcon } from "lucide-react"
@@ -9,10 +9,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import {
-  copyCompanyTariffDirect,
-  useGetTariffByCompanyTask,
-} from "@/hooks/use-tariff"
+import { copyCompanyTariffDirect } from "@/hooks/use-tariff"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
@@ -23,8 +20,6 @@ import {
   TaskAutocomplete,
 } from "@/components/autocomplete"
 import { CustomCheckbox } from "@/components/custom"
-
-import { TariffTable } from "./tariff-table"
 
 const copyCompanyRateSchema = z
   .object({
@@ -108,7 +103,6 @@ export function CopyCompanyRateForm({
   const [isLoading, setIsLoading] = useState(false)
   const [selectedFromCompanyId, setSelectedFromCompanyId] = useState<number>(0)
   const [selectedToCompanyId, setSelectedToCompanyId] = useState<number>(0)
-  const [showTable, setShowTable] = useState(false)
 
   const form = useForm<CopyCompanyRateSchemaType>({
     resolver: zodResolver(copyCompanyRateSchema),
@@ -128,8 +122,7 @@ export function CopyCompanyRateForm({
     },
   })
 
-  // Direct API function using api-client.ts
-
+  // Watch key fields to drive validation-side effects
   const watchedValues = form.watch([
     "fromCompanyId",
     "fromCustomerId",
@@ -145,41 +138,16 @@ export function CopyCompanyRateForm({
   const watchedIsAllPorts = watchedValues[4]
   const watchedIsAllTasks = watchedValues[5]
 
-  const { data: tariffResponse, isLoading: isLoadingTariffs } =
-    useGetTariffByCompanyTask(
-      watchedFromCompanyId,
-      watchedFromCustomerId,
-      watchedFromPortId,
-      watchedFromTaskId,
-      watchedFromCompanyId > 0 &&
-        watchedFromCustomerId > 0 &&
-        (watchedIsAllPorts || watchedFromPortId > 0) &&
-        !watchedIsAllTasks &&
-        watchedFromTaskId > 0
-    )
-
-  const tariffData = useMemo(() => {
-    return tariffResponse?.data
-      ? Array.isArray(tariffResponse.data)
-        ? tariffResponse.data
-        : [tariffResponse.data]
-      : []
-  }, [tariffResponse?.data])
-
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Don't show table if isAllTasks is selected
-      if (watchedIsAllTasks) {
-        setShowTable(false)
-      } else if (
+      if (
         watchedFromCompanyId > 0 &&
         watchedFromCustomerId > 0 &&
         (watchedIsAllPorts || watchedFromPortId > 0) &&
         watchedFromTaskId > 0
       ) {
-        setShowTable(true)
-      } else {
-        setShowTable(false)
+        // valid combination – nothing to do here currently,
+        // but keep this placeholder if additional side-effects are needed later
       }
     }, 300)
 
@@ -516,12 +484,12 @@ export function CopyCompanyRateForm({
                 </p>
                 <ul className="space-y-1 text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
                   <li>
-                    • The same company cannot be selected for both &quot;From&quot;
-                    and &quot;To&quot; fields.
+                    • The same company cannot be selected for both
+                    &quot;From&quot; and &quot;To&quot; fields.
                   </li>
                   <li>
-                    • The same customer cannot be selected for both &quot;From&quot;
-                    and &quot;To&quot; fields.
+                    • The same customer cannot be selected for both
+                    &quot;From&quot; and &quot;To&quot; fields.
                   </li>
                   <li>
                     • You must select different companies and customers to copy
@@ -531,31 +499,6 @@ export function CopyCompanyRateForm({
               </div>
             </div>
           </div>
-
-          {/* Rates Selection Table */}
-          {showTable && (
-            <div className="bg-card w-full space-y-3 rounded-lg border p-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Select Rates to Copy</h3>
-                {form.watch("multipleId") && (
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                    <span className="text-muted-foreground text-sm font-medium">
-                      Selected:{" "}
-                      {
-                        form.watch("multipleId")?.split(",").filter(Boolean)
-                          .length
-                      }{" "}
-                      rate(s)
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="bg-background max-h-[50vh] w-full overflow-auto rounded-md border">
-                <TariffTable data={tariffData} isLoading={isLoadingTariffs} />
-              </div>
-            </div>
-          )}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button

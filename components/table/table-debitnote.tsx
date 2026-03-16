@@ -17,7 +17,6 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { GripVertical } from "lucide-react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -30,6 +29,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+import { GripVertical } from "lucide-react"
 
 import { TableName } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"

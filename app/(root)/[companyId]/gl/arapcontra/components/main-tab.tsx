@@ -791,8 +791,9 @@ export default function Main({
           docDueDate: transaction.dueDate,
           docTotAmt: transaction.totAmt,
           docTotLocalAmt: transaction.totLocalAmt,
-          docBalAmt: Math.abs(transaction.balAmt),
-          docBalLocalAmt: Math.abs(transaction.balLocalAmt),
+          // Preserve original sign so credit notes / negative balances stay negative
+          docBalAmt: transaction.balAmt,
+          docBalLocalAmt: transaction.balLocalAmt,
           allocAmt: 0,
           allocLocalAmt: 0,
           docAllocAmt: 0,

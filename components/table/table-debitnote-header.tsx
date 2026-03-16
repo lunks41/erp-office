@@ -255,6 +255,17 @@ export function DebitNoteTableHeader<TData>({
                 Create
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onRefreshAction}
+              disabled={isConfirmed}
+              title={
+                isConfirmed ? "Cannot refresh when confirmed" : "Refresh data"
+              }
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
             {/* Bulk Delete Button - only show when items are selected */}
             {hasSelectedRows && selectedRowsCount > 0 && (
               <Button
@@ -271,20 +282,10 @@ export function DebitNoteTableHeader<TData>({
                 Delete ({selectedRowsCount})
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={onRefreshAction}
-              disabled={isConfirmed}
-              title={
-                isConfirmed ? "Cannot refresh when confirmed" : "Refresh data"
-              }
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
             {/* Excel Export Button */}
             <Button
               variant="outline"
+              className="ml-4"
               title="Export to Excel"
               onClick={() => handleExportExcel(data)}
             >

@@ -42,6 +42,7 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -127,6 +128,15 @@ export function AgencyRemunerationTab({
     useState(false)
   const [isCloning, setIsCloning] = useState(false)
 
+  // Clone single Agency Remuneration confirmation state
+  const [cloneSaveConfirmation, setCloneSaveConfirmation] = useState<{
+    isOpen: boolean
+    sourceItem: IAgencyRemuneration | null
+  }>({
+    isOpen: false,
+    sourceItem: null,
+  })
+
   // Clone Task Form Schema
   const cloneTaskSchema = z.object({
     toCompanyId: z.number().min(1, "Please select a company"),
@@ -147,9 +157,9 @@ export function AgencyRemunerationTab({
 
   const jobDataProps = useMemo(
     () => ({
-      jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
-      createById: jobData?.createById,
+      jobOrderId: jobData?.jobOrderId ?? 0,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
+      createById: jobData?.createById ?? 0,
     }),
     [jobData]
   )
@@ -248,6 +258,11 @@ export function AgencyRemunerationTab({
       }
     }
   }
+
+  // Single-row clone handler (called from Actions column)
+  const handleCloneRow = useCallback((item: IAgencyRemuneration) => {
+    setCloneSaveConfirmation({ isOpen: true, sourceItem: item })
+  }, [])
 
   const handleBulkDelete = useCallback((selectedIds: string[]) => {
     if (selectedIds.length === 0) {
@@ -662,6 +677,7 @@ export function AgencyRemunerationTab({
             onCreateActionAgencyRemuneration={handleCreate}
             onCombinedService={handleCombinedService}
             onCloneTask={handleCloneTaskClick}
+            onCloneRow={handleCloneRow}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
             onRefreshAction={handleRefreshAgencyRemuneration}
@@ -740,6 +756,37 @@ export function AgencyRemunerationTab({
           />
         </DialogContent>
       </Dialog>
+
+      <SaveConfirmation
+        open={cloneSaveConfirmation.isOpen}
+        onOpenChange={(isOpen) =>
+          setCloneSaveConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Clone Agency Remuneration"
+        itemName={`Agency Remuneration ${
+          cloneSaveConfirmation.sourceItem?.chargeName ?? ""
+        }`}
+        onConfirm={async () => {
+          const src = cloneSaveConfirmation.sourceItem
+          if (!src) return
+
+          const submitData: AgencyRemunerationSchemaType = {
+            ...(src as unknown as AgencyRemunerationSchemaType),
+            agencyRemunerationId: 0,
+            debitNoteId: 0,
+            date: formatDateForApi(src.date) as string,
+            ...jobDataProps,
+          }
+
+          const response = await saveMutation.mutateAsync(submitData)
+          if (response?.result === 1) {
+            refetch()
+            onTaskAdded?.()
+          }
+
+          setCloneSaveConfirmation({ isOpen: false, sourceItem: null })
+        }}
+      />
       {/* Combined Services Modal */}
       {showCombinedServiceModal && (
         <CombinedFormsDialog

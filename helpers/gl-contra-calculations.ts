@@ -167,14 +167,12 @@ export const allocateBetweenModules = (
   }
 
   const getAbsoluteTotal = (rows: IGLContraDt[]) =>
-    rows.reduce(
-      (sum, row) => addAmount(sum, Math.abs(toSafeNumber(row.docBalAmt))),
-      0
-    )
+    rows.reduce((sum, row) => addAmount(sum, toSafeNumber(row.docBalAmt)), 0)
 
   const arTotal = getAbsoluteTotal(arClone)
   const apTotal = getAbsoluteTotal(apClone)
   const limitingAmount = Math.min(arTotal, apTotal)
+  console.log("limitingAmount", limitingAmount, arTotal, apTotal)
 
   const distributeAllocation = (rows: IGLContraDt[], limit: number) => {
     const updatedRows = rows.map((row) => ({ ...row }))
@@ -187,7 +185,7 @@ export const allocateBetweenModules = (
       }
 
       const balance = toSafeNumber(row.docBalAmt)
-      const available = Math.min(Math.abs(balance), remaining)
+      const available = Math.min(balance, remaining)
       if (available <= 0) {
         row.allocAmt = 0
         return
@@ -207,6 +205,8 @@ export const allocateBetweenModules = (
       limitingAmount,
     }
   }
+
+  console.log("limitingAmount", limitingAmount)
 
   const updatedArDetails = distributeAllocation(arClone, limitingAmount)
   const updatedApDetails = distributeAllocation(apClone, limitingAmount)

@@ -42,6 +42,7 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -120,6 +121,14 @@ export function MedicalAssistanceTab({
   // Key to reset table selection state
   const [tableResetKey, setTableResetKey] = useState(0)
 
+  const [cloneSaveConfirmation, setCloneSaveConfirmation] = useState<{
+    isOpen: boolean
+    sourceItem: IMedicalAssistance | null
+  }>({
+    isOpen: false,
+    sourceItem: null,
+  })
+
   // Clone Task Dialog State
   const [showCloneTaskDialog, setShowCloneTaskDialog] = useState(false)
   const [showCloneTaskConfirmDialog, setShowCloneTaskConfirmDialog] =
@@ -146,9 +155,9 @@ export function MedicalAssistanceTab({
 
   const jobDataProps = useMemo(
     () => ({
-      jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
-      createById: jobData?.createById,
+      jobOrderId: jobData?.jobOrderId ?? 0,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
+      createById: jobData?.createById ?? 0,
     }),
     [jobData]
   )
@@ -392,6 +401,10 @@ export function MedicalAssistanceTab({
   const handleCombinedService = useCallback((selectedIds: string[]) => {
     setSelectedItems(selectedIds)
     setShowCombinedServiceModal(true)
+  }, [])
+
+  const handleCloneRow = useCallback((item: IMedicalAssistance) => {
+    setCloneSaveConfirmation({ isOpen: true, sourceItem: item })
   }, [])
 
   // Handler for clone task from table header - receives selectedIds from table
@@ -662,6 +675,7 @@ export function MedicalAssistanceTab({
             onCreateActionMedicalAssistance={handleCreateMedicalAssistance}
             onCombinedService={handleCombinedService}
             onCloneTask={handleCloneTaskClick}
+            onCloneRow={handleCloneRow}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
             onRefreshAction={handleRefreshMedicalAssistance}
@@ -788,6 +802,34 @@ export function MedicalAssistanceTab({
           isConfirmed={isConfirmed}
         />
       )}
+      <SaveConfirmation
+        open={cloneSaveConfirmation.isOpen}
+        onOpenChange={(isOpen: boolean) =>
+          setCloneSaveConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Clone Medical Assistance"
+        itemName={`Medical Assistance ${
+          cloneSaveConfirmation.sourceItem?.crewName ?? ""
+        }`}
+        onConfirm={async () => {
+          const src = cloneSaveConfirmation.sourceItem
+          if (!src) return
+          const submitData: MedicalAssistanceSchemaType = {
+            ...(src as unknown as MedicalAssistanceSchemaType),
+            medicalAssistanceId: 0,
+            debitNoteId: 0,
+            admittedDate: formatDateForApi(src.admittedDate) || undefined,
+            dischargedDate: formatDateForApi(src.dischargedDate) || undefined,
+            ...jobDataProps,
+          }
+          const response = await saveMutation.mutateAsync(submitData)
+          if (response?.result === 1) {
+            refetch()
+            onTaskAdded?.()
+          }
+          setCloneSaveConfirmation({ isOpen: false, sourceItem: null })
+        }}
+      />
       {/* Delete Confirmation */}
       <DeleteConfirmation
         open={deleteConfirmation.isOpen}

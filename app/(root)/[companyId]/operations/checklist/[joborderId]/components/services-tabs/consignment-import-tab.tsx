@@ -42,6 +42,7 @@ import { Separator } from "@/components/ui/separator"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
@@ -127,6 +128,15 @@ export function ConsignmentImportTab({
     useState(false)
   const [isCloning, setIsCloning] = useState(false)
 
+  // Clone single Consignment Import confirmation state
+  const [cloneSaveConfirmation, setCloneSaveConfirmation] = useState<{
+    isOpen: boolean
+    sourceItem: IConsignmentImport | null
+  }>({
+    isOpen: false,
+    sourceItem: null,
+  })
+
   // Clone Task Form Schema
   const cloneTaskSchema = z.object({
     toCompanyId: z.number().min(1, "Please select a company"),
@@ -147,9 +157,9 @@ export function ConsignmentImportTab({
 
   const jobDataProps = useMemo(
     () => ({
-      jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
-      createById: jobData?.createById,
+      jobOrderId: jobData?.jobOrderId ?? 0,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
+      createById: jobData?.createById ?? 0,
     }),
     [jobData]
   )
@@ -316,6 +326,11 @@ export function ConsignmentImportTab({
       })
     }
   }
+
+  // Single-row clone handler (called from Actions column)
+  const handleCloneRow = useCallback((item: IConsignmentImport) => {
+    setCloneSaveConfirmation({ isOpen: true, sourceItem: item })
+  }, [])
 
   const handleEdit = useCallback(
     async (item: IConsignmentImport) => {
@@ -662,7 +677,8 @@ export function ConsignmentImportTab({
             onEditActionConsignmentImport={handleEdit}
             onCreateActionConsignmentImport={handleCreate}
             onCombinedService={handleCombinedService}
-            onCloneTask={handleCloneTaskClick}
+          onCloneTask={handleCloneTaskClick}
+          onCloneRow={handleCloneRow}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
             onRefreshAction={handleRefreshConsignmentImport}
@@ -830,6 +846,40 @@ export function ConsignmentImportTab({
           })
         }
         isDeleting={deleteMutation.isPending}
+      />
+
+      <SaveConfirmation
+        open={cloneSaveConfirmation.isOpen}
+        onOpenChange={(isOpen: boolean) =>
+          setCloneSaveConfirmation((prev) => ({ ...prev, isOpen }))
+        }
+        title="Clone Consignment Import"
+        itemName={`Consignment Import ${
+          cloneSaveConfirmation.sourceItem?.awbNo ?? ""
+        }`}
+        onConfirm={async () => {
+          const src = cloneSaveConfirmation.sourceItem
+          if (!src) return
+
+          const submitData: ConsignmentImportSchemaType = {
+            ...(src as unknown as ConsignmentImportSchemaType),
+            consignmentImportId: 0,
+            // Clear any existing debit note linkage on cloned record
+            debitNoteId: 0,
+            receiveDate: formatDateForApi(src.receiveDate) || undefined,
+            deliverDate: formatDateForApi(src.deliverDate) || undefined,
+            arrivalDate: formatDateForApi(src.arrivalDate) || undefined,
+            ...jobDataProps,
+          }
+
+          const response = await saveMutation.mutateAsync(submitData)
+          if (response?.result === 1) {
+            refetch()
+            onTaskAdded?.()
+          }
+
+          setCloneSaveConfirmation({ isOpen: false, sourceItem: null })
+        }}
       />
 
       {/* Clone Task Dialog */}
