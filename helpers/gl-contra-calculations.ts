@@ -166,36 +166,56 @@ export const allocateBetweenModules = (
       : base - subtract
   }
 
-  const getAbsoluteTotal = (rows: IGLContraDt[]) =>
+  // Net signed sum of all docBalAmt (invoices positive, credit notes negative)
+  const getNetSum = (rows: IGLContraDt[]) =>
     rows.reduce((sum, row) => addAmount(sum, toSafeNumber(row.docBalAmt)), 0)
 
-  const arTotal = getAbsoluteTotal(arClone)
-  const apTotal = getAbsoluteTotal(apClone)
-  const limitingAmount = Math.min(arTotal, apTotal)
-  console.log("limitingAmount", limitingAmount, arTotal, apTotal)
+  const arSum = getNetSum(arClone)
+  const apSum = getNetSum(apClone)
+  // Limiting amount = the smaller absolute net sum
+  const limitingAmount = Math.min(Math.abs(arSum), Math.abs(apSum))
 
-  const distributeAllocation = (rows: IGLContraDt[], limit: number) => {
-    const updatedRows = rows.map((row) => ({ ...row }))
+  // Fully allocate all rows: allocAmt = docBalAmt
+  const fullyAllocate = (rows: IGLContraDt[]): IGLContraDt[] =>
+    rows.map((row) => ({ ...row, allocAmt: toSafeNumber(row.docBalAmt) }))
+
+  // Distribute a limit across rows, negatives first then positives.
+  // Negatives are taken in full and INCREASE remaining (they offset positives).
+  // Positives consume remaining up to their balance.
+  const distributeAllocation = (rows: IGLContraDt[], limit: number): IGLContraDt[] => {
+    const sorted = rows
+      .map((row) => ({ ...row }))
+      .sort((a, b) => {
+        const aBal = toSafeNumber(a.docBalAmt)
+        const bBal = toSafeNumber(b.docBalAmt)
+        if (aBal < 0 && bBal >= 0) return -1
+        if (aBal >= 0 && bBal < 0) return 1
+        return 0
+      })
+
     let remaining = limit
 
-    updatedRows.forEach((row) => {
+    sorted.forEach((row) => {
+      const balance = toSafeNumber(row.docBalAmt)
+
+      if (balance < 0) {
+        // Take full negative; its absolute value increases remaining budget
+        row.allocAmt = balance
+        remaining = addAmount(remaining, Math.abs(balance))
+        return
+      }
+
       if (remaining <= 0) {
         row.allocAmt = 0
         return
       }
 
-      const balance = toSafeNumber(row.docBalAmt)
-      const available = Math.min(balance, remaining)
-      if (available <= 0) {
-        row.allocAmt = 0
-        return
-      }
-
-      row.allocAmt = balance >= 0 ? available : -available
-      remaining = Math.max(0, subtractAmount(remaining, available))
+      const take = Math.min(balance, remaining)
+      row.allocAmt = take
+      remaining = Math.max(0, subtractAmount(remaining, take))
     })
 
-    return updatedRows
+    return sorted
   }
 
   if (limitingAmount <= 0) {
@@ -206,10 +226,20 @@ export const allocateBetweenModules = (
     }
   }
 
-  console.log("limitingAmount", limitingAmount)
+  // The side with the smaller absolute net sum is fully allocated;
+  // the other side is distributed using that smaller sum as the limit.
+  let updatedArDetails: IGLContraDt[]
+  let updatedApDetails: IGLContraDt[]
 
-  const updatedArDetails = distributeAllocation(arClone, limitingAmount)
-  const updatedApDetails = distributeAllocation(apClone, limitingAmount)
+  if (Math.abs(arSum) <= Math.abs(apSum)) {
+    // AR is smaller → AR fully allocated, AP distributed
+    updatedArDetails = fullyAllocate(arClone)
+    updatedApDetails = distributeAllocation(apClone, limitingAmount)
+  } else {
+    // AP is smaller → AP fully allocated, AR distributed
+    updatedApDetails = fullyAllocate(apClone)
+    updatedArDetails = distributeAllocation(arClone, limitingAmount)
+  }
 
   return {
     updatedArDetails,
