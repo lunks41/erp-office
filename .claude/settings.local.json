@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(find /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document -type f -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.json\")",
+      "Bash(ls -la /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document/)",
+      "Bash(ls -la /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document/components/)",
+      "Bash(grep -n \"DocumentTypeAutocomplete\\\\|EntityTypeAutocomplete\\\\|EmployeeAutocomplete\\\\|CompanyAutocomplete\" /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document/components/*.tsx)"
     ]
   }
 }

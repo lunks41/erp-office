@@ -1,7 +1,14 @@
 "use client"
 
 import { IUniversalDocumentHd } from "@/interfaces/universal-documents"
-import { AlertTriangle, CheckCircle, Clock, FileText } from "lucide-react"
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  FileText,
+  ShieldAlert,
+  TrendingDown,
+} from "lucide-react"
 
 import {
   useGetExpiredDocuments,
@@ -16,310 +23,385 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 
-interface DashboardStats {
-  totalDocuments: number
-  expiringSoon: number
-  expired: number
-  verified: number
-  totalDetails: number
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+const getDaysUntilExpiry = (expiryDate: string | null): number | null => {
+  if (!expiryDate) return null
+  return Math.ceil(
+    (new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  )
 }
 
+type ExpiryStatus = "expired" | "critical" | "warning" | "valid" | "none"
+
+const getExpiryStatus = (days: number | null): ExpiryStatus => {
+  if (days === null) return "none"
+  if (days < 0) return "expired"
+  if (days <= 7) return "critical"
+  if (days <= 30) return "warning"
+  return "valid"
+}
+
+const STATUS_CONFIG: Record<
+  ExpiryStatus,
+  { label: string; className: string }
+> = {
+  expired: {
+    label: "Expired",
+    className: "bg-red-100 text-red-700 border-red-200",
+  },
+  critical: {
+    label: "Critical",
+    className: "bg-orange-100 text-orange-700 border-orange-200",
+  },
+  warning: {
+    label: "Expiring Soon",
+    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  },
+  valid: {
+    label: "Valid",
+    className: "bg-green-100 text-green-700 border-green-200",
+  },
+  none: {
+    label: "No Expiry",
+    className: "bg-gray-100 text-gray-600 border-gray-200",
+  },
+}
+
+const formatDaysLabel = (days: number | null): string => {
+  if (days === null) return "No expiry set"
+  if (days < 0) return `${Math.abs(days)}d overdue`
+  if (days === 0) return "Expires today"
+  return `${days}d remaining`
+}
+
+// ─── Stat Card ───────────────────────────────────────────────────────────────
+
+interface StatCardProps {
+  title: string
+  value: number
+  sub: string
+  icon: React.ReactNode
+  accent: string // tailwind border-l color
+  valueColor?: string
+}
+
+function StatCard({
+  title,
+  value,
+  sub,
+  icon,
+  accent,
+  valueColor = "text-foreground",
+}: StatCardProps) {
+  return (
+    <Card className={`border-l-4 ${accent}`}>
+      <CardContent className="pt-4 pb-4">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+              {title}
+            </p>
+            <p className={`text-3xl font-bold ${valueColor}`}>{value}</p>
+            <p className="text-muted-foreground text-xs">{sub}</p>
+          </div>
+          <div className="text-muted-foreground mt-1">{icon}</div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ─── Risk Bar ────────────────────────────────────────────────────────────────
+
+interface RiskBarProps {
+  label: string
+  count: number
+  total: number
+  barColor: string
+  textColor: string
+}
+
+function RiskBar({ label, count, total, barColor, textColor }: RiskBarProps) {
+  const pct = total > 0 ? Math.min((count / total) * 100, 100) : 0
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className={`font-medium ${textColor}`}>{label}</span>
+        <span className="text-muted-foreground tabular-nums">
+          {count} / {total} &nbsp;
+          <span className="text-xs">({pct.toFixed(0)}%)</span>
+        </span>
+      </div>
+      <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+        <div
+          className={`h-2 rounded-full transition-all duration-500 ${barColor}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+
 export function DocumentExpiryDashboard() {
-  const { data: allDocumentsResponse } = useGetUniversalDocuments()
-  const { data: expiringDocumentsResponse } = useGetExpiringDocuments(30)
-  const { data: expiredDocumentsResponse } = useGetExpiredDocuments()
+  const { data: allRes } = useGetUniversalDocuments()
+  const { data: expiringRes } = useGetExpiringDocuments(30)
+  const { data: expiredRes } = useGetExpiredDocuments()
 
-  // Extract data from API responses - handle both array and ApiResponse formats
-  const allDocuments = Array.isArray(allDocumentsResponse)
-    ? allDocumentsResponse
-    : allDocumentsResponse?.data || []
-  const expiringDocuments = Array.isArray(expiringDocumentsResponse)
-    ? expiringDocumentsResponse
-    : expiringDocumentsResponse?.data || []
-  const expiredDocuments = Array.isArray(expiredDocumentsResponse)
-    ? expiredDocumentsResponse
-    : expiredDocumentsResponse?.data || []
-
-  // Ensure all variables are arrays to prevent slice errors
-  const safeExpiringDocuments = Array.isArray(expiringDocuments)
-    ? expiringDocuments
-    : []
-  const safeAllDocuments = Array.isArray(allDocuments) ? allDocuments : []
-
-  // Calculate statistics with proper null checks and meaningful metrics
-  const stats: DashboardStats = {
-    totalDocuments: safeAllDocuments.length,
-    expiringSoon: safeExpiringDocuments.length,
-    expired: Array.isArray(expiredDocuments) ? expiredDocuments.length : 0,
-    verified: safeAllDocuments.filter((doc: IUniversalDocumentHd) =>
-      doc.data_details?.some((detail) => detail.renewalRequired === false)
-    ).length,
-    totalDetails: safeAllDocuments.reduce(
-      (total, doc) => total + (doc.data_details?.length || 0),
-      0
-    ),
+  const toArray = (res: unknown): IUniversalDocumentHd[] => {
+    if (Array.isArray(res)) return res
+    const r = res as { data?: unknown } | null
+    if (r?.data && Array.isArray(r.data)) return r.data as IUniversalDocumentHd[]
+    return []
   }
 
-  const expiringPercentage =
-    stats.totalDocuments > 0
-      ? (stats.expiringSoon / stats.totalDocuments) * 100
-      : 0
+  const all = toArray(allRes)
+  const expiring = toArray(expiringRes)
+  const expired = toArray(expiredRes)
 
-  const expiredPercentage =
-    stats.totalDocuments > 0 ? (stats.expired / stats.totalDocuments) * 100 : 0
-
-  const verifiedPercentage =
-    stats.totalDocuments > 0 ? (stats.verified / stats.totalDocuments) * 100 : 0
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Complete":
-        return "bg-green-100 text-green-800"
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800"
-      case "Incomplete":
-        return "bg-red-100 text-red-800"
-      case "Expired":
-        return "bg-gray-100 text-gray-800"
-      case "Expiring Soon":
-        return "bg-yellow-100 text-yellow-800"
-      case "Valid":
-        return "bg-green-100 text-green-800"
-      case "No Expiry":
-        return "bg-gray-100 text-gray-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getExpiryStatus = (expiryDate: string | null) => {
-    if (!expiryDate)
-      return { status: "No Expiry", color: "bg-gray-100 text-gray-800" }
-
-    const today = new Date()
-    const expiry = new Date(expiryDate)
-    const daysUntilExpiry = Math.ceil(
-      (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    )
-
-    if (daysUntilExpiry < 0) {
-      return { status: "Expired", color: "bg-red-100 text-red-800" }
-    } else if (daysUntilExpiry <= 30) {
-      return { status: "Expiring Soon", color: "bg-yellow-100 text-yellow-800" }
-    } else {
-      return { status: "Valid", color: "bg-green-100 text-green-800" }
-    }
-  }
+  const totalDetails = all.reduce(
+    (n, d) => n + (d.data_details?.length ?? 0),
+    0
+  )
+  const verifiedCount = all.filter((d) =>
+    d.data_details?.some((dt) => dt.renewalRequired === false)
+  ).length
+  const criticalCount = expiring.filter((d) => {
+    const earliest = d.data_details
+      ?.filter((dt) => dt.expiryOn)
+      .sort(
+        (a, b) =>
+          new Date(a.expiryOn!).getTime() - new Date(b.expiryOn!).getTime()
+      )[0]
+    const days = getDaysUntilExpiry(earliest?.expiryOn ?? null)
+    return days !== null && days >= 0 && days <= 7
+  }).length
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Statistics Cards */}
-      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Documents
-            </CardTitle>
-            <FileText className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold sm:text-2xl">
-              {stats.totalDocuments}
-            </div>
-            <p className="text-muted-foreground text-xs">
-              {stats.totalDetails} total details
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
-            <Clock className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-yellow-600 sm:text-2xl">
-              {stats.expiringSoon}
-            </div>
-            <p className="text-muted-foreground text-xs">Within 30 days</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expired</CardTitle>
-            <AlertTriangle className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-red-600 sm:text-2xl">
-              {stats.expired}
-            </div>
-            <p className="text-muted-foreground text-xs">Past expiry date</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Verified</CardTitle>
-            <CheckCircle className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-green-600 sm:text-2xl">
-              {stats.verified}
-            </div>
-            <p className="text-muted-foreground text-xs">
-              Successfully verified
-            </p>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      {/* ── Stat Cards ───────────────────────────────── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Documents"
+          value={all.length}
+          sub={`${totalDetails} total entries`}
+          icon={<FileText className="h-5 w-5" />}
+          accent="border-l-blue-500"
+        />
+        <StatCard
+          title="Expiring Within 30d"
+          value={expiring.length}
+          sub={`${criticalCount} critical (≤ 7 days)`}
+          icon={<Clock className="h-5 w-5 text-yellow-500" />}
+          accent="border-l-yellow-500"
+          valueColor="text-yellow-600"
+        />
+        <StatCard
+          title="Expired"
+          value={expired.length}
+          sub="Past expiry date"
+          icon={<AlertTriangle className="h-5 w-5 text-red-500" />}
+          accent="border-l-red-500"
+          valueColor="text-red-600"
+        />
+        <StatCard
+          title="Verified"
+          value={verifiedCount}
+          sub="No renewal required"
+          icon={<CheckCircle className="h-5 w-5 text-green-500" />}
+          accent="border-l-green-500"
+          valueColor="text-green-600"
+        />
       </div>
 
-      {/* Progress Indicators */}
-      <div className="grid gap-4 md:grid-cols-1">
+      {/* ── Risk Assessment + Expiry List ─────────────── */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Risk Assessment */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Expiry Risk Assessment
-            </CardTitle>
-            <CardDescription>
-              Percentage of documents by expiry status
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="text-muted-foreground h-4 w-4" />
+              <CardTitle className="text-sm font-semibold">
+                Compliance Overview
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              Document health at a glance
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Expiring Soon</span>
-                <span>{expiringPercentage.toFixed(1)}%</span>
-              </div>
-              <Progress value={expiringPercentage} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Expired</span>
-                <span>{expiredPercentage.toFixed(1)}%</span>
-              </div>
-              <Progress value={expiredPercentage} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Verified</span>
-                <span>{verifiedPercentage.toFixed(1)}%</span>
-              </div>
-              <Progress value={verifiedPercentage} className="h-2" />
-            </div>
+            <RiskBar
+              label="Expired"
+              count={expired.length}
+              total={all.length}
+              barColor="bg-red-500"
+              textColor="text-red-600"
+            />
+            <RiskBar
+              label="Expiring Soon"
+              count={expiring.length}
+              total={all.length}
+              barColor="bg-yellow-400"
+              textColor="text-yellow-600"
+            />
+            <RiskBar
+              label="Verified"
+              count={verifiedCount}
+              total={all.length}
+              barColor="bg-green-500"
+              textColor="text-green-600"
+            />
+
+            {all.length === 0 && (
+              <p className="text-muted-foreground py-2 text-center text-sm">
+                No data available
+              </p>
+            )}
           </CardContent>
         </Card>
-      </div>
 
-      {/* Recent Activity */}
-      <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
-            <CardDescription>Documents that need attention</CardDescription>
+        {/* Expiring Soon List */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <TrendingDown className="h-4 w-4 text-yellow-500" />
+              <CardTitle className="text-sm font-semibold">
+                Upcoming Expirations
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              Documents requiring attention within 30 days
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 sm:space-y-4">
-              {safeExpiringDocuments
-                .slice(0, 5)
-                .map((doc: IUniversalDocumentHd) => {
-                  const earliestExpiry = doc.data_details
-                    ?.filter((detail) => detail.expiryOn)
+            {expiring.length === 0 ? (
+              <div className="text-muted-foreground flex flex-col items-center justify-center gap-2 py-8 text-center">
+                <CheckCircle className="h-8 w-8 text-green-400" />
+                <p className="text-sm font-medium">All clear!</p>
+                <p className="text-xs">No documents expiring within 30 days</p>
+              </div>
+            ) : (
+              <div className="divide-y">
+                {expiring.slice(0, 6).map((doc) => {
+                  const earliest = doc.data_details
+                    ?.filter((dt) => dt.expiryOn)
                     .sort(
                       (a, b) =>
                         new Date(a.expiryOn!).getTime() -
                         new Date(b.expiryOn!).getTime()
                     )[0]
 
-                  const expiryStatus = getExpiryStatus(
-                    earliestExpiry?.expiryOn || null
-                  )
+                  const days = getDaysUntilExpiry(earliest?.expiryOn ?? null)
+                  const status = getExpiryStatus(days)
+                  const cfg = STATUS_CONFIG[status]
 
                   return (
                     <div
-                      key={doc?.documentId || Math.random()}
-                      className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                      key={doc.documentId}
+                      className="flex items-center justify-between py-2.5"
                     >
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">
-                          {doc?.documentName ||
-                            `Doc #${doc?.documentId || "N/A"}`}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {doc.documentName ||
+                            `Document #${doc.documentId}`}
                         </p>
                         <p className="text-muted-foreground text-xs">
-                          {doc?.data_details?.length || 0} detail(s)
+                          {doc.entityTypeName} &middot;{" "}
+                          {doc.data_details?.length ?? 0} entries
                         </p>
                       </div>
-                      <Badge className={`${expiryStatus.color} w-fit`}>
-                        {expiryStatus.status}
-                      </Badge>
+                      <div className="ml-4 flex flex-col items-end gap-1">
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${cfg.className}`}
+                        >
+                          {cfg.label}
+                        </Badge>
+                        <span className="text-muted-foreground text-xs tabular-nums">
+                          {formatDaysLabel(days)}
+                        </span>
+                      </div>
                     </div>
                   )
                 })}
-              {safeExpiringDocuments.length === 0 && (
-                <p className="text-muted-foreground text-sm">
-                  No documents expiring soon
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Recent Activity
-            </CardTitle>
-            <CardDescription>Latest document updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 sm:space-y-4">
-              {safeAllDocuments.slice(0, 5).map((doc: IUniversalDocumentHd) => {
-                const hasFiles =
-                  doc.data_details?.some((detail) => detail.filePath) || false
-                const hasRenewalRequired =
-                  doc.data_details?.some((detail) => detail.renewalRequired) ||
-                  false
-
-                let primaryStatus = "Unknown"
-                if (hasFiles && !hasRenewalRequired) {
-                  primaryStatus = "Complete"
-                } else if (hasFiles && hasRenewalRequired) {
-                  primaryStatus = "Pending"
-                } else if (!hasFiles) {
-                  primaryStatus = "Incomplete"
-                }
-
-                return (
-                  <div
-                    key={doc?.documentId || Math.random()}
-                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">
-                        {doc?.documentName ||
-                          `Doc #${doc?.documentId || "N/A"}`}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {doc?.detailsCount || 0} detail(s)
-                      </p>
-                    </div>
-                    <Badge className={`${getStatusColor(primaryStatus)} w-fit`}>
-                      {primaryStatus}
-                    </Badge>
-                  </div>
-                )
-              })}
-              {safeAllDocuments.length === 0 && (
-                <p className="text-muted-foreground text-sm">
-                  No recent activity
-                </p>
-              )}
-            </div>
+                {expiring.length > 6 && (
+                  <p className="text-muted-foreground pt-2 text-center text-xs">
+                    +{expiring.length - 6} more documents
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Expired Documents ────────────────────────── */}
+      {expired.length > 0 && (
+        <Card className="border-red-200">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <CardTitle className="text-sm font-semibold text-red-600">
+                Expired Documents — Action Required
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              These documents have passed their expiry date and need immediate
+              renewal
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="divide-y">
+              {expired.slice(0, 5).map((doc) => {
+                const earliest = doc.data_details
+                  ?.filter((dt) => dt.expiryOn)
+                  .sort(
+                    (a, b) =>
+                      new Date(a.expiryOn!).getTime() -
+                      new Date(b.expiryOn!).getTime()
+                  )[0]
+                const days = getDaysUntilExpiry(earliest?.expiryOn ?? null)
+
+                return (
+                  <div
+                    key={doc.documentId}
+                    className="flex items-center justify-between py-2.5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {doc.documentName || `Document #${doc.documentId}`}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {doc.entityTypeName} &middot;{" "}
+                        {doc.data_details?.length ?? 0} entries
+                      </p>
+                    </div>
+                    <div className="ml-4 flex flex-col items-end gap-1">
+                      <Badge
+                        variant="outline"
+                        className="border-red-200 bg-red-100 text-xs text-red-700"
+                      >
+                        Expired
+                      </Badge>
+                      <span className="text-xs font-medium text-red-500 tabular-nums">
+                        {formatDaysLabel(days)}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+              {expired.length > 5 && (
+                <p className="text-muted-foreground pt-2 text-center text-xs">
+                  +{expired.length - 5} more expired
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

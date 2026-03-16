@@ -28,7 +28,6 @@ export default function CompanySelectPage() {
     switchCompany,
     getCompanies,
     getCurrentTabCompanyId,
-    setCompanies,
   } = useAuthStore()
 
   // Get the store's get function to access fresh state
@@ -58,37 +57,28 @@ export default function CompanySelectPage() {
 
       // Mark as initialized to prevent re-runs
       setIsInitialized(true)
-
-      // Clear any cached company data from previous account
-      //console.log("🧹 Clearing cached company data...")
-      setCompanies([])
       setShowAccessDenied(false)
-      setSelectedCompanyId("")
 
-      // Always fetch fresh companies data to avoid cached data from previous account
-      try {
-        //console.log("🔄 Loading fresh companies data...")
-        await getCompanies()
+      // Use companies already loaded during login; only fetch if empty
+      let currentCompanies = get().companies
 
-        // Wait a bit for the state to update, then get the fresh companies
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        const currentCompanies = get().companies
-        //console.log("✅ Companies loaded:", currentCompanies.length)
-        //console.log("📊 Company count after loading:", currentCompanies.length)
+      if (currentCompanies.length === 0) {
+        setSelectedCompanyId("")
+        try {
+          await getCompanies()
+          await new Promise((resolve) => setTimeout(resolve, 100))
+          currentCompanies = get().companies
 
-        if (currentCompanies.length === 0) {
-          //console.log("❌ No companies found - showing access denied")
+          if (currentCompanies.length === 0) {
+            setShowAccessDenied(true)
+            return
+          }
+        } catch (error) {
+          console.error("❌ Failed to fetch companies:", error)
           setShowAccessDenied(true)
           return
         }
-      } catch (error) {
-        console.error("❌ Failed to fetch companies:", error)
-        setShowAccessDenied(true)
-        return
       }
-
-      // Get fresh companies data after loading
-      const currentCompanies = get().companies
 
       // Check if we have a company ID from the current tab (for new tabs)
       const tabCompanyId = getCurrentTabCompanyId()
@@ -144,7 +134,6 @@ export default function CompanySelectPage() {
     getCurrentTabCompanyId,
     switchCompany,
     router,
-    setCompanies,
     get,
     currentCompany?.companyId,
   ])

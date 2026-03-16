@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Clock, LogOut, User } from "lucide-react"
+import { Clock, LogOut, RefreshCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,7 +24,6 @@ interface SessionExpiryModalProps {
 
 export function SessionExpiryModal({
   isOpen,
-  onCloseAction,
   onStaySignedInAction,
   onSignOutAction,
   timeRemaining,
@@ -32,37 +31,21 @@ export function SessionExpiryModal({
 }: SessionExpiryModalProps) {
   const [countdown, setCountdown] = useState(timeRemaining)
 
-  // Debug logging for modal state
+  // Reset countdown when modal opens with a new timeRemaining
   useEffect(() => {
-    // console.log("🔍 [SessionExpiryModal] Modal state changed:", {
-    //   isOpen,
-    //   isRefreshing,
-    //   timeRemaining,
-    //   countdown,
-    // })
-  }, [isOpen, isRefreshing, timeRemaining, countdown])
-
-  // Force close modal when isOpen becomes false
-  useEffect(() => {
-    if (!isOpen) {
-      // console.log(
-      //   "🔍 [SessionExpiryModal] Modal should be closed - isOpen is false"
-      // )
+    if (isOpen && timeRemaining > 0) {
+      setCountdown(timeRemaining)
     }
-  }, [isOpen])
+  }, [isOpen, timeRemaining])
 
+  // Tick down every second; auto-logout when reaches 0
   useEffect(() => {
-    if (!isOpen || timeRemaining <= 0) {
-      setCountdown(0)
-      return
-    }
+    if (!isOpen || countdown <= 0) return
 
-    setCountdown(timeRemaining)
-    const interval = setInterval(() => {
+    const id = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(interval)
-          // Add a small delay to ensure the UI updates before sign out
+          clearInterval(id)
           setTimeout(() => onSignOutAction(), 100)
           return 0
         }
@@ -70,128 +53,84 @@ export function SessionExpiryModal({
       })
     }, 1000)
 
-    return () => clearInterval(interval)
-  }, [isOpen, timeRemaining, onSignOutAction])
+    return () => clearInterval(id)
+  }, [isOpen, onSignOutAction]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, "0")}`
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}:${s.toString().padStart(2, "0")}`
   }
 
-  // Calculate progress percentage (starts at 100% and decreases to 0%)
-  const progressPercentage =
-    timeRemaining > 0 ? Math.max((countdown / timeRemaining) * 100, 0) : 0
-
-  // Ensure progress bar is visible and animates properly
-  const progressWidth = Math.max(progressPercentage, 0)
-
-  // Debug logging for progress calculation
-  useEffect(() => {
-    // console.log("🔍 [SessionExpiryModal] Progress calculation:", {
-    //   countdown,
-    //   timeRemaining,
-    //   progressPercentage: progressPercentage.toFixed(2),
-    // })
-  }, [countdown, timeRemaining, progressPercentage])
+  const progressPct = timeRemaining > 0 ? (countdown / timeRemaining) * 100 : 0
+  const isUrgent = countdown <= 60
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => {
-        // console.log("🔍 [SessionExpiryModal] Dialog onOpenChange:", open)
-        if (!open) {
-          onCloseAction()
-        }
+      onOpenChange={() => {
+        // Intentionally blocked — user must choose Stay or Logout
       }}
     >
       <DialogContent
+        showCloseButton={false}
         className="sm:max-w-md"
-        onEscapeKeyDown={(e) => {
-          // console.log("🔍 [SessionExpiryModal] Escape key pressed")
-          e.preventDefault()
-        }}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="bg-warning/10 flex h-12 w-12 animate-pulse items-center justify-center rounded-full">
               <Clock className="text-warning h-6 w-6" />
             </div>
-            <div className="flex-1">
-              <DialogTitle className="text-xl font-semibold">
+            <div>
+              <DialogTitle className="text-lg font-semibold">
                 Session Expiring Soon
               </DialogTitle>
-              <DialogDescription className="text-muted-foreground mt-1 text-sm">
-                Your session will expire due to inactivity. Please choose an
-                action to continue.
+              <DialogDescription className="mt-0.5 text-sm">
+                Your session is about to expire due to inactivity.
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Countdown */}
           <div className="bg-muted rounded-lg p-4">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-sm font-medium">
-                Time remaining:
+                Auto logout in:
               </span>
               <span
-                className={`font-mono text-xl font-bold ${
-                  countdown <= 30
-                    ? "text-destructive"
-                    : countdown <= 60
-                      ? "text-warning"
-                      : "text-warning"
-                }`}
+                className={`font-mono text-2xl font-bold ${isUrgent ? "text-destructive" : "text-warning"}`}
               >
                 {formatTime(countdown)}
               </span>
             </div>
-            <div className="bg-muted-foreground/20 mt-2 h-2 w-full overflow-hidden rounded-full">
+            <div className="bg-muted-foreground/20 mt-3 h-2 w-full overflow-hidden rounded-full">
               <div
-                key={`progress-${countdown}`}
-                className={`h-2 rounded-full transition-all duration-1000 ${
-                  countdown <= 30
-                    ? "bg-destructive"
-                    : countdown <= 60
-                      ? "bg-warning"
-                      : "bg-warning"
-                }`}
-                style={{
-                  width: `${progressWidth}%`,
-                  transition: "width 1s ease-in-out",
-                }}
+                className={`h-2 rounded-full transition-all duration-1000 ease-linear ${isUrgent ? "bg-destructive" : "bg-warning"}`}
+                style={{ width: `${progressPct}%` }}
               />
             </div>
           </div>
 
-          <div className="text-muted-foreground space-y-2 text-sm">
-            <p>
-              For security purposes, your session will automatically expire
-              after a period of inactivity.
-            </p>
-            <div className="border-primary/20 bg-primary/5 rounded-lg border p-3">
-              <p className="text-primary text-sm font-medium">
-                💡 Tip: Click &quot;Stay signed in&quot; to extend your session
-              </p>
-            </div>
-            <div className="border-warning/20 bg-warning/5 rounded-lg border p-3">
-              <p className="text-warning text-sm font-medium">
-                ⚠️ Warning: Closing this dialog will show the warning again if
-                your session is still expiring
-              </p>
-            </div>
-          </div>
+          <p className="text-muted-foreground text-sm">
+            Click <strong>Stay Signed In</strong> to continue your session, or{" "}
+            <strong>Sign Out</strong> to log out now. If no action is taken, you
+            will be logged out automatically.
+          </p>
         </div>
 
-        <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row">
+        <DialogFooter>
           <Button
             variant="outline"
             onClick={onSignOutAction}
-            className="text-muted-foreground hover:border-destructive hover:text-destructive flex items-center gap-2"
+            className="flex items-center gap-2"
           >
             <LogOut className="h-4 w-4" />
-            Sign out now
+            Sign Out
           </Button>
           <Button
             onClick={onStaySignedInAction}
@@ -200,13 +139,13 @@ export function SessionExpiryModal({
           >
             {isRefreshing ? (
               <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <RefreshCw className="h-4 w-4 animate-spin" />
                 Refreshing...
               </>
             ) : (
               <>
-                <User className="h-4 w-4" />
-                Stay signed in
+                <RefreshCw className="h-4 w-4" />
+                Stay Signed In
               </>
             )}
           </Button>
