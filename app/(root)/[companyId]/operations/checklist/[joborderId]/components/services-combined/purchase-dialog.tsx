@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { IPurchaseData } from "@/interfaces/checklist"
 
 import { JobOrder_Purchase } from "@/lib/api-routes"
@@ -13,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+import { JobTransactionForm } from "./job-transaction-form"
 import { PurchaseTable } from "./purchase-table"
 
 interface PurchaseDialogProps {
@@ -36,9 +38,12 @@ export function PurchaseDialog({
   serviceItemNo,
   isConfirmed,
 }: PurchaseDialogProps) {
+  const queryClient = useQueryClient()
   const [purchaseData, setPurchaseData] = useState<IPurchaseData[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [initialSelectedIds, setInitialSelectedIds] = useState<string[]>([])
+  const [editRow, setEditRow] = useState<IPurchaseData | null>(null)
+  const [editFormOpen, setEditFormOpen] = useState(false)
   const isUpdatingRef = useRef(false)
 
   // Fetch purchase data when dialog opens
@@ -48,10 +53,20 @@ export function PurchaseDialog({
     undefined,
     {
       enabled: open,
-      staleTime: 0.5 * 60 * 1000,
-      gcTime: 1 * 60 * 1000,
+      staleTime: 0,
+      gcTime: 0,
+      refetchOnMount: "always",
     }
   )
+
+  useEffect(() => {
+    if (!open) {
+      queryClient.removeQueries({
+        queryKey: [`purchase-list-${jobOrderId}-${taskId}-${serviceItemNo}`],
+        exact: true,
+      })
+    }
+  }, [open, queryClient, jobOrderId, taskId, serviceItemNo])
 
   // Update data when API response is received
   useEffect(() => {
@@ -93,6 +108,24 @@ export function PurchaseDialog({
       isUpdatingRef.current = false
     }, 0)
   }, [])
+
+  const handleDocumentNoClick = useCallback((row: IPurchaseData) => {
+    setEditRow(row)
+    setEditFormOpen(true)
+  }, [])
+
+  const handleEditFormOpenChange = useCallback((open: boolean) => {
+    setEditFormOpen(open)
+    if (!open) {
+      setEditRow(null)
+    }
+  }, [])
+
+  const handleEditSuccess = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: [`purchase-list-${jobOrderId}-${taskId}-${serviceItemNo}`],
+    })
+  }, [queryClient, jobOrderId, taskId, serviceItemNo])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
@@ -137,10 +170,17 @@ export function PurchaseDialog({
                 initialSelectedIds={initialSelectedIds}
                 selectedIds={selectedIds}
                 onBulkSelectionChange={handleBulkSelectionChange}
+                onDocumentNoClick={handleDocumentNoClick}
               />
             </div>
           )}
         </>
+        <JobTransactionForm
+          open={editFormOpen}
+          onOpenChangeAction={handleEditFormOpenChange}
+          row={editRow}
+          onSuccessAction={handleEditSuccess}
+        />
       </DialogContent>
     </Dialog>
   )

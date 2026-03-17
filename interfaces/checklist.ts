@@ -869,6 +869,7 @@ export interface IPurchaseData {
   documentId: string
   documentNo: string
   itemNo: number
+  seqNo: number
   accountDate: Date | string
   suppInvoiceNo: string
   supplierName: string
@@ -876,6 +877,9 @@ export interface IPurchaseData {
   totAmt?: number
   gstAmt?: string
   totAmtAftGst: number
+  jobOrderId: number
+  taskId: number
+  serviceItemNo: number
 }
 
 export interface ISavePurchaseData {

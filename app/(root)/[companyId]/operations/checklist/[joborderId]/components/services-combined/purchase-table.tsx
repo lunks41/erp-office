@@ -11,6 +11,7 @@ interface PurchaseTableProps {
   data: IPurchaseData[]
   isLoading?: boolean
   onSelect?: (debitNote: IPurchaseData | null) => void
+  onDocumentNoClick?: (row: IPurchaseData) => void
   onDataReorder?: (newData: IPurchaseData[]) => void
   onBulkSelectionChange?: (selectedIds: string[]) => void
   isConfirmed?: boolean
@@ -23,6 +24,7 @@ export function PurchaseTable({
   data,
   isLoading = false,
   onSelect: _onSelect,
+  onDocumentNoClick,
   onDataReorder,
   onBulkSelectionChange,
   isConfirmed,
@@ -90,6 +92,19 @@ export function PurchaseTable({
         size: 150,
         minSize: 120,
         enableColumnFilter: true,
+        cell: ({ row }) => {
+          const rowData = row.original
+
+          return (
+            <button
+              type="button"
+              className="text-left font-medium text-blue-600 hover:underline"
+              onClick={() => onDocumentNoClick?.(rowData)}
+            >
+              {rowData.documentNo}
+            </button>
+          )
+        },
       },
 
       {
@@ -169,8 +184,52 @@ export function PurchaseTable({
           return <span className="font-mono">{String(itemNo)}</span>
         },
       },
+      {
+        accessorKey: "seqNo",
+        header: "Seq No",
+        size: 100,
+        minSize: 80,
+        hidden: true,
+        cell: ({ row }) => {
+          const seqNo = row.getValue("seqNo")
+          return <span className="font-mono">{String(seqNo)}</span>
+        },
+      },
+      {
+        accessorKey: "jobOrderId",
+        header: "Job Order ID",
+        size: 100,
+        minSize: 80,
+        hidden: true,
+        cell: ({ row }) => {
+          const jobOrderId = row.getValue("jobOrderId")
+          return <span className="font-mono">{String(jobOrderId)}</span>
+        },
+      },
+      {
+        accessorKey: "taskId",
+        header: "Task ID",
+        size: 100,
+        minSize: 80,
+        hidden: true,
+        cell: ({ row }) => {
+          const taskId = row.getValue("taskId")
+          return <span className="font-mono">{String(taskId)}</span>
+        },
+      },
+      {
+        accessorKey: "serviceItemNo",
+        header: "Service Item No",
+        size: 100,
+        minSize: 80,
+        hidden: true,
+        cell: ({ row }) => {
+          const serviceItemNo = row.getValue("serviceItemNo")
+          return <span className="font-mono">{String(serviceItemNo)}</span>
+        },
+      },
     ],
-    [] // No dependencies needed since column definitions don't depend on props
+    [onDocumentNoClick]
   )
 
   // Stable callback functions to prevent infinite re-renders
