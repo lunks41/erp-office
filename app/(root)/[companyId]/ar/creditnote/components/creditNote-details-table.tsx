@@ -14,6 +14,7 @@ interface CreditNoteDetailsTableProps {
   onDeleteAction?: (itemNo: number) => void
   onBulkDeleteAction?: (selectedItemNos: number[]) => void
   onEditAction?: (template: IArCreditNoteDt) => void
+  onCloneAction?: (template: IArCreditNoteDt) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
   onDataReorder?: (newData: IArCreditNoteDt[]) => void
@@ -26,6 +27,7 @@ export default function CreditNoteDetailsTable({
   onDeleteAction,
   onBulkDeleteAction,
   onEditAction,
+  onCloneAction,
   onRefreshAction,
   onFilterChange,
   onDataReorder,
@@ -330,6 +332,7 @@ export default function CreditNoteDetailsTable({
         onDataReorder={onDataReorder}
         onEditAction={onEditAction}
         onDeleteAction={handleDelete}
+        onCloneAction={onCloneAction}
         showHeader={true}
         showActions={true}
         hideEdit={isCancelled}

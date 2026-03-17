@@ -16,6 +16,7 @@ interface CbPettyCashDetailsTableProps {
   onDeleteAction?: (itemNo: number) => void
   onBulkDeleteAction?: (selectedItemNos: number[]) => void
   onEditAction?: (template: ICbPettyCashDt) => void
+  onCloneAction?: (template: ICbPettyCashDt) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
   onDataReorder?: (newData: ICbPettyCashDt[]) => void
@@ -28,6 +29,7 @@ export default function CbPettyCashDetailsTable({
   onDeleteAction,
   onBulkDeleteAction,
   onEditAction,
+  onCloneAction,
   onRefreshAction,
   onFilterChange,
   onDataReorder,
@@ -355,6 +357,7 @@ export default function CbPettyCashDetailsTable({
         onDataReorder={onDataReorder}
         onEditAction={onEditAction}
         onDeleteAction={handleDelete}
+        onCloneAction={onCloneAction}
         showHeader={true}
         showActions={true}
         hideEdit={isCancelled}

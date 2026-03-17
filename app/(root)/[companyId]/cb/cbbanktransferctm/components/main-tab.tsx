@@ -252,6 +252,37 @@ export default function Main({
     setEditingDetail(null)
   }
 
+  const handleClone = (detail: ICbBankTransferCtmDt) => {
+    const currentData =
+      (form.getValues("data_details") as unknown as ICbBankTransferCtmDt[]) ||
+      []
+
+    const nextItemNo =
+      currentData.length === 0
+        ? 1
+        : Math.max(...currentData.map((d) => d.itemNo || 0)) + 1
+
+    const clonedDetail: ICbBankTransferCtmDt = {
+      ...detail,
+      itemNo: nextItemNo,
+      seqNo: nextItemNo,
+    }
+
+    const updatedData = [...currentData, clonedDetail]
+
+    form.setValue(
+      "data_details",
+      updatedData as unknown as CbBankTransferCtmDtSchemaType[],
+      { shouldDirty: true, shouldTouch: true }
+    )
+    form.trigger("data_details")
+
+    validateHeaderTotals()
+
+    setEditingDetail(clonedDetail as unknown as CbBankTransferCtmDtSchemaType)
+    setTableKey((prev) => prev + 1)
+  }
+
   const handleDataReorder = (newData: ICbBankTransferCtmDt[]) => {
     // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
@@ -281,7 +312,9 @@ export default function Main({
           <ul className="list-inside list-disc space-y-1 text-sm text-red-700 dark:text-red-400">
             {Object.entries(formErrors).map(([field, error]) => {
               const errorMessage =
-                typeof error === "object" && error !== null && "message" in error
+                typeof error === "object" &&
+                error !== null &&
+                "message" in error
                   ? error.message
                   : "Invalid value"
               return (
@@ -325,6 +358,7 @@ export default function Main({
         onDeleteAction={handleDelete}
         onBulkDeleteAction={handleBulkDelete}
         onEditAction={handleEdit as (template: ICbBankTransferCtmDt) => void}
+        onCloneAction={handleClone as (template: ICbBankTransferCtmDt) => void}
         onRefreshAction={() => {}} // Add refresh logic if needed
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={

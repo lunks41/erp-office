@@ -15,6 +15,7 @@ interface AdjustmentDetailsTableProps {
   onDeleteAction?: (itemNo: number) => void
   onBulkDeleteAction?: (selectedItemNos: number[]) => void
   onEditAction?: (template: IArAdjustmentDt) => void
+  onCloneAction?: (template: IArAdjustmentDt) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
   onDataReorder?: (newData: IArAdjustmentDt[]) => void
@@ -27,6 +28,7 @@ export default function AdjustmentDetailsTable({
   onDeleteAction,
   onBulkDeleteAction,
   onEditAction,
+  onCloneAction,
   onRefreshAction,
   onFilterChange,
   onDataReorder,
@@ -344,6 +346,7 @@ export default function AdjustmentDetailsTable({
         onDataReorder={onDataReorder}
         onEditAction={onEditAction}
         onDeleteAction={handleDelete}
+        onCloneAction={onCloneAction}
         showHeader={true}
         showActions={true}
         hideEdit={isCancelled}

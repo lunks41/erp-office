@@ -14,6 +14,7 @@ interface DebitNoteDetailsTableProps {
   onDeleteAction?: (itemNo: number) => void
   onBulkDeleteAction?: (selectedItemNos: number[]) => void
   onEditAction?: (template: IApDebitNoteDt) => void
+  onCloneAction?: (template: IApDebitNoteDt) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
   onDataReorder?: (newData: IApDebitNoteDt[]) => void
@@ -26,6 +27,7 @@ export default function DebitNoteDetailsTable({
   onDeleteAction,
   onBulkDeleteAction,
   onEditAction,
+  onCloneAction,
   onRefreshAction,
   onFilterChange,
   onDataReorder,
@@ -351,6 +353,7 @@ export default function DebitNoteDetailsTable({
         onDataReorder={onDataReorder}
         onEditAction={onEditAction}
         onDeleteAction={handleDelete}
+        onCloneAction={onCloneAction}
         showHeader={true}
         showActions={true}
         hideEdit={isCancelled}

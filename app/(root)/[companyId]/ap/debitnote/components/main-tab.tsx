@@ -12,11 +12,9 @@ import { UseFormReturn } from "react-hook-form"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { DeleteConfirmation } from "@/components/confirmation"
 
-import DebitNoteDetailsForm, {
-  DebitNoteDetailsFormRef,
-} from "./debitNote-details-form"
-import DebitNoteDetailsTable from "./debitNote-details-table"
-import DebitNoteForm from "./debitNote-form"
+import DebitNoteDetailsForm from "./debitnote-details-form"
+import DebitNoteDetailsTable from "./debitnote-details-table"
+import DebitNoteForm from "./debitnote-form"
 
 interface MainProps {
   form: UseFormReturn<ApDebitNoteHdSchemaType>
@@ -220,6 +218,35 @@ export default function Main({
     setEditingDetail(null)
   }
 
+  const handleClone = (detail: IApDebitNoteDt) => {
+    const currentData =
+      (form.getValues("data_details") as unknown as IApDebitNoteDt[]) || []
+
+    const nextItemNo =
+      currentData.length === 0
+        ? 1
+        : Math.max(...currentData.map((d) => d.itemNo || 0)) + 1
+
+    const clonedDetail: IApDebitNoteDt = {
+      ...detail,
+      itemNo: nextItemNo,
+      seqNo: nextItemNo,
+    }
+
+    const updatedData = [...currentData, clonedDetail]
+
+    form.setValue(
+      "data_details",
+      updatedData as unknown as ApDebitNoteDtSchemaType[],
+      { shouldDirty: true, shouldTouch: true }
+    )
+    form.trigger("data_details")
+    recalculateHeaderTotals()
+
+    setEditingDetail(clonedDetail as unknown as ApDebitNoteDtSchemaType)
+    setTableKey((prev) => prev + 1)
+  }
+
   const handleDataReorder = (newData: IApDebitNoteDt[]) => {
     // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
@@ -274,6 +301,7 @@ export default function Main({
         onRefreshAction={() => {}} // Add refresh logic if needed
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={handleDataReorder as (newData: IApDebitNoteDt[]) => void}
+        onCloneAction={handleClone as (template: IApDebitNoteDt) => void}
         isCancelled={isCancelled}
       />
 

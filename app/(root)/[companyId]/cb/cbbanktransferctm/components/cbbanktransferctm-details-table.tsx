@@ -13,6 +13,7 @@ interface CbBankTransferCtmDetailsTableProps {
   onDeleteAction?: (itemNo: number) => void
   onBulkDeleteAction?: (selectedItemNos: number[]) => void
   onEditAction?: (template: ICbBankTransferCtmDt) => void
+  onCloneAction?: (template: ICbBankTransferCtmDt) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
   onDataReorder?: (newData: ICbBankTransferCtmDt[]) => void
@@ -25,6 +26,7 @@ export default function CbBankTransferCtmDetailsTable({
   onDeleteAction,
   onBulkDeleteAction,
   onEditAction,
+  onCloneAction,
   onRefreshAction,
   onFilterChange,
   onDataReorder,
@@ -238,6 +240,7 @@ export default function CbBankTransferCtmDetailsTable({
           onDataReorder?.(newData as ICbBankTransferCtmDt[])
         }
         onEditAction={(row) => onEditAction?.(row as ICbBankTransferCtmDt)}
+        onCloneAction={(row) => onCloneAction?.(row as ICbBankTransferCtmDt)}
         onDeleteAction={handleDelete}
         showHeader={true}
         showActions={true}

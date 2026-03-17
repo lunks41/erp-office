@@ -220,6 +220,35 @@ export default function Main({
     setEditingDetail(null)
   }
 
+  const handleClone = (detail: ICbGenPaymentDt) => {
+    const currentData =
+      (form.getValues("data_details") as unknown as ICbGenPaymentDt[]) || []
+
+    const nextItemNo =
+      currentData.length === 0
+        ? 1
+        : Math.max(...currentData.map((d) => d.itemNo || 0)) + 1
+
+    const clonedDetail: ICbGenPaymentDt = {
+      ...detail,
+      itemNo: nextItemNo,
+      seqNo: nextItemNo,
+    }
+
+    const updatedData = [...currentData, clonedDetail]
+
+    form.setValue(
+      "data_details",
+      updatedData as unknown as CbGenPaymentDtSchemaType[],
+      { shouldDirty: true, shouldTouch: true }
+    )
+    form.trigger("data_details")
+    recalculateHeaderTotals()
+
+    setEditingDetail(clonedDetail as unknown as CbGenPaymentDtSchemaType)
+    setTableKey((prev) => prev + 1)
+  }
+
   const handleDataReorder = (newData: ICbGenPaymentDt[]) => {
     // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
@@ -270,6 +299,7 @@ export default function Main({
         onDeleteAction={handleDelete}
         onBulkDeleteAction={handleBulkDelete}
         onEditAction={handleEdit as (template: ICbGenPaymentDt) => void}
+        onCloneAction={handleClone as (template: ICbGenPaymentDt) => void}
         onRefreshAction={() => {}} // Add refresh logic if needed
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={

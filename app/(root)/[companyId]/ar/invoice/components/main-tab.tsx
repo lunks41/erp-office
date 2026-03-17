@@ -220,6 +220,39 @@ export default function Main({
     setEditingDetail(null)
   }
 
+  const handleClone = (detail: IArInvoiceDt) => {
+    const currentData =
+      (form.getValues("data_details") as unknown as IArInvoiceDt[]) || []
+
+    const nextItemNo =
+      currentData.length === 0
+        ? 1
+        : Math.max(...currentData.map((d) => d.itemNo || 0)) + 1
+
+    const clonedDetail: IArInvoiceDt = {
+      ...detail,
+      itemNo: nextItemNo,
+      seqNo: nextItemNo,
+      docItemNo: nextItemNo,
+    }
+
+    const updatedData = [...currentData, clonedDetail]
+
+    form.setValue(
+      "data_details",
+      updatedData as unknown as ArInvoiceDtSchemaType[],
+      { shouldDirty: true, shouldTouch: true }
+    )
+    form.trigger("data_details")
+    recalculateHeaderTotals()
+
+    // Open the cloned row in the details invoice form (edit mode)
+    setEditingDetail(clonedDetail as unknown as ArInvoiceDtSchemaType)
+
+    // Force table to re-render and reflect the new row
+    setTableKey((prev) => prev + 1)
+  }
+
   const handleDataReorder = (newData: IArInvoiceDt[]) => {
     // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
@@ -271,6 +304,7 @@ export default function Main({
         onDeleteAction={handleDelete}
         onBulkDeleteAction={handleBulkDelete}
         onEditAction={handleEdit as (template: IArInvoiceDt) => void}
+        onCloneAction={handleClone as (template: IArInvoiceDt) => void}
         onRefreshAction={() => {}} // Add refresh logic if needed
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={handleDataReorder as (newData: IArInvoiceDt[]) => void}

@@ -61,6 +61,7 @@ interface AccountBaseTablev1Props<T> {
   onSelect?: (item: T | null) => void
   onEditAction?: (item: T) => void
   onDeleteAction?: (itemId: string) => void
+  onCloneAction?: (item: T) => void
   onBulkDeleteAction?: (selectedIds: string[]) => void
   onBulkSelectionChange?: (selectedIds: string[]) => void
   onDataReorder?: (newData: T[]) => void
@@ -90,6 +91,7 @@ export function AccountBaseTablev1<T>({
   onSelect,
   onEditAction,
   onDeleteAction,
+  onCloneAction,
   onBulkDeleteAction,
   onBulkSelectionChange,
   onDataReorder,
@@ -229,7 +231,8 @@ export function AccountBaseTablev1<T>({
   }, [gridSettingsData])
 
   const tableColumns: ColumnDef<T>[] = [
-    ...(showActions && (onSelect || onEditAction || onDeleteAction)
+    ...(showActions &&
+    (onSelect || onEditAction || onDeleteAction || onCloneAction)
       ? [
           {
             id: "drag-actions",
@@ -285,6 +288,7 @@ export function AccountBaseTablev1<T>({
                     row={item as T & { debitNoteId?: number }}
                     onEditAction={onEditAction}
                     onDeleteAction={onDeleteAction}
+                    onCloneAction={onCloneAction}
                     onSelect={(_, checked) => {
                       row.toggleSelected(checked)
                     }}

@@ -222,6 +222,35 @@ export default function Main({
     setEditingDetail(null)
   }
 
+  const handleClone = (detail: IGLJournalDt) => {
+    const currentData =
+      (form.getValues("data_details") as unknown as IGLJournalDt[]) || []
+
+    const nextItemNo =
+      currentData.length === 0
+        ? 1
+        : Math.max(...currentData.map((d) => d.itemNo || 0)) + 1
+
+    const clonedDetail: IGLJournalDt = {
+      ...detail,
+      itemNo: nextItemNo,
+      seqNo: nextItemNo,
+    }
+
+    const updatedData = [...currentData, clonedDetail]
+
+    form.setValue(
+      "data_details",
+      updatedData as unknown as GLJournalDtSchemaType[],
+      { shouldDirty: true, shouldTouch: true }
+    )
+    form.trigger("data_details")
+    recalculateHeaderTotals()
+
+    setEditingDetail(clonedDetail as unknown as GLJournalDtSchemaType)
+    setTableKey((prev) => prev + 1)
+  }
+
   const handleDataReorder = (newData: IGLJournalDt[]) => {
     // Update seqNo sequentially after reordering
     const reorderedData = newData.map((item, index) => ({
@@ -272,6 +301,7 @@ export default function Main({
         onDeleteAction={handleDelete}
         onBulkDeleteAction={handleBulkDelete}
         onEditAction={handleEdit as (template: IGLJournalDt) => void}
+        onCloneAction={handleClone as (template: IGLJournalDt) => void}
         onRefreshAction={() => {}} // Add refresh logic if needed
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={handleDataReorder as (newData: IGLJournalDt[]) => void}

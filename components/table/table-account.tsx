@@ -61,6 +61,7 @@ interface AccountBaseTableProps<T> {
   onSelect?: (item: T | null) => void
   onEditAction?: (item: T) => void
   onDeleteAction?: (itemId: string) => void
+  onCloneAction?: (item: T) => void
   onBulkDeleteAction?: (selectedIds: string[]) => void
   onBulkSelectionChange?: (selectedIds: string[]) => void
   onDataReorder?: (newData: T[]) => void
@@ -90,6 +91,7 @@ export function AccountBaseTable<T>({
   onSelect,
   onEditAction,
   onDeleteAction,
+  onCloneAction,
   onBulkDeleteAction,
   onBulkSelectionChange,
   onDataReorder,
@@ -242,7 +244,7 @@ export function AccountBaseTable<T>({
   }, [gridSettingsData])
 
   const tableColumns: ColumnDef<T>[] = [
-    ...(showActions && (onSelect || onEditAction || onDeleteAction)
+    ...(showActions && (onSelect || onEditAction || onDeleteAction || onCloneAction)
       ? [
           {
             id: "drag-actions",
@@ -298,6 +300,7 @@ export function AccountBaseTable<T>({
                     row={item as T & { debitNoteId?: number }}
                     onEditAction={onEditAction}
                     onDeleteAction={onDeleteAction}
+                    onCloneAction={onCloneAction}
                     onSelect={(_, checked) => {
                       row.toggleSelected(checked)
                     }}

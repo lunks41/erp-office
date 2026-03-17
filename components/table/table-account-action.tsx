@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react"
+import { Copy, Pencil, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -7,6 +7,7 @@ interface AccountTableActionsProps<T> {
   row: T & { debitNoteId?: number }
   onEditAction?: (row: T) => void
   onDeleteAction?: (id: string) => void
+  onCloneAction?: (row: T) => void
   onSelect?: (row: T, checked: boolean) => void
   idAccessor: keyof T
   hideEdit?: boolean
@@ -21,6 +22,7 @@ export function AccountTableActions<T>({
   row,
   onEditAction,
   onDeleteAction,
+  onCloneAction,
   onSelect,
   idAccessor,
   hideEdit,
@@ -97,6 +99,16 @@ export function AccountTableActions<T>({
           <Trash2 className="h-4 w-4" />
         </Button>
       )}
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 text-[#2f6abb] hover:bg-[#e6edf9]"
+        onClick={() => onCloneAction?.(row)}
+        title="Clone"
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
     </div>
   )
 }
