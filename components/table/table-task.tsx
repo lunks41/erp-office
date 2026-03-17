@@ -29,7 +29,6 @@ import { TableName } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"
 // Virtual scrolling removed - using empty rows instead
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -454,7 +453,6 @@ export function TaskTable<T>({
           canDebitNote={canDebitNote}
         />
       )}
-      <Table>
         {/* ============================================================================
           DRAG AND DROP CONTEXT
           ============================================================================ */}
@@ -467,11 +465,11 @@ export function TaskTable<T>({
           {/* ============================================================================
             TABLE CONTAINER
             ============================================================================ */}
-          {/* Main table container with horizontal scrolling */}
-          <div className="overflow-x-auto rounded-lg border">
-            {/* Fixed header table with column sizing */}
-            <Table
-              className="w-full table-fixed border-collapse"
+          {/* Single container: overflow-auto gives both H+V scrollbars at the container edge */}
+          <div className="max-h-[460px] overflow-auto rounded-lg border">
+            {/* Use <table> directly — <Table> wraps in overflow-x-auto div which breaks scrollbar positioning */}
+            <table
+              className="w-full table-fixed border-collapse caption-bottom text-sm"
               style={{ minWidth: "100%" }}
             >
               {/* Column group for consistent sizing */}
@@ -483,7 +481,7 @@ export function TaskTable<T>({
                       width: `${col.getSize()}px`,
                       minWidth: `${col.getSize()}px`,
                       maxWidth: `${col.getSize()}px`,
-                    }} // Set column width from table state
+                    }}
                   />
                 ))}
               </colgroup>
@@ -491,9 +489,7 @@ export function TaskTable<T>({
               <TableHeader className="bg-background sticky top-0 z-20">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id} className="bg-muted/50">
-                    {/* Render each header */}
                     {headerGroup.headers.map((header) => {
-                      // Don't use SortableTableHeader for actions column
                       if (header.id === "actions") {
                         return (
                           <TableHead
@@ -504,7 +500,7 @@ export function TaskTable<T>({
                               minWidth: header.column.columnDef.minSize,
                               maxWidth: header.column.columnDef.maxSize,
                             }}
-                            className="bg-muted group hover:bg-muted/80 relative transition-colors"
+                            className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
                           >
                             {header.isPlaceholder ? null : (
                               <div className="flex items-center justify-between pl-3">
@@ -521,7 +517,6 @@ export function TaskTable<T>({
                           </TableHead>
                         )
                       }
-                      // Use SortableTableHeader for regular columns
                       return (
                         <SortableTableHeader key={header.id} header={header} />
                       )
@@ -529,101 +524,29 @@ export function TaskTable<T>({
                   </TableRow>
                 ))}
               </TableHeader>
-            </Table>
-            {/* Scrollable body container */}
-            <div
-              className="max-h-[460px] overflow-y-auto" // Allow vertical scrolling if needed
-            >
-              {/* Body table with same column sizing as header */}
-              <Table
-                className="w-full table-fixed border-collapse"
-                style={{ minWidth: "100%" }}
-              >
-                {/* Column group matching header for alignment */}
-                <colgroup>
-                  {table.getAllLeafColumns().map((col) => (
-                    <col
-                      key={col.id}
-                      style={{
-                        width: `${col.getSize()}px`,
-                        minWidth: `${col.getSize()}px`,
-                        maxWidth: `${col.getSize()}px`,
-                      }} // Match header column widths
-                    />
-                  ))}
-                </colgroup>
-                <TableBody>
-                  {/* ============================================================================
-                    DATA ROWS RENDERING
-                    ============================================================================ */}
-                  {/* Render data rows */}
-                  {table.getRowModel().rows.map((row) => {
-                    return (
-                      <TableRow key={row.id}>
-                        {/* Render each visible cell in the row */}
-                        {row.getVisibleCells().map((cell, cellIndex) => {
-                          const isActions = cell.column.id === "actions"
-                          const isFirstColumn = cellIndex === 0
-                          return (
-                            <TableCell
-                              key={cell.id}
-                              className={`py-1 ${
-                                isFirstColumn || isActions
-                                  ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
-                                  : ""
-                              }`}
-                              style={{
-                                width: `${cell.column.getSize()}px`,
-                                minWidth: `${cell.column.getSize()}px`,
-                                maxWidth: `${cell.column.getSize()}px`,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                position:
-                                  isFirstColumn || isActions
-                                    ? "sticky"
-                                    : "relative",
-                                left: isFirstColumn || isActions ? 0 : "auto",
-                                zIndex: isFirstColumn || isActions ? 10 : 1,
-                              }}
-                            >
-                              {/* Render cell content using column definition */}
-                              {flexRender(
-                                cell.column.columnDef.cell, // Cell renderer from column definition
-                                cell.getContext() // Cell context with row data
-                              )}
-                            </TableCell>
-                          )
-                        })}
-                      </TableRow>
-                    )
-                  })}
-                  {/* ============================================================================
-                    EMPTY ROWS TO FILL PAGE SIZE
-                    ============================================================================ */}
-                  {/* Add empty rows to fill the remaining space based on page size */}
-                  {Array.from({
-                    length: Math.max(
-                      0,
-                      pageSize - table.getRowModel().rows.length
-                    ),
-                  }).map((_, index) => (
-                    <TableRow key={`empty-${index}`} className="h-7">
-                      {table.getAllLeafColumns().map((column, cellIndex) => {
-                        const isActions = column.id === "actions"
+              <TableBody>
+                {/* Render data rows */}
+                {table.getRowModel().rows.map((row) => {
+                  return (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell, cellIndex) => {
+                        const isActions = cell.column.id === "actions"
                         const isFirstColumn = cellIndex === 0
                         return (
                           <TableCell
-                            key={`empty-${index}-${column.id}`}
+                            key={cell.id}
                             className={`py-1 ${
                               isFirstColumn || isActions
-                                ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
+                                ? "bg-background sticky left-0 z-10"
                                 : ""
                             }`}
                             style={{
-                              width: `${column.getSize()}px`,
-                              minWidth: `${column.getSize()}px`,
-                              maxWidth: `${column.getSize()}px`,
+                              width: `${cell.column.getSize()}px`,
+                              minWidth: `${cell.column.getSize()}px`,
+                              maxWidth: `${cell.column.getSize()}px`,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
                               position:
                                 isFirstColumn || isActions
                                   ? "sticky"
@@ -632,32 +555,64 @@ export function TaskTable<T>({
                               zIndex: isFirstColumn || isActions ? 10 : 1,
                             }}
                           >
-                            {/* Empty cell content */}
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
                           </TableCell>
                         )
                       })}
                     </TableRow>
-                  ))}
-                  {/* ============================================================================
-                    EMPTY STATE OR LOADING
-                    ============================================================================ */}
-                  {/* Show empty state or loading message when no data */}
-                  {table.getRowModel().rows.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={tableColumns.length} // Span all columns
-                        className="h-7 text-center" // Center the message
-                      >
-                        {isLoading ? "Loading..." : emptyMessage}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                  )
+                })}
+                {/* Empty rows to fill page size */}
+                {Array.from({
+                  length: Math.max(
+                    0,
+                    pageSize - table.getRowModel().rows.length
+                  ),
+                }).map((_, index) => (
+                  <TableRow key={`empty-${index}`} className="h-7">
+                    {table.getAllLeafColumns().map((column, cellIndex) => {
+                      const isActions = column.id === "actions"
+                      const isFirstColumn = cellIndex === 0
+                      return (
+                        <TableCell
+                          key={`empty-${index}-${column.id}`}
+                          className={`py-1 ${
+                            isFirstColumn || isActions
+                              ? "bg-background sticky left-0 z-10"
+                              : ""
+                          }`}
+                          style={{
+                            width: `${column.getSize()}px`,
+                            minWidth: `${column.getSize()}px`,
+                            maxWidth: `${column.getSize()}px`,
+                            position:
+                              isFirstColumn || isActions ? "sticky" : "relative",
+                            left: isFirstColumn || isActions ? 0 : "auto",
+                            zIndex: isFirstColumn || isActions ? 10 : 1,
+                          }}
+                        />
+                      )
+                    })}
+                  </TableRow>
+                ))}
+                {/* Empty state */}
+                {table.getRowModel().rows.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={tableColumns.length}
+                      className="h-7 text-center"
+                    >
+                      {isLoading ? "Loading..." : emptyMessage}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </table>
           </div>
         </DndContext>
-      </Table>
     </div>
   )
 }

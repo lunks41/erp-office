@@ -103,7 +103,7 @@ export function AccountBaseTable<T>({
   hideCheckbox = false,
   disableOnAccountExists = true,
   initialSelectedIds = [],
-  maxHeight = "100%",
+  maxHeight = "460px",
   pageSizeOption = 50,
 }: AccountBaseTableProps<T>) {
   // Always call the hook but pass valid IDs or defaults
@@ -493,8 +493,8 @@ export function AccountBaseTable<T>({
       )}
 
       <div
-        className="relative overflow-x-auto overflow-y-auto rounded-lg border"
-        style={{ maxHeight: maxHeight, scrollbarGutter: "stable" }}
+        className="overflow-auto rounded-lg border"
+        style={{ maxHeight: maxHeight }}
       >
         <DndContext
           sensors={sensors}
@@ -532,12 +532,8 @@ export function AccountBaseTable<T>({
                             width: header.getSize(),
                             minWidth: header.column.columnDef.minSize,
                             maxWidth: header.column.columnDef.maxSize,
-                            position: "sticky",
-                            top: 0,
-                            left: 0,
-                            zIndex: 50,
                           }}
-                          className="bg-muted group hover:bg-muted/80 relative transition-colors"
+                          className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
                         >
                           {header.isPlaceholder ? null : (
                             <div className="flex items-center justify-between pl-3">
