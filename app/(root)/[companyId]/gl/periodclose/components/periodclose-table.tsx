@@ -47,9 +47,9 @@ export function PeriodCloseTable({
           const date = row.getValue("startDate") as string
           return date ? format(new Date(date), dateFormat) : ""
         },
-        size: 120,
+        size: 150,
         minSize: 100,
-        maxSize: 150,
+        maxSize: 200,
       },
       {
         accessorKey: "endDate",
@@ -58,9 +58,9 @@ export function PeriodCloseTable({
           const date = row.getValue("endDate") as string
           return date ? format(new Date(date), datetimeFormat) : ""
         },
-        size: 120,
+        size: 150,
         minSize: 100,
-        maxSize: 150,
+        maxSize: 200,
       },
       {
         accessorKey: "isArClose",
@@ -82,9 +82,9 @@ export function PeriodCloseTable({
       {
         accessorKey: "arCloseBy",
         header: "AR Close By",
-        size: 120,
+        size: 150,
         minSize: 100,
-        maxSize: 150,
+        maxSize: 200,
       },
       {
         accessorKey: "arCloseDate",
@@ -117,9 +117,9 @@ export function PeriodCloseTable({
       {
         accessorKey: "apCloseBy",
         header: "AP Close By",
-        size: 120,
+        size: 150,
         minSize: 100,
-        maxSize: 150,
+        maxSize: 200,
       },
       {
         accessorKey: "apCloseDate",
@@ -152,9 +152,9 @@ export function PeriodCloseTable({
       {
         accessorKey: "cbCloseBy",
         header: "CB Close By",
-        size: 120,
+        size: 150,
         minSize: 100,
-        maxSize: 150,
+        maxSize: 200,
       },
       {
         accessorKey: "cbCloseDate",
@@ -187,9 +187,9 @@ export function PeriodCloseTable({
       {
         accessorKey: "glCloseBy",
         header: "GL Close By",
-        size: 120,
+        size: 150,
         minSize: 100,
-        maxSize: 150,
+        maxSize: 200,
       },
       {
         accessorKey: "glCloseDate",

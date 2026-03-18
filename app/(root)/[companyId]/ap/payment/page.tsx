@@ -261,6 +261,14 @@ export default function PaymentPage() {
           allocTotLocalAmt: payment.allocTotLocalAmt ?? 0,
           moduleFrom: payment.moduleFrom ?? "",
           editVersion: payment.editVersion ?? 0,
+          createBy: payment.createBy ?? "",
+          editBy: payment.editBy ?? "",
+          cancelBy: payment.cancelBy ?? "",
+          isCancel: payment.isCancel ?? false,
+          cancelDate: payment.cancelDate ?? "",
+          cancelRemarks: payment.cancelRemarks ?? "",
+          createDate: payment.createDate ?? "",
+          editDate: payment.editDate ?? "",
           data_details:
             payment.data_details?.map((detail) => ({
               ...detail,
@@ -799,7 +807,11 @@ export default function PaymentPage() {
         createBy: apiPayment.createBy ?? "",
         editBy: apiPayment.editBy ?? "",
         cancelBy: apiPayment.cancelBy ?? "",
-        isCancel: apiPayment.isCancel ?? false,
+        isCancel:
+          apiPayment.isCancel === true ||
+          (apiPayment as unknown as Record<string, unknown>).IsCancel ===
+            true ||
+          false,
         createDate: apiPayment.createDate
           ? format(
               parseDate(apiPayment.createDate as string) || new Date(),
@@ -1062,7 +1074,13 @@ export default function PaymentPage() {
   // Determine mode and payment ID from URL
   const paymentNo = form.getValues("paymentNo")
   const isEdit = Boolean(paymentNo)
-  const isCancelled = payment?.isCancel === true
+  const watchedIsCancel = form.watch("isCancel")
+  const watchedCancelRemarks = form.watch("cancelRemarks")
+  const isCancelled = payment?.isCancel === true || watchedIsCancel === true
+  const displayCancelRemarks =
+    (watchedCancelRemarks && String(watchedCancelRemarks).trim()) ||
+    (payment?.cancelRemarks && String(payment.cancelRemarks).trim()) ||
+    ""
 
   // Check if payment has history payment-details; if yes, lock update/delete/cancel
   const watchedPaymentId = form.watch("paymentId")

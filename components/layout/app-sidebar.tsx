@@ -326,11 +326,46 @@ interface MenuItem {
   }
 }
 
+// AdmTransactionCategory-based config (from dbo.AdmTransactionCategory)
+const MASTER_TRANSACTION_CATEGORIES = [
+  { id: 1, code: "Region", displayName: "Region", seqNo: 1 },
+  { id: 2, code: "Product", displayName: "Product", seqNo: 2 },
+  { id: 3, code: "Customer", displayName: "Customer / Vendor", seqNo: 3 },
+  { id: 4, code: "Finance", displayName: "Finance", seqNo: 4 },
+  { id: 5, code: "GLCode", displayName: "GL Code", seqNo: 5 },
+  { id: 6, code: "Category", displayName: "Category", seqNo: 6 },
+  { id: 7, code: "Employee", displayName: "Employee", seqNo: 7 },
+  { id: 10, code: "Other", displayName: "Others", seqNo: 10 },
+] as const
+
+// Icon and color for each master category (for consistent sidebar styling)
+const getMasterCategoryIcon = (categoryCode: string) => {
+  const map: Record<string, React.ComponentType<{ className?: string }>> = {
+    Region: MapPin,
+    Product: Box,
+    Customer: Users,
+    Finance: Wallet,
+    GLCode: ChartArea,
+    Category: FolderKanban,
+    Employee: Users,
+    Other: Target,
+  }
+  return map[categoryCode] || Target
+}
+
+interface MasterCategoryGroup {
+  title: string
+  transCategoryCode: string
+  icon: React.ComponentType<{ className?: string }>
+  items: MenuItem[]
+}
+
 interface MenuGroup {
   title: string
   url: string
   icon: React.ComponentType<{ className?: string }>
   items?: MenuItem[]
+  categories?: MasterCategoryGroup[] // Master: submenu by AdmTransactionCategory
   isDirectLink?: boolean
 }
 
@@ -497,6 +532,93 @@ const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
   return groups
 }
 
+// Build Master menu grouped by AdmTransactionCategory (Region, Product, Customer, etc.)
+const buildMasterMenu = (transactions: IUserTransaction[]): MenuGroup | null => {
+  const masterTxs = transactions.filter(
+    (t) => t.moduleCode.toLowerCase() === "master" && t.isVisible
+  )
+  if (masterTxs.length === 0) return null
+
+  const categoryOrder = MASTER_TRANSACTION_CATEGORIES.map((c) => c.id)
+  const categoryMap = new Map<
+    number,
+    { config: (typeof MASTER_TRANSACTION_CATEGORIES)[number]; items: MenuItem[] }
+  >()
+
+  // Initialize categories that exist in config
+  MASTER_TRANSACTION_CATEGORIES.forEach((config) => {
+    categoryMap.set(config.id, { config, items: [] })
+  })
+
+  masterTxs.forEach((t) => {
+    const catId = t.transCategoryId ?? 0
+    let entry = categoryMap.get(catId)
+    if (!entry) {
+      const config = MASTER_TRANSACTION_CATEGORIES.find((c) => c.id === catId)
+      if (!config) {
+        entry = {
+          config: { id: catId, code: t.transCategoryCode, displayName: t.transCategoryName || t.transCategoryCode, seqNo: 99 },
+          items: [],
+        }
+        categoryMap.set(catId, entry)
+      } else {
+        entry = { config, items: [] }
+        categoryMap.set(catId, entry)
+      }
+    }
+    const trn = t.transactionCode.toLowerCase()
+    entry.items.push({
+      title: t.transactionName,
+      url: `/master/${trn}`,
+      icon: getTransactionIcon(trn),
+      permissions: {
+        read: t.isRead,
+        create: t.isCreate,
+        edit: t.isEdit,
+        delete: t.isDelete,
+        export: t.isExport,
+        print: t.isPrint,
+        post: t.isPost,
+      },
+    })
+  })
+
+  const categories: MasterCategoryGroup[] = []
+  for (const id of categoryOrder) {
+    const entry = categoryMap.get(id)
+    if (entry && entry.items.length > 0) {
+      entry.items.sort((a, b) => a.title.localeCompare(b.title))
+      categories.push({
+        title: entry.config.displayName,
+        transCategoryCode: entry.config.code,
+        icon: getMasterCategoryIcon(entry.config.code),
+        items: entry.items,
+      })
+    }
+  }
+  // Add any category not in standard list (e.g. id 0 or others)
+  categoryMap.forEach((entry, id) => {
+    if (!categoryOrder.includes(id) && entry.items.length > 0) {
+      entry.items.sort((a, b) => a.title.localeCompare(b.title))
+      categories.push({
+        title: entry.config.displayName,
+        transCategoryCode: entry.config.code,
+        icon: getMasterCategoryIcon(entry.config.code),
+        items: entry.items,
+      })
+    }
+  })
+
+  if (categories.length === 0) return null
+  return {
+    title: "Master",
+    url: "/master",
+    icon: GalleryVerticalEnd,
+    categories,
+    isDirectLink: false,
+  }
+}
+
 const buildOtherModulesMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
   const menuMap = new Map<
     string,
@@ -506,6 +628,7 @@ const buildOtherModulesMenu = (transactions: IUserTransaction[]): MenuGroup[] =>
   transactions.forEach((t) => {
     const mod = t.moduleCode.toLowerCase()
     if (ACCOUNT_MODULES.includes(mod as (typeof ACCOUNT_MODULES)[number])) return
+    if (mod === "master") return // Master uses buildMasterMenu with categories
 
     const moduleKey = `${t.moduleId}_${t.moduleName}`
     if (!menuMap.has(moduleKey)) {
@@ -592,7 +715,7 @@ const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
     }
   }
 
-  const master = otherMenu.find((m) => m.url === "/master")
+  const master = buildMasterMenu(visible)
   const operations = otherMenu.find((m) => m.url === "/operations")
   const rest = otherMenu.filter(
     (m) => m.url !== "/master" && m.url !== "/operations"
@@ -675,6 +798,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { transactions, isLoading: transactionsLoading } = useUserTransactions()
   const { state: sidebarState, isMobile } = useSidebar()
   const [openMenu, setOpenMenu] = React.useState<string | null>(null)
+  const [openCategory, setOpenCategory] = React.useState<string | null>(null)
   const [selectedMenu, setSelectedMenu] = React.useState<string | null>(null)
   const [selectedSubMenu, setSelectedSubMenu] = React.useState<string | null>(
     null
@@ -709,6 +833,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       if (currentPath === getUrlWithCompanyId(menu.url)) {
         setSelectedMenu(menu.title)
         setOpenMenu(null)
+        setOpenCategory(null)
         setSelectedSubMenu(null)
         return
       }
@@ -717,6 +842,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           if (currentPath === getUrlWithCompanyId(subItem.url)) {
             setSelectedMenu(menu.title)
             setOpenMenu(menu.title)
+            setOpenCategory(null)
             setSelectedSubMenu(subItem.title)
             return
           }
@@ -727,13 +853,28 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       if (group.isDirectLink && currentPath === getUrlWithCompanyId(group.url)) {
         setSelectedMenu(group.title)
         setOpenMenu(null)
+        setOpenCategory(null)
         setSelectedSubMenu(null)
         return
+      }
+      if (group.categories) {
+        for (const cat of group.categories) {
+          for (const subItem of cat.items) {
+            if (currentPath === getUrlWithCompanyId(subItem.url)) {
+              setSelectedMenu(group.title)
+              setOpenMenu(group.title)
+              setOpenCategory(cat.title)
+              setSelectedSubMenu(subItem.title)
+              return
+            }
+          }
+        }
       }
       for (const subItem of group.items || []) {
         if (currentPath === getUrlWithCompanyId(subItem.url)) {
           setSelectedMenu(group.title)
           setOpenMenu(group.title)
+          setOpenCategory(null)
           setSelectedSubMenu(subItem.title)
           return
         }
@@ -749,6 +890,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     setOpenMenu(openMenu === menuTitle ? null : menuTitle)
     setSelectedMenu(menuTitle)
     setSelectedSubMenu(null)
+    if (openMenu !== menuTitle) setOpenCategory(null)
+  }
+
+  const handleCategoryClick = (categoryTitle: string) => {
+    setOpenCategory(openCategory === categoryTitle ? null : categoryTitle)
+  }
+
+  const isCategoryActive = (categoryTitle: string) => {
+    return openCategory === categoryTitle
   }
 
   const handleSubMenuClick = (menuTitle: string, subMenuTitle: string) => {
@@ -816,7 +966,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           }`}
                         >
                           <div className="relative">
-                            {item.icon && <item.icon className="h-4 w-4" />}
+                            {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
                           </div>
                           <span>{item.title}</span>
                           {item.title === "Approvals" && approvalCount > 0 && (
@@ -833,7 +983,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {/* Header */}
                         <div className="bg-muted/50 flex items-center gap-2 border-b px-3 py-2">
-                          {item.icon && <item.icon className="h-4 w-4" />}
+                          {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
                           <span className="font-small text-foreground">
                             {item.title}
                           </span>
@@ -855,7 +1005,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 }`}
                               >
                                 {subItem.icon && (
-                                  <subItem.icon className="h-4 w-4" />
+                                  <subItem.icon className="sidebar-icon h-4 w-4" />
                                 )}
                                 <span>{subItem.title}</span>
                               </Link>
@@ -885,7 +1035,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             }`}
                           >
                             <div className="relative">
-                              {item.icon && <item.icon className="h-4 w-4" />}
+                              {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
                             </div>
                             <span>{item.title}</span>
                             {item.title === "Approvals" &&
@@ -924,7 +1074,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                     }
                                   >
                                     {subItem.icon && (
-                                      <subItem.icon className="h-4 w-4" />
+                                      <subItem.icon className="sidebar-icon h-4 w-4" />
                                     )}
                                     <span className="text-xs">
                                       {subItem.title}
@@ -952,7 +1102,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   >
                     <Link href={getUrlWithCompanyId(item.url)}>
                       <div className="relative">
-                        {item.icon && <item.icon className="h-4 w-4" />}
+                        {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
                       </div>
                       <span>{item.title}</span>
                       {item.title === "Approvals" && approvalCount > 0 && (
@@ -991,10 +1141,104 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       }`}
                     >
                       <Link href={getUrlWithCompanyId(group.url)}>
-                        {group.icon && <group.icon className="h-4 w-4" />}
+                        {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
                         <span>{group.title}</span>
                       </Link>
                     </SidebarMenuButton>
+                  ) : group.categories && group.categories.length > 0 ? (
+                    <Collapsible
+                      asChild
+                      open={openMenu === group.title}
+                      className="group/collapsible"
+                    >
+                      <div>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            tooltip={group.title}
+                            onClick={() => handleMenuClick(group.title)}
+                            onMouseEnter={() => handleMouseEnter(group.title)}
+                            onMouseLeave={() => setHoveredMenu(null)}
+                            className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
+                              isMenuActive(group.title) ||
+                              hoveredMenu === group.title
+                                ? "bg-primary/20 text-primary"
+                                : ""
+                            }`}
+                          >
+                            {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
+                            <span>{group.title}</span>
+                            <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub className="gap-0.5">
+                            {group.categories.map((cat) => (
+                              <Collapsible
+                                key={cat.transCategoryCode}
+                                asChild
+                                open={openCategory === cat.title}
+                                className="group/category"
+                              >
+                                <div>
+                                  <CollapsibleTrigger asChild>
+                                    <SidebarMenuSubButton
+                                      onClick={() => handleCategoryClick(cat.title)}
+                                      className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                                        isCategoryActive(cat.title)
+                                          ? "bg-primary/20 text-primary"
+                                          : ""
+                                      }`}
+                                    >
+                                      {cat.icon && <cat.icon className="sidebar-icon h-4 w-4 shrink-0" />}
+                                      <span className="text-xs">{cat.title}</span>
+                                      <ChevronRightIcon className="ml-auto h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/category:rotate-90" />
+                                    </SidebarMenuSubButton>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <SidebarMenuSub className="pl-4">
+                                      {cat.items.map((subItem) => (
+                                        <SidebarMenuSubItem key={subItem.url}>
+                                          <SidebarMenuSubButton
+                                            asChild
+                                            onMouseEnter={() =>
+                                              setHoveredSubMenu(subItem.title)
+                                            }
+                                            onMouseLeave={() => setHoveredSubMenu(null)}
+                                            className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                                              isSubMenuActive(subItem.title) ||
+                                              hoveredSubMenu === subItem.title
+                                                ? "bg-primary/20 text-primary"
+                                                : ""
+                                            }`}
+                                          >
+                                            <Link
+                                              href={getUrlWithCompanyId(subItem.url)}
+                                              onClick={() =>
+                                                handleSubMenuClick(
+                                                  group.title,
+                                                  subItem.title
+                                                )
+                                              }
+                                            >
+                                              {subItem.icon && (
+                                                <subItem.icon className="sidebar-icon h-4 w-4 shrink-0" />
+                                              )}
+                                              <span className="text-xs">
+                                                {subItem.title}
+                                              </span>
+                                            </Link>
+                                          </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                      ))}
+                                    </SidebarMenuSub>
+                                  </CollapsibleContent>
+                                </div>
+                              </Collapsible>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
                   ) : group.items && group.items.length > 0 && sidebarState === "collapsed" && !isMobile ? (
                     <Popover open={hoveredMenu === group.title}>
                       <PopoverTrigger asChild>
@@ -1013,7 +1257,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                               : ""
                           }`}
                         >
-                          {group.icon && <group.icon className="h-4 w-4" />}
+                          {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
                           <span>{group.title}</span>
                         </SidebarMenuButton>
                       </PopoverTrigger>
@@ -1026,7 +1270,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {/* Header */}
                         <div className="bg-muted/50 flex items-center gap-2 border-b px-3 py-2">
-                          {group.icon && <group.icon className="h-4 w-4" />}
+                          {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
                           <span className="text-foreground text-xs font-medium">
                             {group.title}
                           </span>
@@ -1048,7 +1292,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 }`}
                               >
                                 {subItem.icon && (
-                                  <subItem.icon className="h-4 w-4" />
+                                  <subItem.icon className="sidebar-icon h-4 w-4" />
                                 )}
                                 <span className="text-xs">{subItem.title}</span>
                               </Link>
@@ -1077,7 +1321,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 : ""
                             }`}
                           >
-                            {group.icon && <group.icon className="h-4 w-4" />}
+                            {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
                             <span>{group.title}</span>
                             {group.items && (
                               <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -1109,18 +1353,18 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                           group.title,
                                           subItem.title
                                         )
-                                      }
-                                    >
-                                      {subItem.icon && (
-                                        <subItem.icon className="h-4 w-4" />
-                                      )}
-                                      <span className="text-xs">
-                                        {subItem.title}
-                                      </span>
-                                    </Link>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
+                                    }
+                                  >
+                                    {subItem.icon && (
+                                      <subItem.icon className="sidebar-icon h-4 w-4" />
+                                    )}
+                                    <span className="text-xs">
+                                      {subItem.title}
+                                    </span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
                             </SidebarMenuSub>
                           </CollapsibleContent>
                         )}

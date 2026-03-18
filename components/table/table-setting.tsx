@@ -43,7 +43,7 @@ export function SettingTable<T>({
 
   return (
     <div className="max-h-[460px] overflow-auto rounded-lg border">
-        {/* Fixed header table with column sizing */}
+        <table className="w-full table-fixed border-collapse">
         {/* Column group for consistent sizing */}
         <colgroup>
           {table.getAllLeafColumns().map((col) => (
@@ -69,9 +69,7 @@ export function SettingTable<T>({
           ))}
         </TableHeader>
 
-        {/* Body table with same column sizing as header */}
-        <table className="w-full table-fixed border-collapse">
-            <TableBody>
+        <TableBody>
               {/* Render data rows */}
               {table.getRowModel().rows.map((row) => {
                 return (
@@ -140,6 +138,6 @@ export function SettingTable<T>({
               )}
             </TableBody>
         </table>
-    </div>
+      </div>
   )
 }

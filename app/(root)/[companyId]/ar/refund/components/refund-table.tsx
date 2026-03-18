@@ -151,20 +151,10 @@ export default function RefundTable({
   const totalRecords = refundsResponse?.totalRecords || data.length
   const isLoading = isLoadingRefunds || isRefetchingRefunds
 
-  const getPaymentStatus = (payAmt: number, isCancel: boolean) => {
+  const getPaymentStatus = (isCancel: boolean) => {
     if (isCancel) {
       return "Cancelled"
     }
-    // if (balAmt === 0 && payAmt > 0) {
-    //   return "Fully Paid"
-    // } else if (balAmt > 0 && payAmt > 0) {
-    //   return "Partially Paid"
-    // } else if (balAmt > 0 && payAmt === 0) {
-    //   return "Not Paid"
-    // }
-    // else if (balAmt === 0 && payAmt === 0) {
-    //   return "Cancelled"
-    // }
     return ""
   }
 
@@ -179,18 +169,13 @@ export default function RefundTable({
       size: 120,
       minSize: 100,
       cell: ({ row }) => {
-        const payAmt = row.original.allocTotAmt ?? 0
-        const isCancel = row.original.isCancel ?? false
-        const status = getPaymentStatus(payAmt, isCancel)
+        const raw = row.original as IArRefundHd & { IsCancel?: boolean }
+        const isCancel =
+          row.original.isCancel === true || raw.IsCancel === true
+        const status = getPaymentStatus(isCancel)
 
         const getStatusStyle = (status: string) => {
           switch (status) {
-            // case "Fully Paid":
-            //   return "bg-green-100 text-green-800"
-            // case "Partially Paid":
-            //   return "bg-orange-100 text-orange-800"
-            // case "Not Paid":
-            //   return "bg-red-100 text-red-800"
             case "Cancelled":
               return "bg-gray-100 text-gray-800"
             default:
@@ -200,12 +185,6 @@ export default function RefundTable({
 
         const getStatusDot = (status: string) => {
           switch (status) {
-            // case "Fully Paid":
-            //   return "bg-green-400"
-            // case "Partially Paid":
-            //   return "bg-orange-400"
-            // case "Not Paid":
-            //   return "bg-red-400"
             case "Cancelled":
               return "bg-gray-400"
             default:

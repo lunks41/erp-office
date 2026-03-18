@@ -64,6 +64,7 @@ interface DebitNoteBaseTableProps<T> {
   onCreateAction?: () => void
   onEditAction?: (item: T) => void
   onDeleteAction?: (itemId: string) => void
+  onCloneAction?: (item: T) => void
   onBulkDeleteAction?: (selectedIds: string[]) => void
   onBulkSelectionChange?: (selectedIds: string[]) => void
   onPurchaseAction?: (itemId: string) => void
@@ -95,6 +96,7 @@ export function DebitNoteBaseTable<T>({
   onCreateAction,
   onEditAction,
   onDeleteAction,
+  onCloneAction,
   onBulkDeleteAction,
   onBulkSelectionChange,
   onDataReorder,
@@ -244,7 +246,7 @@ export function DebitNoteBaseTable<T>({
   }, [gridSettingsData])
 
   const tableColumns: ColumnDef<T>[] = [
-    ...(showActions && (onSelect || onEditAction || onDeleteAction)
+    ...(showActions && (onSelect || onEditAction || onDeleteAction || onCloneAction)
       ? [
           {
             id: "drag-actions",
@@ -278,8 +280,8 @@ export function DebitNoteBaseTable<T>({
               )
             },
             enableHiding: false,
-            size: 140,
-            minSize: 120,
+            size: 200,
+            minSize: 180,
 
             cell: ({ row }: { row: Row<T> }) => {
               const item = row.original
@@ -301,6 +303,7 @@ export function DebitNoteBaseTable<T>({
                     onView={onSelect}
                     onEditAction={onEditAction}
                     onDeleteAction={onDeleteAction}
+                    onCloneAction={onCloneAction}
                     onSelect={(_, checked) => {
                       row.toggleSelected(checked)
                     }}

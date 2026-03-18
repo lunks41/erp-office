@@ -144,24 +144,10 @@ export default function PaymentTable({
   const totalRecords = paymentsResponse?.totalRecords || data.length
   const isLoading = isLoadingPayments || isRefetchingPayments
 
-  const getPaymentStatus = (
-    balAmt: number,
-    payAmt: number,
-    isCancel: boolean
-  ) => {
+  const getPaymentStatus = (isCancel: boolean) => {
     if (isCancel) {
       return "Cancelled"
     }
-    // if (balAmt === 0 && payAmt > 0) {
-    //   return "Fully Paid"
-    // } else if (balAmt > 0 && payAmt > 0) {
-    //   return "Partially Paid"
-    // } else if (balAmt > 0 && payAmt === 0) {
-    //   return "Not Paid"
-    // }
-    // else if (balAmt === 0 && payAmt === 0) {
-    //   return "Cancelled"
-    // }
     return ""
   }
 
@@ -176,19 +162,11 @@ export default function PaymentTable({
       size: 120,
       minSize: 100,
       cell: ({ row }) => {
-        const balAmt = row.original.unAllocTotAmt ?? 0
-        const payAmt = row.original.allocTotAmt ?? 0
-        const isCancel = row.original.isCancel ?? false
-        const status = getPaymentStatus(balAmt, payAmt, isCancel)
+        const isCancel = row.original.isCancel === true
+        const status = getPaymentStatus(isCancel)
 
         const getStatusStyle = (status: string) => {
           switch (status) {
-            // case "Fully Paid":
-            //   return "bg-green-100 text-green-800"
-            // case "Partially Paid":
-            //   return "bg-orange-100 text-orange-800"
-            // case "Not Paid":
-            //   return "bg-red-100 text-red-800"
             case "Cancelled":
               return "bg-gray-100 text-gray-800"
             default:
@@ -455,8 +433,10 @@ export default function PaymentTable({
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)

@@ -810,7 +810,10 @@ export default function ReceiptPage() {
         createBy: apiReceipt.createBy ?? "",
         editBy: apiReceipt.editBy ?? "",
         cancelBy: apiReceipt.cancelBy ?? "",
-        isCancel: apiReceipt.isCancel ?? false,
+        isCancel:
+          apiReceipt.isCancel === true ||
+          (apiReceipt as unknown as Record<string, unknown>).IsCancel === true ||
+          false,
         createDate: apiReceipt.createDate
           ? format(
               parseDate(apiReceipt.createDate as string) || new Date(),
@@ -830,7 +833,12 @@ export default function ReceiptPage() {
               decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
             )
           : "",
-        cancelRemarks: apiReceipt.cancelRemarks ?? "",
+        cancelRemarks: (() => {
+          const raw =
+            apiReceipt.cancelRemarks ??
+            (apiReceipt as unknown as Record<string, unknown>).CancelRemarks
+          return typeof raw === "string" ? raw : ""
+        })(),
         data_details:
           apiReceipt.data_details?.map(
             (detail) =>

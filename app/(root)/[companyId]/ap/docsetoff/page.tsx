@@ -734,7 +734,11 @@ export default function DocSetOffPage() {
         createBy: apiDocSetOff.createBy ?? "",
         editBy: apiDocSetOff.editBy ?? "",
         cancelBy: apiDocSetOff.cancelBy ?? "",
-        isCancel: apiDocSetOff.isCancel ?? false,
+        isCancel:
+          apiDocSetOff.isCancel === true ||
+          (apiDocSetOff as unknown as Record<string, unknown>).IsCancel ===
+            true ||
+          false,
         createDate: apiDocSetOff.createDate
           ? format(
               parseDate(apiDocSetOff.createDate as string) || new Date(),
@@ -755,7 +759,12 @@ export default function DocSetOffPage() {
               decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
             )
           : "",
-        cancelRemarks: apiDocSetOff.cancelRemarks ?? "",
+        cancelRemarks: (() => {
+          const raw =
+            apiDocSetOff.cancelRemarks ??
+            (apiDocSetOff as unknown as Record<string, unknown>).CancelRemarks
+          return typeof raw === "string" ? raw : ""
+        })(),
         data_details:
           apiDocSetOff.data_details?.map(
             (detail) =>

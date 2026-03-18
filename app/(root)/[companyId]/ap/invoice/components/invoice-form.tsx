@@ -27,10 +27,10 @@ import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse } from "date-fns"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
-import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { ApInvoice } from "@/lib/api-routes"
-import { useGetDynamicLookup } from "@/hooks/use-lookup"
+import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { useGetById } from "@/hooks/use-common"
+import { useGetDynamicLookup } from "@/hooks/use-lookup"
 import {
   BankAutocomplete,
   CreditTermAutocomplete,
@@ -796,7 +796,7 @@ export default function InvoiceForm({
             name="remarks"
             label="Remarks"
             isRequired={required?.m_Remarks_Hd}
-            className="col-span-3 pb-2"
+            className="col-span-2 pb-2"
           />
         </div>
 

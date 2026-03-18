@@ -413,7 +413,23 @@ export default function DebitNoteForm({
     form.trigger("unitPrice")
     calculateTotAmt()
     calculateGstAmt()
-  }, [form, exhRate, priceDec, calculateTotAmt, calculateGstAmt])
+
+    // Append "- {currencyCode} {baseAmt}" to remarks
+    const currCode = baseCurrencyCode ?? currencyCode ?? ""
+    if (currCode) {
+      const currentRemarks = form.getValues("remarks") || ""
+      const suffix = ` - ${currCode} `
+      // Strip existing suffix to avoid duplication
+      const lastIdx = currentRemarks.lastIndexOf(suffix)
+      const baseRemarks =
+        lastIdx !== -1 ? currentRemarks.substring(0, lastIdx) : currentRemarks
+      const formattedAmt = totLocalAmt.toFixed(locAmtDec)
+      const newRemarks = baseRemarks
+        ? `${baseRemarks} - ${currCode} ${formattedAmt}`
+        : `- ${currCode} ${formattedAmt}`
+      form.setValue("remarks", newRemarks, { shouldDirty: true })
+    }
+  }, [form, exhRate, priceDec, calculateTotAmt, calculateGstAmt, baseCurrencyCode, currencyCode, locAmtDec])
 
   // Handler for gstAmt change (when manually entered)
   const handleGstAmtChange = useCallback(() => {

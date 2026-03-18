@@ -18,6 +18,7 @@ interface DebitNoteTableProps {
   onDeleteAction?: (debitNoteId: string) => void
   onBulkDeleteAction?: (selectedIds: string[]) => void
   onEditAction?: (debitNote: IDebitNoteDt) => void
+  onCloneAction?: (debitNote: IDebitNoteDt) => void
   onCreateAction?: () => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: { search?: string; sortOrder?: string }) => void
@@ -34,6 +35,7 @@ export function DebitNoteTable({
   onDeleteAction,
   onBulkDeleteAction,
   onEditAction,
+  onCloneAction,
   onCreateAction,
   onRefreshAction,
   onFilterChange,
@@ -164,6 +166,7 @@ export function DebitNoteTable({
       onCreateAction={onCreateAction}
       onEditAction={onEditAction}
       onDeleteAction={onDeleteAction}
+      onCloneAction={onCloneAction}
       onBulkDeleteAction={onBulkDeleteAction}
       onDataReorder={onDataReorder}
       isConfirmed={isConfirmed}

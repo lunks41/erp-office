@@ -19,7 +19,7 @@ import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
 export interface DocSetOffTableProps {
-  onDocSetOffSelect: (selectedReceipt: IArDocSetOffHd | undefined) => void
+  onDocSetOffSelect: (selectedDocSetOff: IArDocSetOffHd | undefined) => void
   onFilterChange: (filters: IArDocSetOffFilter) => void
   initialFilters?: IArDocSetOffFilter
   pageSize: number
@@ -130,13 +130,13 @@ export default function DocSetOffTable({
   }, [isDialogOpen])
 
   const {
-    data: receiptsResponse,
-    isLoading: isLoadingReceipts,
-    isRefetching: isRefetchingReceipts,
-    refetch: _refetchReceipts,
+    data: docSetOffsResponse,
+    isLoading: isLoadingDocSetOffs,
+    isRefetching: isRefetchingDocSetOffs,
+    refetch: _refetchDocSetOffs,
   } = useGetWithDatesAndPagination<IArDocSetOffHd>(
     `${ArDocSetOff.get}`,
-    TableName.arReceipt,
+    TableName.arDocSetOff,
     searchQuery,
     searchStartDate ?? "",
     searchEndDate ?? "",
@@ -147,28 +147,14 @@ export default function DocSetOffTable({
     hasSearched
   )
 
-  const data = receiptsResponse?.data || []
-  const totalRecords = receiptsResponse?.totalRecords || data.length
-  const isLoading = isLoadingReceipts || isRefetchingReceipts
+  const data = docSetOffsResponse?.data || []
+  const totalRecords = docSetOffsResponse?.totalRecords || data.length
+  const isLoading = isLoadingDocSetOffs || isRefetchingDocSetOffs
 
-  const getPaymentStatus = (
-    balTotAmt: number,
-    payAmt: number,
-    isCancel: boolean
-  ) => {
+  const getPaymentStatus = (isCancel: boolean) => {
     if (isCancel) {
       return "Cancelled"
     }
-    // if (balTotAmt === 0 && payAmt > 0) {
-    //   return "Fully Paid"
-    // } else if (balTotAmt > 0 && payAmt > 0) {
-    //   return "Partially Paid"
-    // } else if (balTotAmt > 0 && payAmt === 0) {
-    //   return "Not Paid"
-    // }
-    // else if (balTotAmt === 0 && payAmt === 0) {
-    //   return "Cancelled"
-    // }
     return ""
   }
 
@@ -183,19 +169,12 @@ export default function DocSetOffTable({
       size: 120,
       minSize: 100,
       cell: ({ row }) => {
-        const balTotAmt = row.original.unAllocTotAmt ?? 0
-        const payAmt = row.original.allocTotAmt ?? 0
-        const isCancel = row.original.isCancel ?? false
-        const status = getPaymentStatus(balTotAmt, payAmt, isCancel)
+        const raw = row.original as IArDocSetOffHd & { IsCancel?: boolean }
+        const isCancel = row.original.isCancel === true || raw.IsCancel === true
+        const status = getPaymentStatus(isCancel)
 
         const getStatusStyle = (status: string) => {
           switch (status) {
-            // case "Fully Paid":
-            //   return "bg-green-100 text-green-800"
-            // case "Partially Paid":
-            //   return "bg-orange-100 text-orange-800"
-            // case "Not Paid":
-            //   return "bg-red-100 text-red-800"
             case "Cancelled":
               return "bg-gray-100 text-gray-800"
             default:
@@ -205,12 +184,6 @@ export default function DocSetOffTable({
 
         const getStatusDot = (status: string) => {
           switch (status) {
-            // case "Fully Paid":
-            //   return "bg-green-400"
-            // case "Partially Paid":
-            //   return "bg-orange-400"
-            // case "Not Paid":
-            //   return "bg-red-400"
             case "Cancelled":
               return "bg-gray-400"
             default:
@@ -391,7 +364,7 @@ export default function DocSetOffTable({
     },
   ]
 
-  const handleSearchReceipt = () => {
+  const handleSearchDocSetOff = () => {
     const filterSearchValue = form.getValues("filterSearch") ?? ""
     setSearchQuery(filterSearchValue)
 
@@ -399,8 +372,10 @@ export default function DocSetOffTable({
 
     const startDate = form.getValues("startDate")
     const endDate = form.getValues("endDate")
-    const formattedStartDate = isAllTime ? "" : (formatDateForApi(startDate) || "")
-    const formattedEndDate = isAllTime ? "" : (formatDateForApi(endDate) || "")
+    const formattedStartDate = isAllTime
+      ? ""
+      : formatDateForApi(startDate) || ""
+    const formattedEndDate = isAllTime ? "" : formatDateForApi(endDate) || ""
 
     setSearchStartDate(formattedStartDate)
     setSearchEndDate(formattedEndDate)
@@ -553,7 +528,7 @@ export default function DocSetOffTable({
             <Button
               variant="default"
               size="sm"
-              onClick={handleSearchReceipt}
+              onClick={handleSearchDocSetOff}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -591,8 +566,8 @@ export default function DocSetOffTable({
         isLoading={isLoading}
         moduleId={moduleId}
         transactionId={transactionId}
-        tableName={TableName.arReceipt}
-        emptyMessage="No receipts found matching your criteria. Try adjusting the date range or search terms."
+        tableName={TableName.arDocSetOff}
+        emptyMessage="No document set-offs found matching your criteria. Try adjusting the date range or search terms."
         onRowSelect={(row) => onDocSetOffSelect(row || undefined)}
         // Pagination props
         onPageChange={handlePageChange}

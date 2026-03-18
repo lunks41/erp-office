@@ -771,7 +771,10 @@ export default function RefundPage() {
         createBy: apiRefund.createBy ?? "",
         editBy: apiRefund.editBy ?? "",
         cancelBy: apiRefund.cancelBy ?? "",
-        isCancel: apiRefund.isCancel ?? false,
+        isCancel:
+          apiRefund.isCancel === true ||
+          (apiRefund as unknown as Record<string, unknown>).IsCancel === true ||
+          false,
         createDate: apiRefund.createDate
           ? format(
               parseDate(apiRefund.createDate as string) || new Date(),
@@ -791,7 +794,12 @@ export default function RefundPage() {
               decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
             )
           : "",
-        cancelRemarks: apiRefund.cancelRemarks ?? "",
+        cancelRemarks: (() => {
+          const raw =
+            apiRefund.cancelRemarks ??
+            (apiRefund as unknown as Record<string, unknown>).CancelRemarks
+          return typeof raw === "string" ? raw : ""
+        })(),
         data_details:
           apiRefund.data_details?.map(
             (detail) =>
