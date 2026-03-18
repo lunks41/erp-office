@@ -34,7 +34,6 @@ import { useGetGridLayout } from "@/hooks/use-settings"
 // Virtual scrolling removed - using empty rows instead
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHeader,
@@ -344,14 +343,13 @@ export function BasicTable<T>({
           onResetLayout={handleResetLayout}
         />
       )}
-      <Table>
-        <DndContext
+      <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="overflow-x-auto rounded-lg border">
-            <Table
+          <div className="max-h-[460px] overflow-auto rounded-lg border">
+            <table
               className="w-full table-fixed border-collapse"
               style={{ minWidth: "100%" }}
             >
@@ -382,25 +380,6 @@ export function BasicTable<T>({
                   </TableRow>
                 ))}
               </TableHeader>
-            </Table>
-
-            <div className="overflow-y-auto" style={{ maxHeight: maxHeight }}>
-              <Table
-                className="w-full table-fixed border-collapse"
-                style={{ minWidth: "100%" }}
-              >
-                <colgroup>
-                  {table.getAllLeafColumns().map((col) => (
-                    <col
-                      key={col.id}
-                      style={{
-                        width: `${col.getSize()}px`,
-                        minWidth: `${col.getSize()}px`,
-                        maxWidth: `${col.getSize()}px`,
-                      }}
-                    />
-                  ))}
-                </colgroup>
 
                 <TableBody>
                   {/* Render data rows */}
@@ -496,11 +475,9 @@ export function BasicTable<T>({
                     </TableRow>
                   )}
                 </TableBody>
-              </Table>
-            </div>
+            </table>
           </div>
         </DndContext>
-      </Table>
 
       {showFooter && (
         <MainTableFooter

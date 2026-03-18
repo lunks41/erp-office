@@ -37,7 +37,6 @@ import { Button } from "@/components/ui/button"
 // Virtual scrolling removed - using empty rows instead
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -479,7 +478,6 @@ export function DocumentOperationsTable<T>({
         />
       )}
 
-      <Table>
         {/* ============================================================================
           DRAG AND DROP CONTEXT
           ============================================================================ */}
@@ -495,9 +493,9 @@ export function DocumentOperationsTable<T>({
             ============================================================================ */}
 
           {/* Main table container with horizontal scrolling */}
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="max-h-[460px] overflow-auto rounded-lg border">
             {/* Fixed header table with column sizing */}
-            <Table
+            <table
               className="w-full table-fixed border-collapse"
               style={{ minWidth: "100%" }}
             >
@@ -532,7 +530,7 @@ export function DocumentOperationsTable<T>({
                               minWidth: header.column.columnDef.minSize,
                               maxWidth: header.column.columnDef.maxSize,
                             }}
-                            className="bg-muted group hover:bg-muted/80 relative transition-colors"
+                            className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
                           >
                             {header.isPlaceholder ? null : (
                               <div className="flex items-center justify-between pl-3">
@@ -558,32 +556,7 @@ export function DocumentOperationsTable<T>({
                   </TableRow>
                 ))}
               </TableHeader>
-            </Table>
-
-            {/* Scrollable body container */}
-            <div
-              className="max-h-[460px] overflow-y-auto" // Allow vertical scrolling if needed
-            >
-              {/* Body table with same column sizing as header */}
-              <Table
-                className="w-full table-fixed border-collapse"
-                style={{ minWidth: "100%" }}
-              >
-                {/* Column group matching header for alignment */}
-                <colgroup>
-                  {table.getAllLeafColumns().map((col) => (
-                    <col
-                      key={col.id}
-                      style={{
-                        width: `${col.getSize()}px`,
-                        minWidth: `${col.getSize()}px`,
-                        maxWidth: `${col.getSize()}px`,
-                      }} // Match header column widths
-                    />
-                  ))}
-                </colgroup>
-
-                <TableBody>
+              <TableBody>
                   {/* ============================================================================
                     DATA ROWS RENDERING
                     ============================================================================ */}
@@ -700,12 +673,10 @@ export function DocumentOperationsTable<T>({
                       </TableCell>
                     </TableRow>
                   )}
-                </TableBody>
-              </Table>
-            </div>
+              </TableBody>
+            </table>
           </div>
         </DndContext>
-      </Table>
     </div>
   )
 }

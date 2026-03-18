@@ -11,7 +11,6 @@ import {
 // Virtual scrolling removed - using empty rows instead
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -43,47 +42,35 @@ export function SettingTable<T>({
   })
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <Table>
+    <div className="max-h-[460px] overflow-auto rounded-lg border">
         {/* Fixed header table with column sizing */}
-        <Table className="w-full table-fixed border-collapse">
-          {/* Column group for consistent sizing */}
-          <colgroup>
-            {table.getAllLeafColumns().map((col) => (
-              <col key={col.id} style={{ width: `${col.getSize()}px` }} />
-            ))}
-          </colgroup>
+        {/* Column group for consistent sizing */}
+        <colgroup>
+          {table.getAllLeafColumns().map((col) => (
+            <col key={col.id} style={{ width: `${col.getSize()}px` }} />
+          ))}
+        </colgroup>
 
-          {/* Sticky table header */}
-          <TableHeader className="bg-background sticky top-0 z-20">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-        </Table>
-
-        {/* Scrollable body container */}
-        <div className="max-h-[460px] overflow-y-auto" style={{ maxHeight }}>
-          {/* Body table with same column sizing as header */}
-          <Table className="w-full table-fixed border-collapse">
-            {/* Column group matching header for alignment */}
-            <colgroup>
-              {table.getAllLeafColumns().map((col) => (
-                <col key={col.id} style={{ width: `${col.getSize()}px` }} />
+        {/* Sticky table header */}
+        <TableHeader className="bg-background sticky top-0 z-20">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="bg-muted/50">
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
               ))}
-            </colgroup>
+            </TableRow>
+          ))}
+        </TableHeader>
 
+        {/* Body table with same column sizing as header */}
+        <table className="w-full table-fixed border-collapse">
             <TableBody>
               {/* Render data rows */}
               {table.getRowModel().rows.map((row) => {
@@ -152,9 +139,7 @@ export function SettingTable<T>({
                 </TableRow>
               )}
             </TableBody>
-          </Table>
-        </div>
-      </Table>
+        </table>
     </div>
   )
 }

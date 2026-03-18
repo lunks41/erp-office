@@ -714,13 +714,9 @@ export function MainTable<T>({
           TABLE CONTAINER
           ============================================================================ */}
         {/* Main table container with horizontal scrolling */}
-        <div className="relative">
           <div
             ref={scrollContainerRef}
-            className="max-h-[460px] overflow-x-scroll overflow-y-scroll rounded-lg border text-xs"
-            style={{
-              scrollbarGutter: "stable",
-            }}
+            className="max-h-[460px] overflow-auto rounded-lg border text-xs"
           >
             <table
               className="w-full table-fixed border-collapse text-xs"
@@ -753,12 +749,7 @@ export function MainTable<T>({
                             key={header.id}
                             header={header}
                             className={
-                              isFirst ? "bg-background sticky left-0 z-20" : ""
-                            }
-                            style={
-                              isFirst
-                                ? { position: "sticky", left: 0, zIndex: 20 }
-                                : undefined
+                              isFirst ? "bg-background sticky left-0 z-40" : ""
                             }
                           />
                         )
@@ -872,8 +863,6 @@ export function MainTable<T>({
               </TableBody>
             </table>
           </div>
-          {/* Native scrollbars are used; no custom overlay */}
-        </div>
       </DndContext>
       {/* ============================================================================
           TABLE FOOTER SECTION

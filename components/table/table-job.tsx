@@ -32,7 +32,6 @@ import {
 import { TableName } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"
 import {
-  Table,
   TableBody,
   TableCell,
   TableHeader,
@@ -276,16 +275,14 @@ export function JobTable<T>({
         onResetLayout={handleResetLayout}
       />
 
-      <Table>
-        <DndContext
+      <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="rounded-lg border">
+          <div className="max-h-[460px] overflow-auto rounded-lg border">
             {/* Fixed Header */}
-            <div className="overflow-x-auto">
-              <Table className="w-full table-fixed border-collapse">
+            <table className="w-full table-fixed border-collapse">
                 <colgroup>
                   {table.getAllLeafColumns().map((col) => (
                     <col
@@ -336,25 +333,8 @@ export function JobTable<T>({
                     </TableRow>
                   ))}
                 </TableHeader>
-              </Table>
-            </div>
 
-            {/* Scrollable Body */}
-            <div className="max-h-[460px] overflow-auto">
-              <Table className="w-full table-fixed border-collapse">
-                <colgroup>
-                  {table.getAllLeafColumns().map((col) => (
-                    <col
-                      key={col.id}
-                      style={{
-                        width: `${col.getSize()}px`,
-                        minWidth: `${col.getSize()}px`,
-                        maxWidth: `${col.getSize()}px`,
-                      }}
-                    />
-                  ))}
-                </colgroup>
-
+                {/* Scrollable Body */}
                 <TableBody>
                   {table.getRowModel().rows.map((row) => {
                     return (
@@ -456,11 +436,9 @@ export function JobTable<T>({
                     </TableRow>
                   )}
                 </TableBody>
-              </Table>
-            </div>
+            </table>
           </div>
         </DndContext>
-      </Table>
       <MainTableFooter
         currentPage={currentPage}
         totalPages={Math.ceil(data.length / pageSize)}

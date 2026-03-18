@@ -515,13 +515,9 @@ export function DialogDataTable<T>({
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <div className="relative">
           <div
             ref={scrollContainerRef}
-            className="max-h-[480px] overflow-x-scroll overflow-y-scroll rounded-lg border text-xs"
-            style={{
-              scrollbarGutter: "stable",
-            }}
+            className="max-h-[480px] overflow-auto rounded-lg border text-xs"
           >
             <table
               className="w-full table-fixed border-collapse text-xs"
@@ -558,12 +554,9 @@ export function DialogDataTable<T>({
                             key={header.id}
                             header={header}
                             className={
-                              isFirst ? "bg-background sticky left-0 z-20" : ""
+                              isFirst ? "bg-background sticky left-0 z-40" : ""
                             }
                             style={{
-                              ...(isFirst
-                                ? { position: "sticky", left: 0, zIndex: 20 }
-                                : undefined),
                               width: `${clampColumnSize(header.column.id, header.column.getSize())}px`,
                               minWidth: `${clampColumnSize(header.column.id, header.column.getSize())}px`,
                               maxWidth: `${clampColumnSize(header.column.id, header.column.getSize())}px`,
@@ -733,8 +726,6 @@ export function DialogDataTable<T>({
               </TableBody>
             </table>
           </div>
-          {/* Native scrollbars are used; no custom overlay */}
-        </div>
       </DndContext>
 
       <MainTableFooter

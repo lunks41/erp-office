@@ -37,7 +37,6 @@ import { Button } from "@/components/ui/button"
 // Virtual scrolling removed - using empty rows instead
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -429,7 +428,6 @@ export function PurchaseBaseTable<T>({
         />
       )}
 
-      <Table>
         {/* ============================================================================
           DRAG AND DROP CONTEXT
           ============================================================================ */}
@@ -445,95 +443,71 @@ export function PurchaseBaseTable<T>({
             ============================================================================ */}
 
           {/* Main table container with horizontal scrolling */}
-          <div className="overflow-x-auto rounded-lg border">
-            {/* Fixed header table with column sizing */}
-            <Table
+          <div className="max-h-[460px] overflow-auto rounded-lg border">
+            {/* Column group for consistent sizing */}
+            <colgroup>
+              {table.getAllLeafColumns().map((col) => (
+                <col
+                  key={col.id}
+                  style={{
+                    width: `${col.getSize()}px`,
+                    minWidth: `${col.getSize()}px`,
+                    maxWidth: `${col.getSize()}px`,
+                  }} // Set column width from table state
+                />
+              ))}
+            </colgroup>
+
+            {/* Sticky table header */}
+            <TableHeader className="bg-background sticky top-0 z-20">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted/50">
+                  {/* Render each header */}
+                  {headerGroup.headers.map((header) => {
+                    // Don't use SortableTableHeader for drag-actions column
+                    if (header.id === "drag-actions") {
+                      return (
+                        <TableHead
+                          key={header.id}
+                          colSpan={header.colSpan}
+                          style={{
+                            width: header.getSize(),
+                            minWidth: header.column.columnDef.minSize,
+                            maxWidth: header.column.columnDef.maxSize,
+                          }}
+                          className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
+                        >
+                          {header.isPlaceholder ? null : (
+                            <div className="flex items-center justify-between pl-3">
+                              <div className="flex items-center">
+                                <span className="font-medium">
+                                  {flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </TableHead>
+                      )
+                    }
+
+                    // Use SortableTableHeader for regular columns
+                    return (
+                      <SortableTableHeader key={header.id} header={header} />
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+
+            {/* Body table with same column sizing as header */}
+            <table
               className="w-full table-fixed border-collapse"
               style={{ minWidth: "100%" }}
             >
-              {/* Column group for consistent sizing */}
-              <colgroup>
-                {table.getAllLeafColumns().map((col) => (
-                  <col
-                    key={col.id}
-                    style={{
-                      width: `${col.getSize()}px`,
-                      minWidth: `${col.getSize()}px`,
-                      maxWidth: `${col.getSize()}px`,
-                    }} // Set column width from table state
-                  />
-                ))}
-              </colgroup>
-
-              {/* Sticky table header */}
-              <TableHeader className="bg-background sticky top-0 z-20">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="bg-muted/50">
-                    {/* Render each header */}
-                    {headerGroup.headers.map((header) => {
-                      // Don't use SortableTableHeader for drag-actions column
-                      if (header.id === "drag-actions") {
-                        return (
-                          <TableHead
-                            key={header.id}
-                            colSpan={header.colSpan}
-                            style={{
-                              width: header.getSize(),
-                              minWidth: header.column.columnDef.minSize,
-                              maxWidth: header.column.columnDef.maxSize,
-                            }}
-                            className="bg-muted group hover:bg-muted/80 relative transition-colors"
-                          >
-                            {header.isPlaceholder ? null : (
-                              <div className="flex items-center justify-between pl-3">
-                                <div className="flex items-center">
-                                  <span className="font-medium">
-                                    {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                    )}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                          </TableHead>
-                        )
-                      }
-
-                      // Use SortableTableHeader for regular columns
-                      return (
-                        <SortableTableHeader key={header.id} header={header} />
-                      )
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-            </Table>
-
-            {/* Scrollable body container */}
-            <div
-              className="max-h-[460px] overflow-y-auto" // Allow vertical scrolling if needed
-            >
-              {/* Body table with same column sizing as header */}
-              <Table
-                className="w-full table-fixed border-collapse"
-                style={{ minWidth: "100%" }}
-              >
-                {/* Column group matching header for alignment */}
-                <colgroup>
-                  {table.getAllLeafColumns().map((col) => (
-                    <col
-                      key={col.id}
-                      style={{
-                        width: `${col.getSize()}px`,
-                        minWidth: `${col.getSize()}px`,
-                        maxWidth: `${col.getSize()}px`,
-                      }} // Match header column widths
-                    />
-                  ))}
-                </colgroup>
-
-                <TableBody>
+              <TableBody>
                   {/* ============================================================================
                     DATA ROWS RENDERING
                     ============================================================================ */}
@@ -651,11 +625,9 @@ export function PurchaseBaseTable<T>({
                     </TableRow>
                   )}
                 </TableBody>
-              </Table>
-            </div>
+            </table>
           </div>
         </DndContext>
-      </Table>
     </div>
   )
 }

@@ -482,8 +482,7 @@ export function DocumentBaseTable<T>({
       )}
 
       <div
-        className="relative overflow-x-auto overflow-y-auto rounded-lg border"
-        style={{ maxHeight: "370px", scrollbarGutter: "stable" }}
+        className="max-h-[370px] overflow-auto rounded-lg border"
       >
         <DndContext
           sensors={sensors}
@@ -520,12 +519,8 @@ export function DocumentBaseTable<T>({
                             width: header.getSize(),
                             minWidth: header.column.columnDef.minSize,
                             maxWidth: header.column.columnDef.maxSize,
-                            position: "sticky",
-                            top: 0,
-                            left: 0,
-                            zIndex: 50,
                           }}
-                          className="bg-muted group hover:bg-muted/80 relative transition-colors"
+                          className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
                         >
                           {header.isPlaceholder ? null : (
                             <div className="flex items-center justify-between pl-3">

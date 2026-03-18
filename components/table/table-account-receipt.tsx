@@ -37,7 +37,6 @@ import { Button } from "@/components/ui/button"
 // Virtual scrolling removed - using empty rows instead
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -502,7 +501,7 @@ export function AccountReceiptBaseTable<T>({
       {/* ========================================================================= */}
       {/* MAIN TABLE CONTAINER - NO OUTER <Table>! */}
       {/* ========================================================================= */}
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="max-h-[460px] overflow-auto rounded-lg border">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -511,8 +510,7 @@ export function AccountReceiptBaseTable<T>({
           {/* ========================================================================= */}
           {/* SINGLE TABLE - NO NESTING */}
           {/* ========================================================================= */}
-          <div className="overflow-y-auto" style={{ maxHeight: maxHeight }}>
-            <Table className="w-full table-fixed border-collapse">
+            <table className="w-full table-fixed border-collapse">
               <colgroup>
                 {table.getAllLeafColumns().map((col) => (
                   <col
@@ -541,7 +539,7 @@ export function AccountReceiptBaseTable<T>({
                               minWidth: header.column.columnDef.minSize,
                               maxWidth: header.column.columnDef.maxSize,
                             }}
-                            className="bg-muted group hover:bg-muted/80 relative transition-colors"
+                            className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
                           >
                             {header.isPlaceholder ? null : (
                               <div className="flex items-center justify-between pl-3">
@@ -665,8 +663,7 @@ export function AccountReceiptBaseTable<T>({
                   )}
                 </SortableContext>
               </TableBody>
-            </Table>
-          </div>
+            </table>
         </DndContext>
       </div>
     </div>
