@@ -460,6 +460,61 @@ const getModuleDisplayPrefix = (moduleCode: string) => {
   return m === "AR" ? "AR" : m === "AP" ? "AP" : m === "CB" ? "CB" : m === "GL" ? "GL" : moduleCode
 }
 
+// Color mapping for sidebar icons
+const ICON_COLORS: Record<string, string> = {
+  // Modules
+  dashboard: "text-blue-500",
+  master: "text-indigo-500",
+  operations: "text-orange-500",
+  ar: "text-emerald-500",
+  ap: "text-rose-500",
+  cb: "text-amber-500",
+  gl: "text-purple-500",
+  hr: "text-teal-500",
+  logistics: "text-cyan-500",
+  inquiry: "text-sky-500",
+  settings: "text-slate-400",
+  admin: "text-blue-600",
+  activation: "text-violet-500",
+  // Account categories
+  invoice: "text-emerald-500",
+  creditnote: "text-green-600",
+  debitnote: "text-red-500",
+  receipt: "text-teal-500",
+  payment: "text-rose-500",
+  refund: "text-orange-400",
+  setoff: "text-purple-400",
+  bank: "text-amber-500",
+  pettycash: "text-yellow-600",
+  adjustment: "text-slate-500",
+  reports: "text-blue-400",
+  overview: "text-blue-500",
+  // Master categories (transCategoryCode)
+  region: "text-blue-500",
+  product: "text-green-500",
+  customer: "text-teal-600",
+  finance: "text-emerald-600",
+  glcode: "text-purple-600",
+  category: "text-orange-500",
+  employee: "text-rose-500",
+}
+
+const getIconColor = (identifier: string, title?: string): string => {
+  const clean = identifier.replace(/^\//, "").toLowerCase()
+  const parts = clean.split("/")
+  // Check transaction-level key first (e.g., "ar/invoice" → "invoice")
+  if (parts.length > 1 && parts[1] && ICON_COLORS[parts[1]]) return ICON_COLORS[parts[1]]
+  // Then module/category key
+  if (parts[0] && ICON_COLORS[parts[0]]) return ICON_COLORS[parts[0]]
+  // Fall back to title-based lookup
+  if (title) {
+    const key = title.toLowerCase().replace(/[\s\-/]/g, "")
+    if (ICON_COLORS[key]) return ICON_COLORS[key]
+    if (ICON_COLORS[title.toLowerCase()]) return ICON_COLORS[title.toLowerCase()]
+  }
+  return "text-muted-foreground/70"
+}
+
 const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
   const categoryMap = new Map<string, MenuItem[]>()
   const directLinkMap = new Map<string, MenuItem>()
@@ -942,7 +997,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <CompanySwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup className="p-1">
+        <SidebarGroup className="px-2 py-1">
           <div className="flex flex-col gap-0.5">
             {menuData.mainNav.map((item) => (
               <SidebarMenuItem key={item.url}>
@@ -958,15 +1013,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           }
                           onMouseEnter={() => handleMouseEnter(item.title)}
                           onMouseLeave={handleMouseLeave}
-                          className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
+                          className={`hover:bg-accent/60 relative transition-colors duration-200 ${
                             isMenuActive(item.title) ||
                             hoveredMenu === item.title
-                              ? "bg-primary/20 text-primary"
+                              ? "bg-primary/15 text-primary font-semibold"
                               : ""
                           }`}
                         >
                           <div className="relative">
-                            {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
+                            {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                           </div>
                           <span>{item.title}</span>
                           {item.title === "Approvals" && approvalCount > 0 && (
@@ -983,7 +1038,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {/* Header */}
                         <div className="bg-muted/50 flex items-center gap-2 border-b px-3 py-2">
-                          {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
+                          {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                           <span className="font-small text-foreground">
                             {item.title}
                           </span>
@@ -1004,9 +1059,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                     : ""
                                 }`}
                               >
-                                {subItem.icon && (
-                                  <subItem.icon className="sidebar-icon h-4 w-4" />
-                                )}
                                 <span>{subItem.title}</span>
                               </Link>
                             </div>
@@ -1027,15 +1079,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             onClick={() => handleMenuClick(item.title)}
                             onMouseEnter={() => handleMouseEnter(item.title)}
                             onMouseLeave={() => setHoveredMenu(null)}
-                            className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
+                            className={`hover:bg-accent/60 relative transition-colors duration-200 ${
                               isMenuActive(item.title) ||
                               hoveredMenu === item.title
-                                ? "bg-primary/20 text-primary"
+                                ? "bg-primary/15 text-primary font-semibold"
                                 : ""
                             }`}
                           >
                             <div className="relative">
-                              {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
+                              {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                             </div>
                             <span>{item.title}</span>
                             {item.title === "Approvals" &&
@@ -1057,11 +1109,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                     setHoveredSubMenu(subItem.title)
                                   }
                                   onMouseLeave={() => setHoveredSubMenu(null)}
-                                  className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                                  className={`hover:bg-accent/50 transition-colors duration-200 rounded-sm ${
                                     isSubMenuActive(subItem.title) ||
                                     hoveredSubMenu === subItem.title
-                                      ? "bg-primary/20 text-primary"
-                                      : ""
+                                      ? "bg-primary/15 text-primary font-semibold border-l-2 border-primary"
+                                      : "text-muted-foreground"
                                   }`}
                                 >
                                   <Link
@@ -1073,9 +1125,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                       )
                                     }
                                   >
-                                    {subItem.icon && (
-                                      <subItem.icon className="sidebar-icon h-4 w-4" />
-                                    )}
                                     <span className="text-xs">
                                       {subItem.title}
                                     </span>
@@ -1094,15 +1143,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     tooltip={item.title}
                     onMouseEnter={() => handleMouseEnter(item.title)}
                     onMouseLeave={() => setHoveredMenu(null)}
-                    className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
+                    className={`hover:bg-accent/60 relative transition-colors duration-200 ${
                       isMenuActive(item.title) || hoveredMenu === item.title
-                        ? "bg-primary/20 text-primary"
+                        ? "bg-primary/15 text-primary font-semibold"
                         : ""
                     }`}
                   >
                     <Link href={getUrlWithCompanyId(item.url)}>
                       <div className="relative">
-                        {item.icon && <item.icon className="sidebar-icon h-4 w-4" />}
+                        {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                       </div>
                       <span>{item.title}</span>
                       {item.title === "Approvals" && approvalCount > 0 && (
@@ -1115,8 +1164,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             ))}
           </div>
         </SidebarGroup>
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
-        <SidebarGroup className="p-1">
+        <SidebarGroup className="px-2 py-1">
           <SidebarMenu className="gap-0.5">
             {transactionsLoading ? (
               <div className="flex items-center justify-center p-4">
@@ -1134,14 +1182,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       tooltip={group.title}
                       onMouseEnter={() => handleMouseEnter(group.title)}
                       onMouseLeave={() => setHoveredMenu(null)}
-                      className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
+                      className={`hover:bg-accent/60 relative transition-colors duration-200 ${
                         isMenuActive(group.title) || hoveredMenu === group.title
-                          ? "bg-primary/20 text-primary"
+                          ? "bg-primary/15 text-primary font-semibold"
                           : ""
                       }`}
                     >
                       <Link href={getUrlWithCompanyId(group.url)}>
-                        {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
+                        {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
                         <span>{group.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -1158,14 +1206,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             onClick={() => handleMenuClick(group.title)}
                             onMouseEnter={() => handleMouseEnter(group.title)}
                             onMouseLeave={() => setHoveredMenu(null)}
-                            className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary relative transition-colors duration-200 ${
+                            className={`hover:bg-accent/60 relative transition-colors duration-200 ${
                               isMenuActive(group.title) ||
                               hoveredMenu === group.title
-                                ? "bg-primary/20 text-primary"
+                                ? "bg-primary/15 text-primary font-semibold"
                                 : ""
                             }`}
                           >
-                            {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
+                            {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
                             <span>{group.title}</span>
                             <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                           </SidebarMenuButton>
@@ -1183,13 +1231,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                   <CollapsibleTrigger asChild>
                                     <SidebarMenuSubButton
                                       onClick={() => handleCategoryClick(cat.title)}
-                                      className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                                      className={`hover:bg-accent/50 transition-colors duration-200 rounded-sm ${
                                         isCategoryActive(cat.title)
-                                          ? "bg-primary/20 text-primary"
-                                          : ""
+                                          ? "bg-primary/15 text-primary font-semibold"
+                                          : "text-muted-foreground"
                                       }`}
                                     >
-                                      {cat.icon && <cat.icon className="sidebar-icon h-4 w-4 shrink-0" />}
+                                      {cat.icon && <cat.icon className={`h-4 w-4 shrink-0 ${getIconColor(cat.transCategoryCode, cat.title)}`} />}
                                       <span className="text-xs">{cat.title}</span>
                                       <ChevronRightIcon className="ml-auto h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/category:rotate-90" />
                                     </SidebarMenuSubButton>
@@ -1204,11 +1252,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                               setHoveredSubMenu(subItem.title)
                                             }
                                             onMouseLeave={() => setHoveredSubMenu(null)}
-                                            className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                                            className={`hover:bg-accent/50 transition-colors duration-200 rounded-sm ${
                                               isSubMenuActive(subItem.title) ||
                                               hoveredSubMenu === subItem.title
-                                                ? "bg-primary/20 text-primary"
-                                                : ""
+                                                ? "bg-background text-foreground font-semibold shadow-sm border-l-2 border-primary"
+                                                : "text-muted-foreground"
                                             }`}
                                           >
                                             <Link
@@ -1220,9 +1268,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                                 )
                                               }
                                             >
-                                              {subItem.icon && (
-                                                <subItem.icon className="sidebar-icon h-4 w-4 shrink-0" />
-                                              )}
                                               <span className="text-xs">
                                                 {subItem.title}
                                               </span>
@@ -1250,14 +1295,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           }
                           onMouseEnter={() => handleMouseEnter(group.title)}
                           onMouseLeave={handleMouseLeave}
-                          className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                          className={`hover:bg-accent/60 transition-colors duration-200 ${
                             isMenuActive(group.title) ||
                             hoveredMenu === group.title
-                              ? "bg-primary/20 text-primary"
+                              ? "bg-primary/15 text-primary font-semibold"
                               : ""
                           }`}
                         >
-                          {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
+                          {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
                           <span>{group.title}</span>
                         </SidebarMenuButton>
                       </PopoverTrigger>
@@ -1270,7 +1315,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {/* Header */}
                         <div className="bg-muted/50 flex items-center gap-2 border-b px-3 py-2">
-                          {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
+                          {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
                           <span className="text-foreground text-xs font-medium">
                             {group.title}
                           </span>
@@ -1291,9 +1336,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                     : ""
                                 }`}
                               >
-                                {subItem.icon && (
-                                  <subItem.icon className="sidebar-icon h-4 w-4" />
-                                )}
                                 <span className="text-xs">{subItem.title}</span>
                               </Link>
                             </div>
@@ -1314,14 +1356,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             onClick={() => handleMenuClick(group.title)}
                             onMouseEnter={() => handleMouseEnter(group.title)}
                             onMouseLeave={() => setHoveredMenu(null)}
-                            className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                            className={`hover:bg-accent/60 transition-colors duration-200 ${
                               isMenuActive(group.title) ||
                               hoveredMenu === group.title
-                                ? "bg-primary/20 text-primary"
+                                ? "bg-primary/15 text-primary font-semibold"
                                 : ""
                             }`}
                           >
-                            {group.icon && <group.icon className="sidebar-icon h-4 w-4" />}
+                            {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
                             <span>{group.title}</span>
                             {group.items && (
                               <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -1339,10 +1381,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                       setHoveredSubMenu(subItem.title)
                                     }
                                     onMouseLeave={() => setHoveredSubMenu(null)}
-                                    className={`hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary transition-colors duration-200 ${
+                                    className={`hover:bg-accent/60 transition-colors duration-200 ${
                                       isSubMenuActive(subItem.title) ||
                                       hoveredSubMenu === subItem.title
-                                        ? "bg-primary/20 text-primary"
+                                        ? "bg-primary/15 text-primary font-semibold"
                                         : ""
                                     }`}
                                   >
@@ -1355,9 +1397,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                         )
                                     }
                                   >
-                                    {subItem.icon && (
-                                      <subItem.icon className="sidebar-icon h-4 w-4" />
-                                    )}
                                     <span className="text-xs">
                                       {subItem.title}
                                     </span>
