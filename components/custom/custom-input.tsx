@@ -47,9 +47,9 @@ export default function CustomInput<T extends Record<string, unknown>>({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <Label htmlFor={name} className="text-sm font-medium">
+        <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
           {label}
-          {isRequired && <span className="ml-1 text-red-500">*</span>}
+          {isRequired && <span className="ml-1">*</span>}
         </Label>
       )}
       <FormField
@@ -94,7 +94,9 @@ export default function CustomInput<T extends Record<string, unknown>>({
                   className,
                   isDisabled
                     ? "cursor-not-allowed !border-gray-400 !bg-gray-100 opacity-70 dark:!border-gray-500 dark:!bg-gray-800"
-                    : "bg-muted/5 !border-gray-400 dark:!border-gray-500 focus-visible:ring-1 focus-visible:ring-primary"
+                    : isRequired
+                      ? "!bg-yellow-50 !border-yellow-400 dark:!bg-yellow-950/20 dark:!border-yellow-700 focus-visible:ring-1 focus-visible:ring-primary"
+                      : "bg-muted/5 !border-gray-400 dark:!border-gray-500 focus-visible:ring-1 focus-visible:ring-primary"
                 )}
                 tabIndex={0}
               />

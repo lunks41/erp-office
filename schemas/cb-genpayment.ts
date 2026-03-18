@@ -20,107 +20,113 @@ export const CbGenPaymentHdSchema = (
     (chequePaymentTypeIds?.length ?? 0) > 0 &&
     chequePaymentTypeIds!.includes(paymentTypeId)
 
-  return z.object({
-    // Core Fields
+  return z
+    .object({
+      // Core Fields
 
-    paymentId: z.string().optional(),
-    paymentNo: z.string().optional(),
-    referenceNo: required?.m_ReferenceNo
-      ? z.string().min(1, "Reference No is required")
-      : z.string().optional(),
-    trnDate: visible?.m_TrnDate
-      ? z.union([z.date(), z.string()])
-      : z.union([z.date(), z.string()]).optional(),
-    accountDate: z.union([z.date(), z.string()]),
+      paymentId: z.string().optional(),
+      paymentNo: z.string().optional(),
+      referenceNo: required?.m_ReferenceNo
+        ? z.string().min(1, "Reference No is required")
+        : z.string().optional(),
+      trnDate: visible?.m_TrnDate
+        ? z.union([z.date(), z.string()])
+        : z.union([z.date(), z.string()]).optional(),
+      accountDate: z.union([z.date(), z.string()]),
 
-    // Currency Fields
-    currencyId: z.number().min(1, "Currency is required"),
-    exhRate: z.number().min(0.000001, "Exchange Rate must be greater than 0"),
-    ctyExhRate: z
-      .number()
-      .min(0.0, "Country Exchange Rate must be greater than 0"),
+      // Currency Fields
+      currencyId: z.number().min(1, "Currency is required"),
+      exhRate: z.number().min(0.000001, "Exchange Rate must be greater than 0"),
+      ctyExhRate: z
+        .number()
+        .min(0.0, "Country Exchange Rate must be greater than 0"),
 
-    // Bank Fields
-    bankId:
-      required?.m_BankId && visible?.m_BankId
-        ? z.number().min(1, "Bank is required")
+      // Bank Fields
+      bankId:
+        required?.m_BankId && visible?.m_BankId
+          ? z.number().min(1, "Bank is required")
+          : z.number().optional(),
+
+      // Payment Type Fields
+      paymentTypeId: required?.m_PaymentTypeId
+        ? z.number().min(1, "Payment Type is required")
         : z.number().optional(),
+      // Cheque Fields
+      chequeNo: z.string().optional(),
+      chequeDate: z.union([z.date(), z.string()]),
 
-    // Payment Type Fields
-    paymentTypeId: required?.m_PaymentTypeId
-      ? z.number().min(1, "Payment Type is required")
-      : z.number().optional(),
-    // Cheque Fields
-    chequeNo: z.string().optional(),
-    chequeDate: z.union([z.date(), z.string()]),
+      // Bank Charge GL Fields
+      bankChgAmt: z.number(),
+      bankChgLocalAmt: z.number(),
 
-    // Bank Charge GL Fields
-    bankChgAmt: z.number(),
-    bankChgLocalAmt: z.number(),
-
-    // Amounts
-    totAmt: required?.m_TotAmt ? z.number().min(0) : z.number().optional(),
-    totLocalAmt: z.number().optional(),
-    totCtyAmt: visible?.m_CtyCurr ? z.number().min(0) : z.number().optional(),
-    gstClaimDate: visible?.m_GstClaimDate
-      ? z.union([z.date(), z.string()])
-      : z.union([z.date(), z.string()]).optional(),
-    gstAmt: visible?.m_GstId ? z.number().optional() : z.number().optional(),
-    gstLocalAmt: visible?.m_GstId
-      ? z.number().optional()
-      : z.number().optional(),
-    gstCtyAmt:
-      visible?.m_CtyCurr && visible?.m_GstId
+      // Amounts
+      totAmt: required?.m_TotAmt ? z.number().min(0) : z.number().optional(),
+      totLocalAmt: z.number().optional(),
+      totCtyAmt: visible?.m_CtyCurr ? z.number().min(0) : z.number().optional(),
+      gstClaimDate: visible?.m_GstClaimDate
+        ? z.union([z.date(), z.string()])
+        : z.union([z.date(), z.string()]).optional(),
+      gstAmt: visible?.m_GstId ? z.number().optional() : z.number().optional(),
+      gstLocalAmt: visible?.m_GstId
+        ? z.number().optional()
+        : z.number().optional(),
+      gstCtyAmt:
+        visible?.m_CtyCurr && visible?.m_GstId
+          ? z.number().min(0)
+          : z.number().optional(),
+      totAmtAftGst: z.number().optional(),
+      totLocalAmtAftGst: z.number().optional(),
+      totCtyAmtAftGst: visible?.m_CtyCurr
         ? z.number().min(0)
         : z.number().optional(),
-    totAmtAftGst: z.number().optional(),
-    totLocalAmtAftGst: z.number().optional(),
-    totCtyAmtAftGst: visible?.m_CtyCurr
-      ? z.number().min(0)
-      : z.number().optional(),
 
-    // Order Details
-    remarks: required?.m_Remarks_Hd
-      ? z.string().min(3, "Remarks must be at least 3 characters")
-      : z.string().optional(),
+      // Order Details
+      remarks: required?.m_Remarks_Hd
+        ? z.string().min(3, "Remarks must be at least 3 characters")
+        : z.string().optional(),
 
-    // Address and Contact
-    payeeTo: z.string().optional(),
-    supplierRegNo: z.string().optional(),
+      // Address and Contact
+      payeeTo: z.string().optional(),
+      supplierRegNo: z.string().optional(),
 
-    // Customer Details
-    moduleFrom: z.string().optional(),
+      // Customer Details
+      moduleFrom: z.string().optional(),
 
-    editVersion: z.number().optional(),
-    createBy: z.string().optional(),
-    createDate: z.string().optional(),
-    editBy: z.string().optional(),
-    editDate: z.string().optional(),
-    cancelBy: z.string().optional(),
-    cancelDate: z.string().optional(),
-    isCancel: z.boolean().optional(),
-    cancelRemarks: z.string().optional(),
-    appBy: z.string().optional(),
-    appDate: z.string().optional(),
-    appStatusId: z.string().optional(),
+      editVersion: z.number().optional(),
+      createBy: z.string().optional(),
+      createDate: z.string().optional(),
+      editBy: z.string().optional(),
+      editDate: z.string().optional(),
+      cancelBy: z.string().optional(),
+      cancelDate: z.string().optional(),
+      isCancel: z.boolean().optional(),
+      cancelRemarks: z.string().optional(),
+      appBy: z.string().optional(),
+      appDate: z.string().optional(),
+      appStatusId: z.string().optional(),
 
-    // Nested Details
-    data_details: z
-      .array(CbGenPaymentDtSchema(required, visible))
-      .min(1, "At least one payment detail is required"),
-  })
-  .refine(
-    (data) => {
-      if (!requireChequeNoWhenCheque || !isChequeType(data.paymentTypeId))
-        return true
-      const no = data.chequeNo
-      return typeof no === "string" && no.trim().length > 0
-    },
-    {
-      message: "Pay No is required when payment type is Cheque",
-      path: ["chequeNo"],
-    }
-  )
+      // Service Category Fields
+      serviceCategoryId: z.number().optional(),
+      serviceCategoryCode: z.string().optional(),
+      serviceCategoryName: z.string().optional(),
+
+      // Nested Details
+      data_details: z
+        .array(CbGenPaymentDtSchema(required, visible))
+        .min(1, "At least one payment detail is required"),
+    })
+    .refine(
+      (data) => {
+        if (!requireChequeNoWhenCheque || !isChequeType(data.paymentTypeId))
+          return true
+        const no = data.chequeNo
+        return typeof no === "string" && no.trim().length > 0
+      },
+      {
+        message: "Pay No is required when payment type is Cheque",
+        path: ["chequeNo"],
+      }
+    )
 }
 
 export type CbGenPaymentHdSchemaType = z.infer<

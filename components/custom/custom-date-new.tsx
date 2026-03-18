@@ -263,9 +263,9 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <Label htmlFor={name} className="px-1 text-sm font-medium">
+        <Label htmlFor={name} className={cn("px-1 text-sm font-medium", isRequired && "text-red-500")}>
           {label}
-          {isRequired && <span className="ml-1 text-red-500">*</span>}
+          {isRequired && <span className="ml-1">*</span>}
         </Label>
       )}
       <FormField
@@ -367,7 +367,7 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                     id={name}
                     disabled={isDisabled}
                     placeholder={placeholder || decimalDateFormat}
-                    className={cn("bg-background pr-10", {
+                    className={cn(isRequired && !isDisabled ? "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700" : "bg-background", "pr-10", {
                       "h-8 text-sm": size === "sm",
                       "h-9": size === "default",
                       "h-12 text-lg": size === "lg",

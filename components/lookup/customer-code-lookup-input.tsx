@@ -196,9 +196,9 @@ export default function CustomerCodeLookupInput<
       ref={containerRef}
     >
       {label && (
-        <Label className="text-sm font-medium">
+        <Label className={cn("text-sm font-medium", isRequired && "text-red-500")}>
           {label}
-          {isRequired && <span className="ml-1 text-red-500">*</span>}
+          {isRequired && <span className="ml-1">*</span>}
         </Label>
       )}
       <FormField
@@ -223,7 +223,7 @@ export default function CustomerCodeLookupInput<
                   onFocus={() => setOpen(true)}
                   onKeyDown={handleKeyDown}
                   autoComplete="off"
-                  className="pr-8"
+                  className={cn("pr-8", isRequired && !isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700")}
                 />
                 <div className="absolute top-1/2 right-1 flex -translate-y-1/2 items-center gap-0.5">
                   {inputValue && !isDisabled && (

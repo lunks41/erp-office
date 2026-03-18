@@ -111,7 +111,7 @@ export function EquipmentUsedForm({
       stevedoreOffloading: initialData?.stevedoreOffloading ?? 0,
       remarks: initialData?.remarks ?? "",
       taskStatusId: initialData?.taskStatusId ?? taskDefaults.taskStatusId ?? 1,
-      isNotes: initialData?.isNotes ?? true,
+      isNotes: initialData?.isNotes ?? false,
       notes:
         initialData?.notes ?? "Minimum 3 Hours, including mob -demob charges",
       debitNoteId: initialData?.debitNoteId ?? 0,
@@ -157,7 +157,7 @@ export function EquipmentUsedForm({
       stevedoreOffloading: initialData?.stevedoreOffloading ?? 0,
       remarks: initialData?.remarks ?? "",
       taskStatusId: initialData?.taskStatusId ?? taskDefaults.taskStatusId ?? 1,
-      isNotes: initialData?.isNotes ?? true,
+      isNotes: initialData?.isNotes ?? false,
       notes:
         initialData?.notes ?? "Minimum 3 Hours, including mob -demob charges",
       debitNoteId: initialData?.debitNoteId ?? 0,

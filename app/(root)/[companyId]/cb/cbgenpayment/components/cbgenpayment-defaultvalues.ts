@@ -94,6 +94,9 @@ const buildDefaultCbGenPayment = (dateFormat: string) => ({
   appStatusId: "",
   appById: "",
   appDate: "",
+  serviceCategoryId: 0,
+  serviceCategoryCode: "",
+  serviceCategoryName: "",
   data_details: [],
 })
 

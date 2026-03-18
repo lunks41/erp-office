@@ -40,9 +40,9 @@ export default function CustomSelect({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <Label htmlFor={name} className="text-sm font-medium">
+      <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
         {label}
-        {isRequired && <span className="text-destructive ml-1">*</span>}
+        {isRequired && <span className="ml-1">*</span>}
       </Label>
       <Select
         onValueChange={(value) => {
@@ -61,6 +61,7 @@ export default function CustomSelect({
         <SelectTrigger
           className={cn(
             "w-full border-gray-400 dark:border-gray-500",
+            isRequired && !isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700",
             error && "border-destructive focus-visible:ring-destructive"
           )}
         >

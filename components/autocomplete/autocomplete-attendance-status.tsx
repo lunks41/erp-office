@@ -152,6 +152,7 @@ export default function AttendanceStatusAutocomplete<
           "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-3 pr-0 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
           state.isFocused && "ring-2 ring-ring/50 border-ring",
           state.isDisabled && "cursor-not-allowed opacity-50",
+          isRequired && !state.isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700",
           className
         ),
       menu: () =>
@@ -173,7 +174,7 @@ export default function AttendanceStatusAutocomplete<
       indicatorsContainer: () => "gap-1",
       indicatorSeparator: () => "bg-border",
     }),
-    [className]
+    [className, isRequired]
   )
 
   return (
@@ -183,7 +184,7 @@ export default function AttendanceStatusAutocomplete<
       render={({ field }) => (
         <FormItem className="w-full">
           {label && (
-            <Label className="text-sm font-medium">
+            <Label className={cn("text-sm font-medium", isRequired && "text-red-500")}>
               {label}
               {isRequired && <span className="text-destructive ml-1">*</span>}
             </Label>

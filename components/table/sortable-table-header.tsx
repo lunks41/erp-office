@@ -72,6 +72,11 @@ export function SortableTableHeader<TData>({
 
   const handleSortToggle = header.column.getToggleSortingHandler()
 
+  const align =
+    (header.column.columnDef.meta as { align?: string } | undefined)?.align ??
+    "left"
+  const isRightAligned = align === "right"
+
   return (
     <TableHead
       ref={setNodeRef}
@@ -91,10 +96,20 @@ export function SortableTableHeader<TData>({
         className
       )}
     >
-      <div className="flex items-center justify-between pl-3">
+      <div
+        className={cn(
+          "flex items-center justify-between",
+          isRightAligned ? "pr-3" : "pl-3"
+        )}
+      >
         {header.isPlaceholder ? null : (
           <>
-            <div className="flex min-w-0 flex-1 items-center gap-0.5">
+            <div
+              className={cn(
+                "flex min-w-0 flex-1 items-center gap-0.5",
+                isRightAligned && "flex-row-reverse"
+              )}
+            >
               <div
                 {...attributes}
                 {...listeners}
@@ -103,7 +118,10 @@ export function SortableTableHeader<TData>({
                 title="Drag to reorder column"
               >
                 <span
-                  className="min-w-0 flex-1 font-medium break-words"
+                  className={cn(
+                    "min-w-0 flex-1 font-medium break-words",
+                    isRightAligned && "text-right"
+                  )}
                   title={
                     typeof header.column.columnDef.header === "string"
                       ? header.column.columnDef.header

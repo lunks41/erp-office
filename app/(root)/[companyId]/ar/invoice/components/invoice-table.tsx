@@ -799,29 +799,6 @@ export default function InvoiceTable({
           gstLocalAmt: formatNumber(totalGstLocalAmt, locAmtDec),
           totLocalAmtAftGst: formatNumber(totalTotLocalAmtAftGst, locAmtDec),
         }}
-        footerRightContent={
-          <div className="flex flex-wrap items-center justify-end gap-4 text-xs sm:text-sm">
-            <span>
-              Total Amount: {formatNumber(totalTotAmt, amtDec)}
-            </span>
-            <span>
-              VAT Amount: {formatNumber(totalGstAmt, amtDec)}
-            </span>
-            <span>
-              Total After VAT: {formatNumber(totalTotAmtAftGst, amtDec)}
-            </span>
-            <span>
-              Total Local Amount: {formatNumber(totalTotLocalAmt, locAmtDec)}
-            </span>
-            <span>
-              VAT Local Amount: {formatNumber(totalGstLocalAmt, locAmtDec)}
-            </span>
-            <span>
-              Total Local After VAT:{" "}
-              {formatNumber(totalTotLocalAmtAftGst, locAmtDec)}
-            </span>
-          </div>
-        }
       />
     </div>
   )

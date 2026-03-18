@@ -128,6 +128,7 @@ export function PurchaseTable({
       {
         accessorKey: "totAmt",
         header: "Amount",
+        meta: { align: "right" },
         cell: ({ row }) => {
           const value = row.getValue("totAmt") as number
           return (
@@ -142,6 +143,7 @@ export function PurchaseTable({
       {
         accessorKey: "gstAmt",
         header: "VAT Amount",
+        meta: { align: "right" },
         cell: ({ row }) => {
           const value = row.getValue("gstAmt") as number
           return (
@@ -153,10 +155,10 @@ export function PurchaseTable({
         size: 120,
         minSize: 100,
       },
-
       {
         accessorKey: "totAmtAftGst",
         header: "Total Amount",
+        meta: { align: "right" },
         cell: ({ row }) => {
           const value = row.getValue("totAmtAftGst") as number
           return (
@@ -177,11 +179,12 @@ export function PurchaseTable({
       {
         accessorKey: "itemNo",
         header: "Item No",
-        size: 100,
-        minSize: 80,
+        meta: { align: "right" },
+        size: 80,
+        minSize: 60,
         cell: ({ row }) => {
           const itemNo = row.getValue("itemNo")
-          return <span className="font-mono">{String(itemNo)}</span>
+          return <div className="text-right font-mono">{String(itemNo)}</div>
         },
       },
       {

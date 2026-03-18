@@ -412,6 +412,16 @@ export default function InvoicePage() {
         return
       }
 
+      // If GST amount is non-zero, Service Category is mandatory
+      if ((formValues.gstAmt ?? 0) !== 0 && !(formValues.serviceCategoryId ?? 0)) {
+        form.setError("serviceCategoryId", {
+          type: "validation",
+          message: "Service Category is required when VAT amount is non-zero",
+        })
+        toast.error("Service Category is required when VAT amount is non-zero")
+        return
+      }
+
       console.log("handleSaveInvoice formValues", formValues)
 
       // Check GL period closed before saving (supports previous account date)

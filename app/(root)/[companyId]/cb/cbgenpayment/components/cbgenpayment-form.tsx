@@ -31,11 +31,8 @@ import {
   BankAutocomplete,
   CurrencyAutocomplete,
   PaymentTypeAutocomplete,
+  ServiceCategoryAutocomplete,
 } from "@/components/autocomplete"
-
-const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
-  typeof process !== "undefined" &&
-  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
 import PayeeSelectionDialog from "@/components/common/payee-selection-dialog"
 import { CustomInputGroup } from "@/components/custom"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
@@ -44,6 +41,10 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { CbGenPaymentDetailsFormRef } from "./cbgenpayment-details-form"
+
+const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
+  typeof process !== "undefined" &&
+  process.env.NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE === "true"
 
 interface CbGenPaymentFormProps {
   form: UseFormReturn<CbGenPaymentHdSchemaType>
@@ -675,6 +676,16 @@ export default function CbGenPaymentForm({
             round={locAmtDec}
             isDisabled={true}
           />
+
+          {/* Service Category */}
+          {visible?.m_ServiceCategoryId && (
+            <ServiceCategoryAutocomplete
+              form={form}
+              name="serviceCategoryId"
+              label="Service Category"
+              isRequired={(form.watch("gstAmt") || 0) !== 0}
+            />
+          )}
 
           {/* Remarks */}
           <CustomTextarea

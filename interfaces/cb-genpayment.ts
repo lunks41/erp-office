@@ -51,6 +51,9 @@ export interface ICbGenPaymentHd {
   appStatusId: null | number
   appById: null | number
   appDate: null | Date
+  serviceCategoryId: number
+  serviceCategoryCode: string
+  serviceCategoryName: string
 
   appBy: string
 

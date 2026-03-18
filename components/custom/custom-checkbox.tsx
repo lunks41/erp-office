@@ -97,6 +97,7 @@ export default function CustomCheckbox({
                 <FormLabel
                   className={cn(
                     "cursor-pointer text-sm font-medium",
+                    isRequired && "text-red-500",
                     isDisabled && "text-muted-foreground opacity-70",
                     showError && "text-destructive"
                   )}

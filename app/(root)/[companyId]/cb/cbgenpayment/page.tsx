@@ -270,6 +270,9 @@ export default function CbGenPaymentPage() {
           appBy: cbGenPayment.appBy ?? "",
           appDate: cbGenPayment.appDate ?? "",
           appStatusId: cbGenPayment.appStatusId ?? "",
+          serviceCategoryId: cbGenPayment.serviceCategoryId ?? 0,
+          serviceCategoryCode: cbGenPayment.serviceCategoryCode ?? "",
+          serviceCategoryName: cbGenPayment.serviceCategoryName ?? "",
           data_details:
             cbGenPayment.data_details?.map((detail) => ({
               ...detail,
@@ -452,6 +455,16 @@ export default function CbGenPaymentPage() {
       //check totamt and totlocalamt should be zero
       if (formValues.totAmt === 0 || formValues.totLocalAmt === 0) {
         toast.error("Total Amount and Total Local Amount should not be zero")
+        return
+      }
+
+      // If GST amount is non-zero, Service Category is mandatory
+      if ((formValues.gstAmt ?? 0) !== 0 && !(formValues.serviceCategoryId ?? 0)) {
+        form.setError("serviceCategoryId", {
+          type: "validation",
+          message: "Service Category is required when VAT amount is non-zero",
+        })
+        toast.error("Service Category is required when VAT amount is non-zero")
         return
       }
 
@@ -957,6 +970,9 @@ export default function CbGenPaymentPage() {
             )
           : "",
         appStatusId: apiCbGenPayment.appStatusId?.toString() ?? "",
+        serviceCategoryId: apiCbGenPayment.serviceCategoryId ?? 0,
+        serviceCategoryCode: apiCbGenPayment.serviceCategoryCode ?? "",
+        serviceCategoryName: apiCbGenPayment.serviceCategoryName ?? "",
         data_details:
           apiCbGenPayment.data_details?.map(
             (detail) =>

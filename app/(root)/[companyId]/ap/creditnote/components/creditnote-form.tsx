@@ -918,7 +918,7 @@ export default function CreditNoteForm({
               form={form}
               name="serviceCategoryId"
               label="Service Category"
-              isRequired={true}
+              isRequired={(form.watch("gstAmt") || 0) !== 0}
             />
           )}
 

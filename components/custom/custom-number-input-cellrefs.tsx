@@ -42,9 +42,9 @@ const CustomNumberInputCellRefs = forwardRef<
     return (
       <div className={cn("flex flex-col gap-1", className)}>
         {label && (
-          <Label htmlFor={name} className="text-sm font-medium">
+          <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
             {label}
-            {isRequired && <span className="ml-1 text-red-500">*</span>}
+            {isRequired && <span className="ml-1">*</span>}
           </Label>
         )}
         <FormField
@@ -92,10 +92,10 @@ const CustomNumberInputCellRefs = forwardRef<
                   allowNegative={false}
                   disabled={isDisabled}
                   className={cn(
-                    "border-input bg-background ring-offset-background flex h-9 w-full rounded-md border px-3 py-1.5 text-right text-sm",
+                    "ring-offset-background flex h-9 w-full rounded-md border px-3 py-1.5 text-right text-sm",
                     "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-                    showError ? "border-destructive" : "border-input",
-                    isDisabled && "cursor-not-allowed opacity-50",
+                    showError ? "border-destructive" : isRequired && !isDisabled ? "border-yellow-400 dark:border-yellow-700" : "border-input",
+                    isDisabled ? "cursor-not-allowed opacity-50 bg-background" : isRequired ? "bg-yellow-50 dark:bg-yellow-950/20" : "bg-background",
                     "hide-number-spinners"
                   )}
                   getInputRef={ref}

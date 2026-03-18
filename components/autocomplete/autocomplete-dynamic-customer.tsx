@@ -174,6 +174,7 @@ export default function DynamicCustomerAutocomplete<
             ? "border-ring ring-[3px] ring-ring/50"
             : "border-gray-400 dark:border-gray-500",
           state.isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+          isRequired && !state.isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700",
           "h-9 min-h-9"
         ),
       menu: () =>
@@ -206,7 +207,7 @@ export default function DynamicCustomerAutocomplete<
           "hover:bg-destructive/90 hover:text-destructive-foreground px-1 rounded-sm"
         ),
     }),
-    []
+    [isRequired]
   )
 
   // We still need some styles for things that can't be controlled via className
@@ -465,7 +466,7 @@ export default function DynamicCustomerAutocomplete<
       <div className={cn("flex flex-col gap-1", className)}>
         {label && (
           <div className="flex items-center gap-1">
-            <Label htmlFor={name} className="text-sm font-medium">
+            <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
               {label}
             </Label>
             <button
