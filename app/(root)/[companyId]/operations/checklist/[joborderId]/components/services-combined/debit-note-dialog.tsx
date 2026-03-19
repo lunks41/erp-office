@@ -220,57 +220,6 @@ export default function DebitNoteDialog({
     []
   )
 
-  // Handler to clone an existing debit note detail
-  const handleCloneDebitNoteDetail = useCallback(
-    (detail: IDebitNoteDt) => {
-      const currentDetails = detailsRef.current ?? []
-
-      const nextItemNo =
-        currentDetails.length === 0
-          ? 1
-          : Math.max(...currentDetails.map((d) => d.itemNo || 0)) + 1
-
-      const clonedDetail: IDebitNoteDt = {
-        ...detail,
-        itemNo: nextItemNo,
-        refItemNo: 0,
-        editVersion: 0,
-      }
-
-      setDetails((prev) => [...prev, clonedDetail])
-
-      if (
-        clonedDetail.isServiceCharge &&
-        clonedDetail.serviceCharge > 0 &&
-        clonedDetail.totAmtAftGst > 0
-      ) {
-        createOrUpdateServiceChargeEntry(
-          nextItemNo,
-          clonedDetail.chargeId ?? 0,
-          clonedDetail.totAmt ?? 0,
-          clonedDetail.serviceCharge,
-          clonedDetail.taskId ?? 0,
-          clonedDetail.gstId,
-          clonedDetail.gstPercentage
-        )
-      }
-
-      setModalMode("edit")
-      setSelectedDebitNoteDetail(clonedDetail)
-    },
-    [createOrUpdateServiceChargeEntry]
-  )
-
-  // Handler to open modal for viewing a debit note detail
-  const handleViewDebitNoteDetail = useCallback(
-    (debitNoteDetail: IDebitNoteDt | null) => {
-      if (!debitNoteDetail) return
-      setModalMode("view")
-      setSelectedDebitNoteDetail(debitNoteDetail)
-    },
-    []
-  )
-
   // Function to create or update service charge entry
   const createOrUpdateServiceChargeEntry = useCallback(
     (
@@ -409,6 +358,57 @@ export default function DebitNoteDialog({
       })
     },
     [debitNoteHdState, amtDec]
+  )
+
+  // Handler to clone an existing debit note detail
+  const handleCloneDebitNoteDetail = useCallback(
+    (detail: IDebitNoteDt) => {
+      const currentDetails = detailsRef.current ?? []
+
+      const nextItemNo =
+        currentDetails.length === 0
+          ? 1
+          : Math.max(...currentDetails.map((d) => d.itemNo || 0)) + 1
+
+      const clonedDetail: IDebitNoteDt = {
+        ...detail,
+        itemNo: nextItemNo,
+        refItemNo: 0,
+        editVersion: 0,
+      }
+
+      setDetails((prev) => [...prev, clonedDetail])
+
+      if (
+        clonedDetail.isServiceCharge &&
+        clonedDetail.serviceCharge > 0 &&
+        clonedDetail.totAmtAftGst > 0
+      ) {
+        createOrUpdateServiceChargeEntry(
+          nextItemNo,
+          clonedDetail.chargeId ?? 0,
+          clonedDetail.totAmt ?? 0,
+          clonedDetail.serviceCharge,
+          clonedDetail.taskId ?? 0,
+          clonedDetail.gstId,
+          clonedDetail.gstPercentage
+        )
+      }
+
+      setModalMode("edit")
+      setSelectedDebitNoteDetail(clonedDetail)
+    },
+    [createOrUpdateServiceChargeEntry]
+  )
+
+  // Handler to open modal for viewing a debit note detail
+  const handleViewDebitNoteDetail = useCallback(
+    (debitNoteDetail: IDebitNoteDt | null) => {
+      if (!debitNoteDetail) return
+      setModalMode("view")
+      setSelectedDebitNoteDetail(debitNoteDetail)
+    },
+    []
   )
 
   // Function to remove service charge entry when isServiceCharge is unchecked
