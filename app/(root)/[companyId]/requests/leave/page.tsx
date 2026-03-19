@@ -7,8 +7,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 
-import { formatDateForApi } from "@/lib/date-utils"
 import { HrUserRequest } from "@/lib/api-routes"
+import { formatDateForApi } from "@/lib/date-utils"
 import { useGetById, usePersist } from "@/hooks/use-common"
 import { useGetEmployeeByUserId } from "@/hooks/use-employee"
 import { Button } from "@/components/ui/button"
@@ -106,7 +106,7 @@ export default function LeavePage() {
   // Show loading state while fetching employee data
   if (employeeLoading) {
     return (
-      <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+      <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
         <div className="flex h-64 items-center justify-center">
           <div className="text-center">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
@@ -122,7 +122,7 @@ export default function LeavePage() {
   // Show locked state when no employee ID is available
   if (!employeeId) {
     return (
-      <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+      <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
         <div className="flex h-64 items-center justify-center">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
@@ -160,7 +160,7 @@ export default function LeavePage() {
   // Show loading state for leave data
   if (leavesLoading && leaves.length === 0) {
     return (
-      <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+      <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
         <div className="flex h-64 items-center justify-center">
           <div className="text-center">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
@@ -172,7 +172,7 @@ export default function LeavePage() {
   }
 
   return (
-    <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">

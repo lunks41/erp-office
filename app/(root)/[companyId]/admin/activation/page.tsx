@@ -13,7 +13,7 @@ export default function AdminActivationPage() {
   }, [router, pathname])
 
   return (
-    <div className="container mx-auto flex h-64 items-center justify-center px-4 pt-2 pb-4">
+    <div className="@container mx-auto flex h-64 items-center justify-center px-4 pt-2 pb-4">
       <div className="text-center">
         <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2" />
         <p className="text-muted-foreground text-sm">

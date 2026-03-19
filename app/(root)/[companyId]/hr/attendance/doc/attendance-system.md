@@ -118,7 +118,7 @@ export default function AttendancePage({
   params: { companyId: string }
 }) {
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="@container mx-auto space-y-6 py-6">
       <AttendanceDashboard companyId={params.companyId} />
     </div>
   )

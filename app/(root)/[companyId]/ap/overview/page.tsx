@@ -182,7 +182,7 @@ export default function APDashboardPage() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 px-4 py-6 sm:px-6">
+    <div className="@container mx-auto space-y-6 px-4 py-6 sm:px-6">
       {/* Header with Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

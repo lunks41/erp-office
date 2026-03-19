@@ -6,8 +6,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 
-import { formatDateForApi } from "@/lib/date-utils"
 import { CbPettyCash } from "@/lib/api-routes"
+import { formatDateForApi } from "@/lib/date-utils"
 import { useGetById, usePersist } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -63,7 +63,10 @@ export default function PettyCashPage() {
         amount: data.amount,
         purpose: data.purpose,
         remarks: data.remarks,
-        requestDate: formatDateForApi(data.requestDate) || formatDateForApi(new Date()) || "",
+        requestDate:
+          formatDateForApi(data.requestDate) ||
+          formatDateForApi(new Date()) ||
+          "",
         statusId: 1, // Default to pending
         attachments: data.attachments,
       }
@@ -81,7 +84,7 @@ export default function PettyCashPage() {
   // Show loading state
   if (pettyCashLoading && pettyCashRequests.length === 0) {
     return (
-      <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+      <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
         <div className="flex h-64 items-center justify-center">
           <div className="text-center">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
@@ -95,7 +98,7 @@ export default function PettyCashPage() {
   }
 
   return (
-    <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">

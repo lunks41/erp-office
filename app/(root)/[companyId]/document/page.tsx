@@ -140,7 +140,7 @@ export default function DocumentExpiryPage() {
   }
 
   return (
-    <div className="container mx-auto space-y-2 px-4 py-2 sm:space-y-3 sm:px-6 sm:py-3">
+    <div className="@container mx-auto space-y-2 px-4 py-2 sm:space-y-3 sm:px-6 sm:py-3">
       {/* Header with Name and Tabs */}
       <div className="space-y-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

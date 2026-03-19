@@ -1,11 +1,13 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { IActiveDocument, IActivateAccountRequest } from "@/interfaces/admin"
+import { IActivateAccountRequest, IActiveDocument } from "@/interfaces/admin"
 import { ApiResponse } from "@/interfaces/auth"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
+import { AdminActivation } from "@/lib/api-routes"
+import { useGet, usePersist } from "@/hooks/use-common"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,10 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { AdminActivation } from "@/lib/api-routes"
-import { useGet, usePersist } from "@/hooks/use-common"
-import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 import { Spinner } from "@/components/ui/spinner"
+import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
 import { AccountsActivationTable } from "../components/accounts-activation-table"
 
@@ -32,15 +32,25 @@ export default function AdminActivationAccountPage() {
     data: documentsResponse,
     refetch,
     isLoading,
-  } = useGet<IActiveDocument>(AdminActivation.getCancelledDocuments, "admin-cancelled-documents", search?.trim() || undefined)
+  } = useGet<IActiveDocument>(
+    AdminActivation.getCancelledDocuments,
+    "admin-cancelled-documents",
+    search?.trim() || undefined
+  )
 
-  const { data: documentsData = [] } = (documentsResponse as ApiResponse<IActiveDocument>) ?? {}
+  const { data: documentsData = [] } =
+    (documentsResponse as ApiResponse<IActiveDocument>) ?? {}
 
-  const activateMutation = usePersist<IActivateAccountRequest>(AdminActivation.activateAccount)
+  const activateMutation = usePersist<IActivateAccountRequest>(
+    AdminActivation.activateAccount
+  )
 
-  const handleFilterChange = useCallback((filters: { search?: string; sortOrder?: string }) => {
-    setSearch(filters.search ?? "")
-  }, [])
+  const handleFilterChange = useCallback(
+    (filters: { search?: string; sortOrder?: string }) => {
+      setSearch(filters.search ?? "")
+    },
+    []
+  )
 
   const handleActivateClick = (doc: IActiveDocument) => {
     setConfirmDoc(doc)
@@ -59,7 +69,9 @@ export default function AdminActivationAccountPage() {
       const response = await activateMutation.mutateAsync(payload)
       if (response?.result === 1) {
         toast.success("Document activated successfully.")
-        queryClient.invalidateQueries({ queryKey: ["admin-cancelled-documents"] })
+        queryClient.invalidateQueries({
+          queryKey: ["admin-cancelled-documents"],
+        })
         refetch()
         setConfirmDoc(null)
       } else {
@@ -71,7 +83,7 @@ export default function AdminActivationAccountPage() {
   }
 
   return (
-    <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
@@ -87,7 +99,18 @@ export default function AdminActivationAccountPage() {
         <DataTableSkeleton
           columnCount={10}
           filterCount={1}
-          cellWidths={["6rem", "10rem", "10rem", "8rem", "8rem", "8rem", "8rem", "8rem", "8rem", "12rem"]}
+          cellWidths={[
+            "6rem",
+            "10rem",
+            "10rem",
+            "8rem",
+            "8rem",
+            "8rem",
+            "8rem",
+            "8rem",
+            "8rem",
+            "12rem",
+          ]}
           shrinkZero
         />
       ) : (
@@ -101,7 +124,10 @@ export default function AdminActivationAccountPage() {
         />
       )}
 
-      <AlertDialog open={!!confirmDoc} onOpenChange={(open) => !open && setConfirmDoc(null)}>
+      <AlertDialog
+        open={!!confirmDoc}
+        onOpenChange={(open) => !open && setConfirmDoc(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Activate document?</AlertDialogTitle>
@@ -129,7 +155,9 @@ export default function AdminActivationAccountPage() {
               onClick={handleConfirmActivate}
               disabled={activateMutation.isPending}
             >
-              {activateMutation.isPending && <Spinner className="mr-2" size="sm" />}
+              {activateMutation.isPending && (
+                <Spinner className="mr-2" size="sm" />
+              )}
               {activateMutation.isPending ? "Activating..." : "Activate"}
             </AlertDialogAction>
           </AlertDialogFooter>

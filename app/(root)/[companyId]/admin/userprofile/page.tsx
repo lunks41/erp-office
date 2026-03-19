@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   ResetPasswordSchemaType,
   UserProfileSchemaType,
@@ -22,11 +23,12 @@ import {
   Shield,
   User,
 } from "lucide-react"
-import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import PhotoUpload from "@/components/custom/photo-upload"
+import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
+import { AdminTransactionId, ModuleId } from "@/lib/utils"
+import { useGetById, usePersist } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -47,9 +49,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { useGetById, usePersist } from "@/hooks/use-common"
-import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
-import { AdminTransactionId, ModuleId } from "@/lib/utils"
+import PhotoUpload from "@/components/custom/photo-upload"
 
 export default function ProfilePage() {
   const { user } = useAuthStore()
@@ -239,7 +239,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
