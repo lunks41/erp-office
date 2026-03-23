@@ -59,14 +59,6 @@ export default function DebitNoteDetailsTable({
   // Define columns with visible prop checks
   const columns: ColumnDef<IArDebitNoteDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: IArDebitNoteDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-    {
       accessorKey: "seqNo",
       header: "Seq No",
       size: 60,
@@ -309,6 +301,14 @@ export default function DebitNoteDetailsTable({
         <div className="text-right">{row.original.docItemNo}</div>
       ),
     },
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: IArDebitNoteDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -325,6 +325,7 @@ export default function DebitNoteDetailsTable({
         tableName={TableName.arDebitNoteDt}
         emptyMessage="No debitNote details found."
         accessorId="itemNo"
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

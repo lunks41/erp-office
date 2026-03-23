@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
-import { DocumentNoForm } from "../components/documentno-form"
+import { DocumentNoForm } from "./components/documentno-form"
 
 export default function SettingsDocumentPage() {
   const [isLoading] = useState(false)

@@ -59,14 +59,6 @@ export default function InvoiceCtmDetailsTable({
   // Define columns with visible prop checks
   const columns: ColumnDef<IArInvoiceCtmDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: IArInvoiceCtmDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-    {
       accessorKey: "seqNo",
       header: "Seq No",
       size: 60,
@@ -337,6 +329,14 @@ export default function InvoiceCtmDetailsTable({
           },
         ]
       : []),
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: IArInvoiceCtmDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -353,6 +353,7 @@ export default function InvoiceCtmDetailsTable({
         tableName={TableName.arInvoiceCtmDt}
         emptyMessage="No invoice details found."
         accessorId="itemNo"
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

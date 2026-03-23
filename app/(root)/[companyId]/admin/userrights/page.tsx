@@ -4,7 +4,7 @@ import { usePermissionStore } from "@/stores/permission-store"
 
 import { AdminTransactionId, ModuleId } from "@/lib/utils"
 
-import { UserRightsTable } from "../components/userrights-table"
+import { UserRightsTable } from "./components/userrights-table"
 
 export default function AdminUserRightsPage() {
   const moduleId = ModuleId.admin

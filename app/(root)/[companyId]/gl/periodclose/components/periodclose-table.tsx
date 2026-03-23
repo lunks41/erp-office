@@ -56,7 +56,7 @@ export function PeriodCloseTable({
         header: "End Date",
         cell: ({ row }) => {
           const date = row.getValue("endDate") as string
-          return date ? format(new Date(date), datetimeFormat) : ""
+          return date ? format(new Date(date), dateFormat) : ""
         },
         size: 150,
         minSize: 100,
@@ -213,6 +213,7 @@ export function PeriodCloseTable({
       isLoading={isLoading}
       emptyMessage="No period close data found."
       maxHeight="460px"
+      stickyColumnCount={4}
     />
   )
 }

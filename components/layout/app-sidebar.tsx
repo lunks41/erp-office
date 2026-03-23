@@ -49,7 +49,6 @@ import {
   MapPin,
   MinusCircle,
   Package,
-  Pencil,
   PlusCircle,
   Receipt,
   Scale,
@@ -74,7 +73,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuBadge,
@@ -257,7 +255,6 @@ const getTransactionIcon = (transactionCode: string) => {
     cbgenreceipt: PlusCircle,
     cbpettycash: HandCoins,
     // AR transactions
-    invoice_edit: Pencil,
     invoicectm: Receipt,
     overview: BarChart,
     // Logistics transactions
@@ -337,6 +334,17 @@ const MASTER_TRANSACTION_CATEGORIES = [
   { id: 7, code: "Employee", displayName: "Employee", seqNo: 7 },
   { id: 10, code: "Other", displayName: "Others", seqNo: 10 },
 ] as const
+
+type KnownMasterCategoryConfig = (typeof MASTER_TRANSACTION_CATEGORIES)[number]
+/** Known categories from config or any id/code returned by the API */
+type MasterCategoryConfig =
+  | KnownMasterCategoryConfig
+  | {
+      id: number
+      code: string
+      displayName: string
+      seqNo: number
+    }
 
 // Icon and color for each master category (for consistent sidebar styling)
 const getMasterCategoryIcon = (categoryCode: string) => {
@@ -431,9 +439,11 @@ const ACCOUNT_CATEGORY_CONFIG: Record<
   "gl_yearendprocess": { category: "other", displayLabel: "Year-End Process", icon: CalendarCheck },
   "gl_periodclose": { category: "other", displayLabel: "GL Period Close", icon: Lock },
   "gl_openingbalance": { category: "other", displayLabel: "Opening Balance", icon: Scale },
-  "ar_invoice_edit": { category: "other", displayLabel: "AR Invoice Edit", icon: Pencil },
   "gl_fixedasset": { category: "other", displayLabel: "Fixed Asset", icon: Landmark },
 }
+
+/** Shown in rights / direct URL only — not listed in the sidebar */
+const SIDEBAR_EXCLUDED_ACCOUNT_KEYS = new Set<string>(["ar_invoice_edit"])
 
 const ACCOUNT_CATEGORY_META: Record<
   string,
@@ -523,6 +533,7 @@ const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
     const mod = t.moduleCode.toLowerCase()
     const trn = t.transactionCode.toLowerCase()
     const key = `${mod}_${trn}`
+    if (SIDEBAR_EXCLUDED_ACCOUNT_KEYS.has(key)) return
     const config = ACCOUNT_CATEGORY_CONFIG[key]
     const category = config?.category ?? "other"
     const displayLabel = config?.displayLabel ?? `${getModuleDisplayPrefix(t.moduleCode)} ${t.transactionName}`
@@ -594,10 +605,13 @@ const buildMasterMenu = (transactions: IUserTransaction[]): MenuGroup | null => 
   )
   if (masterTxs.length === 0) return null
 
-  const categoryOrder = MASTER_TRANSACTION_CATEGORIES.map((c) => c.id)
+  const categoryOrder: number[] = MASTER_TRANSACTION_CATEGORIES.map(
+    (c) => c.id
+  )
+  const knownCategoryIdSet = new Set(categoryOrder)
   const categoryMap = new Map<
     number,
-    { config: (typeof MASTER_TRANSACTION_CATEGORIES)[number]; items: MenuItem[] }
+    { config: MasterCategoryConfig; items: MenuItem[] }
   >()
 
   // Initialize categories that exist in config
@@ -609,18 +623,24 @@ const buildMasterMenu = (transactions: IUserTransaction[]): MenuGroup | null => 
     const catId = t.transCategoryId ?? 0
     let entry = categoryMap.get(catId)
     if (!entry) {
-      const config = MASTER_TRANSACTION_CATEGORIES.find((c) => c.id === catId)
-      if (!config) {
-        entry = {
-          config: { id: catId, code: t.transCategoryCode, displayName: t.transCategoryName || t.transCategoryCode, seqNo: 99 },
-          items: [],
+      const knownConfig = MASTER_TRANSACTION_CATEGORIES.find(
+        (c) => c.id === catId
+      )
+      if (!knownConfig) {
+        const dynamicConfig: MasterCategoryConfig = {
+          id: catId,
+          code: t.transCategoryCode,
+          displayName: t.transCategoryName || t.transCategoryCode,
+          seqNo: 99,
         }
+        entry = { config: dynamicConfig, items: [] }
         categoryMap.set(catId, entry)
       } else {
-        entry = { config, items: [] }
+        entry = { config: knownConfig, items: [] }
         categoryMap.set(catId, entry)
       }
     }
+    if (!entry) return
     const trn = t.transactionCode.toLowerCase()
     entry.items.push({
       title: t.transactionName,
@@ -653,7 +673,7 @@ const buildMasterMenu = (transactions: IUserTransaction[]): MenuGroup | null => 
   }
   // Add any category not in standard list (e.g. id 0 or others)
   categoryMap.forEach((entry, id) => {
-    if (!categoryOrder.includes(id) && entry.items.length > 0) {
+    if (!knownCategoryIdSet.has(id) && entry.items.length > 0) {
       entry.items.sort((a, b) => a.title.localeCompare(b.title))
       categories.push({
         title: entry.config.displayName,

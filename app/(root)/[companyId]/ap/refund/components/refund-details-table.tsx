@@ -240,15 +240,6 @@ export default function RefundDetailsTable({
   // Define columns with visible prop checks - Refund specific fields
   const columns: ExtendedColumnDef<IApRefundDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item",
-      size: 40,
-      cell: ({ row }: { row: { original: IApRefundDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-
-    {
       accessorKey: "documentNo",
       header: "Document No",
       size: 150,
@@ -460,6 +451,14 @@ export default function RefundDetailsTable({
         <div className="text-right">
           {formatNumber(row.original.centDiff, locAmtDec)}
         </div>
+      ),
+    },
+    {
+      accessorKey: "itemNo",
+      header: "Item",
+      size: 40,
+      cell: ({ row }: { row: { original: IApRefundDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
       ),
     },
 

@@ -236,15 +236,6 @@ export default function DocSetOffDetailsTable({
   // Define columns with visible prop checks - DocSetOff specific fields
   const columns: ExtendedColumnDef<IArDocSetOffDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item",
-      size: 40,
-      cell: ({ row }: { row: { original: IArDocSetOffDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-
-    {
       accessorKey: "documentNo",
       header: "Document No",
       size: 150,
@@ -456,6 +447,14 @@ export default function DocSetOffDetailsTable({
         <div className="text-right">
           {formatNumber(row.original.centDiff, locAmtDec)}
         </div>
+      ),
+    },
+    {
+      accessorKey: "itemNo",
+      header: "Item",
+      size: 40,
+      cell: ({ row }: { row: { original: IArDocSetOffDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
       ),
     },
 

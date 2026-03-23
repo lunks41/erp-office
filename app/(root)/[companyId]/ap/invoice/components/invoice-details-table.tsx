@@ -75,14 +75,6 @@ export default function InvoiceDetailsTable({
   // Define columns with visible prop checks
   const columns: ColumnDef<IApInvoiceDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item No.",
-      size: 110,
-      cell: ({ row }: { row: { original: IApInvoiceDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-    {
       accessorKey: "seqNo",
       header: "Seq. No.",
       size: 110,
@@ -346,6 +338,14 @@ export default function InvoiceDetailsTable({
         <div className="text-right">{row.original.docItemNo}</div>
       ),
     },
+    {
+      accessorKey: "itemNo",
+      header: "Item No.",
+      size: 110,
+      cell: ({ row }: { row: { original: IApInvoiceDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -363,6 +363,7 @@ export default function InvoiceDetailsTable({
           tableName={TableName.apInvoiceDt}
           emptyMessage="No invoice details found."
           accessorId="itemNo"
+          enableSorting={false}
           onRefreshAction={onRefreshAction}
           onFilterChange={onFilterChange}
           onBulkDeleteAction={handleBulkDelete}

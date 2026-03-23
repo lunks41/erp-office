@@ -59,14 +59,6 @@ export default function CreditNoteDetailsTable({
   // Define columns with visible prop checks
   const columns: ColumnDef<IArCreditNoteDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: IArCreditNoteDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-    {
       accessorKey: "seqNo",
       header: "Seq No",
       size: 60,
@@ -309,6 +301,14 @@ export default function CreditNoteDetailsTable({
         <div className="text-right">{row.original.docItemNo}</div>
       ),
     },
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: IArCreditNoteDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -325,6 +325,7 @@ export default function CreditNoteDetailsTable({
         tableName={TableName.arCreditNoteDt}
         emptyMessage="No creditNote details found."
         accessorId="itemNo"
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

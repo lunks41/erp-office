@@ -160,7 +160,7 @@ export function NavHeader() {
     <div className="relative hidden w-full items-center justify-between px-3 sm:flex">
       {/* Left Navigation */}
       <div className="flex flex-1 shrink-0 items-center gap-2">
-        <NavigationMenu>
+        <NavigationMenu viewport={false}>
           <NavigationMenuList className="flex flex-nowrap items-center gap-2">
             {canViewChecklist && (
               <NavigationMenuItem className="flex items-center">

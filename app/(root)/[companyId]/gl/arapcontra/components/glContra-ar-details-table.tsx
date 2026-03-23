@@ -246,15 +246,6 @@ export default function ArGLContraDetailsTable({
   // but IGLContraDt doesn't have fields that require conditional visibility
   const columns: ExtendedColumnDef<IGLContraDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item",
-      size: 40,
-      cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-
-    {
       accessorKey: "documentNo",
       header: "Document No",
       size: 150,
@@ -466,6 +457,14 @@ export default function ArGLContraDetailsTable({
         <div className="text-right">
           {formatNumber(row.original.centDiff, locAmtDec)}
         </div>
+      ),
+    },
+    {
+      accessorKey: "itemNo",
+      header: "Item",
+      size: 40,
+      cell: ({ row }: { row: { original: IGLContraDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
       ),
     },
 

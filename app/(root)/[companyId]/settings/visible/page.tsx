@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
-import { VisibleTable } from "../components/visible-table"
+import { VisibleTable } from "./components/visible-table"
 
 export default function SettingsVisiblePage() {
   const [isLoading] = useState(false)

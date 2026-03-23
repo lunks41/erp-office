@@ -199,14 +199,6 @@ export default function CbPettyCashDetailsTable({
           },
         ]
       : []),
-    {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: ICbPettyCashDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
     ...(visible?.m_GstNo
       ? [
           {
@@ -334,6 +326,14 @@ export default function CbPettyCashDetailsTable({
           },
         ]
       : []),
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: ICbPettyCashDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -349,7 +349,8 @@ export default function CbPettyCashDetailsTable({
         transactionId={CBTransactionId.cbpettycash}
         tableName={TableName.cbPettyCashDt}
         emptyMessage="No cbPettyCash details found."
-        accessorId="seqNo"
+        accessorId="itemNo"
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

@@ -25,8 +25,8 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 import { LockSkeleton } from "@/components/skeleton/lock-skeleton"
 
-import { UserGroupForm } from "../components/user-group-form"
-import { UserGroupTable } from "../components/user-group-table"
+import { UserGroupForm } from "./components/user-group-form"
+import { UserGroupTable } from "./components/user-group-table"
 
 export default function AdminUserGroupsPage() {
   const moduleId = ModuleId.admin

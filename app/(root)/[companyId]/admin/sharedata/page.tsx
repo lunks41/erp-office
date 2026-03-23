@@ -4,7 +4,7 @@ import { usePermissionStore } from "@/stores/permission-store"
 
 import { AdminTransactionId, ModuleId } from "@/lib/utils"
 
-import { ShareDataTable } from "../components/sharedata-table"
+import { ShareDataTable } from "./components/sharedata-table"
 
 export default function AdminShareDataPage() {
   const moduleId = ModuleId.admin

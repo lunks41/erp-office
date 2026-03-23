@@ -502,15 +502,6 @@ export default function BankReconDetailsTable({
       hidden: true,
     },
     {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-
-    {
       accessorKey: "isSel",
       header: "Sel",
       size: 50,
@@ -837,6 +828,14 @@ export default function BankReconDetailsTable({
       size: 60,
       cell: ({ row }) => (
         <div className="text-right">{row.original.seqNo ?? "-"}</div>
+      ),
+    },
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.itemNo}</div>
       ),
     },
   ]

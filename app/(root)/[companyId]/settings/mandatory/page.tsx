@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
-import { MandatoryTable } from "../components/mandatory-table"
+import { MandatoryTable } from "./components/mandatory-table"
 
 export default function SettingsMandatoryPage() {
   const [isLoading] = useState(false)

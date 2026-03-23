@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
-import { GridFormatTable } from "../components/gridformat-table"
+import { GridFormatTable } from "./components/gridformat-table"
 
 export default function SettingsGridPage() {
   const [isLoading] = useState(false)

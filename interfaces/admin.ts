@@ -159,6 +159,7 @@ export interface IUserGroupRights {
   isPrint: boolean
   isPost: boolean
   isDebitNote: boolean
+  isClone: boolean
 }
 
 export interface IUserGroupReportRights {

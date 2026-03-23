@@ -1,6 +1,6 @@
 "use client"
 
-import { DecimalForm } from "../components/decimal-form"
+import { DecimalForm } from "./components/decimal-form"
 
 export default function SettingsDecimalPage() {
   return (

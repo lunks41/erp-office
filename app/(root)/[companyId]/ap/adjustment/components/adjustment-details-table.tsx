@@ -60,14 +60,6 @@ export default function AdjustmentDetailsTable({
   // Define columns with visible prop checks
   const columns: ColumnDef<IApAdjustmentDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: IApAdjustmentDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-    {
       accessorKey: "seqNo",
       header: "Seq No",
       size: 60,
@@ -323,6 +315,14 @@ export default function AdjustmentDetailsTable({
         <div className="text-right">{row.original.docItemNo}</div>
       ),
     },
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: IApAdjustmentDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -339,6 +339,7 @@ export default function AdjustmentDetailsTable({
         tableName={TableName.arAdjustmentDt}
         emptyMessage="No adjustment details found."
         accessorId="itemNo"
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

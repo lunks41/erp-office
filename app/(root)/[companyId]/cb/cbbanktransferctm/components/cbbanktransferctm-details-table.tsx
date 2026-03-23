@@ -62,15 +62,6 @@ export default function CbBankTransferCtmDetailsTable({
 
   // Define columns - ALL fields from ICbBankTransferCtmDt interface
   const columns: ColumnDef<ICbBankTransferCtmDt>[] = [
-    {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-
     // TO Bank Fields
     {
       accessorKey: "toBankCode",
@@ -218,6 +209,14 @@ export default function CbBankTransferCtmDetailsTable({
           },
         ]
       : []),
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -232,6 +231,7 @@ export default function CbBankTransferCtmDetailsTable({
         tableName={TableName.cbBankTransferCtmDt}
         emptyMessage="No transfer details found. Add transfer destinations."
         accessorId={"itemNo" as keyof unknown}
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

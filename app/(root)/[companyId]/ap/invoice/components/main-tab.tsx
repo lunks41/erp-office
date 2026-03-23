@@ -255,17 +255,18 @@ export default function Main({
   }
 
   const handleDataReorder = (newData: IApInvoiceDt[]) => {
-    // Update seqNo sequentially after reordering
+    // Only sequence numbers follow row order; itemNo stays the line identity.
     const reorderedData = newData.map((item, index) => ({
       ...item,
       seqNo: index + 1,
     }))
     form.setValue(
       "data_details",
-      reorderedData as unknown as ApInvoiceDtSchemaType[]
+      reorderedData as unknown as ApInvoiceDtSchemaType[],
+      { shouldDirty: true, shouldTouch: true }
     )
+    form.trigger("data_details")
 
-    // Recalculate header totals after reordering (in case amounts were affected)
     recalculateHeaderTotals()
   }
 

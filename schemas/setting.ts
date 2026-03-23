@@ -1,25 +1,45 @@
 import * as z from "zod"
 
-export const decimalFormSchema = z
-  .object({
-    amtDec: z.number().min(2, "Amount Decimals is required at least 2 digits"),
-    locAmtDec: z
-      .number()
-      .min(2, "Local Amount Decimals is required at least 2 digits"),
-    ctyAmtDec: z
-      .number()
-      .min(2, "Currency Amount Decimals is required at least 2 digits"),
-    priceDec: z.number().min(2, "Price Decimals is required at least 2 digits"),
-    qtyDec: z
-      .number()
-      .min(2, "Quantity Decimals is required at least 2 digits"),
-    exhRateDec: z
-      .number()
-      .min(3, "Exchange Rate Decimals is required at least 3 digits"),
-    dateFormat: z.string(),
-    longDateFormat: z.string(),
-  })
-  .partial()
+export const decimalFormSchema = z.object({
+  amtDec: z
+    .number({
+      required_error: "Amount Decimals is required",
+    })
+    .min(0, "Amount Decimals must be between 0 and 4")
+    .max(4, "Amount Decimals must be between 0 and 4"),
+  locAmtDec: z
+    .number({
+      required_error: "Local Amount Decimals is required",
+    })
+    .min(0, "Local Amount Decimals must be between 0 and 4")
+    .max(4, "Local Amount Decimals must be between 0 and 4"),
+  ctyAmtDec: z
+    .number({
+      required_error: "Currency Amount Decimals is required",
+    })
+    .min(0, "Currency Amount Decimals must be between 0 and 4")
+    .max(4, "Currency Amount Decimals must be between 0 and 4"),
+  priceDec: z
+    .number({
+      required_error: "Price Decimals is required",
+    })
+    .min(0, "Price Decimals must be between 0 and 10")
+    .max(10, "Price Decimals must be between 0 and 10"),
+  qtyDec: z
+    .number({
+      required_error: "Quantity Decimals is required",
+    })
+    .min(0, "Quantity Decimals must be between 0 and 4")
+    .max(4, "Quantity Decimals must be between 0 and 4"),
+  exhRateDec: z
+    .number({
+      required_error: "Exchange Rate Decimals is required",
+    })
+    .min(0, "Exchange Rate Decimals must be between 0 and 10")
+    .max(10, "Exchange Rate Decimals must be between 0 and 10"),
+  dateFormat: z.string().min(1, "Date Format is required"),
+  longDateFormat: z.string().min(1, "Long Date Format is required"),
+})
 
 export type DecimalSchemaType = z.infer<typeof decimalFormSchema>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { TaskServiceForm } from "../components/task-service-form"
+import { TaskServiceForm } from "./components/task-service-form"
 
 export default function SettingsTaskPage() {
   return (

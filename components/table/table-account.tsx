@@ -75,6 +75,8 @@ interface AccountBaseTableProps<T> {
   initialSelectedIds?: string[]
   maxHeight?: string
   pageSizeOption?: number
+  /** When false, headers do not reorder rows (keeps drag order and seqNo aligned). */
+  enableSorting?: boolean
 }
 
 export function AccountBaseTable<T>({
@@ -105,6 +107,7 @@ export function AccountBaseTable<T>({
   initialSelectedIds = [],
   maxHeight = "460px",
   pageSizeOption = 50,
+  enableSorting = true,
 }: AccountBaseTableProps<T>) {
   // Always call the hook but pass valid IDs or defaults
   const { data: gridSettings } = useGetGridLayout(
@@ -334,6 +337,7 @@ export function AccountBaseTable<T>({
     onRowSelectionChange: setRowSelection,
     enableColumnResizing: true,
     enableRowSelection: true,
+    enableSorting,
     columnResizeMode: "onChange",
     state: {
       sorting,
@@ -366,26 +370,46 @@ export function AccountBaseTable<T>({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
 
-    if (active && over && active.id !== over.id) {
-      const oldIndex = data.findIndex(
-        (item) =>
-          String((item as Record<string, unknown>)[accessorId as string]) ===
-          active.id
-      )
-      const newIndex = data.findIndex(
-        (item) =>
-          String((item as Record<string, unknown>)[accessorId as string]) ===
-          over.id
+    if (!onDataReorder || !active || !over || active.id === over.id) {
+      return
+    }
+
+    const idKey = accessorId as string
+    const modelRows = table.getRowModel().rows
+
+    const indexInModel = (id: string | number) =>
+      modelRows.findIndex(
+        (r) =>
+          String((r.original as Record<string, unknown>)[idKey]) === String(id)
       )
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newData = arrayMove(data, oldIndex, newIndex)
+    const oldModelIndex = indexInModel(active.id)
+    const newModelIndex = indexInModel(over.id)
 
-        // Call the callback to update the parent component's data
-        if (onDataReorder) {
-          onDataReorder(newData)
-        }
-      }
+    if (oldModelIndex === -1 || newModelIndex === -1) {
+      return
+    }
+
+    // Row DOM order follows getRowModel(); SortableContext items must match.
+    // When the grid is not filtered (all rows visible), reorder using that
+    // visual order so sorting does not swap the wrong rows in `data`.
+    if (modelRows.length === data.length) {
+      const visualOrder = modelRows.map((r) => r.original as T)
+      onDataReorder(arrayMove(visualOrder, oldModelIndex, newModelIndex))
+      return
+    }
+
+    const oldDataIndex = data.findIndex(
+      (item) =>
+        String((item as Record<string, unknown>)[idKey]) === String(active.id)
+    )
+    const newDataIndex = data.findIndex(
+      (item) =>
+        String((item as Record<string, unknown>)[idKey]) === String(over.id)
+    )
+
+    if (oldDataIndex !== -1 && newDataIndex !== -1) {
+      onDataReorder(arrayMove(data, oldDataIndex, newDataIndex))
     }
   }
 
@@ -561,11 +585,15 @@ export function AccountBaseTable<T>({
             {/* Scrollable Body */}
             <TableBody>
               <SortableContext
-                items={data.map((item) =>
-                  String(
-                    (item as Record<string, unknown>)[accessorId as string]
-                  )
-                )}
+                items={table
+                  .getRowModel()
+                  .rows.map((row) =>
+                    String(
+                      (row.original as Record<string, unknown>)[
+                        accessorId as string
+                      ]
+                    )
+                  )}
                 strategy={verticalListSortingStrategy}
               >
                 {rowModel.map((row) => (

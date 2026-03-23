@@ -236,15 +236,6 @@ export default function ReceiptDetailsTable({
   // Define columns with visible prop checks - Receipt specific fields
   const columns: ExtendedColumnDef<IArReceiptDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item",
-      size: 40,
-      cell: ({ row }: { row: { original: IArReceiptDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-
-    {
       accessorKey: "documentNo",
       header: "Document No",
       size: 150,
@@ -466,6 +457,14 @@ export default function ReceiptDetailsTable({
         <div className="text-right">
           {formatNumber(row.original.centDiff, locAmtDec)}
         </div>
+      ),
+    },
+    {
+      accessorKey: "itemNo",
+      header: "Item",
+      size: 40,
+      cell: ({ row }: { row: { original: IArReceiptDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
       ),
     },
 

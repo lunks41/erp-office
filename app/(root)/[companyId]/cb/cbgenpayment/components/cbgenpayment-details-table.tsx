@@ -59,14 +59,6 @@ export default function CbGenPaymentDetailsTable({
   // Define columns with visible prop checks
   const columns: ColumnDef<ICbGenPaymentDt>[] = [
     {
-      accessorKey: "itemNo",
-      header: "Item No",
-      size: 60,
-      cell: ({ row }: { row: { original: ICbGenPaymentDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
-      ),
-    },
-    {
       accessorKey: "seqNo",
       header: "Seq No",
       size: 60,
@@ -268,6 +260,14 @@ export default function CbGenPaymentDetailsTable({
           },
         ]
       : []),
+    {
+      accessorKey: "itemNo",
+      header: "Item No",
+      size: 60,
+      cell: ({ row }: { row: { original: ICbGenPaymentDt } }) => (
+        <div className="text-right">{row.original.itemNo}</div>
+      ),
+    },
   ]
 
   if (!mounted) {
@@ -284,6 +284,7 @@ export default function CbGenPaymentDetailsTable({
         tableName={TableName.cbGenPaymentDt}
         emptyMessage="No cbGenPayment details found."
         accessorId="itemNo"
+        enableSorting={false}
         onRefreshAction={onRefreshAction}
         onFilterChange={onFilterChange}
         onBulkDeleteAction={handleBulkDelete}

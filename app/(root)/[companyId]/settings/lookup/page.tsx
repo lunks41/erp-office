@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
-import { DynamicLookupForm } from "../components/dynamiclookup-form"
+import { DynamicLookupForm } from "./components/dynamiclookup-form"
 
 export default function SettingsLookupPage() {
   const [isLoading] = useState(false)

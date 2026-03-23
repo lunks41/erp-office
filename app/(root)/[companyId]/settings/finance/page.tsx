@@ -1,6 +1,6 @@
 "use client"
 
-import { FinanceForm } from "../components/finance-form"
+import { FinanceForm } from "./components/finance-form"
 
 export default function SettingsFinancePage() {
   return (

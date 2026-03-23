@@ -25,8 +25,8 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 import { LockSkeleton } from "@/components/skeleton/lock-skeleton"
 
-import { UserRoleForm } from "../components/user-role-form"
-import { UserRoleTable } from "../components/user-role-table"
+import { UserRoleForm } from "./components/user-role-form"
+import { UserRoleTable } from "./components/user-role-table"
 
 export default function AdminUserRolesPage() {
   const moduleId = ModuleId.admin

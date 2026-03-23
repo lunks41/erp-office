@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
-import { DefaultForm } from "../components/defualt-form"
+import { DefaultForm } from "./components/default-form"
 
 export default function SettingsAccountPage() {
   const [isLoading] = useState(false)

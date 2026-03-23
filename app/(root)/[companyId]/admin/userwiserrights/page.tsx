@@ -1,6 +1,6 @@
 "use client"
 
-import { UserWiseSettingTable } from "../components/userwiserights-table"
+import { UserWiseSettingTable } from "./components/userwiserights-table"
 
 export default function AdminUserWiseRightsPage() {
   return (
