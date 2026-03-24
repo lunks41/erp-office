@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { mathRound } from "@/helpers/account"
 import {
   applyCentDiffAdjustment,
   autoAllocateAmounts,
@@ -486,9 +487,12 @@ export default function Main({
 
     // If totAmt was 0, update it with the calculated sumAllocAmt
     const finalTotAmt = recTotAmt === 0 ? sumAllocPayAmt : recTotAmt
-    const finalTotLocalAmt = recTotLocalAmt === 0 ? sumAllocLocalAmt : recTotLocalAmt
+    const finalTotLocalAmt =
+      recTotLocalAmt === 0 ? sumAllocLocalAmt : recTotLocalAmt
+    const finalSumAllocAmt = mathRound(sumAllocAmt / exhRate, dec.amtDec)
+    console.log("finalSumAllocAmt", finalSumAllocAmt)
     console.log("finalTotAmt", finalTotAmt)
-    console.log("sumAllocAmt", sumAllocAmt) 
+    console.log("sumAllocAmt", sumAllocAmt)
     console.log("sumAllocLocalAmt", sumAllocLocalAmt)
     console.log("finalTotLocalAmt", finalTotLocalAmt)
 
@@ -550,13 +554,13 @@ export default function Main({
 
     // Update totAmt if it was 0
     if (recTotAmt === 0) {
-      form.setValue("totAmt", sumAllocAmt, { shouldDirty: true })
+      form.setValue("totAmt", finalSumAllocAmt, { shouldDirty: true })
       form.setValue("totLocalAmt", sumAllocLocalAmt, { shouldDirty: true })
       form.setValue("recTotAmt", sumAllocAmt, { shouldDirty: true })
       form.setValue("recTotLocalAmt", sumAllocLocalAmt, { shouldDirty: true })
     }
 
-    form.setValue("allocTotAmt", sumAllocAmt, { shouldDirty: true })
+    form.setValue("allocTotAmt", finalSumAllocAmt, { shouldDirty: true })
     form.setValue("allocTotLocalAmt", sumAllocLocalAmt, { shouldDirty: true })
     form.setValue("exhGainLoss", sumExhGainLoss - sumCentDiff, {
       shouldDirty: true,

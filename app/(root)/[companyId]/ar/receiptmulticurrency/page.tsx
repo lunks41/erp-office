@@ -751,6 +751,8 @@ export default function ReceiptPage() {
   // Helper function to transform IArReceiptHd to ArReceiptHdSchemaType
   const transformToSchemaType = useCallback(
     (apiReceipt: IArReceiptHd): ArReceiptHdSchemaType => {
+      console.log("apiReceipt", apiReceipt)
+
       return {
         receiptId: apiReceipt.receiptId?.toString() ?? "0",
         receiptNo: apiReceipt.receiptNo ?? "",
@@ -912,6 +914,9 @@ export default function ReceiptPage() {
           const detailedReceipt = Array.isArray(response.data)
             ? response.data[0]
             : response.data
+
+          console.log("detailedReceipt", detailedReceipt)
+          console.log("response", response)
 
           if (detailedReceipt) {
             const parsed = parseDate(detailedReceipt.accountDate as string)
