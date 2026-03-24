@@ -520,8 +520,8 @@ export default function ArGLContraDetailsTable({
         hideDelete={isCancelled}
         hideCheckbox={isCancelled}
         disableOnAccountExists={false}
-        maxHeight="380px"
-        pageSizeOption={10}
+        maxHeight="240px"
+        pageSizeOption={6}
       />
       <DeleteConfirmation
         open={deleteDialogOpen}

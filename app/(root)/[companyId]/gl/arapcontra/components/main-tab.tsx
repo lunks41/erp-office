@@ -887,14 +887,14 @@ export default function Main({
         isCancelled={isCancelled}
         dataDetails={dataDetails}
       />
-      <div className="flex flex-wrap items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1 px-2">
         <Button
           size="sm"
           onClick={handleAutoAllocation}
-          className="px-3 py-1 text-xs"
+          className="h-7 px-2 text-[11px]"
           title="Auto allocate amounts"
         >
-          <Zap className="h-4 w-4" />
+          <Zap className="h-3.5 w-3.5" />
           Auto Alloc
         </Button>
         <Button
@@ -904,109 +904,129 @@ export default function Main({
           disabled={!isAllocated}
           className={
             !isAllocated
-              ? "cursor-not-allowed px-3 py-1 text-xs opacity-50"
-              : "px-3 py-1 text-xs"
+              ? "h-7 cursor-not-allowed px-2 text-[11px] opacity-50"
+              : "h-7 px-2 text-[11px]"
           }
           title="Reset all allocations"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className="h-3.5 w-3.5" />
           Reset Alloc
         </Button>
       </div>
 
-      <div className="px-2 pt-1">
-        <div className="grid gap-4 lg:grid-cols-2">
+      <div className="space-y-3 px-2 pt-1">
+        <div className="space-y-3">
           {/* AR Details Section */}
-          <section className="border-border bg-card rounded-md border p-2 shadow-sm">
-            <div className="mb-2 flex flex-wrap items-center gap-1">
-              <Button
-                size="sm"
-                onClick={handleSelectArTransaction}
-                disabled={!isCustomerSelected}
-                className={
-                  !isCustomerSelected
-                    ? "cursor-not-allowed px-3 py-1 text-xs opacity-50"
-                    : "px-3 py-1 text-xs"
-                }
-                title="Select outstanding transactions"
-              >
-                <Plus className="h-4 w-4" />
-                Select Txn
-              </Button>
-              <Badge className="border-blue-200 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-                Tot Alloc: {formatAmount(arSectionTotals.alloc)}
-              </Badge>
-              <Badge className="border-green-200 bg-green-50 px-3 py-1 text-sm font-medium text-green-800">
-                Tot Alloc Local:{" "}
-                {formatAmount(
-                  arSectionTotals.allocLocal,
-                  decimalConfig.locAmtDec
-                )}
-              </Badge>
-              <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-sm font-medium text-orange-800">
-                Bal Amt: {formatAmount(arSectionTotals.balance)}
-              </Badge>
-              <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-sm font-medium text-orange-800">
-                Ex Gain/Loss: {formatAmount(arSectionTotals.exhGainLoss)}
-              </Badge>
-            </div>
-            <div className="overflow-x-auto">
-              <ArGLContraDetailsTable
-                key={`${refreshKey}-ar`}
-                data={(arDataDetails as unknown as IGLContraDt[]) || []}
-                visible={visible}
-                onDeleteAction={handleArDelete}
-                onBulkDeleteAction={handleArBulkDelete}
-                onDataReorder={handleArDataReorder}
-                onCellEdit={handleCellEdit}
-              />
+          <section className="border-border bg-card overflow-hidden rounded-md border shadow-sm">
+            <div className="p-2">
+              <div className="mb-2 flex flex-wrap items-center gap-1">
+                <Badge className="bg-blue-500 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-500">
+                  Knock-off AR
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Button
+                  size="sm"
+                  onClick={handleSelectArTransaction}
+                  disabled={!isCustomerSelected}
+                  className={
+                    !isCustomerSelected
+                      ? "cursor-not-allowed px-3 py-1 text-xs opacity-50"
+                      : "px-3 py-1 text-xs"
+                  }
+                  title="Select outstanding transactions"
+                >
+                  <Plus className="h-4 w-4" />
+                  Select Txn
+                </Button>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-blue-200 bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                  Tot Alloc: {formatAmount(arSectionTotals.alloc)}
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-800">
+                  Tot Alloc Local:{" "}
+                  {formatAmount(
+                    arSectionTotals.allocLocal,
+                    decimalConfig.locAmtDec
+                  )}
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-800">
+                  Bal Amt: {formatAmount(arSectionTotals.balance)}
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-800">
+                  Ex Gain/Loss: {formatAmount(arSectionTotals.exhGainLoss)}
+                </Badge>
+              </div>
+              <div className="overflow-x-auto">
+                <ArGLContraDetailsTable
+                  key={`${refreshKey}-ar`}
+                  data={(arDataDetails as unknown as IGLContraDt[]) || []}
+                  visible={visible}
+                  onDeleteAction={handleArDelete}
+                  onBulkDeleteAction={handleArBulkDelete}
+                  onDataReorder={handleArDataReorder}
+                  onCellEdit={handleCellEdit}
+                />
+              </div>
             </div>
           </section>
 
           {/* AP Details Section */}
-          <section className="border-border bg-card rounded-md border p-2 shadow-sm">
-            <div className="mb-2 flex flex-wrap items-center gap-1">
-              <Button
-                size="sm"
-                onClick={handleSelectApTransaction}
-                disabled={!isSupplierSelected}
-                className={
-                  !isSupplierSelected
-                    ? "cursor-not-allowed px-3 py-1 text-xs opacity-50"
-                    : "px-3 py-1 text-xs"
-                }
-                title="Select outstanding transactions"
-              >
-                <Plus className="h-4 w-4" />
-                Select Txn
-              </Button>
-              <Badge className="border-blue-200 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-                Tot Alloc: {formatAmount(apSectionTotals.alloc)}
-              </Badge>
-              <Badge className="border-green-200 bg-green-50 px-3 py-1 text-sm font-medium text-green-800">
-                Tot Alloc Local:{" "}
-                {formatAmount(
-                  apSectionTotals.allocLocal,
-                  decimalConfig.locAmtDec
-                )}
-              </Badge>
-              <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-sm font-medium text-orange-800">
-                Bal Amt: {formatAmount(apSectionTotals.balance)}
-              </Badge>
-              <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-sm font-medium text-orange-800">
-                Ex Gain/Loss: {formatAmount(apSectionTotals.exhGainLoss)}
-              </Badge>
-            </div>
-            <div className="overflow-x-auto">
-              <ApGLContraDetailsTable
-                key={`${refreshKey}-ap`}
-                data={(apDataDetails as unknown as IGLContraDt[]) || []}
-                visible={visible}
-                onDeleteAction={handleApDelete}
-                onBulkDeleteAction={handleApBulkDelete}
-                onDataReorder={handleApDataReorder}
-                onCellEdit={handleCellEdit}
-              />
+          <section className="border-border bg-card overflow-hidden rounded-md border shadow-sm">
+            <div className="p-2">
+              <div className="mb-2 flex flex-wrap items-center gap-1">
+                <Badge className="bg-blue-500 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-500">
+                  Knock-off AP
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Button
+                  size="sm"
+                  onClick={handleSelectApTransaction}
+                  disabled={!isSupplierSelected}
+                  className={
+                    !isSupplierSelected
+                      ? "cursor-not-allowed px-3 py-1 text-xs opacity-50"
+                      : "px-3 py-1 text-xs"
+                  }
+                  title="Select outstanding transactions"
+                >
+                  <Plus className="h-4 w-4" />
+                  Select Txn
+                </Button>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-blue-200 bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                  Tot Alloc: {formatAmount(apSectionTotals.alloc)}
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-800">
+                  Tot Alloc Local:{" "}
+                  {formatAmount(
+                    apSectionTotals.allocLocal,
+                    decimalConfig.locAmtDec
+                  )}
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-800">
+                  Bal Amt: {formatAmount(apSectionTotals.balance)}
+                </Badge>
+                <span className="text-muted-foreground px-1 text-xs">|</span>
+                <Badge className="border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-800">
+                  Ex Gain/Loss: {formatAmount(apSectionTotals.exhGainLoss)}
+                </Badge>
+              </div>
+              <div className="overflow-x-auto">
+                <ApGLContraDetailsTable
+                  key={`${refreshKey}-ap`}
+                  data={(apDataDetails as unknown as IGLContraDt[]) || []}
+                  visible={visible}
+                  onDeleteAction={handleApDelete}
+                  onBulkDeleteAction={handleApBulkDelete}
+                  onDataReorder={handleApDataReorder}
+                  onCellEdit={handleCellEdit}
+                />
+              </div>
             </div>
           </section>
         </div>

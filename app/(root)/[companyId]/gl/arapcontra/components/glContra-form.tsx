@@ -244,7 +244,7 @@ export default function ContraForm({
     <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={`grid grid-cols-8 gap-1 rounded-md p-2 ${
+        className={`grid grid-cols-9 gap-1 rounded-md p-2 ${
           isCancelled ? "pointer-events-none opacity-50" : ""
         }`}
       >
@@ -278,7 +278,6 @@ export default function ContraForm({
             label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
-            className="col-span-2"
             isDisabled={dataDetails.length > 0}
           />
         ) : (
@@ -288,7 +287,6 @@ export default function ContraForm({
             label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
-            className="col-span-2"
             isDisabled={dataDetails.length > 0}
           />
         )}
@@ -301,7 +299,6 @@ export default function ContraForm({
             label="Supplier"
             isRequired={true}
             onChangeEvent={handleSupplierChange}
-            className="col-span-2"
             isDisabled={dataDetails.length > 0}
           />
         ) : (
@@ -311,7 +308,6 @@ export default function ContraForm({
             label="Supplier"
             isRequired={true}
             onChangeEvent={handleSupplierChange}
-            className="col-span-2"
             isDisabled={dataDetails.length > 0}
           />
         )}
