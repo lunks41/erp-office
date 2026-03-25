@@ -228,7 +228,7 @@ export function MainTableHeader<TData>({
   }
   return (
     <div className="mb-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         {onCreateAction && !hideCreateButton && (
           <Button
             type="button"
@@ -287,7 +287,7 @@ export function MainTableHeader<TData>({
         </Button>
       </div>
       {/* Search Input */}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         <Input
           placeholder="Search..."
           value={searchQuery}

@@ -221,7 +221,7 @@ export function DialogDataTableHeader<TData>({
   }
   return (
     <div className="mb-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         {onRefreshAction && (
           <Button variant="outline" size="icon" onClick={onRefreshAction}>
             <RefreshCw className="h-4 w-4" />
@@ -266,7 +266,7 @@ export function DialogDataTableHeader<TData>({
         </Button>
       </div>
       {/* Search Input */}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         {showSearch && (
           <Input
             placeholder="Search..."

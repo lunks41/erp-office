@@ -70,7 +70,7 @@ export function LaunchServiceTable({
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+          <div className="truncate">{row.getValue("jobOrderNo") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -79,7 +79,7 @@ export function LaunchServiceTable({
         accessorKey: "vesselName",
         header: "Vessel Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
+          <div className="truncate">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -108,7 +108,7 @@ export function LaunchServiceTable({
         header: "Service Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateValue(row.getValue("date"))}
             </div>
           )
@@ -120,7 +120,7 @@ export function LaunchServiceTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -130,7 +130,7 @@ export function LaunchServiceTable({
         accessorKey: "uomName",
         header: "UOM",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("uomName") || "-"}</div>
+          <div className="truncate">{row.getValue("uomName") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -140,7 +140,7 @@ export function LaunchServiceTable({
         accessorKey: "ameTally",
         header: "AME Tally",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("ameTally") || "-"}</div>
+          <div className="truncate">{row.getValue("ameTally") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -149,7 +149,7 @@ export function LaunchServiceTable({
         accessorKey: "boatopTally",
         header: "Boat Operator Tally",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("boatopTally") || "-"}</div>
+          <div className="truncate">{row.getValue("boatopTally") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -159,7 +159,7 @@ export function LaunchServiceTable({
         accessorKey: "boatOperator",
         header: "Boat Operator",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("boatOperator") || "-"}</div>
+          <div className="truncate">{row.getValue("boatOperator") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -170,7 +170,7 @@ export function LaunchServiceTable({
         header: "Distance from Jetty",
         cell: ({ row }) => {
           const value = row.getValue("distance") as number
-          return <div className="text-wrap">{value ? `${value} NM` : "-"}</div>
+          return <div className="truncate">{value ? `${value} NM` : "-"}</div>
         },
         size: 150,
         minSize: 120,
@@ -185,7 +185,7 @@ export function LaunchServiceTable({
             | null
             | undefined
           return (
-            <div className="text-right">
+            <div className="truncate text-right">
               {value != null ? `${value} MT` : "-"}
             </div>
           )
@@ -203,7 +203,7 @@ export function LaunchServiceTable({
             | null
             | undefined
           return (
-            <div className="text-right">
+            <div className="truncate text-right">
               {value != null ? `${value} MT` : "-"}
             </div>
           )
@@ -217,7 +217,7 @@ export function LaunchServiceTable({
         header: "Loading Time",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("loadingTime"))}
             </div>
           )
@@ -231,7 +231,7 @@ export function LaunchServiceTable({
         header: "Left Jetty",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("leftJetty"))}
             </div>
           )
@@ -246,14 +246,14 @@ export function LaunchServiceTable({
         cell: ({ row }) => {
           const value = row.getValue("waitingTime") as number
           if (!value)
-            return <div className="text-muted-foreground text-wrap">-</div>
+            return <div className="text-muted-foreground truncate">-</div>
 
           const valueStr = value.toString()
           if (valueStr.includes(".")) {
             const [hours, minutes] = valueStr.split(".")
             const paddedMinutes = minutes.padEnd(2, "0")
             return (
-              <div className="flex items-center gap-1 text-wrap">
+              <div className="flex items-center gap-1 truncate">
                 <span className="font-mono text-sm font-medium">
                   {hours}:{paddedMinutes}
                 </span>
@@ -263,7 +263,7 @@ export function LaunchServiceTable({
           }
 
           return (
-            <div className="flex items-center gap-1 text-wrap">
+            <div className="flex items-center gap-1 truncate">
               <span className="font-mono text-sm font-medium">{valueStr}</span>
               <span className="text-muted-foreground text-xs">hr</span>
             </div>
@@ -277,7 +277,7 @@ export function LaunchServiceTable({
         header: "Alongside Vessel",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("alongsideVessel"))}
             </div>
           )
@@ -291,7 +291,7 @@ export function LaunchServiceTable({
         header: "Departed Vessel",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("departedFromVessel"))}
             </div>
           )
@@ -306,14 +306,14 @@ export function LaunchServiceTable({
         cell: ({ row }) => {
           const value = row.getValue("timeDiff") as number
           if (!value)
-            return <div className="text-muted-foreground text-wrap">-</div>
+            return <div className="text-muted-foreground truncate">-</div>
 
           const valueStr = value.toString()
           if (valueStr.includes(".")) {
             const [hours, minutes] = valueStr.split(".")
             const paddedMinutes = minutes.padEnd(2, "0")
             return (
-              <div className="flex items-center gap-1 text-wrap">
+              <div className="flex items-center gap-1 truncate">
                 <span className="font-mono text-sm font-medium">
                   {hours}:{paddedMinutes}
                 </span>
@@ -323,7 +323,7 @@ export function LaunchServiceTable({
           }
 
           return (
-            <div className="flex items-center gap-1 text-wrap">
+            <div className="flex items-center gap-1 truncate">
               <span className="font-mono text-sm font-medium">{valueStr}</span>
               <span className="text-muted-foreground text-xs">hr</span>
             </div>
@@ -337,7 +337,7 @@ export function LaunchServiceTable({
         header: "Arrived at Jetty",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("arrivedAtJetty"))}
             </div>
           )
@@ -350,7 +350,7 @@ export function LaunchServiceTable({
         accessorKey: "bargeName",
         header: "Barge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("bargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("bargeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -360,7 +360,7 @@ export function LaunchServiceTable({
         accessorKey: "invoiceNo",
         header: "Invoice No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("invoiceNo") || "-"}</div>
+          <div className="truncate">{row.getValue("invoiceNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -398,7 +398,7 @@ export function LaunchServiceTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -409,7 +409,7 @@ export function LaunchServiceTable({
         header: "Create Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("createDate"))}
             </div>
           )
@@ -422,7 +422,7 @@ export function LaunchServiceTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -433,7 +433,7 @@ export function LaunchServiceTable({
         header: "Edit Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("editDate"))}
             </div>
           )

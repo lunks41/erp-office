@@ -216,7 +216,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("name") || "-"}</div>
+          <div className="truncate">{row.getValue("name") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -226,7 +226,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -237,7 +237,7 @@ export function TechnicianSurveyorTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -246,7 +246,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "uomName",
         header: "UOM",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("uomName") || "-"}</div>
+          <div className="truncate">{row.getValue("uomName") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -255,7 +255,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "natureOfAttendance",
         header: "Nature of Attendance",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("natureOfAttendance") || "-"}
           </div>
         ),
@@ -266,7 +266,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "companyInfo",
         header: "Company Info",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("companyInfo") || "-"}</div>
+          <div className="truncate">{row.getValue("companyInfo") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -275,7 +275,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "passTypeName",
         header: "Pass Type",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("passTypeName") || "-"}</div>
+          <div className="truncate">{row.getValue("passTypeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -303,7 +303,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "portRequestNo",
         header: "Port Request No",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("portRequestNo") || "-"}
           </div>
         ),
@@ -348,7 +348,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -367,7 +367,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,

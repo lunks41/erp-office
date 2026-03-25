@@ -488,7 +488,7 @@ export default function BankReconDetailsTable({
       header: "Recon ID",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.reconId ?? "-"}</div>
+        <div className="truncate text-right">{row.original.reconId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -524,7 +524,7 @@ export default function BankReconDetailsTable({
       header: "Module",
       size: 70,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.moduleId}</div>
+        <div className="truncate text-right">{row.original.moduleId}</div>
       ),
       hidden: true,
     },
@@ -533,7 +533,7 @@ export default function BankReconDetailsTable({
       header: "Trans",
       size: 70,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.transactionId}</div>
+        <div className="truncate text-right">{row.original.transactionId}</div>
       ),
       hidden: true,
     },
@@ -542,7 +542,7 @@ export default function BankReconDetailsTable({
       header: "Doc ID",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.documentId}</div>
+        <div className="truncate text-right">{row.original.documentId}</div>
       ),
       hidden: true,
     },
@@ -615,7 +615,7 @@ export default function BankReconDetailsTable({
       header: "Payment Type ID",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.paymentTypeId}</div>
+        <div className="truncate text-right">{row.original.paymentTypeId}</div>
       ),
       hidden: true,
     },
@@ -652,7 +652,7 @@ export default function BankReconDetailsTable({
       header: "Customer",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.customerId ?? "-"}</div>
+        <div className="truncate text-right">{row.original.customerId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -661,7 +661,7 @@ export default function BankReconDetailsTable({
       header: "Supplier",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.supplierId ?? "-"}</div>
+        <div className="truncate text-right">{row.original.supplierId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -670,7 +670,7 @@ export default function BankReconDetailsTable({
       header: "GL Account",
       size: 80,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.glId ?? "-"}</div>
+        <div className="truncate text-right">{row.original.glId ?? "-"}</div>
       ),
       hidden: true,
     },
@@ -689,7 +689,7 @@ export default function BankReconDetailsTable({
       header: "Ex. Rate",
       size: 100,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {(row.original.exhRate ?? 0).toLocaleString(undefined, {
             minimumFractionDigits: exhRateDec,
             maximumFractionDigits: exhRateDec,
@@ -705,7 +705,7 @@ export default function BankReconDetailsTable({
       cell: ({ row }) => {
         const value = row.original.isDebit ? (row.original.totAmt ?? 0) : 0
         return (
-          <div className="text-right">
+          <div className="truncate text-right">
             {value.toLocaleString(undefined, {
               minimumFractionDigits: amtDec,
               maximumFractionDigits: amtDec,
@@ -721,7 +721,7 @@ export default function BankReconDetailsTable({
       cell: ({ row }) => {
         const value = !row.original.isDebit ? (row.original.totAmt ?? 0) : 0
         return (
-          <div className="text-right">
+          <div className="truncate text-right">
             {value.toLocaleString(undefined, {
               minimumFractionDigits: amtDec,
               maximumFractionDigits: amtDec,
@@ -737,7 +737,7 @@ export default function BankReconDetailsTable({
       cell: ({ row }) => {
         const value = row.original.isDebit ? (row.original.totLocalAmt ?? 0) : 0
         return (
-          <div className="text-right">
+          <div className="truncate text-right">
             {value.toLocaleString(undefined, {
               minimumFractionDigits: locAmtDec,
               maximumFractionDigits: locAmtDec,
@@ -755,7 +755,7 @@ export default function BankReconDetailsTable({
           ? (row.original.totLocalAmt ?? 0)
           : 0
         return (
-          <div className="text-right">
+          <div className="truncate text-right">
             {value.toLocaleString(undefined, {
               minimumFractionDigits: locAmtDec,
               maximumFractionDigits: locAmtDec,
@@ -793,7 +793,7 @@ export default function BankReconDetailsTable({
       header: "Ver",
       size: 50,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.editVersion ?? 0}</div>
+        <div className="truncate text-right">{row.original.editVersion ?? 0}</div>
       ),
     },
     {
@@ -801,7 +801,7 @@ export default function BankReconDetailsTable({
       header: "Amount",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {(row.original.totAmt ?? 0).toLocaleString(undefined, {
             minimumFractionDigits: amtDec,
             maximumFractionDigits: amtDec,
@@ -814,7 +814,7 @@ export default function BankReconDetailsTable({
       header: "Local Amount",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {(row.original.totLocalAmt ?? 0).toLocaleString(undefined, {
             minimumFractionDigits: locAmtDec,
             maximumFractionDigits: locAmtDec,
@@ -827,7 +827,7 @@ export default function BankReconDetailsTable({
       header: "Seq No",
       size: 60,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.seqNo ?? "-"}</div>
+        <div className="truncate text-right">{row.original.seqNo ?? "-"}</div>
       ),
     },
     {
@@ -835,7 +835,7 @@ export default function BankReconDetailsTable({
       header: "Item No",
       size: 60,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
   ]

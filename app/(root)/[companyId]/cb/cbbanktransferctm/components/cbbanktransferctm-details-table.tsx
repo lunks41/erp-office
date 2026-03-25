@@ -78,7 +78,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Ex. Rate",
       size: 100,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toExhRate.toLocaleString(undefined, {
             minimumFractionDigits: exhRateDec,
             maximumFractionDigits: exhRateDec,
@@ -92,7 +92,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Total Amount",
       size: 130,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toTotAmt.toLocaleString(undefined, {
             minimumFractionDigits: amtDec,
             maximumFractionDigits: amtDec,
@@ -105,7 +105,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Total Local",
       size: 130,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toTotLocalAmt.toLocaleString(undefined, {
             minimumFractionDigits: locAmtDec,
             maximumFractionDigits: locAmtDec,
@@ -126,7 +126,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Bank Charge",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toBankChgAmt.toLocaleString(undefined, {
             minimumFractionDigits: amtDec,
             maximumFractionDigits: amtDec,
@@ -139,7 +139,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Bank Charge Local",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toBankChgLocalAmt.toLocaleString(undefined, {
             minimumFractionDigits: locAmtDec,
             maximumFractionDigits: locAmtDec,
@@ -154,7 +154,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Bank Ex. Rate",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toBankExhRate.toLocaleString(undefined, {
             minimumFractionDigits: exhRateDec,
             maximumFractionDigits: exhRateDec,
@@ -168,7 +168,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Bank Total",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toBankTotAmt.toLocaleString(undefined, {
             minimumFractionDigits: amtDec,
             maximumFractionDigits: amtDec,
@@ -181,7 +181,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "To Bank Total Local",
       size: 130,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {row.original.toBankTotLocalAmt.toLocaleString(undefined, {
             minimumFractionDigits: locAmtDec,
             maximumFractionDigits: locAmtDec,
@@ -214,7 +214,7 @@ export default function CbBankTransferCtmDetailsTable({
       header: "Item No",
       size: 60,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
   ]

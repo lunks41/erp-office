@@ -209,7 +209,7 @@ export default function DebitNoteTable({
         }
 
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(status)}`}
             >
@@ -257,7 +257,7 @@ export default function DebitNoteTable({
       accessorKey: "totAmt",
       header: "Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -266,7 +266,7 @@ export default function DebitNoteTable({
       accessorKey: "gstAmt",
       header: "VAT Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("gstAmt"), amtDec)}
         </div>
       ),
@@ -275,7 +275,7 @@ export default function DebitNoteTable({
       accessorKey: "totAmtAftGst",
       header: "Total After VAT",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
         </div>
       ),
@@ -288,7 +288,7 @@ export default function DebitNoteTable({
       accessorKey: "totLocalAmt",
       header: "Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -297,7 +297,7 @@ export default function DebitNoteTable({
       accessorKey: "gstLocalAmt",
       header: "VAT Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -306,7 +306,7 @@ export default function DebitNoteTable({
       accessorKey: "totLocalAmtAftGst",
       header: "Total Local After VAT",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
         </div>
       ),
@@ -349,7 +349,7 @@ export default function DebitNoteTable({
       accessorKey: "exhRate",
       header: "Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhRate"), exhRateDec)}
         </div>
       ),
@@ -358,7 +358,7 @@ export default function DebitNoteTable({
       accessorKey: "ctyExhRate",
       header: "Country Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("ctyExhRate"), exhRateDec)}
         </div>
       ),
@@ -549,7 +549,7 @@ export default function DebitNoteTable({
           <div className="flex items-center gap-3">
             {/* Date Filters */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -561,7 +561,7 @@ export default function DebitNoteTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

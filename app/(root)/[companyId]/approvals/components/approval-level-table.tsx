@@ -62,7 +62,7 @@ export function ApprovalLevelTable({
             />
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           {onRefreshAction && (
             <Button variant="outline" size="sm" onClick={onRefreshAction}>
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -117,7 +117,7 @@ export function ApprovalLevelTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                       {onLevelSelect && (
                         <Button
                           variant="ghost"

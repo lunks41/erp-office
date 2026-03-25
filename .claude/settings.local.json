@@ -2,12 +2,20 @@
   "permissions": {
     "allow": [
       "mcp__Claude_Preview__preview_start",
-      "Bash(find /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document -type f -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.json\")",
-      "Bash(ls -la /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document/)",
-      "Bash(ls -la /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document/components/)",
-      "Bash(grep -n \"DocumentTypeAutocomplete\\\\|EntityTypeAutocomplete\\\\|EmployeeAutocomplete\\\\|CompanyAutocomplete\" /d/Proj/ERP/ERP/app/\\\\\\(root\\\\\\)/[companyId]/document/components/*.tsx)",
-      "Bash(ls d:/Proj/ERP/ERP/components/table/table-*.tsx)",
-      "Bash(grep -l \"overflow-x-auto\\\\|overflow-y-auto\\\\|max-h-\\\\[460px\\\\]\" d:/Proj/ERP/ERP/components/table/table-*.tsx)"
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//d/Proj/ERP/ERP/**)",
+      "Read(./**)",
+      "Read(components/**)",
+      "Read(hooks/**)",
+      "Read(lib/**)",
+      "Read(pages/**)",
+      "Read(public/**)",
+      "Read(styles/**)",
+      "Read(types/**)",
+      "Read(utils/**)"
     ]
   }
 }

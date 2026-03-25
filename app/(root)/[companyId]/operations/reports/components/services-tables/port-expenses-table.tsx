@@ -70,7 +70,7 @@ export function PortExpensesTable({
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+          <div className="truncate">{row.getValue("jobOrderNo") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -79,7 +79,7 @@ export function PortExpensesTable({
         accessorKey: "vesselName",
         header: "Vessel Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
+          <div className="truncate">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -118,7 +118,7 @@ export function PortExpensesTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,

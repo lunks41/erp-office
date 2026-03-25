@@ -59,7 +59,7 @@ export default function YearEndProcessTable({
       header: "Item No",
       size: 60,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
     {
@@ -67,7 +67,7 @@ export default function YearEndProcessTable({
       header: "GL Code",
       size: 120,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.glCode}</div>
+        <div className="truncate text-right">{row.original.glCode}</div>
       ),
     },
     {
@@ -75,7 +75,7 @@ export default function YearEndProcessTable({
       header: "GL Name",
       size: 250,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.glName}</div>
+        <div className="truncate text-right">{row.original.glName}</div>
       ),
     },
     {
@@ -93,7 +93,7 @@ export default function YearEndProcessTable({
       header: "Amount",
       size: 120,
       cell: ({ row }: CellContext<IGLOpeningBalance, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -103,7 +103,7 @@ export default function YearEndProcessTable({
       header: "Local Amount",
       size: 130,
       cell: ({ row }: CellContext<IGLOpeningBalance, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -113,7 +113,7 @@ export default function YearEndProcessTable({
       header: "Currency Code",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.currencyCode}</div>
+        <div className="truncate text-right">{row.original.currencyCode}</div>
       ),
     },
     {
@@ -121,7 +121,7 @@ export default function YearEndProcessTable({
       header: "Department Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.departemntName}</div>
+        <div className="truncate text-right">{row.original.departemntName}</div>
       ),
     },
     {
@@ -129,7 +129,7 @@ export default function YearEndProcessTable({
       header: "Employee Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.employeeName || "-"}</div>
+        <div className="truncate text-right">{row.original.employeeName || "-"}</div>
       ),
     },
     {
@@ -137,7 +137,7 @@ export default function YearEndProcessTable({
       header: "Product Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.productName || "-"}</div>
+        <div className="truncate text-right">{row.original.productName || "-"}</div>
       ),
     },
     {
@@ -145,7 +145,7 @@ export default function YearEndProcessTable({
       header: "Port Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.portName || "-"}</div>
+        <div className="truncate text-right">{row.original.portName || "-"}</div>
       ),
     },
     {
@@ -153,7 +153,7 @@ export default function YearEndProcessTable({
       header: "Vessel Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.vesselName || "-"}</div>
+        <div className="truncate text-right">{row.original.vesselName || "-"}</div>
       ),
     },
     {
@@ -161,7 +161,7 @@ export default function YearEndProcessTable({
       header: "Voyage No",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.voyageNo || "-"}</div>
+        <div className="truncate text-right">{row.original.voyageNo || "-"}</div>
       ),
     },
     {
@@ -169,7 +169,7 @@ export default function YearEndProcessTable({
       header: "Barge Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.bargeName || "-"}</div>
+        <div className="truncate text-right">{row.original.bargeName || "-"}</div>
       ),
     },
 

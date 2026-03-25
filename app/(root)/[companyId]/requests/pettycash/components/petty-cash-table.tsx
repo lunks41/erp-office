@@ -150,7 +150,7 @@ export function PettyCashTable({
             <TableHead>Request Date</TableHead>
             <TableHead>Remarks</TableHead>
             {showActions && (
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="truncate text-right">Actions</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -208,7 +208,7 @@ export function PettyCashTable({
                 </div>
               </TableCell>
               {showActions && (
-                <TableCell className="text-right">
+                <TableCell className="truncate text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">

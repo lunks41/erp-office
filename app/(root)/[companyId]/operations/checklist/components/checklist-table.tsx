@@ -288,7 +288,7 @@ export function ChecklistTable({
         accessorKey: "istaxable",
         header: "Tax",
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             {row.getValue("istaxable") ? (
               <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
             ) : (
@@ -303,7 +303,7 @@ export function ChecklistTable({
         accessorKey: "isPost",
         header: "Post",
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             {row.getValue("isPost") ? (
               <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
             ) : (
@@ -397,7 +397,7 @@ export function ChecklistTable({
         accessorKey: "isActive",
         header: "Status",
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             {row.getValue("isActive") ? (
               <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
             ) : (

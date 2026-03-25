@@ -135,7 +135,7 @@ export function CrewSignOffTable({
         accessorKey: "crewName",
         header: "Crew Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("crewName") || "-"}</div>
+          <div className="truncate">{row.getValue("crewName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -145,7 +145,7 @@ export function CrewSignOffTable({
         accessorKey: "nationalityName",
         header: "Nationality",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("nationalityName") || "-"}
           </div>
         ),
@@ -171,7 +171,7 @@ export function CrewSignOffTable({
         accessorKey: "visaName",
         header: "Visa Type",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("visaName") || "-"}</div>
+          <div className="truncate">{row.getValue("visaName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -181,7 +181,7 @@ export function CrewSignOffTable({
         accessorKey: "rankName",
         header: "Rank",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("rankName") || "-"}</div>
+          <div className="truncate">{row.getValue("rankName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -192,7 +192,7 @@ export function CrewSignOffTable({
         accessorKey: "flightDetails",
         header: "Flight Details",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("flightDetails") || "-"}
           </div>
         ),
@@ -201,14 +201,14 @@ export function CrewSignOffTable({
         accessorKey: "hotelName",
         header: "Hotel Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("hotelName") || "-"}</div>
+          <div className="truncate">{row.getValue("hotelName") || "-"}</div>
         ),
       },
       {
         accessorKey: "departureDetails",
         header: "Departure Details",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("departureDetails") || "-"}
           </div>
         ),
@@ -217,7 +217,7 @@ export function CrewSignOffTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -227,7 +227,7 @@ export function CrewSignOffTable({
         accessorKey: "transportName",
         header: "Transport Name",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("transportName") || "-"}
           </div>
         ),
@@ -236,14 +236,14 @@ export function CrewSignOffTable({
         accessorKey: "clearing",
         header: "Clearing",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("clearing") || "-"}</div>
+          <div className="truncate">{row.getValue("clearing") || "-"}</div>
         ),
       },
       {
         accessorKey: "overStayRemark",
         header: "Over Stay Remark",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("overStayRemark") || "-"}
           </div>
         ),
@@ -252,7 +252,7 @@ export function CrewSignOffTable({
         accessorKey: "modificationRemark",
         header: "Modification Remark",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("modificationRemark") || "-"}
           </div>
         ),
@@ -261,7 +261,7 @@ export function CrewSignOffTable({
         accessorKey: "cidClearance",
         header: "CID Clearance",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("cidClearance") || "-"}</div>
+          <div className="truncate">{row.getValue("cidClearance") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -304,7 +304,7 @@ export function CrewSignOffTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -314,7 +314,7 @@ export function CrewSignOffTable({
         header: "Create Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("createDate"))}
             </div>
           )
@@ -327,7 +327,7 @@ export function CrewSignOffTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -337,7 +337,7 @@ export function CrewSignOffTable({
         header: "Edit Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("editDate"))}
             </div>
           )

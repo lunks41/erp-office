@@ -362,7 +362,7 @@ export function MainTable<T>({
                   const isIndeterminate = hasSelectedRows && !isAllSelected
                   const headerChecked = hasSelectedRows
                   return (
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                       <Checkbox
                         checked={headerChecked}
                         onCheckedChange={(checked) => {
@@ -814,7 +814,7 @@ export function MainTable<T>({
                 {/* Render data rows */}
                 {table.getRowModel().rows.map((row) => {
                   return (
-                    <TableRow key={row.id}>
+                    <TableRow key={row.id} className="h-7">
                       {/* Render each visible cell in the row */}
                       {row.getVisibleCells().map((cell, cellIndex) => {
                         const isActions = cell.column.id === "actions"
@@ -822,6 +822,7 @@ export function MainTable<T>({
                         return (
                           <TableCell
                             key={cell.id}
+                            title={String(cell.getValue() ?? "")}
                             className={`py-1 ${
                               isFirstColumn || isActions
                                 ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
@@ -842,11 +843,12 @@ export function MainTable<T>({
                               zIndex: isFirstColumn || isActions ? 10 : 1,
                             }}
                           >
-                            {/* Render cell content using column definition */}
-                            {flexRender(
-                              cell.column.columnDef.cell, // Cell renderer from column definition
-                              cell.getContext() // Cell context with row data
-                            )}
+                            <div className="truncate">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </div>
                           </TableCell>
                         )
                       })}

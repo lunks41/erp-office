@@ -102,7 +102,7 @@ export function TariffTable({
       accessorKey: "displayRate",
       header: "Display Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("displayRate"), amtDec)}
         </div>
       ),
@@ -112,7 +112,7 @@ export function TariffTable({
       accessorKey: "basicRate",
       header: "Basic Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("basicRate"), amtDec)}
         </div>
       ),
@@ -122,7 +122,7 @@ export function TariffTable({
       accessorKey: "minUnit",
       header: "Min Unit",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("minUnit"), amtDec)}
         </div>
       ),
@@ -132,7 +132,7 @@ export function TariffTable({
       accessorKey: "maxUnit",
       header: "Max Unit",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("maxUnit"), amtDec)}
         </div>
       ),
@@ -142,7 +142,7 @@ export function TariffTable({
       accessorKey: "isAdditional",
       header: "Is Additional",
       cell: ({ row }) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-hidden">
           {row.getValue("isAdditional") ? (
             <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
           ) : (
@@ -156,7 +156,7 @@ export function TariffTable({
       accessorKey: "additionalUnit",
       header: "Additional Unit",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("additionalUnit"), amtDec)}
         </div>
       ),
@@ -165,7 +165,7 @@ export function TariffTable({
       accessorKey: "additionalRate",
       header: "Additional Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("additionalRate"), amtDec)}
         </div>
       ),
@@ -175,7 +175,7 @@ export function TariffTable({
       accessorKey: "isPrepayment",
       header: "Is Prepayment",
       cell: ({ row }) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-hidden">
           {row.getValue("isPrepayment") ? (
             <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
           ) : (
@@ -189,7 +189,7 @@ export function TariffTable({
       accessorKey: "prepaymentPercentage",
       header: "Prepayment %",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("prepaymentPercentage"), 2)}
         </div>
       ),
@@ -199,7 +199,7 @@ export function TariffTable({
       accessorKey: "isDefault",
       header: "Default",
       cell: ({ row }) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-hidden">
           {row.getValue("isDefault") ? (
             <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
           ) : (
@@ -213,7 +213,7 @@ export function TariffTable({
       accessorKey: "isActive",
       header: "Active",
       cell: ({ row }) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-hidden">
           {row.getValue("isActive") ? (
             <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
           ) : (

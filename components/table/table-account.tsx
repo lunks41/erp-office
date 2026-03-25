@@ -288,7 +288,7 @@ export function AccountBaseTable<T>({
               const item = row.original
 
               return (
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                   {/* Drag Handle */}
                   <DragHandle
                     id={String(
@@ -597,7 +597,7 @@ export function AccountBaseTable<T>({
                 strategy={verticalListSortingStrategy}
               >
                 {rowModel.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} className="h-7">
                     {row.getVisibleCells().map((cell, cellIndex) => {
                       const isActions = cell.column.id === "drag-actions"
                       const isFirstColumn = cellIndex === 0
@@ -605,6 +605,7 @@ export function AccountBaseTable<T>({
                       return (
                         <TableCell
                           key={cell.id}
+                          title={String(cell.getValue() ?? "")}
                           className={`py-1 ${
                             isFirstColumn || isActions
                               ? "bg-background sticky left-0 z-10"
@@ -625,10 +626,12 @@ export function AccountBaseTable<T>({
                             zIndex: isFirstColumn || isActions ? 10 : 1,
                           }}
                         >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          <div className="truncate">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </div>
                         </TableCell>
                       )
                     })}

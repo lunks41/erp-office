@@ -52,7 +52,7 @@ export function CrewMiscellaneousTable({
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+          <div className="truncate">{row.getValue("jobOrderNo") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -61,7 +61,7 @@ export function CrewMiscellaneousTable({
         accessorKey: "vesselName",
         header: "Vessel Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
+          <div className="truncate">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -83,7 +83,7 @@ export function CrewMiscellaneousTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -94,7 +94,7 @@ export function CrewMiscellaneousTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -131,7 +131,7 @@ export function CrewMiscellaneousTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -141,7 +141,7 @@ export function CrewMiscellaneousTable({
         header: "Create Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("createDate"))}
             </div>
           )
@@ -154,7 +154,7 @@ export function CrewMiscellaneousTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -164,7 +164,7 @@ export function CrewMiscellaneousTable({
         header: "Edit Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("editDate"))}
             </div>
           )

@@ -152,7 +152,7 @@ export function ThirdPartyTable({
         accessorKey: "supplyTypeName",
         header: "Supply Type",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("supplyTypeName") || "-"}
           </div>
         ),
@@ -176,7 +176,7 @@ export function ThirdPartyTable({
         accessorKey: "supplierName",
         header: "Supplier Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("supplierName") || "-"}</div>
+          <div className="truncate">{row.getValue("supplierName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -186,7 +186,7 @@ export function ThirdPartyTable({
         accessorKey: "name",
         header: "Name 1",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("name") || "-"}</div>
+          <div className="truncate">{row.getValue("name") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -196,7 +196,7 @@ export function ThirdPartyTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -207,7 +207,7 @@ export function ThirdPartyTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -216,7 +216,7 @@ export function ThirdPartyTable({
         accessorKey: "uomName",
         header: "UOM",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("uomName") || "-"}</div>
+          <div className="truncate">{row.getValue("uomName") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -232,7 +232,7 @@ export function ThirdPartyTable({
         accessorKey: "description",
         header: "Description",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("description") || "-"}</div>
+          <div className="truncate">{row.getValue("description") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -279,7 +279,7 @@ export function ThirdPartyTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -298,7 +298,7 @@ export function ThirdPartyTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,

@@ -64,7 +64,7 @@ export default function AdjustmentDetailsTable({
       header: "Seq No",
       size: 60,
       cell: ({ row }: { row: { original: IArAdjustmentDt } }) => (
-        <div className="text-right">{row.original.seqNo}</div>
+        <div className="truncate text-right">{row.original.seqNo}</div>
       ),
     },
     ...(visible?.m_ProductId
@@ -111,7 +111,7 @@ export default function AdjustmentDetailsTable({
             header: "Qty",
             size: 60,
             cell: ({ row }: { row: { original: IArAdjustmentDt } }) => (
-              <div className="text-right">{row.original.qty}</div>
+              <div className="truncate text-right">{row.original.qty}</div>
             ),
           },
         ]
@@ -131,7 +131,7 @@ export default function AdjustmentDetailsTable({
       header: "Type",
       size: 100,
       cell: ({ row }: { row: { original: IArAdjustmentDt } }) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-hidden">
           <Badge variant={row.original.isDebit ? "default" : "destructive"}>
             {row.original.isDebit ? "Debit" : "Credit"}
           </Badge>
@@ -146,7 +146,7 @@ export default function AdjustmentDetailsTable({
             header: "Price",
             size: 100,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("unitPrice"), amtDec)}
               </div>
             ),
@@ -158,7 +158,7 @@ export default function AdjustmentDetailsTable({
       header: "Amount",
       size: 100,
       cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -171,7 +171,7 @@ export default function AdjustmentDetailsTable({
             header: "VAT %",
             size: 50,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstPercentage"), 2)}
               </div>
             ),
@@ -181,7 +181,7 @@ export default function AdjustmentDetailsTable({
             header: "VAT Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstAmt"), amtDec)}
               </div>
             ),
@@ -195,7 +195,7 @@ export default function AdjustmentDetailsTable({
             header: "Bill Qty",
             size: 60,
             cell: ({ row }: { row: { original: IArAdjustmentDt } }) => (
-              <div className="text-right">{row.original.billQTY}</div>
+              <div className="truncate text-right">{row.original.billQTY}</div>
             ),
           },
         ]
@@ -205,7 +205,7 @@ export default function AdjustmentDetailsTable({
       header: "Local Amount",
       size: 100,
       cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -217,7 +217,7 @@ export default function AdjustmentDetailsTable({
             header: "Country Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -240,7 +240,7 @@ export default function AdjustmentDetailsTable({
             header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
               </div>
             ),
@@ -254,7 +254,7 @@ export default function AdjustmentDetailsTable({
             header: "GST Country Amount",
             size: 100,
             cell: ({ row }: { row: Row<IArAdjustmentDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -312,7 +312,7 @@ export default function AdjustmentDetailsTable({
       header: "Doc Item No",
       size: 80,
       cell: ({ row }: { row: { original: IArAdjustmentDt } }) => (
-        <div className="text-right">{row.original.docItemNo}</div>
+        <div className="truncate text-right">{row.original.docItemNo}</div>
       ),
     },
     {
@@ -320,7 +320,7 @@ export default function AdjustmentDetailsTable({
       header: "Item No",
       size: 60,
       cell: ({ row }: { row: { original: IArAdjustmentDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
   ]

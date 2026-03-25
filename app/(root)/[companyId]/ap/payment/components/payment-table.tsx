@@ -190,7 +190,7 @@ export default function PaymentTable({
         }
 
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(status)}`}
             >
@@ -237,7 +237,7 @@ export default function PaymentTable({
       accessorKey: "totAmt",
       header: "Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -246,7 +246,7 @@ export default function PaymentTable({
       accessorKey: "totLocalAmt",
       header: "Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -273,7 +273,7 @@ export default function PaymentTable({
       accessorKey: "exhRate",
       header: "Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhRate"), exhRateDec)}
         </div>
       ),
@@ -312,7 +312,7 @@ export default function PaymentTable({
       accessorKey: "payTotAmt",
       header: "Pay Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("payTotAmt"), amtDec)}
         </div>
       ),
@@ -321,7 +321,7 @@ export default function PaymentTable({
       accessorKey: "payTotLocalAmt",
       header: "Pay Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("payTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -330,7 +330,7 @@ export default function PaymentTable({
       accessorKey: "unAllocTotAmt",
       header: "Unallocated Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("unAllocTotAmt"), amtDec)}
         </div>
       ),
@@ -339,7 +339,7 @@ export default function PaymentTable({
       accessorKey: "unAllocTotLocalAmt",
       header: "Unallocated Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("unAllocTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -348,7 +348,7 @@ export default function PaymentTable({
       accessorKey: "exhGainLoss",
       header: "Exchange Gain/Loss",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhGainLoss"), locAmtDec)}
         </div>
       ),
@@ -357,7 +357,7 @@ export default function PaymentTable({
       accessorKey: "bankChgAmt",
       header: "Bank Charges Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("bankChgAmt"), amtDec)}
         </div>
       ),
@@ -366,7 +366,7 @@ export default function PaymentTable({
       accessorKey: "bankChgLocalAmt",
       header: "Bank Charges Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("bankChgLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -544,7 +544,7 @@ export default function PaymentTable({
           <div className="flex items-center gap-3">
             {/* Date Filters */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -556,7 +556,7 @@ export default function PaymentTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

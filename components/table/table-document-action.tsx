@@ -50,7 +50,7 @@ export function DocumentTableActions<T>({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
       {!hideCheckbox && (
         <Checkbox
           checked={isSelected}
@@ -74,10 +74,10 @@ export function DocumentTableActions<T>({
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6"
+          className="h-5 w-5"
           onClick={() => onView?.(row)}
         >
-          <Eye className="h-4 w-4" />
+          <Eye className="h-3 w-3" />
         </Button>
       )}
 
@@ -85,7 +85,7 @@ export function DocumentTableActions<T>({
         <Button
           variant="ghost"
           size="icon"
-          className={`h-6 w-6 ${
+          className={`h-5 w-5 ${
             hasValidAccountId
               ? "cursor-not-allowed text-gray-400 opacity-50"
               : ""
@@ -97,7 +97,7 @@ export function DocumentTableActions<T>({
               : "Download"
           }
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-3 w-3" />
         </Button>
       )}
 
@@ -105,7 +105,7 @@ export function DocumentTableActions<T>({
         <Button
           variant="ghost"
           size="icon"
-          className={`h-6 w-6 ${
+          className={`h-5 w-5 ${
             hasValidAccountId
               ? "cursor-not-allowed text-gray-400 opacity-50"
               : ""
@@ -113,7 +113,7 @@ export function DocumentTableActions<T>({
           onClick={() => !hasValidAccountId && onEditAction?.(row)}
           title={hasValidAccountId ? "Cannot edit - Debit Note exists" : "Edit"}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-3 w-3" />
         </Button>
       )}
 
@@ -121,7 +121,7 @@ export function DocumentTableActions<T>({
         <Button
           variant="ghost"
           size="icon"
-          className={`h-6 w-6 ${
+          className={`h-5 w-5 ${
             hasValidAccountId
               ? "cursor-not-allowed text-gray-400 opacity-50"
               : "text-destructive hover:bg-destructive/10"
@@ -131,7 +131,7 @@ export function DocumentTableActions<T>({
             hasValidAccountId ? "Cannot delete - Debit Note exists" : "Delete"
           }
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3 w-3" />
         </Button>
       )}
     </div>

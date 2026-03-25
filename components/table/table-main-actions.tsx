@@ -35,7 +35,7 @@ export function MainTableActions<T>({
   isConfirmed = false,
 }: MainTableActionsProps<T>) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
       {onSelectRow ? (
         <Checkbox
           checked={isSelected}
@@ -50,43 +50,43 @@ export function MainTableActions<T>({
       <Button
         variant="ghost"
         size="icon"
-        className="h-6 w-6"
+        className="h-5 w-5"
         disabled={hideView}
         onClick={() => onView?.(row)}
       >
-        <Eye className="h-4 w-4" />
+        <Eye className="h-3 w-3" />
       </Button>
 
       <Button
         variant="ghost"
         size="icon"
-        className="h-6 w-6"
+        className="h-5 w-5"
         disabled={hideEdit || isConfirmed}
         onClick={() => onEditAction?.(row)}
       >
-        <Pencil className="h-4 w-4" />
+        <Pencil className="h-3 w-3" />
       </Button>
 
       <Button
         variant="ghost"
         size="icon"
-        className="text-destructive hover:bg-destructive/10 h-6 w-6"
+        className="text-destructive hover:bg-destructive/10 h-5 w-5"
         disabled={hideDelete || isConfirmed}
         onClick={() => onDeleteAction?.(String(row[idAccessor]))}
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-3 w-3" />
       </Button>
 
       {!hideClone && onCloneAction ? (
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-[#2f6abb] hover:bg-[#e6edf9]"
+          className="h-5 w-5 text-[#2f6abb] hover:bg-[#e6edf9]"
           disabled={isConfirmed}
           onClick={() => onCloneAction(row)}
           title="Clone"
         >
-          <Copy className="h-4 w-4" />
+          <Copy className="h-3 w-3" />
         </Button>
       ) : null}
     </div>

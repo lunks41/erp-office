@@ -93,7 +93,7 @@ export default function OpeningBalanceTable({
       header: "GL Code",
       size: 120,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.glCode}</div>
+        <div className="truncate text-right">{row.original.glCode}</div>
       ),
     },
     {
@@ -101,7 +101,7 @@ export default function OpeningBalanceTable({
       header: "GL Name",
       size: 200,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.glName}</div>
+        <div className="truncate text-right">{row.original.glName}</div>
       ),
     },
     {
@@ -119,7 +119,7 @@ export default function OpeningBalanceTable({
       header: "Amount",
       size: 120,
       cell: ({ row }: CellContext<IGLOpeningBalance, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -129,7 +129,7 @@ export default function OpeningBalanceTable({
       header: "Local Amount",
       size: 130,
       cell: ({ row }: CellContext<IGLOpeningBalance, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -139,7 +139,7 @@ export default function OpeningBalanceTable({
       header: "Currency Code",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.currencyCode}</div>
+        <div className="truncate text-right">{row.original.currencyCode}</div>
       ),
     },
     {
@@ -147,7 +147,7 @@ export default function OpeningBalanceTable({
       header: "Department Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.departemntName}</div>
+        <div className="truncate text-right">{row.original.departemntName}</div>
       ),
     },
     {
@@ -155,7 +155,7 @@ export default function OpeningBalanceTable({
       header: "Employee Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.employeeName || "-"}</div>
+        <div className="truncate text-right">{row.original.employeeName || "-"}</div>
       ),
     },
     {
@@ -163,7 +163,7 @@ export default function OpeningBalanceTable({
       header: "Product Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.productName || "-"}</div>
+        <div className="truncate text-right">{row.original.productName || "-"}</div>
       ),
     },
     {
@@ -171,7 +171,7 @@ export default function OpeningBalanceTable({
       header: "Port Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.portName || "-"}</div>
+        <div className="truncate text-right">{row.original.portName || "-"}</div>
       ),
     },
     {
@@ -179,7 +179,7 @@ export default function OpeningBalanceTable({
       header: "Vessel Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.vesselName || "-"}</div>
+        <div className="truncate text-right">{row.original.vesselName || "-"}</div>
       ),
     },
     {
@@ -187,7 +187,7 @@ export default function OpeningBalanceTable({
       header: "Voyage No",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.voyageNo || "-"}</div>
+        <div className="truncate text-right">{row.original.voyageNo || "-"}</div>
       ),
     },
     {
@@ -195,7 +195,7 @@ export default function OpeningBalanceTable({
       header: "Barge Name",
       size: 90,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.bargeName || "-"}</div>
+        <div className="truncate text-right">{row.original.bargeName || "-"}</div>
       ),
     },
     // All hidden columns at the end
@@ -205,7 +205,7 @@ export default function OpeningBalanceTable({
       size: 60,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
     {
@@ -214,7 +214,7 @@ export default function OpeningBalanceTable({
       size: 80,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.glId}</div>
+        <div className="truncate text-right">{row.original.glId}</div>
       ),
     },
     {
@@ -223,7 +223,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.currencyId}</div>
+        <div className="truncate text-right">{row.original.currencyId}</div>
       ),
     },
     {
@@ -232,7 +232,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.currencyName}</div>
+        <div className="truncate text-right">{row.original.currencyName}</div>
       ),
     },
     {
@@ -241,7 +241,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.departemntCode}</div>
+        <div className="truncate text-right">{row.original.departemntCode}</div>
       ),
     },
     {
@@ -250,7 +250,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.employeeCode || "-"}</div>
+        <div className="truncate text-right">{row.original.employeeCode || "-"}</div>
       ),
     },
     {
@@ -259,7 +259,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.productCode || "-"}</div>
+        <div className="truncate text-right">{row.original.productCode || "-"}</div>
       ),
     },
     {
@@ -268,7 +268,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.portCode || "-"}</div>
+        <div className="truncate text-right">{row.original.portCode || "-"}</div>
       ),
     },
     {
@@ -277,7 +277,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.vesselCode || "-"}</div>
+        <div className="truncate text-right">{row.original.vesselCode || "-"}</div>
       ),
     },
     {
@@ -286,7 +286,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.bargeCode || "-"}</div>
+        <div className="truncate text-right">{row.original.bargeCode || "-"}</div>
       ),
     },
     {
@@ -295,7 +295,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.departmentId || "-"}</div>
+        <div className="truncate text-right">{row.original.departmentId || "-"}</div>
       ),
     },
     {
@@ -304,7 +304,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.employeeId || "-"}</div>
+        <div className="truncate text-right">{row.original.employeeId || "-"}</div>
       ),
     },
     {
@@ -313,7 +313,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.productId || "-"}</div>
+        <div className="truncate text-right">{row.original.productId || "-"}</div>
       ),
     },
     {
@@ -322,7 +322,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.portId || "-"}</div>
+        <div className="truncate text-right">{row.original.portId || "-"}</div>
       ),
     },
     {
@@ -331,7 +331,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.vesselId || "-"}</div>
+        <div className="truncate text-right">{row.original.vesselId || "-"}</div>
       ),
     },
     {
@@ -340,7 +340,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.bargeId || "-"}</div>
+        <div className="truncate text-right">{row.original.bargeId || "-"}</div>
       ),
     },
     {
@@ -349,7 +349,7 @@ export default function OpeningBalanceTable({
       size: 90,
       hidden: true,
       cell: ({ row }: { row: { original: IGLOpeningBalance } }) => (
-        <div className="text-right">{row.original.voyageId || "-"}</div>
+        <div className="truncate text-right">{row.original.voyageId || "-"}</div>
       ),
     },
   ]

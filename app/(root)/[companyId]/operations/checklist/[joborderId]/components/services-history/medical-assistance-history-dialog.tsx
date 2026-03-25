@@ -159,7 +159,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "flightDetails",
       header: "Flight Details",
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("flightDetails") || "-"}</div>
+        <div className="truncate">{row.getValue("flightDetails") || "-"}</div>
       ),
       size: 200,
       minSize: 150,
@@ -168,7 +168,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "hotelName",
       header: "Hotel Name",
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("hotelName") || "-"}</div>
+        <div className="truncate">{row.getValue("hotelName") || "-"}</div>
       ),
       size: 200,
       minSize: 150,
@@ -177,7 +177,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "departureDetails",
       header: "Departure Details",
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="truncate">
           {row.getValue("departureDetails") || "-"}
         </div>
       ),
@@ -188,7 +188,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "transportName",
       header: "Transport Name",
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("transportName") || "-"}</div>
+        <div className="truncate">{row.getValue("transportName") || "-"}</div>
       ),
       size: 200,
       minSize: 150,
@@ -197,7 +197,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "clearing",
       header: "Clearing",
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("clearing") || "-"}</div>
+        <div className="truncate">{row.getValue("clearing") || "-"}</div>
       ),
       size: 150,
       minSize: 120,
@@ -206,7 +206,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "overStayRemark",
       header: "Over Stay Remark",
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("overStayRemark") || "-"}</div>
+        <div className="truncate">{row.getValue("overStayRemark") || "-"}</div>
       ),
       size: 200,
       minSize: 150,
@@ -215,7 +215,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "modificationRemark",
       header: "Modification Remark",
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="truncate">
           {row.getValue("modificationRemark") || "-"}
         </div>
       ),
@@ -226,7 +226,7 @@ export function MedicalAssistanceHistoryDialog({
       accessorKey: "cidClearance",
       header: "CID Clearance",
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("cidClearance") || "-"}</div>
+        <div className="truncate">{row.getValue("cidClearance") || "-"}</div>
       ),
       size: 150,
       minSize: 120,
@@ -288,7 +288,7 @@ export function MedicalAssistanceHistoryDialog({
           date = raw
         }
         return (
-          <div className="text-wrap">
+          <div className="truncate">
             {date && isValid(date) ? format(date, datetimeFormat) : "-"}
           </div>
         )
@@ -318,7 +318,7 @@ export function MedicalAssistanceHistoryDialog({
           date = raw
         }
         return (
-          <div className="text-wrap">
+          <div className="truncate">
             {date && isValid(date) ? format(date, datetimeFormat) : "-"}
           </div>
         )

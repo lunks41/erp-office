@@ -196,7 +196,7 @@ export default function CbBankTransferCtmTable({
       accessorKey: "fromExhRate",
       header: "From Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromExhRate"), exhRateDec)}
         </div>
       ),
@@ -205,7 +205,7 @@ export default function CbBankTransferCtmTable({
       accessorKey: "fromBankChgAmt",
       header: "From Bank Charge",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromBankChgAmt"), amtDec)}
         </div>
       ),
@@ -214,7 +214,7 @@ export default function CbBankTransferCtmTable({
       accessorKey: "fromTotAmt",
       header: "From Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotAmt"), amtDec)}
         </div>
       ),
@@ -223,7 +223,7 @@ export default function CbBankTransferCtmTable({
       accessorKey: "fromTotLocalAmt",
       header: "From Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -236,7 +236,7 @@ export default function CbBankTransferCtmTable({
       accessorKey: "exhGainLoss",
       header: "Exchange Gain/Loss",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhGainLoss"), amtDec)}
         </div>
       ),
@@ -387,7 +387,7 @@ export default function CbBankTransferCtmTable({
           <div className="flex items-center gap-3">
             {/* Date Filters */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -399,7 +399,7 @@ export default function CbBankTransferCtmTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

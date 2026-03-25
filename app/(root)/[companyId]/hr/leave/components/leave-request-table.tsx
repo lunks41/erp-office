@@ -282,7 +282,7 @@ export function LeaveRequestTable({
                   <TableHead>Status</TableHead>
                   <TableHead>Reason</TableHead>
                   {showActions && (
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="truncate text-right">Actions</TableHead>
                   )}
                 </TableRow>
               </TableHeader>
@@ -347,7 +347,7 @@ export function LeaveRequestTable({
                       </div>
                     </TableCell>
                     {showActions && (
-                      <TableCell className="text-right">
+                      <TableCell className="truncate text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -424,7 +424,7 @@ export function LeaveRequestTable({
                     <TableHead>Status</TableHead>
                     <TableHead>Reason</TableHead>
                     {showActions && (
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="truncate text-right">Actions</TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
@@ -491,7 +491,7 @@ export function LeaveRequestTable({
                         </div>
                       </TableCell>
                       {showActions && (
-                        <TableCell className="text-right">
+                        <TableCell className="truncate text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">

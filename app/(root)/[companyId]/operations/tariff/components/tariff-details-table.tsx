@@ -58,7 +58,7 @@ export function TariffDetailsTable({
       accessorKey: "displayRate",
       header: "Display Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("displayRate"), amtDec)}
         </div>
       ),
@@ -68,7 +68,7 @@ export function TariffDetailsTable({
       accessorKey: "basicRate",
       header: "Basic Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("basicRate"), amtDec)}
         </div>
       ),
@@ -78,7 +78,7 @@ export function TariffDetailsTable({
       accessorKey: "minUnit",
       header: "Min Unit",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("minUnit"), amtDec)}
         </div>
       ),
@@ -88,7 +88,7 @@ export function TariffDetailsTable({
       accessorKey: "maxUnit",
       header: "Max Unit",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("maxUnit"), amtDec)}
         </div>
       ),
@@ -110,7 +110,7 @@ export function TariffDetailsTable({
       accessorKey: "additionalUnit",
       header: "Additional Unit",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("additionalUnit"), amtDec)}
         </div>
       ),
@@ -120,7 +120,7 @@ export function TariffDetailsTable({
       accessorKey: "additionalRate",
       header: "Additional Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("additionalRate"), amtDec)}
         </div>
       ),

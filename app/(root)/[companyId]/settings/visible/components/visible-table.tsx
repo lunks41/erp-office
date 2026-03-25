@@ -74,14 +74,14 @@ export function VisibleTable() {
     {
       accessorKey: "moduleName",
       header: () => (
-        <div className="text-center font-medium text-wrap">Module Name</div>
+        <div className="text-center font-medium truncate">Module Name</div>
       ),
       size: 200,
     },
     {
       accessorKey: "transactionName",
       header: () => (
-        <div className="text-center font-medium text-wrap">
+        <div className="text-center font-medium truncate">
           Transaction Name
         </div>
       ),
@@ -90,7 +90,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_ProductId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Product</div>
+        <div className="text-center font-medium truncate">Product</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -109,7 +109,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_QTY",
       header: () => (
-        <div className="text-center font-medium text-wrap">QTY</div>
+        <div className="text-center font-medium truncate">QTY</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -126,7 +126,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_BillQTY",
       header: () => (
-        <div className="text-center font-medium text-wrap">Bill QTY</div>
+        <div className="text-center font-medium truncate">Bill QTY</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -143,7 +143,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_UomId",
       header: () => (
-        <div className="text-center font-medium text-wrap">UOM</div>
+        <div className="text-center font-medium truncate">UOM</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -160,7 +160,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_UnitPrice",
       header: () => (
-        <div className="text-center font-medium text-wrap">Unit Price</div>
+        <div className="text-center font-medium truncate">Unit Price</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -177,7 +177,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_Remarks",
       header: () => (
-        <div className="text-center font-medium text-wrap">Remarks</div>
+        <div className="text-center font-medium truncate">Remarks</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -194,7 +194,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_GstId",
       header: () => (
-        <div className="text-center font-medium text-wrap">VAT</div>
+        <div className="text-center font-medium truncate">VAT</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -211,7 +211,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_DeliveryDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">Delivery Date</div>
+        <div className="text-center font-medium truncate">Delivery Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -232,7 +232,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_DepartmentId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Department</div>
+        <div className="text-center font-medium truncate">Department</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -253,7 +253,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_EmployeeId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Employee</div>
+        <div className="text-center font-medium truncate">Employee</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -274,7 +274,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_PortId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Port</div>
+        <div className="text-center font-medium truncate">Port</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -291,7 +291,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_VesselId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Vessel</div>
+        <div className="text-center font-medium truncate">Vessel</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -308,7 +308,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_BargeId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Barge</div>
+        <div className="text-center font-medium truncate">Barge</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -325,7 +325,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_VoyageId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Voyage</div>
+        <div className="text-center font-medium truncate">Voyage</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -342,7 +342,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_SupplyDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">Supply Date</div>
+        <div className="text-center font-medium truncate">Supply Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -363,7 +363,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_BankId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Bank</div>
+        <div className="text-center font-medium truncate">Bank</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -380,7 +380,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_CtyCurr",
       header: () => (
-        <div className="text-center font-medium text-wrap">
+        <div className="text-center font-medium truncate">
           Country Currency
         </div>
       ),
@@ -399,7 +399,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_JobOrderId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Job Order</div>
+        <div className="text-center font-medium truncate">Job Order</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -420,7 +420,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_GstClaimDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">VAT Claim Date</div>
+        <div className="text-center font-medium truncate">VAT Claim Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -441,7 +441,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_TrnDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">Trn Date</div>
+        <div className="text-center font-medium truncate">Trn Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -458,7 +458,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_PayeeTo",
       header: () => (
-        <div className="text-center font-medium text-wrap">Payee To</div>
+        <div className="text-center font-medium truncate">Payee To</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -476,7 +476,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_ServiceCategoryId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Service Type</div>
+        <div className="text-center font-medium truncate">Service Type</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -498,7 +498,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_JobOrderIdHd",
       header: () => (
-        <div className="text-center font-medium text-wrap">
+        <div className="text-center font-medium truncate">
           Job Order Header
         </div>
       ),
@@ -522,7 +522,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_OtherRemarks",
       header: () => (
-        <div className="text-center font-medium text-wrap">Other Remarks</div>
+        <div className="text-center font-medium truncate">Other Remarks</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -544,7 +544,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_PortIdHd",
       header: () => (
-        <div className="text-center font-medium text-wrap">Port Header</div>
+        <div className="text-center font-medium truncate">Port Header</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -562,7 +562,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_VesselIdHd",
       header: () => (
-        <div className="text-center font-medium text-wrap">Vessel Header</div>
+        <div className="text-center font-medium truncate">Vessel Header</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -584,7 +584,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_AdvRecAmt",
       header: () => (
-        <div className="text-center font-medium text-wrap">Adv Rec Amt</div>
+        <div className="text-center font-medium truncate">Adv Rec Amt</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -601,7 +601,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_BankChgGLId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Bank Chg GL</div>
+        <div className="text-center font-medium truncate">Bank Chg GL</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -622,7 +622,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_InvoiceDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">Invoice Date</div>
+        <div className="text-center font-medium truncate">Invoice Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -643,7 +643,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_InvoiceNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">Invoice No</div>
+        <div className="text-center font-medium truncate">Invoice No</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -660,7 +660,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_SupplierName",
       header: () => (
-        <div className="text-center font-medium text-wrap">Supplier Name</div>
+        <div className="text-center font-medium truncate">Supplier Name</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -681,7 +681,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_GstNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">VAT No</div>
+        <div className="text-center font-medium truncate">VAT No</div>
       ),
 
       cell: ({ row }) => (
@@ -699,7 +699,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_DebitNoteNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">Debit Note No</div>
+        <div className="text-center font-medium truncate">Debit Note No</div>
       ),
 
       cell: ({ row }) => (
@@ -721,7 +721,7 @@ export function VisibleTable() {
     {
       accessorKey: "m_BargeIdHd",
       header: () => (
-        <div className="text-center font-medium text-wrap">Barge Header</div>
+        <div className="text-center font-medium truncate">Barge Header</div>
       ),
 
       cell: ({ row }) => (

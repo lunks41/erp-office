@@ -109,7 +109,7 @@ export function PayrollAccountIntegrationTable({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex min-w-0 items-center gap-2 overflow-hidden">
               <Landmark className="h-5 w-5" />
               Account Integration
             </CardTitle>
@@ -117,7 +117,7 @@ export function PayrollAccountIntegrationTable({
               Manage GL account mappings for payroll components
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <Button
               size="icon"
               variant="ghost"
@@ -153,7 +153,7 @@ export function PayrollAccountIntegrationTable({
                 : "Expand All"}
             </Button>
             <Button
-              className="flex items-center gap-2"
+              className="flex min-w-0 items-center gap-2 overflow-hidden"
               size="sm"
               onClick={onCreateAction}
             >
@@ -182,7 +182,7 @@ export function PayrollAccountIntegrationTable({
                   <TableHead>Expense GL</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="truncate text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -199,7 +199,7 @@ export function PayrollAccountIntegrationTable({
                         <TableRow className="bg-muted/50 hover:bg-muted/70">
                           <TableCell colSpan={7}>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
+                              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -272,7 +272,7 @@ export function PayrollAccountIntegrationTable({
                                     ).toLocaleDateString()
                                   : "N/A"}
                               </TableCell>
-                              <TableCell className="text-right">
+                              <TableCell className="truncate text-right">
                                 <div className="flex items-center justify-end gap-1">
                                   <Dialog>
                                     <DialogTrigger asChild>

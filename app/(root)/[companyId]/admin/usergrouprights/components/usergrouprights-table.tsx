@@ -191,7 +191,7 @@ export function UserGroupSettingTable() {
     {
       id: "selectAll",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Select All</span>
           <Checkbox
             checked={
@@ -234,7 +234,7 @@ export function UserGroupSettingTable() {
     {
       id: "isRead",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>View</span>
           <Checkbox
             checked={isColumnAllSelected("isRead")}
@@ -262,7 +262,7 @@ export function UserGroupSettingTable() {
     {
       id: "isCreate",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Create</span>
           <Checkbox
             checked={isColumnAllSelected("isCreate")}
@@ -290,7 +290,7 @@ export function UserGroupSettingTable() {
     {
       id: "isEdit",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Edit</span>
           <Checkbox
             checked={isColumnAllSelected("isEdit")}
@@ -318,7 +318,7 @@ export function UserGroupSettingTable() {
     {
       id: "isDelete",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Delete</span>
           <Checkbox
             checked={isColumnAllSelected("isDelete")}
@@ -346,7 +346,7 @@ export function UserGroupSettingTable() {
     {
       id: "isExport",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Export</span>
           <Checkbox
             checked={isColumnAllSelected("isExport")}
@@ -374,7 +374,7 @@ export function UserGroupSettingTable() {
     {
       id: "isPrint",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Print</span>
           <Checkbox
             checked={isColumnAllSelected("isPrint")}
@@ -402,7 +402,7 @@ export function UserGroupSettingTable() {
     {
       id: "isPost",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Post</span>
           <Checkbox
             checked={isColumnAllSelected("isPost")}
@@ -430,7 +430,7 @@ export function UserGroupSettingTable() {
     {
       id: "isDebitNote",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Debit Note</span>
           <Checkbox
             checked={isColumnAllSelected("isDebitNote")}
@@ -458,7 +458,7 @@ export function UserGroupSettingTable() {
     {
       id: "isClone",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Clone</span>
           <Checkbox
             checked={isColumnAllSelected("isClone")}

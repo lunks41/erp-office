@@ -58,7 +58,7 @@ export function ConsignmentImportTable({
         accessorKey: "jobOrderNo",
         header: "Job Order No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+          <div className="truncate">{row.getValue("jobOrderNo") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -67,7 +67,7 @@ export function ConsignmentImportTable({
         accessorKey: "vesselName",
         header: "Vessel Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
+          <div className="truncate">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -89,7 +89,7 @@ export function ConsignmentImportTable({
         accessorKey: "awbNo",
         header: "AWB No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("awbNo") || "-"}</div>
+          <div className="truncate">{row.getValue("awbNo") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -99,7 +99,7 @@ export function ConsignmentImportTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -109,7 +109,7 @@ export function ConsignmentImportTable({
         accessorKey: "carrierName",
         header: "Carrier",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("carrierName") || "-"}</div>
+          <div className="truncate">{row.getValue("carrierName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -119,7 +119,7 @@ export function ConsignmentImportTable({
         accessorKey: "consignmentTypeName",
         header: "Consignment Type",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("consignmentTypeName") || "-"}
           </div>
         ),
@@ -132,7 +132,7 @@ export function ConsignmentImportTable({
         header: "Weight",
         cell: ({ row }) => {
           const value = row.getValue("weight") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -141,7 +141,7 @@ export function ConsignmentImportTable({
         accessorKey: "uomName",
         header: "UOM",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("uomName") || "-"}</div>
+          <div className="truncate">{row.getValue("uomName") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -150,7 +150,7 @@ export function ConsignmentImportTable({
         accessorKey: "pickupLocation",
         header: "Pickup Location",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("pickupLocation") || "-"}
           </div>
         ),
@@ -161,7 +161,7 @@ export function ConsignmentImportTable({
         accessorKey: "deliveryLocation",
         header: "Delivery Location",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("deliveryLocation") || "-"}
           </div>
         ),
@@ -178,7 +178,7 @@ export function ConsignmentImportTable({
         accessorKey: "isCleared",
         header: "Is Cleared",
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             {row.getValue("isCleared") ? (
               <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
             ) : (
@@ -193,7 +193,7 @@ export function ConsignmentImportTable({
         accessorKey: "existPortCustom",
         header: "Exist Port Custom",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("existPortCustom") || "-"}
           </div>
         ),
@@ -204,7 +204,7 @@ export function ConsignmentImportTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -220,7 +220,7 @@ export function ConsignmentImportTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,

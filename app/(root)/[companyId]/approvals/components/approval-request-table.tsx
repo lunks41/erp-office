@@ -181,7 +181,7 @@ export function ApprovalRequestTable({
                 onClick={() => onViewDetail(request.requestId)}
               >
                 <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     <FileText className="text-muted-foreground h-4 w-4" />
                     <span className="font-mono text-sm">
                       {request.referenceId}
@@ -189,14 +189,14 @@ export function ApprovalRequestTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     <Badge variant="outline" className="text-xs">
                       {request.processName || "N/A"}
                     </Badge>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     <User className="text-muted-foreground h-4 w-4" />
                     <span className="font-medium">
                       {request.requestedByName || "N/A"}
@@ -206,7 +206,7 @@ export function ApprovalRequestTable({
                 <TableCell>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2">
+                      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                         <Calendar className="text-muted-foreground h-4 w-4" />
                         <span className="text-sm">
                           {getTimeAgo(request.requestedDate)}
@@ -224,7 +224,7 @@ export function ApprovalRequestTable({
                   </Tooltip>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     {getStatusIcon(request.statusId)}
                     <Badge
                       variant="outline"
@@ -240,7 +240,7 @@ export function ApprovalRequestTable({
                   </Badge>
                 </TableCell>
                 {showActions && (
-                  <TableCell className="text-right">
+                  <TableCell className="truncate text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Tooltip>
                         <TooltipTrigger asChild>

@@ -154,7 +154,7 @@ export function UserWiseSettingTable() {
     {
       id: "selectAll",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Select All</span>
           <Checkbox
             checked={
@@ -195,7 +195,7 @@ export function UserWiseSettingTable() {
     {
       id: "isRead",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>View</span>
           <Checkbox
             checked={isColumnAllSelected("isRead")}
@@ -223,7 +223,7 @@ export function UserWiseSettingTable() {
     {
       id: "isCreate",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Create</span>
           <Checkbox
             checked={isColumnAllSelected("isCreate")}
@@ -251,7 +251,7 @@ export function UserWiseSettingTable() {
     {
       id: "isEdit",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Edit</span>
           <Checkbox
             checked={isColumnAllSelected("isEdit")}
@@ -279,7 +279,7 @@ export function UserWiseSettingTable() {
     {
       id: "isDelete",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Delete</span>
           <Checkbox
             checked={isColumnAllSelected("isDelete")}
@@ -307,7 +307,7 @@ export function UserWiseSettingTable() {
     {
       id: "isExport",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Export</span>
           <Checkbox
             checked={isColumnAllSelected("isExport")}
@@ -335,7 +335,7 @@ export function UserWiseSettingTable() {
     {
       id: "isPrint",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Print</span>
           <Checkbox
             checked={isColumnAllSelected("isPrint")}
@@ -363,7 +363,7 @@ export function UserWiseSettingTable() {
     {
       id: "isPost",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Post</span>
           <Checkbox
             checked={isColumnAllSelected("isPost")}

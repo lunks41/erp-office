@@ -278,7 +278,7 @@ export function DocumentOperationsTable<T>({
               const item = row.original
 
               return (
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                   {/* Drag Handle */}
                   <DragHandle
                     id={String(
@@ -573,8 +573,7 @@ export function DocumentOperationsTable<T>({
                     {/* Render data rows */}
                     {table.getRowModel().rows.map((row) => {
                       return (
-                        <TableRow key={row.id}>
-                          {/* Render each visible cell in the row */}
+                        <TableRow key={row.id} className="h-7">
                           {row.getVisibleCells().map((cell, cellIndex) => {
                             const isActions = cell.column.id === "drag-actions"
                             const isFirstColumn = cellIndex === 0
@@ -582,9 +581,10 @@ export function DocumentOperationsTable<T>({
                             return (
                               <TableCell
                                 key={cell.id}
+                                title={String(cell.getValue() ?? "")}
                                 className={`py-1 ${
                                   isFirstColumn || isActions
-                                    ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
+                                    ? "bg-background sticky left-0 z-10"
                                     : ""
                                 }`}
                                 style={{
@@ -602,11 +602,12 @@ export function DocumentOperationsTable<T>({
                                   zIndex: isFirstColumn || isActions ? 10 : 1,
                                 }}
                               >
-                                {/* Render cell content using column definition */}
-                                {flexRender(
-                                  cell.column.columnDef.cell, // Cell renderer from column definition
-                                  cell.getContext() // Cell context with row data
-                                )}
+                                <div className="truncate">
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                  )}
+                                </div>
                               </TableCell>
                             )
                           })}

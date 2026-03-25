@@ -175,7 +175,7 @@ export function LandingItemsTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -185,7 +185,7 @@ export function LandingItemsTable({
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("name") || "-"}</div>
+          <div className="truncate">{row.getValue("name") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -196,7 +196,7 @@ export function LandingItemsTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -206,7 +206,7 @@ export function LandingItemsTable({
         header: "Weight",
         cell: ({ row }) => {
           const value = row.getValue("weight") as number | null | undefined
-          return <div className="text-right">{value != null ? value : "-"}</div>
+          return <div className="truncate text-right">{value != null ? value : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -215,7 +215,7 @@ export function LandingItemsTable({
         accessorKey: "landingPurposeName",
         header: "Landing Purpose",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("landingPurposeName") || "-"}
           </div>
         ),
@@ -227,7 +227,7 @@ export function LandingItemsTable({
         accessorKey: "locationName",
         header: "Location",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("locationName") || "-"}</div>
+          <div className="truncate">{row.getValue("locationName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -237,7 +237,7 @@ export function LandingItemsTable({
         accessorKey: "uomName",
         header: "UOM",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("uomName") || "-"}</div>
+          <div className="truncate">{row.getValue("uomName") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -289,7 +289,7 @@ export function LandingItemsTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -308,7 +308,7 @@ export function LandingItemsTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,

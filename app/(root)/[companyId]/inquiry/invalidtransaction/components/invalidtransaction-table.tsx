@@ -294,14 +294,14 @@ export function InvalidTransactionTable({
               type="button"
               onClick={handleActivate}
               onKeyDown={handleKeyDown}
-              className="text-primary cursor-pointer text-left text-wrap underline decoration-dotted underline-offset-2 hover:decoration-solid"
+              className="text-primary cursor-pointer text-left truncate underline decoration-dotted underline-offset-2 hover:decoration-solid"
             >
               {docNo}
             </button>
           ) : docNo ? (
-            <div className="text-muted-foreground text-wrap">{docNo}</div>
+            <div className="text-muted-foreground truncate">{docNo}</div>
           ) : (
-            <div className="text-wrap">-</div>
+            <div className="truncate">-</div>
           )
         },
       },

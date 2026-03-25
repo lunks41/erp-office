@@ -303,7 +303,7 @@ export default function ArGLContraDetailsTable({
       header: "Ex. Rate",
       size: 100,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docExhRate, exhRateDec)}
         </div>
       ),
@@ -323,7 +323,7 @@ export default function ArGLContraDetailsTable({
       header: "Balance Amt",
       size: 120,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docBalAmt, amtDec)}
         </div>
       ),
@@ -373,7 +373,7 @@ export default function ArGLContraDetailsTable({
       header: "Balance Local Amt",
       size: 140,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docBalLocalAmt, locAmtDec)}
         </div>
       ),
@@ -383,7 +383,7 @@ export default function ArGLContraDetailsTable({
       header: "Alloc Local Amt",
       size: 170,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.allocLocalAmt, locAmtDec)}
         </div>
       ),
@@ -393,7 +393,7 @@ export default function ArGLContraDetailsTable({
       header: "Exh Gain/Loss",
       size: 100,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.exhGainLoss, amtDec)}
         </div>
       ),
@@ -413,7 +413,7 @@ export default function ArGLContraDetailsTable({
       header: "Doc Total Amt",
       size: 100,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docTotAmt, amtDec)}
         </div>
       ),
@@ -423,7 +423,7 @@ export default function ArGLContraDetailsTable({
       header: "Doc Total Local Amt",
       size: 120,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docTotLocalAmt, locAmtDec)}
         </div>
       ),
@@ -434,7 +434,7 @@ export default function ArGLContraDetailsTable({
       header: "Doc Alloc Amt",
       size: 120,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docAllocAmt, amtDec)}
         </div>
       ),
@@ -444,7 +444,7 @@ export default function ArGLContraDetailsTable({
       header: "Doc Alloc Local Amt",
       size: 140,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.docAllocLocalAmt, locAmtDec)}
         </div>
       ),
@@ -454,7 +454,7 @@ export default function ArGLContraDetailsTable({
       header: "Cent Diff",
       size: 80,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.centDiff, locAmtDec)}
         </div>
       ),
@@ -464,7 +464,7 @@ export default function ArGLContraDetailsTable({
       header: "Item",
       size: 40,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
 
@@ -473,7 +473,7 @@ export default function ArGLContraDetailsTable({
       header: "Transaction",
       size: 100,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">{row.original.transactionId}</div>
+        <div className="truncate text-right">{row.original.transactionId}</div>
       ),
       hidden: true,
     },
@@ -482,7 +482,7 @@ export default function ArGLContraDetailsTable({
       header: "Currency ID",
       size: 100,
       cell: ({ row }: { row: { original: IGLContraDt } }) => (
-        <div className="text-right">{row.original.docCurrencyId}</div>
+        <div className="truncate text-right">{row.original.docCurrencyId}</div>
       ),
       hidden: true,
     },

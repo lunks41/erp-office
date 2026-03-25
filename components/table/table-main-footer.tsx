@@ -58,7 +58,7 @@ export function MainTableFooter({
       <div className="mt-1 flex items-center justify-between">
         {/* Page size selector */}
         {onPageSizeChange && (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <span className="text-muted-foreground text-sm">
               Rows per page:
             </span>

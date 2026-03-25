@@ -184,7 +184,7 @@ export default function BankTransferTable({
       accessorKey: "fromTotAmt",
       header: "From Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotAmt"), amtDec)}
         </div>
       ),
@@ -193,7 +193,7 @@ export default function BankTransferTable({
       accessorKey: "fromTotLocalAmt",
       header: "From Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -250,7 +250,7 @@ export default function BankTransferTable({
       accessorKey: "fromExhRate",
       header: "From Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromExhRate"), exhRateDec)}
         </div>
       ),
@@ -267,7 +267,7 @@ export default function BankTransferTable({
       accessorKey: "fromBankChgAmt",
       header: "From Bank Charge Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromBankChgAmt"), amtDec)}
         </div>
       ),
@@ -276,7 +276,7 @@ export default function BankTransferTable({
       accessorKey: "fromBankChgLocalAmt",
       header: "From Bank Charge Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromBankChgLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -285,7 +285,7 @@ export default function BankTransferTable({
       accessorKey: "fromTotAmt",
       header: "From Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotAmt"), amtDec)}
         </div>
       ),
@@ -294,7 +294,7 @@ export default function BankTransferTable({
       accessorKey: "fromTotLocalAmt",
       header: "From Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -312,7 +312,7 @@ export default function BankTransferTable({
       accessorKey: "toExhRate",
       header: "To Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("toExhRate"), exhRateDec)}
         </div>
       ),
@@ -329,7 +329,7 @@ export default function BankTransferTable({
       accessorKey: "toBankChgAmt",
       header: "To Bank Charge Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("toBankChgAmt"), amtDec)}
         </div>
       ),
@@ -338,7 +338,7 @@ export default function BankTransferTable({
       accessorKey: "toBankChgLocalAmt",
       header: "To Bank Charge Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("toBankChgLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -347,7 +347,7 @@ export default function BankTransferTable({
       accessorKey: "toTotAmt",
       header: "To Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("toTotAmt"), amtDec)}
         </div>
       ),
@@ -356,7 +356,7 @@ export default function BankTransferTable({
       accessorKey: "toTotLocalAmt",
       header: "To Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("toTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -365,7 +365,7 @@ export default function BankTransferTable({
       accessorKey: "bankExhRate",
       header: "Bank Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("bankExhRate"), exhRateDec)}
         </div>
       ),
@@ -374,7 +374,7 @@ export default function BankTransferTable({
       accessorKey: "bankTotAmt",
       header: "Bank Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("bankTotAmt"), amtDec)}
         </div>
       ),
@@ -383,7 +383,7 @@ export default function BankTransferTable({
       accessorKey: "bankTotLocalAmt",
       header: "Bank Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("bankTotLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -392,7 +392,7 @@ export default function BankTransferTable({
       accessorKey: "exhGainLoss",
       header: "Exchange Gain/Loss",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhGainLoss"), amtDec)}
         </div>
       ),
@@ -560,7 +560,7 @@ export default function BankTransferTable({
           <div className="flex items-center gap-3">
             {/* Date Filters */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -572,7 +572,7 @@ export default function BankTransferTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

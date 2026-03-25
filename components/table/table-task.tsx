@@ -266,7 +266,7 @@ export function TaskTable<T>({
               // Header checkbox should be checked if any rows are selected
               const headerChecked = hasSelectedRows
               return (
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                   {/* ✅ Header "Select All" Checkbox */}
                   <Checkbox
                     checked={headerChecked}
@@ -528,13 +528,14 @@ export function TaskTable<T>({
                 {/* Render data rows */}
                 {table.getRowModel().rows.map((row) => {
                   return (
-                    <TableRow key={row.id}>
+                    <TableRow key={row.id} className="h-7">
                       {row.getVisibleCells().map((cell, cellIndex) => {
                         const isActions = cell.column.id === "actions"
                         const isFirstColumn = cellIndex === 0
                         return (
                           <TableCell
                             key={cell.id}
+                            title={String(cell.getValue() ?? "")}
                             className={`py-1 ${
                               isFirstColumn || isActions
                                 ? "bg-background sticky left-0 z-10"
@@ -555,10 +556,12 @@ export function TaskTable<T>({
                               zIndex: isFirstColumn || isActions ? 10 : 1,
                             }}
                           >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
+                            <div className="truncate">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </div>
                           </TableCell>
                         )
                       })}

@@ -88,14 +88,14 @@ export function MandatoryTable() {
     {
       accessorKey: "moduleName",
       header: () => (
-        <div className="text-center font-medium text-wrap">Module Name</div>
+        <div className="text-center font-medium truncate">Module Name</div>
       ),
       size: 200,
     },
     {
       accessorKey: "transactionName",
       header: () => (
-        <div className="text-center font-medium text-wrap">
+        <div className="text-center font-medium truncate">
           Transaction Name
         </div>
       ),
@@ -104,7 +104,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_ProductId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Product</div>
+        <div className="text-center font-medium truncate">Product</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -121,7 +121,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_JobOrderId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Job Order</div>
+        <div className="text-center font-medium truncate">Job Order</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -141,7 +141,7 @@ export function MandatoryTable() {
     },
     {
       accessorKey: "m_GLId",
-      header: () => <div className="text-center font-medium text-wrap">GL</div>,
+      header: () => <div className="text-center font-medium truncate">GL</div>,
       cell: ({ row }) => (
         <div className="text-center">
           <Checkbox
@@ -157,7 +157,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_QTY",
       header: () => (
-        <div className="text-center font-medium text-wrap">QTY</div>
+        <div className="text-center font-medium truncate">QTY</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -174,7 +174,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_UomId",
       header: () => (
-        <div className="text-center font-medium text-wrap">UOM</div>
+        <div className="text-center font-medium truncate">UOM</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -191,7 +191,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_UnitPrice",
       header: () => (
-        <div className="text-center font-medium text-wrap">Unit Price</div>
+        <div className="text-center font-medium truncate">Unit Price</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -208,7 +208,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_TotAmt",
       header: () => (
-        <div className="text-center font-medium text-wrap">Total Amount</div>
+        <div className="text-center font-medium truncate">Total Amount</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -225,7 +225,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_Remarks",
       header: () => (
-        <div className="text-center font-medium text-wrap">Remarks</div>
+        <div className="text-center font-medium truncate">Remarks</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -242,7 +242,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_GstId",
       header: () => (
-        <div className="text-center font-medium text-wrap">VAT</div>
+        <div className="text-center font-medium truncate">VAT</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -259,7 +259,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_DeliveryDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">Delivery Date</div>
+        <div className="text-center font-medium truncate">Delivery Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -280,7 +280,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_DepartmentId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Department</div>
+        <div className="text-center font-medium truncate">Department</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -301,7 +301,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_EmployeeId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Employee</div>
+        <div className="text-center font-medium truncate">Employee</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -322,7 +322,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_PortId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Port</div>
+        <div className="text-center font-medium truncate">Port</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -339,7 +339,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_VesselId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Vessel</div>
+        <div className="text-center font-medium truncate">Vessel</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -356,7 +356,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_BargeId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Barge</div>
+        <div className="text-center font-medium truncate">Barge</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -373,7 +373,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_VoyageId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Voyage</div>
+        <div className="text-center font-medium truncate">Voyage</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -390,7 +390,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_SupplyDate",
       header: () => (
-        <div className="text-center font-medium text-wrap">Supply Date</div>
+        <div className="text-center font-medium truncate">Supply Date</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -411,7 +411,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_ReferenceNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">Reference No</div>
+        <div className="text-center font-medium truncate">Reference No</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -432,7 +432,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_SuppInvoiceNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">
+        <div className="text-center font-medium truncate">
           Supplier Invoice No
         </div>
       ),
@@ -455,7 +455,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_BankId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Bank</div>
+        <div className="text-center font-medium truncate">Bank</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -472,7 +472,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_PaymentTypeId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Payment Type</div>
+        <div className="text-center font-medium truncate">Payment Type</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -493,7 +493,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_Remarks_Hd",
       header: () => (
-        <div className="text-center font-medium text-wrap">Remarks Hd</div>
+        <div className="text-center font-medium truncate">Remarks Hd</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -514,7 +514,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_Address1",
       header: () => (
-        <div className="text-center font-medium text-wrap">Address 1</div>
+        <div className="text-center font-medium truncate">Address 1</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -531,7 +531,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_Address2",
       header: () => (
-        <div className="text-center font-medium text-wrap">Address 2</div>
+        <div className="text-center font-medium truncate">Address 2</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -548,7 +548,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_Address3",
       header: () => (
-        <div className="text-center font-medium text-wrap">Address 3</div>
+        <div className="text-center font-medium truncate">Address 3</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -565,7 +565,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_Address4",
       header: () => (
-        <div className="text-center font-medium text-wrap">Address 4</div>
+        <div className="text-center font-medium truncate">Address 4</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -582,7 +582,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_PinCode",
       header: () => (
-        <div className="text-center font-medium text-wrap">Pincode</div>
+        <div className="text-center font-medium truncate">Pincode</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -599,7 +599,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_CountryId",
       header: () => (
-        <div className="text-center font-medium text-wrap">Country</div>
+        <div className="text-center font-medium truncate">Country</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -616,7 +616,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_PhoneNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">Phone No</div>
+        <div className="text-center font-medium truncate">Phone No</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -633,7 +633,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_ContactName",
       header: () => (
-        <div className="text-center font-medium text-wrap">Contact Name</div>
+        <div className="text-center font-medium truncate">Contact Name</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -654,7 +654,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_MobileNo",
       header: () => (
-        <div className="text-center font-medium text-wrap">Mobile No</div>
+        <div className="text-center font-medium truncate">Mobile No</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">
@@ -671,7 +671,7 @@ export function MandatoryTable() {
     {
       accessorKey: "m_EmailAdd",
       header: () => (
-        <div className="text-center font-medium text-wrap">Email</div>
+        <div className="text-center font-medium truncate">Email</div>
       ),
       cell: ({ row }) => (
         <div className="text-center">

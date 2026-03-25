@@ -227,7 +227,7 @@ export function PurchaseTableHeader<TData>({
     <>
       <div className="mb-4 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <Button
               variant="outline"
               size="icon"
@@ -278,7 +278,7 @@ export function PurchaseTableHeader<TData>({
             </Button>
           </div>
           {/* Search Input */}
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <Input
               placeholder="Search..."
               value={searchQuery}

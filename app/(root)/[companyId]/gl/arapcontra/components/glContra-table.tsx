@@ -186,7 +186,7 @@ export default function ContraTable({
         }
 
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(status)}`}
             >
@@ -239,7 +239,7 @@ export default function ContraTable({
       accessorKey: "totAmt",
       header: "Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -248,7 +248,7 @@ export default function ContraTable({
       accessorKey: "totLocalAmt",
       header: "Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -275,7 +275,7 @@ export default function ContraTable({
       accessorKey: "exhRate",
       header: "Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhRate"), exhRateDec)}
         </div>
       ),
@@ -288,7 +288,7 @@ export default function ContraTable({
       accessorKey: "exhGainLoss",
       header: "Exchange Gain/Loss",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhGainLoss"), locAmtDec)}
         </div>
       ),
@@ -464,7 +464,7 @@ export default function ContraTable({
           <div className="flex items-center gap-3">
             {/* Date Filters */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -476,7 +476,7 @@ export default function ContraTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

@@ -143,7 +143,7 @@ export function ArTransactionTable({
         header: "Exchange Rate",
         size: 120,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.original.exhRate, exhRateDec)}
           </div>
         ),
@@ -153,7 +153,7 @@ export function ArTransactionTable({
         header: "Total Amount",
         size: 120,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.original.totAmt, amtDec)}
           </div>
         ),
@@ -163,7 +163,7 @@ export function ArTransactionTable({
         header: "Total Local Amt",
         size: 130,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.original.totLocalAmt, locAmtDec)}
           </div>
         ),
@@ -173,7 +173,7 @@ export function ArTransactionTable({
         header: "Balance Amount",
         size: 120,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.original.balAmt, amtDec)}
           </div>
         ),
@@ -183,7 +183,7 @@ export function ArTransactionTable({
         header: "Balance Local Amt",
         size: 140,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.original.balLocalAmt, locAmtDec)}
           </div>
         ),
@@ -209,7 +209,7 @@ export function ArTransactionTable({
         header: "Transaction ID",
         size: 100,
         cell: ({ row }) => (
-          <div className="text-right">{row.original.transactionId}</div>
+          <div className="truncate text-right">{row.original.transactionId}</div>
         ),
         hidden: true,
       },
@@ -218,7 +218,7 @@ export function ArTransactionTable({
         header: "Document ID",
         size: 100,
         cell: ({ row }) => (
-          <div className="text-right">{row.original.documentId}</div>
+          <div className="truncate text-right">{row.original.documentId}</div>
         ),
         hidden: true,
       },

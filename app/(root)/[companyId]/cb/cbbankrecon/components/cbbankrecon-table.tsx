@@ -153,7 +153,7 @@ export default function BankReconTable({
       accessorKey: "totAmt",
       header: "Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -162,7 +162,7 @@ export default function BankReconTable({
       accessorKey: "opBalAmt",
       header: "Opening Balance",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("opBalAmt"), amtDec)}
         </div>
       ),
@@ -171,7 +171,7 @@ export default function BankReconTable({
       accessorKey: "clBalAmt",
       header: "Closing Balance",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("clBalAmt"), amtDec)}
         </div>
       ),
@@ -180,7 +180,7 @@ export default function BankReconTable({
       accessorKey: "debitTotAmt",
       header: "Debit Total",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.debitTotAmt ?? 0, amtDec)}
         </div>
       ),
@@ -189,7 +189,7 @@ export default function BankReconTable({
       accessorKey: "creditTotAmt",
       header: "Credit Total",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.creditTotAmt ?? 0, amtDec)}
         </div>
       ),
@@ -198,7 +198,7 @@ export default function BankReconTable({
       accessorKey: "allocTotAmt",
       header: "Allocated Total",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.allocTotAmt ?? 0, amtDec)}
         </div>
       ),
@@ -207,7 +207,7 @@ export default function BankReconTable({
       accessorKey: "unAllocTotAmt",
       header: "Unallocated Total",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.original.unAllocTotAmt ?? 0, amtDec)}
         </div>
       ),
@@ -238,7 +238,7 @@ export default function BankReconTable({
       accessorKey: "createById",
       header: "Created By",
       cell: ({ row }) => (
-        <div className="text-right">{row.original.createById}</div>
+        <div className="truncate text-right">{row.original.createById}</div>
       ),
     },
     {
@@ -255,7 +255,7 @@ export default function BankReconTable({
       accessorKey: "editById",
       header: "Edited By",
       cell: ({ row }) => (
-        <div className="text-right">{row.original.editById || "-"}</div>
+        <div className="truncate text-right">{row.original.editById || "-"}</div>
       ),
     },
     {
@@ -272,7 +272,7 @@ export default function BankReconTable({
       accessorKey: "editVersion",
       header: "Version",
       cell: ({ row }) => (
-        <div className="text-right">{row.original.editVersion}</div>
+        <div className="truncate text-right">{row.original.editVersion}</div>
       ),
     },
     {
@@ -395,7 +395,7 @@ export default function BankReconTable({
         <FormProvider {...form}>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -407,7 +407,7 @@ export default function BankReconTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

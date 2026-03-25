@@ -70,7 +70,7 @@ export function FreightTable({
         accessorKey: "referenceNo",
         header: "Reference No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("referenceNo") || "-"}</div>
+          <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -80,7 +80,7 @@ export function FreightTable({
         accessorKey: "vesselName",
         header: "Vessel",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vesselName") || "-"}</div>
+          <div className="truncate">{row.getValue("vesselName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -90,7 +90,7 @@ export function FreightTable({
         accessorKey: "awbNo",
         header: "AWB No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("awbNo") || "-"}</div>
+          <div className="truncate">{row.getValue("awbNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -100,7 +100,7 @@ export function FreightTable({
         accessorKey: "declarationNo",
         header: "Declaration No",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("declarationNo") || "-"}
           </div>
         ),
@@ -112,7 +112,7 @@ export function FreightTable({
         accessorKey: "billEntryNo",
         header: "Bill Entry No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("billEntryNo") || "-"}</div>
+          <div className="truncate">{row.getValue("billEntryNo") || "-"}</div>
         ),
         size: 130,
         minSize: 120,
@@ -122,7 +122,7 @@ export function FreightTable({
         accessorKey: "receiveDate",
         header: "Cleared Date",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {formatDateValue(row.getValue("receiveDate"))}
           </div>
         ),
@@ -133,7 +133,7 @@ export function FreightTable({
         accessorKey: "arrivalDate",
         header: "Arrival Date",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {formatDateValue(row.getValue("arrivalDate"))}
           </div>
         ),
@@ -163,7 +163,7 @@ export function FreightTable({
         accessorKey: "clearedBy",
         header: "Cleared By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("clearedBy") || "-"}</div>
+          <div className="truncate">{row.getValue("clearedBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -173,7 +173,7 @@ export function FreightTable({
         accessorKey: "amountDeposited",
         header: "Amount Deposited",
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {row.getValue("amountDeposited") || "-"}
           </div>
         ),
@@ -184,7 +184,7 @@ export function FreightTable({
         accessorKey: "remarks",
         header: "Remarks",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate text-wrap">
+          <div className="max-w-xs truncate truncate">
             {row.getValue("remarks") || "-"}
           </div>
         ),
@@ -195,7 +195,7 @@ export function FreightTable({
         accessorKey: "carrierName",
         header: "Carrier",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("carrierName") || "-"}</div>
+          <div className="truncate">{row.getValue("carrierName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -205,7 +205,7 @@ export function FreightTable({
         accessorKey: "refundInstrumentNo",
         header: "Refund Instrument No",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("refundInstrumentNo") || "-"}
           </div>
         ),
@@ -217,7 +217,7 @@ export function FreightTable({
         accessorKey: "description",
         header: "Description",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate text-wrap">
+          <div className="max-w-xs truncate truncate">
             {row.getValue("description") || "-"}
           </div>
         ),
@@ -229,7 +229,7 @@ export function FreightTable({
         accessorKey: "deliverDate",
         header: "Delivery Date",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {formatDateValue(row.getValue("deliverDate"))}
           </div>
         ),
@@ -240,7 +240,7 @@ export function FreightTable({
         accessorKey: "serviceModeName",
         header: "Service Mode",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("serviceModeName") || "-"}
           </div>
         ),
@@ -251,7 +251,7 @@ export function FreightTable({
         accessorKey: "consignmentTypeName",
         header: "Consignment Type",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("consignmentTypeName") || "-"}
           </div>
         ),
@@ -263,7 +263,7 @@ export function FreightTable({
         accessorKey: "deliverDate",
         header: "Delivery Date",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {formatDateValue(row.getValue("deliverDate"))}
           </div>
         ),
@@ -275,7 +275,7 @@ export function FreightTable({
         accessorKey: "landingTypeName",
         header: "Landing Type",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("landingTypeName") || "-"}
           </div>
         ),
@@ -286,7 +286,7 @@ export function FreightTable({
         accessorKey: "pickupLocation",
         header: "Pickup Location",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("pickupLocation") || "-"}
           </div>
         ),
@@ -298,7 +298,7 @@ export function FreightTable({
         accessorKey: "deliveryLocation",
         header: "Delivery Location",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("deliveryLocation") || "-"}
           </div>
         ),
@@ -310,7 +310,7 @@ export function FreightTable({
         accessorKey: "jobOrderNo",
         header: "Job Order",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("jobOrderNo") || "-"}</div>
+          <div className="truncate">{row.getValue("jobOrderNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -320,7 +320,7 @@ export function FreightTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -330,7 +330,7 @@ export function FreightTable({
         accessorKey: "isCleared",
         header: "Is Cleared",
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             {row.getValue("isCleared") ? (
               <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
             ) : (
@@ -345,7 +345,7 @@ export function FreightTable({
         accessorKey: "existPortCustom",
         header: "Exist Port Custom",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("existPortCustom") || "-"}
           </div>
         ),
@@ -362,7 +362,7 @@ export function FreightTable({
           if (typeof raw === "string") date = new Date(raw)
           else if (raw instanceof Date) date = raw
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {date && isValid(date) ? format(date, datetimeFormat) : "-"}
             </div>
           )
@@ -374,7 +374,7 @@ export function FreightTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -388,7 +388,7 @@ export function FreightTable({
           if (typeof raw === "string") date = new Date(raw)
           else if (raw instanceof Date) date = raw
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {date && isValid(date) ? format(date, datetimeFormat) : "-"}
             </div>
           )

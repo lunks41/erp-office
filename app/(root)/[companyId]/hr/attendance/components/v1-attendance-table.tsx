@@ -358,19 +358,19 @@ export function AttendanceTable({
       {/* Legend */}
       <div className="bg-muted/30 border-t p-4">
         <div className="flex flex-wrap gap-4 text-xs">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <div className="h-3 w-3 rounded border border-green-200 bg-green-100"></div>
             <span>Present (P)</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <div className="h-3 w-3 rounded border border-red-200 bg-red-100"></div>
             <span>Absent (A)</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <div className="h-3 w-3 rounded border border-gray-200 bg-gray-100"></div>
             <span>Weekend (WK)</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <div className="h-3 w-3 rounded border border-gray-200 bg-yellow-100"></div>
             <span>Vacation Leave (VL)</span>
           </div>

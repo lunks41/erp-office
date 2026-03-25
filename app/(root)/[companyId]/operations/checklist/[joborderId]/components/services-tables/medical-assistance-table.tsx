@@ -178,7 +178,7 @@ export function MedicalAssistanceTable({
         accessorKey: "crewName",
         header: "Crew Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("crewName") || "-"}</div>
+          <div className="truncate">{row.getValue("crewName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -188,7 +188,7 @@ export function MedicalAssistanceTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -198,7 +198,7 @@ export function MedicalAssistanceTable({
         accessorKey: "nationalityName",
         header: "Nationality",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("nationalityName") || "-"}
           </div>
         ),
@@ -210,7 +210,7 @@ export function MedicalAssistanceTable({
         accessorKey: "rankName",
         header: "Rank",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("rankName") || "-"}</div>
+          <div className="truncate">{row.getValue("rankName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -220,7 +220,7 @@ export function MedicalAssistanceTable({
         accessorKey: "visaName",
         header: "Visa Type",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("visaName") || "-"}</div>
+          <div className="truncate">{row.getValue("visaName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -230,7 +230,7 @@ export function MedicalAssistanceTable({
         accessorKey: "reason",
         header: "Reason",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("reason") || "-"}</div>
+          <div className="truncate">{row.getValue("reason") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -239,7 +239,7 @@ export function MedicalAssistanceTable({
         accessorKey: "flightDetails",
         header: "Flight Details",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("flightDetails") || "-"}
           </div>
         ),
@@ -250,7 +250,7 @@ export function MedicalAssistanceTable({
         accessorKey: "hotelName",
         header: "Hotel Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("hotelName") || "-"}</div>
+          <div className="truncate">{row.getValue("hotelName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -259,7 +259,7 @@ export function MedicalAssistanceTable({
         accessorKey: "departureDetails",
         header: "Departure Details",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("departureDetails") || "-"}
           </div>
         ),
@@ -270,7 +270,7 @@ export function MedicalAssistanceTable({
         accessorKey: "transportName",
         header: "Transport Name",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("transportName") || "-"}
           </div>
         ),
@@ -281,7 +281,7 @@ export function MedicalAssistanceTable({
         accessorKey: "clearing",
         header: "Clearing",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("clearing") || "-"}</div>
+          <div className="truncate">{row.getValue("clearing") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -290,7 +290,7 @@ export function MedicalAssistanceTable({
         accessorKey: "overStayRemark",
         header: "Over Stay Remark",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("overStayRemark") || "-"}
           </div>
         ),
@@ -301,7 +301,7 @@ export function MedicalAssistanceTable({
         accessorKey: "modificationRemark",
         header: "Modification Remark",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("modificationRemark") || "-"}
           </div>
         ),
@@ -312,7 +312,7 @@ export function MedicalAssistanceTable({
         accessorKey: "cidClearance",
         header: "CID Clearance",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("cidClearance") || "-"}</div>
+          <div className="truncate">{row.getValue("cidClearance") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -339,7 +339,7 @@ export function MedicalAssistanceTable({
         accessorKey: "clinicName",
         header: "Clinic Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("clinicName") || "-"}</div>
+          <div className="truncate">{row.getValue("clinicName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -382,7 +382,7 @@ export function MedicalAssistanceTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -401,7 +401,7 @@ export function MedicalAssistanceTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,

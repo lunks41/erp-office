@@ -203,7 +203,7 @@ export default function CbGenPaymentTable({
         }
 
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden">
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(status)}`}
             >
@@ -254,7 +254,7 @@ export default function CbGenPaymentTable({
       accessorKey: "totAmt",
       header: "Total Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -263,7 +263,7 @@ export default function CbGenPaymentTable({
       accessorKey: "gstAmt",
       header: "VAT Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("gstAmt"), amtDec)}
         </div>
       ),
@@ -272,7 +272,7 @@ export default function CbGenPaymentTable({
       accessorKey: "totAmtAftGst",
       header: "Total After VAT",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
         </div>
       ),
@@ -318,7 +318,7 @@ export default function CbGenPaymentTable({
       accessorKey: "exhRate",
       header: "Exchange Rate",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("exhRate"), exhRateDec)}
         </div>
       ),
@@ -329,7 +329,7 @@ export default function CbGenPaymentTable({
             accessorKey: "ctyExhRate",
             header: "Country Exchange Rate",
             cell: ({ row }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("ctyExhRate"), exhRateDec)}
               </div>
             ),
@@ -348,7 +348,7 @@ export default function CbGenPaymentTable({
       accessorKey: "totLocalAmt",
       header: "Total Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -359,7 +359,7 @@ export default function CbGenPaymentTable({
             accessorKey: "totCtyAmt",
             header: "Total Country Amount",
             cell: ({ row }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -370,7 +370,7 @@ export default function CbGenPaymentTable({
       accessorKey: "gstAmt",
       header: "VAT Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("gstAmt"), amtDec)}
         </div>
       ),
@@ -379,7 +379,7 @@ export default function CbGenPaymentTable({
       accessorKey: "gstLocalAmt",
       header: "VAT Local Amount",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -390,7 +390,7 @@ export default function CbGenPaymentTable({
             accessorKey: "gstCtyAmt",
             header: "GST Country Amount",
             cell: ({ row }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -401,7 +401,7 @@ export default function CbGenPaymentTable({
       accessorKey: "totAmtAftGst",
       header: "Total After VAT",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
         </div>
       ),
@@ -410,7 +410,7 @@ export default function CbGenPaymentTable({
       accessorKey: "totLocalAmtAftGst",
       header: "Total Local After VAT",
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmtAftGst"), locAmtDec)}
         </div>
       ),
@@ -421,7 +421,7 @@ export default function CbGenPaymentTable({
             accessorKey: "totCtyAmtAftGst",
             header: "Total Country After VAT",
             cell: ({ row }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("totCtyAmtAftGst"), locAmtDec)}
               </div>
             ),
@@ -596,7 +596,7 @@ export default function CbGenPaymentTable({
           <div className="flex items-center gap-3">
             {/* Date Filters */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   From:
                 </span>
@@ -608,7 +608,7 @@ export default function CbGenPaymentTable({
                   isDisabled={isAllTime}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                 <span className="text-muted-foreground text-sm font-medium">
                   To:
                 </span>

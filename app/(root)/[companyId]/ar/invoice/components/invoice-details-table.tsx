@@ -63,7 +63,7 @@ export default function InvoiceDetailsTable({
       header: "Seq No",
       size: 60,
       cell: ({ row }: { row: { original: IArInvoiceDt } }) => (
-        <div className="text-right">{row.original.seqNo}</div>
+        <div className="truncate text-right">{row.original.seqNo}</div>
       ),
     },
     ...(visible?.m_ProductId
@@ -110,7 +110,7 @@ export default function InvoiceDetailsTable({
             header: "Qty",
             size: 60,
             cell: ({ row }: { row: { original: IArInvoiceDt } }) => (
-              <div className="text-right">{row.original.qty}</div>
+              <div className="truncate text-right">{row.original.qty}</div>
             ),
           },
         ]
@@ -132,7 +132,7 @@ export default function InvoiceDetailsTable({
             header: "Price",
             size: 100,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("unitPrice"), amtDec)}
               </div>
             ),
@@ -144,7 +144,7 @@ export default function InvoiceDetailsTable({
       header: "Amount",
       size: 100,
       cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -157,7 +157,7 @@ export default function InvoiceDetailsTable({
             header: "VAT %",
             size: 50,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstPercentage"), 2)}
               </div>
             ),
@@ -167,7 +167,7 @@ export default function InvoiceDetailsTable({
             header: "VAT Amount",
             size: 100,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstAmt"), amtDec)}
               </div>
             ),
@@ -181,7 +181,7 @@ export default function InvoiceDetailsTable({
             header: "Bill Qty",
             size: 60,
             cell: ({ row }: { row: { original: IArInvoiceDt } }) => (
-              <div className="text-right">{row.original.billQTY}</div>
+              <div className="truncate text-right">{row.original.billQTY}</div>
             ),
           },
         ]
@@ -191,7 +191,7 @@ export default function InvoiceDetailsTable({
       header: "Local Amount",
       size: 100,
       cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -203,7 +203,7 @@ export default function InvoiceDetailsTable({
             header: "Country Amount",
             size: 100,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -226,7 +226,7 @@ export default function InvoiceDetailsTable({
             header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
               </div>
             ),
@@ -240,7 +240,7 @@ export default function InvoiceDetailsTable({
             header: "GST Country Amount",
             size: 100,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -298,7 +298,7 @@ export default function InvoiceDetailsTable({
       header: "Doc Item No",
       size: 80,
       cell: ({ row }: { row: { original: IArInvoiceDt } }) => (
-        <div className="text-right">{row.original.docItemNo}</div>
+        <div className="truncate text-right">{row.original.docItemNo}</div>
       ),
     },
     ...(visible?.m_DebitNoteNo
@@ -315,7 +315,7 @@ export default function InvoiceDetailsTable({
       header: "Item No",
       size: 60,
       cell: ({ row }: { row: { original: IArInvoiceDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
   ]

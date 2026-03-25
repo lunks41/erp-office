@@ -53,7 +53,7 @@ export function DebitNoteTable({
       {
         accessorKey: "itemNo",
         header: ({ column }) => (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <span>Item No</span>
             <Button
               variant="ghost"
@@ -93,7 +93,7 @@ export function DebitNoteTable({
         header: "Qty",
         size: 60,
         cell: ({ row }: { row: { original: IDebitNoteDt } }) => (
-          <div className="text-right">{row.original.qty}</div>
+          <div className="truncate text-right">{row.original.qty}</div>
         ),
       },
       {
@@ -101,7 +101,7 @@ export function DebitNoteTable({
         header: "Unit Price",
         size: 100,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.getValue("unitPrice"), amtDec)}
           </div>
         ),
@@ -111,7 +111,7 @@ export function DebitNoteTable({
         header: "Amount",
         size: 100,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.getValue("totAmt"), amtDec)}
           </div>
         ),
@@ -121,7 +121,7 @@ export function DebitNoteTable({
         header: "VAT %",
         size: 50,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.getValue("gstPercentage"), 2)}
           </div>
         ),
@@ -131,7 +131,7 @@ export function DebitNoteTable({
         header: "VAT",
         size: 100,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.getValue("gstAmt"), amtDec)}
           </div>
         ),
@@ -141,7 +141,7 @@ export function DebitNoteTable({
         header: "Total",
         size: 100,
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="truncate text-right">
             {formatNumber(row.getValue("totAmtAftGst"), amtDec)}
           </div>
         ),

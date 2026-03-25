@@ -713,7 +713,7 @@ export function TableContainer<T extends object>({
           />
         )}
         {settings.enableColumnVisibility && (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">

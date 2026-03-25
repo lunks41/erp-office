@@ -124,7 +124,7 @@ export function CustomerTable({
       accessorKey: "isActive",
       header: "Status",
       cell: ({ row }) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-hidden">
           {row.getValue("isActive") ? (
             <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
           ) : (

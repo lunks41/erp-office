@@ -67,7 +67,7 @@ export default function CbPettyCashDetailsTable({
       header: "Seq No",
       size: 60,
       cell: ({ row }: { row: { original: ICbPettyCashDt } }) => (
-        <div className="text-right">{row.original.seqNo}</div>
+        <div className="truncate text-right">{row.original.seqNo}</div>
       ),
     },
     {
@@ -138,7 +138,7 @@ export default function CbPettyCashDetailsTable({
       header: "Amount",
       size: 100,
       cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -151,7 +151,7 @@ export default function CbPettyCashDetailsTable({
             header: "VAT %",
             size: 50,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstPercentage"), priceDec)}
               </div>
             ),
@@ -161,7 +161,7 @@ export default function CbPettyCashDetailsTable({
             header: "VAT Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstAmt"), amtDec)}
               </div>
             ),
@@ -213,7 +213,7 @@ export default function CbPettyCashDetailsTable({
       header: "Local Amount",
       size: 100,
       cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -226,7 +226,7 @@ export default function CbPettyCashDetailsTable({
             header: "Country Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -249,7 +249,7 @@ export default function CbPettyCashDetailsTable({
             header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
               </div>
             ),
@@ -263,7 +263,7 @@ export default function CbPettyCashDetailsTable({
             header: "GST Country Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -331,7 +331,7 @@ export default function CbPettyCashDetailsTable({
       header: "Item No",
       size: 60,
       cell: ({ row }: { row: { original: ICbPettyCashDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
   ]

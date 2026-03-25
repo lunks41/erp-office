@@ -29,7 +29,7 @@ export function PurchaseTableActions<T>({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
       {!hideCheckbox && (
         <Checkbox
           checked={isSelected}

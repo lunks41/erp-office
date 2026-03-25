@@ -127,7 +127,7 @@ export function TransportationLogTable({
         accessorKey: "transportDate",
         header: "Transport Date",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {formatDateValue(row.getValue("transportDate"))}
           </div>
         ),
@@ -138,7 +138,7 @@ export function TransportationLogTable({
         accessorKey: "taskName",
         header: "Task",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("taskName") || "-"}</div>
+          <div className="truncate">{row.getValue("taskName") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -148,7 +148,7 @@ export function TransportationLogTable({
         accessorKey: "chargeName",
         header: "Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -157,7 +157,7 @@ export function TransportationLogTable({
         accessorKey: "refNo",
         header: "Slip No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("refNo") || "-"}</div>
+          <div className="truncate">{row.getValue("refNo") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -168,7 +168,7 @@ export function TransportationLogTable({
         accessorKey: "fromLocation",
         header: "From Location",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("fromLocation") || "-"}</div>
+          <div className="truncate">{row.getValue("fromLocation") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -178,7 +178,7 @@ export function TransportationLogTable({
         accessorKey: "toLocation",
         header: "To Location",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("toLocation") || "-"}</div>
+          <div className="truncate">{row.getValue("toLocation") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -199,7 +199,7 @@ export function TransportationLogTable({
         accessorKey: "transportModeName",
         header: "Transport Mode",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("transportModeName") || "-"}
           </div>
         ),
@@ -210,7 +210,7 @@ export function TransportationLogTable({
         accessorKey: "cargoTypeName",
         header: "Cargo Type",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("cargoTypeName") || "-"}
           </div>
         ),
@@ -222,7 +222,7 @@ export function TransportationLogTable({
         accessorKey: "vehicleNo",
         header: "Vehicle No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vehicleNo") || "-"}</div>
+          <div className="truncate">{row.getValue("vehicleNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -231,7 +231,7 @@ export function TransportationLogTable({
         accessorKey: "driverName",
         header: "Driver Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("driverName") || "-"}</div>
+          <div className="truncate">{row.getValue("driverName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -241,7 +241,7 @@ export function TransportationLogTable({
         accessorKey: "remarks",
         header: "Remarks",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate text-wrap">
+          <div className="max-w-xs truncate truncate">
             {row.getValue("remarks") || "-"}
           </div>
         ),
@@ -253,7 +253,7 @@ export function TransportationLogTable({
         accessorKey: "vendor",
         header: "Vendor",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("vendor") || "-"}</div>
+          <div className="truncate">{row.getValue("vendor") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -263,7 +263,7 @@ export function TransportationLogTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -277,7 +277,7 @@ export function TransportationLogTable({
           if (typeof raw === "string") date = new Date(raw)
           else if (raw instanceof Date) date = raw
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {date && isValid(date) ? format(date, datetimeFormat) : "-"}
             </div>
           )
@@ -289,7 +289,7 @@ export function TransportationLogTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -303,7 +303,7 @@ export function TransportationLogTable({
           if (typeof raw === "string") date = new Date(raw)
           else if (raw instanceof Date) date = raw
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {date && isValid(date) ? format(date, datetimeFormat) : "-"}
             </div>
           )

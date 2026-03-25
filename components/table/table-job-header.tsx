@@ -222,7 +222,7 @@ export function JobTableHeader<TData>({
   }
   return (
     <div className="mb-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         {onCreateAction && (
           <Button onClick={onCreateAction}>
             <Plus className="mr-2 h-4 w-4" />
@@ -273,7 +273,7 @@ export function JobTableHeader<TData>({
         </Button>
       </div>
       {/* Search Input */}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         <Input
           placeholder="Search..."
           value={searchQuery}

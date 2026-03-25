@@ -63,7 +63,7 @@ export default function CreditNoteDetailsTable({
       header: "Seq No",
       size: 60,
       cell: ({ row }: { row: { original: IApCreditNoteDt } }) => (
-        <div className="text-right">{row.original.seqNo}</div>
+        <div className="truncate text-right">{row.original.seqNo}</div>
       ),
     },
     ...(visible?.m_ProductId
@@ -131,7 +131,7 @@ export default function CreditNoteDetailsTable({
             header: "Qty",
             size: 60,
             cell: ({ row }: { row: { original: IApCreditNoteDt } }) => (
-              <div className="text-right">{row.original.qty}</div>
+              <div className="truncate text-right">{row.original.qty}</div>
             ),
           },
         ]
@@ -153,7 +153,7 @@ export default function CreditNoteDetailsTable({
             header: "Price",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("unitPrice"), amtDec)}
               </div>
             ),
@@ -165,7 +165,7 @@ export default function CreditNoteDetailsTable({
       header: "Amount",
       size: 100,
       cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totAmt"), amtDec)}
         </div>
       ),
@@ -178,7 +178,7 @@ export default function CreditNoteDetailsTable({
             header: "VAT %",
             size: 50,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstPercentage"), 2)}
               </div>
             ),
@@ -188,7 +188,7 @@ export default function CreditNoteDetailsTable({
             header: "VAT Amount",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstAmt"), amtDec)}
               </div>
             ),
@@ -202,7 +202,7 @@ export default function CreditNoteDetailsTable({
             header: "Bill Qty",
             size: 60,
             cell: ({ row }: { row: { original: IApCreditNoteDt } }) => (
-              <div className="text-right">{row.original.billQTY}</div>
+              <div className="truncate text-right">{row.original.billQTY}</div>
             ),
           },
         ]
@@ -212,7 +212,7 @@ export default function CreditNoteDetailsTable({
       header: "Local Amount",
       size: 100,
       cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-        <div className="text-right">
+        <div className="truncate text-right">
           {formatNumber(row.getValue("totLocalAmt"), locAmtDec)}
         </div>
       ),
@@ -224,7 +224,7 @@ export default function CreditNoteDetailsTable({
             header: "Country Amount",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -247,7 +247,7 @@ export default function CreditNoteDetailsTable({
             header: "VAT Local Amount",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstLocalAmt"), locAmtDec)}
               </div>
             ),
@@ -261,7 +261,7 @@ export default function CreditNoteDetailsTable({
             header: "GST Country Amount",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
-              <div className="text-right">
+              <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
               </div>
             ),
@@ -319,7 +319,7 @@ export default function CreditNoteDetailsTable({
       header: "Doc Item No",
       size: 80,
       cell: ({ row }: { row: { original: IApCreditNoteDt } }) => (
-        <div className="text-right">{row.original.docItemNo}</div>
+        <div className="truncate text-right">{row.original.docItemNo}</div>
       ),
     },
     {
@@ -327,7 +327,7 @@ export default function CreditNoteDetailsTable({
       header: "Item No",
       size: 60,
       cell: ({ row }: { row: { original: IApCreditNoteDt } }) => (
-        <div className="text-right">{row.original.itemNo}</div>
+        <div className="truncate text-right">{row.original.itemNo}</div>
       ),
     },
   ]

@@ -42,7 +42,7 @@ export function AccountReceiptTableActions<T>({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
       {!hideCheckbox && (
         <Checkbox
           checked={isSelected}
@@ -66,7 +66,7 @@ export function AccountReceiptTableActions<T>({
         <Button
           variant="ghost"
           size="icon"
-          className={`h-6 w-6 ${
+          className={`h-5 w-5 ${
             hasValidAccountId
               ? "cursor-not-allowed text-gray-400 opacity-50"
               : ""
@@ -74,7 +74,7 @@ export function AccountReceiptTableActions<T>({
           onClick={() => !hasValidAccountId && onEditAction?.(row)}
           title={hasValidAccountId ? "Cannot edit - Debit Note exists" : "Edit"}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-3 w-3" />
         </Button>
       )}
 
@@ -82,7 +82,7 @@ export function AccountReceiptTableActions<T>({
         <Button
           variant="ghost"
           size="icon"
-          className={`h-6 w-6 ${
+          className={`h-5 w-5 ${
             hasValidAccountId
               ? "cursor-not-allowed text-gray-400 opacity-50"
               : "text-destructive hover:bg-destructive/10"
@@ -94,7 +94,7 @@ export function AccountReceiptTableActions<T>({
             hasValidAccountId ? "Cannot delete - Debit Note exists" : "Delete"
           }
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3 w-3" />
         </Button>
       )}
     </div>

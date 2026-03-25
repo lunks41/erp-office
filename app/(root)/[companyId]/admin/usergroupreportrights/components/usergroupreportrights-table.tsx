@@ -154,7 +154,7 @@ export function UserGroupReportSettingTable() {
     {
       id: "selectAll",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Select All</span>
           <Checkbox
             checked={
@@ -190,7 +190,7 @@ export function UserGroupReportSettingTable() {
     {
       id: "isExport",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Export</span>
           <Checkbox
             checked={isColumnAllSelected("isExport")}
@@ -218,7 +218,7 @@ export function UserGroupReportSettingTable() {
     {
       id: "isPrint",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <span>Print</span>
           <Checkbox
             checked={isColumnAllSelected("isPrint")}

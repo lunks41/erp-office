@@ -173,7 +173,7 @@ export function EquipmentUsedTable({
         header: "Service Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateValue(row.getValue("date"))}
             </div>
           )
@@ -185,7 +185,7 @@ export function EquipmentUsedTable({
         accessorKey: "referenceNo",
         header: "Reference No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("referenceNo") || "-"}</div>
+          <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
         ),
         size: 130,
         minSize: 100,
@@ -194,7 +194,7 @@ export function EquipmentUsedTable({
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
         ),
         size: 200,
         minSize: 150,
@@ -204,7 +204,7 @@ export function EquipmentUsedTable({
         accessorKey: "mafi",
         header: "MAFI",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("mafi") || "-"}</div>
+          <div className="truncate">{row.getValue("mafi") || "-"}</div>
         ),
         size: 100,
         minSize: 80,
@@ -214,7 +214,7 @@ export function EquipmentUsedTable({
         accessorKey: "others",
         header: "Others",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("others") || "-"}</div>
+          <div className="truncate">{row.getValue("others") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -223,7 +223,7 @@ export function EquipmentUsedTable({
         accessorKey: "craneChargeName",
         header: "Crane Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("craneChargeName") || "-"}
           </div>
         ),
@@ -235,7 +235,7 @@ export function EquipmentUsedTable({
         accessorKey: "forkliftChargeName",
         header: "Forklift Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("forkliftChargeName") || "-"}
           </div>
         ),
@@ -247,7 +247,7 @@ export function EquipmentUsedTable({
         accessorKey: "stevedoreChargeName",
         header: "Stevedore Charge",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("stevedoreChargeName") || "-"}
           </div>
         ),
@@ -259,7 +259,7 @@ export function EquipmentUsedTable({
         accessorKey: "loadingRefNo",
         header: "Loading Ref No",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("loadingRefNo") || "-"}</div>
+          <div className="truncate">{row.getValue("loadingRefNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -269,7 +269,7 @@ export function EquipmentUsedTable({
         header: "Crane Load",
         cell: ({ row }) => {
           const v = row.getValue("craneloading") as number | null | undefined
-          return <div className="text-right">{v != null ? v : "-"}</div>
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
         },
         size: 90,
         minSize: 80,
@@ -279,7 +279,7 @@ export function EquipmentUsedTable({
         header: "Forklift Load",
         cell: ({ row }) => {
           const v = row.getValue("forkliftloading") as number | null | undefined
-          return <div className="text-right">{v != null ? v : "-"}</div>
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -292,7 +292,7 @@ export function EquipmentUsedTable({
             | number
             | null
             | undefined
-          return <div className="text-right">{v != null ? v : "-"}</div>
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
         },
         size: 110,
         minSize: 90,
@@ -301,7 +301,7 @@ export function EquipmentUsedTable({
         accessorKey: "offloadingRefNo",
         header: "Offload Ref No",
         cell: ({ row }) => (
-          <div className="text-wrap">
+          <div className="truncate">
             {row.getValue("offloadingRefNo") || "-"}
           </div>
         ),
@@ -313,7 +313,7 @@ export function EquipmentUsedTable({
         header: "Crane Offload",
         cell: ({ row }) => {
           const v = row.getValue("craneOffloading") as number | null | undefined
-          return <div className="text-right">{v != null ? v : "-"}</div>
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
         },
         size: 100,
         minSize: 80,
@@ -326,7 +326,7 @@ export function EquipmentUsedTable({
             | number
             | null
             | undefined
-          return <div className="text-right">{v != null ? v : "-"}</div>
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
         },
         size: 110,
         minSize: 90,
@@ -339,7 +339,7 @@ export function EquipmentUsedTable({
             | number
             | null
             | undefined
-          return <div className="text-right">{v != null ? v : "-"}</div>
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
         },
         size: 120,
         minSize: 90,
@@ -354,7 +354,7 @@ export function EquipmentUsedTable({
         accessorKey: "notes",
         header: "Notes",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("notes") || "-"}</div>
+          <div className="truncate">{row.getValue("notes") || "-"}</div>
         ),
         size: 180,
         minSize: 150,
@@ -392,7 +392,7 @@ export function EquipmentUsedTable({
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("createBy") || "-"}</div>
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -403,7 +403,7 @@ export function EquipmentUsedTable({
         header: "Create Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("createDate"))}
             </div>
           )
@@ -416,7 +416,7 @@ export function EquipmentUsedTable({
         accessorKey: "editBy",
         header: "Edit By",
         cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("editBy") || "-"}</div>
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -427,7 +427,7 @@ export function EquipmentUsedTable({
         header: "Edit Date",
         cell: ({ row }) => {
           return (
-            <div className="text-wrap">
+            <div className="truncate">
               {formatDateTimeValue(row.getValue("editDate"))}
             </div>
           )

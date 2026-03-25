@@ -82,7 +82,7 @@ export function CustomerInvoiceTable({
             : "-"
 
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2 overflow-hidden">
               <span className="font-medium">{invoiceNo}</span>
               <span className="text-muted-foreground">-</span>
               <Badge variant="outline" className="text-xs">
@@ -131,7 +131,7 @@ export function CustomerInvoiceTable({
         header: "Total Amount",
         cell: ({ row }) => {
           const amount = row.original.totAmtAftGst || 0
-          return <div className="text-right">{amount.toFixed(2)}</div>
+          return <div className="truncate text-right">{amount.toFixed(2)}</div>
         },
         size: 120,
         minSize: 100,
@@ -141,7 +141,7 @@ export function CustomerInvoiceTable({
         header: "Balance",
         cell: ({ row }) => {
           const amount = row.original.balAmt || 0
-          return <div className="text-right">{amount.toFixed(2)}</div>
+          return <div className="truncate text-right">{amount.toFixed(2)}</div>
         },
         size: 120,
         minSize: 100,

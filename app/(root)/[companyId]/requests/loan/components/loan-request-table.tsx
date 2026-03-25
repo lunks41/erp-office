@@ -246,7 +246,7 @@ export function LoanRequestTable({
               <TableHead>Installments</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Purpose</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="truncate text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -305,7 +305,7 @@ export function LoanRequestTable({
                     {loan.remarks || "No purpose provided"}
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="truncate text-right">
                   <div className="flex items-center justify-end space-x-2">
                     <Button
                       variant="outline"

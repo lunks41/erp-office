@@ -251,22 +251,36 @@ export function DebitNoteBaseTable<T>({
           {
             id: "drag-actions",
             header: ({ table }) => {
-              const isAllSelected = table.getIsAllRowsSelected()
-              const hasSelectedRows =
-                table.getSelectedRowModel().rows.length > 0
+              // Only consider rows that CAN be selected (no debit note)
+              const selectableRows = table.getRowModel().rows.filter(row =>
+                row.getCanSelect()
+              )
+              const selectedSelectableRows = selectableRows.filter(row =>
+                row.getIsSelected()
+              )
+              const isAllSelected =
+                selectableRows.length > 0 &&
+                selectedSelectableRows.length === selectableRows.length
+              const hasSelectedRows = selectedSelectableRows.length > 0
               const isIndeterminate = hasSelectedRows && !isAllSelected
 
-              // Header checkbox should be checked if any rows are selected
-              const headerChecked = hasSelectedRows
-
               return (
-                <div className="flex items-center gap-2 pl-5">
-                  {/* ✅ Header "Select All" Checkbox */}
+                <div className="flex items-center gap-1 pl-2">
                   {!hideCheckbox && (
                     <Checkbox
-                      checked={headerChecked}
+                      checked={isAllSelected}
+                      data-state={isIndeterminate ? "indeterminate" : undefined}
                       onCheckedChange={(checked) => {
-                        table.toggleAllPageRowsSelected(!!checked)
+                        if (checked) {
+                          // Select ONLY rows without a debit note
+                          const newSelection: Record<string, boolean> = {}
+                          selectableRows.forEach(row => {
+                            newSelection[row.id] = true
+                          })
+                          table.setRowSelection(newSelection)
+                        } else {
+                          table.setRowSelection({})
+                        }
                       }}
                       className={
                         isIndeterminate
@@ -287,7 +301,7 @@ export function DebitNoteBaseTable<T>({
               const item = row.original
 
               return (
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                   {/* Drag Handle */}
                   <DragHandle
                     id={String(
@@ -337,7 +351,12 @@ export function DebitNoteBaseTable<T>({
     onColumnSizingChange: setColumnSizing,
     onRowSelectionChange: setRowSelection,
     enableColumnResizing: true,
-    enableRowSelection: true,
+    enableRowSelection: (row) => {
+      if (!disableOnDebitNoteExists) return true
+      const item = row.original as Record<string, unknown>
+      const debitNoteId = item.debitNoteId as number | undefined
+      return !debitNoteId || debitNoteId <= 0
+    },
     columnResizeMode: "onChange",
     state: {
       sorting,
@@ -584,8 +603,7 @@ export function DebitNoteBaseTable<T>({
                     {/* Render data rows */}
                     {table.getRowModel().rows.map((row) => {
                       return (
-                        <TableRow key={row.id}>
-                          {/* Render each visible cell in the row */}
+                        <TableRow key={row.id} className="h-7">
                           {row.getVisibleCells().map((cell, cellIndex) => {
                             const isActions = cell.column.id === "drag-actions"
                             const isFirstColumn = cellIndex === 0
@@ -593,9 +611,10 @@ export function DebitNoteBaseTable<T>({
                             return (
                               <TableCell
                                 key={cell.id}
+                                title={String(cell.getValue() ?? "")}
                                 className={`py-1 ${
                                   isFirstColumn || isActions
-                                    ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
+                                    ? "bg-background sticky left-0 z-10"
                                     : ""
                                 }`}
                                 style={{
@@ -613,11 +632,12 @@ export function DebitNoteBaseTable<T>({
                                   zIndex: isFirstColumn || isActions ? 10 : 1,
                                 }}
                               >
-                                {/* Render cell content using column definition */}
-                                {flexRender(
-                                  cell.column.columnDef.cell, // Cell renderer from column definition
-                                  cell.getContext() // Cell context with row data
-                                )}
+                                <div className="truncate">
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                  )}
+                                </div>
                               </TableCell>
                             )
                           })}

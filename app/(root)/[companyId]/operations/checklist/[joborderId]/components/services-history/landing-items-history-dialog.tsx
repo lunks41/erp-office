@@ -236,7 +236,7 @@ export function LandingItemsHistoryDialog({
           date = raw
         }
         return (
-          <div className="text-wrap">
+          <div className="truncate">
             {date && isValid(date) ? format(date, datetimeFormat) : "-"}
           </div>
         )
@@ -266,7 +266,7 @@ export function LandingItemsHistoryDialog({
           date = raw
         }
         return (
-          <div className="text-wrap">
+          <div className="truncate">
             {date && isValid(date) ? format(date, datetimeFormat) : "-"}
           </div>
         )

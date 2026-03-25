@@ -119,7 +119,7 @@ export function SortableTableHeader<TData>({
               >
                 <span
                   className={cn(
-                    "min-w-0 flex-1 font-medium break-words",
+                    "min-w-0 flex-1 font-medium truncate",
                     isRightAligned && "text-right"
                   )}
                   title={
@@ -153,20 +153,26 @@ export function SortableTableHeader<TData>({
             </div>
           </>
         )}
-        <div className="bg-border absolute top-1/2 right-0 h-4 w-px -translate-y-1/2"></div>
-        {canResize && (
+        {canResize ? (
+          /* Wide hit area (16px) with narrow visual indicator */
           <div
             onMouseDown={header.getResizeHandler()}
             onTouchStart={header.getResizeHandler()}
-            className={cn(
-              "bg-border absolute top-1/2 right-0 h-4 w-px -translate-y-1/2 cursor-col-resize opacity-0 transition-opacity",
-              isResizing
-            )}
-            style={{
-              transform: isResizing ? "scaleX(1.5)" : "scaleX(1)",
-            }}
+            onClick={(e) => e.stopPropagation()}
             aria-label="Resize column"
-          />
+            className="absolute top-0 right-0 z-10 flex h-full w-4 cursor-col-resize select-none items-center justify-center"
+          >
+            <div
+              className={cn(
+                "h-4 rounded-full transition-all duration-150",
+                isResizing
+                  ? "bg-primary w-1 opacity-100"
+                  : "bg-border w-px opacity-0 group-hover:opacity-100"
+              )}
+            />
+          </div>
+        ) : (
+          <div className="bg-border absolute top-1/2 right-0 h-4 w-px -translate-y-1/2" />
         )}
       </div>
     </TableHead>

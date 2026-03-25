@@ -242,7 +242,7 @@ export function GridFormatTable() {
                 {isSettingsLoading ? "Loading..." : "Search"}
               </Button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2 overflow-hidden">
               {/* Debug info */}
               <div className="text-muted-foreground text-xs">
                 {selectedUser

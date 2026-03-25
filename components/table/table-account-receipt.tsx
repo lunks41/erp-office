@@ -284,7 +284,7 @@ export function AccountReceiptBaseTable<T>({
               const item = row.original
 
               return (
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                   {/* Drag Handle */}
                   <DragHandle
                     id={String(

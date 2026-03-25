@@ -338,7 +338,7 @@ export function JobTable<T>({
                 <TableBody>
                   {table.getRowModel().rows.map((row) => {
                     return (
-                      <TableRow key={row.id}>
+                      <TableRow key={row.id} className="h-7">
                         {row.getVisibleCells().map((cell, cellIndex) => {
                           const isActions = cell.column.id === "actions"
                           const isFirstColumn = cellIndex === 0
@@ -347,6 +347,7 @@ export function JobTable<T>({
                           return (
                             <TableCell
                               key={cell.id}
+                              title={String(cell.getValue() ?? "")}
                               className={`py-1 ${
                                 isFirstColumn || isActions || isJobNo
                                   ? "bg-background sticky left-0 z-20"
@@ -373,10 +374,12 @@ export function JobTable<T>({
                                     : 1,
                               }}
                             >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
+                              <div className="truncate">
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </div>
                             </TableCell>
                           )
                         })}

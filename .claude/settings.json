@@ -1,13 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find \"d:/Proj/ERP/ERP/app/\\(root\\)/[companyId]/ap/creditnote\" -name \"*.tsx\")",
-      "Bash(find \"d:/Proj/ERP/ERP/app/\\(root\\)/[companyId]/cb/payment\" -name \"*.tsx\")",
-      "Bash(ls \"d:/Proj/ERP/ERP/app/\\(root\\)/[companyId]/ap/\")",
-      "Bash(ls \"d:/Proj/ERP/ERP/app/\\(root\\)/[companyId]/cb/\")",
-      "Bash(find \"d:/Proj/ERP/ERP/app/\\(root\\)/[companyId]/cb/cbgenpayment\" -name \"*.tsx\")",
-      "Bash(grep -n \"^\\\\s*\\\\[\\\\]$\" components/autocomplete/autocomplete-currency.tsx)",
-      "Bash(grep -rL \"\\\\[isRequired\\\\]\" components/autocomplete/*.tsx)"
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//d/Proj/ERP/ERP/**)",
+      "Read(./**)",
+      "Read(components/**)",
+      "Read(hooks/**)",
+      "Read(lib/**)",
+      "Read(pages/**)",
+      "Read(public/**)",
+      "Read(styles/**)",
+      "Read(types/**)",
+      "Read(utils/**)"
     ]
   }
 }

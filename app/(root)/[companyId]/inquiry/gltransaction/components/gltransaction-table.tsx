@@ -130,7 +130,7 @@ export function GlTransactionTable({
         }) => {
           const amount = row.original.totAmt || 0
           return (
-            <div className="text-right">
+            <div className="truncate text-right">
               {amount.toLocaleString(undefined, {
                 minimumFractionDigits: amtDec,
                 maximumFractionDigits: amtDec,
@@ -150,7 +150,7 @@ export function GlTransactionTable({
         }) => {
           const amount = row.original.totLocalAmt || 0
           return (
-            <div className="text-right">
+            <div className="truncate text-right">
               {amount.toLocaleString(undefined, {
                 minimumFractionDigits: locAmtDec,
                 maximumFractionDigits: locAmtDec,
@@ -175,7 +175,7 @@ export function GlTransactionTable({
         }) => {
           const rate = row.original.exhRate || 0
           return (
-            <div className="text-right">
+            <div className="truncate text-right">
               {rate.toLocaleString(undefined, {
                 minimumFractionDigits: exhRateDec,
                 maximumFractionDigits: exhRateDec,
