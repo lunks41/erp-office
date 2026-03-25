@@ -283,6 +283,12 @@ export default function TariffPage() {
     (tariff: ITariff | undefined, companyId: number): ITariffHd | undefined => {
       if (!tariff) return undefined
 
+      const hasLineRates =
+        tariff.displayRate != null ||
+        tariff.basicRate != null ||
+        tariff.minUnit != null ||
+        tariff.maxUnit != null
+
       return {
         companyId: companyId,
         tariffId: tariff.tariffId || 0,
@@ -292,9 +298,9 @@ export default function TariffPage() {
         taskId: tariff.taskId || 0,
         chargeId: tariff.chargeId || 0,
         uomId: tariff.uomId || 0,
-        visaId: tariff.visaId || null,
-        fromLocationId: null,
-        toLocationId: null,
+        visaId: tariff.visaId ?? null,
+        fromLocationId: tariff.fromLocationId ?? null,
+        toLocationId: tariff.toLocationId ?? null,
         isPrepayment: tariff.isPrepayment || false,
         prepaymentPercentage: tariff.prepaymentPercentage || 0,
         itemNo: null,
@@ -305,7 +311,23 @@ export default function TariffPage() {
         editBy: tariff.editBy || null,
         editDate: tariff.editDate || null,
         editVersion: tariff.editVersion || 0,
-        data_details: [],
+        data_details: hasLineRates
+          ? [
+              {
+                tariffId: tariff.tariffId || 0,
+                itemNo:
+                  tariff.seqNo && tariff.seqNo > 0 ? tariff.seqNo : 1,
+                displayRate: tariff.displayRate ?? 0,
+                basicRate: tariff.basicRate ?? 0,
+                minUnit: tariff.minUnit ?? 0,
+                maxUnit: tariff.maxUnit ?? 0,
+                isAdditional: tariff.isAdditional ?? false,
+                additionalUnit: tariff.additionalUnit ?? 0,
+                additionalRate: tariff.additionalRate ?? 0,
+                editVersion: tariff.editVersion ?? 0,
+              },
+            ]
+          : [],
       }
     },
     []
@@ -362,6 +384,14 @@ export default function TariffPage() {
 
   // Delete confirmation state
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean
+    tariff: ITariff | null
+  }>({
+    isOpen: false,
+    tariff: null,
+  })
+
+  const [cloneConfirmation, setCloneConfirmation] = useState<{
     isOpen: boolean
     tariff: ITariff | null
   }>({
@@ -552,6 +582,36 @@ export default function TariffPage() {
     setHasFormErrors(false) // Reset form errors when creating new tariff
     setIsModalOpen(true)
   }
+
+  const handleCloneTariff = useCallback(
+    (tariff: ITariff) => {
+      if (!canCreate) return
+      setCloneConfirmation({ isOpen: true, tariff })
+    },
+    [canCreate]
+  )
+
+  const handleConfirmCloneTariff = useCallback(() => {
+    const tariff = cloneConfirmation.tariff
+    if (!tariff || !canCreate) return
+    const cloned: ITariff = {
+      ...tariff,
+      tariffId: 0,
+      editVersion: 0,
+    }
+    setSelectedTariffId(undefined)
+    setSelectedCustomerId(tariff.customerId || apiParams.customerId)
+    setSelectedTaskId(tariff.taskId || currentTaskId)
+    setSelectedTariff(cloned)
+    setModalMode("create")
+    setHasFormErrors(false)
+    setIsModalOpen(true)
+  }, [
+    cloneConfirmation.tariff,
+    canCreate,
+    apiParams.customerId,
+    currentTaskId,
+  ])
 
   const handleEditTariff = (tariff: ITariff) => {
     setSelectedTariffId(tariff.tariffId)
@@ -1141,8 +1201,11 @@ export default function TariffPage() {
             <TariffTable
               data={tariffByTaskData || []}
               isLoading={isLoading}
+              moduleId={moduleId}
+              transactionId={transactionId}
               onDeleteAction={handleDeleteConfirmation}
               onEditAction={handleEditTariff}
+              onCloneTariff={handleCloneTariff}
               onRefreshAction={() => {
                 handleRefresh()
               }}
@@ -1337,6 +1400,22 @@ export default function TariffPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Clone Confirmation — opens Add Tariff with tariffId 0 after confirm */}
+      <SaveConfirmation
+        open={cloneConfirmation.isOpen}
+        onOpenChange={() =>
+          setCloneConfirmation({ isOpen: false, tariff: null })
+        }
+        onConfirm={handleConfirmCloneTariff}
+        title="Clone Tariff"
+        description={
+          cloneConfirmation.tariff
+            ? `A new tariff will be added with Tariff ID 0, copying values from tariff #${cloneConfirmation.tariff.tariffId} (${[cloneConfirmation.tariff.taskName, cloneConfirmation.tariff.chargeName].filter(Boolean).join(" — ") || "this row"}). Do you want to continue?`
+            : undefined
+        }
+        operationType="clone"
+      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmation

@@ -38,7 +38,7 @@ export default function JobTransactionsPage() {
 
   const today = useMemo(() => new Date(), [])
   const defaultStartDate = useMemo(
-    () => startOfMonth(subMonths(today, 1)),
+    () => startOfMonth(subMonths(today, 6)),
     [today]
   )
   const defaultEndDate = useMemo(() => lastDayOfMonth(today), [today])

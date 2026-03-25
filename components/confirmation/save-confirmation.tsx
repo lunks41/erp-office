@@ -19,6 +19,8 @@ interface SaveConfirmationProps {
   title?: string
   // Name of the item to save (will be shown in the description)
   itemName?: string
+  // When set, replaces the default "Do you want to …" description
+  description?: string
   // Whether the dialog is open
   open?: boolean
   // Called when the dialog open state changes
@@ -30,12 +32,13 @@ interface SaveConfirmationProps {
   // Whether the save operation is in progress
   isSaving?: boolean
   // Type of operation (create, update, etc.)
-  operationType?: "create" | "update" | "save"
+  operationType?: "create" | "update" | "save" | "clone"
 }
 
 export function SaveConfirmation({
   title = "Are you sure?",
   itemName,
+  description,
   open,
   onOpenChange,
   onConfirm,
@@ -62,10 +65,11 @@ export function SaveConfirmation({
     setIsOpen(false)
   }
 
-  // Construct the full description
-  const fullDescription = itemName
-    ? `Do you want to ${operationType} "${itemName}"?`
-    : `Do you want to ${operationType} this item?`
+  const fullDescription =
+    description ??
+    (itemName
+      ? `Do you want to ${operationType} "${itemName}"?`
+      : `Do you want to ${operationType} this item?`)
 
   // Get the appropriate button text based on operation type
   const getButtonText = () => {
@@ -73,6 +77,8 @@ export function SaveConfirmation({
       switch (operationType) {
         case "create":
           return "Creating..."
+        case "clone":
+          return "Cloning..."
         case "update":
           return "Updating..."
         default:
@@ -83,6 +89,8 @@ export function SaveConfirmation({
     switch (operationType) {
       case "create":
         return "Yes, Create"
+      case "clone":
+        return "Yes, Clone"
       case "update":
         return "Yes, Update"
       default:
@@ -94,6 +102,7 @@ export function SaveConfirmation({
   const getButtonColor = () => {
     switch (operationType) {
       case "create":
+      case "clone":
         return "!bg-green-600 !text-white hover:!bg-green-700"
       case "update":
         return "!bg-blue-600 !text-white hover:!bg-blue-700"

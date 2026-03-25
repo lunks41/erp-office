@@ -19,6 +19,7 @@ interface TariffTableProps {
   isLoading?: boolean
   onDeleteAction?: (tariff: ITariff) => void
   onEditAction?: (tariff: ITariff) => void
+  onCloneTariff?: (tariff: ITariff) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: ITariffFilter) => void
   initialSearchValue?: string // Initial search value to sync with parent filters
@@ -38,6 +39,7 @@ export function TariffTable({
   isLoading = false,
   onDeleteAction,
   onEditAction,
+  onCloneTariff,
   onRefreshAction,
   onFilterChange,
   initialSearchValue,
@@ -297,6 +299,9 @@ export function TariffTable({
       onCreateAction={onCreateAction}
       onEditAction={onEditAction}
       onDeleteAction={handleDelete}
+      onCloneRow={onCloneTariff}
+      showRowSelection
+      hideCloneButton={!canCreate}
       //show props
       showHeader={true}
       showFooter={true}

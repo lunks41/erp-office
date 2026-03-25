@@ -277,7 +277,7 @@ function DraggableHeader<T extends object>({
         backgroundColor: "rgba(15,15,15,0.95)",
         whiteSpace: isActions ? "nowrap" : undefined,
       }}
-      className={`px-1 py-0.5 text-center text-sm font-semibold bg-muted/30${isActions ? "sticky-action-header" : ""}`}
+      className={`px-1 py-0.5 text-center text-xs font-semibold bg-muted/30${isActions ? "sticky-action-header" : ""}`}
     >
       {!isActions ? (
         <div
@@ -379,7 +379,7 @@ function DragAlongCell<T extends object>({
         background: isActions ? "rgba(0,0,0,1)" : undefined,
         whiteSpace: isActions ? "nowrap" : undefined,
       }}
-      className={`px-1 py-0.5 align-middle text-sm whitespace-nowrap overflow-hidden${isActions ? "sticky-action-cell" : ""}`}
+      className={`px-1 py-0.5 align-middle text-xs whitespace-nowrap overflow-hidden${isActions ? "sticky-action-cell" : ""}`}
     >
       <div className="truncate">
         {flexRender(cell.column.columnDef.cell, cell)}
@@ -687,7 +687,7 @@ export function TableContainer<T extends object>({
                 zIndex: isActions ? 10 : undefined,
                 background: isActions ? "rgba(0,0,0,1)" : undefined,
               }}
-              className="px-1 py-2 text-sm text-transparent"
+              className="px-1 py-2 text-xs text-transparent"
             >
               &nbsp;
             </td>
@@ -827,7 +827,7 @@ export function TableContainer<T extends object>({
                                   : "default",
                                 backgroundColor: "rgba(15,15,15,0.95)",
                               }}
-                              className={`bg-muted/30 truncate px-1 py-0.5 text-center text-sm font-semibold ${isActions ? "sticky left-0 z-20 whitespace-nowrap" : ""}`}
+                              className={`bg-muted/30 truncate px-1 py-0.5 text-center text-xs font-semibold ${isActions ? "sticky left-0 z-20 whitespace-nowrap" : ""}`}
                             >
                               <div className="relative flex items-center justify-center gap-2">
                                 <div className="truncate">
@@ -964,7 +964,7 @@ export function TableContainer<T extends object>({
                             : "default",
                           backgroundColor: "rgba(15,15,15,0.95)",
                         }}
-                        className={`bg-muted/30 truncate px-1 py-0.5 text-center text-sm font-semibold ${isActions ? "sticky left-0 z-20 whitespace-nowrap" : ""}`}
+                        className={`bg-muted/30 truncate px-1 py-0.5 text-center text-xs font-semibold ${isActions ? "sticky left-0 z-20 whitespace-nowrap" : ""}`}
                       >
                         <div className="relative flex items-center justify-center gap-2">
                           <div className="truncate">
@@ -1026,7 +1026,7 @@ export function TableContainer<T extends object>({
                       <td
                         key={cell.id}
                         style={{ textAlign: align }}
-                        className={`overflow-hidden px-1 py-0.5 align-middle text-sm whitespace-nowrap ${isActions ? "sticky left-0 z-20 whitespace-nowrap" : ""}`}
+                        className={`overflow-hidden px-1 py-0.5 align-middle text-xs whitespace-nowrap ${isActions ? "sticky left-0 z-20 whitespace-nowrap" : ""}`}
                       >
                         <div className="truncate">
                           {flexRender(

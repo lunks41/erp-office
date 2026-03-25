@@ -1,12 +1,12 @@
 import {
-  ICloneUserGroupRights,
   ICloneUserGroupReportRights,
+  ICloneUserGroupRights,
   IResetPassword,
   IShareData,
   IUser,
   IUserGroup,
-  IUserGroupRights,
   IUserGroupReportRights,
+  IUserGroupRights,
   IUserRights,
   IUserRightsv1,
 } from "@/interfaces/admin"
@@ -27,8 +27,8 @@ import {
   ShareData,
   User,
   UserGroup,
-  UserGroupRights,
   UserGroupReportRights,
+  UserGroupRights,
   UserRights,
 } from "@/lib/api-routes"
 

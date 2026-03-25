@@ -23,6 +23,9 @@
 # public folder
 /public
 
+# Claude Code (local worktrees are not repo submodules)
+.claude/worktrees/
+
 # misc
 .DS_Store
 *.pem

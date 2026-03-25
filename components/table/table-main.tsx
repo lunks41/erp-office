@@ -67,6 +67,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
 
 // Custom table components
 import { SortableTableHeader } from "./sortable-table-header"
@@ -120,6 +121,9 @@ interface MainTableProps<T> {
   createButtonText?: string // Custom text for create button
   onEditAction?: (item: T) => void // Callback for editing existing item
   onDeleteAction?: (itemId: string) => void // Callback for deleting item
+  onCloneRow?: (item: T) => void // Callback to clone a row (optional; per-row Copy control)
+  showRowSelection?: boolean // Per-row checkbox + header select-all (TanStack row selection)
+  hideCloneButton?: boolean // Hide clone when false permission etc.
   // ============================================================================
   // VISIBILITY CONTROL PROPS
   // ============================================================================
@@ -183,6 +187,9 @@ export function MainTable<T>({
   createButtonText = "Create", // Custom text for create button
   onEditAction, // Edit item callback
   onDeleteAction, // Delete item callback
+  onCloneRow, // Clone row callback
+  showRowSelection = false, // Row checkboxes
+  hideCloneButton = false,
   // Visibility control props with defaults
   showHeader = true, // Show header by default
   showFooter = true, // Show footer by default
@@ -335,6 +342,11 @@ export function MainTable<T>({
    * Build the complete column configuration for the table
    * This includes the actions column (if enabled) plus all user-defined columns
    */
+  const actionsColumnSize =
+    120 +
+    (showRowSelection ? 36 : 0) +
+    (onCloneRow && !hideCloneButton ? 32 : 0)
+
   const tableColumns: ColumnDef<T>[] = [
     // Conditionally add actions column if showActions is true
     // The MainTableActions component will handle individual button visibility based on permissions
@@ -342,30 +354,67 @@ export function MainTable<T>({
       ? [
           {
             id: "actions", // Unique identifier for the actions column
-            header: "Actions", // Column header text
+            header: showRowSelection
+              ? ({ table }) => {
+                  const isAllSelected = table.getIsAllRowsSelected()
+                  const hasSelectedRows =
+                    table.getSelectedRowModel().rows.length > 0
+                  const isIndeterminate = hasSelectedRows && !isAllSelected
+                  const headerChecked = hasSelectedRows
+                  return (
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={headerChecked}
+                        onCheckedChange={(checked) => {
+                          table.toggleAllPageRowsSelected(!!checked)
+                        }}
+                        className={
+                          isIndeterminate
+                            ? "data-[state=indeterminate]:bg-primary/50"
+                            : "border-primary border-2"
+                        }
+                      />
+                      <span className="font-medium">Actions</span>
+                    </div>
+                  )
+                }
+              : "Actions",
             enableHiding: false, // Actions column cannot be hidden
-            size: 120, // Default column width
-            minSize: 80, // Minimum allowed width
-            // Maximum allowed width
-            cell: (
-              { row } // Cell renderer function
-            ) => (
-              //I'll add more actions here later
+            size: Math.max(actionsColumnSize, 120),
+            minSize: Math.max(actionsColumnSize - 20, 80),
+            cell: ({ row }) => (
               <MainTableActions
-                row={row.original} // Pass the row data
-                idAccessor={accessorId} // Pass the ID accessor key
-                onView={onSelect} // View/select handler
-                onEditAction={onEditAction} // Edit handler
-                onDeleteAction={onDeleteAction} // Delete handler
-                hideView={!canView} // Hide view button if no permission
-                hideEdit={!canEdit} // Hide edit button if no permission
-                hideDelete={!canDelete} // Hide delete button if no permission
+                row={row.original}
+                idAccessor={accessorId}
+                onView={onSelect}
+                onEditAction={onEditAction}
+                onDeleteAction={onDeleteAction}
+                onSelectRow={
+                  showRowSelection
+                    ? (_, checked) => {
+                        row.toggleSelected(checked)
+                      }
+                    : undefined
+                }
+                isSelected={showRowSelection ? row.getIsSelected() : false}
+                onCloneAction={
+                  onCloneRow
+                    ? (cloneRow) => {
+                        onCloneRow(cloneRow)
+                      }
+                    : undefined
+                }
+                hideClone={hideCloneButton || !onCloneRow}
+                hideView={!canView}
+                hideEdit={!canEdit}
+                hideDelete={!canDelete}
+                isConfirmed={isConfirmed}
               />
             ),
           } as ColumnDef<T>,
         ]
-      : []), // Empty array if actions column should not be shown
-    ...columns, // Spread all user-defined columns after the actions column
+      : []),
+    ...columns,
   ]
   // ============================================================================
   // TABLE INSTANCE CREATION

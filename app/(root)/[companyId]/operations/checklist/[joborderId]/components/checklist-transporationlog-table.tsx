@@ -143,15 +143,7 @@ export function TransportationLogTable({
         size: 120,
         minSize: 100,
       },
-      {
-        accessorKey: "serviceName",
-        header: "Service",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("serviceName") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-      },
+
       {
         accessorKey: "chargeName",
         header: "Charge",
@@ -162,16 +154,16 @@ export function TransportationLogTable({
         minSize: 120,
       },
       {
-        accessorKey: "cargoTypeName",
-        header: "Cargo Type",
+        accessorKey: "refNo",
+        header: "Slip No",
         cell: ({ row }) => (
-          <div className="text-wrap">
-            {row.getValue("cargoTypeName") || "-"}
-          </div>
+          <div className="text-wrap">{row.getValue("refNo") || "-"}</div>
         ),
-        size: 150,
-        minSize: 120,
+        size: 100,
+        minSize: 80,
+        enableColumnFilter: true,
       },
+
       {
         accessorKey: "fromLocation",
         header: "From Location",
@@ -193,6 +185,17 @@ export function TransportationLogTable({
         enableColumnFilter: true,
       },
       {
+        accessorKey: "passengerCount",
+        header: "Passengers",
+        cell: ({ row }) => (
+          <div className="text-center">
+            {row.getValue("passengerCount") || 0}
+          </div>
+        ),
+        size: 100,
+        minSize: 80,
+      },
+      {
         accessorKey: "transportModeName",
         header: "Transport Mode",
         cell: ({ row }) => (
@@ -203,6 +206,18 @@ export function TransportationLogTable({
         size: 150,
         minSize: 120,
       },
+      {
+        accessorKey: "cargoTypeName",
+        header: "Cargo Type",
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("cargoTypeName") || "-"}
+          </div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+
       {
         accessorKey: "vehicleNo",
         header: "Vehicle No",
@@ -221,17 +236,6 @@ export function TransportationLogTable({
         size: 150,
         minSize: 120,
       },
-      {
-        accessorKey: "passengerCount",
-        header: "Passengers",
-        cell: ({ row }) => (
-          <div className="text-center">
-            {row.getValue("passengerCount") || 0}
-          </div>
-        ),
-        size: 100,
-        minSize: 80,
-      },
 
       {
         accessorKey: "remarks",
@@ -244,16 +248,7 @@ export function TransportationLogTable({
         size: 200,
         minSize: 150,
       },
-      {
-        accessorKey: "refNo",
-        header: "Slip No",
-        cell: ({ row }) => (
-          <div className="text-wrap">{row.getValue("refNo") || "-"}</div>
-        ),
-        size: 150,
-        minSize: 120,
-        enableColumnFilter: true,
-      },
+
       {
         accessorKey: "vendor",
         header: "Vendor",
