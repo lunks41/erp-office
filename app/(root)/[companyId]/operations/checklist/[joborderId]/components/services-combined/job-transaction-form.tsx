@@ -44,7 +44,11 @@ import {
   JobOrderTaskAutocomplete,
 } from "@/components/autocomplete"
 
-interface PurchaseJobTransactionRow extends IPurchaseData {
+interface PurchaseJobTransactionRow
+  extends Omit<
+    IPurchaseData,
+    "seqNo" | "jobOrderId" | "taskId" | "serviceItemNo"
+  > {
   seqNo?: number
   jobOrderId?: number
   jobOrderNo?: string
@@ -83,7 +87,7 @@ export function JobTransactionForm({
     ApJobTransaction.update
   )
 
-  const { data: transactionResponse } = useGet<IJobTransaction[]>(
+  const { data: transactionResponse } = useGet<IJobTransaction>(
     ApJobTransaction.getList,
     `job-transaction-${row?.documentNo ?? ""}-${row?.itemNo}`,
     row?.documentNo ? String(row.documentNo) : "",
@@ -201,10 +205,20 @@ export function JobTransactionForm({
         ? new Date(sourceRow.accountDate).toLocaleDateString()
         : ""
 
+      const invoiceIdStr = String(
+        "documentId" in sourceRow
+          ? sourceRow.documentId
+          : (sourceRow.invoiceId ?? "")
+      )
+      const documentNoStr =
+        "documentNo" in sourceRow
+          ? sourceRow.documentNo || ""
+          : sourceRow.invoiceNo || ""
+
       form.reset({
         moduleId: sourceRow.moduleId,
         transactionId: sourceRow.transactionId,
-        invoiceId: String(sourceRow.invoiceId || sourceRow.documentId || ""),
+        invoiceId: invoiceIdStr,
         itemNo: sourceRow.itemNo,
         seqNo: sourceRow.seqNo,
         jobOrderId: sourceRow.jobOrderId,
@@ -214,7 +228,7 @@ export function JobTransactionForm({
         serviceItemNo: sourceRow.serviceItemNo ?? 0,
         serviceItemNoName: sourceRow.serviceName || "",
         remarks: sourceRow.remarks || "",
-        documentNo: sourceRow.documentNo || "",
+        documentNo: documentNoStr,
         suppInvoiceNo: sourceRow.suppInvoiceNo || "",
         accountDate: accountDateDisplay,
       })

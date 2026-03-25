@@ -257,7 +257,7 @@ export function TaskTableHeader<TData>({
     <>
       <div className="mb-4 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <Button
               onClick={onCreateAction}
               disabled={isConfirmed}
@@ -324,25 +324,6 @@ export function TaskTableHeader<TData>({
             >
               <Forward className="h-4 w-4" />
             </Button>
-            {onCloneTask && (
-              <Button
-                variant="outline"
-                onClick={handleCloneTaskClick}
-                title={
-                  hasSelectedRows
-                    ? "Clone Task to Different Company"
-                    : "Please select at least one item first"
-                }
-                disabled={!hasSelectedRows || isConfirmed}
-                className={
-                  !hasSelectedRows || isConfirmed
-                    ? "cursor-not-allowed opacity-50"
-                    : ""
-                }
-              >
-                <Building2 className="h-4 w-4" />
-              </Button>
-            )}
 
             {canDebitNote && (
               <div className="ml-4 flex items-center gap-2">
@@ -400,7 +381,27 @@ export function TaskTableHeader<TData>({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+            {onCloneTask && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleCloneTaskClick}
+                title={
+                  hasSelectedRows
+                    ? "Clone Task to Different Company"
+                    : "Please select at least one item first"
+                }
+                disabled={!hasSelectedRows || isConfirmed}
+                className={
+                  !hasSelectedRows || isConfirmed
+                    ? "cursor-not-allowed opacity-50"
+                    : ""
+                }
+              >
+                <Building2 className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="outline"
               size="icon"

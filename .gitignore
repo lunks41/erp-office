@@ -26,6 +26,11 @@
 # Claude Code (local worktrees are not repo submodules)
 .claude/worktrees/
 
+# Local IDE / AI tool folders (do not commit)
+.cursor/
+.vscode/
+.claude/
+
 # misc
 .DS_Store
 *.pem

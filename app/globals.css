@@ -266,3 +266,37 @@
         border: 0;
     }
 }
+
+/*
+ * App-wide compact buttons (shadcn Button sets data-slot="button").
+ * Also covers DropdownMenuTrigger asChild which may override data-slot to
+ * "dropdown-menu-trigger", causing the button override to be skipped.
+ * Overrides default / sm / lg height & padding from components/ui/button.tsx.
+ */
+[data-slot="button"],
+[data-slot="dropdown-menu-trigger"] {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+    min-height: 1.625rem !important;
+    height: auto !important;
+    padding-inline: 0.5rem !important;
+    padding-block: 0.125rem !important;
+    gap: 0.25rem !important;
+    border-radius: 0.25rem !important;
+}
+
+[data-slot="button"] svg:not([class*="size-"]),
+[data-slot="dropdown-menu-trigger"] svg:not([class*="size-"]) {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+}
+
+/* size="icon" — compact square icon buttons */
+[data-slot="button"].size-9,
+[data-slot="dropdown-menu-trigger"].size-9 {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    min-width: 1.75rem !important;
+    min-height: 1.75rem !important;
+    padding: 0 !important;
+}
