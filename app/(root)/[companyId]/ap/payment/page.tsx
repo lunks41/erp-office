@@ -1210,9 +1210,9 @@ export default function PaymentPage() {
                   <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
                   Cancelled
                 </span>
-                {payment?.cancelRemarks && (
+                {displayCancelRemarks && (
                   <div className="max-w-xs truncate text-sm text-red-600">
-                    {payment.cancelRemarks}
+                    {displayCancelRemarks}
                   </div>
                 )}
               </div>

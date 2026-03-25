@@ -402,7 +402,7 @@ export function AttendanceBulkForm({
                                           ? "border-red-200 bg-red-100 text-red-800"
                                           : day.status === "WK"
                                             ? "border-gray-200 bg-gray-100 text-gray-800"
-                                            : "border-yellow-200 bg-yellow-100 text-yellow-800"
+                                            : "border-gray-200 bg-yellow-100 text-yellow-800"
                                     }`}
                                     onClick={() => {
                                       // Cycle through statuses: A -> P -> WK -> VL -> A

@@ -107,7 +107,7 @@ export function ApprovalRequestTable({
       case APPROVAL_STATUS.REJECTED:
         return "text-red-700 bg-red-50 border-red-200"
       case APPROVAL_STATUS.PENDING:
-        return "text-yellow-700 bg-yellow-50 border-yellow-200"
+        return "text-yellow-700 bg-yellow-50 border-gray-200"
       default:
         return "text-gray-700 bg-gray-50 border-gray-200"
     }

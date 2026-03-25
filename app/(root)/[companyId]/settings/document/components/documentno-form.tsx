@@ -934,7 +934,7 @@ export function DocumentNoForm() {
                           key={`month-row-${i}`}
                           className={`transition-colors duration-200 ${
                             isLastNumber
-                              ? "border-l-4 border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20"
+                              ? "border-l-4 border-gray-400 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20"
                               : i % 2 === 1
                                 ? "bg-muted/20"
                                 : "bg-background"

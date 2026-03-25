@@ -160,7 +160,7 @@ export default function LoanPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-yellow-200 bg-yellow-50/50">
+        <Card className="border-gray-200 bg-yellow-50/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
             <CardTitle className="text-xs font-medium text-yellow-700">
               Skip Installments
@@ -248,7 +248,7 @@ export default function LoanPage() {
           </TabsTrigger>
           <TabsTrigger
             value="loan-requests"
-            className="relative text-xs data-[state=active]:border-yellow-200 data-[state=active]:bg-yellow-100 data-[state=active]:text-yellow-700 sm:text-sm"
+            className="relative text-xs data-[state=active]:border-gray-200 data-[state=active]:bg-yellow-100 data-[state=active]:text-yellow-700 sm:text-sm"
           >
             <span className="hidden sm:inline">New Loan Requests</span>
             <span className="sm:hidden">Requests</span>

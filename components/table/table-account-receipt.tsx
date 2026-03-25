@@ -501,7 +501,10 @@ export function AccountReceiptBaseTable<T>({
       {/* ========================================================================= */}
       {/* MAIN TABLE CONTAINER - NO OUTER <Table>! */}
       {/* ========================================================================= */}
-      <div className="max-h-[460px] overflow-auto rounded-lg border">
+      <div
+        className="overflow-auto rounded-lg border"
+        style={{ maxHeight }}
+      >
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

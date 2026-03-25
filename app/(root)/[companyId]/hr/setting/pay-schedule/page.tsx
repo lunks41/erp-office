@@ -73,7 +73,7 @@ export default function PaySchedulePage() {
       ) : (
         <div className="space-y-4 sm:space-y-6">
           {/* Warning Banner */}
-          <Alert className="border-yellow-200 bg-yellow-50">
+          <Alert className="border-gray-200 bg-yellow-50">
             <Lightbulb className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-sm text-yellow-800">
               Note: Pay Schedule cannot be edited once you process the first pay

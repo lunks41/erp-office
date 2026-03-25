@@ -287,7 +287,7 @@ export default function LoanDetailsPage() {
         </div>
         {/* Alert Banner */}
         {selectedLoan.requestStatus === "PAUSED" && (
-          <div className="border-l-4 border-yellow-400 bg-yellow-50 p-2">
+          <div className="border-l-4 border-gray-400 bg-yellow-50 p-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <AlertTriangle className="mr-2 h-5 w-5 text-yellow-400" />

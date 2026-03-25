@@ -71,7 +71,10 @@ export default function CompanySupplierAutocomplete<
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
       return (
-        <components.DropdownIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
+        <components.DropdownIndicator
+          {...props}
+          innerProps={{ ...props.innerProps, tabIndex: -1 }}
+        >
           <IconChevronDown size={12} className="size-4 shrink-0 opacity-50" />
         </components.DropdownIndicator>
       )
@@ -82,7 +85,10 @@ export default function CompanySupplierAutocomplete<
   const ClearIndicator = React.memo(
     (props: ClearIndicatorProps<FieldOption>) => {
       return (
-        <components.ClearIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
+        <components.ClearIndicator
+          {...props}
+          innerProps={{ ...props.innerProps, tabIndex: -1 }}
+        >
           <IconX size={10} className="size-3 shrink-0" />
         </components.ClearIndicator>
       )
@@ -117,7 +123,9 @@ export default function CompanySupplierAutocomplete<
             ? "border-ring ring-[3px] ring-ring/50"
             : "border-gray-400 dark:border-gray-500",
           state.isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-          isRequired && !state.isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700",
+          isRequired &&
+            !state.isDisabled &&
+            "bg-yellow-50 border-gray-400 dark:bg-yellow-950/20 dark:border-gray-500",
           "h-9 min-h-9"
         ),
       menu: () =>
@@ -195,7 +203,7 @@ export default function CompanySupplierAutocomplete<
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
       isOptionSelectedRef.current = !!selectedOption
-      
+
       if (form && name) {
         // Set the value as a number
         const value = selectedOption ? Number(selectedOption.value) : 0
@@ -230,7 +238,7 @@ export default function CompanySupplierAutocomplete<
   const selectControlRef = React.useRef<HTMLDivElement>(null)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
-  
+
   const handleMenuClose = React.useCallback(() => {
     // Only refocus if:
     // 1. Tab was NOT pressed (to allow Tab navigation)
@@ -245,7 +253,7 @@ export default function CompanySupplierAutocomplete<
           if (input) {
             const activeElement = document.activeElement as HTMLElement
             const form = selectControlRef.current.closest("form")
-            
+
             // Only refocus if:
             // 1. Focus is not already on the input
             // 2. Focus is on the form, body, or outside the form
@@ -264,7 +272,7 @@ export default function CompanySupplierAutocomplete<
         }
       })
     }
-    
+
     // Reset flags after menu closes
     requestAnimationFrame(() => {
       isTabPressedRef.current = false
@@ -296,7 +304,7 @@ export default function CompanySupplierAutocomplete<
               const inputIndex = allFocusable.findIndex(
                 (el) => el === input || el.contains(input)
               )
-              
+
               if (event.shiftKey) {
                 // Shift+Tab: go to previous element
                 if (inputIndex !== -1 && inputIndex > 0) {
@@ -349,7 +357,10 @@ export default function CompanySupplierAutocomplete<
     return (
       <div className={cn("flex flex-col gap-1", className)}>
         {label && (
-          <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+          <Label
+            htmlFor={name}
+            className={cn("text-sm font-medium", isRequired && "text-red-500")}
+          >
             {label}
             {isRequired && <span className="ml-1 text-red-500">*</span>}
           </Label>

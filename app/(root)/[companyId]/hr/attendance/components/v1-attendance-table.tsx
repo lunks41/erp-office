@@ -371,7 +371,7 @@ export function AttendanceTable({
             <span>Weekend (WK)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded border border-yellow-200 bg-yellow-100"></div>
+            <div className="h-3 w-3 rounded border border-gray-200 bg-yellow-100"></div>
             <span>Vacation Leave (VL)</span>
           </div>
         </div>

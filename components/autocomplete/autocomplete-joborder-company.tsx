@@ -80,7 +80,10 @@ export default function JobOrderCompanyAutocomplete<
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
       return (
-        <components.DropdownIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
+        <components.DropdownIndicator
+          {...props}
+          innerProps={{ ...props.innerProps, tabIndex: -1 }}
+        >
           <IconChevronDown size={12} className="size-4 shrink-0 opacity-50" />
         </components.DropdownIndicator>
       )
@@ -91,7 +94,10 @@ export default function JobOrderCompanyAutocomplete<
   const ClearIndicator = React.memo(
     (props: ClearIndicatorProps<FieldOption>) => {
       return (
-        <components.ClearIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
+        <components.ClearIndicator
+          {...props}
+          innerProps={{ ...props.innerProps, tabIndex: -1 }}
+        >
           <IconX size={10} className="size-3 shrink-0" />
         </components.ClearIndicator>
       )
@@ -126,7 +132,9 @@ export default function JobOrderCompanyAutocomplete<
             ? "border-ring ring-[3px] ring-ring/50"
             : "border-gray-400 dark:border-gray-500",
           state.isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-          isRequired && !state.isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700",
+          isRequired &&
+            !state.isDisabled &&
+            "bg-yellow-50 border-gray-400 dark:bg-yellow-950/20 dark:border-gray-500",
           "h-9 min-h-9"
         ),
       menu: () =>
@@ -359,7 +367,13 @@ export default function JobOrderCompanyAutocomplete<
       <div className={cn("flex flex-col gap-1", className)}>
         {label && (
           <div className="flex items-center gap-1">
-            <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+            <Label
+              htmlFor={name}
+              className={cn(
+                "text-sm font-medium",
+                isRequired && "text-red-500"
+              )}
+            >
               {label}
             </Label>
             <button

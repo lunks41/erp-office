@@ -356,7 +356,7 @@ export function AttendanceTable({
                                     ? "border-red-200 bg-red-100 text-red-800"
                                     : day.status === "WK"
                                       ? "border-blue-200 bg-blue-100 text-blue-800"
-                                      : "border-yellow-200 bg-yellow-100 text-yellow-800"
+                                      : "border-gray-200 bg-yellow-100 text-yellow-800"
                               }`}
                               onClick={() => {
                                 const statusCycle = [
@@ -417,7 +417,7 @@ export function AttendanceTable({
               <span>Weekend (WK)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded border border-yellow-200 bg-yellow-100"></div>
+              <div className="h-3 w-3 rounded border border-gray-200 bg-yellow-100"></div>
               <span>Vacation Leave (VL)</span>
             </div>
           </div>

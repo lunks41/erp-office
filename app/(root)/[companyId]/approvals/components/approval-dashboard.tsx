@@ -57,7 +57,7 @@ export function ApprovalDashboard({ requests }: ApprovalDashboardProps) {
       icon: Clock,
       color: "text-yellow-600",
       bgColor: "bg-yellow-100",
-      borderColor: "border-yellow-200",
+      borderColor: "border-gray-200",
       description: "Awaiting decision",
       trend: pendingCount > 0 ? "up" : "stable",
     },

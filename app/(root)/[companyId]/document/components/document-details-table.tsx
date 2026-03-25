@@ -49,7 +49,7 @@ const EXPIRY_BADGE: Record<
   },
   warning: {
     label: "Expiring Soon",
-    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
+    className: "bg-yellow-100 text-yellow-700 border-gray-200",
   },
   valid: {
     label: "Valid",

@@ -348,7 +348,10 @@ export function BasicTable<T>({
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="max-h-[460px] overflow-auto rounded-lg border">
+          <div
+            className="overflow-auto rounded-lg border"
+            style={{ maxHeight }}
+          >
             <table
               className="w-full table-fixed border-collapse"
               style={{ minWidth: "100%" }}

@@ -51,7 +51,7 @@ export function BalanceMismatchWarning({
               saved until the amounts are balanced.
             </p>
 
-            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+            <div className="rounded-md border border-gray-200 bg-yellow-50 p-4 dark:border-gray-800 dark:bg-yellow-900/20">
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-gray-700 dark:text-gray-300">
@@ -69,7 +69,7 @@ export function BalanceMismatchWarning({
                     {formatAmount(creditTotal)}
                   </span>
                 </div>
-                <div className="border-t border-yellow-300 pt-2 dark:border-yellow-700">
+                <div className="border-t border-gray-300 pt-2 dark:border-gray-500">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-red-600 dark:text-red-400">
                       Difference:

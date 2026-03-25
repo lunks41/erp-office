@@ -41,7 +41,10 @@ export default function CustomTextarea<T extends Record<string, unknown>>({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+        <Label
+          htmlFor={name}
+          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+        >
           {label}
           {isRequired && <span className="ml-1">*</span>}
         </Label>
@@ -85,7 +88,7 @@ export default function CustomTextarea<T extends Record<string, unknown>>({
                     isDisabled
                       ? "cursor-not-allowed border-gray-300 bg-gray-200 text-gray-500 opacity-60 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400"
                       : isRequired
-                        ? "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700"
+                        ? "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20"
                         : "bg-muted/5 border-gray-400 dark:border-gray-500"
                   )}
                 />

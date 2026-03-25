@@ -128,7 +128,7 @@ export function LoanSkipRequestForm({
               isDisabled={isLoading}
             />
 
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+            <div className="rounded-lg border border-gray-200 bg-yellow-50 p-4">
               <h4 className="mb-2 font-medium text-yellow-800">
                 Important Notice
               </h4>

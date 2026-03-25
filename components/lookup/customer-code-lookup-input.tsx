@@ -8,9 +8,9 @@ import {
   useRef,
   useState,
 } from "react"
-import { createPortal } from "react-dom"
 import { ICustomerLookup } from "@/interfaces/lookup"
 import { X } from "lucide-react"
+import { createPortal } from "react-dom"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
@@ -196,7 +196,9 @@ export default function CustomerCodeLookupInput<
       ref={containerRef}
     >
       {label && (
-        <Label className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+        <Label
+          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+        >
           {label}
           {isRequired && <span className="ml-1">*</span>}
         </Label>
@@ -223,7 +225,12 @@ export default function CustomerCodeLookupInput<
                   onFocus={() => setOpen(true)}
                   onKeyDown={handleKeyDown}
                   autoComplete="off"
-                  className={cn("pr-8", isRequired && !isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700")}
+                  className={cn(
+                    "pr-8",
+                    isRequired &&
+                      !isDisabled &&
+                      "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20"
+                  )}
                 />
                 <div className="absolute top-1/2 right-1 flex -translate-y-1/2 items-center gap-0.5">
                   {inputValue && !isDisabled && (
@@ -261,7 +268,7 @@ export default function CustomerCodeLookupInput<
             }}
           >
             {isLoading ? (
-              <div className="px-3 py-2 text-sm text-muted-foreground">
+              <div className="text-muted-foreground px-3 py-2 text-sm">
                 Loading...
               </div>
             ) : (
@@ -271,7 +278,7 @@ export default function CustomerCodeLookupInput<
                     <button
                       type="button"
                       className={cn(
-                        "w-full cursor-pointer rounded-sm px-2 py-1.5 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+                        "hover:bg-accent hover:text-accent-foreground w-full cursor-pointer rounded-sm px-2 py-1.5 text-left text-sm outline-none",
                         i === highlightIndex &&
                           "bg-accent text-accent-foreground"
                       )}

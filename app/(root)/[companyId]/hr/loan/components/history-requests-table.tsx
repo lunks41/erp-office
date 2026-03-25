@@ -78,7 +78,7 @@ export const columns: ColumnDef<ILoanRequest>[] = [
         case "Pending":
           variant = "secondary"
           className =
-            "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200"
+            "bg-yellow-100 text-yellow-800 border-gray-200 hover:bg-yellow-200"
           break
         case "Completed":
           variant = "default"

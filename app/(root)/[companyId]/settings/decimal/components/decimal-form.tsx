@@ -37,7 +37,7 @@ export function DecimalForm() {
   const { data: decimalResponse, isLoading, isError, refetch } = useDecimalGet()
   console.log("decimalResponse", decimalResponse)
   const decimalSelectTriggerClassName =
-    "w-full bg-yellow-50 border-yellow-300 focus:ring-yellow-400 focus-visible:ring-yellow-400"
+    "w-full bg-yellow-50 border-gray-300 focus:ring-yellow-400 focus-visible:ring-yellow-400"
   const decimalOptionsZeroToFour = ["0", "1", "2", "3", "4"]
   const decimalOptionsZeroToTen = [
     "0",

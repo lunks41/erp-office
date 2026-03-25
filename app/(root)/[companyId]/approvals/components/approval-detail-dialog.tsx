@@ -114,7 +114,7 @@ export function ApprovalDetailDialog({
       case APPROVAL_STATUS.REJECTED:
         return "text-red-700 bg-red-50 border-red-200"
       case APPROVAL_STATUS.PENDING:
-        return "text-yellow-700 bg-yellow-50 border-yellow-200"
+        return "text-yellow-700 bg-yellow-50 border-gray-200"
       default:
         return "text-gray-700 bg-gray-50 border-gray-200"
     }
@@ -302,7 +302,7 @@ export function ApprovalDetailDialog({
                                   isCompleted
                                     ? "border-green-300 bg-green-100 text-green-600"
                                     : isCurrentLevel
-                                      ? "border-yellow-300 bg-yellow-100 text-yellow-600"
+                                      ? "border-gray-300 bg-yellow-100 text-yellow-600"
                                       : "border-gray-300 bg-gray-100 text-gray-400"
                                 }`}
                               >

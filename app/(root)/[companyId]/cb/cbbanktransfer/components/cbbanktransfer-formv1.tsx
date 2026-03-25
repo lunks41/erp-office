@@ -771,7 +771,7 @@ export default function BankTransferForm({
         className="space-y-4 rounded-md"
       >
         {/* ============ SECTION 1: HEADER ============ */}
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-500 dark:bg-gray-800/50">
           <h3 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
             Header Information
           </h3>

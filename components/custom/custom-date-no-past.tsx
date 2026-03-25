@@ -88,7 +88,10 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+        <Label
+          htmlFor={name}
+          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+        >
           {label}
           {isRequired && <span className="ml-1">*</span>}
         </Label>
@@ -106,11 +109,17 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
                 placeholder={placeholder}
                 min={getMinDate()}
                 max={parseDateInput(effectiveMaxDate)}
-                className={cn("w-full", isRequired && !isDisabled && "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-700", {
-                  "h-8 text-sm": size === "sm",
-                  "h-9": size === "default",
-                  "h-12 text-lg": size === "lg",
-                })}
+                className={cn(
+                  "w-full",
+                  isRequired &&
+                    !isDisabled &&
+                    "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20",
+                  {
+                    "h-8 text-sm": size === "sm",
+                    "h-9": size === "default",
+                    "h-12 text-lg": size === "lg",
+                  }
+                )}
                 {...field}
                 value={parseDateInput(field.value)}
                 onChange={(e) => {

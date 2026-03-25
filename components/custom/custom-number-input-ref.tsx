@@ -42,7 +42,10 @@ const CustomNumberInputRef = forwardRef(function CustomNumberInputRef<
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+        <Label
+          htmlFor={name}
+          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+        >
           {label}
           {isRequired && <span className="ml-1">*</span>}
         </Label>
@@ -93,8 +96,16 @@ const CustomNumberInputRef = forwardRef(function CustomNumberInputRef<
                 className={cn(
                   "ring-offset-background flex h-9 w-full rounded-md border px-3 py-1.5 text-right text-sm",
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-                  showError ? "border-destructive" : isRequired && !isDisabled ? "border-yellow-400 dark:border-yellow-700" : "border-input",
-                  isDisabled ? "cursor-not-allowed opacity-50 bg-background" : isRequired ? "bg-yellow-50 dark:bg-yellow-950/20" : "bg-background",
+                  showError
+                    ? "border-destructive"
+                    : isRequired && !isDisabled
+                      ? "border-gray-400 dark:border-gray-500"
+                      : "border-input",
+                  isDisabled
+                    ? "bg-background cursor-not-allowed opacity-50"
+                    : isRequired
+                      ? "bg-yellow-50 dark:bg-yellow-950/20"
+                      : "bg-background",
                   "hide-number-spinners"
                 )}
               />
