@@ -489,7 +489,10 @@ export default function Main({
     const finalTotAmt = recTotAmt === 0 ? sumAllocPayAmt : recTotAmt
     const finalTotLocalAmt =
       recTotLocalAmt === 0 ? sumAllocLocalAmt : recTotLocalAmt
-    const finalSumAllocAmt = mathRound(sumAllocAmt / exhRate, dec.amtDec)
+    const finalSumAllocAmt =
+      currencyId === recCurrencyId
+        ? mathRound(sumAllocAmt / exhRate, dec.amtDec)
+        : sumAllocAmt
     console.log("finalSumAllocAmt", finalSumAllocAmt)
     console.log("finalTotAmt", finalTotAmt)
     console.log("sumAllocAmt", sumAllocAmt)
