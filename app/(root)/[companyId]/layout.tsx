@@ -12,6 +12,7 @@ import { HeaderUserInfo } from "@/components/layout/header-userinfo"
 import { MobileNav } from "@/components/layout/mobile-nav"
 import { ModeSwitcher } from "@/components/layout/mode-switcher"
 import { NavHeader } from "@/components/layout/nav-header"
+import { ChangelogButton } from "@/components/layout/changelog-button"
 import { ScreenLock } from "@/components/layout/screen-lock"
 import { ThemeSelector } from "@/components/layout/theme-selector"
 
@@ -49,6 +50,7 @@ export default async function AppLayout({
               <NavHeader />
 
               <div className="ml-auto flex items-center gap-1 sm:gap-2">
+                <ChangelogButton />
                 <ThemeSelector />
                 <ModeSwitcher />
                 <ScreenLock />
