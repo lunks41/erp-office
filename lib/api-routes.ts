@@ -1274,6 +1274,8 @@ export const Tariff = {
   getById: "/operations/gettariffbyid",
   add: "/operations/savetariff",
   delete: "/operations/deletetariff",
+  deleteBulk: "/operations/deletetariffbulk",
+  cloneBulk: "/operations/clonetariffbulk",
   copy: "/operations/copytariff",
   copyCompanyTariff: "/operations/copycompanytariff",
   getTariffRpt: "/operations/gettariffrpt",

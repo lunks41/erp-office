@@ -7,6 +7,7 @@ import jsPDF from "jspdf"
 // Import autoTable plugin
 import "jspdf-autotable"
 import {
+  Copy,
   FileSpreadsheet,
   FileText,
   Layout,
@@ -14,6 +15,7 @@ import {
   RedoDot,
   RefreshCw,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react"
 import * as XLSX from "xlsx"
 
@@ -63,6 +65,9 @@ type MainTableHeaderProps<TData> = {
   transactionId: number
   onResetLayout?: () => void // Callback to reset layout in parent component
   isConfirmed?: boolean // Whether the record is confirmed (readonly mode)
+  bulkSelectionCount?: number
+  onBulkDeleteClick?: () => void
+  onBulkCloneClick?: () => void
 }
 export function MainTableHeader<TData>({
   onRefreshAction,
@@ -78,6 +83,9 @@ export function MainTableHeader<TData>({
   transactionId,
   onResetLayout,
   isConfirmed = false, // Default to false
+  bulkSelectionCount = 0,
+  onBulkDeleteClick,
+  onBulkCloneClick,
 }: MainTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
   const [isSaveLayoutOpen, setIsSaveLayoutOpen] = useState(false)
@@ -241,6 +249,34 @@ export function MainTableHeader<TData>({
           >
             <Plus className="mr-2 h-4 w-4" />
             {createButtonText}
+          </Button>
+        )}
+        {bulkSelectionCount > 0 && onBulkDeleteClick && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onBulkDeleteClick()
+            }}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete ({bulkSelectionCount})
+          </Button>
+        )}
+        {bulkSelectionCount > 0 && onBulkCloneClick && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onBulkCloneClick()
+            }}
+          >
+            <Copy className="mr-2 h-4 w-4" />
+            Clone ({bulkSelectionCount})
           </Button>
         )}
         {onRefreshAction && (

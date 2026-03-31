@@ -218,6 +218,29 @@ export const deleteTariffDirect = async (
     throw error
   }
 }
+
+/** Bulk delete tariffs (company from X-Company-Id header). */
+export const deleteTariffsBulkDirect = async (tariffIds: number[]) => {
+  try {
+    return await postData(Tariff.deleteBulk, { tariffIds })
+  } catch (error) {
+    console.error("Error bulk deleting tariffs:", error)
+    throw error
+  }
+}
+
+/** Bulk clone tariffs to a target task (company from X-Company-Id header). */
+export const cloneTariffsBulkDirect = async (
+  tariffIds: number[],
+  taskId: number
+) => {
+  try {
+    return await postData(Tariff.cloneBulk, { tariffIds, taskId })
+  } catch (error) {
+    console.error("Error bulk cloning tariffs:", error)
+    throw error
+  }
+}
 /**
  * 3. Copy Rate Management
  * ----------------------

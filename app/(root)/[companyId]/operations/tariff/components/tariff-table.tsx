@@ -19,7 +19,6 @@ interface TariffTableProps {
   isLoading?: boolean
   onDeleteAction?: (tariff: ITariff) => void
   onEditAction?: (tariff: ITariff) => void
-  onCloneTariff?: (tariff: ITariff) => void
   onRefreshAction?: () => void
   onFilterChange?: (filters: ITariffFilter) => void
   initialSearchValue?: string // Initial search value to sync with parent filters
@@ -32,6 +31,9 @@ interface TariffTableProps {
   canCreate?: boolean
   onSelect?: (tariff: ITariff | null) => void
   onCreateAction?: () => void
+  clearRowSelectionSignal?: number
+  onBulkDeleteRows?: (tariffs: ITariff[]) => void
+  onBulkCloneRows?: (tariffs: ITariff[]) => void
 }
 
 export function TariffTable({
@@ -39,7 +41,6 @@ export function TariffTable({
   isLoading = false,
   onDeleteAction,
   onEditAction,
-  onCloneTariff,
   onRefreshAction,
   onFilterChange,
   initialSearchValue,
@@ -51,6 +52,9 @@ export function TariffTable({
   canCreate = true,
   onSelect,
   onCreateAction,
+  clearRowSelectionSignal,
+  onBulkDeleteRows,
+  onBulkCloneRows,
 }: TariffTableProps) {
   const { decimals } = useAuthStore()
   const amtDec = decimals[0]?.amtDec || 2
@@ -299,9 +303,7 @@ export function TariffTable({
       onCreateAction={onCreateAction}
       onEditAction={onEditAction}
       onDeleteAction={handleDelete}
-      onCloneRow={onCloneTariff}
       showRowSelection
-      hideCloneButton={!canCreate}
       //show props
       showHeader={true}
       showFooter={true}
@@ -311,6 +313,9 @@ export function TariffTable({
       canDelete={canDelete}
       canView={canView}
       canCreate={canCreate}
+      clearRowSelectionSignal={clearRowSelectionSignal}
+      onBulkDeleteRows={onBulkDeleteRows}
+      onBulkCloneRows={onBulkCloneRows}
     />
   )
 }

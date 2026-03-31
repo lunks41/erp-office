@@ -124,6 +124,10 @@ interface MainTableProps<T> {
   onCloneRow?: (item: T) => void // Callback to clone a row (optional; per-row Copy control)
   showRowSelection?: boolean // Per-row checkbox + header select-all (TanStack row selection)
   hideCloneButton?: boolean // Hide clone when false permission etc.
+  /** When this counter changes (after first paint), row selection is cleared. */
+  clearRowSelectionSignal?: number
+  onBulkDeleteRows?: (items: T[]) => void
+  onBulkCloneRows?: (items: T[]) => void
   // ============================================================================
   // VISIBILITY CONTROL PROPS
   // ============================================================================
@@ -190,6 +194,9 @@ export function MainTable<T>({
   onCloneRow, // Clone row callback
   showRowSelection = false, // Row checkboxes
   hideCloneButton = false,
+  clearRowSelectionSignal,
+  onBulkDeleteRows,
+  onBulkCloneRows,
   // Visibility control props with defaults
   showHeader = true, // Show header by default
   showFooter = true, // Show footer by default
@@ -476,6 +483,40 @@ export function MainTable<T>({
       globalFilter: searchQuery, // Current search query
     },
   })
+
+  const clearSelectionNonceRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (clearRowSelectionSignal === undefined) return
+    if (clearSelectionNonceRef.current === null) {
+      clearSelectionNonceRef.current = clearRowSelectionSignal
+      return
+    }
+    if (clearSelectionNonceRef.current === clearRowSelectionSignal) return
+    clearSelectionNonceRef.current = clearRowSelectionSignal
+    table.resetRowSelection()
+  }, [clearRowSelectionSignal, table])
+
+  const bulkSelectedCount =
+    showRowSelection && (onBulkDeleteRows || onBulkCloneRows)
+      ? table.getSelectedRowModel().rows.length
+      : 0
+
+  const handleBulkDeleteClick = useCallback(() => {
+    if (!onBulkDeleteRows || bulkSelectedCount === 0) return
+    const items = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original)
+    onBulkDeleteRows(items)
+  }, [onBulkDeleteRows, bulkSelectedCount, table])
+
+  const handleBulkCloneClick = useCallback(() => {
+    if (!onBulkCloneRows || bulkSelectedCount === 0) return
+    const items = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original)
+    onBulkCloneRows(items)
+  }, [onBulkCloneRows, bulkSelectedCount, table])
+
   // ============================================================================
   // EFFECT: APPLY SAVED COLUMN ORDER
   // ============================================================================
@@ -748,6 +789,13 @@ export function MainTable<T>({
           transactionId={transactionId || 1} // Transaction ID for settings (default to 1)
           onResetLayout={handleResetLayout} // Reset layout handler
           isConfirmed={isConfirmed} // Pass isConfirmed to disable create button when confirmed
+          bulkSelectionCount={bulkSelectedCount}
+          onBulkDeleteClick={
+            onBulkDeleteRows && canDelete ? handleBulkDeleteClick : undefined
+          }
+          onBulkCloneClick={
+            onBulkCloneRows && canCreate ? handleBulkCloneClick : undefined
+          }
         />
       )}
       {/* ============================================================================

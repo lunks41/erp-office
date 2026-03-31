@@ -175,21 +175,21 @@ export function TariffDetailsForm({
   // Watch isAdditional for conditional fields
   const isAdditional = detailsForm.watch("isAdditional")
 
-  // Handle displayRate blur - calculate basicRate = displayRate / exhRate
-  const handleDisplayRateBlur = React.useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      const displayRate = parseFloat(e.target.value) || 0
+  // Basic rate = local (display) rate / exchange rate.
+  // Do not parse e.target.value — NumericFormat uses thousand separators (e.g. "2,449.67")
+  // and parseFloat would read 2 instead of 2449.67.
+  const handleDisplayRateBlur = React.useCallback(() => {
+    const raw = detailsForm.getValues("displayRate")
+    const displayRate = typeof raw === "number" && !Number.isNaN(raw) ? raw : 0
 
-      if (displayRate > 0 && exhRate > 0) {
-        const basicRate = displayRate / exhRate
-        detailsForm.setValue("basicRate", Number(basicRate.toFixed(amtDec)))
-        detailsForm.trigger("basicRate")
-      } else if (displayRate === 0) {
-        detailsForm.setValue("basicRate", 0)
-      }
-    },
-    [exhRate, detailsForm, amtDec]
-  )
+    if (displayRate > 0 && exhRate > 0) {
+      const basicRate = displayRate / exhRate
+      detailsForm.setValue("basicRate", Number(basicRate.toFixed(amtDec)))
+      detailsForm.trigger("basicRate")
+    } else if (displayRate === 0) {
+      detailsForm.setValue("basicRate", 0)
+    }
+  }, [exhRate, detailsForm, amtDec])
 
   return (
     <div>

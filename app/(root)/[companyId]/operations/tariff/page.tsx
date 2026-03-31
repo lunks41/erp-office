@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "next/navigation"
 import { ITariff, ITariffHd, ITariffRPT, ITariffRPTRequest } from "@/interfaces"
 import { ITaskDetails } from "@/interfaces/checklist"
@@ -29,10 +29,12 @@ import {
   usePersist,
 } from "@/hooks/use-common"
 import {
+  cloneTariffsBulkDirect,
   copyCompanyTariffDirect,
   copyCompanyTariffDirectv1,
   copyRateDirect,
   copyRateDirectv1,
+  deleteTariffsBulkDirect,
   getTariffRptDirect,
 } from "@/hooks/use-tariff"
 import { Badge } from "@/components/ui/badge"
@@ -54,6 +56,7 @@ import { DeleteConfirmation } from "@/components/confirmation/delete-confirmatio
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
+import { BulkCloneTariffForm } from "./components/bulk-clone-tariff-form"
 import { CopyCompanyRateForm } from "./components/copy-company-rate-form"
 import { CopyRateForm } from "./components/copy-rate-form"
 import { DownloadTariffForm } from "./components/download-tariff-form"
@@ -145,6 +148,12 @@ const CATEGORY_CONFIG: Record<
     label: "Agency Remuneration",
     taskId: Task.AgencyRemuneration,
   },
+}
+
+/** Bulk tariff APIs return result > 0 (often a count), not always exactly 1. */
+function isPositiveApiResult(result: unknown): boolean {
+  const n = Number(result)
+  return Number.isFinite(n) && n > 0
 }
 
 export default function TariffPage() {
@@ -315,8 +324,7 @@ export default function TariffPage() {
           ? [
               {
                 tariffId: tariff.tariffId || 0,
-                itemNo:
-                  tariff.seqNo && tariff.seqNo > 0 ? tariff.seqNo : 1,
+                itemNo: tariff.seqNo && tariff.seqNo > 0 ? tariff.seqNo : 1,
                 displayRate: tariff.displayRate ?? 0,
                 basicRate: tariff.basicRate ?? 0,
                 minUnit: tariff.minUnit ?? 0,
@@ -391,13 +399,20 @@ export default function TariffPage() {
     tariff: null,
   })
 
-  const [cloneConfirmation, setCloneConfirmation] = useState<{
+  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
     isOpen: boolean
-    tariff: ITariff | null
-  }>({
-    isOpen: false,
-    tariff: null,
-  })
+    tariffs: ITariff[]
+  }>({ isOpen: false, tariffs: [] })
+
+  const [bulkCloneDialog, setBulkCloneDialog] = useState<{
+    isOpen: boolean
+    tariffs: ITariff[]
+  }>({ isOpen: false, tariffs: [] })
+
+  const [tableSelectionResetNonce, setTableSelectionResetNonce] = useState(0)
+  const [bulkCloneSubmitting, setBulkCloneSubmitting] = useState(false)
+  const pendingBulkDeleteTariffsRef = useRef<ITariff[]>([])
+  const pendingBulkCloneTariffsRef = useRef<ITariff[]>([])
 
   // Save confirmation state
   const [saveConfirmation, setSaveConfirmation] = useState<{
@@ -500,11 +515,6 @@ export default function TariffPage() {
         // Set tab loading state
         setIsTabLoading(true)
 
-        // Show loading toast for better UX
-        toast.info(
-          `Loading ${CATEGORY_CONFIG[category]?.label || category} data...`
-        )
-
         try {
           // Wait a bit for state to update, then call only the task API
           setTimeout(async () => {
@@ -583,35 +593,97 @@ export default function TariffPage() {
     setIsModalOpen(true)
   }
 
-  const handleCloneTariff = useCallback(
-    (tariff: ITariff) => {
-      if (!canCreate) return
-      setCloneConfirmation({ isOpen: true, tariff })
-    },
-    [canCreate]
-  )
+  const handleBulkDeleteRequest = useCallback((tariffs: ITariff[]) => {
+    if (!tariffs.length) return
+    pendingBulkDeleteTariffsRef.current = tariffs
+    setBulkDeleteConfirmation({ isOpen: true, tariffs })
+  }, [])
 
-  const handleConfirmCloneTariff = useCallback(() => {
-    const tariff = cloneConfirmation.tariff
-    if (!tariff || !canCreate) return
-    const cloned: ITariff = {
-      ...tariff,
-      tariffId: 0,
-      editVersion: 0,
+  const handleBulkDeleteTariffs = useCallback(async () => {
+    const tariffs = pendingBulkDeleteTariffsRef.current
+    const tariffIds = tariffs
+      .map((t) => t.tariffId)
+      .filter((id): id is number => typeof id === "number" && id > 0)
+    if (!tariffIds.length) {
+      toast.error("No valid tariffs to delete")
+      return
     }
-    setSelectedTariffId(undefined)
-    setSelectedCustomerId(tariff.customerId || apiParams.customerId)
-    setSelectedTaskId(tariff.taskId || currentTaskId)
-    setSelectedTariff(cloned)
-    setModalMode("create")
-    setHasFormErrors(false)
-    setIsModalOpen(true)
-  }, [
-    cloneConfirmation.tariff,
-    canCreate,
-    apiParams.customerId,
-    currentTaskId,
-  ])
+    try {
+      const response = (await deleteTariffsBulkDirect(tariffIds)) as {
+        result?: number
+        message?: string
+      }
+      if (isPositiveApiResult(response?.result)) {
+        toast.success(
+          response?.message ||
+            `${tariffIds.length} tariff(s) deleted successfully`
+        )
+        setBulkDeleteConfirmation({ isOpen: false, tariffs: [] })
+        pendingBulkDeleteTariffsRef.current = []
+        setTableSelectionResetNonce((n) => n + 1)
+        await queryClient.invalidateQueries({ queryKey: ["tariffByTask"] })
+        await queryClient.invalidateQueries({ queryKey: ["tariffCount"] })
+        await refetchTariffByTask()
+        await refetchTariffCount()
+      } else {
+        toast.error(response?.message || "Failed to delete selected tariffs")
+      }
+    } catch (error) {
+      console.error("Bulk delete error:", error)
+      toast.error("Network error while deleting tariffs.")
+    }
+  }, [queryClient, refetchTariffByTask, refetchTariffCount])
+
+  const handleBulkCloneRequest = useCallback((tariffs: ITariff[]) => {
+    if (!tariffs.length) return
+    pendingBulkCloneTariffsRef.current = tariffs
+    setBulkCloneDialog({ isOpen: true, tariffs })
+  }, [])
+
+  const handleBulkCloneSubmit = useCallback(
+    async (targetTaskId: number) => {
+      const tariffs = pendingBulkCloneTariffsRef.current
+      const tariffIds = tariffs
+        .map((t) => t.tariffId)
+        .filter((id): id is number => typeof id === "number" && id > 0)
+      if (!tariffIds.length) {
+        toast.error("No valid tariffs to clone")
+        return
+      }
+      if (!targetTaskId) {
+        toast.error("Please select a task")
+        return
+      }
+      setBulkCloneSubmitting(true)
+      try {
+        const response = (await cloneTariffsBulkDirect(
+          tariffIds,
+          targetTaskId
+        )) as { result?: number; message?: string }
+        if (isPositiveApiResult(response?.result)) {
+          toast.success(
+            response?.message ||
+              `${tariffIds.length} tariff(s) cloned successfully`
+          )
+          setBulkCloneDialog({ isOpen: false, tariffs: [] })
+          pendingBulkCloneTariffsRef.current = []
+          setTableSelectionResetNonce((n) => n + 1)
+          await queryClient.invalidateQueries({ queryKey: ["tariffByTask"] })
+          await queryClient.invalidateQueries({ queryKey: ["tariffCount"] })
+          await refetchTariffByTask()
+          await refetchTariffCount()
+        } else {
+          toast.error(response?.message || "Failed to clone selected tariffs")
+        }
+      } catch (error) {
+        console.error("Bulk clone error:", error)
+        toast.error("Network error while cloning tariffs.")
+      } finally {
+        setBulkCloneSubmitting(false)
+      }
+    },
+    [queryClient, refetchTariffByTask, refetchTariffCount]
+  )
 
   const handleEditTariff = (tariff: ITariff) => {
     setSelectedTariffId(tariff.tariffId)
@@ -673,6 +745,34 @@ export default function TariffPage() {
       }
     }
   }
+
+  const tariffModalInitialData = useMemo((): ITariffHd | undefined => {
+    if (modalMode === "create" && selectedTariff) {
+      const conv = convertTariffToTariffHd(selectedTariff, Number(companyId))
+      return conv ? transformToTariffHd(conv) : undefined
+    }
+    if (
+      (modalMode === "edit" || modalMode === "view") &&
+      transformedTariff
+    ) {
+      return {
+        ...transformedTariff,
+        createBy: fetchedTariff?.createBy || "",
+        createDate: fetchedTariff?.createDate || new Date(),
+        editBy: fetchedTariff?.editBy || null,
+        editDate: fetchedTariff?.editDate || null,
+      }
+    }
+    return undefined
+  }, [
+    modalMode,
+    selectedTariff,
+    companyId,
+    transformedTariff,
+    fetchedTariff,
+    convertTariffToTariffHd,
+    transformToTariffHd,
+  ])
 
   const handleSaveTariff = (data: ITariffHd) => {
     setSaveConfirmation({
@@ -1205,7 +1305,6 @@ export default function TariffPage() {
               transactionId={transactionId}
               onDeleteAction={handleDeleteConfirmation}
               onEditAction={handleEditTariff}
-              onCloneTariff={handleCloneTariff}
               onRefreshAction={() => {
                 handleRefresh()
               }}
@@ -1215,6 +1314,13 @@ export default function TariffPage() {
               canCreate={canCreate}
               onSelect={handleViewTariff}
               onCreateAction={handleCreateTariff}
+              clearRowSelectionSignal={tableSelectionResetNonce}
+              onBulkDeleteRows={
+                canDelete ? handleBulkDeleteRequest : undefined
+              }
+              onBulkCloneRows={
+                canCreate ? handleBulkCloneRequest : undefined
+              }
             />
           ) : (
             <div className="text-muted-foreground py-12 text-center">
@@ -1289,17 +1395,7 @@ export default function TariffPage() {
           ) : (
             <TariffForm
               ref={formRef}
-              initialData={
-                transformedTariff
-                  ? {
-                      ...transformedTariff,
-                      createBy: fetchedTariff?.createBy || "",
-                      createDate: fetchedTariff?.createDate || new Date(),
-                      editBy: fetchedTariff?.editBy || null,
-                      editDate: fetchedTariff?.editDate || null,
-                    }
-                  : convertTariffToTariffHd(selectedTariff, Number(companyId))
-              }
+              initialData={tariffModalInitialData}
               onSaveAction={handleSaveTariff}
               onCloseAction={() => {
                 setIsModalOpen(false)
@@ -1401,21 +1497,45 @@ export default function TariffPage() {
         </Dialog>
       )}
 
-      {/* Clone Confirmation — opens Add Tariff with tariffId 0 after confirm */}
-      <SaveConfirmation
-        open={cloneConfirmation.isOpen}
+      {/* Bulk delete confirmation */}
+      <DeleteConfirmation
+        open={bulkDeleteConfirmation.isOpen}
         onOpenChange={() =>
-          setCloneConfirmation({ isOpen: false, tariff: null })
+          setBulkDeleteConfirmation({ isOpen: false, tariffs: [] })
         }
-        onConfirm={handleConfirmCloneTariff}
-        title="Clone Tariff"
-        description={
-          cloneConfirmation.tariff
-            ? `A new tariff will be added with Tariff ID 0, copying values from tariff #${cloneConfirmation.tariff.tariffId} (${[cloneConfirmation.tariff.taskName, cloneConfirmation.tariff.chargeName].filter(Boolean).join(" — ") || "this row"}). Do you want to continue?`
-            : undefined
-        }
-        operationType="clone"
+        onConfirm={handleBulkDeleteTariffs}
+        title="Delete selected tariffs"
+        description={`Delete ${bulkDeleteConfirmation.tariffs.length} selected tariff record(s)? This cannot be undone.`}
+        itemName={`${bulkDeleteConfirmation.tariffs.length} tariff(s)`}
       />
+
+      {/* Bulk clone — task target via autocomplete */}
+      <Dialog
+        open={bulkCloneDialog.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setBulkCloneDialog({ isOpen: false, tariffs: [] })
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Clone selected tariffs</DialogTitle>
+            <DialogDescription>
+              Choose the task for {bulkCloneDialog.tariffs.length} selected
+              tariff(s). A bulk clone request will be sent to the server.
+            </DialogDescription>
+          </DialogHeader>
+          <BulkCloneTariffForm
+            defaultTaskId={currentTaskId}
+            onSubmitAction={handleBulkCloneSubmit}
+            onCancelAction={() =>
+              setBulkCloneDialog({ isOpen: false, tariffs: [] })
+            }
+            isSubmitting={bulkCloneSubmitting}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmation
