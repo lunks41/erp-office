@@ -449,6 +449,7 @@ export default function Main({
     if (!validateAllocation(currentData)) return
 
     const recTotAmt = Number(form.getValues("recTotAmt")) || 0
+    const headerCurrencyId = Number(form.getValues("currencyId")) || 0
     console.log("recTotAmt", recTotAmt)
     const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
     const result = autoAllocateAmounts(
@@ -490,9 +491,10 @@ export default function Main({
     const finalTotLocalAmt =
       recTotLocalAmt === 0 ? sumAllocLocalAmt : recTotLocalAmt
     const finalSumAllocAmt =
-      currencyId === recCurrencyId
-        ? mathRound(sumAllocAmt / exhRate, dec.amtDec)
-        : sumAllocAmt
+      headerCurrencyId === recCurrencyId
+        ? sumAllocAmt
+        : mathRound(sumAllocAmt / exhRate, dec.amtDec)
+
     console.log("finalSumAllocAmt", finalSumAllocAmt)
     console.log("finalTotAmt", finalTotAmt)
     console.log("sumAllocAmt", sumAllocAmt)
