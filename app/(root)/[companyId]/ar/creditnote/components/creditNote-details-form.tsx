@@ -17,7 +17,7 @@ import {
   calculateGstLocalAndCtyAmounts,
   recalculateDetailFormAmounts,
   syncCountryExchangeRate,
-} from "@/helpers/ar-creditNote-calculations"
+} from "@/helpers/ar-creditnote-calculations"
 import { IArCreditNoteDt } from "@/interfaces"
 import {
   IBargeLookup,

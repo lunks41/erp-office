@@ -17,7 +17,7 @@ import {
   calculateGstLocalAndCtyAmounts,
   recalculateDetailFormAmounts,
   syncCountryExchangeRate,
-} from "@/helpers/ar-debitNote-calculations"
+} from "@/helpers/ar-debitnote-calculations"
 import { IArDebitNoteDt } from "@/interfaces"
 import {
   IBargeLookup,

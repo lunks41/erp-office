@@ -17,7 +17,7 @@ import {
   calculateGstLocalAndCtyAmounts,
   recalculateDetailFormAmounts,
   syncCountryExchangeRate,
-} from "@/helpers/ap-debitNote-calculations"
+} from "@/helpers/ap-debitnote-calculations"
 import { IApDebitNoteDt } from "@/interfaces"
 import {
   IBargeLookup,
@@ -1259,7 +1259,7 @@ const DebitNoteDetailsForm = React.forwardRef<
                   <JobOrderAutocomplete
                     form={form}
                     name="jobOrderId"
-                    label="Job Order-S"
+                    label="Job Order"
                     isRequired={required?.m_JobOrderId && isJobSpecific}
                     onChangeEvent={handleJobOrderChange}
                   />
@@ -1269,7 +1269,7 @@ const DebitNoteDetailsForm = React.forwardRef<
                   <DynamicJobOrderAutocomplete
                     form={form}
                     name="jobOrderId"
-                    label="Job Order-D"
+                    label="Job Order"
                     onChangeEvent={handleJobOrderChange}
                   />
                 )}
@@ -1353,14 +1353,14 @@ const DebitNoteDetailsForm = React.forwardRef<
                 <DynamicVesselAutocomplete
                   form={form}
                   name="vesselId"
-                  label="Vessel-D"
+                  label="Vessel"
                   onChangeEvent={handleVesselChange}
                 />
               ) : (
                 <VesselAutocomplete
                   form={form}
                   name="vesselId"
-                  label="Vessel-S"
+                  label="Vessel"
                   isRequired={required?.m_VesselId}
                   onChangeEvent={handleVesselChange}
                 />

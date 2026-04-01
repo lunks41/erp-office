@@ -1162,14 +1162,14 @@ const AdjustmentDetailsForm = React.forwardRef<
                 <DynamicVesselAutocomplete
                   form={form}
                   name="vesselId"
-                  label="Vessel-D"
+                  label="Vessel"
                   onChangeEvent={handleVesselChange}
                 />
               ) : (
                 <VesselAutocomplete
                   form={form}
                   name="vesselId"
-                  label="Vessel-S"
+                  label="Vessel"
                   isRequired={required?.m_VesselId}
                   onChangeEvent={handleVesselChange}
                 />

@@ -438,9 +438,13 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
 
       // Calculate difference: toBankChgLocalAmt = toBankTotLocalAmt - toTotLocalAmt
       const toBankChgLocalAmt = toBankTotLocalAmt - toTotLocalAmt
-      form.setValue("toBankChgLocalAmt", Number(toBankChgLocalAmt.toFixed(locAmtDec)), {
-        shouldDirty: true,
-      })
+      form.setValue(
+        "toBankChgLocalAmt",
+        Number(toBankChgLocalAmt.toFixed(locAmtDec)),
+        {
+          shouldDirty: true,
+        }
+      )
 
       // Calculate toBankChgAmt if toExhRate is not zero
       if (toExhRate !== 0) {
@@ -631,7 +635,6 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
                 shouldValidate: true,
                 shouldDirty: true,
               })
-              
 
               // Fetch exchange rate for the new currency
               const exhRate = await setToExchangeRateDetails(
@@ -716,14 +719,14 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
                 <DynamicJobOrderAutocomplete
                   form={form}
                   name="jobOrderId"
-                  label="Job Order-D"
+                  label="Job Order"
                   onChangeEvent={handleJobOrderChange}
                 />
               ) : (
                 <JobOrderAutocomplete
                   form={form}
                   name="jobOrderId"
-                  label="Job Order-S"
+                  label="Job Order"
                   isRequired={required?.m_JobOrderId}
                   onChangeEvent={handleJobOrderChange}
                 />

@@ -13,7 +13,7 @@ import {
   recalculateAllDetailsLocalAndCtyAmounts,
   recalculateAndSetHeaderTotals,
   syncCountryExchangeRate,
-} from "@/helpers/ar-debitNote-calculations"
+} from "@/helpers/ar-debitnote-calculations"
 import { IArCustomerInvoice, IArDebitNoteDt } from "@/interfaces"
 import {
   IBankLookup,
@@ -683,7 +683,7 @@ export default function DebitNoteForm({
             <DynamicCustomerAutocomplete
               form={form}
               name="customerId"
-              label="Customer-D"
+              label="Customer"
               isRequired={true}
               onChangeEvent={handleCustomerChange}
               isDisabled={isCustomerCurrencyLocked}
@@ -692,7 +692,7 @@ export default function DebitNoteForm({
             <CustomerAutocomplete
               form={form}
               name="customerId"
-              label="Customer-S"
+              label="Customer"
               isRequired={true}
               onChangeEvent={handleCustomerChange}
               isDisabled={isCustomerCurrencyLocked}
@@ -859,14 +859,14 @@ export default function DebitNoteForm({
               <DynamicJobOrderAutocomplete
                 form={form}
                 name="jobOrderId"
-                label="Job Order-D"
+                label="Job Order"
                 onChangeEvent={handleJobOrderChange}
               />
             ) : (
               <JobOrderAutocomplete
                 form={form}
                 name="jobOrderId"
-                label="Job Order-S"
+                label="Job Order"
                 onChangeEvent={handleJobOrderChange}
               />
             ))}
@@ -877,14 +877,10 @@ export default function DebitNoteForm({
               <DynamicVesselAutocomplete
                 form={form}
                 name="vesselId"
-                label="Vessel-D"
+                label="Vessel"
               />
             ) : (
-              <VesselAutocomplete
-                form={form}
-                name="vesselId"
-                label="Vessel-S"
-              />
+              <VesselAutocomplete form={form} name="vesselId" label="Vessel" />
             ))}
 
           {/* Port */}

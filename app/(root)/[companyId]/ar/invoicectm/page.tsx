@@ -58,17 +58,16 @@ import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import {
+  MainOtherHistoryTabList,
+  TransactionWorkspaceRoot,
+  transactionTabPanelClass,
+} from "@/components/layout/transaction-workspace-layout"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   CancelConfirmation,
   CloneConfirmation,
@@ -1384,70 +1383,58 @@ export default function InvoiceCtmPage() {
   }
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
-      <Tabs
-        defaultValue="main"
-        className="w-full"
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-
-            {/* Cancel Remarks Badge - Only show when cancelled */}
+    <>
+      <TransactionWorkspaceRoot
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        leftColumn={
+          <>
+            <MainOtherHistoryTabList />
             {isCancelled && (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
                   Cancelled
                 </span>
                 {invoice?.cancelRemarks && (
-                  <div className="max-w-xs truncate text-sm text-red-600">
+                  <div className="max-w-[160px] truncate text-xs text-red-600 sm:max-w-[220px]">
                     {invoice.cancelRemarks}
                   </div>
                 )}
               </div>
             )}
-
-            {/* Payment Status Badge - Only show if not cancelled */}
             {!isCancelled && paymentStatus === "Not Paid" && (
-              <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
                 Not Paid
               </span>
             )}
             {!isCancelled && paymentStatus === "Partially Paid" && (
-              <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-orange-400"></span>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-medium text-orange-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-orange-400" />
                 Partially Paid
               </span>
             )}
             {!isCancelled && paymentStatus === "Fully Paid" && (
-              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-green-400"></span>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-400" />
                 Fully Paid
               </span>
             )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <h1>
-              {/* Outer wrapper: gradient border or yellow pulsing border */}
+          </>
+        }
+        centerColumn={
+          <div className="flex shrink-0 items-center gap-1.5">
+            <h1 className="m-0">
               <span
                 className={`relative inline-flex rounded-full p-[2px] transition-all ${
                   isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500"
+                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
                 } `}
               >
-                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
                 <span
-                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
+                  className="inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[11px] font-medium text-white select-none"
                   onDoubleClick={handleCopyInvoiceNo}
                   title="Double-click to copy invoice number"
                 >
@@ -1469,15 +1456,16 @@ export default function InvoiceCtmPage() {
                 className="h-4 w-4 p-0"
                 title="Refresh invoice data"
               >
-                <RefreshCw className="h-2 w-2" />
+                <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
-
-          <div className="flex items-center gap-2">
+        }
+        rightColumn={
+          <>
             <div
               onDoubleClick={handleCopySearchNo}
-              className="flex-1"
+              className="min-w-[120px] w-full max-w-xs sm:w-64"
               title="Double-click to copy to clipboard"
             >
               <Input
@@ -1486,7 +1474,7 @@ export default function InvoiceCtmPage() {
                 onBlur={handleSearchNoBlur}
                 onKeyDown={handleSearchNoKeyDown}
                 placeholder="Search Invoice No"
-                className="h-8 cursor-pointer text-sm"
+                className="h-7 cursor-pointer text-xs"
                 readOnly={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
                 disabled={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
               />
@@ -1518,9 +1506,7 @@ export default function InvoiceCtmPage() {
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
-              {isSaving ||
-              saveMutation.isPending ||
-              updateMutation.isPending ? (
+              {isSaving || saveMutation.isPending || updateMutation.isPending ? (
                 <Spinner size="sm" className="mr-1" />
               ) : (
                 <Save className="mr-1 h-4 w-4" />
@@ -1534,29 +1520,20 @@ export default function InvoiceCtmPage() {
                   : "Save"}
             </Button>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!invoice || invoice.invoiceId === "0"}
-                >
-                  <Printer className="mr-1 h-4 w-4" />
-                  Print
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handlePrintInvoice}>
-                  Invoice
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!invoice || invoice.invoiceId === "0"}
+              onClick={handlePrintInvoice}
+            >
+              <Printer className="mr-1 h-4 w-4" />
+              Print
+            </Button>
 
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowResetConfirm(true)}
-              //disabled={!invoice}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
               New
@@ -1594,10 +1571,10 @@ export default function InvoiceCtmPage() {
               )}
               {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
             </Button>
-          </div>
-        </div>
-
-        <TabsContent value="main">
+          </>
+        }
+      >
+        <TabsContent value="main" className={transactionTabPanelClass()}>
           <Main
             form={form}
             onSuccessAction={async () => {
@@ -1611,14 +1588,14 @@ export default function InvoiceCtmPage() {
           />
         </TabsContent>
 
-        <TabsContent value="other">
+        <TabsContent value="other" className={transactionTabPanelClass()}>
           <Other form={form} visible={visible} />
         </TabsContent>
 
-        <TabsContent value="history">
+        <TabsContent value="history" className={transactionTabPanelClass()}>
           <History form={form} isEdit={isEdit} />
         </TabsContent>
-      </Tabs>
+      </TransactionWorkspaceRoot>
 
       {/* List Dialog */}
       <Dialog
@@ -1723,6 +1700,6 @@ export default function InvoiceCtmPage() {
         title="Clone Invoice"
         description="This will create a copy as a new invoice."
       />
-    </div>
+    </>
   )
 }

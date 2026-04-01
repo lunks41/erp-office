@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { recalculateAndSetHeaderTotals } from "@/helpers/ap-debitNote-calculations"
+import { recalculateAndSetHeaderTotals } from "@/helpers/ap-debitnote-calculations"
 import { IApDebitNoteDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApDebitNoteDtSchemaType, ApDebitNoteHdSchemaType } from "@/schemas"
@@ -263,7 +263,7 @@ export default function Main({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 w-full flex-col px-2 pb-2">
       <DebitNoteForm
         form={form}
         onSuccessAction={onSuccessAction}

@@ -13,13 +13,13 @@ import {
   calculateLocalAmounts,
   calculateTotalAmounts,
   recalculateAllDetailsLocalAndCtyAmounts,
-} from "@/helpers/ap-creditNote-calculations"
-import { ApiResponse } from "@/interfaces/auth"
+} from "@/helpers/ap-creditnote-calculations"
 import {
   IApCreditNoteDt,
   IApCreditNoteFilter,
   IApCreditNoteHd,
 } from "@/interfaces"
+import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
@@ -41,6 +41,7 @@ import {
 import {
   Copy,
   ListFilter,
+  Printer,
   RefreshCw,
   RotateCcw,
   Save,
@@ -54,14 +55,14 @@ import { ApCreditNote, BasicSetting } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { APTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
-import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
+import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   CancelConfirmation,
   CloneConfirmation,
@@ -70,6 +71,11 @@ import {
   ResetConfirmation,
   SaveConfirmation,
 } from "@/components/confirmation"
+import {
+  MainOtherHistoryTabList,
+  TransactionWorkspaceRoot,
+  transactionTabPanelClass,
+} from "@/components/layout/transaction-workspace-layout"
 
 import { getDefaultValues } from "./components/creditnote-defaultvalues"
 import CreditNoteTable from "./components/creditnote-table"
@@ -406,7 +412,9 @@ export default function CreditNotePage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -434,7 +442,10 @@ export default function CreditNotePage() {
       }
 
       // If GST amount is non-zero, Service Category is mandatory
-      if ((formValues.gstAmt ?? 0) !== 0 && !(formValues.serviceCategoryId ?? 0)) {
+      if (
+        (formValues.gstAmt ?? 0) !== 0 &&
+        !(formValues.serviceCategoryId ?? 0)
+      ) {
         form.setError("serviceCategoryId", {
           type: "validation",
           message: "Service Category is required when VAT amount is non-zero",
@@ -832,6 +843,52 @@ export default function CreditNotePage() {
       data_details: [],
     })
     toast.success("CreditNote reset successfully")
+  }
+
+  const handlePrintCreditNote = () => {
+    if (!creditNote || creditNote.creditNoteId === "0") {
+      toast.error("Please select a credit note to print")
+      return
+    }
+
+    const formValues = form.getValues()
+    const creditNoteId =
+      formValues.creditNoteId || creditNote.creditNoteId?.toString() || "0"
+    const creditNoteNo =
+      formValues.creditNoteNo || creditNote.creditNoteNo || ""
+
+    const amtDec = decimals[0]?.amtDec || 2
+    const locAmtDec = decimals[0]?.locAmtDec || 2
+
+    const reportParams = {
+      companyId: companyId,
+      invoiceId: creditNoteId,
+      invoiceNo: creditNoteNo,
+      reportType: 1,
+      userName: user?.userName || "",
+      amtDec: amtDec,
+      locAmtDec: locAmtDec,
+    }
+
+    const reportData = {
+      reportFile: "ap/ApCreditNote.trdp",
+      parameters: reportParams,
+    }
+
+    try {
+      localStorage.setItem(
+        `report_window_${companyId}`,
+        JSON.stringify(reportData)
+      )
+
+      const windowFeatures =
+        "width=1200,height=800,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes"
+      const viewerUrl = `/${companyId}/reports/window`
+      window.open(viewerUrl, "_blank", windowFeatures)
+    } catch (error) {
+      console.error("Error opening report:", error)
+      toast.error("Failed to open report")
+    }
   }
 
   // Helper function to transform IApCreditNoteHd to ApCreditNoteHdSchemaType
@@ -1248,13 +1305,13 @@ export default function CreditNotePage() {
       Number(transactionId),
       effectiveDocIdForHistory || "0",
       {
-        enabled:
-          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+        enabled: !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
       }
     )
 
-  const historyRawData =
-    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const historyRawData = (
+    paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>
+  )?.data
   const hasPaymentHistory =
     Array.isArray(historyRawData) && historyRawData.length > 0
 
@@ -1352,70 +1409,58 @@ export default function CreditNotePage() {
   }
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
-      <Tabs
-        defaultValue="main"
-        className="w-full"
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-
-            {/* Cancel Remarks Badge - Only show when cancelled */}
+    <>
+      <TransactionWorkspaceRoot
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        leftColumn={
+          <>
+            <MainOtherHistoryTabList />
             {isCancelled && (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
                   Cancelled
                 </span>
                 {creditNote?.cancelRemarks && (
-                  <div className="max-w-xs truncate text-sm text-red-600">
+                  <div className="max-w-[160px] truncate text-xs text-red-600 sm:max-w-[220px]">
                     {creditNote.cancelRemarks}
                   </div>
                 )}
               </div>
             )}
-
-            {/* Payment Status Badge - Only show if not cancelled */}
             {!isCancelled && paymentStatus === "Not Paid" && (
-              <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
                 Not Paid
               </span>
             )}
             {!isCancelled && paymentStatus === "Partially Paid" && (
-              <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-orange-400"></span>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-medium text-orange-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-orange-400" />
                 Partially Paid
               </span>
             )}
             {!isCancelled && paymentStatus === "Fully Paid" && (
-              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-green-400"></span>
+              <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-400" />
                 Fully Paid
               </span>
             )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <h1>
-              {/* Outer wrapper: gradient border or yellow pulsing border */}
+          </>
+        }
+        centerColumn={
+          <div className="flex shrink-0 items-center gap-1.5">
+            <h1 className="m-0">
               <span
                 className={`relative inline-flex rounded-full p-[2px] transition-all ${
                   isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500"
+                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
                 } `}
               >
-                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
                 <span
-                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
+                  className="inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[11px] font-medium text-white select-none"
                   onDoubleClick={handleCopyInvoiceNo}
                   title="Double-click to copy credit note number"
                 >
@@ -1437,15 +1482,16 @@ export default function CreditNotePage() {
                 className="h-4 w-4 p-0"
                 title="Refresh creditNote data"
               >
-                <RefreshCw className="h-2 w-2" />
+                <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
-
-          <div className="flex items-center gap-2">
+        }
+        rightColumn={
+          <>
             <div
               onDoubleClick={handleCopySearchNo}
-              className="flex-1"
+              className="w-full max-w-xs min-w-[120px] sm:w-64"
               title="Double-click to copy to clipboard"
             >
               <Input
@@ -1454,7 +1500,7 @@ export default function CreditNotePage() {
                 onBlur={handleSearchNoBlur}
                 onKeyDown={handleSearchNoKeyDown}
                 placeholder="Search CreditNote No"
-                className="h-8 cursor-pointer text-sm"
+                className="h-7 cursor-pointer text-xs"
                 readOnly={
                   !!creditNote?.creditNoteId && creditNote.creditNoteId !== "0"
                 }
@@ -1506,7 +1552,7 @@ export default function CreditNotePage() {
                   : "Save"}
             </Button>
 
-            {/* <Button
+            <Button
               variant="outline"
               size="sm"
               disabled={!creditNote || creditNote.creditNoteId === "0"}
@@ -1514,13 +1560,12 @@ export default function CreditNotePage() {
             >
               <Printer className="mr-1 h-4 w-4" />
               Print
-            </Button> */}
+            </Button>
 
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowResetConfirm(true)}
-              //disabled={!creditNote}
             >
               <RotateCcw className="mr-1 h-4 w-4" />
               New
@@ -1560,10 +1605,10 @@ export default function CreditNotePage() {
               )}
               {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
             </Button>
-          </div>
-        </div>
-
-        <TabsContent value="main">
+          </>
+        }
+      >
+        <TabsContent value="main" className={transactionTabPanelClass()}>
           <Main
             form={form}
             onSuccessAction={async () => {
@@ -1577,14 +1622,14 @@ export default function CreditNotePage() {
           />
         </TabsContent>
 
-        <TabsContent value="other">
+        <TabsContent value="other" className={transactionTabPanelClass()}>
           <Other form={form} visible={visible} />
         </TabsContent>
 
-        <TabsContent value="history">
+        <TabsContent value="history" className={transactionTabPanelClass()}>
           <History form={form} isEdit={isEdit} />
         </TabsContent>
-      </Tabs>
+      </TransactionWorkspaceRoot>
 
       {/* List Dialog */}
       <Dialog
@@ -1691,6 +1736,6 @@ export default function CreditNotePage() {
         title="Clone CreditNote"
         description="This will create a copy as a new creditNote."
       />
-    </div>
+    </>
   )
 }

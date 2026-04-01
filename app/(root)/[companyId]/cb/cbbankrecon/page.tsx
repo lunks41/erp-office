@@ -35,11 +35,16 @@ import {
   useGetVisibleFields,
   usePaymentTypeLookup,
 } from "@/hooks/use-lookup"
+import {
+  MainHistoryTabList,
+  TransactionWorkspaceRoot,
+  transactionTabPanelClass,
+} from "@/components/layout/transaction-workspace-layout"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   CancelConfirmation,
   CloneConfirmation,
@@ -946,49 +951,40 @@ export default function BankReconPage() {
   }
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
-      <Tabs
-        defaultValue="main"
-        className="w-full"
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-
-            {/* Cancel Remarks Badge - Only show when cancelled */}
+    <>
+      <TransactionWorkspaceRoot
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        leftColumn={
+          <>
+            <MainHistoryTabList />
             {isCancelled && (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
                   Cancelled
                 </span>
                 {bankRecon?.cancelRemarks && (
-                  <div className="max-w-xs truncate text-sm text-red-600">
+                  <div className="max-w-[160px] truncate text-xs text-red-600 sm:max-w-[220px]">
                     {bankRecon.cancelRemarks}
                   </div>
                 )}
               </div>
             )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <h1>
-              {/* Outer wrapper: gradient border or yellow pulsing border */}
+          </>
+        }
+        centerColumn={
+          <div className="flex shrink-0 items-center gap-1.5">
+            <h1 className="m-0">
               <span
                 className={`relative inline-flex rounded-full p-[2px] transition-all ${
                   isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500"
+                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
                 } `}
               >
-                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
                 <span
-                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
+                  className="inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[11px] font-medium text-white select-none"
                   onDoubleClick={handleCopyInvoiceNo}
                   title="Double-click to copy reconciliation number"
                 >
@@ -1010,15 +1006,16 @@ export default function BankReconPage() {
                 className="h-4 w-4 p-0"
                 title="Refresh bank reconciliation data"
               >
-                <RefreshCw className="h-2 w-2" />
+                <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
-
-          <div className="flex items-center gap-2">
+        }
+        rightColumn={
+          <>
             <div
               onDoubleClick={handleCopySearchNo}
-              className="flex-1"
+              className="min-w-[120px] w-full max-w-xs sm:w-64"
               title="Double-click to copy to clipboard"
             >
               <Input
@@ -1036,7 +1033,7 @@ export default function BankReconPage() {
                   }
                 }}
                 placeholder="Search Reconciliation No"
-                className="h-8 cursor-pointer text-sm"
+                className="h-7 cursor-pointer text-xs"
                 readOnly={!!bankRecon?.reconId && bankRecon.reconId !== "0"}
                 disabled={!!bankRecon?.reconId && bankRecon.reconId !== "0"}
               />
@@ -1116,10 +1113,10 @@ export default function BankReconPage() {
               )}
               {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
             </Button>
-          </div>
-        </div>
-
-        <TabsContent value="main">
+          </>
+        }
+      >
+        <TabsContent value="main" className={transactionTabPanelClass()}>
           <Main
             form={form}
             onRefreshAction={handleRefreshBankRecon}
@@ -1130,10 +1127,10 @@ export default function BankReconPage() {
           />
         </TabsContent>
 
-        <TabsContent value="history">
+        <TabsContent value="history" className={transactionTabPanelClass()}>
           <History form={form} isEdit={isEdit} />
         </TabsContent>
-      </Tabs>
+      </TransactionWorkspaceRoot>
 
       {/* List Dialog */}
       <Dialog
@@ -1255,6 +1252,6 @@ export default function BankReconPage() {
         title="Clone Bank Reconciliation"
         description="This will create a copy as a new bank reconciliation."
       />
-    </div>
+    </>
   )
 }

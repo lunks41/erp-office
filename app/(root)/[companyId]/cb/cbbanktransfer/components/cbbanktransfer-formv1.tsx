@@ -855,14 +855,14 @@ export default function BankTransferForm({
                 <DynamicJobOrderAutocomplete
                   form={form}
                   name="jobOrderId"
-                  label="Job Order-D"
+                  label="Job Order"
                   onChangeEvent={handleJobOrderChange}
                 />
               ) : (
                 <JobOrderAutocomplete
                   form={form}
                   name="jobOrderId"
-                  label="Job Order-S"
+                  label="Job Order"
                   onChangeEvent={handleJobOrderChange}
                 />
               ))}

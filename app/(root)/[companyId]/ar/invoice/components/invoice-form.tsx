@@ -559,264 +559,262 @@ export default function InvoiceForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
-        <div className="col-span-10 rounded-md border border-border/60 bg-muted/40 p-3 shadow-sm">
-          <div
-            className="[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:text-sm [&_textarea]:min-h-[2.75rem]"
-          >
-          <div className="grid grid-cols-6 gap-x-2 gap-y-1">
-          {/* Transaction Date */}
-          {visible?.m_TrnDate && (
-            <CustomDateNew
-              form={form}
-              name="trnDate"
-              label="Transaction Date"
-              isRequired={true}
-              size="default"
-              onChangeEvent={handleTrnDateChange}
-              isFutureShow={false}
-            />
-          )}
+        <div className="border-border/60 bg-muted/40 col-span-10 rounded-md border p-3 shadow-sm">
+          <div className="[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-[2.75rem] [&_textarea]:text-sm">
+            <div className="grid grid-cols-6 gap-x-2 gap-y-1">
+              {/* Transaction Date */}
+              {visible?.m_TrnDate && (
+                <CustomDateNew
+                  form={form}
+                  name="trnDate"
+                  label="Transaction Date"
+                  isRequired={true}
+                  size="default"
+                  onChangeEvent={handleTrnDateChange}
+                  isFutureShow={false}
+                />
+              )}
 
-          {/* Account Date */}
-          <CustomDateNew
-            form={form}
-            name="accountDate"
-            label="Account Date"
-            isRequired={true}
-            size="default"
-            onChangeEvent={handleAccountDateChange}
-            isFutureShow={false}
-          />
+              {/* Account Date */}
+              <CustomDateNew
+                form={form}
+                name="accountDate"
+                label="Account Date"
+                isRequired={true}
+                size="default"
+                onChangeEvent={handleAccountDateChange}
+                isFutureShow={false}
+              />
 
-          {/* Customer */}
-          {isDynamicCustomer ? (
-            <DynamicCustomerAutocomplete
-              form={form}
-              name="customerId"
-              label="Customer-D"
-              isRequired={true}
-              onChangeEvent={handleCustomerChange}
-            />
-          ) : (
-            <CustomerAutocomplete
-              form={form}
-              name="customerId"
-              label="Customer-S"
-              isRequired={true}
-              onChangeEvent={handleCustomerChange}
-            />
-          )}
+              {/* Customer */}
+              {isDynamicCustomer ? (
+                <DynamicCustomerAutocomplete
+                  form={form}
+                  name="customerId"
+                  label="Customer"
+                  isRequired={true}
+                  onChangeEvent={handleCustomerChange}
+                />
+              ) : (
+                <CustomerAutocomplete
+                  form={form}
+                  name="customerId"
+                  label="Customer"
+                  isRequired={true}
+                  onChangeEvent={handleCustomerChange}
+                />
+              )}
 
-          {/* Reference No */}
-          <CustomInput
-            form={form}
-            name="referenceNo"
-            label="Reference No."
-            isRequired={required?.m_ReferenceNo}
-          />
+              {/* Reference No */}
+              <CustomInput
+                form={form}
+                name="referenceNo"
+                label="Reference No."
+                isRequired={required?.m_ReferenceNo}
+              />
 
-          {/* Credit Terms */}
-          <CreditTermAutocomplete
-            form={form}
-            name="creditTermId"
-            label="Credit Terms"
-            isRequired={true}
-            onChangeEvent={handleCreditTermChange}
-          />
+              {/* Credit Terms */}
+              <CreditTermAutocomplete
+                form={form}
+                name="creditTermId"
+                label="Credit Terms"
+                isRequired={true}
+                onChangeEvent={handleCreditTermChange}
+              />
 
-          {/* Due Date */}
-          <CustomDateNew
-            form={form}
-            name="dueDate"
-            label="Due Date"
-            isRequired={true}
-            size="default"
-            isFutureShow={true}
-            minDate={dueDateMinDate}
-          />
+              {/* Due Date */}
+              <CustomDateNew
+                form={form}
+                name="dueDate"
+                label="Due Date"
+                isRequired={true}
+                size="default"
+                isFutureShow={true}
+                minDate={dueDateMinDate}
+              />
 
-          {/* Bank */}
-          {visible?.m_BankId && (
-            <BankAutocomplete
-              form={form}
-              name="bankId"
-              label="Bank"
-              isRequired={required?.m_BankId}
-              onChangeEvent={handleBankChange}
-            />
-          )}
+              {/* Bank */}
+              {visible?.m_BankId && (
+                <BankAutocomplete
+                  form={form}
+                  name="bankId"
+                  label="Bank"
+                  isRequired={required?.m_BankId}
+                  onChangeEvent={handleBankChange}
+                />
+              )}
 
-          {/* Currency */}
-          <CurrencyAutocomplete
-            form={form}
-            name="currencyId"
-            label="Currency"
-            isRequired={true}
-            onChangeEvent={handleCurrencyChange}
-          />
+              {/* Currency */}
+              <CurrencyAutocomplete
+                form={form}
+                name="currencyId"
+                label="Currency"
+                isRequired={true}
+                onChangeEvent={handleCurrencyChange}
+              />
 
-          {/* Exchange Rate */}
-          <CustomNumberInput
-            form={form}
-            name="exhRate"
-            label="Exchange Rate"
-            isRequired={true}
-            round={exhRateDec}
-            className="text-right"
-            onFocusEvent={handleExchangeRateFocus}
-            onBlurEvent={handleExchangeRateBlur}
-          />
-          {visible?.m_CtyCurr && (
-            <>
-              {/* Country Exchange Rate */}
+              {/* Exchange Rate */}
               <CustomNumberInput
                 form={form}
-                name="ctyExhRate"
-                label="Country Exchange Rate"
+                name="exhRate"
+                label="Exchange Rate"
                 isRequired={true}
                 round={exhRateDec}
                 className="text-right"
-                onFocusEvent={handleCountryExchangeRateFocus}
-                onBlurEvent={handleCountryExchangeRateBlur}
+                onFocusEvent={handleExchangeRateFocus}
+                onBlurEvent={handleExchangeRateBlur}
               />
-            </>
-          )}
+              {visible?.m_CtyCurr && (
+                <>
+                  {/* Country Exchange Rate */}
+                  <CustomNumberInput
+                    form={form}
+                    name="ctyExhRate"
+                    label="Country Exchange Rate"
+                    isRequired={true}
+                    round={exhRateDec}
+                    className="text-right"
+                    onFocusEvent={handleCountryExchangeRateFocus}
+                    onBlurEvent={handleCountryExchangeRateBlur}
+                  />
+                </>
+              )}
 
-          {/* Delivery Date */}
-          {visible?.m_DeliveryDate && (
-            <CustomDateNew
-              form={form}
-              name="deliveryDate"
-              label="Delivery Date"
-              isRequired={required?.m_DeliveryDate}
-              size="default"
-              onChangeEvent={handleDeliveryDateChange}
-              isFutureShow={true}
-            />
-          )}
+              {/* Delivery Date */}
+              {visible?.m_DeliveryDate && (
+                <CustomDateNew
+                  form={form}
+                  name="deliveryDate"
+                  label="Delivery Date"
+                  isRequired={required?.m_DeliveryDate}
+                  size="default"
+                  onChangeEvent={handleDeliveryDateChange}
+                  isFutureShow={true}
+                />
+              )}
 
-          {/* VAT Claim Date */}
-          {visible?.m_GstClaimDate && (
-            <CustomDateNew
-              form={form}
-              name="gstClaimDate"
-              label="VAT Claim Date"
-              isRequired={false}
-              size="default"
-              isFutureShow={true}
-            />
-          )}
+              {/* VAT Claim Date */}
+              {visible?.m_GstClaimDate && (
+                <CustomDateNew
+                  form={form}
+                  name="gstClaimDate"
+                  label="VAT Claim Date"
+                  isRequired={false}
+                  size="default"
+                  isFutureShow={true}
+                />
+              )}
 
-          {visible?.m_CtyCurr && (
-            <>
-              {/* Total Country Amount */}
-              <CustomNumberInput
+              {visible?.m_CtyCurr && (
+                <>
+                  {/* Total Country Amount */}
+                  <CustomNumberInput
+                    form={form}
+                    name="totCtyAmt"
+                    label="Total Country Amount"
+                    round={ctyAmtDec}
+                    isDisabled={true}
+                    className="text-right"
+                  />
+                </>
+              )}
+
+              {visible?.m_CtyCurr && visible?.m_GstId && (
+                <>
+                  {/* GST Country Amount */}
+                  <CustomNumberInput
+                    form={form}
+                    name="gstCtyAmt"
+                    label="GST Country Amount"
+                    isDisabled={true}
+                    round={ctyAmtDec}
+                    className="text-right"
+                  />
+                </>
+              )}
+
+              {visible?.m_CtyCurr && (
+                <>
+                  {/* Total Country Amount After GST */}
+                  <CustomNumberInput
+                    form={form}
+                    name="totCtyAmtAftGst"
+                    label="Total Country Amount After VAT"
+                    isDisabled={true}
+                    round={ctyAmtDec}
+                    className="text-right"
+                  />
+                </>
+              )}
+
+              {/* Job Order */}
+              {visible?.m_JobOrderIdHd &&
+                (isDynamicJobOrder ? (
+                  <DynamicJobOrderAutocomplete
+                    form={form}
+                    name="jobOrderId"
+                    label="Job Order"
+                    onChangeEvent={handleJobOrderChange}
+                  />
+                ) : (
+                  <JobOrderAutocomplete
+                    form={form}
+                    name="jobOrderId"
+                    label="Job Order"
+                    onChangeEvent={handleJobOrderChange}
+                  />
+                ))}
+
+              {/* Vessel */}
+              {visible?.m_VesselIdHd &&
+                (isDynamicVessel ? (
+                  <DynamicVesselAutocomplete
+                    form={form}
+                    name="vesselId"
+                    label="Vessel"
+                  />
+                ) : (
+                  <VesselAutocomplete
+                    form={form}
+                    name="vesselId"
+                    label="Vessel"
+                  />
+                ))}
+
+              {/* Port */}
+              {visible?.m_PortIdHd && (
+                <PortAutocomplete form={form} name="portId" label="Port" />
+              )}
+
+              {/* Service Category */}
+              {visible?.m_ServiceCategoryId && (
+                <ServiceCategoryAutocomplete
+                  form={form}
+                  name="serviceCategoryId"
+                  label="Service Category"
+                  isRequired={true}
+                />
+              )}
+              {/* Service Category */}
+              {visible?.m_BargeIdHd && (
+                <BargeAutocomplete
+                  form={form}
+                  name="bargeId"
+                  label="Barge"
+                  isRequired={true}
+                  onChangeEvent={handleBargeChange}
+                />
+              )}
+
+              {/* Remarks */}
+              <CustomTextarea
                 form={form}
-                name="totCtyAmt"
-                label="Total Country Amount"
-                round={ctyAmtDec}
-                isDisabled={true}
-                className="text-right"
+                name="remarks"
+                label="Remarks"
+                isRequired={required?.m_Remarks_Hd}
+                className="col-span-2"
               />
-            </>
-          )}
-
-          {visible?.m_CtyCurr && visible?.m_GstId && (
-            <>
-              {/* GST Country Amount */}
-              <CustomNumberInput
-                form={form}
-                name="gstCtyAmt"
-                label="GST Country Amount"
-                isDisabled={true}
-                round={ctyAmtDec}
-                className="text-right"
-              />
-            </>
-          )}
-
-          {visible?.m_CtyCurr && (
-            <>
-              {/* Total Country Amount After GST */}
-              <CustomNumberInput
-                form={form}
-                name="totCtyAmtAftGst"
-                label="Total Country Amount After VAT"
-                isDisabled={true}
-                round={ctyAmtDec}
-                className="text-right"
-              />
-            </>
-          )}
-
-          {/* Job Order */}
-          {visible?.m_JobOrderIdHd &&
-            (isDynamicJobOrder ? (
-              <DynamicJobOrderAutocomplete
-                form={form}
-                name="jobOrderId"
-                label="Job Order-D"
-                onChangeEvent={handleJobOrderChange}
-              />
-            ) : (
-              <JobOrderAutocomplete
-                form={form}
-                name="jobOrderId"
-                label="Job Order-S"
-                onChangeEvent={handleJobOrderChange}
-              />
-            ))}
-
-          {/* Vessel */}
-          {visible?.m_VesselIdHd &&
-            (isDynamicVessel ? (
-              <DynamicVesselAutocomplete
-                form={form}
-                name="vesselId"
-                label="Vessel-D"
-              />
-            ) : (
-              <VesselAutocomplete
-                form={form}
-                name="vesselId"
-                label="Vessel-S"
-              />
-            ))}
-
-          {/* Port */}
-          {visible?.m_PortIdHd && (
-            <PortAutocomplete form={form} name="portId" label="Port" />
-          )}
-
-          {/* Service Category */}
-          {visible?.m_ServiceCategoryId && (
-            <ServiceCategoryAutocomplete
-              form={form}
-              name="serviceCategoryId"
-              label="Service Category"
-              isRequired={true}
-            />
-          )}
-          {/* Service Category */}
-          {visible?.m_BargeIdHd && (
-            <BargeAutocomplete
-              form={form}
-              name="bargeId"
-              label="Barge"
-              isRequired={true}
-              onChangeEvent={handleBargeChange}
-            />
-          )}
-
-          {/* Remarks */}
-          <CustomTextarea
-            form={form}
-            name="remarks"
-            label="Remarks"
-            isRequired={required?.m_Remarks_Hd}
-            className="col-span-2"
-          />
-          </div>
+            </div>
           </div>
         </div>
 

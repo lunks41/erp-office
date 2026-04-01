@@ -182,7 +182,8 @@ export default function APDashboardPage() {
   }
 
   return (
-    <div className="@container mx-auto space-y-6 px-4 py-6 sm:px-6">
+    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
+      <div className="mx-auto min-h-0 w-full max-w-[1600px] flex-1 space-y-6 overflow-y-auto px-4 py-6 sm:px-6">
       {/* Header with Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -638,6 +639,7 @@ export default function APDashboardPage() {
             onCheckedChange={setAutoRefresh}
           />
         </div>
+      </div>
       </div>
     </div>
   )

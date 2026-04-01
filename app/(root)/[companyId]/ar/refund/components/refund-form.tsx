@@ -781,7 +781,7 @@ export default function RefundForm({
           <DynamicCustomerAutocomplete
             form={form}
             name="customerId"
-            label="Customer-D"
+            label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
             className="col-span-2"
@@ -791,7 +791,7 @@ export default function RefundForm({
           <CustomerAutocomplete
             form={form}
             name="customerId"
-            label="Customer-S"
+            label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
             className="col-span-2"

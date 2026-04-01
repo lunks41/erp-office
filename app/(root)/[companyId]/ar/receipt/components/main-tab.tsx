@@ -660,7 +660,7 @@ export default function Main({
   )
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 w-full flex-col px-2 pb-2">
       <ReceiptForm
         form={form}
         onSuccessAction={onSuccessAction}

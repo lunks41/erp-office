@@ -27,11 +27,6 @@ import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse } from "date-fns"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
-function isNonZeroGstAmount(value: unknown): boolean {
-  const n = typeof value === "number" ? value : Number(value)
-  return Number.isFinite(n) && n !== 0
-}
-
 import { ApInvoice } from "@/lib/api-routes"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { useGetById } from "@/hooks/use-common"
@@ -50,6 +45,11 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { InvoiceDetailsFormRef } from "./invoice-details-form"
+
+function isNonZeroGstAmount(value: unknown): boolean {
+  const n = typeof value === "number" ? value : Number(value)
+  return Number.isFinite(n) && n !== 0
+}
 
 interface InvoiceFormProps {
   form: UseFormReturn<ApInvoiceHdSchemaType>
@@ -623,7 +623,7 @@ export default function InvoiceForm({
             <DynamicSupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-D"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
             />
@@ -631,7 +631,7 @@ export default function InvoiceForm({
             <SupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-S"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
             />

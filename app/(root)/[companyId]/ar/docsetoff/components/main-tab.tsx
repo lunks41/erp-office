@@ -7,7 +7,7 @@ import {
   calculateManualAllocation,
   calculateUnallocated,
   validateAllocation as validateAllocationHelper,
-} from "@/helpers/ar-docSetOff-calculations"
+} from "@/helpers/ar-docsetoff-calculations"
 import { IArOutTransaction } from "@/interfaces"
 import { IArDocSetOffDt } from "@/interfaces/ar-docsetoff"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
@@ -26,8 +26,8 @@ import { Button } from "@/components/ui/button"
 import ArOutStandingTransactionsDialog from "@/components/accounttransaction/ar-outstandingtransactions-dialog"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 
-import DocSetOffDetailsTable from "./docSetOff-details-table"
-import DocSetOffForm from "./docSetOff-form"
+import DocSetOffDetailsTable from "./docsetoff-details-table"
+import DocSetOffForm from "./docsetoff-form"
 
 interface MainProps {
   form: UseFormReturn<ArDocSetOffHdSchemaType>
@@ -104,8 +104,7 @@ export default function Main({
     return {
       positive,
       negativeAbs,
-      matched:
-        totalSetOff === 0 ? Math.min(positive, negativeAbs) : rawSetOff,
+      matched: totalSetOff === 0 ? Math.min(positive, negativeAbs) : rawSetOff,
       totalSetOff,
     }
   }, [dataDetails])

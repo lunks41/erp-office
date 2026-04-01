@@ -13,7 +13,7 @@ import {
   recalculateAllDetailsLocalAndCtyAmounts,
   recalculateAndSetHeaderTotals,
   syncCountryExchangeRate,
-} from "@/helpers/ap-creditNote-calculations"
+} from "@/helpers/ap-creditnote-calculations"
 import { IApCreditNoteDt, IApSupplierInvoice } from "@/interfaces"
 import {
   IBankLookup,
@@ -29,8 +29,8 @@ import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
-import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { ApCreditNote } from "@/lib/api-routes"
+import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { useGetById } from "@/hooks/use-common"
 import { useGetDynamicLookup } from "@/hooks/use-lookup"
 import {
@@ -733,7 +733,7 @@ export default function CreditNoteForm({
             <DynamicSupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-D"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
               isDisabled={isSupplierCurrencyLocked}
@@ -742,7 +742,7 @@ export default function CreditNoteForm({
             <SupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-S"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
               isDisabled={isSupplierCurrencyLocked}
@@ -1093,9 +1093,7 @@ export default function CreditNoteForm({
                       <div>
                         <div>Total Local: {cn.totLocalAmt}</div>
                         <div>GST Local: {cn.gstLocalAmt}</div>
-                        <div>
-                          Total Local After GST: {cn.totLocalAmtAftGst}
-                        </div>
+                        <div>Total Local After GST: {cn.totLocalAmtAftGst}</div>
                       </div>
                     </div>
                     <div className="mt-2 border-t border-amber-300 pt-1 text-amber-900">

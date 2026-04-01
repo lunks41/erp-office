@@ -1633,7 +1633,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                   <JobOrderAutocomplete
                     form={form}
                     name="jobOrderId"
-                    label="Job Order-S"
+                    label="Job Order"
                     isRequired={required?.m_JobOrderId && isJobSpecific}
                     onChangeEvent={handleJobOrderChange}
                   />
@@ -1643,7 +1643,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                   <DynamicJobOrderAutocomplete
                     form={form}
                     name="jobOrderId"
-                    label="Job Order-D"
+                    label="Job Order"
                     onChangeEvent={handleJobOrderChange}
                   />
                 )}

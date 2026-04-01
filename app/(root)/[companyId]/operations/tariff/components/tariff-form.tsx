@@ -399,7 +399,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 key={`customer-autocomplete-${mode}-${customerId}`}
                 form={form}
                 name="customerId"
-                label="Customer-S"
+                label="Customer"
                 isRequired={true}
                 isDisabled={mode === "view"}
                 onChangeEvent={handleCustomerChange}

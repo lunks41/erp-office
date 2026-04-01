@@ -13,7 +13,7 @@ import {
   recalculateAllDetailsLocalAndCtyAmounts,
   recalculateAndSetHeaderTotals,
   syncCountryExchangeRate,
-} from "@/helpers/ap-debitNote-calculations"
+} from "@/helpers/ap-debitnote-calculations"
 import { IApDebitNoteDt, IApSupplierInvoice } from "@/interfaces"
 import {
   IBankLookup,
@@ -651,7 +651,7 @@ export default function DebitNoteForm({
             <DynamicSupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-D"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
               isDisabled={isSupplierCurrencyLocked}
@@ -660,7 +660,7 @@ export default function DebitNoteForm({
             <SupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-S"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
               isDisabled={isSupplierCurrencyLocked}

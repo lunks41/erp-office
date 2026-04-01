@@ -574,7 +574,7 @@ export default function InvoiceCtmForm({
             <DynamicCustomerAutocomplete
               form={form}
               name="customerId"
-              label="Customer-D"
+              label="Customer"
               isRequired={true}
               onChangeEvent={handleCustomerChange}
             />
@@ -582,7 +582,7 @@ export default function InvoiceCtmForm({
             <CustomerAutocomplete
               form={form}
               name="customerId"
-              label="Customer-S"
+              label="Customer"
               isRequired={true}
               onChangeEvent={handleCustomerChange}
             />
@@ -733,14 +733,14 @@ export default function InvoiceCtmForm({
               <DynamicJobOrderAutocomplete
                 form={form}
                 name="jobOrderId"
-                label="Job Order-D"
+                label="Job Order"
                 onChangeEvent={handleJobOrderChange}
               />
             ) : (
               <JobOrderAutocomplete
                 form={form}
                 name="jobOrderId"
-                label="Job Order-S"
+                label="Job Order"
                 onChangeEvent={handleJobOrderChange}
               />
             ))}
@@ -751,14 +751,10 @@ export default function InvoiceCtmForm({
               <DynamicVesselAutocomplete
                 form={form}
                 name="vesselId"
-                label="Vessel-D"
+                label="Vessel"
               />
             ) : (
-              <VesselAutocomplete
-                form={form}
-                name="vesselId"
-                label="Vessel-S"
-              />
+              <VesselAutocomplete form={form} name="vesselId" label="Vessel" />
             ))}
 
           {/* Port */}

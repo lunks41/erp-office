@@ -19,16 +19,22 @@ import { formatNumber } from "@/lib/format-utils"
 import { GLTransactionId, ModuleId } from "@/lib/utils"
 import { useGetById, usePersist } from "@/hooks/use-common"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import {
+  TransactionWorkspaceRoot,
+  MainHistoryTabList,
+  transactionTabPanelClass,
+} from "@/components/layout/transaction-workspace-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   DeleteConfirmation,
   ResetConfirmation,
   SaveConfirmation,
 } from "@/components/confirmation"
 
+import History from "./components/history"
 import Main, { type OpeningBalanceTotals } from "./components/main-tab"
 import { getDefaultValues } from "./components/openingbalance-defaultvalues"
 
@@ -388,86 +394,73 @@ export default function OpeningBalancePage() {
     : "GLOpeningBalance (New)"
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
-      <Tabs
-        defaultValue="main"
-        className="w-full"
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="history" disabled={!isEdit}>
-                History
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="flex items-center gap-2">
-              {/* Debit/Credit totals (local amount only) - left side of button row */}
-              <Badge
-                variant="secondary"
-                className="border-blue-200 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
-              >
-                DebitAmt: {formatNumber(totals.totDebitLocalAmt, locAmtDec)}
-              </Badge>
-              <Badge
-                variant="outline"
-                className="border-green-200 bg-green-50 px-3 py-1 text-sm font-medium text-green-800"
-              >
-                CreditAmt: {formatNumber(totals.totCreditLocalAmt, locAmtDec)}
-              </Badge>
-
-              <h1>
-                {/* Outer wrapper: gradient border or pulsing border */}
-                <span
-                  className={`relative inline-flex rounded-full p-[2px] transition-all ${
-                    isEdit
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500"
-                      : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
-                  } `}
-                >
-                  <span className="inline-flex cursor-default items-center rounded-full px-3 py-1 text-xs font-medium text-white select-none">
-                    {titleText}
-                  </span>
-                </span>
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setShowSaveConfirm(true)}
-              disabled={
-                !canView ||
-                isSaving ||
-                saveMutation.isPending ||
-                isCancelled ||
-                (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
-              }
-              className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+    <>
+      <TransactionWorkspaceRoot
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        leftColumn={
+          <MainHistoryTabList historyDisabled={!isEdit} />
+        }
+        centerColumn={
+          <div className="flex min-w-0 flex-wrap items-center justify-center gap-1.5">
+            <Badge
+              variant="secondary"
+              className="border-blue-200 bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-800"
             >
-              {isSaving || saveMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Save className="mr-1 h-4 w-4" />
-              )}
-              {isSaving || saveMutation.isPending
-                ? isEdit
-                  ? "Updating..."
-                  : "Saving..."
-                : isEdit
-                  ? "Update"
-                  : "Save"}
-            </Button>
+              Debit: {formatNumber(totals.totDebitLocalAmt, locAmtDec)}
+            </Badge>
+            <Badge
+              variant="outline"
+              className="border-green-200 bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-800"
+            >
+              Credit: {formatNumber(totals.totCreditLocalAmt, locAmtDec)}
+            </Badge>
+            <h1 className="m-0">
+              <span
+                className={`relative inline-flex rounded-full p-[2px] transition-all ${
+                  isEdit
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500"
+                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
+                } `}
+              >
+                <span className="inline-flex cursor-default items-center rounded-full px-2 py-0.5 text-[11px] font-medium text-white select-none">
+                  {titleText}
+                </span>
+              </span>
+            </h1>
           </div>
-        </div>
-
-        <TabsContent value="main">
+        }
+        rightColumn={
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setShowSaveConfirm(true)}
+            disabled={
+              !canView ||
+              isSaving ||
+              saveMutation.isPending ||
+              isCancelled ||
+              (isEdit && !canEdit) ||
+              (!isEdit && !canCreate)
+            }
+            className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+          >
+            {isSaving || saveMutation.isPending ? (
+              <Spinner size="sm" className="mr-1" />
+            ) : (
+              <Save className="mr-1 h-4 w-4" />
+            )}
+            {isSaving || saveMutation.isPending
+              ? isEdit
+                ? "Updating..."
+                : "Saving..."
+              : isEdit
+                ? "Update"
+                : "Save"}
+          </Button>
+        }
+      >
+        <TabsContent value="main" className={transactionTabPanelClass()}>
           <Main
             form={form}
             onSuccessAction={async () => {
@@ -479,8 +472,10 @@ export default function OpeningBalancePage() {
             onTotalsChange={setTotals}
           />
         </TabsContent>
-        <TabsContent value="history">History</TabsContent>
-      </Tabs>
+        <TabsContent value="history" className={transactionTabPanelClass()}>
+          <History form={form} isEdit={isEdit} />
+        </TabsContent>
+      </TransactionWorkspaceRoot>
 
       {/* Save Confirmation */}
       <SaveConfirmation
@@ -519,6 +514,6 @@ export default function OpeningBalancePage() {
         title="New Opening Balance"
         description="This will clear all unsaved changes."
       />
-    </div>
+    </>
   )
 }

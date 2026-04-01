@@ -7,7 +7,7 @@ import {
   calculateManualAllocation,
   calculateUnallocated,
   validateAllocation as validateAllocationHelper,
-} from "@/helpers/ap-docSetOff-calculations"
+} from "@/helpers/ap-docsetoff-calculations"
 import { IApDocSetOffDt, IApOutTransaction } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApDocSetOffDtSchemaType, ApDocSetOffHdSchemaType } from "@/schemas"
@@ -22,8 +22,8 @@ import { Button } from "@/components/ui/button"
 import ArOutStandingTransactionsDialog from "@/components/accounttransaction/ap-outstandingtransactions-dialog"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 
-import DocSetOffDetailsTable from "./docSetOff-details-table"
-import DocSetOffForm from "./docSetOff-form"
+import DocSetOffDetailsTable from "./docsetoff-details-table"
+import DocSetOffForm from "./docsetoff-form"
 
 interface MainProps {
   form: UseFormReturn<ApDocSetOffHdSchemaType>
@@ -624,7 +624,7 @@ export default function Main({
   )
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 w-full flex-col px-2 pb-2">
       <DocSetOffForm
         form={form}
         onSuccessAction={onSuccessAction}

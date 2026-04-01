@@ -271,7 +271,7 @@ export default function Main({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 w-full flex-col px-2 pb-2">
       <InvoiceForm
         form={form}
         onSuccessAction={onSuccessAction}
@@ -283,7 +283,8 @@ export default function Main({
         detailsFormRef={detailsFormRef}
       />
 
-      <InvoiceDetailsForm
+      <div className="w-full min-w-0">
+        <InvoiceDetailsForm
         ref={detailsFormRef}
         Hdform={form}
         onAddRowAction={handleAddRow}
@@ -298,8 +299,10 @@ export default function Main({
         defaultGstId={defaults.common.gstId || 0}
         isCancelled={isCancelled}
       />
+      </div>
 
-      <InvoiceDetailsTable
+      <div className="w-full min-w-0">
+        <InvoiceDetailsTable
         key={tableKey}
         data={(dataDetails as unknown as IApInvoiceDt[]) || []}
         visible={visible}
@@ -311,8 +314,8 @@ export default function Main({
         onFilterChange={() => {}} // Add filter logic if needed
         onDataReorder={handleDataReorder as (newData: IApInvoiceDt[]) => void}
         isCancelled={isCancelled}
-        maxHeight={280}
       />
+      </div>
 
       <DeleteConfirmation
         title="Delete Selected Items"

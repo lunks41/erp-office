@@ -45,11 +45,16 @@ import { GLTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import {
+  TransactionWorkspaceRoot,
+  MainOtherHistoryTabList,
+  transactionTabPanelClass,
+} from "@/components/layout/transaction-workspace-layout"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   CancelConfirmation,
   CloneConfirmation,
@@ -1172,217 +1177,205 @@ export default function ArapcontraPage() {
   }
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
-      <Tabs
-        defaultValue="main"
-        className="w-full"
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-
-            {/* Cancel Remarks Badge - Only show when cancelled */}
-            {isCancelled && (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
-                  Cancelled
-                </span>
-                {contra?.cancelRemarks && (
-                  <div className="max-w-xs truncate text-sm text-red-600">
-                    {contra.cancelRemarks}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <h1>
-              {/* Outer wrapper: gradient border or yellow pulsing border */}
-              <span
-                className={`relative inline-flex rounded-full p-[2px] transition-all ${
-                  isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
-                } `}
-              >
-                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
-                <span
-                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
-                  onDoubleClick={handleCopyInvoiceNo}
-                  title="Double-click to copy contra number"
-                >
-                  {titleText}
-                </span>
+    <>
+    <TransactionWorkspaceRoot
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      leftColumn={
+        <>
+          <MainOtherHistoryTabList />
+          {isCancelled && (
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+                Cancelled
               </span>
-            </h1>
-            {isEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (contra?.contraNo) {
-                    setSearchNo(contra.contraNo)
-                    setShowLoadConfirm(true)
-                  }
-                }}
-                disabled={isLoadingPayment}
-                className="h-4 w-4 p-0"
-                title="Refresh contra data"
-              >
-                <RefreshCw className="h-2 w-2" />
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div
-              onDoubleClick={handleCopySearchNo}
-              className="flex-1"
-              title="Double-click to copy to clipboard"
-            >
-              <Input
-                value={searchNo}
-                onChange={(e) => setSearchNo(e.target.value)}
-                onBlur={() => {
-                  if (searchNo.trim()) {
-                    setShowLoadConfirm(true)
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && searchNo.trim()) {
-                    e.preventDefault()
-                    setShowLoadConfirm(true)
-                  }
-                }}
-                placeholder="Search Contra No"
-                className="h-8 cursor-pointer text-sm"
-                readOnly={!!contra?.contraId && contra.contraId !== "0"}
-                disabled={!!contra?.contraId && contra.contraId !== "0"}
-              />
+              {contra?.cancelRemarks && (
+                <div className="max-w-[160px] truncate text-xs text-red-600 sm:max-w-[220px]">
+                  {contra.cancelRemarks}
+                </div>
+              )}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowListDialog(true)}
-              disabled={false}
+          )}
+        </>
+      }
+      centerColumn={
+        <div className="flex shrink-0 items-center gap-1.5">
+          <h1 className="m-0">
+            <span
+              className={`relative inline-flex rounded-full p-[2px] transition-all ${
+                isEdit
+                  ? "bg-gradient-to-r from-purple-500 to-blue-500"
+                  : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
+              } `}
             >
-              <ListFilter className="mr-1 h-4 w-4" />
-              List
-            </Button>
-
+              <span
+                className="inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[11px] font-medium text-white select-none"
+                onDoubleClick={handleCopyInvoiceNo}
+                title="Double-click to copy contra number"
+              >
+                {titleText}
+              </span>
+            </span>
+          </h1>
+          {isEdit && (
             <Button
-              variant="default"
+              variant="ghost"
               size="sm"
-              onClick={() => setShowSaveConfirm(true)}
-              disabled={
-                !canView ||
-                isSaving ||
-                saveMutation.isPending ||
-                updateMutation.isPending ||
-                isCancelled ||
-                (isEdit && !canEdit) ||
-                (!isEdit && !canCreate)
-              }
-              className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+              onClick={() => {
+                if (contra?.contraNo) {
+                  setSearchNo(contra.contraNo)
+                  setShowLoadConfirm(true)
+                }
+              }}
+              disabled={isLoadingPayment}
+              className="h-4 w-4 p-0"
+              title="Refresh contra data"
             >
-              {isSaving ||
-              saveMutation.isPending ||
-              updateMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Save className="mr-1 h-4 w-4" />
-              )}
-              {isSaving || saveMutation.isPending || updateMutation.isPending
-                ? isEdit
-                  ? "Updating..."
-                  : "Saving..."
-                : isEdit
-                  ? "Update"
-                  : "Save"}
+              <RefreshCw className="h-3.5 w-3.5" />
             </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!contra || contra.contraId === "0"}
-              onClick={handlePrintContra}
-            >
-              <Printer className="mr-1 h-4 w-4" />
-              Print
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowResetConfirm(true)}
-              //disabled={!invoice}
-            >
-              <RotateCcw className="mr-1 h-4 w-4" />
-              New
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCloneConfirm(true)}
-              disabled={!contra || contra.contraId === "0" || isCancelled}
-            >
-              <Copy className="mr-1 h-4 w-4" />
-              Clone
-            </Button>
-
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={
-                !canView ||
-                !contra ||
-                contra.contraId === "0" ||
-                deleteMutation.isPending ||
-                isCancelled ||
-                !canDelete
-              }
-            >
-              {deleteMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Trash2 className="mr-1 h-4 w-4" />
-              )}
-              {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
-            </Button>
-          </div>
+          )}
         </div>
+      }
+      rightColumn={
+        <>
+          <div
+            onDoubleClick={handleCopySearchNo}
+            className="min-w-[120px] w-full max-w-xs sm:w-64"
+            title="Double-click to copy to clipboard"
+          >
+            <Input
+              value={searchNo}
+              onChange={(e) => setSearchNo(e.target.value)}
+              onBlur={() => {
+                if (searchNo.trim()) {
+                  setShowLoadConfirm(true)
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchNo.trim()) {
+                  e.preventDefault()
+                  setShowLoadConfirm(true)
+                }
+              }}
+              placeholder="Search Contra No"
+              className="h-7 cursor-pointer text-xs"
+              readOnly={!!contra?.contraId && contra.contraId !== "0"}
+              disabled={!!contra?.contraId && contra.contraId !== "0"}
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowListDialog(true)}
+            disabled={false}
+          >
+            <ListFilter className="mr-1 h-4 w-4" />
+            List
+          </Button>
 
-        <TabsContent value="main">
-          <Main
-            form={form}
-            onSuccessAction={async () => {
-              handleSaveContra()
-            }}
-            isEdit={isEdit}
-            visible={visible}
-            required={required}
-            companyId={Number(companyId)}
-          />
-        </TabsContent>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setShowSaveConfirm(true)}
+            disabled={
+              !canView ||
+              isSaving ||
+              saveMutation.isPending ||
+              updateMutation.isPending ||
+              isCancelled ||
+              (isEdit && !canEdit) ||
+              (!isEdit && !canCreate)
+            }
+            className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+          >
+            {isSaving || saveMutation.isPending || updateMutation.isPending ? (
+              <Spinner size="sm" className="mr-1" />
+            ) : (
+              <Save className="mr-1 h-4 w-4" />
+            )}
+            {isSaving || saveMutation.isPending || updateMutation.isPending
+              ? isEdit
+                ? "Updating..."
+                : "Saving..."
+              : isEdit
+                ? "Update"
+                : "Save"}
+          </Button>
 
-        <TabsContent value="other">
-          <Other form={form} />
-        </TabsContent>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!contra || contra.contraId === "0"}
+            onClick={handlePrintContra}
+          >
+            <Printer className="mr-1 h-4 w-4" />
+            Print
+          </Button>
 
-        <TabsContent value="history">
-          <History form={form} isEdit={isEdit} />
-        </TabsContent>
-      </Tabs>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowResetConfirm(true)}
+          >
+            <RotateCcw className="mr-1 h-4 w-4" />
+            New
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCloneConfirm(true)}
+            disabled={!contra || contra.contraId === "0" || isCancelled}
+          >
+            <Copy className="mr-1 h-4 w-4" />
+            Clone
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={
+              !canView ||
+              !contra ||
+              contra.contraId === "0" ||
+              deleteMutation.isPending ||
+              isCancelled ||
+              !canDelete
+            }
+          >
+            {deleteMutation.isPending ? (
+              <Spinner size="sm" className="mr-1" />
+            ) : (
+              <Trash2 className="mr-1 h-4 w-4" />
+            )}
+            {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
+          </Button>
+        </>
+      }
+    >
+      <TabsContent value="main" className={transactionTabPanelClass()}>
+        <Main
+          form={form}
+          onSuccessAction={async () => {
+            handleSaveContra()
+          }}
+          isEdit={isEdit}
+          visible={visible}
+          required={required}
+          companyId={Number(companyId)}
+        />
+      </TabsContent>
+
+      <TabsContent value="other" className={transactionTabPanelClass()}>
+        <Other form={form} />
+      </TabsContent>
+
+      <TabsContent value="history" className={transactionTabPanelClass()}>
+        <History form={form} isEdit={isEdit} />
+      </TabsContent>
+    </TransactionWorkspaceRoot>
 
       {/* List Dialog */}
       <Dialog
@@ -1488,6 +1481,6 @@ export default function ArapcontraPage() {
         title="Clone Contra"
         description="This will create a copy as a new contra."
       />
-    </div>
+    </>
   )
 }

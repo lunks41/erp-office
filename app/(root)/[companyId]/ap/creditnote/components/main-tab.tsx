@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { recalculateAndSetHeaderTotals } from "@/helpers/ap-creditNote-calculations"
+import { recalculateAndSetHeaderTotals } from "@/helpers/ap-creditnote-calculations"
 import { IApCreditNoteDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApCreditNoteDtSchemaType, ApCreditNoteHdSchemaType } from "@/schemas"
@@ -266,7 +266,7 @@ export default function Main({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 w-full flex-col px-2 pb-2">
       <CreditNoteForm
         form={form}
         onSuccessAction={onSuccessAction}

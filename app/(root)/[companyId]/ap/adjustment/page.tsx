@@ -58,12 +58,17 @@ import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import {
+  TransactionWorkspaceRoot,
+  MainOtherHistoryTabList,
+  transactionTabPanelClass,
+} from "@/components/layout/transaction-workspace-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   CancelConfirmation,
   CloneConfirmation,
@@ -1362,247 +1367,232 @@ export default function AdjustmentPage() {
   }
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
-      <Tabs
-        defaultValue="main"
-        className="w-full"
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-
-            {/* Cancel Remarks Badge - Only show when cancelled */}
-            {isCancelled && (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
-                  Cancelled
-                </span>
-                {adjustment?.cancelRemarks && (
-                  <div className="max-w-xs truncate text-sm text-red-600">
-                    {adjustment.cancelRemarks}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Payment Status Badge - Only show if not cancelled */}
-            {!isCancelled && paymentStatus === "Not Paid" && (
-              <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
-                Not Paid
+    <>
+    <TransactionWorkspaceRoot
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      leftColumn={
+        <>
+          <MainOtherHistoryTabList />
+          {isCancelled && (
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+                Cancelled
               </span>
-            )}
-            {!isCancelled && paymentStatus === "Partially Paid" && (
-              <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-orange-400"></span>
-                Partially Paid
-              </span>
-            )}
-            {!isCancelled && paymentStatus === "Fully Paid" && (
-              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-green-400"></span>
-                Fully Paid
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <h1>
-              {/* Outer wrapper: gradient border or yellow pulsing border */}
-              <span
-                className={`relative inline-flex rounded-full p-[2px] transition-all ${
-                  isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
-                } `}
-              >
-                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
-                <span
-                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
-                  onDoubleClick={handleCopyInvoiceNo}
-                  title="Double-click to copy adjustment number"
-                >
-                  {titleText}
-                </span>
-              </span>
-            </h1>
-            {hasDetails && (
-              <Badge
-                variant={headerIsDebit ? "default" : "destructive"}
-                className="px-3 py-1 text-xs font-medium"
-              >
-                {headerIsDebit ? "Debit" : "Credit"}
-              </Badge>
-            )}
-            {isEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (adjustment?.adjustmentNo) {
-                    setSearchNo(adjustment.adjustmentNo)
-                    setShowLoadConfirm(true)
-                  }
-                }}
-                disabled={isLoadingAdjustment}
-                className="h-4 w-4 p-0"
-                title="Refresh adjustment data"
-              >
-                <RefreshCw className="h-2 w-2" />
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div
-              onDoubleClick={handleCopySearchNo}
-              className="flex-1"
-              title="Double-click to copy to clipboard"
-            >
-              <Input
-                value={searchNo}
-                onChange={(e) => setSearchNo(e.target.value)}
-                onBlur={handleSearchNoBlur}
-                onKeyDown={handleSearchNoKeyDown}
-                placeholder="Search Adjustment No"
-                className="h-8 cursor-pointer text-sm"
-                readOnly={
-                  !!adjustment?.adjustmentId && adjustment.adjustmentId !== "0"
-                }
-                disabled={
-                  !!adjustment?.adjustmentId && adjustment.adjustmentId !== "0"
-                }
-              />
+              {adjustment?.cancelRemarks && (
+                <div className="max-w-[160px] truncate text-xs text-red-600 sm:max-w-[220px]">
+                  {adjustment.cancelRemarks}
+                </div>
+              )}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowListDialog(true)}
-              disabled={false}
+          )}
+          {!isCancelled && paymentStatus === "Not Paid" && (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+              <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+              Not Paid
+            </span>
+          )}
+          {!isCancelled && paymentStatus === "Partially Paid" && (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-medium text-orange-800">
+              <span className="mr-1 h-1.5 w-1.5 rounded-full bg-orange-400" />
+              Partially Paid
+            </span>
+          )}
+          {!isCancelled && paymentStatus === "Fully Paid" && (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-800">
+              <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-400" />
+              Fully Paid
+            </span>
+          )}
+        </>
+      }
+      centerColumn={
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-1.5">
+          <h1 className="m-0">
+            <span
+              className={`relative inline-flex rounded-full p-[2px] transition-all ${
+                isEdit
+                  ? "bg-gradient-to-r from-purple-500 to-blue-500"
+                  : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
+              } `}
             >
-              <ListFilter className="mr-1 h-4 w-4" />
-              List
-            </Button>
-
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setShowSaveConfirm(true)}
-              disabled={
-                !canView ||
-                isSaving ||
-                saveMutation.isPending ||
-                updateMutation.isPending ||
-                isCancelled ||
-                // payAmt > 0 ||
-                (isEdit && !canEdit) ||
-                (!isEdit && !canCreate) ||
-                (isEdit && hasPaymentHistory)
-              }
-              className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+              <span
+                className="inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[11px] font-medium text-white select-none"
+                onDoubleClick={handleCopyInvoiceNo}
+                title="Double-click to copy adjustment number"
+              >
+                {titleText}
+              </span>
+            </span>
+          </h1>
+          {hasDetails && (
+            <Badge
+              variant={headerIsDebit ? "default" : "destructive"}
+              className="h-6 shrink-0 px-2 py-0 text-[11px] font-medium"
             >
-              {isSaving ||
-              saveMutation.isPending ||
-              updateMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Save className="mr-1 h-4 w-4" />
-              )}
-              {isSaving || saveMutation.isPending || updateMutation.isPending
-                ? isEdit
-                  ? "Updating..."
-                  : "Saving..."
-                : isEdit
-                  ? "Update"
-                  : "Save"}
-            </Button>
-
+              {headerIsDebit ? "Debit" : "Credit"}
+            </Badge>
+          )}
+          {isEdit && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              disabled={!adjustment || adjustment.adjustmentId === "0"}
-              onClick={handlePrintAdjustment}
+              onClick={() => {
+                if (adjustment?.adjustmentNo) {
+                  setSearchNo(adjustment.adjustmentNo)
+                  setShowLoadConfirm(true)
+                }
+              }}
+              disabled={isLoadingAdjustment}
+              className="h-4 w-4 p-0"
+              title="Refresh adjustment data"
             >
-              <Printer className="mr-1 h-4 w-4" />
-              Print
+              <RefreshCw className="h-3.5 w-3.5" />
             </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowResetConfirm(true)}
-              //disabled={!adjustment}
-            >
-              <RotateCcw className="mr-1 h-4 w-4" />
-              New
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCloneConfirm(true)}
-              disabled={
-                !adjustment || adjustment.adjustmentId === "0" || isCancelled
-              }
-            >
-              <Copy className="mr-1 h-4 w-4" />
-              Clone
-            </Button>
-
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={
-                !canView ||
-                !adjustment ||
-                adjustment.adjustmentId === "0" ||
-                deleteMutation.isPending ||
-                isCancelled ||
-                payAmt > 0 ||
-                !canDelete ||
-                hasPaymentHistory
-              }
-            >
-              {deleteMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Trash2 className="mr-1 h-4 w-4" />
-              )}
-              {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
-            </Button>
-          </div>
+          )}
         </div>
+      }
+      rightColumn={
+        <>
+          <div
+            onDoubleClick={handleCopySearchNo}
+            className="min-w-[120px] w-full max-w-xs sm:w-64"
+            title="Double-click to copy to clipboard"
+          >
+            <Input
+              value={searchNo}
+              onChange={(e) => setSearchNo(e.target.value)}
+              onBlur={handleSearchNoBlur}
+              onKeyDown={handleSearchNoKeyDown}
+              placeholder="Search Adjustment No"
+              className="h-7 cursor-pointer text-xs"
+              readOnly={
+                !!adjustment?.adjustmentId && adjustment.adjustmentId !== "0"
+              }
+              disabled={
+                !!adjustment?.adjustmentId && adjustment.adjustmentId !== "0"
+              }
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowListDialog(true)}
+            disabled={false}
+          >
+            <ListFilter className="mr-1 h-4 w-4" />
+            List
+          </Button>
 
-        <TabsContent value="main">
-          <Main
-            form={form}
-            onSuccessAction={async () => {
-              handleSaveAdjustment()
-            }}
-            isEdit={isEdit}
-            visible={visible}
-            required={required}
-            companyId={Number(companyId)}
-            isCancelled={isCancelled}
-          />
-        </TabsContent>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setShowSaveConfirm(true)}
+            disabled={
+              !canView ||
+              isSaving ||
+              saveMutation.isPending ||
+              updateMutation.isPending ||
+              isCancelled ||
+              (isEdit && !canEdit) ||
+              (!isEdit && !canCreate) ||
+              (isEdit && hasPaymentHistory)
+            }
+            className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
+          >
+            {isSaving || saveMutation.isPending || updateMutation.isPending ? (
+              <Spinner size="sm" className="mr-1" />
+            ) : (
+              <Save className="mr-1 h-4 w-4" />
+            )}
+            {isSaving || saveMutation.isPending || updateMutation.isPending
+              ? isEdit
+                ? "Updating..."
+                : "Saving..."
+              : isEdit
+                ? "Update"
+                : "Save"}
+          </Button>
 
-        <TabsContent value="other">
-          <Other form={form} visible={visible} />
-        </TabsContent>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!adjustment || adjustment.adjustmentId === "0"}
+            onClick={handlePrintAdjustment}
+          >
+            <Printer className="mr-1 h-4 w-4" />
+            Print
+          </Button>
 
-        <TabsContent value="history">
-          <History form={form} isEdit={isEdit} />
-        </TabsContent>
-      </Tabs>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowResetConfirm(true)}
+          >
+            <RotateCcw className="mr-1 h-4 w-4" />
+            New
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCloneConfirm(true)}
+            disabled={
+              !adjustment || adjustment.adjustmentId === "0" || isCancelled
+            }
+          >
+            <Copy className="mr-1 h-4 w-4" />
+            Clone
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={
+              !canView ||
+              !adjustment ||
+              adjustment.adjustmentId === "0" ||
+              deleteMutation.isPending ||
+              isCancelled ||
+              payAmt > 0 ||
+              !canDelete ||
+              hasPaymentHistory
+            }
+          >
+            {deleteMutation.isPending ? (
+              <Spinner size="sm" className="mr-1" />
+            ) : (
+              <Trash2 className="mr-1 h-4 w-4" />
+            )}
+            {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
+          </Button>
+        </>
+      }
+    >
+      <TabsContent value="main" className={transactionTabPanelClass()}>
+        <Main
+          form={form}
+          onSuccessAction={async () => {
+            handleSaveAdjustment()
+          }}
+          isEdit={isEdit}
+          visible={visible}
+          required={required}
+          companyId={Number(companyId)}
+          isCancelled={isCancelled}
+        />
+      </TabsContent>
+
+      <TabsContent value="other" className={transactionTabPanelClass()}>
+        <Other form={form} visible={visible} />
+      </TabsContent>
+
+      <TabsContent value="history" className={transactionTabPanelClass()}>
+        <History form={form} isEdit={isEdit} />
+      </TabsContent>
+    </TransactionWorkspaceRoot>
 
       {/* List Dialog */}
       <Dialog
@@ -1709,6 +1699,6 @@ export default function AdjustmentPage() {
         title="Clone Adjustment"
         description="This will create a copy as a new adjustment."
       />
-    </div>
+    </>
   )
 }

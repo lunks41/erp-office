@@ -10,7 +10,7 @@ import {
 import {
   calauteLocalAmtandGainLoss,
   calculateUnallocated,
-} from "@/helpers/ar-docSetOff-calculations"
+} from "@/helpers/ar-docsetoff-calculations"
 import { IArDocSetOffDt } from "@/interfaces/ar-docsetoff"
 import { ICurrencyLookup, ICustomerLookup } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
@@ -323,7 +323,7 @@ export default function DocSetOffForm({
           <DynamicCustomerAutocomplete
             form={form}
             name="customerId"
-            label="Customer-D"
+            label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
             className="col-span-2"
@@ -333,7 +333,7 @@ export default function DocSetOffForm({
           <CustomerAutocomplete
             form={form}
             name="customerId"
-            label="Customer-S"
+            label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
             className="col-span-2"

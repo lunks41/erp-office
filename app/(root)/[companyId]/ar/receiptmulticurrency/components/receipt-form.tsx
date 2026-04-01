@@ -1,32 +1,52 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { calculateMultiplierAmount, setDueDate, setExchangeRate, setExchangeRateLocal, setRecExchangeRate } from "@/helpers/account";
-import { calauteLocalAmtandGainLoss, calculateDiffCurrency, calculateSameCurrency, calculateUnallocated } from "@/helpers/ar-receipt-calculationsv1";
-import { IArReceiptDt } from "@/interfaces";
-import { IBankLookup, ICurrencyLookup, ICustomerLookup, IJobOrderLookup, IPaymentTypeLookup } from "@/interfaces/lookup";
-import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting";
-import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas";
-import { useAuthStore } from "@/stores/auth-store";
-import { format } from "date-fns";
-import { FormProvider, UseFormReturn, useWatch } from "react-hook-form";
+import * as React from "react"
+import {
+  calculateMultiplierAmount,
+  setDueDate,
+  setExchangeRate,
+  setExchangeRateLocal,
+  setRecExchangeRate,
+} from "@/helpers/account"
+import {
+  calauteLocalAmtandGainLoss,
+  calculateDiffCurrency,
+  calculateSameCurrency,
+  calculateUnallocated,
+} from "@/helpers/ar-receipt-calculationsv1"
+import { IArReceiptDt } from "@/interfaces"
+import {
+  IBankLookup,
+  ICurrencyLookup,
+  ICustomerLookup,
+  IJobOrderLookup,
+  IPaymentTypeLookup,
+} from "@/interfaces/lookup"
+import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
+import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas"
+import { useAuthStore } from "@/stores/auth-store"
+import { format } from "date-fns"
+import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
-
-
-import { clientDateFormat } from "@/lib/date-utils";
-import { parseNumberWithCommas } from "@/lib/utils";
-import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup";
-import { BankAutocomplete, BankChartOfAccountAutocomplete, CurrencyAutocomplete, CustomerAutocomplete, DynamicCustomerAutocomplete, DynamicJobOrderAutocomplete, JobOrderAutocomplete, PaymentTypeAutocomplete } from "@/components/autocomplete";
-import CustomCheckbox from "@/components/custom/custom-checkbox";
-import { CustomDateNew } from "@/components/custom/custom-date-new";
-import CustomInput from "@/components/custom/custom-input";
-import CustomNumberInput from "@/components/custom/custom-number-input";
-import CustomSwitch from "@/components/custom/custom-switch";
-import CustomTextarea from "@/components/custom/custom-textarea";
-
-
-
-
+import { clientDateFormat } from "@/lib/date-utils"
+import { parseNumberWithCommas } from "@/lib/utils"
+import { useGetDynamicLookup, usePaymentTypeLookup } from "@/hooks/use-lookup"
+import {
+  BankAutocomplete,
+  BankChartOfAccountAutocomplete,
+  CurrencyAutocomplete,
+  CustomerAutocomplete,
+  DynamicCustomerAutocomplete,
+  DynamicJobOrderAutocomplete,
+  JobOrderAutocomplete,
+  PaymentTypeAutocomplete,
+} from "@/components/autocomplete"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
+import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
+import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSwitch from "@/components/custom/custom-switch"
+import CustomTextarea from "@/components/custom/custom-textarea"
 
 // From env: require Pay No (chequeNo) when payment type is Cheque. Set NEXT_PUBLIC_REQUIRE_CHEQUE_NO_WHEN_CHEQUE=false in .env to disable.
 const REQUIRE_CHEQUE_NO_WHEN_CHEQUE =
@@ -908,7 +928,7 @@ export default function ReceiptForm({
           <DynamicCustomerAutocomplete
             form={form}
             name="customerId"
-            label="Customer-D"
+            label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
             className="col-span-2"
@@ -918,7 +938,7 @@ export default function ReceiptForm({
           <CustomerAutocomplete
             form={form}
             name="customerId"
-            label="Customer-S"
+            label="Customer"
             isRequired={true}
             onChangeEvent={handleCustomerChange}
             className="col-span-2"
@@ -1156,14 +1176,14 @@ export default function ReceiptForm({
             <DynamicJobOrderAutocomplete
               form={form}
               name="jobOrderId"
-              label="Job Order-D"
+              label="Job Order"
               onChangeEvent={handleJobOrderChange}
             />
           ) : (
             <JobOrderAutocomplete
               form={form}
               name="jobOrderId"
-              label="Job Order-S"
+              label="Job Order"
               onChangeEvent={handleJobOrderChange}
             />
           ))}

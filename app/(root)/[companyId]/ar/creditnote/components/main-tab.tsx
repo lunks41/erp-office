@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { recalculateAndSetHeaderTotals } from "@/helpers/ar-creditNote-calculations"
+import { recalculateAndSetHeaderTotals } from "@/helpers/ar-creditnote-calculations"
 import { IArCreditNoteDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ArCreditNoteDtSchemaType, ArCreditNoteHdSchemaType } from "@/schemas"

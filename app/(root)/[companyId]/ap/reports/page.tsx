@@ -518,7 +518,8 @@ export default function ReportsPage() {
     selectedReports.length > 0 && AS_DATE_REPORTS.includes(selectedReports[0])
 
   return (
-    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
+      <div className="mx-auto min-h-0 w-full flex-1 space-y-2 overflow-y-auto px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-0.5">
@@ -735,6 +736,7 @@ export default function ReportsPage() {
             </FormProvider>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )

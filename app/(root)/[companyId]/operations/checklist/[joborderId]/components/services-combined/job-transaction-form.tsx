@@ -348,7 +348,7 @@ export function JobTransactionForm({
             <DynamicJobOrderAutocomplete
               form={form}
               name="jobOrderId"
-              label="Job Order-D"
+              label="Job Order"
               onChangeEvent={handleJobOrderChange}
             />
             <JobOrderTaskAutocomplete

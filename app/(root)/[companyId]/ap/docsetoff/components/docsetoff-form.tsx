@@ -7,7 +7,7 @@ import {
   setExchangeRateLocal,
   setPayExchangeRate,
 } from "@/helpers/account"
-import { calauteLocalAmtandGainLoss } from "@/helpers/ap-docSetOff-calculations"
+import { calauteLocalAmtandGainLoss } from "@/helpers/ap-docsetoff-calculations"
 import { IApDocSetOffDt } from "@/interfaces"
 import { ICurrencyLookup, ISupplierLookup } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"

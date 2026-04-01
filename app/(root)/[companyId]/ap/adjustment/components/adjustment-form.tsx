@@ -521,7 +521,7 @@ export default function AdjustmentForm({
             <DynamicSupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-D"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
             />
@@ -529,7 +529,7 @@ export default function AdjustmentForm({
             <SupplierAutocomplete
               form={form}
               name="supplierId"
-              label="Supplier-S"
+              label="Supplier"
               isRequired={true}
               onChangeEvent={handleSupplierChange}
             />

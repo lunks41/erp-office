@@ -525,7 +525,7 @@ export default function AdjustmentForm({
             <DynamicCustomerAutocomplete
               form={form}
               name="customerId"
-              label="Customer-D"
+              label="Customer"
               isRequired={true}
               onChangeEvent={handleCustomerChange}
             />
@@ -533,7 +533,7 @@ export default function AdjustmentForm({
             <CustomerAutocomplete
               form={form}
               name="customerId"
-              label="Customer-S"
+              label="Customer"
               isRequired={true}
               onChangeEvent={handleCustomerChange}
             />
@@ -684,14 +684,10 @@ export default function AdjustmentForm({
               <DynamicVesselAutocomplete
                 form={form}
                 name="vesselId"
-                label="Vessel-D"
+                label="Vessel"
               />
             ) : (
-              <VesselAutocomplete
-                form={form}
-                name="vesselId"
-                label="Vessel-S"
-              />
+              <VesselAutocomplete form={form} name="vesselId" label="Vessel" />
             ))}
 
           {/* Port */}
