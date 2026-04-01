@@ -37,11 +37,11 @@ export default function CustomCheckbox({
         const showError = error && (isTouched || isDirty)
 
         return (
-          <div className={cn("flex flex-col gap-1", className)}>
+          <div className={cn("flex flex-col gap-0.5", className)}>
             <FormItem className="flex flex-row items-center gap-3">
               <FormControl>
                 <div
-                  className="flex h-9 min-h-[2.5rem] items-center gap-2"
+                  className="flex h-8 min-h-8 items-center gap-2"
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
@@ -96,7 +96,7 @@ export default function CustomCheckbox({
               {label && (
                 <FormLabel
                   className={cn(
-                    "cursor-pointer text-sm font-medium",
+                    "cursor-pointer text-xs font-medium",
                     isRequired && "text-red-500",
                     isDisabled && "text-muted-foreground opacity-70",
                     showError && "text-destructive"

@@ -8,6 +8,15 @@ import { useGetGlPostDetails } from "@/hooks/use-histoy"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGlPostDetailsColumns } from "@/components/gl-post-details-columns"
 import { BasicTable } from "@/components/table/table-basic"
+import {
+  HISTORY_EMBEDDED_PAGE_SIZE,
+  HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CARD_CLASS,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
+} from "@/components/table/history-embedded-presets"
+
 
 interface GLPostDetailsProps {
   invoiceId: string
@@ -54,11 +63,13 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>GL Post Details</CardTitle>
+    <Card className={HISTORY_SECTION_CARD_CLASS}>
+      <CardHeader className={HISTORY_SECTION_HEADER_CLASS}>
+        <CardTitle className={HISTORY_SECTION_TITLE_CLASS}>
+          GL Post Details
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
           data={glPostDetailsData || []}
           columns={columns}
@@ -70,8 +81,8 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
           onRefreshAction={handleRefresh}
           showHeader={true}
           showFooter={false}
-          maxHeight="300px"
-          pageSizeOption={50}
+          maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
+          pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
       </CardContent>
     </Card>

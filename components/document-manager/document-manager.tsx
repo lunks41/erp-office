@@ -549,7 +549,7 @@ export default function DocumentManager({
       <div className="grid grid-cols-10 gap-2">
         {/* Upload Section - 30% */}
         <div className="col-span-3">
-          <Card className="h-full">
+          <Card className="h-full rounded-md border border-border/60 bg-muted/40 shadow-sm">
             <CardHeader>
               <CardTitle className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
@@ -780,7 +780,7 @@ export default function DocumentManager({
 
         {/* Uploaded Documents List - 70% */}
         <div className="col-span-7">
-          <Card className="h-full">
+          <Card className="h-full rounded-md border border-border/60 bg-muted/40 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Documents List </span>

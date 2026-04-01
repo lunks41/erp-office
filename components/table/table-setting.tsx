@@ -68,7 +68,10 @@ export function SettingTable<T>({
 
   return (
     <div
-      className={cn("overflow-auto rounded-lg border", className)}
+      className={cn(
+        "overflow-auto rounded-lg border border-border/80 bg-background shadow-xs",
+        className
+      )}
       style={!className ? { height: maxHeight, maxHeight } : undefined}
     >
         <table className="w-full table-fixed border-collapse">

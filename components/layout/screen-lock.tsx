@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { AnimatePresence, motion } from "framer-motion"
 import { AlertTriangle, Lock, LockKeyhole, LogOut, Unlock } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -22,6 +23,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import {
+  COMPANY_HEADER_UTILITY_BUTTON,
+  COMPANY_HEADER_UTILITY_ICON,
+} from "./company-header-utility"
 import { Separator } from "../ui/separator"
 
 // Constants
@@ -406,19 +411,18 @@ export function ScreenLock({ variant = "icon", className }: ScreenLockProps) {
       {/* Lock Screen Button */}
       {variant === "text" ? (
         <div className={className} onClick={handleLockScreen}>
-          <LockKeyhole className="h-4 w-4" />
+          <LockKeyhole className={COMPANY_HEADER_UTILITY_ICON} />
         </div>
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              size="icon"
-              className={`h-8 w-8 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC] ${className || ""}`}
+              className={cn(COMPANY_HEADER_UTILITY_BUTTON, className)}
               onClick={handleLockScreen}
               aria-label="Lock screen"
             >
-              <LockKeyhole className="h-4 w-4" />
+              <LockKeyhole className={COMPANY_HEADER_UTILITY_ICON} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Lock screen</TooltipContent>

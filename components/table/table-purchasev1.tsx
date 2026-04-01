@@ -409,7 +409,7 @@ export function PurchaseBaseTable<T>({
   }, [table])
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <PurchaseTableHeader
           searchQuery={searchQuery}
@@ -443,7 +443,7 @@ export function PurchaseBaseTable<T>({
             ============================================================================ */}
 
           {/* Main table container with horizontal scrolling */}
-          <div className="max-h-[460px] overflow-auto rounded-lg border">
+          <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
             {/* Column group for consistent sizing */}
             <colgroup>
               {table.getAllLeafColumns().map((col) => (

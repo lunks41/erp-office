@@ -269,7 +269,7 @@ export default function Main({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 w-full flex-col px-2 pb-2">
       <InvoiceForm
         form={form}
         onSuccessAction={onSuccessAction}
@@ -281,35 +281,39 @@ export default function Main({
         detailsFormRef={detailsFormRef}
       />
 
-      <InvoiceDetailsForm
-        ref={detailsFormRef}
-        Hdform={form}
-        onAddRowAction={handleAddRow}
-        onCancelEdit={editingDetail ? handleCancelEdit : undefined}
-        editingDetail={editingDetail}
-        companyId={companyId}
-        visible={visible}
-        required={required}
-        existingDetails={dataDetails as ArInvoiceDtSchemaType[]}
-        defaultGlId={defaults.ar.invoiceGlId}
-        defaultUomId={defaults.common.uomId}
-        defaultGstId={defaults.common.gstId || 0}
-        isCancelled={isCancelled}
-      />
+      <div className="w-full min-w-0">
+        <InvoiceDetailsForm
+          ref={detailsFormRef}
+          Hdform={form}
+          onAddRowAction={handleAddRow}
+          onCancelEdit={editingDetail ? handleCancelEdit : undefined}
+          editingDetail={editingDetail}
+          companyId={companyId}
+          visible={visible}
+          required={required}
+          existingDetails={dataDetails as ArInvoiceDtSchemaType[]}
+          defaultGlId={defaults.ar.invoiceGlId}
+          defaultUomId={defaults.common.uomId}
+          defaultGstId={defaults.common.gstId || 0}
+          isCancelled={isCancelled}
+        />
+      </div>
 
-      <InvoiceDetailsTable
-        key={tableKey}
-        data={(dataDetails as unknown as IArInvoiceDt[]) || []}
-        visible={visible}
-        onDeleteAction={handleDelete}
-        onBulkDeleteAction={handleBulkDelete}
-        onEditAction={handleEdit as (template: IArInvoiceDt) => void}
-        onCloneAction={handleClone as (template: IArInvoiceDt) => void}
-        onRefreshAction={() => {}} // Add refresh logic if needed
-        onFilterChange={() => {}} // Add filter logic if needed
-        onDataReorder={handleDataReorder as (newData: IArInvoiceDt[]) => void}
-        isCancelled={isCancelled}
-      />
+      <div className="w-full min-w-0">
+        <InvoiceDetailsTable
+          key={tableKey}
+          data={(dataDetails as unknown as IArInvoiceDt[]) || []}
+          visible={visible}
+          onDeleteAction={handleDelete}
+          onBulkDeleteAction={handleBulkDelete}
+          onEditAction={handleEdit as (template: IArInvoiceDt) => void}
+          onCloneAction={handleClone as (template: IArInvoiceDt) => void}
+          onRefreshAction={() => {}} // Add refresh logic if needed
+          onFilterChange={() => {}} // Add filter logic if needed
+          onDataReorder={handleDataReorder as (newData: IArInvoiceDt[]) => void}
+          isCancelled={isCancelled}
+        />
+      </div>
 
       <DeleteConfirmation
         title="Delete Selected Items"

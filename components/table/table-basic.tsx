@@ -325,7 +325,7 @@ export function BasicTable<T>({
   }, [table])
 
   return (
-    <>
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <BasicTableHeader
           searchQuery={searchQuery}
@@ -349,7 +349,7 @@ export function BasicTable<T>({
           onDragEnd={handleDragEnd}
         >
           <div
-            className="overflow-auto rounded-lg border"
+            className="overflow-auto rounded-lg border border-border/80 bg-background shadow-xs"
             style={{ maxHeight }}
           >
             <table
@@ -427,12 +427,12 @@ export function BasicTable<T>({
                     )
                   })}
 
-                  {/* Add empty rows to fill the remaining space based on page size */}
+                  {/* Pad rows only when there is data (avoid huge empty grids) */}
                   {Array.from({
-                    length: Math.max(
-                      0,
-                      pageSize - table.getRowModel().rows.length
-                    ),
+                    length: (() => {
+                      const n = table.getRowModel().rows.length
+                      return n === 0 ? 0 : Math.max(0, pageSize - n)
+                    })(),
                   }).map((_, index) => (
                     <TableRow key={`empty-${index}`} className="h-7">
                       {table.getAllLeafColumns().map((column, cellIndex) => {
@@ -483,16 +483,18 @@ export function BasicTable<T>({
         </DndContext>
 
       {showFooter && (
-        <MainTableFooter
-          currentPage={currentPage}
-          totalPages={Math.ceil(data.length / pageSize)}
-          pageSize={pageSize}
-          totalRecords={data.length}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSizeOptions={[10, 50, 100, 500]}
-        />
+        <div className="mt-1.5">
+          <MainTableFooter
+            currentPage={currentPage}
+            totalPages={Math.ceil(data.length / pageSize)}
+            pageSize={pageSize}
+            totalRecords={data.length}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            pageSizeOptions={[10, 50, 100, 500]}
+          />
+        </div>
       )}
-    </>
+    </div>
   )
 }

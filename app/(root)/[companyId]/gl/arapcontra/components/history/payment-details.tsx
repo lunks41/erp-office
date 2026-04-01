@@ -10,6 +10,11 @@ import { GLTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BasicTable } from "@/components/table/table-basic"
+import {
+  HISTORY_EMBEDDED_PAGE_SIZE,
+  HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+} from "@/components/table/history-embedded-presets"
+
 
 interface PaymentDetailsProps {
   contraId: string
@@ -139,8 +144,8 @@ export default function PaymentDetails({ contraId }: PaymentDetailsProps) {
           showHeader={true}
           showFooter={false}
           emptyMessage="No results."
-          maxHeight="200px"
-          pageSizeOption={5}
+          maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
+          pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
       </CardContent>
     </Card>

@@ -39,11 +39,11 @@ export default function CustomTextarea<T extends Record<string, unknown>>({
   maxRows = 6,
 }: CustomTextareaProps<T>) {
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
         <Label
           htmlFor={name}
-          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+          className={cn("text-xs font-medium", isRequired && "text-red-500")}
         >
           {label}
           {isRequired && <span className="ml-1">*</span>}
@@ -58,7 +58,7 @@ export default function CustomTextarea<T extends Record<string, unknown>>({
           const value = field.value as string
 
           return (
-            <FormItem className={cn("flex flex-col", className)}>
+            <FormItem className="flex flex-col">
               <div className="relative">
                 <textarea
                   {...field}
@@ -77,12 +77,12 @@ export default function CustomTextarea<T extends Record<string, unknown>>({
                   }}
                   rows={minRows}
                   style={{
-                    minHeight: `${minRows * 1.5}rem`,
-                    maxHeight: `${maxRows * 1.5}rem`,
+                    minHeight: `${minRows * 1.25}rem`,
+                    maxHeight: `${maxRows * 1.25}rem`,
                     resize: "vertical",
                   }}
                   className={cn(
-                    "ring-offset-background flex w-full rounded-md border px-3 py-2 text-sm",
+                    "ring-offset-background flex w-full rounded-md border px-2 py-1.5 text-xs leading-snug",
                     "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
                     showError && "border-destructive",
                     isDisabled

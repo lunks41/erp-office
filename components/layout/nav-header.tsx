@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import { BookOpen, Building2, ClipboardList, CreditCard, Landmark, Receipt } from "lucide-react"
 
+import { COMPANY_HEADER_PILL_HEIGHT } from "@/components/layout/company-header-utility"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -168,12 +169,13 @@ export function NavHeader() {
                   <Link
                     href={getUrlWithCompanyId("/operations/checklist")}
                     className={cn(
-                      "!flex h-8 flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC] transition-colors hover:bg-[#C4D6FF]",
+                      COMPANY_HEADER_PILL_HEIGHT,
+                      "!flex flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC] transition-colors hover:bg-[#C4D6FF]",
                       pathname === getUrlWithCompanyId("/operations/checklist") &&
                         "border-[#A8C4FF] bg-[#C4D6FF]"
                     )}
                   >
-                    <ClipboardList className="h-3.5 w-3.5 shrink-0" />
+                    <ClipboardList className="size-4 shrink-0" />
                     Checklist
                   </Link>
                 </NavigationMenuLink>
@@ -184,13 +186,14 @@ export function NavHeader() {
               <NavigationMenuItem className="flex items-center">
                 <NavigationMenuTrigger
                   className={cn(
-                    "!flex h-8 gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    COMPANY_HEADER_PILL_HEIGHT,
+                    "!flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
                     pathname.startsWith(getUrlWithCompanyId("/ar"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
                   )}
                 >
-                  <Receipt className="h-3.5 w-3.5 shrink-0" />
+                  <Receipt className="size-4 shrink-0" />
                   AR
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -226,7 +229,7 @@ export function NavHeader() {
                       : ""
                   )}
                 >
-                  <CreditCard className="h-3.5 w-3.5 shrink-0" />
+                  <CreditCard className="size-4 shrink-0" />
                   AP
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -256,13 +259,14 @@ export function NavHeader() {
               <NavigationMenuItem className="flex items-center">
                 <NavigationMenuTrigger
                   className={cn(
-                    "!flex h-8 gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    COMPANY_HEADER_PILL_HEIGHT,
+                    "!flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
                     pathname.startsWith(getUrlWithCompanyId("/cb"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
                   )}
                 >
-                  <Landmark className="h-3.5 w-3.5 shrink-0" />
+                  <Landmark className="size-4 shrink-0" />
                   CB
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -292,13 +296,14 @@ export function NavHeader() {
               <NavigationMenuItem className="flex items-center">
                 <NavigationMenuTrigger
                   className={cn(
-                    "!flex h-8 gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    COMPANY_HEADER_PILL_HEIGHT,
+                    "!flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
                     pathname.startsWith(getUrlWithCompanyId("/gl"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
                   )}
                 >
-                  <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                  <BookOpen className="size-4 shrink-0" />
                   GL
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>

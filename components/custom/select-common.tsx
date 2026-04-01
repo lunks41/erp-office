@@ -57,11 +57,11 @@ export default function SelectCommon({
         }
 
         return (
-          <div className={cn("flex flex-col gap-1", className)}>
+          <div className={cn("flex flex-col gap-0.5", className)}>
             {label && (
               <FormLabel
                 className={cn(
-                  "text-sm font-medium",
+                  "text-xs font-medium",
                   isDisabled && "text-muted-foreground opacity-70",
                   showError && "text-destructive"
                 )}
@@ -82,7 +82,7 @@ export default function SelectCommon({
                 disabled={isDisabled}
               >
                 <FormControl>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger size="sm" className="w-full text-xs">
                     <SelectValue placeholder={placeholder} />
                   </SelectTrigger>
                 </FormControl>

@@ -45,7 +45,7 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
   minDate,
   maxDate,
   dateFormat = "dd/MM/yyyy",
-  size = "default",
+  size = "sm",
   isFutureShow = false,
   allowToday = true,
 }: CustomDateNoPastProps<T>) => {
@@ -86,11 +86,11 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
   const effectiveMaxDate = isFutureShow ? maxDate : today
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
         <Label
           htmlFor={name}
-          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+          className={cn("text-xs font-medium", isRequired && "text-red-500")}
         >
           {label}
           {isRequired && <span className="ml-1">*</span>}
@@ -115,8 +115,8 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
                     !isDisabled &&
                     "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20",
                   {
-                    "h-8 text-sm": size === "sm",
-                    "h-9": size === "default",
+                    "h-8 text-xs": size === "sm",
+                    "h-9 text-sm": size === "default",
                     "h-12 text-lg": size === "lg",
                   }
                 )}

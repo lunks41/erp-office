@@ -557,9 +557,13 @@ export default function InvoiceForm({
     <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-12 rounded-md p-2"
+        className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
-        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-1">
+        <div className="col-span-10 rounded-md border border-border/60 bg-muted/40 p-3 shadow-sm">
+          <div
+            className="[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:text-sm [&_textarea]:min-h-[2.75rem]"
+          >
+          <div className="grid grid-cols-6 gap-x-2 gap-y-1">
           {/* Transaction Date */}
           {visible?.m_TrnDate && (
             <CustomDateNew
@@ -567,6 +571,7 @@ export default function InvoiceForm({
               name="trnDate"
               label="Transaction Date"
               isRequired={true}
+              size="default"
               onChangeEvent={handleTrnDateChange}
               isFutureShow={false}
             />
@@ -578,6 +583,7 @@ export default function InvoiceForm({
             name="accountDate"
             label="Account Date"
             isRequired={true}
+            size="default"
             onChangeEvent={handleAccountDateChange}
             isFutureShow={false}
           />
@@ -624,6 +630,7 @@ export default function InvoiceForm({
             name="dueDate"
             label="Due Date"
             isRequired={true}
+            size="default"
             isFutureShow={true}
             minDate={dueDateMinDate}
           />
@@ -682,6 +689,7 @@ export default function InvoiceForm({
               name="deliveryDate"
               label="Delivery Date"
               isRequired={required?.m_DeliveryDate}
+              size="default"
               onChangeEvent={handleDeliveryDateChange}
               isFutureShow={true}
             />
@@ -694,6 +702,7 @@ export default function InvoiceForm({
               name="gstClaimDate"
               label="VAT Claim Date"
               isRequired={false}
+              size="default"
               isFutureShow={true}
             />
           )}
@@ -807,25 +816,27 @@ export default function InvoiceForm({
             isRequired={required?.m_Remarks_Hd}
             className="col-span-2"
           />
+          </div>
+          </div>
         </div>
 
         {/* {form.watch("invoiceId") != "0" && (
           <>
             {/* Summary Box */}
         {/* Right Section: Summary Box */}
-        <div className="col-span-2 ml-2 flex flex-col justify-start">
-          <div className="w-full rounded-md border border-blue-200 bg-blue-50 p-3 shadow-sm">
+        <div className="col-span-2 flex min-w-0 flex-col justify-start rounded-md border border-blue-200/90 bg-blue-50/95 p-3 shadow-sm">
+          <div className="w-full">
             {/* Header Row */}
-            <div className="mb-2 grid grid-cols-3 gap-x-4 border-b border-blue-300 pb-2 text-xs">
+            <div className="mb-1.5 grid grid-cols-3 gap-x-2 border-b border-blue-300 pb-1.5 text-sm">
               <div className="text-right font-bold text-blue-800">Trns</div>
               <div className="text-center"></div>
               <div className="text-right font-bold text-blue-800">Local</div>
             </div>
 
             {/* 3-column grid: [Amt] [Label] [Local] */}
-            <div className="grid grid-cols-3 gap-x-4 text-xs">
+            <div className="grid grid-cols-3 gap-x-2 text-sm leading-snug">
               {/* Column 1: Foreign Amounts (Amt) */}
-              <div className="space-y-1 text-right">
+              <div className="space-y-1.5 text-right">
                 <div className="font-medium text-gray-700">
                   {(form.watch("totAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
@@ -840,7 +851,7 @@ export default function InvoiceForm({
                     })}
                   </div>
                 )}
-                <hr className="my-1 border-blue-300" />
+                <hr className="my-0.5 border-blue-300" />
                 <div className="font-bold text-blue-900">
                   {(form.watch("totAmtAftGst") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
@@ -892,7 +903,7 @@ export default function InvoiceForm({
                     )}
                   </div>
                 )}
-                <hr className="my-1 border-blue-300" />
+                <hr className="my-0.5 border-blue-300" />
                 <div className="font-bold text-blue-900">
                   {(form.watch("totLocalAmtAftGst") || 0).toLocaleString(
                     undefined,

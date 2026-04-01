@@ -151,7 +151,7 @@ export default function Other({ form, visible: _visible }: OtherProps) {
   return (
     <div className="space-y-1">
       <Form {...form}>
-        <Card className="border">
+        <Card className="rounded-md border border-border/60 bg-muted/40 shadow-sm">
           <CardContent className="p-2">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
               {/* Address Section */}

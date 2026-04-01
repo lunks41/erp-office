@@ -709,14 +709,14 @@ export function TableContainer<T extends object>({
             placeholder={settings.globalFilterPlaceholder}
             value={globalFilter}
             onChange={(e) => handleGlobalSearchChange(e.target.value)}
-            className="h-9 max-w-sm text-sm"
+            className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
           />
         )}
         {settings.enableColumnVisibility && (
           <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline">
                   Columns
                 </Button>
               </DropdownMenuTrigger>
@@ -739,7 +739,7 @@ export function TableContainer<T extends object>({
                   ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="outline" size="sm" onClick={handleResetLayout}>
+            <Button variant="outline" onClick={handleResetLayout}>
               Reset Layout
             </Button>
           </div>

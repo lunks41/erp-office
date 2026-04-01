@@ -235,7 +235,7 @@ export function MainTableHeader<TData>({
     }
   }
   return (
-    <div className="mb-4 flex items-center justify-between">
+    <div className="mb-0 flex items-center justify-between">
       <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         {onCreateAction && !hideCreateButton && (
           <Button
@@ -328,7 +328,7 @@ export function MainTableHeader<TData>({
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-[300px]"
+          className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
         />
         {/* Column Visibility Toggle */}
         <DropdownMenu>

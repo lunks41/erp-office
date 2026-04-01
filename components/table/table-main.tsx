@@ -765,7 +765,7 @@ export function MainTable<T>({
   // RENDER SECTION
   // ============================================================================
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {/* ============================================================================
           TABLE HEADER SECTION
           ============================================================================ */}
@@ -813,7 +813,7 @@ export function MainTable<T>({
         {/* Main table container with horizontal scrolling */}
           <div
             ref={scrollContainerRef}
-            className="max-h-[460px] overflow-auto rounded-lg border text-xs"
+            className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background text-xs shadow-xs"
           >
             <table
               className="w-full table-fixed border-collapse text-xs"
@@ -968,15 +968,17 @@ export function MainTable<T>({
           ============================================================================ */}
       {/* Conditionally render table footer with pagination controls */}
       {showFooter && (
-        <MainTableFooter
-          currentPage={currentPage} // Current page number
-          totalPages={Math.ceil((totalRecords || data.length) / pageSize)} // Total number of pages
-          pageSize={pageSize} // Current page size
-          totalRecords={totalRecords || data.length} // Total number of records
-          onPageChange={handlePageChange} // Page change handler
-          onPageSizeChange={handlePageSizeChange} // Page size change handler
-          pageSizeOptions={[50, 100, 500]} // Available page size options
-        />
+        <div className="mt-1.5">
+          <MainTableFooter
+            currentPage={currentPage} // Current page number
+            totalPages={Math.ceil((totalRecords || data.length) / pageSize)} // Total number of pages
+            pageSize={pageSize} // Current page size
+            totalRecords={totalRecords || data.length} // Total number of records
+            onPageChange={handlePageChange} // Page change handler
+            onPageSizeChange={handlePageSizeChange} // Page size change handler
+            pageSizeOptions={[50, 100, 500]} // Available page size options
+          />
+        </div>
       )}
     </div>
   )

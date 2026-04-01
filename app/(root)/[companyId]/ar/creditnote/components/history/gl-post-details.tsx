@@ -8,6 +8,11 @@ import { useGetGlPostDetails } from "@/hooks/use-histoy"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGlPostDetailsColumns } from "@/components/gl-post-details-columns"
 import { BasicTable } from "@/components/table/table-basic"
+import {
+  HISTORY_EMBEDDED_PAGE_SIZE,
+  HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+} from "@/components/table/history-embedded-presets"
+
 
 interface GLPostDetailsProps {
   creditNoteId: string
@@ -75,8 +80,8 @@ export default function GLPostDetails({ creditNoteId }: GLPostDetailsProps) {
           onRefreshAction={handleRefresh}
           showHeader={true}
           showFooter={false}
-          maxHeight="300px"
-          pageSizeOption={50}
+          maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
+          pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
       </CardContent>
     </Card>

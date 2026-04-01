@@ -45,9 +45,12 @@ export default function CustomInput<T extends Record<string, unknown>>({
   }
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
-        <Label htmlFor={name} className={cn("text-sm font-medium", isRequired && "text-red-500")}>
+        <Label
+          htmlFor={name}
+          className={cn("text-xs font-medium", isRequired && "text-red-500")}
+        >
           {label}
           {isRequired && <span className="ml-1">*</span>}
         </Label>
@@ -91,7 +94,7 @@ export default function CustomInput<T extends Record<string, unknown>>({
                   }
                 }}
                 className={cn(
-                  className,
+                  "h-8 min-h-8 px-2 py-1 text-xs",
                   isDisabled
                     ? "cursor-not-allowed !border-gray-400 !bg-gray-100 opacity-70 dark:!border-gray-500 dark:!bg-gray-800"
                     : isRequired

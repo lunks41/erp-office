@@ -1431,100 +1431,108 @@ export default function InvoicePage() {
   }
 
   return (
-    <div className="@container flex flex-1 flex-col p-4">
+    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
       <Tabs
         defaultValue="main"
-        className="w-full"
+        className="flex h-full min-h-0 w-full flex-1 flex-col gap-0"
         value={activeTab}
         onValueChange={setActiveTab}
       >
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <TabsList>
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
+        {/* Toolbar: tabs+badges | title centered in gap | search + actions */}
+        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-20 shrink-0 border-b backdrop-blur-sm">
+          <div className="grid w-full min-w-0 grid-cols-1 items-center gap-x-2 gap-y-1 py-1 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+            <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2 sm:justify-self-start">
+              <TabsList className="h-8 shrink-0 gap-0.5 p-[3px]">
+                <TabsTrigger value="main" className="px-2.5 py-1 text-xs">
+                  Main
+                </TabsTrigger>
+                <TabsTrigger value="other" className="px-2.5 py-1 text-xs">
+                  Other
+                </TabsTrigger>
+                <TabsTrigger value="history" className="px-2.5 py-1 text-xs">
+                  History
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Cancel Remarks Badge - Only show when cancelled */}
-            {isCancelled && (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
-                  Cancelled
+              {isCancelled && (
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                    <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+                    Cancelled
+                  </span>
+                  {invoice?.cancelRemarks && (
+                    <div className="max-w-[160px] truncate text-xs text-red-600 sm:max-w-[220px]">
+                      {invoice.cancelRemarks}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!isCancelled && paymentStatus === "Not Paid" && (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+                  Not Paid
                 </span>
-                {invoice?.cancelRemarks && (
-                  <div className="max-w-xs truncate text-sm text-red-600">
-                    {invoice.cancelRemarks}
-                  </div>
+              )}
+              {!isCancelled && paymentStatus === "Partially Paid" && (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-medium text-orange-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-orange-400" />
+                  Partially Paid
+                </span>
+              )}
+              {!isCancelled && paymentStatus === "Fully Paid" && (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-400" />
+                  Fully Paid
+                </span>
+              )}
+            </div>
+
+            <div className="flex min-w-0 w-full items-center justify-center">
+              <div className="flex shrink-0 items-center gap-1.5">
+                <h1 className="m-0">
+                  {/* Outer wrapper: gradient border or yellow pulsing border */}
+                  <span
+                    className={`relative inline-flex rounded-full p-[2px] transition-all ${
+                      isEdit
+                        ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
+                        : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
+                    } `}
+                  >
+                    {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
+                    <span
+                      className={`inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[11px] font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
+                      onDoubleClick={handleCopyInvoiceNo}
+                      title="Double-click to copy invoice number"
+                    >
+                      {titleText}
+                    </span>
+                  </span>
+                </h1>
+                {isEdit && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (invoice?.invoiceNo) {
+                        setSearchNo(invoice.invoiceNo)
+                        setShowLoadConfirm(true)
+                      }
+                    }}
+                    disabled={isLoadingInvoice}
+                    className="h-4 w-4 p-0"
+                    title="Refresh invoice data"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  </Button>
                 )}
               </div>
-            )}
+            </div>
 
-            {/* Payment Status Badge - Only show if not cancelled */}
-            {!isCancelled && paymentStatus === "Not Paid" && (
-              <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-red-400"></span>
-                Not Paid
-              </span>
-            )}
-            {!isCancelled && paymentStatus === "Partially Paid" && (
-              <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-orange-400"></span>
-                Partially Paid
-              </span>
-            )}
-            {!isCancelled && paymentStatus === "Fully Paid" && (
-              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-green-400"></span>
-                Fully Paid
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <h1>
-              {/* Outer wrapper: gradient border or yellow pulsing border */}
-              <span
-                className={`relative inline-flex rounded-full p-[2px] transition-all ${
-                  isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
-                } `}
-              >
-                {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
-                <span
-                  className={`inline-flex cursor-pointer items-center rounded-full px-3 py-1 text-xs font-medium select-none ${isEdit ? "text-white" : "text-white"}`}
-                  onDoubleClick={handleCopyInvoiceNo}
-                  title="Double-click to copy invoice number"
-                >
-                  {titleText}
-                </span>
-              </span>
-            </h1>
-            {isEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (invoice?.invoiceNo) {
-                    setSearchNo(invoice.invoiceNo)
-                    setShowLoadConfirm(true)
-                  }
-                }}
-                disabled={isLoadingInvoice}
-                className="h-4 w-4 p-0"
-                title="Refresh invoice data"
-              >
-                <RefreshCw className="h-2 w-2" />
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
+            <div className="flex min-w-0 shrink-0 flex-wrap items-center justify-end gap-1.5 justify-self-end pr-2 sm:flex-nowrap sm:pr-3">
             <div
               onDoubleClick={handleCopySearchNo}
-              className="flex-1"
+              className="min-w-[120px] w-full max-w-xs sm:w-64"
               title="Double-click to copy to clipboard"
             >
               <Input
@@ -1533,7 +1541,7 @@ export default function InvoicePage() {
                 onBlur={handleSearchNoBlur}
                 onKeyDown={handleSearchNoKeyDown}
                 placeholder="Search Invoice No"
-                className="h-8 cursor-pointer text-sm"
+                className="h-7 cursor-pointer text-xs"
                 readOnly={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
                 disabled={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
               />
@@ -1675,11 +1683,12 @@ export default function InvoicePage() {
                 {"Un Post"}
               </Button>
             )}
-           
+          </div>
           </div>
         </div>
 
-        <TabsContent value="main">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-0.5">
+        <TabsContent value="main" className="mt-0 focus-visible:outline-none">
           <Main
             form={form}
             onSuccessAction={async () => {
@@ -1693,13 +1702,14 @@ export default function InvoicePage() {
           />
         </TabsContent>
 
-        <TabsContent value="other">
+        <TabsContent value="other" className="mt-0 focus-visible:outline-none">
           <Other form={form} visible={visible} />
         </TabsContent>
 
-        <TabsContent value="history">
+        <TabsContent value="history" className="mt-0 focus-visible:outline-none">
           <History form={form} isEdit={isEdit} />
         </TabsContent>
+        </div>
       </Tabs>
 
       {/* List Dialog */}

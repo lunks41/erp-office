@@ -13,32 +13,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useThemeConfig } from "@/components/layout/active-theme"
+import {
+  COMPANY_HEADER_UTILITY_BUTTON,
+  COMPANY_HEADER_UTILITY_ICON,
+} from "@/components/layout/company-header-utility"
 
 const THEME_ICONS = [
   {
     name: "Default",
     value: "default-scaled",
-    icon: <Sun className="h-4 w-4" />,
+    icon: <Sun className={COMPANY_HEADER_UTILITY_ICON} />,
   },
   {
     name: "Blue",
     value: "blue-scaled",
-    icon: <Droplet className="h-4 w-4" />,
+    icon: <Droplet className={COMPANY_HEADER_UTILITY_ICON} />,
   },
   {
     name: "Green",
     value: "green-scaled",
-    icon: <Leaf className="h-4 w-4" />,
+    icon: <Leaf className={COMPANY_HEADER_UTILITY_ICON} />,
   },
   {
     name: "Amber",
     value: "amber-scaled",
-    icon: <CircleDollarSign className="h-4 w-4" />,
+    icon: <CircleDollarSign className={COMPANY_HEADER_UTILITY_ICON} />,
   },
   {
     name: "Mono",
     value: "mono-scaled",
-    icon: <Moon className="h-4 w-4" />,
+    icon: <Moon className={COMPANY_HEADER_UTILITY_ICON} />,
   },
 ]
 
@@ -56,13 +60,12 @@ export function ThemeSelector() {
   }, [activeTheme, setActiveTheme])
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
-            className="h-8 gap-2 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC]"
+            className={COMPANY_HEADER_UTILITY_BUTTON}
             aria-label="Theme Selector"
           >
             {currentTheme.icon}

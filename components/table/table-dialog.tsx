@@ -68,6 +68,10 @@ interface DialogDataTableProps<T> {
   showSearch?: boolean // When false, hide the header search box (default true)
   footerRightContent?: ReactNode // Optional extra content on the right side of footer
   columnFooters?: Record<string, ReactNode> // Per-column footer content (aligned with accessorKey)
+  /** Max height of the scrollable grid area */
+  maxHeight?: string
+  /** Minimum visual row count (data + padding rows) when data is non-empty */
+  fillerTargetRows?: number
 }
 
 export function DialogDataTable<T>({
@@ -92,6 +96,8 @@ export function DialogDataTable<T>({
   showSearch = true,
   footerRightContent,
   columnFooters,
+  maxHeight = "480px",
+  fillerTargetRows = 18,
 }: DialogDataTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -498,26 +504,28 @@ export function DialogDataTable<T>({
 
   return (
     <>
-      <DialogDataTableHeader
-        searchQuery={searchQuery}
-        onSearchChange={handleSearch}
-        onRefreshAction={onRefreshAction}
-        columns={table.getAllLeafColumns()}
-        data={data}
-        tableName={tableName}
-        moduleId={moduleId || 1}
-        transactionId={transactionId || 1}
-        onResetLayout={handleResetLayout}
-        showSearch={showSearch}
-      />
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+      <div className="flex flex-col gap-1">
+        <DialogDataTableHeader
+          searchQuery={searchQuery}
+          onSearchChange={handleSearch}
+          onRefreshAction={onRefreshAction}
+          columns={table.getAllLeafColumns()}
+          data={data}
+          tableName={tableName}
+          moduleId={moduleId || 1}
+          transactionId={transactionId || 1}
+          onResetLayout={handleResetLayout}
+          showSearch={showSearch}
+        />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <div
             ref={scrollContainerRef}
-            className="max-h-[480px] overflow-auto rounded-lg border text-xs"
+            className="overflow-auto rounded-lg border border-border/80 bg-background text-xs shadow-xs"
+            style={{ maxHeight }}
           >
             <table
               className="w-full table-fixed border-collapse text-xs"
@@ -621,11 +629,14 @@ export function DialogDataTable<T>({
                   )
                 })}
 
-                {/* Add empty rows to ensure minimum 5 rows total, but only if data rows < 5 */}
+                {/* Pad with empty rows up to fillerTargetRows when there is data */}
                 {Array.from({
                   length: (() => {
                     const dataRows = table.getRowModel().rows.length
-                    return dataRows >= 18 ? 0 : Math.max(0, 18 - dataRows)
+                    if (dataRows === 0) return 0
+                    return dataRows >= fillerTargetRows
+                      ? 0
+                      : Math.max(0, fillerTargetRows - dataRows)
                   })(),
                 }).map((_, index) => (
                   <TableRow key={`empty-${index}`} className="h-7">
@@ -726,18 +737,21 @@ export function DialogDataTable<T>({
               </TableBody>
             </table>
           </div>
-      </DndContext>
+        </DndContext>
+      </div>
 
-      <MainTableFooter
-        currentPage={currentPage} // Current page number
-        totalPages={Math.ceil((totalRecords || data.length) / pageSize)} // Total number of pages
-        pageSize={pageSize} // Current page size
-        totalRecords={totalRecords || data.length} // Total number of records
-        onPageChange={handlePageChange} // Page change handler
-        onPageSizeChange={handlePageSizeChange} // Page size change handler
-        pageSizeOptions={[50, 100, 500]} // Available page size options
-        extraRightContent={footerRightContent}
-      />
+      <div className="mt-1.5">
+        <MainTableFooter
+          currentPage={currentPage} // Current page number
+          totalPages={Math.ceil((totalRecords || data.length) / pageSize)} // Total number of pages
+          pageSize={pageSize} // Current page size
+          totalRecords={totalRecords || data.length} // Total number of records
+          onPageChange={handlePageChange} // Page change handler
+          onPageSizeChange={handlePageSizeChange} // Page size change handler
+          pageSizeOptions={[50, 100, 500]} // Available page size options
+          extraRightContent={footerRightContent}
+        />
+      </div>
     </>
   )
 }

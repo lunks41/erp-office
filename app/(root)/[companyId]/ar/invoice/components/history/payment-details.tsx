@@ -12,6 +12,15 @@ import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BasicTable } from "@/components/table/table-basic"
+import {
+  HISTORY_EMBEDDED_PAGE_SIZE,
+  HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CARD_CLASS,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
+} from "@/components/table/history-embedded-presets"
+
 
 interface PaymentDetailsProps {
   invoiceId: string
@@ -214,11 +223,13 @@ export default function PaymentDetails({ invoiceId }: PaymentDetailsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Payment Details</CardTitle>
+    <Card className={HISTORY_SECTION_CARD_CLASS}>
+      <CardHeader className={HISTORY_SECTION_HEADER_CLASS}>
+        <CardTitle className={HISTORY_SECTION_TITLE_CLASS}>
+          Payment Details
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
           data={paymentDetailsData || []}
           columns={columns}
@@ -230,8 +241,8 @@ export default function PaymentDetails({ invoiceId }: PaymentDetailsProps) {
           showHeader={true}
           showFooter={false}
           emptyMessage="No results."
-          maxHeight="200px"
-          pageSizeOption={5}
+          maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
+          pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
       </CardContent>
     </Card>

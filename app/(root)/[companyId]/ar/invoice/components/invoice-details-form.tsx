@@ -1025,7 +1025,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 p-2 ${
+            className={`mb-0 grid w-full grid-cols-8 gap-1 rounded-md border border-border/60 bg-muted/40 p-2 shadow-sm ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
@@ -1054,7 +1054,7 @@ const InvoiceDetailsForm = React.forwardRef<
               <div className="flex items-center gap-3">
                 <Badge
                   variant="secondary"
-                  className={`px-3 py-1 text-sm font-medium ${
+                  className={`px-2 py-0.5 text-xs font-medium ${
                     isCancelled
                       ? "bg-red-100 text-red-800 hover:bg-red-200"
                       : editingDetail

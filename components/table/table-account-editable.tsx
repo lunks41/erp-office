@@ -447,7 +447,7 @@ export function AccountEditableBaseTable<T>({
   }, [table])
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <AccountEditableTableHeader
           searchQuery={searchQuery}
@@ -485,7 +485,7 @@ export function AccountEditableBaseTable<T>({
             ============================================================================ */}
 
           {/* Main table container with horizontal scrolling */}
-          <div className="max-h-[460px] overflow-auto rounded-lg border">
+          <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
             {/* Fixed header table with column sizing */}
             <table
               className="w-full table-fixed border-collapse"

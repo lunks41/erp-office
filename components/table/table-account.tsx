@@ -494,7 +494,7 @@ export function AccountBaseTable<T>({
   )
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <AccountTableHeader
           searchQuery={searchQuery}
@@ -517,7 +517,7 @@ export function AccountBaseTable<T>({
       )}
 
       <div
-        className="overflow-auto rounded-lg border"
+        className="overflow-auto rounded-lg border border-border/80 bg-background shadow-xs"
         style={{ maxHeight: maxHeight }}
       >
         <DndContext

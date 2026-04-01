@@ -58,7 +58,7 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   minDate,
   maxDate,
   dateFormat = "dd/MM/yyyy",
-  size = "default",
+  size = "sm",
   isFutureShow = false,
 }: CustomDateNewProps<T>) => {
   const { decimals } = useAuthStore()
@@ -223,9 +223,9 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   }, [isFutureShow, maxDate])
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
-        <Label htmlFor={name} className="px-1 text-sm font-medium">
+        <Label htmlFor={name} className="px-1 text-xs font-medium">
           {label}
           {isRequired && <span className="ml-1 text-red-500">*</span>}
         </Label>
@@ -330,8 +330,8 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                     disabled={isDisabled}
                     placeholder={placeholder || decimalDateFormat}
                     className={cn("bg-background pr-10", {
-                      "h-8 text-sm": size === "sm",
-                      "h-9": size === "default",
+                      "h-8 text-xs": size === "sm",
+                      "h-9 text-sm": size === "default",
                       "h-12 text-lg": size === "lg",
                     })}
                     value={value}

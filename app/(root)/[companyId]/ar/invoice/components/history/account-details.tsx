@@ -1,13 +1,11 @@
 "use client"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { format, parse, isValid } from "date-fns"
+import { format, isValid, parse } from "date-fns"
 
 import { parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface AccountDetailsProps {
   createBy: string
@@ -88,109 +86,69 @@ export default function AccountDetails({
     return date ? format(date, formatStr) : ""
   }
 
+  const labelClass =
+    "text-[10px] font-semibold uppercase leading-none tracking-wide text-blue-600 dark:text-blue-400"
+
+  const infoBoxClass =
+    "bg-card flex flex-col gap-0.5 rounded-md border border-border px-2 py-1.5 shadow-sm"
+
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold">Account Details</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-muted-foreground text-sm font-medium">
-                Transaction History
-              </h3>
-              <div className="bg-card rounded-lg border p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Created By
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-normal">
-                        {createBy}
-                      </Badge>
-                      <span className="text-muted-foreground text-sm">
-                        {safeFormatDate(createDate, datetimeFormat)}
-                      </span>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Last Edited By
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-normal">
-                        {editBy || "-"}
-                      </Badge>
-                      <span className="text-muted-foreground text-sm">
-                        {safeFormatDate(editDate, datetimeFormat)}
-                      </span>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Cancelled By
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-normal">
-                        {cancelBy || "-"}
-                      </Badge>
-                      <span className="text-muted-foreground text-sm">
-                        {safeFormatDate(cancelDate, datetimeFormat)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <Card className="gap-0 border-0 bg-transparent py-0 shadow-none">
+      <CardContent className="px-2 py-1.5">
+        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className={infoBoxClass}>
+            <div className={labelClass}>Created By</div>
+            <div className="text-foreground text-xs leading-tight font-medium">
+              {createBy || "—"}
+            </div>
+            <div className="text-muted-foreground text-[11px] leading-tight">
+              {safeFormatDate(createDate, datetimeFormat) || "—"}
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-muted-foreground text-sm font-medium">
-                Amount Details
-              </h3>
-              <div className="bg-card rounded-lg border p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Balance Amount
-                    </span>
-                    <span className="text-right font-medium tabular-nums">
-                      {formatNumber(balanceAmt, amtDec)}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Balance Base Amount
-                    </span>
-                    <span className="text-right font-medium tabular-nums">
-                      {formatNumber(balanceBaseAmt, locAmtDec)}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Payment Amount
-                    </span>
-                    <span className="text-right font-medium tabular-nums">
-                      {formatNumber(paymentAmt, amtDec)}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">
-                      Payment Base Amount
-                    </span>
-                    <span className="text-right font-medium tabular-nums">
-                      {formatNumber(paymentBaseAmt, locAmtDec)}
-                    </span>
-                  </div>
-                </div>
+          <div className={infoBoxClass}>
+            <div className={labelClass}>Edit By</div>
+            <div className="text-foreground text-xs leading-tight font-medium">
+              {editBy || "—"}
+            </div>
+            <div className="text-muted-foreground text-[11px] leading-tight">
+              {safeFormatDate(editDate, datetimeFormat) || "—"}
+            </div>
+          </div>
+
+          <div className={infoBoxClass}>
+            <div className={labelClass}>Cancelled By</div>
+            <div className="text-foreground text-xs leading-tight font-medium">
+              {cancelBy || "—"}
+            </div>
+            <div className="text-muted-foreground text-[11px] leading-tight">
+              {safeFormatDate(cancelDate, datetimeFormat) || "—"}
+            </div>
+          </div>
+
+          <div className={infoBoxClass}>
+            <div className={labelClass}>Summary</div>
+            <div className="grid grid-cols-3 gap-x-1 gap-y-px text-[11px] leading-tight">
+              <div />
+              <div className="text-center font-semibold text-blue-600 dark:text-blue-400">
+                TRANS
+              </div>
+              <div className="text-center font-semibold text-blue-600 dark:text-blue-400">
+                LOCAL
+              </div>
+              <div className="text-muted-foreground font-medium">Balance</div>
+              <div className="text-right font-medium tabular-nums">
+                {formatNumber(balanceAmt, amtDec)}
+              </div>
+              <div className="text-right font-medium tabular-nums">
+                {formatNumber(balanceBaseAmt, locAmtDec)}
+              </div>
+              <div className="text-muted-foreground font-medium">Payment</div>
+              <div className="text-right font-medium tabular-nums">
+                {formatNumber(paymentAmt, amtDec)}
+              </div>
+              <div className="text-right font-medium tabular-nums">
+                {formatNumber(paymentBaseAmt, locAmtDec)}
               </div>
             </div>
           </div>

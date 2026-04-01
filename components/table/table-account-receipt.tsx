@@ -475,7 +475,7 @@ export function AccountReceiptBaseTable<T>({
   }, [table])
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <AccountReceiptTableHeader
           searchQuery={searchQuery}
@@ -502,7 +502,7 @@ export function AccountReceiptBaseTable<T>({
       {/* MAIN TABLE CONTAINER - NO OUTER <Table>! */}
       {/* ========================================================================= */}
       <div
-        className="overflow-auto rounded-lg border"
+        className="overflow-auto rounded-lg border border-border/80 bg-background shadow-xs"
         style={{ maxHeight }}
       >
         <DndContext

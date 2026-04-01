@@ -1219,7 +1219,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 gap-y-2 p-2 ${
+            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 gap-y-2 rounded-md border border-border/60 bg-muted/40 p-2 shadow-sm ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >

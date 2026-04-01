@@ -70,11 +70,11 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
   const hasButton = buttonText || buttonIcon
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
         <Label
           htmlFor={name}
-          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+          className={cn("text-xs font-medium", isRequired && "text-red-500")}
         >
           {label}
           {isRequired && <span className="ml-1">*</span>}
@@ -90,6 +90,7 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
                 <InputGroup
                   data-disabled={isDisabled}
                   className={cn(
+                    "h-8 min-h-8",
                     isDisabled
                       ? "cursor-not-allowed border-gray-300 bg-gray-200 opacity-60 dark:border-gray-600 dark:bg-gray-700"
                       : isRequired &&
@@ -109,6 +110,7 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
                     </InputGroupAddon>
                   )}
                   <InputGroupInput
+                    className="!h-8 min-h-0 text-xs"
                     onKeyDown={(e) => {
                       handleKeyPress(e)
                     }}
@@ -157,6 +159,13 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
                 </InputGroup>
               ) : (
                 <InputGroupInput
+                  className={cn(
+                    "!h-8 min-h-0 text-xs",
+                    isDisabled
+                      ? "cursor-not-allowed border-gray-300 bg-gray-200 opacity-60 dark:border-gray-600 dark:bg-gray-700"
+                      : isRequired &&
+                          "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20"
+                  )}
                   onKeyDown={(e) => {
                     handleKeyPress(e)
                   }}
@@ -188,12 +197,6 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
                       onBlurEvent(e)
                     }
                   }}
-                  className={cn(
-                    isDisabled
-                      ? "cursor-not-allowed border-gray-300 bg-gray-200 opacity-60 dark:border-gray-600 dark:bg-gray-700"
-                      : isRequired &&
-                          "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20"
-                  )}
                   tabIndex={0}
                 />
               )}

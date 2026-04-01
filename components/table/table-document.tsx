@@ -457,7 +457,7 @@ export function DocumentBaseTable<T>({
   }, [table])
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <DocumentTableHeader
           searchQuery={searchQuery}
@@ -482,7 +482,7 @@ export function DocumentBaseTable<T>({
       )}
 
       <div
-        className="max-h-[370px] overflow-auto rounded-lg border"
+        className="max-h-[370px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs"
       >
         <DndContext
           sensors={sensors}

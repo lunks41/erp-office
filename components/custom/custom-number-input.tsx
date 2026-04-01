@@ -35,11 +35,11 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
   round = DECIMAL_PLACES,
 }: CustomNumberInputProps<TSchemaType>) {
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
         <Label
           htmlFor={name}
-          className={cn("text-sm font-medium", isRequired && "text-red-500")}
+          className={cn("text-xs font-medium", isRequired && "text-red-500")}
         >
           {label}
           {isRequired && <span className="ml-1">*</span>}
@@ -54,7 +54,7 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
           const value = field.value as number | undefined
 
           return (
-            <FormItem className={cn("flex flex-col", className)}>
+            <FormItem className="flex flex-col">
               <NumericFormat
                 id={name}
                 value={value ?? ""}
@@ -95,7 +95,7 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
                 disabled={isDisabled}
                 tabIndex={isDisabled ? -1 : undefined}
                 className={cn(
-                  "ring-offset-background flex h-9 w-full rounded-md border px-3 py-1.5 text-right text-sm",
+                  "ring-offset-background flex h-8 min-h-8 w-full rounded-md border px-2 py-1 text-right text-xs",
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
                   showError && "border-destructive",
                   isDisabled

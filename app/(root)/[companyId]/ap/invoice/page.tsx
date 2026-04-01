@@ -413,7 +413,10 @@ export default function InvoicePage() {
       }
 
       // If GST amount is non-zero, Service Category is mandatory
-      if ((formValues.gstAmt ?? 0) !== 0 && !(formValues.serviceCategoryId ?? 0)) {
+      const headerGst = Number(formValues.gstAmt)
+      const headerGstNonZero =
+        Number.isFinite(headerGst) && headerGst !== 0
+      if (headerGstNonZero && !(formValues.serviceCategoryId ?? 0)) {
         form.setError("serviceCategoryId", {
           type: "validation",
           message: "Service Category is required when VAT amount is non-zero",

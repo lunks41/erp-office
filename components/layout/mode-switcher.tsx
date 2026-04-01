@@ -5,6 +5,11 @@ import { MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { META_THEME_COLORS, useMetaColor } from "@/hooks/use-meta-color"
+import {
+  COMPANY_HEADER_UTILITY_BUTTON,
+  COMPANY_HEADER_UTILITY_ICON,
+} from "@/components/layout/company-header-utility"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 export function ModeSwitcher() {
@@ -29,13 +34,22 @@ export function ModeSwitcher() {
   return (
     <Button
       variant="outline"
-      size="icon"
-      className="group/toggle size-8 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC]"
+      className={cn(COMPANY_HEADER_UTILITY_BUTTON, "group/toggle")}
       onClick={toggleTheme}
       aria-label="Toggle theme"
     >
-      <SunIcon className="hidden [html.dark_&]:block" />
-      <MoonIcon className="hidden [html.light_&]:block" />
+      <SunIcon
+        className={cn(
+          COMPANY_HEADER_UTILITY_ICON,
+          "hidden [html.dark_&]:block"
+        )}
+      />
+      <MoonIcon
+        className={cn(
+          COMPANY_HEADER_UTILITY_ICON,
+          "hidden [html.light_&]:block"
+        )}
+      />
       <span className="sr-only">Toggle theme</span>
     </Button>
   )

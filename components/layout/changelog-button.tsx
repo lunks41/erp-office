@@ -14,6 +14,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
+import {
+  COMPANY_HEADER_UTILITY_BUTTON,
+  COMPANY_HEADER_UTILITY_ICON,
+} from "./company-header-utility"
 import { changelog, ChangeType } from "./changelog-data"
 
 const typeMeta: Record<ChangeType, { label: string; className: string }> = {
@@ -31,14 +35,16 @@ export function ChangelogButton() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
-          variant="ghost"
-          size="sm"
-          className="relative gap-1.5"
+          variant="outline"
+          className={COMPANY_HEADER_UTILITY_BUTTON}
           title="Changelog"
+          aria-label="Changelog"
         >
-          <History className="h-4 w-4" />
-          <span className="hidden sm:inline">Changelog</span>
-          <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold leading-none">
+          <History className={COMPANY_HEADER_UTILITY_ICON} />
+          <span
+            className="bg-primary text-primary-foreground pointer-events-none absolute top-0 right-0 z-10 flex h-3.5 min-w-3.5 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-0.5 text-[9px] font-bold leading-none ring-2 ring-background"
+            aria-hidden
+          >
             {changelog.length}
           </span>
         </Button>
@@ -47,7 +53,7 @@ export function ChangelogButton() {
       <SheetContent side="right" className="flex w-[360px] flex-col p-0 sm:w-[400px]">
         <SheetHeader className="border-b px-4 py-3">
           <SheetTitle className="flex items-center gap-2 text-base">
-            <History className="h-4 w-4" />
+            <History className="size-4 shrink-0" />
             Changelog
             <Badge variant="secondary" className="ml-auto text-xs">
               v{latest.version}

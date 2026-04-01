@@ -415,7 +415,7 @@ export function TaskTable<T>({
     setColumnSizing({})
   }, [table])
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {showHeader && (
         <TaskTableHeader
           searchQuery={searchQuery}
@@ -466,7 +466,7 @@ export function TaskTable<T>({
             TABLE CONTAINER
             ============================================================================ */}
           {/* Single container: overflow-auto gives both H+V scrollbars at the container edge */}
-          <div className="max-h-[460px] overflow-auto rounded-lg border">
+          <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
             {/* Use <table> directly — <Table> wraps in overflow-x-auto div which breaks scrollbar positioning */}
             <table
               className="w-full table-fixed border-collapse caption-bottom text-xs"

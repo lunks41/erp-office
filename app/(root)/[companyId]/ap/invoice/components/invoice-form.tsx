@@ -27,6 +27,11 @@ import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse } from "date-fns"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
+function isNonZeroGstAmount(value: unknown): boolean {
+  const n = typeof value === "number" ? value : Number(value)
+  return Number.isFinite(n) && n !== 0
+}
+
 import { ApInvoice } from "@/lib/api-routes"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { useGetById } from "@/hooks/use-common"
@@ -786,7 +791,7 @@ export default function InvoiceForm({
               form={form}
               name="serviceCategoryId"
               label="Service Category"
-              isRequired={(form.watch("gstAmt") || 0) !== 0}
+              isRequired={isNonZeroGstAmount(form.watch("gstAmt"))}
             />
           )}
 

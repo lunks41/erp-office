@@ -32,7 +32,7 @@ export default function History({ form, isEdit: _isEdit }: HistoryProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-1.5 pb-1">
       <AccountDetails {...accountDetails} />
       <PaymentDetails invoiceId={form.getValues().invoiceId || ""} />
       <GLPostDetails invoiceId={form.getValues().invoiceId || ""} />

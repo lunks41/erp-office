@@ -39,10 +39,10 @@ export default function CustomSelect({
   const error = errors[name]
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-1", className)}>
       <Label
         htmlFor={name}
-        className={cn("text-sm font-medium", isRequired && "text-red-500")}
+        className={cn("text-xs font-medium", isRequired && "text-red-500")}
       >
         {label}
         {isRequired && <span className="ml-1">*</span>}
@@ -62,8 +62,9 @@ export default function CustomSelect({
         disabled={isDisabled}
       >
         <SelectTrigger
+          size="sm"
           className={cn(
-            "w-full border-gray-400",
+            "w-full border-gray-400 text-xs",
             isRequired &&
               !isDisabled &&
               "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20",

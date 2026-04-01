@@ -260,7 +260,7 @@ export function JobTable<T>({
   }, [table])
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-1">
       {/* Table Header with Search, Export, and Column Management */}
       <JobTableHeader
         onRefreshAction={onRefreshAction}
@@ -280,7 +280,7 @@ export function JobTable<T>({
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="max-h-[460px] overflow-auto rounded-lg border">
+          <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
             {/* Fixed Header */}
             <table className="w-full table-fixed border-collapse">
                 <colgroup>
@@ -442,15 +442,17 @@ export function JobTable<T>({
             </table>
           </div>
         </DndContext>
-      <MainTableFooter
-        currentPage={currentPage}
-        totalPages={Math.ceil(data.length / pageSize)}
-        pageSize={pageSize}
-        totalRecords={data.length}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        pageSizeOptions={[50, 100, 500]}
-      />
+      <div className="mt-1.5">
+        <MainTableFooter
+          currentPage={currentPage}
+          totalPages={Math.ceil(data.length / pageSize)}
+          pageSize={pageSize}
+          totalRecords={data.length}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={[50, 100, 500]}
+        />
+      </div>
     </div>
   )
 }

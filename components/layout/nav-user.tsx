@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { BadgeCheck, LogOut } from "lucide-react"
 
+import { COMPANY_HEADER_UTILITY_BUTTON } from "@/components/layout/company-header-utility"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,13 +45,14 @@ export function NavUser({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="icon"
-          className="h-8 w-8 rounded-md border-[#C4D6FF] bg-[#E0EAFF] text-[#3355CC] hover:bg-[#C4D6FF] hover:text-[#3355CC]"
+          className={COMPANY_HEADER_UTILITY_BUTTON}
           aria-label="User Profile"
         >
-          <Avatar className="size-8 rounded-md">
+          <Avatar className="size-7 rounded-md">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="rounded-lg text-[#3355CC]">CN</AvatarFallback>
+            <AvatarFallback className="rounded-md text-[11px] font-semibold leading-none text-[#3355CC]">
+              CN
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

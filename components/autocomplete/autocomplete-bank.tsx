@@ -143,7 +143,7 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
         cn(
           "border-gray-400 dark:border-gray-500 data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50",
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-3 pr-0 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
+          "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-1 text-xs whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
           "focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
           state.isFocused
             ? "border-ring ring-[3px] ring-ring/50"
@@ -152,7 +152,7 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
           isRequired &&
             !state.isDisabled &&
             "bg-yellow-50 border-gray-400 dark:bg-yellow-950/20 dark:border-gray-500",
-          "h-9 min-h-9"
+          "h-8 min-h-8"
         ),
       menu: () =>
         cn(
@@ -163,11 +163,11 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
       menuList: () => cn("p-1 overflow-auto"),
       option: (state: { isFocused: boolean; isSelected: boolean }) =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none",
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
           state.isFocused && "bg-accent text-accent-foreground",
           state.isSelected && "bg-accent text-accent-foreground"
         ),
-      noOptionsMessage: () => cn("text-muted-foreground py-2 px-3 text-sm"),
+      noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
       singleValue: () => cn("text-foreground"), // Fixed to match menu list
       valueContainer: () => cn("px-0 py-0.5 gap-1"),
@@ -178,7 +178,7 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
         cn("text-muted-foreground hover:text-foreground p-1 rounded-sm"),
       dropdownIndicator: () => cn("text-muted-foreground p-1 rounded-sm"),
       multiValue: () => cn("bg-accent rounded-sm m-1 overflow-hidden"),
-      multiValueLabel: () => cn("py-0.5 pl-2 pr-1 text-sm"),
+      multiValueLabel: () => cn("py-0.5 pl-2 pr-1 text-xs"),
       multiValueRemove: () =>
         cn(
           "hover:bg-destructive/90 hover:text-destructive-foreground px-1 rounded-sm"
@@ -415,13 +415,13 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
 
   if (form && name) {
     return (
-      <div className={cn("flex flex-col gap-1", className)}>
+      <div className={cn("flex flex-col gap-0.5", className)}>
         {label && (
           <div className="flex items-center gap-1">
             <Label
               htmlFor={name}
               className={cn(
-                "text-sm font-medium",
+                "text-xs font-medium",
                 isRequired && "text-red-500"
               )}
             >
@@ -442,7 +442,7 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
                 }`}
               />
             </button>
-            {isRequired && <span className="text-sm text-red-500">*</span>}
+            {isRequired && <span className="text-xs text-red-500">*</span>}
           </div>
         )}
         <FormField
@@ -515,12 +515,12 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
 
   // Standalone version (no form)
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
         <div className="flex items-center gap-1">
           <div
             className={cn(
-              "text-sm font-medium",
+              "text-xs font-medium",
               isDisabled && "text-muted-foreground opacity-70"
             )}
           >
@@ -542,7 +542,7 @@ export default function BankAutocomplete<T extends Record<string, unknown>>({
             />
           </button>
           {isRequired && (
-            <span className="text-destructive text-sm" aria-hidden="true">
+            <span className="text-destructive text-xs" aria-hidden="true">
               *
             </span>
           )}

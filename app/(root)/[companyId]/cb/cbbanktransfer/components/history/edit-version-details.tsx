@@ -21,6 +21,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { DialogDataTable } from "@/components/table/table-dialog"
+import {
+  HISTORY_EMBEDDED_FILLER_TARGET_ROWS,
+  HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+} from "@/components/table/history-embedded-presets"
 
 interface EditVersionDetailsProps {
   invoiceId: string
@@ -375,6 +379,10 @@ export default function EditVersionDetails({
             data={tableData}
             columns={columns}
             isLoading={false}
+
+            maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
+
+            fillerTargetRows={HISTORY_EMBEDDED_FILLER_TARGET_ROWS}
             moduleId={moduleId}
             transactionId={transactionId}
             tableName={TableName.notDefine}
