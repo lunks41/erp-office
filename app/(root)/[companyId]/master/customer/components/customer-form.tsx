@@ -37,6 +37,29 @@ interface CustomerFormProps {
   onCustomerLookup?: (customerCode: string, customerName: string) => void
 }
 
+const emptyCustomerFormValues: z.infer<typeof customerSchema> = {
+  customerId: 0,
+  customerCode: "",
+  customerName: "",
+  customerOtherName: "",
+  customerShortName: "",
+  customerRegNo: "",
+  currencyId: 0,
+  bankId: 0,
+  creditTermId: 0,
+  parentCustomerId: 0,
+  accSetupId: 0,
+  supplierId: 0,
+  isCustomer: true,
+  isVendor: false,
+  isTrader: false,
+  isSupplier: false,
+  isCredit: false,
+  peppolId: "",
+  remarks: "",
+  isActive: true,
+}
+
 export default function CustomerForm({
   initialData,
   onSaveAction,
@@ -47,56 +70,20 @@ export default function CustomerForm({
 
   const form = useForm<z.infer<typeof customerSchema>>({
     resolver: zodResolver(customerSchema),
-    defaultValues:
-      initialData ||
-      ({
-        customerId: 0,
-        companyId: 0,
-        customerCode: "",
-        customerName: "",
-        customerOtherName: "",
-        customerShortName: "",
-        customerRegNo: "",
-        currencyId: 0,
-        bankId: 0,
-        creditTermId: 0,
-        parentCustomerId: 0,
-        accSetupId: 0,
-        supplierId: 0,
-        isCustomer: true,
-        isVendor: false,
-        isTrader: false,
-        isSupplier: false,
-        isCredit: false,
-        remarks: "",
-        isActive: true,
-      } as z.infer<typeof customerSchema>),
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          peppolId: initialData.peppolId ?? "",
+        }
+      : emptyCustomerFormValues,
   })
 
   // Remove the watch effect since we'll use onBlurEvent instead
   useEffect(() => {
     form.reset(
-      initialData || {
-        customerId: 0,
-        customerCode: "",
-        customerName: "",
-        customerOtherName: "",
-        customerShortName: "",
-        customerRegNo: "",
-        currencyId: 0,
-        bankId: 0,
-        creditTermId: 0,
-        parentCustomerId: 0,
-        accSetupId: 0,
-        supplierId: 0,
-        isCustomer: true,
-        isVendor: false,
-        isTrader: false,
-        isSupplier: false,
-        isCredit: false,
-        remarks: "",
-        isActive: true,
-      }
+      initialData
+        ? { ...initialData, peppolId: initialData.peppolId ?? "" }
+        : emptyCustomerFormValues
     )
   }, [initialData, form])
 
@@ -111,6 +98,7 @@ export default function CustomerForm({
       parentCustomerId: Number(data.parentCustomerId),
       accSetupId: Number(data.accSetupId),
       supplierId: Number(data.supplierId),
+      peppolId: data.peppolId?.trim() || "",
     }
     console.log("processedData :", processedData)
     onSaveAction(processedData as ICustomer)
@@ -209,7 +197,17 @@ export default function CustomerForm({
                 name="customerId"
                 label="Supplier"
               />
-              <CustomTextarea form={form} name="remarks" label="Remarks" />
+              <CustomInput
+                form={form}
+                name="peppolId"
+                label="Peppol ID"
+                placeholder="e.g. scheme:identifier"
+              />
+            </div>
+            <div className="grid grid-cols-6 gap-2">
+              <div className="col-span-6">
+                <CustomTextarea form={form} name="remarks" label="Remarks" />
+              </div>
             </div>
 
             <div className="grid grid-cols-6 gap-2">

@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog"
 import { Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
@@ -47,6 +48,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
 import { PurchaseDialog } from "../services-combined/purchase-dialog"
+import { TransportationLogTab } from "../services-combined/transporationlog"
 import { TechniciansSurveyorsForm } from "../services-forms/technicians-surveyors-form"
 import { TechnicianSurveyorTable } from "../services-tables/technician-surveyor-table"
 
@@ -695,7 +697,7 @@ export function TechniciansSurveyorsTab({
       </div>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[60vw] !max-w-none overflow-y-auto"
+          className="max-h-[85vh] w-[95vw] !max-w-[1400px] overflow-x-hidden overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
@@ -741,19 +743,55 @@ export function TechniciansSurveyorsTab({
             </DialogDescription>
           </DialogHeader>
           <Separator />
-          <TechniciansSurveyorsForm
-            jobData={jobData}
-            initialData={
-              modalMode === "edit" || modalMode === "view"
-                ? selectedItem
-                : undefined
-            }
-            taskDefaults={taskDefaults} // Pass defaults to form
-            submitAction={handleSubmit}
-            onCancelAction={() => setIsModalOpen(false)}
-            isSubmitting={saveMutation.isPending || updateMutation.isPending}
-            isConfirmed={modalMode === "view"}
-          />
+          {modalMode === "edit" || modalMode === "view" ? (
+            <Tabs defaultValue="techniciansSurveyors">
+              <TabsList className="mb-3">
+                <TabsTrigger value="techniciansSurveyors">
+                  Technicians Surveyors
+                </TabsTrigger>
+                <TabsTrigger value="transportation">Transportation</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="techniciansSurveyors">
+                <TechniciansSurveyorsForm
+                  jobData={jobData}
+                  initialData={selectedItem}
+                  taskDefaults={taskDefaults}
+                  submitAction={handleSubmit}
+                  onCancelAction={() => setIsModalOpen(false)}
+                  isSubmitting={
+                    saveMutation.isPending || updateMutation.isPending
+                  }
+                  isConfirmed={isConfirmed}
+                />
+              </TabsContent>
+
+              <TabsContent
+                value="transportation"
+                className="w-full max-w-full overflow-x-hidden overflow-y-auto"
+              >
+                <TransportationLogTab
+                  jobData={jobData}
+                  taskId={Task.TechniciansSurveyors}
+                  serviceItemNo={selectedItem?.technicianSurveyorId ?? 0}
+                  moduleId={moduleId}
+                  transactionId={transactionId}
+                  onTaskAdded={onTaskAdded}
+                  isConfirmed={isConfirmed}
+                />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <TechniciansSurveyorsForm
+              jobData={jobData}
+              initialData={isConfirmed ? selectedItem : undefined}
+              taskDefaults={taskDefaults}
+              submitAction={handleSubmit}
+              onCancelAction={() => setIsModalOpen(false)}
+              isSubmitting={saveMutation.isPending || updateMutation.isPending}
+              isConfirmed={isConfirmed}
+            />
+          )}
         </DialogContent>
       </Dialog>
       {/* Combined Services Modal */}

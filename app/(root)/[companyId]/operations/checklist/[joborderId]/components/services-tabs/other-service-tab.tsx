@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import {
   IDebitNoteData,
@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog"
 import { Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
@@ -47,6 +48,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
 import { PurchaseDialog } from "../services-combined/purchase-dialog"
+import { TransportationLogTab } from "../services-combined/transporationlog"
 import { OtherServiceForm } from "../services-forms/other-service-form"
 import { OtherServiceTable } from "../services-tables/other-service-table"
 
@@ -123,7 +125,6 @@ export function OtherServiceTab({
     count: 0,
   })
 
-
   // State for selected items (for bulk operations)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   // Key to reset table selection state
@@ -134,6 +135,9 @@ export function OtherServiceTab({
   const [showCloneTaskConfirmDialog, setShowCloneTaskConfirmDialog] =
     useState(false)
   const [isCloning, setIsCloning] = useState(false)
+  const [editDialogTab, setEditDialogTab] = useState<
+    "otherService" | "transportation"
+  >("otherService")
 
   // Clone Task Form Schema
   const cloneTaskSchema = z.object({
@@ -152,6 +156,12 @@ export function OtherServiceTab({
   })
 
   const selectedCompanyId = cloneTaskForm.watch("toCompanyId")
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setEditDialogTab("otherService")
+    }
+  }, [isModalOpen, modalMode])
 
   const jobDataProps = useMemo(
     () => ({
@@ -722,7 +732,7 @@ export function OtherServiceTab({
       />
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[60vw] !max-w-none overflow-y-auto"
+          className="max-h-[85vh] w-[95vw] !max-w-[1400px] overflow-x-hidden overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
@@ -768,19 +778,58 @@ export function OtherServiceTab({
             </DialogDescription>
           </DialogHeader>
           <Separator />
-          <OtherServiceForm
-            jobData={jobData}
-            initialData={
-              modalMode === "edit" || modalMode === "view"
-                ? selectedItem
-                : undefined
-            }
-            taskDefaults={taskDefaults} // Pass defaults to form
-            submitAction={handleSubmit}
-            onCancelAction={() => setIsModalOpen(false)}
-            isSubmitting={saveMutation.isPending || updateMutation.isPending}
-            isConfirmed={modalMode === "view"}
-          />
+          {modalMode === "edit" || modalMode === "view" ? (
+            <Tabs
+              value={editDialogTab}
+              onValueChange={(value) =>
+                setEditDialogTab(value as "otherService" | "transportation")
+              }
+            >
+              <TabsList className="mb-3">
+                <TabsTrigger value="otherService">Other Service</TabsTrigger>
+                <TabsTrigger value="transportation">Transportation</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="otherService">
+                <OtherServiceForm
+                  jobData={jobData}
+                  initialData={selectedItem}
+                  taskDefaults={taskDefaults}
+                  submitAction={handleSubmit}
+                  onCancelAction={() => setIsModalOpen(false)}
+                  isSubmitting={
+                    saveMutation.isPending || updateMutation.isPending
+                  }
+                  isConfirmed={isConfirmed}
+                />
+              </TabsContent>
+
+              <TabsContent
+                value="transportation"
+                className="w-full max-w-full overflow-x-hidden overflow-y-auto"
+              >
+                <TransportationLogTab
+                  jobData={jobData}
+                  taskId={Task.OtherService}
+                  serviceItemNo={selectedItem?.otherServiceId ?? 0}
+                  moduleId={moduleId}
+                  transactionId={transactionId}
+                  onTaskAdded={onTaskAdded}
+                  isConfirmed={isConfirmed}
+                />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <OtherServiceForm
+              jobData={jobData}
+              initialData={isConfirmed ? selectedItem : undefined}
+              taskDefaults={taskDefaults}
+              submitAction={handleSubmit}
+              onCancelAction={() => setIsModalOpen(false)}
+              isSubmitting={saveMutation.isPending || updateMutation.isPending}
+              isConfirmed={isConfirmed}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

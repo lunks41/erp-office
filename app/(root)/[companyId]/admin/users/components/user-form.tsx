@@ -21,7 +21,6 @@ import {
 import { Form } from "@/components/ui/form"
 import {
   EmployeeAutocomplete,
-  UserGroupAutocomplete,
   UserRoleAutocomplete,
 } from "@/components/autocomplete"
 import CustomAccordion, {
@@ -40,7 +39,6 @@ const defaultValues = {
   userCode: "",
   userName: "",
   userEmail: "",
-  userGroupId: 0,
   userRoleId: 0,
   employeeId: 0,
   isActive: true,
@@ -79,7 +77,6 @@ export function UserForm({
           userCode: initialData.userCode ?? "",
           userName: initialData.userName ?? "",
           userEmail: initialData.userEmail ?? "",
-          userGroupId: initialData.userGroupId ?? 0,
           userRoleId: initialData.userRoleId ?? 0,
           employeeId: initialData.employeeId ?? 0,
           isActive: initialData.isActive ?? true,
@@ -99,7 +96,6 @@ export function UserForm({
             userCode: initialData.userCode ?? "",
             userName: initialData.userName ?? "",
             userEmail: initialData.userEmail ?? "",
-            userGroupId: initialData.userGroupId ?? 0,
             userRoleId: initialData.userRoleId ?? 0,
             employeeId: initialData.employeeId ?? 0,
             isActive: initialData.isActive ?? true,
@@ -167,14 +163,6 @@ export function UserForm({
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <div>
-                <UserGroupAutocomplete
-                  form={form}
-                  name="userGroupId"
-                  label="Group"
-                  isRequired={true}
-                />
-              </div>
               <div>
                 <UserRoleAutocomplete
                   form={form}

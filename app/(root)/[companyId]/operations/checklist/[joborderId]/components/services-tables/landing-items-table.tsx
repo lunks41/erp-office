@@ -286,6 +286,18 @@ export function LandingItemsTable({
         minSize: 120,
       },
       {
+        accessorKey: "importDeclarationNo",
+        header: "Import Declaration No",
+        size: 170,
+        minSize: 140,
+      },
+      {
+        accessorKey: "exportDeclarationNo",
+        header: "Export Declaration No",
+        size: 170,
+        minSize: 140,
+      },
+      {
         accessorKey: "createBy",
         header: "Create By",
         cell: ({ row }) => (

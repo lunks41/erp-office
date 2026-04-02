@@ -428,6 +428,8 @@ export interface ILandingItems {
   debitNoteId?: number
   debitNoteNo?: string
   poNo?: string
+  importDeclarationNo?: string
+  exportDeclarationNo?: string
   createById: number
   createDate: Date
   editById?: number

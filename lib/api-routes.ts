@@ -1038,8 +1038,7 @@ export const ApInvoice = {
   get: "/account/getapinvoice",
   getByIdNo: "/account/getapinvoicebyidno",
   add: "/account/saveapinvoice",
-  checkDuplicateSuppInvoiceNo:
-    "/account/GetCheckDuplicateSuppInvoiceNo",
+  checkDuplicateSuppInvoiceNo: "/account/GetCheckDuplicateSuppInvoiceNo",
   delete: "/account/deleteapinvoice",
   history: "/account/gethistoryapinvoicebyid",
   historyDetails: "/account/gethistoryapinvoicedetailsbyid",
@@ -1050,8 +1049,7 @@ export const ApCreditNote = {
   get: "/account/getapcreditnote",
   getByIdNo: "/account/getapcreditnotebyidno",
   add: "/account/saveapcreditnote",
-  checkDuplicateSuppCreditNoteNo:
-    "/account/GetCheckDuplicateSuppCreditNoteNo",
+  checkDuplicateSuppCreditNoteNo: "/account/GetCheckDuplicateSuppCreditNoteNo",
   delete: "/account/deleteapcreditnote",
   history: "/account/gethistoryapcreditnotebyid",
   historyDetails: "/account/gethistoryapcreditnotedetailsbyid",
@@ -1479,6 +1477,7 @@ export const JobOrder_Purchase = {
 // Transportation Log Endpoints
 export const JobOrder_TransportationLog = {
   get: "/operations/gettransportationlog",
+  getByTask: "/operations/gettransportationlogbytask",
   getById: "/operations/gettransportationlogbyid",
   add: "/operations/savetransportationlog",
   delete: "/operations/deletetransportationlog",

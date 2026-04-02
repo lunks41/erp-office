@@ -235,6 +235,7 @@ export default function SupplierPage() {
             parentSupplierId: detailedSupplier.parentSupplierId || 0,
             accSetupId: detailedSupplier.accSetupId || 0,
             supplierId: detailedSupplier.supplierId || 0,
+            peppolId: detailedSupplier.peppolId ?? "",
           }
           setSupplier(updatedSupplier as ISupplier)
         }
@@ -586,6 +587,7 @@ export default function SupplierPage() {
             parentSupplierId: detailedSupplier.parentSupplierId || 0,
             accSetupId: detailedSupplier.accSetupId || 0,
             supplierId: detailedSupplier.supplierId || 0,
+            peppolId: detailedSupplier.peppolId ?? "",
           }
 
           // Show load confirmation dialog instead of directly setting supplier

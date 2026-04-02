@@ -227,6 +227,7 @@ export default function CustomerPage() {
             parentCustomerId: detailedCustomer.parentCustomerId || 0,
             accSetupId: detailedCustomer.accSetupId || 0,
             customerId: detailedCustomer.customerId || 0,
+            peppolId: detailedCustomer.peppolId ?? "",
           }
           setCustomer(updatedCustomer as ICustomer)
         }
@@ -578,6 +579,7 @@ export default function CustomerPage() {
             parentCustomerId: detailedCustomer.parentCustomerId || 0,
             accSetupId: detailedCustomer.accSetupId || 0,
             customerId: detailedCustomer.customerId || 0,
+            peppolId: detailedCustomer.peppolId ?? "",
           }
 
           // Show load confirmation dialog instead of directly setting customer

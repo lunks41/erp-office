@@ -14,7 +14,6 @@ export const userSchema = z.object({
     .string()
     .email({ message: "Invalid email format" })
     .max(50, { message: "User email must be less than 150 characters" }),
-  userGroupId: z.number().min(1, { message: "User group is required" }),
   userRoleId: z.number().min(1, { message: "User role is required" }),
   employeeId: z.number().min(0, { message: "Employee is required" }),
   remarks: z

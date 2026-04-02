@@ -426,6 +426,8 @@ export const LandingItemsSchema = z.object({
   debitNoteId: z.number().optional(),
   debitNoteNo: z.string().optional(),
   poNo: z.string().optional(),
+  importDeclarationNo: z.string().optional(),
+  exportDeclarationNo: z.string().optional(),
   editVersion: z.number(),
 })
 

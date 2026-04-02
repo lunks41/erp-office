@@ -4,7 +4,6 @@ export interface IUser {
   userName: string
   userEmail: string
   userRoleId: number
-  userGroupId: number
   employeeId: number
   remarks: string
   isActive: boolean

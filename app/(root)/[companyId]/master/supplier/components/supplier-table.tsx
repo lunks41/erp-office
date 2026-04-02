@@ -83,6 +83,12 @@ export function SupplierTable({
       minSize: 50,
     },
     {
+      accessorKey: "peppolId",
+      header: "Peppol ID",
+      size: 160,
+      minSize: 50,
+    },
+    {
       accessorKey: "currencyName",
       header: "Currency",
       size: 120,

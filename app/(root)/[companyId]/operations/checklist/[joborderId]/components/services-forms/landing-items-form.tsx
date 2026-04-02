@@ -107,6 +107,8 @@ export function LandingItemsForm({
       debitNoteId: initialData?.debitNoteId ?? 0,
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
+      importDeclarationNo: initialData?.importDeclarationNo ?? "",
+      exportDeclarationNo: initialData?.exportDeclarationNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
     },
   })
@@ -142,6 +144,8 @@ export function LandingItemsForm({
       debitNoteId: initialData?.debitNoteId ?? 0,
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
+      importDeclarationNo: initialData?.importDeclarationNo ?? "",
+      exportDeclarationNo: initialData?.exportDeclarationNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
     })
   }, [
@@ -236,6 +240,19 @@ export function LandingItemsForm({
                 form={form}
                 name="poNo"
                 label="PO No"
+                isDisabled={isConfirmed}
+              />
+              <CustomInput
+                form={form}
+                name="importDeclarationNo"
+                label="Import Declaration No"
+                isDisabled={isConfirmed}
+              />
+
+              <CustomInput
+                form={form}
+                name="exportDeclarationNo"
+                label="Export Declaration No"
                 isDisabled={isConfirmed}
               />
 

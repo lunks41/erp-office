@@ -98,8 +98,8 @@ export default function CustomInput<T extends Record<string, unknown>>({
                   isDisabled
                     ? "cursor-not-allowed !border-gray-400 !bg-gray-100 opacity-70 dark:!border-gray-500 dark:!bg-gray-800"
                     : isRequired
-                      ? "!bg-yellow-50 !border-gray-400 dark:!bg-yellow-950/20 dark:!border-gray-500 focus-visible:ring-1 focus-visible:ring-primary"
-                      : "bg-muted/5 !border-gray-400 dark:!border-gray-500 focus-visible:ring-1 focus-visible:ring-primary"
+                      ? "focus-visible:ring-primary !border-gray-400 !bg-yellow-50 focus-visible:ring-1 dark:!border-gray-500 dark:!bg-yellow-950/20"
+                      : "bg-muted/5 focus-visible:ring-primary !border-gray-400 focus-visible:ring-1 dark:!border-gray-500"
                 )}
                 tabIndex={0}
               />

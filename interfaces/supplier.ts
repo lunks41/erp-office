@@ -29,6 +29,7 @@ export interface ISupplier {
   isTrader: boolean
   isSupplier: boolean
   isDiffGstGl: boolean
+  peppolId?: string
   remarks: string
   isActive: boolean
   createById: number

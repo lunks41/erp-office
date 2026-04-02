@@ -72,6 +72,12 @@ export function CustomerTable({
       minSize: 50,
     },
     {
+      accessorKey: "peppolId",
+      header: "Peppol ID",
+      size: 160,
+      minSize: 50,
+    },
+    {
       accessorKey: "creditTermName",
       header: "Credit Term",
       size: 120,

@@ -37,6 +37,29 @@ interface SupplierFormProps {
   onSupplierLookup?: (supplierCode: string, supplierName: string) => void
 }
 
+const emptySupplierFormValues: z.infer<typeof supplierSchema> = {
+  supplierId: 0,
+  supplierCode: "",
+  supplierName: "",
+  supplierOtherName: "",
+  supplierShortName: "",
+  supplierRegNo: "",
+  currencyId: 0,
+  bankId: 0,
+  creditTermId: 0,
+  parentSupplierId: 0,
+  accSetupId: 0,
+  customerId: 0,
+  isCustomer: false,
+  isVendor: false,
+  isTrader: false,
+  isSupplier: true,
+  isDiffGstGl: false,
+  peppolId: "",
+  remarks: "",
+  isActive: true,
+}
+
 export default function SupplierForm({
   initialData,
   onSaveAction,
@@ -47,56 +70,20 @@ export default function SupplierForm({
 
   const form = useForm<z.infer<typeof supplierSchema>>({
     resolver: zodResolver(supplierSchema),
-    defaultValues:
-      initialData ||
-      ({
-        supplierId: 0,
-        companyId: 0,
-        supplierCode: "",
-        supplierName: "",
-        supplierOtherName: "",
-        supplierShortName: "",
-        supplierRegNo: "",
-        currencyId: 0,
-        bankId: 0,
-        creditTermId: 0,
-        parentSupplierId: 0,
-        accSetupId: 0,
-        customerId: 0,
-        isCustomer: false,
-        isVendor: false,
-        isTrader: false,
-        isSupplier: true,
-        isDiffGstGl: false,
-        remarks: "",
-        isActive: true,
-      } as z.infer<typeof supplierSchema>),
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          peppolId: initialData.peppolId ?? "",
+        }
+      : emptySupplierFormValues,
   })
 
   // Remove the watch effect since we'll use onBlurEvent instead
   useEffect(() => {
     form.reset(
-      initialData || {
-        supplierId: 0,
-        supplierCode: "",
-        supplierName: "",
-        supplierOtherName: "",
-        supplierShortName: "",
-        supplierRegNo: "",
-        currencyId: 0,
-        bankId: 0,
-        creditTermId: 0,
-        parentSupplierId: 0,
-        accSetupId: 0,
-        customerId: 0,
-        isCustomer: false,
-        isVendor: false,
-        isTrader: false,
-        isSupplier: true,
-        isDiffGstGl: false,
-        remarks: "",
-        isActive: true,
-      }
+      initialData
+        ? { ...initialData, peppolId: initialData.peppolId ?? "" }
+        : emptySupplierFormValues
     )
   }, [initialData, form])
 
@@ -111,6 +98,7 @@ export default function SupplierForm({
       parentSupplierId: Number(data.parentSupplierId),
       accSetupId: Number(data.accSetupId),
       customerId: Number(data.customerId),
+      peppolId: data.peppolId?.trim() || "",
     }
     console.log("processedData :", processedData)
     onSaveAction(processedData as ISupplier)
@@ -209,7 +197,17 @@ export default function SupplierForm({
                 name="customerId"
                 label="Customer"
               />
-              <CustomTextarea form={form} name="remarks" label="Remarks" />
+              <CustomInput
+                form={form}
+                name="peppolId"
+                label="Peppol ID"
+                placeholder="e.g. scheme:identifier"
+              />
+            </div>
+            <div className="grid grid-cols-6 gap-2">
+              <div className="col-span-6">
+                <CustomTextarea form={form} name="remarks" label="Remarks" />
+              </div>
             </div>
 
             <div className="grid grid-cols-6 gap-2">

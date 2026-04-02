@@ -92,15 +92,6 @@ export function UserTable({
     },
 
     {
-      accessorKey: "userGroupName",
-      header: "Group",
-      size: 200,
-      minSize: 50,
-      maxSize: 250,
-      enableColumnFilter: true,
-    },
-
-    {
       accessorKey: "isActive",
       header: "Status",
       cell: ({ row }) => (

@@ -163,7 +163,10 @@ export function ChecklistDetailsForm({
             <TabsList className="flex h-auto w-full flex-col gap-1 p-1">
               {/* Row 1 */}
               <div className="flex w-full flex-wrap items-center gap-1">
-                <TabsTrigger value="port-expenses" className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0">
+                <TabsTrigger
+                  value="port-expenses"
+                  className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
+                >
                   <span className="text-xs">🏢</span>
                   <span className="text-xs whitespace-nowrap">
                     Port Expenses
@@ -228,9 +231,7 @@ export function ChecklistDetailsForm({
                   className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
                   <span className="text-xs">👥</span>
-                  <span className="text-xs whitespace-nowrap">
-                    Crew SignOn
-                  </span>
+                  <span className="text-xs whitespace-nowrap">Crew SignOn</span>
                   <Badge
                     variant={
                       isLoading
@@ -291,7 +292,9 @@ export function ChecklistDetailsForm({
                   className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
                   <span className="text-xs">🏥</span>
-                  <span className="text-xs whitespace-nowrap">Medical Assistance</span>
+                  <span className="text-xs whitespace-nowrap">
+                    Medical Assistance
+                  </span>
                   <Badge
                     variant={
                       isLoading
@@ -355,9 +358,7 @@ export function ChecklistDetailsForm({
                   className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
                   <span className="text-xs">🤝</span>
-                  <span className="text-xs whitespace-nowrap">
-                    Third Party
-                  </span>
+                  <span className="text-xs whitespace-nowrap">Third Party</span>
                   <Badge
                     variant={
                       isLoading
@@ -376,9 +377,7 @@ export function ChecklistDetailsForm({
                   className="relative flex h-7 min-w-0 flex-row items-center gap-1 px-2 py-0"
                 >
                   <span className="text-xs">💧</span>
-                  <span className="text-xs whitespace-nowrap">
-                    Fresh Water
-                  </span>
+                  <span className="text-xs whitespace-nowrap">Fresh Water</span>
                   <Badge
                     variant={
                       isLoading

@@ -14,34 +14,29 @@ import { ModuleId, OperationsTransactionId } from "@/lib/utils"
 import { useDelete, useGetById, usePersist } from "@/hooks/use-common"
 import { useTaskServiceDefaults } from "@/hooks/use-task-service"
 import { Badge } from "@/components/ui/badge"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
-import { TransportationLogForm } from "./checklist-transporationlog-form"
-import { TransportationLogTable } from "./checklist-transporationlog-table"
+import { TransportationLogForm } from "./transporationlog-form"
+import { TransportationLogTable } from "./transporationlog-table"
 
 interface TransportationLogTabProps {
   jobData: IJobOrderHd
+  taskId: number
+  serviceItemNo: number
   moduleId: number
   transactionId: number
   onTaskAdded?: () => void
   isConfirmed: boolean
-  inlineMode?: boolean
 }
 
 export function TransportationLogTab({
   jobData,
+  taskId,
+  serviceItemNo,
   onTaskAdded,
   isConfirmed,
-  inlineMode = false,
 }: TransportationLogTabProps) {
   const jobOrderId = jobData.jobOrderId
   const queryClient = useQueryClient()
@@ -57,7 +52,8 @@ export function TransportationLogTab({
 
   // Get default values for Transportation task - use taskId from initialData or a default value
   // Since Task.Transportation doesn't exist, we'll use 0 as default
-  const { defaults: taskDefaults } = useTaskServiceDefaults(0)
+  const { defaults: taskDefaults } = useTaskServiceDefaults(taskId)
+  const transportationFormId = "transportation-log-form"
 
   // States
   const [selectedItem, setSelectedItem] = useState<
@@ -66,7 +62,7 @@ export function TransportationLogTab({
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">(
     "create"
   )
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [formResetKey, setFormResetKey] = useState(0)
 
   // State for save confirmation
   const [saveConfirmation, setSaveConfirmation] = useState<{
@@ -103,9 +99,9 @@ export function TransportationLogTab({
 
   // Data fetching
   const { data: response, refetch } = useGetById<ITransportationLog>(
-    `${JobOrder_TransportationLog.get}`,
-    "transportationLog",
-    `${jobOrderId || ""}`
+    `${JobOrder_TransportationLog.getByTask}`,
+    "transportationLogByTask",
+    `${jobOrderId || ""}/${taskId || ""}/${serviceItemNo || ""}`
   )
 
   const { data } = (response as ApiResponse<ITransportationLog>) ?? {
@@ -140,9 +136,6 @@ export function TransportationLogTab({
           if (itemData) {
             setSelectedItem(itemData)
             setModalMode("view")
-            if (!inlineMode) {
-              setIsModalOpen(true)
-            }
           }
         } else {
           console.error("Failed to load details")
@@ -152,7 +145,7 @@ export function TransportationLogTab({
         console.error("Error fetching item:", error)
       }
     },
-    [jobOrderId, inlineMode]
+    [jobOrderId]
   )
 
   const handleDelete = (id: string) => {
@@ -201,13 +194,10 @@ export function TransportationLogTab({
         if (itemData) {
           setSelectedItem(itemData)
           setModalMode("edit")
-          if (!inlineMode) {
-            setIsModalOpen(true)
-          }
         }
       }
     },
-    [jobOrderId, inlineMode]
+    [jobOrderId]
   )
 
   const handleSubmit = useCallback(
@@ -237,7 +227,12 @@ export function TransportationLogTab({
           undefined,
         chargeId: chargeId ?? undefined,
       }
-      const submitData = { ...processedData, ...jobDataProps }
+      const submitData = {
+        ...processedData,
+        ...jobDataProps,
+        taskId,
+        serviceItemNo: String(serviceItemNo),
+      }
 
       let response
       if (saveConfirmation.operationType === "update" && selectedItem) {
@@ -251,10 +246,9 @@ export function TransportationLogTab({
 
       // Check if API response indicates success (result=1)
       if (response && response.result === 1) {
-        // Only close modal and reset state on successful submission
-        setIsModalOpen(false)
         setSelectedItem(undefined)
         setModalMode("create")
+        setFormResetKey((prev) => prev + 1)
         refetch()
         onTaskAdded?.()
       } else {
@@ -285,26 +279,25 @@ export function TransportationLogTab({
     saveMutation,
     refetch,
     onTaskAdded,
+    taskId,
+    serviceItemNo,
   ])
 
   const handleCreateTransportationLog = useCallback(() => {
     setSelectedItem(undefined)
     setModalMode("create")
-    if (!inlineMode) {
-      setIsModalOpen(true)
-    }
-  }, [inlineMode])
+  }, [])
 
   const handleRefreshTransportationLog = useCallback(() => {
     refetch()
   }, [refetch])
 
   return (
-    <>
+    <div className="max-h-[80vh] !max-w-full overflow-x-hidden">
       <div className="space-y-4">
-        {inlineMode && (
-          <div className="rounded-lg border p-4">
-            <div className="mb-3 flex items-center gap-3">
+        <div className="overflow-hidden rounded-lg border p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
               <h3 className="text-sm font-semibold">Transportation Form</h3>
               <Badge
                 variant={
@@ -329,26 +322,56 @@ export function TransportationLogTab({
                     : "View"}
               </Badge>
             </div>
-            <TransportationLogForm
-              jobData={jobData}
-              initialData={
-                modalMode === "edit" || modalMode === "view"
-                  ? selectedItem
-                  : undefined
-              }
-              taskDefaults={taskDefaults}
-              submitAction={handleSubmit}
-              onCancelAction={() => {
-                setSelectedItem(undefined)
-                setModalMode("create")
-              }}
-              isSubmitting={saveMutation.isPending || updateMutation.isPending}
-              isConfirmed={isConfirmed || modalMode === "view"}
-            />
+            {!isConfirmed && modalMode !== "view" && (
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedItem(undefined)
+                    setModalMode("create")
+                    setFormResetKey((prev) => prev + 1)
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  form={transportationFormId}
+                  disabled={saveMutation.isPending || updateMutation.isPending}
+                >
+                  {saveMutation.isPending || updateMutation.isPending
+                    ? "Saving..."
+                    : "Save"}
+                </Button>
+              </div>
+            )}
           </div>
-        )}
+          <TransportationLogForm
+            key={`transportation-form-${formResetKey}`}
+            jobData={jobData}
+            taskId={taskId}
+            serviceItemNo={serviceItemNo}
+            formId={transportationFormId}
+            initialData={
+              modalMode === "edit" || modalMode === "view"
+                ? selectedItem
+                : undefined
+            }
+            taskDefaults={taskDefaults}
+            submitAction={handleSubmit}
+            onCancelAction={() => {
+              setSelectedItem(undefined)
+              setModalMode("create")
+            }}
+            isSubmitting={saveMutation.isPending || updateMutation.isPending}
+            isConfirmed={isConfirmed || modalMode === "view"}
+            compactMode
+            showFooterActions={false}
+          />
+        </div>
 
-        <div className="overflow-x-auto">
+        <div className="w-full max-w-full overflow-x-hidden">
           <TransportationLogTable
             data={data || []}
             onTransportationLogSelect={handleSelect}
@@ -359,66 +382,12 @@ export function TransportationLogTab({
             moduleId={moduleId}
             transactionId={transactionId}
             isConfirmed={isConfirmed}
+            hideCreateButton
+            compactView
           />
         </div>
       </div>
-      <Dialog open={!inlineMode && isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent
-          className="max-h-[80vh] w-[60vw] !max-w-none overflow-y-auto"
-          onPointerDownOutside={(e) => {
-            e.preventDefault()
-          }}
-        >
-          <DialogHeader>
-            <div className="flex items-center gap-3">
-              <DialogTitle>Transportation | Forklift Log</DialogTitle>
-              <Badge
-                variant={
-                  modalMode === "create"
-                    ? "default"
-                    : modalMode === "edit"
-                      ? "secondary"
-                      : "outline"
-                }
-                className={
-                  modalMode === "create"
-                    ? "border-green-200 bg-green-100 text-green-800"
-                    : modalMode === "edit"
-                      ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-blue-200 bg-blue-100 text-blue-800"
-                }
-              >
-                {modalMode === "create"
-                  ? "New"
-                  : modalMode === "edit"
-                    ? "Edit"
-                    : "View"}
-              </Badge>
-            </div>
-            <DialogDescription>
-              {modalMode === "create"
-                ? "Add a new transportation log entry to this job order."
-                : modalMode === "edit"
-                  ? "Update the transportation | forklift log details."
-                  : "View transportation log details (read-only)."}
-            </DialogDescription>
-          </DialogHeader>
-          <Separator />
-          <TransportationLogForm
-            jobData={jobData}
-            initialData={
-              modalMode === "edit" || modalMode === "view"
-                ? selectedItem
-                : undefined
-            }
-            taskDefaults={taskDefaults}
-            submitAction={handleSubmit}
-            onCancelAction={() => setIsModalOpen(false)}
-            isSubmitting={saveMutation.isPending || updateMutation.isPending}
-            isConfirmed={isConfirmed || modalMode === "view"}
-          />
-        </DialogContent>
-      </Dialog>
+
       {/* Save Confirmation */}
       <SaveConfirmation
         open={saveConfirmation.isOpen}
@@ -462,6 +431,6 @@ export function TransportationLogTab({
         }
         isDeleting={deleteMutation.isPending}
       />
-    </>
+    </div>
   )
 }

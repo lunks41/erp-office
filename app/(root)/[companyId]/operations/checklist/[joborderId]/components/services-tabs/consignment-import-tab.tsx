@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog"
 import { Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CompanyAutocomplete } from "@/components/autocomplete"
 import JobOrderCompanyAutocomplete from "@/components/autocomplete/autocomplete-joborder-company"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
@@ -47,6 +48,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
 import { PurchaseDialog } from "../services-combined/purchase-dialog"
+import { TransportationLogTab } from "../services-combined/transporationlog"
 import { ConsignmentImportForm } from "../services-forms/consignment-import-form"
 import { ConsignmentImportTable } from "../services-tables/consignment-import-table"
 
@@ -115,7 +117,6 @@ export function ConsignmentImportTab({
     jobOrderId: null,
     count: 0,
   })
-
 
   // State for selected items (for bulk operations)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
@@ -262,36 +263,43 @@ export function ConsignmentImportTab({
     }
   }
 
-  const _handleBulkDelete = useCallback((selectedIds: string[]) => {
-    if (selectedIds.length === 0) {
-      toast.error("Please select at least one consignment import to delete")
-      return
-    }
+  const _handleBulkDelete = useCallback(
+    (selectedIds: string[]) => {
+      if (selectedIds.length === 0) {
+        toast.error("Please select at least one consignment import to delete")
+        return
+      }
 
-    // Check if any selected items have a debitNoteId
-    const itemsWithDebitNote = data?.filter((item) =>
-      selectedIds.includes(item.consignmentImportId.toString()) &&
-      item.debitNoteId &&
-      item.debitNoteId > 0
-    )
-
-    if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
-      toast.error(
-        `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+      // Check if any selected items have a debitNoteId
+      const itemsWithDebitNote = data?.filter(
+        (item) =>
+          selectedIds.includes(item.consignmentImportId.toString()) &&
+          item.debitNoteId &&
+          item.debitNoteId > 0
       )
-      return
-    }
 
-    setBulkDeleteConfirmation({
-      isOpen: true,
-      consignmentImportIds: selectedIds,
-      jobOrderId: jobData.jobOrderId,
-      count: selectedIds.length,
-    })
-  }, [jobData.jobOrderId, data])
+      if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+        toast.error(
+          `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+        )
+        return
+      }
+
+      setBulkDeleteConfirmation({
+        isOpen: true,
+        consignmentImportIds: selectedIds,
+        jobOrderId: jobData.jobOrderId,
+        count: selectedIds.length,
+      })
+    },
+    [jobData.jobOrderId, data]
+  )
 
   const handleConfirmBulkDelete = async () => {
-    if (bulkDeleteConfirmation.consignmentImportIds.length === 0 || !bulkDeleteConfirmation.jobOrderId) {
+    if (
+      bulkDeleteConfirmation.consignmentImportIds.length === 0 ||
+      !bulkDeleteConfirmation.jobOrderId
+    ) {
       return
     }
 
@@ -677,8 +685,8 @@ export function ConsignmentImportTab({
             onEditActionConsignmentImport={handleEdit}
             onCreateActionConsignmentImport={handleCreate}
             onCombinedService={handleCombinedService}
-          onCloneTask={handleCloneTaskClick}
-          onCloneRow={handleCloneRow}
+            onCloneTask={handleCloneTaskClick}
+            onCloneRow={handleCloneRow}
             onDebitNoteAction={handleDebitNote}
             onPurchaseAction={handlePurchase}
             onRefreshAction={handleRefreshConsignmentImport}
@@ -696,7 +704,7 @@ export function ConsignmentImportTab({
       </div>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[80vw] !max-w-none overflow-y-auto"
+          className="max-h-[85vh] w-[95vw] !max-w-[1400px] overflow-x-hidden overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
@@ -742,19 +750,55 @@ export function ConsignmentImportTab({
             </DialogDescription>
           </DialogHeader>
           <Separator />
-          <ConsignmentImportForm
-            jobData={jobData}
-            initialData={
-              modalMode === "edit" || modalMode === "view"
-                ? selectedItem
-                : undefined
-            }
-            taskDefaults={taskDefaults} // Pass defaults to form
-            submitAction={handleSubmit}
-            onCancelAction={() => setIsModalOpen(false)}
-            isSubmitting={saveMutation.isPending || updateMutation.isPending}
-            isConfirmed={modalMode === "view"}
-          />
+          {modalMode === "edit" || modalMode === "view" ? (
+            <Tabs defaultValue="consignmentImport">
+              <TabsList className="mb-3">
+                <TabsTrigger value="consignmentImport">
+                  Consignment Import
+                </TabsTrigger>
+                <TabsTrigger value="transportation">Transportation</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="consignmentImport">
+                <ConsignmentImportForm
+                  jobData={jobData}
+                  initialData={selectedItem}
+                  taskDefaults={taskDefaults}
+                  submitAction={handleSubmit}
+                  onCancelAction={() => setIsModalOpen(false)}
+                  isSubmitting={
+                    saveMutation.isPending || updateMutation.isPending
+                  }
+                  isConfirmed={isConfirmed}
+                />
+              </TabsContent>
+
+              <TabsContent
+                value="transportation"
+                className="w-full max-w-full overflow-x-hidden overflow-y-auto"
+              >
+                <TransportationLogTab
+                  jobData={jobData}
+                  taskId={Task.ConsignmentImport}
+                  serviceItemNo={selectedItem?.consignmentImportId ?? 0}
+                  moduleId={moduleId}
+                  transactionId={transactionId}
+                  onTaskAdded={onTaskAdded}
+                  isConfirmed={isConfirmed}
+                />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <ConsignmentImportForm
+              jobData={jobData}
+              initialData={isConfirmed ? selectedItem : undefined}
+              taskDefaults={taskDefaults}
+              submitAction={handleSubmit}
+              onCancelAction={() => setIsModalOpen(false)}
+              isSubmitting={saveMutation.isPending || updateMutation.isPending}
+              isConfirmed={isConfirmed}
+            />
+          )}
         </DialogContent>
       </Dialog>
       {/* Combined Services Modal */}

@@ -68,6 +68,7 @@ type MainTableHeaderProps<TData> = {
   bulkSelectionCount?: number
   onBulkDeleteClick?: () => void
   onBulkCloneClick?: () => void
+  hideSearch?: boolean
 }
 export function MainTableHeader<TData>({
   onRefreshAction,
@@ -86,6 +87,7 @@ export function MainTableHeader<TData>({
   bulkSelectionCount = 0,
   onBulkDeleteClick,
   onBulkCloneClick,
+  hideSearch = false,
 }: MainTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
   const [isSaveLayoutOpen, setIsSaveLayoutOpen] = useState(false)
@@ -322,14 +324,16 @@ export function MainTableHeader<TData>({
           Reset Layout
         </Button>
       </div>
-      {/* Search Input */}
+      {/* Search Input + Column Visibility Toggle */}
       <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-        <Input
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
-        />
+        {!hideSearch && (
+          <Input
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
+          />
+        )}
         {/* Column Visibility Toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

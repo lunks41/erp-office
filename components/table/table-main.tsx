@@ -134,6 +134,7 @@ interface MainTableProps<T> {
   showHeader?: boolean // Whether to show the table header (search, refresh, create)
   showFooter?: boolean // Whether to show the table footer (pagination)
   showActions?: boolean // Whether to show action buttons column
+  hideSearch?: boolean // Hide table header search input
   // ============================================================================
   // PERMISSION CONTROL PROPS
   // ============================================================================
@@ -201,6 +202,7 @@ export function MainTable<T>({
   showHeader = true, // Show header by default
   showFooter = true, // Show footer by default
   showActions = true, // Show actions by default
+  hideSearch = false,
   // Permission props with defaults (all permissions enabled by default)
   canView = true, // View permission
   canCreate = true, // Create permission
@@ -290,13 +292,12 @@ export function MainTable<T>({
       return
     }
 
-    // Only sync if initialSearchValue is provided and different from current searchQuery
-    if (
-      initialSearchValue !== undefined &&
-      initialSearchValue !== searchQuery
-    ) {
-      setSearchQuery(initialSearchValue)
-      searchQueryRef.current = initialSearchValue
+    // Always sync from parent, including undefined -> empty string reset.
+    // This is required for pages that use external search controls.
+    const normalizedParentSearch = initialSearchValue ?? ""
+    if (normalizedParentSearch !== searchQuery) {
+      setSearchQuery(normalizedParentSearch)
+      searchQueryRef.current = normalizedParentSearch
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally omit searchQuery to avoid sync loops
   }, [initialSearchValue])
@@ -796,6 +797,7 @@ export function MainTable<T>({
           onBulkCloneClick={
             onBulkCloneRows && canCreate ? handleBulkCloneClick : undefined
           }
+          hideSearch={hideSearch}
         />
       )}
       {/* ============================================================================

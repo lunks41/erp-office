@@ -38,6 +38,11 @@ export const supplierSchema = z.object({
   isCustomer: z.boolean().optional(),
   isDiffGstGl: z.boolean().optional(),
 
+  peppolId: z
+    .string()
+    .max(150, "Peppol ID cannot exceed 150 characters")
+    .optional(),
+
   remarks: z
     .string()
     .max(255, "Remarks cannot exceed 255 characters")
