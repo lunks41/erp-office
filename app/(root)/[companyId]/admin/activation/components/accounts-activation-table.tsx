@@ -6,9 +6,9 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 import { CheckCircle } from "lucide-react"
 
+import { TableName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { MainTable } from "@/components/table/table-main"
-import { TableName } from "@/lib/utils"
 
 interface AccountsActivationTableProps {
   data: IActiveDocument[]
@@ -76,7 +76,12 @@ export function AccountsActivationTable({
       cell: ({ row }) => {
         const raw = row.getValue("accountDate")
         if (!raw) return "-"
-        const date = typeof raw === "string" ? new Date(raw) : raw instanceof Date ? raw : null
+        const date =
+          typeof raw === "string"
+            ? new Date(raw)
+            : raw instanceof Date
+              ? raw
+              : null
         return date && isValid(date) ? format(date, dateFormat) : "-"
       },
     },
@@ -94,7 +99,9 @@ export function AccountsActivationTable({
       minSize: 80,
       cell: ({ row }) => {
         const val = row.getValue("totAmt") as number
-        return typeof val === "number" ? val.toLocaleString(undefined, { minimumFractionDigits: 2 }) : "-"
+        return typeof val === "number"
+          ? val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+          : "-"
       },
     },
     {
@@ -104,7 +111,9 @@ export function AccountsActivationTable({
       minSize: 80,
       cell: ({ row }) => {
         const val = row.getValue("gstAmt") as number
-        return typeof val === "number" ? val.toLocaleString(undefined, { minimumFractionDigits: 2 }) : "-"
+        return typeof val === "number"
+          ? val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+          : "-"
       },
     },
     {
@@ -114,7 +123,9 @@ export function AccountsActivationTable({
       minSize: 80,
       cell: ({ row }) => {
         const val = row.getValue("totAmtAftGst") as number
-        return typeof val === "number" ? val.toLocaleString(undefined, { minimumFractionDigits: 2 }) : "-"
+        return typeof val === "number"
+          ? val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+          : "-"
       },
     },
     {
@@ -131,7 +142,12 @@ export function AccountsActivationTable({
       cell: ({ row }) => {
         const raw = row.getValue("cancelDate")
         if (!raw) return "-"
-        const date = typeof raw === "string" ? new Date(raw) : raw instanceof Date ? raw : null
+        const date =
+          typeof raw === "string"
+            ? new Date(raw)
+            : raw instanceof Date
+              ? raw
+              : null
         return date && isValid(date) ? format(date, datetimeFormat) : "-"
       },
     },
@@ -149,7 +165,12 @@ export function AccountsActivationTable({
       cell: ({ row }) => {
         const raw = row.getValue("createDate")
         if (!raw) return "-"
-        const date = typeof raw === "string" ? new Date(raw) : raw instanceof Date ? raw : null
+        const date =
+          typeof raw === "string"
+            ? new Date(raw)
+            : raw instanceof Date
+              ? raw
+              : null
         return date && isValid(date) ? format(date, datetimeFormat) : "-"
       },
     },
@@ -167,7 +188,12 @@ export function AccountsActivationTable({
       cell: ({ row }) => {
         const raw = row.getValue("editDate")
         if (!raw) return "-"
-        const date = typeof raw === "string" ? new Date(raw) : raw instanceof Date ? raw : null
+        const date =
+          typeof raw === "string"
+            ? new Date(raw)
+            : raw instanceof Date
+              ? raw
+              : null
         return date && isValid(date) ? format(date, datetimeFormat) : "-"
       },
     },

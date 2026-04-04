@@ -4,9 +4,9 @@ import { IJobOrderStatus } from "@/interfaces/admin"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
+import { TableName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { MainTable } from "@/components/table/table-main"
-import { TableName } from "@/lib/utils"
 
 interface JobStatusActivationTableProps {
   data: IJobOrderStatus[]

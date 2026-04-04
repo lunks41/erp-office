@@ -79,6 +79,11 @@ type DuplicateSupplierCreditNote = {
   createDate?: string
 }
 
+function isNonZeroGstAmount(value: unknown): boolean {
+  const n = typeof value === "number" ? value : Number(value)
+  return Number.isFinite(n) && n !== 0
+}
+
 export default function CreditNoteForm({
   form,
   onSuccessAction,
@@ -918,7 +923,7 @@ export default function CreditNoteForm({
               form={form}
               name="serviceCategoryId"
               label="Service Category"
-              isRequired={(form.watch("gstAmt") || 0) !== 0}
+              isRequired={isNonZeroGstAmount(form.watch("gstAmt"))}
             />
           )}
 

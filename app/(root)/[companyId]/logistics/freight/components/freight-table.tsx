@@ -100,9 +100,7 @@ export function FreightTable({
         accessorKey: "declarationNo",
         header: "Declaration No",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("declarationNo") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("declarationNo") || "-"}</div>
         ),
         size: 130,
         minSize: 120,
@@ -184,7 +182,7 @@ export function FreightTable({
         accessorKey: "remarks",
         header: "Remarks",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate truncate">
+          <div className="max-w-xs truncate">
             {row.getValue("remarks") || "-"}
           </div>
         ),
@@ -217,7 +215,7 @@ export function FreightTable({
         accessorKey: "description",
         header: "Description",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate truncate">
+          <div className="max-w-xs truncate">
             {row.getValue("description") || "-"}
           </div>
         ),

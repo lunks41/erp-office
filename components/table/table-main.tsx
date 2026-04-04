@@ -59,6 +59,7 @@ import {
 import { TableName } from "@/lib/utils"
 // Type for table names
 import { useGetGridLayout } from "@/hooks/use-settings"
+import { Checkbox } from "@/components/ui/checkbox"
 // Hook to get grid layout settings
 // UI components for table structure
 import {
@@ -67,7 +68,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
 
 // Custom table components
 import { SortableTableHeader } from "./sortable-table-header"
@@ -299,7 +299,7 @@ export function MainTable<T>({
       setSearchQuery(normalizedParentSearch)
       searchQueryRef.current = normalizedParentSearch
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally omit searchQuery to avoid sync loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally omit searchQuery to avoid sync loops
   }, [initialSearchValue])
 
   // ============================================================================
@@ -504,17 +504,13 @@ export function MainTable<T>({
 
   const handleBulkDeleteClick = useCallback(() => {
     if (!onBulkDeleteRows || bulkSelectedCount === 0) return
-    const items = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original)
+    const items = table.getSelectedRowModel().rows.map((row) => row.original)
     onBulkDeleteRows(items)
   }, [onBulkDeleteRows, bulkSelectedCount, table])
 
   const handleBulkCloneClick = useCallback(() => {
     if (!onBulkCloneRows || bulkSelectedCount === 0) return
-    const items = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original)
+    const items = table.getSelectedRowModel().rows.map((row) => row.original)
     onBulkCloneRows(items)
   }, [onBulkCloneRows, bulkSelectedCount, table])
 
@@ -813,126 +809,78 @@ export function MainTable<T>({
           TABLE CONTAINER
           ============================================================================ */}
         {/* Main table container with horizontal scrolling */}
-          <div
-            ref={scrollContainerRef}
-            className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background text-xs shadow-xs"
+        <div
+          ref={scrollContainerRef}
+          className="border-border/80 bg-background max-h-[460px] overflow-auto rounded-lg border text-xs shadow-xs"
+        >
+          <table
+            className="w-full table-fixed border-collapse text-xs"
+            style={{ minWidth: "100%" }}
           >
-            <table
-              className="w-full table-fixed border-collapse text-xs"
-              style={{ minWidth: "100%" }}
-            >
-              <colgroup>
-                {table.getAllLeafColumns().map((col) => (
-                  <col
-                    key={col.id}
-                    style={{
-                      width: `${col.getSize()}px`,
-                      minWidth: `${col.getSize()}px`,
-                      maxWidth: `${col.getSize()}px`,
-                    }}
-                  />
-                ))}
-              </colgroup>
-              <TableHeader className="bg-background sticky top-0 z-20">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="bg-muted/50">
-                    <SortableContext
-                      items={headerGroup.headers.map((header) => header.id)}
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {headerGroup.headers.map((header, headerIndex) => {
-                        const isFirst =
-                          headerIndex === 0 || header.id === "actions"
-                        return (
-                          <SortableTableHeader
-                            key={header.id}
-                            header={header}
-                            className={
-                              isFirst ? "bg-background sticky left-0 z-40" : ""
-                            }
-                          />
-                        )
-                      })}
-                    </SortableContext>
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {/* ============================================================================
+            <colgroup>
+              {table.getAllLeafColumns().map((col) => (
+                <col
+                  key={col.id}
+                  style={{
+                    width: `${col.getSize()}px`,
+                    minWidth: `${col.getSize()}px`,
+                    maxWidth: `${col.getSize()}px`,
+                  }}
+                />
+              ))}
+            </colgroup>
+            <TableHeader className="bg-background sticky top-0 z-20">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted/50">
+                  <SortableContext
+                    items={headerGroup.headers.map((header) => header.id)}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((header, headerIndex) => {
+                      const isFirst =
+                        headerIndex === 0 || header.id === "actions"
+                      return (
+                        <SortableTableHeader
+                          key={header.id}
+                          header={header}
+                          className={
+                            isFirst ? "bg-background sticky left-0 z-40" : ""
+                          }
+                        />
+                      )
+                    })}
+                  </SortableContext>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {/* ============================================================================
                     DATA ROWS RENDERING
                     ============================================================================ */}
-                {/* Render data rows */}
-                {table.getRowModel().rows.map((row) => {
-                  return (
-                    <TableRow key={row.id} className="h-7">
-                      {/* Render each visible cell in the row */}
-                      {row.getVisibleCells().map((cell, cellIndex) => {
-                        const isActions = cell.column.id === "actions"
-                        const isFirstColumn = cellIndex === 0
-                        return (
-                          <TableCell
-                            key={cell.id}
-                            title={String(cell.getValue() ?? "")}
-                            className={`py-1 ${
-                              isFirstColumn || isActions
-                                ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
-                                : ""
-                            }`}
-                            style={{
-                              width: `${cell.column.getSize()}px`,
-                              minWidth: `${cell.column.getSize()}px`,
-                              maxWidth: `${cell.column.getSize()}px`,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              position:
-                                isFirstColumn || isActions
-                                  ? "sticky"
-                                  : "relative",
-                              left: isFirstColumn || isActions ? 0 : "auto",
-                              zIndex: isFirstColumn || isActions ? 10 : 1,
-                            }}
-                          >
-                            <div className="truncate">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </div>
-                          </TableCell>
-                        )
-                      })}
-                    </TableRow>
-                  )
-                })}
-                {/* ============================================================================
-                    EMPTY ROWS TO FILL PAGE SIZE
-                    ============================================================================ */}
-                {/* Add empty rows to ensure minimum 5 rows total, but only if data rows < 5 */}
-                {Array.from({
-                  length: (() => {
-                    const dataRows = table.getRowModel().rows.length
-                    // If we have 5+ data rows, show only data rows (no empty rows)
-                    // If we have less than 5 data rows, add empty rows to make it 5 total
-                    return dataRows >= 5 ? 0 : Math.max(0, 5 - dataRows)
-                  })(),
-                }).map((_, index) => (
-                  <TableRow key={`empty-${index}`} className="h-7">
-                    {table.getAllLeafColumns().map((column, cellIndex) => {
-                      const isActions = column.id === "actions"
+              {/* Render data rows */}
+              {table.getRowModel().rows.map((row) => {
+                return (
+                  <TableRow key={row.id} className="h-7">
+                    {/* Render each visible cell in the row */}
+                    {row.getVisibleCells().map((cell, cellIndex) => {
+                      const isActions = cell.column.id === "actions"
                       const isFirstColumn = cellIndex === 0
                       return (
                         <TableCell
-                          key={`empty-${index}-${column.id}`}
+                          key={cell.id}
+                          title={String(cell.getValue() ?? "")}
                           className={`py-1 ${
                             isFirstColumn || isActions
                               ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
                               : ""
                           }`}
                           style={{
-                            width: `${column.getSize()}px`,
-                            minWidth: `${column.getSize()}px`,
-                            maxWidth: `${column.getSize()}px`,
+                            width: `${cell.column.getSize()}px`,
+                            minWidth: `${cell.column.getSize()}px`,
+                            maxWidth: `${cell.column.getSize()}px`,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                             position:
                               isFirstColumn || isActions
                                 ? "sticky"
@@ -941,29 +889,75 @@ export function MainTable<T>({
                             zIndex: isFirstColumn || isActions ? 10 : 1,
                           }}
                         >
-                          {/* Empty cell content */}
+                          <div className="truncate">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </div>
                         </TableCell>
                       )
                     })}
                   </TableRow>
-                ))}
-                {/* ============================================================================
+                )
+              })}
+              {/* ============================================================================
+                    EMPTY ROWS TO FILL PAGE SIZE
+                    ============================================================================ */}
+              {/* Add empty rows to ensure minimum 5 rows total, but only if data rows < 5 */}
+              {Array.from({
+                length: (() => {
+                  const dataRows = table.getRowModel().rows.length
+                  // If we have 5+ data rows, show only data rows (no empty rows)
+                  // If we have less than 5 data rows, add empty rows to make it 5 total
+                  return dataRows >= 5 ? 0 : Math.max(0, 5 - dataRows)
+                })(),
+              }).map((_, index) => (
+                <TableRow key={`empty-${index}`} className="h-7">
+                  {table.getAllLeafColumns().map((column, cellIndex) => {
+                    const isActions = column.id === "actions"
+                    const isFirstColumn = cellIndex === 0
+                    return (
+                      <TableCell
+                        key={`empty-${index}-${column.id}`}
+                        className={`py-1 ${
+                          isFirstColumn || isActions
+                            ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
+                            : ""
+                        }`}
+                        style={{
+                          width: `${column.getSize()}px`,
+                          minWidth: `${column.getSize()}px`,
+                          maxWidth: `${column.getSize()}px`,
+                          position:
+                            isFirstColumn || isActions ? "sticky" : "relative",
+                          left: isFirstColumn || isActions ? 0 : "auto",
+                          zIndex: isFirstColumn || isActions ? 10 : 1,
+                        }}
+                      >
+                        {/* Empty cell content */}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              ))}
+              {/* ============================================================================
                     EMPTY STATE OR LOADING
                     ============================================================================ */}
-                {/* Show empty state or loading message when no data */}
-                {table.getRowModel().rows.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={tableColumns.length} // Span all columns
-                      className="h-7 text-center" // Center the message
-                    >
-                      {isLoading ? "Loading..." : emptyMessage}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </table>
-          </div>
+              {/* Show empty state or loading message when no data */}
+              {table.getRowModel().rows.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={tableColumns.length} // Span all columns
+                    className="h-7 text-center" // Center the message
+                  >
+                    {isLoading ? "Loading..." : emptyMessage}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </table>
+        </div>
       </DndContext>
       {/* ============================================================================
           TABLE FOOTER SECTION

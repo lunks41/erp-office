@@ -65,6 +65,7 @@ interface InvoiceFormProps {
 type DuplicateSupplierInvoice = {
   invoiceId?: string | number | null
   invoiceNo?: string
+  suppInvoiceNo?: string
   accountDate?: string
   supplierCode?: string
   supplierName?: string
@@ -953,6 +954,7 @@ export default function InvoiceForm({
                         }
                       >
                         Invoice No: {inv.invoiceNo}
+                        Supplier Invoice No: {inv.suppInvoiceNo}
                       </button>
                       <span className="text-amber-800">
                         Date: {inv.accountDate}

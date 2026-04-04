@@ -210,9 +210,7 @@ export function TransportationLogTable({
         accessorKey: "cargoTypeName",
         header: "Cargo Type",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("cargoTypeName") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("cargoTypeName") || "-"}</div>
         ),
         size: 150,
         minSize: 120,
@@ -241,7 +239,7 @@ export function TransportationLogTable({
         accessorKey: "remarks",
         header: "Remarks",
         cell: ({ row }) => (
-          <div className="max-w-xs truncate truncate">
+          <div className="max-w-xs truncate">
             {row.getValue("remarks") || "-"}
           </div>
         ),

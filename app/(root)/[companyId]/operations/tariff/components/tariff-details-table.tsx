@@ -99,7 +99,9 @@ export function TariffDetailsTable({
       header: "Additional",
       cell: ({ row }) => (
         <div className="text-center">
-          <Badge variant={row.getValue("isAdditional") ? "default" : "secondary"}>
+          <Badge
+            variant={row.getValue("isAdditional") ? "default" : "secondary"}
+          >
             {row.getValue("isAdditional") ? "Yes" : "No"}
           </Badge>
         </div>
