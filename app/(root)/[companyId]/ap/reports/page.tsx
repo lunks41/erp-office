@@ -18,8 +18,8 @@ import { formatDateForApi } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import {
   Select,
   SelectContent,
@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Separator } from "@/components/ui/separator"
 import {
   CompanySupplierAutocomplete,
   CurrencyAutocomplete,
@@ -196,6 +196,10 @@ export default function ReportsPage() {
   // Get current date formatted
   const getCurrentDate = () => {
     return format(new Date(), dateFormat)
+  }
+
+  const getStartOfCurrentYearDate = () => {
+    return format(startOfYear(new Date()), dateFormat)
   }
 
   // fromDate: start of (today - 2 months), but not before 1 Jan current year
@@ -518,225 +522,237 @@ export default function ReportsPage() {
     selectedReports.length > 0 && AS_DATE_REPORTS.includes(selectedReports[0])
 
   return (
-    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
+    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pt-1 pb-2">
       <div className="mx-auto min-h-0 w-full flex-1 space-y-2 overflow-y-auto px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
-      {/* Header Section */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-0.5">
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
-            AP Reports
-          </h1>
-          <p className="text-muted-foreground text-xs">
-            Select reports and configure parameters to generate AP reports
-          </p>
+        {/* Header Section */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-0.5">
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+              AP Reports
+            </h1>
+            <p className="text-muted-foreground text-xs">
+              Select reports and configure parameters to generate AP reports
+            </p>
+          </div>
         </div>
-      </div>
 
-      <Separator />
+        <Separator />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Report Selection Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Select Reports</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[600px]">
-              <div className="space-y-6 pr-4">
-                {REPORT_CATEGORIES.map((category) => (
-                  <div key={category.name} className="space-y-3">
-                    <h3 className="text-foreground text-sm font-medium">
-                      {category.name}
-                    </h3>
-                    <div className="space-y-2">
-                      {category.reports.map((report) => (
-                        <div
-                          key={report.id}
-                          className="hover:bg-muted flex cursor-pointer items-center space-x-2 rounded-md p-2 transition-colors"
-                        >
-                          <Checkbox
-                            checked={selectedReports.includes(report.id)}
-                            onCheckedChange={() => {
-                              handleReportToggle(report.id)
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                            }}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Report Selection Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Select Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-6 pr-4">
+                  {REPORT_CATEGORIES.map((category) => (
+                    <div key={category.name} className="space-y-3">
+                      <h3 className="text-foreground text-sm font-medium">
+                        {category.name}
+                      </h3>
+                      <div className="space-y-2">
+                        {category.reports.map((report) => (
+                          <div
+                            key={report.id}
+                            className="hover:bg-muted flex cursor-pointer items-center space-x-2 rounded-md p-2 transition-colors"
+                          >
+                            <Checkbox
+                              checked={selectedReports.includes(report.id)}
+                              onCheckedChange={() => {
+                                handleReportToggle(report.id)
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                              }}
+                            />
+                            <label
+                              className="flex-1 cursor-pointer text-sm font-normal"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleReportToggle(report.id)
+                              }}
+                            >
+                              {report.name}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <Separator />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* Report Parameters Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Report Parameters
+                {selectedReports.length > 0 && (
+                  <span className="bg-primary/10 text-primary rounded-md px-2 py-1 text-xs font-medium">
+                    {getSelectedReportObjects()[0]?.name}
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormProvider {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleViewReport)}
+                  className="space-y-4"
+                >
+                  {/* Supplier & Currency side by side */}
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <CompanySupplierAutocomplete
+                      form={form}
+                      name="supplierId"
+                      label="Supplier"
+                      companyId={companyId}
+                      isRequired={false}
+                    />
+
+                    {/* Currency */}
+                    <CurrencyAutocomplete
+                      form={form}
+                      name="currencyId"
+                      label="Currency"
+                      isRequired={true}
+                    />
+                  </div>
+
+                  {/* Date Range Preset / Custom - hide for AsDate-only reports */}
+                  {!requiresAsDate && (
+                    <div className="space-y-2 rounded-md border p-3">
+                      <label className="text-sm font-medium">Date Range</label>
+                      <RadioGroup
+                        value={form.watch("dateRangeMode")}
+                        onValueChange={(value: "preset" | "custom") => {
+                          form.setValue("dateRangeMode", value)
+                          if (value === "preset") {
+                            applyPresetDates(form.getValues("dateRangePreset"))
+                          } else {
+                            form.setValue("fromDate", getStartOfCurrentYearDate())
+                          }
+                        }}
+                        className="flex flex-wrap items-center gap-4"
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <RadioGroupItem
+                            value="preset"
+                            id="ap-date-range-preset"
                           />
                           <label
-                            className="flex-1 cursor-pointer text-sm font-normal"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleReportToggle(report.id)
-                            }}
+                            htmlFor="ap-date-range-preset"
+                            className="text-sm font-normal"
                           >
-                            {report.name}
+                            Preset Date Range
+                          </label>
+                          <Select
+                            value={form.watch("dateRangePreset")}
+                            onValueChange={handleDateRangePresetChange}
+                          >
+                            <SelectTrigger className="h-8 w-[180px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {DATE_RANGE_PRESETS.map((p) => (
+                                <SelectItem key={p.value} value={p.value}>
+                                  {p.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem
+                            value="custom"
+                            id="ap-date-range-custom"
+                          />
+                          <label
+                            htmlFor="ap-date-range-custom"
+                            className="text-sm font-normal"
+                          >
+                            Custom Date Range
                           </label>
                         </div>
-                      ))}
+                      </RadioGroup>
                     </div>
-                    <Separator />
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                  )}
 
-        {/* Report Parameters Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Report Parameters
-              {selectedReports.length > 0 && (
-                <span className="bg-primary/10 text-primary rounded-md px-2 py-1 text-xs font-medium">
-                  {getSelectedReportObjects()[0]?.name}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FormProvider {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleViewReport)}
-                className="space-y-4"
-              >
-                {/* Supplier & Currency side by side */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CompanySupplierAutocomplete
-                    form={form}
-                    name="supplierId"
-                    label="Supplier"
-                    companyId={companyId}
-                    isRequired={false}
-                  />
-
-                  {/* Currency */}
-                  <CurrencyAutocomplete
-                    form={form}
-                    name="currencyId"
-                    label="Currency"
-                    isRequired={true}
-                  />
-                </div>
-
-                {/* Date Range Preset / Custom - hide for AsDate-only reports */}
-                {!requiresAsDate && (
-                  <div className="space-y-2 rounded-md border p-3">
-                    <label className="text-sm font-medium">Date Range</label>
-                    <RadioGroup
-                      value={form.watch("dateRangeMode")}
-                      onValueChange={(value: "preset" | "custom") => {
-                        form.setValue("dateRangeMode", value)
-                        if (value === "preset") {
-                          applyPresetDates(form.getValues("dateRangePreset"))
+                  {/* Date Range - Show From/To Date for TrsDate reports (hidden for AsDate-only) */}
+                  {!requiresAsDate && (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <CustomDateNew
+                        form={form}
+                        name="fromDate"
+                        label="From Date:"
+                        isRequired={false}
+                        isDisabled={
+                          form.watch("dateRangeMode") === "preset" ||
+                          form.watch("useAsDate")
                         }
-                      }}
-                      className="flex flex-wrap items-center gap-4"
+                        onChangeEvent={handleFromDateChange}
+                      />
+                      <CustomDateNew
+                        form={form}
+                        name="toDate"
+                        label="To Date:"
+                        isRequired={false}
+                        isDisabled={
+                          form.watch("dateRangeMode") === "preset" ||
+                          form.watch("useAsDate")
+                        }
+                        isFutureShow={true}
+                        onChangeEvent={handleToDateChange}
+                      />
+                    </div>
+                  )}
+
+                  {/* As Date - hide for pure TrsDate reports (registers, transactions) */}
+                  {(!requiresTrsDate || requiresAsDate) && (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <CustomDateWithPresets
+                        form={form}
+                        name="asOfDate"
+                        label="As Date:"
+                        isRequired={false}
+                        isDisabled={
+                          !requiresAsDate &&
+                          (form.watch("dateRangeMode") === "preset" ||
+                            form.watch("useTrsDate"))
+                        }
+                        onChangeEvent={handleAsDateChange}
+                      />
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={selectedReports.length === 0}
+                      className="flex-1"
                     >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <RadioGroupItem value="preset" id="ap-date-range-preset" />
-                        <label
-                          htmlFor="ap-date-range-preset"
-                          className="text-sm font-normal"
-                        >
-                          Preset Date Range
-                        </label>
-                        <Select
-                          value={form.watch("dateRangePreset")}
-                          onValueChange={handleDateRangePresetChange}
-                        >
-                          <SelectTrigger className="h-8 w-[180px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {DATE_RANGE_PRESETS.map((p) => (
-                              <SelectItem key={p.value} value={p.value}>
-                                {p.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="custom" id="ap-date-range-custom" />
-                        <label
-                          htmlFor="ap-date-range-custom"
-                          className="text-sm font-normal"
-                        >
-                          Custom Date Range
-                        </label>
-                      </div>
-                    </RadioGroup>
+                      View Report
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleClear}
+                    >
+                      Clear
+                    </Button>
                   </div>
-                )}
-
-                {/* Date Range - Show From/To Date for TrsDate reports (hidden for AsDate-only) */}
-                {!requiresAsDate && (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <CustomDateNew
-                      form={form}
-                      name="fromDate"
-                      label="From Date:"
-                      isRequired={false}
-                      isDisabled={
-                        form.watch("dateRangeMode") === "preset" ||
-                        form.watch("useAsDate")
-                      }
-                      onChangeEvent={handleFromDateChange}
-                    />
-                    <CustomDateNew
-                      form={form}
-                      name="toDate"
-                      label="To Date:"
-                      isRequired={false}
-                      isDisabled={
-                        form.watch("dateRangeMode") === "preset" ||
-                        form.watch("useAsDate")
-                      }
-                      isFutureShow={true}
-                      onChangeEvent={handleToDateChange}
-                    />
-                  </div>
-                )}
-
-                {/* As Date - hide for pure TrsDate reports (registers, transactions) */}
-                {(!requiresTrsDate || requiresAsDate) && (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <CustomDateWithPresets
-                      form={form}
-                      name="asOfDate"
-                      label="As Date:"
-                      isRequired={false}
-                      isDisabled={
-                        !requiresAsDate &&
-                        (form.watch("dateRangeMode") === "preset" ||
-                          form.watch("useTrsDate"))
-                      }
-                      onChangeEvent={handleAsDateChange}
-                    />
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={selectedReports.length === 0}
-                    className="flex-1"
-                  >
-                    View Report
-                  </Button>
-                  <Button type="button" variant="outline" onClick={handleClear}>
-                    Clear
-                  </Button>
-                </div>
-              </form>
-            </FormProvider>
-          </CardContent>
-        </Card>
-      </div>
+                </form>
+              </FormProvider>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

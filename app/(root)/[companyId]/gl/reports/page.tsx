@@ -212,6 +212,10 @@ export default function ReportsPage() {
     return format(new Date(), dateFormat)
   }
 
+  const getStartOfCurrentYearDate = () => {
+    return format(startOfYear(new Date()), dateFormat)
+  }
+
   // fromDate: start of (today - 2 months), but not before 1 Jan current year
   const getDefaultFromDate = () => {
     const now = new Date()
@@ -801,6 +805,8 @@ export default function ReportsPage() {
                         form.setValue("dateRangeMode", value)
                         if (value === "preset") {
                           applyPresetDates(form.getValues("dateRangePreset"))
+                        } else {
+                          form.setValue("fromDate", getStartOfCurrentYearDate())
                         }
                       }}
                       className="flex flex-wrap items-center gap-4"

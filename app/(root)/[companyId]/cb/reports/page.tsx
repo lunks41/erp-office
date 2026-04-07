@@ -18,8 +18,8 @@ import { formatDateForApi } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import {
   Select,
   SelectContent,
@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Separator } from "@/components/ui/separator"
 import {
   BankAutocomplete,
   CurrencyAutocomplete,
@@ -125,6 +125,10 @@ export default function ReportsPage() {
   // Get current date formatted
   const getCurrentDate = () => {
     return format(new Date(), dateFormat)
+  }
+
+  const getStartOfCurrentYearDate = () => {
+    return format(startOfYear(new Date()), dateFormat)
   }
 
   // fromDate: start of (today - 2 months), but not before 1 Jan current year
@@ -561,12 +565,17 @@ export default function ReportsPage() {
                         form.setValue("dateRangeMode", value)
                         if (value === "preset") {
                           applyPresetDates(form.getValues("dateRangePreset"))
+                        } else {
+                          form.setValue("fromDate", getStartOfCurrentYearDate())
                         }
                       }}
                       className="flex flex-wrap items-center gap-4"
                     >
                       <div className="flex flex-wrap items-center gap-2">
-                        <RadioGroupItem value="preset" id="cb-date-range-preset" />
+                        <RadioGroupItem
+                          value="preset"
+                          id="cb-date-range-preset"
+                        />
                         <label
                           htmlFor="cb-date-range-preset"
                           className="text-sm font-normal"
@@ -590,7 +599,10 @@ export default function ReportsPage() {
                         </Select>
                       </div>
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="custom" id="cb-date-range-custom" />
+                        <RadioGroupItem
+                          value="custom"
+                          id="cb-date-range-custom"
+                        />
                         <label
                           htmlFor="cb-date-range-custom"
                           className="text-sm font-normal"
