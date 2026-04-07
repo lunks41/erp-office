@@ -164,6 +164,7 @@ export function VATServiceCategoriesTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      hideSearch={true}
       canEdit={canEdit}
       canDelete={canDelete}
       canView={canView}

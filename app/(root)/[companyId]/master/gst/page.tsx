@@ -1,5 +1,7 @@
 "use client"
 
+import { Search, X } from "lucide-react"
+
 import { useCallback, useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import {
@@ -30,6 +32,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -91,7 +95,12 @@ export default function GstPage() {
   // Pagination state
   const { defaults } = useUserSettingDefaults()
 
-  // Separate pagination state for each tab
+    const [activeTab, setActiveTab] = useState("gsts")
+
+  const [gstSearchInput, setGstSearchInput] = useState("")
+  const [gstDtSearchInput, setGstDtSearchInput] = useState("")
+  const [gstCategorySearchInput, setGstCategorySearchInput] = useState("")
+// Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(
     defaults?.common?.masterGridTotalRecords || 50
@@ -606,6 +615,21 @@ export default function GstPage() {
       setExistingGstCategory(null)
     }
   }
+  useEffect(() => {
+    setGstSearchInput(filters.search || "")
+  }, [filters.search])
+  useEffect(() => {
+    setGstDtSearchInput(dtFilters.search || "")
+  }, [dtFilters.search])
+  useEffect(() => {
+    setGstCategorySearchInput(categoryFilters.search || "")
+  }, [categoryFilters.search])
+
+
+
+
+
+
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
@@ -619,9 +643,163 @@ export default function GstPage() {
             Manage VAT | GST information and settings
           </p>
         </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "gsts" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search VAT | GST..."
+                  value={gstSearchInput}
+                  onChange={(evt) => setGstSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setGstSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {gstSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setGstSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "gstsdt" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search VAT | GST details..."
+                  value={gstDtSearchInput}
+                  onChange={(evt) => setGstDtSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleDtFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setGstDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {gstDtSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setGstDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleDtFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "gstscategory" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search VAT | GST categories..."
+                  value={gstCategorySearchInput}
+                  onChange={(evt) => setGstCategorySearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCategoryFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setGstCategorySearchInput("")
+                      handleCategoryFilterChange({
+                        search: undefined,
+                        sortOrder: categoryFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {gstCategorySearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setGstCategorySearchInput("")
+                      handleCategoryFilterChange({
+                        search: undefined,
+                        sortOrder: categoryFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCategoryFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="gsts" className="space-y-4">
+      <Tabs
+        defaultValue="gsts"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="gsts">VAT | GST</TabsTrigger>
           <TabsTrigger value="gstsdt">VAT | GST Details</TabsTrigger>

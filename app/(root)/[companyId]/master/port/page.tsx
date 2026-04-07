@@ -1,5 +1,7 @@
 "use client"
 
+import { Search, X } from "lucide-react"
+
 import { useCallback, useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import { IPort, IPortFilter } from "@/interfaces/port"
@@ -20,6 +22,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
@@ -43,6 +47,7 @@ export default function PortPage() {
   const queryClient = useQueryClient()
 
   const [filters, setFilters] = useState<IPortFilter>({})
+  const [searchInput, setSearchInput] = useState("")
   const { defaults } = useUserSettingDefaults()
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(
@@ -64,6 +69,14 @@ export default function PortPage() {
     },
     []
   )
+
+  const handleSearchSubmit = useCallback(() => {
+    const normalizedSearch = searchInput.trim() || undefined
+    handleFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [filters.sortOrder, handleFilterChange, searchInput])
 
   // Page change handler
   const handlePageChange = useCallback((page: number) => {
@@ -263,6 +276,10 @@ export default function PortPage() {
     }
   }, [selectedPort])
 
+  useEffect(() => {
+    setSearchInput(filters.search || "")
+  }, [filters.search])
+
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
@@ -274,6 +291,53 @@ export default function PortPage() {
           <p className="text-muted-foreground text-sm">
             Manage port information and regional settings
           </p>
+        </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          <div className="relative w-full">
+            <Input
+              placeholder="Search ports..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearchSubmit()
+                }
+                if (e.key === "Escape") {
+                  setSearchInput("")
+                  handleFilterChange({
+                    search: undefined,
+                    sortOrder: filters.sortOrder,
+                  })
+                }
+              }}
+              className="h-7 rounded-md pr-8"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => {
+                  setSearchInput("")
+                  handleFilterChange({
+                    search: undefined,
+                    sortOrder: filters.sortOrder,
+                  })
+                }}
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleSearchSubmit}
+            className="h-9 rounded-md px-4"
+          >
+            <Search className="mr-2 h-4 w-4" />
+            Search
+          </Button>
         </div>
       </div>
 

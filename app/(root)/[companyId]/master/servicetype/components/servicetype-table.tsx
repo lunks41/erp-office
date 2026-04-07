@@ -179,6 +179,7 @@ export function ServiceTypeTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      hideSearch={true}
       // Permission props
       canEdit={canEdit}
       canDelete={canDelete}

@@ -164,6 +164,7 @@ export function PassTypesTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      hideSearch={true}
       canEdit={canEdit}
       canDelete={canDelete}
       canView={canView}

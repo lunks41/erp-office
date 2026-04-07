@@ -12,12 +12,14 @@ import {
 import { BargeGLMappingSchemaType, BargeSchemaType } from "@/schemas"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { Search, X } from "lucide-react"
 
 import { getById } from "@/lib/api-client"
 import { Barge, BargeGLMapping } from "@/lib/api-routes"
 import { MasterTransactionId, ModuleId } from "@/lib/utils"
 import { useDelete, useGetWithPagination, usePersist } from "@/hooks/use-common"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -25,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
@@ -84,6 +87,9 @@ export default function BargePage() {
   const [filters, setFilters] = useState<IBargeFilter>({})
   const [glMappingFilters, setGLMappingFilters] =
     useState<IBargeGLMappingFilter>({})
+  const [activeTab, setActiveTab] = useState("barge")
+  const [bargeSearchInput, setBargeSearchInput] = useState("")
+  const [glMappingSearchInput, setGLMappingSearchInput] = useState("")
 
   // Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
@@ -119,6 +125,26 @@ export default function BargePage() {
     },
     []
   )
+
+  const handleBargeSearchSubmit = useCallback(() => {
+    const normalizedSearch = bargeSearchInput.trim() || undefined
+    handleFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [bargeSearchInput, filters.sortOrder, handleFilterChange])
+
+  const handleGLMappingSearchSubmit = useCallback(() => {
+    const normalizedSearch = glMappingSearchInput.trim() || undefined
+    handleGLMappingFilterChange({
+      search: normalizedSearch,
+      sortOrder: glMappingFilters.sortOrder,
+    })
+  }, [
+    glMappingFilters.sortOrder,
+    glMappingSearchInput,
+    handleGLMappingFilterChange,
+  ])
 
   // Page change handlers for each tab
   const handlePageChange = useCallback((page: number) => {
@@ -239,15 +265,6 @@ export default function BargePage() {
     data: null,
     type: "barge",
   })
-
-  // Refetch when filters change
-  useEffect(() => {
-    if (filters.search !== undefined) refetchBarge()
-  }, [filters.search, refetchBarge])
-
-  useEffect(() => {
-    if (glMappingFilters.search !== undefined) refetchBargeGLMapping()
-  }, [glMappingFilters.search, refetchBargeGLMapping])
 
   // Handler to open modal for creating a new account group
   const handleCreateBarge = () => {
@@ -508,10 +525,22 @@ export default function BargePage() {
     }
   }
 
+  useEffect(() => {
+    setBargeSearchInput(filters.search || "")
+  }, [filters.search])
+
+  useEffect(() => {
+    setGLMappingSearchInput(glMappingFilters.search || "")
+  }, [glMappingFilters.search])
+
+  useEffect(() => {
+    setBargeSearchInput(filters.search || "")
+  }, [filters.search])
+
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
             Barges
@@ -520,9 +549,112 @@ export default function BargePage() {
             Manage barge information and settings
           </p>
         </div>
+        <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "barge" ? (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search barges..."
+                  value={bargeSearchInput}
+                  onChange={(e) => setBargeSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleBargeSearchSubmit()
+                    }
+                    if (e.key === "Escape") {
+                      setBargeSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {bargeSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setBargeSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleBargeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search barge GL mappings..."
+                  value={glMappingSearchInput}
+                  onChange={(e) => setGLMappingSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleGLMappingSearchSubmit()
+                    }
+                    if (e.key === "Escape") {
+                      setGLMappingSearchInput("")
+                      handleGLMappingFilterChange({
+                        search: undefined,
+                        sortOrder: glMappingFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {glMappingSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setGLMappingSearchInput("")
+                      handleGLMappingFilterChange({
+                        search: undefined,
+                        sortOrder: glMappingFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleGLMappingSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="barge" className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="barge">Barge</TabsTrigger>
           <TabsTrigger value="bargeglmapping">Barge GL Mapping</TabsTrigger>
@@ -648,6 +780,7 @@ export default function BargePage() {
               }
               onRefreshAction={refetchBargeGLMapping}
               onFilterChange={handleGLMappingFilterChange}
+              initialSearchValue={glMappingFilters.search}
               onPageChange={handleGLMappingPageChange}
               onPageSizeChange={handleGLMappingPageSizeChange}
               currentPage={glMappingCurrentPage}

@@ -1,5 +1,6 @@
 "use client"
 
+import { Search, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import {
@@ -41,6 +42,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -94,6 +97,10 @@ export default function ChartOfAccountPage() {
   const [filters3, setFilters3] = useState<ICoaCategory3Filter>({})
   const [filtersChart, setFiltersChart] = useState<IChartOfAccountFilter>({})
   const [activeTab, setActiveTab] = useState("chartofaccount")
+  const [chartSearchInput, setChartSearchInput] = useState("")
+  const [category1SearchInput, setCategory1SearchInput] = useState("")
+  const [category2SearchInput, setCategory2SearchInput] = useState("")
+  const [category3SearchInput, setCategory3SearchInput] = useState("")
 
   // Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
@@ -454,6 +461,38 @@ export default function ChartOfAccountPage() {
   }) => {
     setFilters3(filters as ICoaCategory3Filter)
     setCategory3CurrentPage(1) // Reset to first page when filtering
+  }
+
+  const handleChartFilterChangeSearchSubmit = () => {
+    const normalizedSearch = chartSearchInput.trim() || undefined
+    handleChartFilterChange({
+      search: normalizedSearch,
+      sortOrder: filtersChart.sortOrder,
+    })
+  }
+
+  const handleCategory1FilterChangeSearchSubmit = () => {
+    const normalizedSearch = category1SearchInput.trim() || undefined
+    handleCategory1FilterChange({
+      search: normalizedSearch,
+      sortOrder: filters1.sortOrder,
+    })
+  }
+
+  const handleCategory2FilterChangeSearchSubmit = () => {
+    const normalizedSearch = category2SearchInput.trim() || undefined
+    handleCategory2FilterChange({
+      search: normalizedSearch,
+      sortOrder: filters2.sortOrder,
+    })
+  }
+
+  const handleCategory3FilterChangeSearchSubmit = () => {
+    const normalizedSearch = category3SearchInput.trim() || undefined
+    handleCategory3FilterChange({
+      search: normalizedSearch,
+      sortOrder: filters3.sortOrder,
+    })
   }
 
   // Helper function for API responses
@@ -873,6 +912,26 @@ export default function ChartOfAccountPage() {
       setExistingCoaCategory3(null)
     }
   }
+  useEffect(() => {
+    setChartSearchInput(filtersChart.search || "")
+  }, [filtersChart.search])
+  useEffect(() => {
+    setCategory1SearchInput(filters1.search || "")
+  }, [filters1.search])
+  useEffect(() => {
+    setCategory2SearchInput(filters2.search || "")
+  }, [filters2.search])
+  useEffect(() => {
+    setCategory3SearchInput(filters3.search || "")
+  }, [filters3.search])
+
+
+
+
+
+
+
+
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
@@ -885,6 +944,204 @@ export default function ChartOfAccountPage() {
           <p className="text-muted-foreground text-sm">
             Manage account information and settings
           </p>
+        </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "chartofaccount" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search chart of accounts..."
+                  value={chartSearchInput}
+                  onChange={(evt) => setChartSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleChartFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setChartSearchInput("")
+                      handleChartFilterChange({
+                        search: undefined,
+                        sortOrder: filtersChart.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {chartSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setChartSearchInput("")
+                      handleChartFilterChange({
+                        search: undefined,
+                        sortOrder: filtersChart.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleChartFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "category1" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search category 1..."
+                  value={category1SearchInput}
+                  onChange={(evt) => setCategory1SearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCategory1FilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setCategory1SearchInput("")
+                      handleCategory1FilterChange({
+                        search: undefined,
+                        sortOrder: filters1.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {category1SearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setCategory1SearchInput("")
+                      handleCategory1FilterChange({
+                        search: undefined,
+                        sortOrder: filters1.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCategory1FilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "category2" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search category 2..."
+                  value={category2SearchInput}
+                  onChange={(evt) => setCategory2SearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCategory2FilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setCategory2SearchInput("")
+                      handleCategory2FilterChange({
+                        search: undefined,
+                        sortOrder: filters2.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {category2SearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setCategory2SearchInput("")
+                      handleCategory2FilterChange({
+                        search: undefined,
+                        sortOrder: filters2.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCategory2FilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "category3" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search category 3..."
+                  value={category3SearchInput}
+                  onChange={(evt) => setCategory3SearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCategory3FilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setCategory3SearchInput("")
+                      handleCategory3FilterChange({
+                        search: undefined,
+                        sortOrder: filters3.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {category3SearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setCategory3SearchInput("")
+                      handleCategory3FilterChange({
+                        search: undefined,
+                        sortOrder: filters3.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCategory3FilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

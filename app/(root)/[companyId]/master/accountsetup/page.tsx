@@ -1,5 +1,7 @@
 "use client"
 
+import { Search, X } from "lucide-react"
+
 import { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import {
@@ -36,6 +38,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -99,7 +103,12 @@ export default function AccountSetupPage() {
   const [filtersSetup, setFiltersSetup] = useState<IAccountSetupFilter>({})
   const [filtersDt, setFiltersDt] = useState<IAccountSetupDtFilter>({})
 
-  // Separate pagination state for each tab
+    const [activeTab, setActiveTab] = useState("account-setup")
+
+  const [setupSearchInput, setSetupSearchInput] = useState("")
+  const [dtSearchInput, setDtSearchInput] = useState("")
+  const [categorySearchInput, setCategorySearchInput] = useState("")
+// Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(
     defaults?.common?.masterGridTotalRecords || 50
@@ -322,7 +331,34 @@ export default function AccountSetupPage() {
     []
   )
 
-  // Page change handlers for each tab
+  
+  const handleSetupFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = setupSearchInput.trim() || undefined
+    handleSetupFilterChange({
+      search: normalizedSearch,
+      sortOrder: filtersSetup.sortOrder,
+    })
+  }, [handleSetupFilterChange, filtersSetup.sortOrder, setupSearchInput])
+
+
+  const handleDtFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = dtSearchInput.trim() || undefined
+    handleDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: filtersDt.sortOrder,
+    })
+  }, [handleDtFilterChange, filtersDt.sortOrder, dtSearchInput])
+
+
+  const handleCategoryFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = categorySearchInput.trim() || undefined
+    handleCategoryFilterChange({
+      search: normalizedSearch,
+      sortOrder: filtersCategory.sortOrder,
+    })
+  }, [handleCategoryFilterChange, filtersCategory.sortOrder, categorySearchInput])
+
+// Page change handlers for each tab
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
   }, [])
@@ -689,6 +725,21 @@ export default function AccountSetupPage() {
       setExistingSetup(null)
     }
   }
+  useEffect(() => {
+    setSetupSearchInput(filtersSetup.search || "")
+  }, [filtersSetup.search])
+  useEffect(() => {
+    setDtSearchInput(filtersDt.search || "")
+  }, [filtersDt.search])
+  useEffect(() => {
+    setCategorySearchInput(filtersCategory.search || "")
+  }, [filtersCategory.search])
+
+
+
+
+
+
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
@@ -702,9 +753,163 @@ export default function AccountSetupPage() {
             Manage account setup information and settings
           </p>
         </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "account-setup" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search account setups..."
+                  value={setupSearchInput}
+                  onChange={(evt) => setSetupSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleSetupFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setSetupSearchInput("")
+                      handleSetupFilterChange({
+                        search: undefined,
+                        sortOrder: filtersSetup.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {setupSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSetupSearchInput("")
+                      handleSetupFilterChange({
+                        search: undefined,
+                        sortOrder: filtersSetup.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleSetupFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "account-setup-dt" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search account setup details..."
+                  value={dtSearchInput}
+                  onChange={(evt) => setDtSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleDtFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: filtersDt.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {dtSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: filtersDt.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleDtFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "account-setup-category" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search account setup categories..."
+                  value={categorySearchInput}
+                  onChange={(evt) => setCategorySearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCategoryFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setCategorySearchInput("")
+                      handleCategoryFilterChange({
+                        search: undefined,
+                        sortOrder: filtersCategory.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {categorySearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setCategorySearchInput("")
+                      handleCategoryFilterChange({
+                        search: undefined,
+                        sortOrder: filtersCategory.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCategoryFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="account-setup" className="space-y-4">
+      <Tabs
+        defaultValue="account-setup"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="account-setup">Account Setup</TabsTrigger>
           <TabsTrigger value="account-setup-dt">

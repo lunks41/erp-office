@@ -1,5 +1,7 @@
 "use client"
 
+import { Search, X } from "lucide-react"
+
 import { useCallback, useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import { IUom, IUomDt, IUomFilter } from "@/interfaces/uom"
@@ -20,6 +22,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -58,7 +62,11 @@ export default function UomPage() {
   const [filters, setFilters] = useState<IUomFilter>({})
   const [dtFilters, setDtFilters] = useState<IUomFilter>({})
 
-  // Separate pagination state for each tab
+    const [activeTab, setActiveTab] = useState("uom")
+
+  const [uomSearchInput, setUomSearchInput] = useState("")
+  const [uomDtSearchInput, setUomDtSearchInput] = useState("")
+// Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(
     defaults?.common?.masterGridTotalRecords || 50
@@ -76,7 +84,25 @@ export default function UomPage() {
     }
   }, [defaults?.common?.masterGridTotalRecords])
 
-  // Page change handlers for each tab
+  
+  const handleUomFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = uomSearchInput.trim() || undefined
+    handleUomFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [handleUomFilterChange, filters.sortOrder, uomSearchInput])
+
+
+  const handleUomDtFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = uomDtSearchInput.trim() || undefined
+    handleUomDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: dtFilters.sortOrder,
+    })
+  }, [handleUomDtFilterChange, dtFilters.sortOrder, uomDtSearchInput])
+
+// Page change handlers for each tab
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
   }, [])
@@ -412,6 +438,16 @@ export default function UomPage() {
       setExistingUom(null)
     }
   }
+  useEffect(() => {
+    setUomSearchInput(filters.search || "")
+  }, [filters.search])
+  useEffect(() => {
+    setUomDtSearchInput(dtFilters.search || "")
+  }, [dtFilters.search])
+
+
+
+
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
@@ -423,9 +459,114 @@ export default function UomPage() {
             Manage UOM information and settings
           </p>
         </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "uom" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search UOM..."
+                  value={uomSearchInput}
+                  onChange={(evt) => setUomSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleUomFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setUomSearchInput("")
+                      handleUomFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {uomSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setUomSearchInput("")
+                      handleUomFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleUomFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "uomdt" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search UOM details..."
+                  value={uomDtSearchInput}
+                  onChange={(evt) => setUomDtSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleUomDtFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setUomDtSearchInput("")
+                      handleUomDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {uomDtSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setUomDtSearchInput("")
+                      handleUomDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleUomDtFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="uom" className="space-y-4">
+      <Tabs
+        defaultValue="uom"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="uom">UOM</TabsTrigger>
           <TabsTrigger value="uomdt">UOM Details</TabsTrigger>

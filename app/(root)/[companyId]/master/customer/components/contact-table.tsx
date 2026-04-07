@@ -256,6 +256,7 @@ export function ContactsTable({
       showHeader={true}
       showFooter={false}
       showActions={true}
+      hideSearch={true}
       // Permission props
       canEdit={canEdit}
       canDelete={canDelete}

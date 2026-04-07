@@ -139,6 +139,7 @@ export function EntityTypesTable({
       currentPage={currentPage}
       pageSize={pageSize}
       serverSidePagination={serverSidePagination}
+      hideSearch={true}
       canView={canView}
       canEdit={canEdit}
       canDelete={canDelete}

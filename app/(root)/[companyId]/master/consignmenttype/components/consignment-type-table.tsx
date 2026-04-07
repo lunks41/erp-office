@@ -164,6 +164,7 @@ export function ConsignmentTypesTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      hideSearch={true}
       canEdit={canEdit}
       canDelete={canDelete}
       canView={canView}

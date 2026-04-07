@@ -27,6 +27,7 @@ interface BargeGLMappingTableProps {
   currentPage?: number
   pageSize?: number
   serverSidePagination?: boolean
+  initialSearchValue?: string
   moduleId?: number
   transactionId?: number
   // Permission props
@@ -51,6 +52,7 @@ export function BargeGLMappingTable({
   currentPage = 1,
   pageSize = 50,
   serverSidePagination = false,
+  initialSearchValue,
   moduleId,
   transactionId,
   // Permission props
@@ -153,6 +155,7 @@ export function BargeGLMappingTable({
       // Add handlers if provided
       onRefreshAction={onRefreshAction}
       onFilterChange={onFilterChange}
+      initialSearchValue={initialSearchValue}
       onPageChange={onPageChange}
       onPageSizeChange={onPageSizeChange}
       currentPage={currentPage}
@@ -167,6 +170,7 @@ export function BargeGLMappingTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      hideSearch={true}
       // Permission props
       canEdit={canEdit}
       canDelete={canDelete}

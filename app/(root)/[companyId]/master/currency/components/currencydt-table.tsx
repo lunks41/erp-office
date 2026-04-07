@@ -171,6 +171,7 @@ export function CurrencyDtsTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      hideSearch={true}
       // Permission props
       canView={canView}
       canCreate={canCreate}

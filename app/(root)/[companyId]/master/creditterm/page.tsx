@@ -1,5 +1,7 @@
 "use client"
 
+import { Search, X } from "lucide-react"
+
 import { useCallback, useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import {
@@ -27,6 +29,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -64,7 +68,11 @@ export default function CreditTermPage() {
   // Pagination state
   const { defaults } = useUserSettingDefaults()
 
-  // Separate pagination state for each tab
+    const [activeTab, setActiveTab] = useState("creditterm")
+
+  const [creditTermSearchInput, setCreditTermSearchInput] = useState("")
+  const [creditTermDtSearchInput, setCreditTermDtSearchInput] = useState("")
+// Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(
     defaults?.common?.masterGridTotalRecords || 50
@@ -224,6 +232,22 @@ export default function CreditTermPage() {
     },
     []
   )
+
+  const handleCreditTermSearchSubmit = useCallback(() => {
+    const normalizedSearch = creditTermSearchInput.trim() || undefined
+    handleFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [creditTermSearchInput, filters.sortOrder, handleFilterChange])
+
+  const handleCreditTermDtSearchSubmit = useCallback(() => {
+    const normalizedSearch = creditTermDtSearchInput.trim() || undefined
+    handleDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: dtFilters.sortOrder,
+    })
+  }, [creditTermDtSearchInput, dtFilters.sortOrder, handleDtFilterChange])
 
   // Page change handlers
   const handlePageChange = useCallback((page: number) => {
@@ -439,6 +463,16 @@ export default function CreditTermPage() {
       setExistingCreditTerm(null)
     }
   }
+  useEffect(() => {
+    setCreditTermSearchInput(filters.search || "")
+  }, [filters.search])
+  useEffect(() => {
+    setCreditTermDtSearchInput(dtFilters.search || "")
+  }, [dtFilters.search])
+
+
+
+
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
@@ -452,9 +486,114 @@ export default function CreditTermPage() {
             Manage credit terms information and settings
           </p>
         </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "creditterm" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search credit terms..."
+                  value={creditTermSearchInput}
+                  onChange={(evt) => setCreditTermSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCreditTermSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setCreditTermSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {creditTermSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setCreditTermSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCreditTermSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "credittermdt" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search credit term details..."
+                  value={creditTermDtSearchInput}
+                  onChange={(evt) => setCreditTermDtSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCreditTermDtSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setCreditTermDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {creditTermDtSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setCreditTermDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCreditTermDtSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="creditterm" className="space-y-4">
+      <Tabs
+        defaultValue="creditterm"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="creditterm">Credit Terms</TabsTrigger>
           <TabsTrigger value="credittermdt">Credit Term Details</TabsTrigger>

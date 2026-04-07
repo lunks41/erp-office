@@ -1,5 +1,7 @@
 "use client"
 
+import { Search, X } from "lucide-react"
+
 import { useCallback, useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import {
@@ -30,6 +32,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -86,7 +90,12 @@ export default function TaxPage() {
   // State for filters
   const [filters, setFilters] = useState<ITaxFilter>({})
 
-  // Separate pagination state for each tab
+    const [activeTab, setActiveTab] = useState("taxs")
+
+  const [taxSearchInput, setTaxSearchInput] = useState("")
+  const [taxDtSearchInput, setTaxDtSearchInput] = useState("")
+  const [taxCategorySearchInput, setTaxCategorySearchInput] = useState("")
+// Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(50)
   const [dtCurrentPage, setDtCurrentPage] = useState(1)
@@ -605,6 +614,21 @@ export default function TaxPage() {
       setExistingTaxCategory(null)
     }
   }
+  useEffect(() => {
+    setTaxSearchInput(filters.search || "")
+  }, [filters.search])
+  useEffect(() => {
+    setTaxDtSearchInput(dtFilters.search || "")
+  }, [dtFilters.search])
+  useEffect(() => {
+    setTaxCategorySearchInput(categoryFilters.search || "")
+  }, [categoryFilters.search])
+
+
+
+
+
+
 
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
@@ -616,9 +640,163 @@ export default function TaxPage() {
             Manage Tax information and settings
           </p>
         </div>
+              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+          {activeTab === "taxs" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search taxes..."
+                  value={taxSearchInput}
+                  onChange={(evt) => setTaxSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setTaxSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {taxSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setTaxSearchInput("")
+                      handleFilterChange({
+                        search: undefined,
+                        sortOrder: filters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "taxsdt" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search tax details..."
+                  value={taxDtSearchInput}
+                  onChange={(evt) => setTaxDtSearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleDtFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setTaxDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {taxDtSearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setTaxDtSearchInput("")
+                      handleDtFilterChange({
+                        search: undefined,
+                        sortOrder: dtFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleDtFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+          {activeTab === "taxscategory" && (
+            <>
+              <div className="relative w-full">
+                <Input
+                  placeholder="Search tax categories..."
+                  value={taxCategorySearchInput}
+                  onChange={(evt) => setTaxCategorySearchInput(evt.target.value)}
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") {
+                      handleCategoryFilterChangeSearchSubmit()
+                    }
+                    if (evt.key === "Escape") {
+                      setTaxCategorySearchInput("")
+                      handleCategoryFilterChange({
+                        search: undefined,
+                        sortOrder: categoryFilters.sortOrder,
+                      })
+                    }
+                  }}
+                  className="h-7 rounded-md pr-8"
+                />
+                {taxCategorySearchInput && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setTaxCategorySearchInput("")
+                      handleCategoryFilterChange({
+                        search: undefined,
+                        sortOrder: categoryFilters.sortOrder,
+                      })
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCategoryFilterChangeSearchSubmit}
+                className="h-9 rounded-md px-4"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="taxs" className="space-y-4">
+      <Tabs
+        defaultValue="taxs"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="taxs">Tax</TabsTrigger>
           <TabsTrigger value="taxsdt">Tax Details</TabsTrigger>
