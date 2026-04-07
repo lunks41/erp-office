@@ -130,24 +130,56 @@
     * {
         @apply border-border outline-ring/50;
         scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
+        scrollbar-color: oklch(0.72 0 0) transparent;
+    }
+    /* Table scroll containers */
+    div:has(> table) {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(0.72 0 0) transparent;
+    }
+    .dark div:has(> table) {
+        scrollbar-color: oklch(0.48 0 0) transparent;
     }
     *::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 8px;   /* wider horizontal bar so it's easy to grab */
     }
     *::-webkit-scrollbar-track {
         background: transparent;
     }
     *::-webkit-scrollbar-thumb {
-        background-color: var(--border);
-        border-radius: 5px;
+        background-color: oklch(0.72 0 0);
+        border-radius: 99px;
     }
     *::-webkit-scrollbar-thumb:hover {
-        background-color: var(--muted-foreground);
+        background-color: oklch(0.50 0 0);
+    }
+    /* Table containers specifically */
+    div:has(> table)::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    div:has(> table)::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    div:has(> table)::-webkit-scrollbar-thumb {
+        background-color: oklch(0.72 0 0);
+        border-radius: 99px;
+    }
+    div:has(> table)::-webkit-scrollbar-thumb:hover {
+        background-color: oklch(0.42 0 0);
+    }
+    .dark div:has(> table)::-webkit-scrollbar-thumb {
+        background-color: oklch(0.48 0 0);
+    }
+    .dark div:has(> table)::-webkit-scrollbar-thumb:hover {
+        background-color: oklch(0.65 0 0);
     }
     body {
         @apply bg-background text-foreground;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-feature-settings: "rlig" 1, "calt" 1;
     }
     table th,
     table td {
@@ -315,4 +347,380 @@
     min-width: 1.75rem !important;
     min-height: 1.75rem !important;
     padding: 0 !important;
+}
+
+/* ============================================================
+   ERP UI — TABLE: FIXED HEIGHT + UI IMPROVEMENTS
+   ============================================================ */
+
+/* ── 1. Table heights — 3 tiers based on page complexity ── */
+
+/* TIER 0 — Tables inside DIALOGS (highest priority — must come first)
+   Dialog is h-[85vh]. Breakdown:
+     title+subtitle(65) + filter-bar(46) + toolbar(38) + footer(40) + padding(36) = 225px
+   Use 80vh so table stays within dialog bounds and footer is always visible. */
+[role="dialog"] div:has(> table.table-fixed) {
+    min-height: 180px !important;
+    max-height: calc(80vh - 230px) !important;
+}
+
+/* TIER 1 — Simple master pages (Country, Port, etc.)
+   nav(44) + title(55) + toolbar(38) + footer(40) + padding(28) = 205px */
+div:has(> table.table-fixed) {
+    min-height: calc(100dvh - 220px) !important;
+    max-height: calc(100dvh - 220px) !important;
+}
+
+/* TIER 2 — List pages with filter bar + status tabs (Checklist Management)
+   adds filter-bar(46) + status-tabs(40) = extra ~86px → 306px total */
+[role="tablist"] ~ div div:has(> table.table-fixed),
+[role="tablist"] ~ * > div:has(> table.table-fixed) {
+    min-height: calc(100dvh - 310px) !important;
+    max-height: calc(100dvh - 310px) !important;
+}
+
+/* TIER 3 — Detail pages: table is INSIDE a tab panel (Checklist Details services)
+   has: title-row(48) + main-tabs(40) + service-tabs(40) + toolbar(38) + footer(40) + padding(34) = 240 extra → 420px */
+[role="tabpanel"] div:has(> table.table-fixed) {
+    min-height: calc(100dvh - 430px) !important;
+    max-height: calc(100dvh - 430px) !important;
+}
+
+/* TIER 3B — Tables inside tab panels WITHIN dialogs (debit note dialog etc.) */
+[role="dialog"] [role="tabpanel"] div:has(> table.table-fixed) {
+    min-height: 150px !important;
+    max-height: calc(75vh - 260px) !important;
+}
+
+/* ── 2. Table header — distinct, professional ── */
+table thead tr {
+    background-color: oklch(0.945 0.008 252);
+    border-bottom: 1.5px solid oklch(0.89 0.012 252);
+}
+.dark table thead tr {
+    background-color: oklch(0.215 0.012 252);
+    border-bottom: 1.5px solid oklch(0.28 0.015 252);
+}
+table thead th,
+table thead td {
+    font-size: 0.67rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    color: oklch(0.40 0.03 252) !important;
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+}
+.dark table thead th,
+.dark table thead td {
+    color: oklch(0.72 0.02 252) !important;
+}
+
+/* ── 3. Compact rows ── */
+table tbody tr {
+    height: 1.25rem !important;  /* 20px — compact data row */
+    max-height: 1.25rem !important;
+    transition: background-color 0.08s ease;
+    border-bottom: 1px solid oklch(0.935 0.004 252);
+}
+.dark table tbody tr {
+    border-bottom: 1px solid oklch(0.24 0.008 252);
+}
+table tbody td {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 1.25rem !important;
+}
+
+/* ── 4. Zebra striping — very subtle ── */
+table tbody tr:nth-child(even) {
+    background-color: oklch(0.982 0.003 252);
+}
+.dark table tbody tr:nth-child(even) {
+    background-color: oklch(0.178 0.006 252);
+}
+
+/* ── 5. Row hover ── */
+table tbody tr:hover {
+    background-color: oklch(0.952 0.015 224);
+}
+.dark table tbody tr:hover {
+    background-color: oklch(0.248 0.012 252);
+}
+
+/* ── 6. Table container border + shadow ── */
+/* NOTE: do NOT set overflow here — the container already has
+   overflow-auto from Tailwind; overriding it breaks sticky columns
+   and removes scroll. Use outline (doesn't clip children) for border. */
+
+/* Light theme: outline acts as border without affecting overflow/sticky */
+div:has(> table.table-fixed) {
+    outline: 1.5px solid oklch(0.28 0.010 252);
+    outline-offset: -1px;
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.10),
+        0 4px 12px 0 rgb(0 0 0 / 0.06);
+}
+
+/* Dark theme — use a visible light/white border */
+.dark div:has(> table.table-fixed) {
+    outline: 1.5px solid oklch(0.72 0.008 252);   /* near-white, clearly visible */
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.50),
+        0 4px 16px 0 rgb(0 0 0 / 0.35);
+}
+
+/* ── 7. Sticky thead — DO NOT re-declare position/z-index here.
+   JSX already applies "sticky top-0 z-20" via Tailwind.
+   Only add the bottom shadow separator. ── */
+table thead tr {
+    box-shadow: 0 1px 0 0 oklch(0.28 0.010 252);
+}
+.dark table thead tr {
+    box-shadow: 0 1px 0 0 oklch(0.42 0.012 252);
+}
+
+/* ── 8. Pinned Actions column: right-side separator shadow ── */
+table td:first-child,
+table th:first-child {
+    border-right: 1px solid oklch(0.82 0.006 252);
+}
+.dark table td:first-child,
+.dark table th:first-child {
+    border-right: 1px solid oklch(0.30 0.010 252);
+}
+
+/* ── 9. Sort icon columns: hover highlight ── */
+table thead th:hover,
+table thead td:hover {
+    background-color: oklch(0.928 0.012 252);
+    cursor: pointer;
+}
+.dark table thead th:hover,
+.dark table thead td:hover {
+    background-color: oklch(0.245 0.015 252);
+}
+
+/* ============================================================
+   SIDEBAR — compact, clean, professional
+   ============================================================ */
+
+/* 1. Width: 15rem (240px) → 10.5rem (168px) */
+[data-slot="sidebar-provider"] {
+    --sidebar-width: 10.5rem !important;
+}
+
+/* 2. Sidebar base — slight border on right */
+[data-sidebar="sidebar"] {
+    border-right: 1px solid var(--sidebar-border) !important;
+}
+
+/* 3. Header — tighter (company switcher area) */
+[data-sidebar="header"] {
+    padding: 0.375rem 0.5rem !important;
+    gap: 0.25rem !important;
+}
+
+/* 4. Group — tighter padding */
+[data-sidebar="group"] {
+    padding: 0.125rem 0.25rem !important;
+}
+
+/* 5. Group label — shorter, smaller font */
+[data-sidebar="group-label"] {
+    height: 1.375rem !important;
+    font-size: 0.62rem !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    padding-inline: 0.5rem !important;
+    opacity: 0.65 !important;
+}
+
+/* 6. Main menu buttons — compact height + font */
+[data-sidebar="menu-button"] {
+    height: 1.625rem !important;      /* 26px vs 32px default */
+    font-size: 0.72rem !important;
+    padding-inline: 0.5rem !important;
+    gap: 0.375rem !important;
+    border-radius: 0.3rem !important;
+}
+
+/* 7. Sub-menu buttons — even more compact */
+[data-sidebar="menu-sub-button"] {
+    height: 1.5rem !important;        /* 24px */
+    font-size: 0.7rem !important;
+    padding-inline: 0.375rem !important;
+    gap: 0.3rem !important;
+    border-radius: 0.25rem !important;
+}
+
+/* 8. Sub-menu container — tighter indentation */
+[data-sidebar="menu-sub"] {
+    margin-left: 0.125rem !important;
+    padding-left: 0.625rem !important;
+    border-left: 1px solid var(--sidebar-border) !important;
+    gap: 0.0625rem !important;
+}
+
+/* 9. Menu items — no extra margin */
+[data-sidebar="menu-item"],
+[data-sidebar="menu-sub-item"] {
+    margin: 0 !important;
+}
+
+/* 10. Icons — 14px, consistent size */
+[data-sidebar="menu-button"] svg,
+[data-sidebar="menu-sub-button"] svg {
+    width: 0.8rem !important;
+    height: 0.8rem !important;
+    flex-shrink: 0 !important;
+}
+
+/* 11. Badge (notification count) — smaller */
+[data-sidebar="menu-badge"] {
+    height: 1rem !important;
+    min-width: 1rem !important;
+    font-size: 0.6rem !important;
+    padding-inline: 0.25rem !important;
+    right: 0.25rem !important;
+}
+
+/* 12. Hover/active state — subtle highlight */
+[data-sidebar="menu-button"]:hover,
+[data-sidebar="menu-sub-button"]:hover {
+    background-color: var(--sidebar-accent) !important;
+}
+[data-sidebar="menu-button"][data-active="true"],
+[data-sidebar="menu-sub-button"][data-active="true"] {
+    background-color: var(--sidebar-accent) !important;
+    font-weight: 600 !important;
+}
+
+/* 13. Sidebar content — remove extra padding */
+[data-sidebar="content"] {
+    padding: 0 !important;
+    gap: 0 !important;
+}
+
+/* ── 10. Selected row highlight ── */
+table tbody tr[data-state="selected"],
+table tbody tr.selected {
+    background-color: oklch(0.935 0.025 245) !important;
+    outline: none;
+}
+.dark table tbody tr[data-state="selected"],
+.dark table tbody tr.selected {
+    background-color: oklch(0.265 0.030 252) !important;
+}
+
+/* ============================================================
+   FORM DENSITY — compact forms to fit all fields on one page
+   ============================================================ */
+
+/* 1. Accordion trigger: py-4 (32px) → py-1 (8px) */
+[role="heading"] > button {
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+}
+
+/* 2. Accordion content inner div — reduce bottom padding */
+[data-radix-accordion-content] > div {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* 3. The empty border-b divider before audit trail wastes ~32px.
+   Target any empty border-b divider (no children) and collapse it. */
+div.border-b:empty {
+    margin: 0 !important;
+    padding: 0 !important;
+    border-bottom-width: 1px !important;
+}
+
+/* 4. The space-y-4 pt-4 wrapper above audit trail — halve it */
+div:has(> .border-b:empty) {
+    padding-top: 0.25rem !important;
+}
+div.space-y-4:has(> .border-b:empty) > * + * {
+    margin-top: 0.375rem !important;
+}
+
+/* 5. Card content padding — slightly tighter */
+[data-slot="card-content"] {
+    padding: 0.75rem !important;
+}
+
+/* 6. Form field labels — compact */
+[data-slot="form-label"],
+label.text-sm {
+    font-size: 0.7rem !important;
+    margin-bottom: 0.125rem !important;
+    line-height: 1.2 !important;
+}
+
+/* 7. Form item vertical gap */
+[data-slot="form-item"] {
+    gap: 0.125rem !important;
+}
+
+/* 8. Input / select field height — compact */
+[data-slot="input"],
+[data-slot="select-trigger"] {
+    height: 1.75rem !important;
+    min-height: 1.75rem !important;
+    font-size: 0.75rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* ============================================================
+   ERP UI — STEP 1: LAYOUT IMPROVEMENTS
+   ============================================================ */
+
+/* -- Header: tighter height (56px → 44px) saves vertical space */
+header[id="navigation"] > div {
+    height: 44px !important;
+    padding-inline: 0.75rem !important;
+}
+
+/* Sharper header shadow + subtle bottom border */
+header[id="navigation"] {
+    box-shadow: 0 1px 0 0 var(--border), 0 2px 8px 0 rgb(0 0 0 / 0.04) !important;
+}
+
+/* -- Main content: cooler very-light background (feels less "white paper") */
+main[id="main-content"] {
+    background-color: oklch(0.971 0.004 252);
+}
+.dark main[id="main-content"] {
+    background-color: oklch(0.128 0.006 252);
+}
+
+/* -- Sidebar inset: ensure full-height fill */
+[data-sidebar="inset"] {
+    min-height: 100dvh;
+}
+
+/* -- Page wrapper: consistent content padding */
+.erp-page {
+    padding: 1rem 1.25rem;
+}
+
+/* -- Page title typography — tighter & heavier */
+.erp-page-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    color: oklch(0.18 0.008 252);
+}
+.dark .erp-page-title {
+    color: oklch(0.95 0 0);
+}
+.erp-page-subtitle {
+    font-size: 0.72rem;
+    color: var(--muted-foreground);
+    margin-top: 0.125rem;
 }

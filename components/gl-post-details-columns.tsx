@@ -55,7 +55,10 @@ export function getGlPostDetailsColumns(
       accessorKey: "isDebit",
       header: "Type",
       cell: ({ row }) => (
-        <Badge variant={row.original.isDebit ? "default" : "destructive"}>
+        <Badge
+          variant={row.original.isDebit ? "default" : "destructive"}
+          className="py-0 leading-4"
+        >
           {row.original.isDebit ? "Debit" : "Credit"}
         </Badge>
       ),

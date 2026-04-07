@@ -5,7 +5,6 @@ import { useAuthStore } from "@/stores/auth-store"
 import { clientDateFormat } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetGlPostDetails } from "@/hooks/use-histoy"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGlPostDetailsColumns } from "@/components/gl-post-details-columns"
 import { BasicTable } from "@/components/table/table-basic"
 import {
@@ -63,13 +62,11 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
   }
 
   return (
-    <Card className={HISTORY_SECTION_CARD_CLASS}>
-      <CardHeader className={HISTORY_SECTION_HEADER_CLASS}>
-        <CardTitle className={HISTORY_SECTION_TITLE_CLASS}>
-          GL Post Details
-        </CardTitle>
-      </CardHeader>
-      <CardContent className={HISTORY_SECTION_CONTENT_CLASS}>
+    <div>
+      <div className={HISTORY_SECTION_HEADER_CLASS}>
+        <p className={HISTORY_SECTION_TITLE_CLASS}>GL Post Details</p>
+      </div>
+      <div className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
           data={glPostDetailsData || []}
           columns={columns}
@@ -84,7 +81,7 @@ export default function GLPostDetails({ invoiceId }: GLPostDetailsProps) {
           maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
           pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

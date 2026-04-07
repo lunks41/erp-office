@@ -10,7 +10,6 @@ import { clientDateFormat } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BasicTable } from "@/components/table/table-basic"
 import {
   HISTORY_EMBEDDED_PAGE_SIZE,
@@ -223,13 +222,11 @@ export default function PaymentDetails({ invoiceId }: PaymentDetailsProps) {
   }
 
   return (
-    <Card className={HISTORY_SECTION_CARD_CLASS}>
-      <CardHeader className={HISTORY_SECTION_HEADER_CLASS}>
-        <CardTitle className={HISTORY_SECTION_TITLE_CLASS}>
-          Payment Details
-        </CardTitle>
-      </CardHeader>
-      <CardContent className={HISTORY_SECTION_CONTENT_CLASS}>
+    <div>
+      <div className={HISTORY_SECTION_HEADER_CLASS}>
+        <p className={HISTORY_SECTION_TITLE_CLASS}>Payment Details</p>
+      </div>
+      <div className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
           data={paymentDetailsData || []}
           columns={columns}
@@ -244,7 +241,7 @@ export default function PaymentDetails({ invoiceId }: PaymentDetailsProps) {
           maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
           pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
