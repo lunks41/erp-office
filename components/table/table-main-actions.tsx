@@ -39,11 +39,13 @@ export function MainTableActions<T>({
       {onSelectRow ? (
         <Checkbox
           checked={isSelected}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           onCheckedChange={(checked) =>
             onSelectRow(row, checked === true)
           }
           disabled={isConfirmed}
-          className="border-primary border-2"
+          className="border-primary pointer-events-auto border-2"
           title="Select row"
         />
       ) : null}

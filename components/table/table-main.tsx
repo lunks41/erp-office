@@ -836,15 +836,14 @@ export function MainTable<T>({
                     items={headerGroup.headers.map((header) => header.id)}
                     strategy={horizontalListSortingStrategy}
                   >
-                    {headerGroup.headers.map((header, headerIndex) => {
-                      const isFirst =
-                        headerIndex === 0 || header.id === "actions"
+                    {headerGroup.headers.map((header) => {
+                      const isActions = header.id === "actions"
                       return (
                         <SortableTableHeader
                           key={header.id}
                           header={header}
                           className={
-                            isFirst ? "bg-background sticky left-0 z-40" : ""
+                            isActions ? "bg-background sticky left-0 z-40" : ""
                           }
                         />
                       )
@@ -862,16 +861,15 @@ export function MainTable<T>({
                 return (
                   <TableRow key={row.id} className="h-7">
                     {/* Render each visible cell in the row */}
-                    {row.getVisibleCells().map((cell, cellIndex) => {
+                    {row.getVisibleCells().map((cell) => {
                       const isActions = cell.column.id === "actions"
-                      const isFirstColumn = cellIndex === 0
                       return (
                         <TableCell
                           key={cell.id}
                           title={String(cell.getValue() ?? "")}
                           className={`py-1 ${
-                            isFirstColumn || isActions
-                              ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
+                            isActions
+                              ? "bg-background sticky left-0 z-30" // Keep actions above adjacent cells
                               : ""
                           }`}
                           style={{
@@ -881,15 +879,12 @@ export function MainTable<T>({
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
-                            position:
-                              isFirstColumn || isActions
-                                ? "sticky"
-                                : "relative",
-                            left: isFirstColumn || isActions ? 0 : "auto",
-                            zIndex: isFirstColumn || isActions ? 10 : 1,
+                            position: isActions ? "sticky" : "relative",
+                            left: isActions ? 0 : "auto",
+                            zIndex: isActions ? 30 : 1,
                           }}
                         >
-                          <div className="truncate">
+                          <div className={isActions ? "pointer-events-auto" : "truncate"}>
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
@@ -914,25 +909,23 @@ export function MainTable<T>({
                 })(),
               }).map((_, index) => (
                 <TableRow key={`empty-${index}`} className="h-7">
-                  {table.getAllLeafColumns().map((column, cellIndex) => {
+                  {table.getAllLeafColumns().map((column) => {
                     const isActions = column.id === "actions"
-                    const isFirstColumn = cellIndex === 0
                     return (
                       <TableCell
                         key={`empty-${index}-${column.id}`}
                         className={`py-1 ${
-                          isFirstColumn || isActions
-                            ? "bg-background sticky left-0 z-10" // Make first column and actions sticky
+                          isActions
+                            ? "bg-background sticky left-0 z-30" // Keep actions above adjacent cells
                             : ""
                         }`}
                         style={{
                           width: `${column.getSize()}px`,
                           minWidth: `${column.getSize()}px`,
                           maxWidth: `${column.getSize()}px`,
-                          position:
-                            isFirstColumn || isActions ? "sticky" : "relative",
-                          left: isFirstColumn || isActions ? 0 : "auto",
-                          zIndex: isFirstColumn || isActions ? 10 : 1,
+                          position: isActions ? "sticky" : "relative",
+                          left: isActions ? 0 : "auto",
+                          zIndex: isActions ? 30 : 1,
                         }}
                       >
                         {/* Empty cell content */}

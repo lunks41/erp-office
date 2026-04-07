@@ -303,7 +303,6 @@ export function TariffTable({
       onCreateAction={onCreateAction}
       onEditAction={onEditAction}
       onDeleteAction={handleDelete}
-      showRowSelection
       //show props
       showHeader={true}
       showFooter={true}
