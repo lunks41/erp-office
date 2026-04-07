@@ -389,7 +389,7 @@ export default function DepartmentPage() {
         </LockSkeleton>
       ) : departmentsResult ? (
         <DepartmentsTable
-          data={filters.search ? [] : departmentsData || []}
+          data={departmentsData || []}
           onSelect={canView ? handleViewDepartment : undefined}
           onDeleteAction={canDelete ? handleDeleteDepartment : undefined}
           onEditAction={canEdit ? handleEditDepartment : undefined}

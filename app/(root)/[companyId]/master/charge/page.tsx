@@ -87,6 +87,9 @@ export default function ChargePage() {
   const [filters, setFilters] = useState<IChargeFilter>({})
   const [glMappingFilters, setGLMappingFilters] =
     useState<IChargeGLMappingFilter>({})
+  const [activeTab, setActiveTab] = useState("charge")
+  const [chargeSearchInput, setChargeSearchInput] = useState("")
+  const [glMappingSearchInput, setGlMappingSearchInput] = useState("")
 
   // Separate pagination state for each tab
   const [currentPage, setCurrentPage] = useState(1)
@@ -122,6 +125,26 @@ export default function ChargePage() {
     },
     []
   )
+
+  const handleFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = chargeSearchInput.trim() || undefined
+    handleFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [chargeSearchInput, filters.sortOrder, handleFilterChange])
+
+  const handleGLMappingFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = glMappingSearchInput.trim() || undefined
+    handleGLMappingFilterChange({
+      search: normalizedSearch,
+      sortOrder: glMappingFilters.sortOrder,
+    })
+  }, [
+    glMappingFilters.sortOrder,
+    glMappingSearchInput,
+    handleGLMappingFilterChange,
+  ])
 
   // Page change handlers for each tab
   const handlePageChange = useCallback((page: number) => {

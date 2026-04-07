@@ -371,7 +371,7 @@ export default function ProductPage() {
         </LockSkeleton>
       ) : productsResult ? (
         <ProductsTable
-          data={filters.search ? [] : productsData || []}
+          data={productsData || []}
           onSelect={canView ? handleViewProduct : undefined}
           onDeleteAction={canDelete ? handleDeleteProduct : undefined}
           onEditAction={canEdit ? handleEditProduct : undefined}

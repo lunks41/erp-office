@@ -93,6 +93,11 @@ export default function CurrencyPage() {
   const [filters, setFilters] = useState<ICurrencyFilter>({})
   const [dtFilters, setDtFilters] = useState<ICurrencyFilter>({})
   const [localDtFilters, setLocalDtFilters] = useState<ICurrencyFilter>({})
+  const [activeTab, setActiveTab] = useState("currency")
+  const [currencySearchInput, setCurrencySearchInput] = useState("")
+  const [currencyDtSearchInput, setCurrencyDtSearchInput] = useState("")
+  const [currencyLocalDtSearchInput, setCurrencyLocalDtSearchInput] =
+    useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(
     defaults?.common?.masterGridTotalRecords || 50
@@ -328,6 +333,34 @@ export default function CurrencyPage() {
     },
     []
   )
+
+  const handleCurrencyFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = currencySearchInput.trim() || undefined
+    handleCurrencyFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [currencySearchInput, filters.sortOrder, handleCurrencyFilterChange])
+
+  const handleCurrencyDtFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = currencyDtSearchInput.trim() || undefined
+    handleCurrencyDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: dtFilters.sortOrder,
+    })
+  }, [currencyDtSearchInput, dtFilters.sortOrder, handleCurrencyDtFilterChange])
+
+  const handleCurrencyLocalDtFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = currencyLocalDtSearchInput.trim() || undefined
+    handleCurrencyLocalDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: localDtFilters.sortOrder,
+    })
+  }, [
+    currencyLocalDtSearchInput,
+    handleCurrencyLocalDtFilterChange,
+    localDtFilters.sortOrder,
+  ])
 
   // Page change handlers
   const handlePageChange = useCallback((page: number) => {
