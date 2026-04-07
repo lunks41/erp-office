@@ -479,6 +479,7 @@ export function ChecklistTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.checklist}
+        tableHeight={350}
         emptyMessage="No job orders found."
         onRefreshAction={onRefreshAction}
         onCreateAction={canCreate ? onCreateAction : undefined}

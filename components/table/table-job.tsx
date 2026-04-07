@@ -53,6 +53,8 @@ interface JobTableProps<T> {
   onRefreshAction?: () => void
   onCreateAction?: () => void
   hideCreateButton?: boolean
+  tableHeightClassName?: string
+  tableHeight?: number
 }
 
 export function JobTable<T>({
@@ -65,6 +67,8 @@ export function JobTable<T>({
   emptyMessage = "No data found.",
   onRefreshAction,
   onCreateAction,
+  tableHeightClassName = "",
+  tableHeight = 350,
 }: JobTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -280,7 +284,7 @@ export function JobTable<T>({
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
+          <div style={{ height: `${tableHeight}px` }} className={`${tableHeightClassName} overflow-auto rounded-lg border border-border/80 bg-background shadow-xs`}>
             {/* Fixed Header */}
             <table className="w-full table-fixed border-collapse">
                 <colgroup>

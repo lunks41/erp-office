@@ -236,7 +236,7 @@ export default function ChecklistPage() {
   const statusCounts = getStatusCounts
 
   return (
-    <div className="@container mx-auto space-y-2 px-2 pt-2 pb-4 sm:space-y-2 sm:px-4 sm:pt-2 sm:pb-4 lg:px-6">
+    <div className="@container mx-auto space-y-1 px-2 pt-2 pb-4 sm:space-y-1 sm:px-4 sm:pt-2 sm:pb-4 lg:px-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
@@ -268,7 +268,7 @@ export default function ChecklistPage() {
       </div>
 
       {/* Enhanced Search and Filter Section */}
-      <div className="bg-card rounded-lg border p-3 shadow-sm">
+      <div className="bg-card rounded-lg border p-2 shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
             <Form {...dateFilterForm}>
@@ -362,7 +362,7 @@ export default function ChecklistPage() {
         <Tabs
           value={selectedStatus}
           onValueChange={handleStatusChange}
-          className="space-y-4"
+          className="space-y-1"
         >
           <TabsList className="w-full">
             {[
