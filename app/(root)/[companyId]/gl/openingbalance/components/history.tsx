@@ -22,5 +22,5 @@ export default function History({ form, isEdit: _isEdit }: HistoryProps) {
     cancelDate: "",
   }
 
-  return <div className="space-y-4"></div>
+  return <div className="divide-y divide-border/60 pb-1"></div>
 }

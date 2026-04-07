@@ -1,16 +1,21 @@
-import { ApiResponse } from "@/interfaces/auth"
+import {
+  ApiResponse } from "@/interfaces/auth"
 import { IGlTransactionDetails } from "@/interfaces/history"
 import { useAuthStore } from "@/stores/auth-store"
 
 import { clientDateFormat } from "@/lib/date-utils"
-import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { ARTransactionId,
+  ModuleId,
+  TableName } from "@/lib/utils"
 import { useGetGlPostDetails } from "@/hooks/use-histoy"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGlPostDetailsColumns } from "@/components/gl-post-details-columns"
 import { BasicTable } from "@/components/table/table-basic"
 import {
   HISTORY_EMBEDDED_PAGE_SIZE,
   HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
 } from "@/components/table/history-embedded-presets"
 
 
@@ -64,11 +69,11 @@ export default function GLPostDetails({ receiptId }: GLPostDetailsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>GL Post Details</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div>
+      <div className={HISTORY_SECTION_HEADER_CLASS}>
+        <p className={HISTORY_SECTION_TITLE_CLASS}>GL Post Details</p>
+      </div>
+      <div className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
           data={glPostDetailsData || []}
           columns={columns}
@@ -83,7 +88,7 @@ export default function GLPostDetails({ receiptId }: GLPostDetailsProps) {
           maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
           pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

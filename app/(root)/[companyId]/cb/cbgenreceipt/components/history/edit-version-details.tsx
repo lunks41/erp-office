@@ -1,6 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useState } from "react"
 import { ICbGenReceiptHd } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
@@ -9,23 +11,27 @@ import { format } from "date-fns"
 
 import { clientDateFormat } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { CBTransactionId,
+  ModuleId,
+  TableName } from "@/lib/utils"
 import {
   useGetCbGenReceiptHistoryDetails,
   useGetCbGenReceiptHistoryList,
-} from "@/hooks/use-cb"
+  } from "@/hooks/use-cb"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+  } from "@/components/ui/dialog"
 import { DialogDataTable } from "@/components/table/table-dialog"
 import {
   HISTORY_EMBEDDED_FILLER_TARGET_ROWS,
   HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
 } from "@/components/table/history-embedded-presets"
 
 import { EditVersionDetailsForm } from "./edit-version-details-form"
@@ -319,11 +325,11 @@ export default function EditVersionDetails({
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Version Details</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div>
+        <div className={HISTORY_SECTION_HEADER_CLASS}>
+          <p className={HISTORY_SECTION_TITLE_CLASS}>Edit Version Details</p>
+        </div>
+        <div className={HISTORY_SECTION_CONTENT_CLASS}>
           <DialogDataTable
             data={tableData}
             columns={columns}
@@ -345,8 +351,8 @@ export default function EditVersionDetails({
                 : undefined
             }
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Dialog
         open={!!selectedCbGenReceipt}

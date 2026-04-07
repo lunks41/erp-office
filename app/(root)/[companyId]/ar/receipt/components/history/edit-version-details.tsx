@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { IArReceiptDt, IArReceiptHd } from "@/interfaces"
+import {
+  useState } from "react"
+import { IArReceiptDt,
+  IArReceiptHd } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -9,24 +11,30 @@ import { AlertCircle } from "lucide-react"
 
 import { clientDateFormat } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { ARTransactionId,
+  ModuleId,
+  TableName } from "@/lib/utils"
 import {
   useGetARReceiptHistoryDetails,
   useGetARReceiptHistoryList,
-} from "@/hooks/use-ar"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+  } from "@/hooks/use-ar"
+import { Alert,
+  AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+  } from "@/components/ui/dialog"
 import { BasicTable } from "@/components/table/table-basic"
 import { DialogDataTable } from "@/components/table/table-dialog"
 import {
   HISTORY_EMBEDDED_FILLER_TARGET_ROWS,
   HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
 } from "@/components/table/history-embedded-presets"
 
 interface EditVersionDetailsProps {
@@ -438,11 +446,11 @@ export default function EditVersionDetails({
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Version Details</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div>
+        <div className={HISTORY_SECTION_HEADER_CLASS}>
+          <p className={HISTORY_SECTION_TITLE_CLASS}>Edit Version Details</p>
+        </div>
+        <div className={HISTORY_SECTION_CONTENT_CLASS}>
           <DialogDataTable
             data={tableData}
             columns={columns}
@@ -460,8 +468,8 @@ export default function EditVersionDetails({
             onRefreshAction={handleRefresh}
             onRowSelect={(receipt) => setSelectedReceipt(receipt)}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Dialog
         open={!!selectedReceipt}

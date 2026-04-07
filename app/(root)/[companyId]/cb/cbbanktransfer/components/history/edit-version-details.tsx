@@ -1,29 +1,36 @@
 "use client"
 
-import { useState } from "react"
+import {
+  useState } from "react"
 import { ICbBankTransfer } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { AlertCircle } from "lucide-react"
 
-import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { CBTransactionId,
+  ModuleId,
+  TableName } from "@/lib/utils"
 import {
   useGetCbBankHistoryDetails,
   useGetCbBankHistoryList,
-} from "@/hooks/use-cb"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+  } from "@/hooks/use-cb"
+import { Alert,
+  AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+  } from "@/components/ui/dialog"
 import { DialogDataTable } from "@/components/table/table-dialog"
 import {
   HISTORY_EMBEDDED_FILLER_TARGET_ROWS,
   HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
 } from "@/components/table/history-embedded-presets"
 
 interface EditVersionDetailsProps {
@@ -352,11 +359,11 @@ export default function EditVersionDetails({
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Version Details</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div>
+        <div className={HISTORY_SECTION_HEADER_CLASS}>
+          <p className={HISTORY_SECTION_TITLE_CLASS}>Edit Version Details</p>
+        </div>
+        <div className={HISTORY_SECTION_CONTENT_CLASS}>
           {/* Error handling for history data */}
           {hasHistoryError && (
             <Alert
@@ -394,8 +401,8 @@ export default function EditVersionDetails({
               setSelectedBankTransfer(bankTransfer)
             }
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Dialog
         open={!!selectedBankTransfer}

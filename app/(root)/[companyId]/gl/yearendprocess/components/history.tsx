@@ -28,7 +28,7 @@ export default function History({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="divide-y divide-border/60 pb-1">
       <div className="rounded-lg border p-4">
         <h3 className="mb-4 text-sm font-semibold">Account Details</h3>
         <div className="grid gap-4 sm:grid-cols-2">

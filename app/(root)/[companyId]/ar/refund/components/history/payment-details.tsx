@@ -1,4 +1,7 @@
-import { KeyboardEvent, useCallback, useMemo } from "react"
+import {
+  KeyboardEvent,
+  useCallback,
+  useMemo } from "react"
 import { useParams } from "next/navigation"
 import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
@@ -8,13 +11,17 @@ import { format } from "date-fns"
 
 import { clientDateFormat } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { ARTransactionId,
+  ModuleId,
+  TableName } from "@/lib/utils"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BasicTable } from "@/components/table/table-basic"
 import {
   HISTORY_EMBEDDED_PAGE_SIZE,
   HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
+  HISTORY_SECTION_CONTENT_CLASS,
+  HISTORY_SECTION_HEADER_CLASS,
+  HISTORY_SECTION_TITLE_CLASS,
 } from "@/components/table/history-embedded-presets"
 
 
@@ -227,11 +234,11 @@ export default function PaymentDetails({ refundId }: PaymentDetailsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Payment Details</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div>
+      <div className={HISTORY_SECTION_HEADER_CLASS}>
+        <p className={HISTORY_SECTION_TITLE_CLASS}>Payment Details</p>
+      </div>
+      <div className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
           data={paymentDetailsData || []}
           columns={columns}
@@ -246,7 +253,7 @@ export default function PaymentDetails({ refundId }: PaymentDetailsProps) {
           maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
           pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useState } from "react"
 import { IArInvoiceHd } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
@@ -9,18 +11,20 @@ import { format } from "date-fns"
 
 import { clientDateFormat } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
+import { ARTransactionId,
+  ModuleId,
+  TableName } from "@/lib/utils"
 import {
   useGetARInvoiceHistoryDetails,
   useGetARInvoiceHistoryList,
-} from "@/hooks/use-ar"
+  } from "@/hooks/use-ar"
 import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+  } from "@/components/ui/dialog"
 import {
   HISTORY_EMBEDDED_FILLER_TARGET_ROWS,
   HISTORY_EMBEDDED_TABLE_MAX_HEIGHT,
