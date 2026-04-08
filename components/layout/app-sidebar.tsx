@@ -68,14 +68,13 @@ import {
   Wallet,
 } from "lucide-react"
 
-import { useApprovalCounts } from "@/hooks/use-approval"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -85,6 +84,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
 import { CompanySwitcher } from "@/components/layout/company-switcher"
+import { SidebarSessionFooter } from "@/components/layout/sidebar-session-footer"
 
 import {
   Collapsible,
@@ -133,7 +133,6 @@ const getModuleIcon = (moduleCode: string) => {
     admin: Landmark,
     settings: Settings,
     requests: ClipboardList,
-    approvals: FileCheck,
     document: FileText,
     dashboard: LayoutDashboard,
   }
@@ -869,7 +868,6 @@ export const menuData: { mainNav: MainNavItem[] } = {
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { currentCompany } = useAuthStore()
-  const { pendingCount: approvalCount, refreshCounts } = useApprovalCounts()
   const { transactions, isLoading: transactionsLoading } = useUserTransactions()
   const { state: sidebarState, isMobile } = useSidebar()
   const [openMenu, setOpenMenu] = React.useState<string | null>(null)
@@ -957,10 +955,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     }
   }, [pathname, getUrlWithCompanyId, dynamicMenu])
 
-  React.useEffect(() => {
-    refreshCounts()
-  }, [refreshCounts])
-
   const handleMenuClick = (menuTitle: string) => {
     setOpenMenu(openMenu === menuTitle ? null : menuTitle)
     setSelectedMenu(menuTitle)
@@ -1044,9 +1038,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                           </div>
                           <span>{item.title}</span>
-                          {item.title === "Approvals" && approvalCount > 0 && (
-                            <SidebarMenuBadge>{approvalCount}</SidebarMenuBadge>
-                          )}
                         </SidebarMenuButton>
                       </PopoverTrigger>
                       <PopoverContent
@@ -1110,12 +1101,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                               {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                             </div>
                             <span>{item.title}</span>
-                            {item.title === "Approvals" &&
-                              approvalCount > 0 && (
-                                <SidebarMenuBadge>
-                                  {approvalCount}
-                                </SidebarMenuBadge>
-                              )}
                             <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
@@ -1174,9 +1159,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                         {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
                       </div>
                       <span>{item.title}</span>
-                      {item.title === "Approvals" && approvalCount > 0 && (
-                        <SidebarMenuBadge>{approvalCount}</SidebarMenuBadge>
-                      )}
                     </Link>
                   </SidebarMenuButton>
                 )}
@@ -1436,6 +1418,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t p-0">
+        <SidebarSessionFooter />
+      </SidebarFooter>
     </Sidebar>
   )
 }

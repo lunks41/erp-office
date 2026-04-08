@@ -79,6 +79,7 @@ export const tariffDtSchema = z.object({
   basicRate: z.number().min(0, "Basic Rate must be 0 or greater"),
   minUnit: z.number().min(0, "Min Unit must be 0 or greater"),
   maxUnit: z.number().min(0, "Max Unit must be 0 or greater"),
+  isMultiply: z.boolean(),
   isAdditional: z.boolean(),
   additionalUnit: z.number().min(0, "Additional Unit must be 0 or greater"),
   additionalRate: z.number().min(0, "Additional Rate must be 0 or greater"),

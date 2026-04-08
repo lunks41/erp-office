@@ -54,7 +54,6 @@ import {
   Wallet,
 } from "lucide-react"
 
-import { useApprovalCounts } from "@/hooks/use-approval"
 import {
   Sidebar,
   SidebarContent,
@@ -83,12 +82,6 @@ export const menuData = {
       url: "/dashboard",
       icon: LayoutDashboard,
     },
-    {
-      title: "Approvals",
-      url: "/approvals",
-      icon: FileCheck,
-    },
-
     {
       title: "Document",
       url: "/document",
@@ -346,7 +339,6 @@ export const menuData = {
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { currentCompany } = useAuthStore()
-  const { pendingCount: approvalCount, refreshCounts } = useApprovalCounts()
   const [openMenu, setOpenMenu] = React.useState<string | null>(null)
   const [selectedMenu, setSelectedMenu] = React.useState<string | null>(null)
   const [selectedSubMenu, setSelectedSubMenu] = React.useState<string | null>(
@@ -403,11 +395,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     }
   }, [pathname, getUrlWithCompanyId, platformNavs])
 
-  // Refresh approval counts when component mounts
-  React.useEffect(() => {
-    refreshCounts()
-  }, [refreshCounts])
-
   const handleMenuClick = (menuTitle: string) => {
     setOpenMenu(openMenu === menuTitle ? null : menuTitle)
     setSelectedMenu(menuTitle)
@@ -462,11 +449,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             {item.icon && <item.icon className="h-4 w-4" />}
                           </div>
                           <span>{item.title}</span>
-                          {item.title === "Approvals" && approvalCount > 0 && (
-                            <span className="ml-2 flex h-4 w-4 animate-bounce items-center justify-center rounded-full bg-red-500 text-xs text-white shadow-sm group-data-[collapsed=false]:block group-data-[collapsed=true]:hidden">
-                              {approvalCount}
-                            </span>
-                          )}
                           <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
@@ -526,11 +508,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                         {item.icon && <item.icon className="h-4 w-4" />}
                       </div>
                       <span>{item.title}</span>
-                      {item.title === "Approvals" && approvalCount > 0 && (
-                        <span className="ml-2 flex h-4 w-4 animate-bounce items-center justify-center rounded-full bg-red-500 text-xs text-white shadow-sm group-data-[collapsed=false]:block group-data-[collapsed=true]:hidden">
-                          {approvalCount}
-                        </span>
-                      )}
                     </Link>
                   </SidebarMenuButton>
                 )}

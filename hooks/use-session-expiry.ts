@@ -127,6 +127,13 @@ export function useSessionExpiry() {
         return
       }
 
+      // Token was refreshed (e.g. background refresh) → close any open warning modal
+      if (seconds > WARNING_SECONDS && modalActiveRef.current) {
+        setShowModal(false)
+        modalActiveRef.current = false
+        return
+      }
+
       // Within warning window and not already handled by any tab → show dialog
       if (seconds <= WARNING_SECONDS && !modalActiveRef.current) {
         modalActiveRef.current = true

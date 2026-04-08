@@ -38,6 +38,7 @@ export interface ITariffDt {
   basicRate: number
   minUnit: number
   maxUnit: number
+  isMultiply: boolean
   isAdditional: boolean
   additionalUnit: number
   additionalRate: number
@@ -77,6 +78,7 @@ export interface ITariff {
   basicRate?: number
   minUnit?: number
   maxUnit?: number
+  isMultiply?: boolean
   isAdditional: boolean
   additionalUnit?: number
   additionalRate?: number

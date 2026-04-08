@@ -61,8 +61,6 @@ import {
   Wallet,
 } from "lucide-react"
 
-// Removed unused imports
-import { useApprovalCounts } from "@/hooks/use-approval"
 import {
   Sidebar,
   SidebarContent,
@@ -130,7 +128,6 @@ const getModuleIcon = (moduleCode: string) => {
     admin: Landmark,
     settings: Settings,
     requests: ClipboardList,
-    approvals: FileCheck,
     document: FileText,
     dashboard: LayoutDashboard,
   }
@@ -367,11 +364,6 @@ export const menuData = {
       ],
     },
     {
-      title: "Approvals",
-      url: "/approvals",
-      icon: FileCheck,
-    },
-    {
       title: "Document",
       url: "/document",
       icon: FileText,
@@ -394,7 +386,6 @@ export const menuData = {
 }
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { currentCompany } = useAuthStore()
-  const { pendingCount: approvalCount, refreshCounts } = useApprovalCounts()
   const { transactions, isLoading: transactionsLoading } = useUserTransactions()
   const [openMenu, setOpenMenu] = React.useState<string | null>(null)
   const [selectedMenu, setSelectedMenu] = React.useState<string | null>(null)
@@ -448,10 +439,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       }
     }
   }, [pathname, getUrlWithCompanyId, dynamicMenu])
-  // Refresh approval counts when component mounts
-  React.useEffect(() => {
-    refreshCounts()
-  }, [refreshCounts])
   const handleMenuClick = (menuTitle: string) => {
     setOpenMenu(openMenu === menuTitle ? null : menuTitle)
     setSelectedMenu(menuTitle)
@@ -627,12 +614,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                   )}
                                 </div>
                                 <span>{item.title}</span>
-                                {item.title === "Approvals" &&
-                                  approvalCount > 0 && (
-                                    <span className="ml-2 flex h-4 w-4 animate-bounce items-center justify-center rounded-full bg-red-500 text-xs text-white shadow-sm group-data-[collapsed=false]:block group-data-[collapsed=true]:hidden">
-                                      {approvalCount}
-                                    </span>
-                                  )}
                                 <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                               </SidebarMenuButton>
                             </TooltipTrigger>
@@ -742,12 +723,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                               {item.icon && <item.icon className="h-4 w-4" />}
                             </div>
                             <span>{item.title}</span>
-                            {item.title === "Approvals" &&
-                              approvalCount > 0 && (
-                                <span className="ml-2 flex h-4 w-4 animate-bounce items-center justify-center rounded-full bg-red-500 text-xs text-white shadow-sm group-data-[collapsed=false]:block group-data-[collapsed=true]:hidden">
-                                  {approvalCount}
-                                </span>
-                              )}
                           </Link>
                         </SidebarMenuButton>
                       </TooltipTrigger>

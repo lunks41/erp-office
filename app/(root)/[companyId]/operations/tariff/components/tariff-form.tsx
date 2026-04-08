@@ -36,6 +36,7 @@ import CustomAccordion, {
   CustomAccordionItem,
   CustomAccordionTrigger,
 } from "@/components/custom/custom-accordion"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
@@ -394,7 +395,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
             )}
             className="space-y-3"
           >
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               <CustomerAutocomplete
                 key={`customer-autocomplete-${mode}-${customerId}`}
                 form={form}
@@ -429,8 +430,24 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 isRequired
                 isDisabled={mode === "view" || hasDetails}
               />
+              <div className="col-span-1 grid grid-cols-2 gap-2">
+                <CustomSwitch
+                  form={form}
+                  name="isPrepayment"
+                  label="Is Prepay"
+                  isDisabled={mode === "view"}
+                />
+                <CustomNumberInput
+                  form={form}
+                  name="prepaymentPercentage"
+                  label="Prepay Rate"
+                  isRequired={isPrepayment}
+                  isDisabled={mode === "view" || !isPrepayment}
+                  round={amtDec}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               <ChargeAutocomplete
                 form={form}
                 name="chargeId"
@@ -454,25 +471,6 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 isRequired
                 isDisabled={mode === "view"}
               />
-              <div className="col-span-1 grid grid-cols-2 gap-2">
-                <CustomSwitch
-                  form={form}
-                  name="isPrepayment"
-                  label="Prepayment"
-                  isDisabled={mode === "view"}
-                />
-                <CustomNumberInput
-                  form={form}
-                  name="prepaymentPercentage"
-                  label="Prepayment Rate"
-                  isRequired={isPrepayment}
-                  isDisabled={mode === "view" || !isPrepayment}
-                  round={amtDec}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
               <TransportLocationAutocomplete
                 form={form}
                 name="fromLocationId"
@@ -485,19 +483,22 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 label="To Location"
                 isDisabled={mode === "view"}
               />
+            </div>
+
+            {/* <div className="grid grid-cols-5 gap-2">
               <CustomTextarea
                 form={form}
                 name="remarks"
                 label="Remarks"
                 isDisabled={mode === "view"}
               />
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isActive"
                 label="Active"
                 isDisabled={mode === "view"}
               />
-            </div>
+            </div> */}
 
             {/* Details Section */}
             {mode !== "view" && (

@@ -1871,21 +1871,6 @@ export const useLoanRequestStatusLookup = () => {
     refetchOnWindowFocus: false,
   })
 }
-export const useApprovalStatusTypeLookup = () => {
-  return useQuery<IStatusTypeLookup[]>({
-    queryKey: ["landingtype-lookUp"],
-    placeholderData: keepPreviousData,
-    queryFn: async () => {
-      try {
-        const data = await getData(Lookup.getApprovalStatusType)
-        return data?.data || []
-      } catch (error) {
-        handleApiError(error)
-      }
-    },
-    refetchOnWindowFocus: false,
-  })
-}
 export const useDisbursementLookup = () => {
   return useQuery<IStatusTypeLookup[]>({
     queryKey: ["disbursement-lookUp"],

@@ -405,8 +405,8 @@ export const useAuthStore = create<AuthState>()(
             },
           })
 
-          // Setup automatic token refresh
-          get().setupTokenRefresh()
+          // Note: background token refresh intentionally removed.
+          // The session-expiry popup handles all token refresh at 5-min warning.
         },
 
         /**
@@ -977,7 +977,7 @@ export const useAuthStore = create<AuthState>()(
 
           if (!tokenExpiresAt || refreshInProgress) return
 
-          const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000 // 5 minutes before expiry
+          const TOKEN_REFRESH_BUFFER = 1 * 60 * 1000 // 1 minute before expiry (popup shows at 5 min)
           const timeUntilExpiry = tokenExpiresAt - Date.now()
           const refreshTime = Math.max(
             timeUntilExpiry - TOKEN_REFRESH_BUFFER,
@@ -1123,9 +1123,8 @@ export const useAuthStore = create<AuthState>()(
 
             if (!isValid) {
               get().logOutSuccess()
-            } else {
-              get().setupTokenRefresh()
             }
+            // No background refresh scheduled — session-expiry popup handles it.
           }
 
           // Setup online/offline detection

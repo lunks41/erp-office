@@ -8,7 +8,6 @@ export {
   default as AddressDynamicAutocomplete,
   EntityType,
 } from "./autocomplete-address-dynamic"
-export { default as ApprovalStatusAutocomplete } from "./autocomplete-approval-status"
 export { default as AttendanceStatusAutocomplete } from "./autocomplete-attendance-status"
 export { default as BankAutocomplete } from "./autocomplete-bank"
 export { default as BankChartOfAccountAutocomplete } from "./autocomplete-bank-chartofaccount"

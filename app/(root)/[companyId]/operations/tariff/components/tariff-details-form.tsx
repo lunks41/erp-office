@@ -28,8 +28,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomNumberInput from "@/components/custom/custom-number-input"
-import CustomSwitch from "@/components/custom/custom-switch"
 
 import { TariffDetailsTable } from "./tariff-details-table"
 
@@ -64,6 +64,7 @@ export function TariffDetailsForm({
       basicRate: 0,
       minUnit: 0,
       maxUnit: 0,
+      isMultiply: false,
       isAdditional: false,
       additionalUnit: 0,
       additionalRate: 0,
@@ -84,6 +85,7 @@ export function TariffDetailsForm({
       basicRate: 0,
       minUnit: 0,
       maxUnit: 0,
+      isMultiply: false,
       isAdditional: false,
       additionalUnit: 0,
       additionalRate: 0,
@@ -102,6 +104,7 @@ export function TariffDetailsForm({
       basicRate: detail.basicRate,
       minUnit: detail.minUnit,
       maxUnit: detail.maxUnit,
+      isMultiply: detail.isMultiply,
       isAdditional: detail.isAdditional,
       additionalUnit: detail.additionalUnit,
       additionalRate: detail.additionalRate,
@@ -369,12 +372,22 @@ export function TariffDetailsForm({
                   />
                 </div>
               </div>
-              <div className="bg-card grid grid-cols-3 gap-2 rounded-lg border p-2 shadow-sm">
+              <div className="bg-card grid grid-cols-4 gap-2 rounded-lg border p-2 shadow-sm">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm font-medium">Is Multiply</label>
+                  </div>
+                  <CustomCheckbox
+                    form={detailsForm}
+                    name="isMultiply"
+                    label=""
+                  />
+                </div>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <label className="text-sm font-medium">Additional</label>
                   </div>
-                  <CustomSwitch
+                  <CustomCheckbox
                     form={detailsForm}
                     name="isAdditional"
                     label=""

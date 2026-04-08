@@ -311,7 +311,6 @@ export const Lookup = {
   getComponent: "/master/getcomponentlookup",
   getComponentGroup: "/master/getcomponentgrouplookup",
 
-  getApprovalStatusType: "/master/getapprovalstatuslookup",
   getLoanRequestStatusLookup: "/master/getloanrequeststatuslookup",
   getDisbursementLookup: "/master/getdisbursementlookup",
   getRepaymentStatusLookup: "/master/getrepaymentstatuslookup",
@@ -1561,14 +1560,6 @@ export const HrLeaveApproval = {
   skip: "/hr/leave-approval/skipleaveapproval",
   cancel: "/hr/leave-approval/cancelleaveapproval",
   getWorkflow: "/hr/leave-approval/workflowleaveapproval",
-}
-
-export const Approval = {
-  get: "/approval/my-requests",
-  getPending: "/approval/pending-approvals",
-  getRequestDetail: "/approval/request-detail",
-  takeAction: "/approval/take-action",
-  getCounts: "/approval/counts",
 }
 
 // Payroll Management Endpoints

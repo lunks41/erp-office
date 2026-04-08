@@ -38,9 +38,13 @@ export function SessionExpiryModal({
     }
   }, [isOpen, timeRemaining])
 
+  // hasCountdown transitions false→true after Effect above sets countdown,
+  // which re-triggers the timer effect so the interval actually starts.
+  const hasCountdown = countdown > 0
+
   // Tick down every second; auto-logout when reaches 0
   useEffect(() => {
-    if (!isOpen || countdown <= 0) return
+    if (!isOpen || !hasCountdown) return
 
     const id = setInterval(() => {
       setCountdown((prev) => {
@@ -54,7 +58,7 @@ export function SessionExpiryModal({
     }, 1000)
 
     return () => clearInterval(id)
-  }, [isOpen, onSignOutAction]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, hasCountdown, onSignOutAction])
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)

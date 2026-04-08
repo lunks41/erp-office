@@ -309,10 +309,6 @@ export enum DocumentTransactionId {
   document = 1,
 }
 
-export enum ApprovalsTransactionId {
-  approvals = 1,
-}
-
 export function getModuleAndTransactionId(pathname: string): {
   moduleId: number
   transactionId: number
