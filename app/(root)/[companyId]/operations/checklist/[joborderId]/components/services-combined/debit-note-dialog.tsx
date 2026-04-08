@@ -1202,8 +1202,8 @@ export default function DebitNoteDialog({
           </div>
 
           {/* Table Section */}
-          <div className="bg-card rounded-lg border shadow-sm">
-            <div className="p-3">
+          <div className="">
+            <div className="p-0">
               <DebitNoteTable
                 data={details}
                 onSelect={handleViewDebitNoteDetail}

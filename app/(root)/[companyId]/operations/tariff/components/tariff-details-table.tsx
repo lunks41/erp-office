@@ -54,26 +54,7 @@ export function TariffDetailsTable({
       ),
       size: 100,
     },
-    {
-      accessorKey: "displayRate",
-      header: "Display Rate",
-      cell: ({ row }) => (
-        <div className="truncate text-right">
-          {formatNumber(row.getValue("displayRate"), amtDec)}
-        </div>
-      ),
-      size: 120,
-    },
-    {
-      accessorKey: "basicRate",
-      header: "Basic Rate",
-      cell: ({ row }) => (
-        <div className="truncate text-right">
-          {formatNumber(row.getValue("basicRate"), amtDec)}
-        </div>
-      ),
-      size: 120,
-    },
+
     {
       accessorKey: "minUnit",
       header: "Min Unit",
@@ -95,8 +76,29 @@ export function TariffDetailsTable({
       size: 120,
     },
     {
+      accessorKey: "displayRate",
+      header: "Display Rate",
+      cell: ({ row }) => (
+        <div className="truncate text-right">
+          {formatNumber(row.getValue("displayRate"), amtDec)}
+        </div>
+      ),
+      size: 120,
+    },
+    {
+      accessorKey: "basicRate",
+      header: "Basic Rate",
+      cell: ({ row }) => (
+        <div className="truncate text-right">
+          {formatNumber(row.getValue("basicRate"), amtDec)}
+        </div>
+      ),
+      size: 120,
+    },
+
+    {
       accessorKey: "isAdditional",
-      header: "Additional",
+      header: "Is Add.?",
       cell: ({ row }) => (
         <div className="text-center">
           <Badge
@@ -110,7 +112,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "additionalUnit",
-      header: "Additional Unit",
+      header: "Add. Unit",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("additionalUnit"), amtDec)}
@@ -120,13 +122,25 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "additionalRate",
-      header: "Additional Rate",
+      header: "Add. Rate",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("additionalRate"), amtDec)}
         </div>
       ),
       size: 120,
+    },
+    {
+      accessorKey: "isMultiply",
+      header: "Is Multiply?",
+      cell: ({ row }) => (
+        <div className="text-center">
+          <Badge variant={row.getValue("isMultiply") ? "default" : "secondary"}>
+            {row.getValue("isMultiply") ? "Yes" : "No"}
+          </Badge>
+        </div>
+      ),
+      size: 100,
     },
   ]
 

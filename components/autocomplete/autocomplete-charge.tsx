@@ -253,16 +253,14 @@ export default function ChargeAutocomplete<T extends Record<string, unknown>>({
   )
 
   // Memoize getValue to prevent unnecessary recalculations
+  // Uses watchedValue (reactive via form.watch) so it updates when form.reset() is called
   const getValue = React.useCallback(() => {
-    if (form && name) {
-      const formValue = form.getValues(name)
-      // Convert form value to string for comparison
-      return (
-        options.find((option) => option.value === formValue?.toString()) || null
-      )
-    }
-    return null
-  }, [form, name, options])
+    return (
+      options.find(
+        (option) => option.value === watchedValue?.toString()
+      ) || null
+    )
+  }, [options, watchedValue])
 
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)

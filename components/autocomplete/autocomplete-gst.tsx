@@ -203,15 +203,14 @@ export default function GSTAutocomplete<T extends Record<string, unknown>>({
     [form, name, onChangeEvent, gst]
   )
 
+  // Use form.watch() to subscribe to form value changes (reactive, picks up form.reset())
+  const watchedValue = form && name ? form.watch(name) : undefined
+
   const getValue = React.useCallback(() => {
-    if (form && name) {
-      const formValue = form.getValues(name)
-      return (
-        options.find((option) => option.value === formValue?.toString()) || null
-      )
-    }
-    return null
-  }, [form, name, options])
+    return (
+      options.find((option) => option.value === watchedValue?.toString()) || null
+    )
+  }, [options, watchedValue])
 
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)

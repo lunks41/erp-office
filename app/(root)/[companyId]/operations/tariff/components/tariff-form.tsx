@@ -36,10 +36,8 @@ import CustomAccordion, {
   CustomAccordionItem,
   CustomAccordionTrigger,
 } from "@/components/custom/custom-accordion"
-import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
-import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { TariffDetailsForm } from "./tariff-details-form"
 
@@ -372,7 +370,6 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                     ? data.data_details
                     : [],
                 }
-                toast.success("Form validation passed! Saving tariff...")
                 onValidationError?.(false)
                 onSubmit(formData)
               },
@@ -447,42 +444,50 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 gap-2">
-              <ChargeAutocomplete
-                form={form}
-                name="chargeId"
-                label="Charge"
-                isRequired
-                isDisabled={mode === "view"}
-              />
-
-              <VisaAutocomplete
-                form={form}
-                name="visaId"
-                label="Visa Type"
-                isRequired={false}
-                isDisabled={mode === "view"}
-              />
-
-              <UomAutocomplete
-                form={form}
-                name="uomId"
-                label="Unit of Measure"
-                isRequired
-                isDisabled={mode === "view"}
-              />
-              <TransportLocationAutocomplete
-                form={form}
-                name="fromLocationId"
-                label="From Location"
-                isDisabled={mode === "view"}
-              />
-              <TransportLocationAutocomplete
-                form={form}
-                name="toLocationId"
-                label="To Location"
-                isDisabled={mode === "view"}
-              />
+            <div className="grid grid-cols-6 gap-2">
+              <div className="col-span-2">
+                <ChargeAutocomplete
+                  form={form}
+                  name="chargeId"
+                  label="Charge"
+                  isRequired
+                  isDisabled={mode === "view"}
+                />
+              </div>
+              <div className="col-span-1">
+                <UomAutocomplete
+                  form={form}
+                  name="uomId"
+                  label="Unit"
+                  isRequired
+                  isDisabled={mode === "view"}
+                />
+              </div>
+              <div className="col-span-1">
+                <VisaAutocomplete
+                  form={form}
+                  name="visaId"
+                  label="Visa Type"
+                  isRequired={false}
+                  isDisabled={mode === "view"}
+                />
+              </div>
+              <div className="col-span-1">
+                <TransportLocationAutocomplete
+                  form={form}
+                  name="fromLocationId"
+                  label="From Location"
+                  isDisabled={mode === "view"}
+                />
+              </div>
+              <div className="col-span-1">
+                <TransportLocationAutocomplete
+                  form={form}
+                  name="toLocationId"
+                  label="To Location"
+                  isDisabled={mode === "view"}
+                />
+              </div>
             </div>
 
             {/* <div className="grid grid-cols-5 gap-2">
@@ -555,85 +560,62 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                       <CustomAccordion
                         type="single"
                         collapsible
-                        className="bg-muted/30 rounded-lg border-0"
+                        className="rounded-md border border-slate-200"
                       >
                         <CustomAccordionItem
                           value="audit-info"
                           className="border-none"
                         >
-                          <CustomAccordionTrigger className="hover:bg-muted/50 rounded-lg px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-medium">
-                                Audit Trail
+                          <CustomAccordionTrigger className="hover:bg-muted/30 rounded-t-md px-4 py-2">
+                            <div className="mr-2 flex flex-1 items-center justify-between gap-3">
+                              <span className="text-sm font-medium text-slate-600">
+                                View Audit Trail
                               </span>
-                              <div className="flex items-center gap-2">
-                                {initialData.createDate && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="px-2 py-1 text-xs"
-                                  >
-                                    Created
-                                  </Badge>
-                                )}
-                                {initialData.editDate && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="px-2 py-1 text-xs"
-                                  >
-                                    Modified
-                                  </Badge>
-                                )}
-                                {initialData.editVersion > 0 && (
-                                  <Badge
-                                    variant="destructive"
-                                    className="px-2 py-1 text-xs"
-                                  >
-                                    Edit Version No. {initialData.editVersion}
-                                  </Badge>
-                                )}
+                              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                <span>Created</span>
+                                <span>&bull;</span>
+                                <span>Modified</span>
                               </div>
                             </div>
                           </CustomAccordionTrigger>
-                          <CustomAccordionContent className="px-4 pb-4">
-                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                              {initialData.createDate && (
-                                <div className="bg-background rounded-md border p-2">
-                                  <div className="space-y-1">
-                                    <p className="text-muted-foreground text-xs">
-                                      Created By
-                                    </p>
-                                    <p className="text-sm font-semibold">
-                                      {initialData.createBy}
-                                    </p>
-                                    <p className="text-muted-foreground text-xs">
-                                      {format(
-                                        new Date(initialData.createDate),
-                                        datetimeFormat
-                                      )}
-                                    </p>
-                                  </div>
+                          <CustomAccordionContent className="px-4 pb-0">
+                            <div className="grid grid-cols-1 gap-4 border-t py-2 md:grid-cols-2">
+                              <div className="space-y-1">
+                                <p className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+                                  Created By
+                                </p>
+                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                  <span className="font-semibold text-slate-700">
+                                    {initialData.createBy || "-"}
+                                  </span>
+                                  <span className="text-xs">
+                                    {initialData.createDate
+                                      ? format(
+                                          new Date(initialData.createDate),
+                                          datetimeFormat
+                                        )
+                                      : "-"}
+                                  </span>
                                 </div>
-                              )}
-                              {initialData.editBy && (
-                                <div className="bg-background rounded-md border p-2">
-                                  <div className="space-y-1">
-                                    <p className="text-muted-foreground text-xs">
-                                      Modified By
-                                    </p>
-                                    <p className="text-sm font-semibold">
-                                      {initialData.editBy}
-                                    </p>
-                                    <p className="text-muted-foreground text-xs">
-                                      {initialData.editDate
-                                        ? format(
-                                            new Date(initialData.editDate),
-                                            datetimeFormat
-                                          )
-                                        : "-"}
-                                    </p>
-                                  </div>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+                                  Last Modified By
+                                </p>
+                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                  <span className="font-semibold text-slate-700">
+                                    {initialData.editBy || "-"}
+                                  </span>
+                                  <span className="text-xs">
+                                    {initialData.editDate
+                                      ? format(
+                                          new Date(initialData.editDate),
+                                          datetimeFormat
+                                        )
+                                      : "-"}
+                                  </span>
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </CustomAccordionContent>
                         </CustomAccordionItem>
