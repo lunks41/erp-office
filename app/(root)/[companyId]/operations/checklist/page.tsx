@@ -204,31 +204,37 @@ export default function ChecklistPage() {
       All: apiData.length,
       Pending: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Pending.toString() && job.isActive === true
+          job.jobStatusName === OperationsStatus.Pending.toString() &&
+          job.isActive === true
       ).length,
       Confirmed: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true
+          job.jobStatusName === OperationsStatus.Confirmed.toString() &&
+          job.isActive === true
       ).length,
       Completed: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Completed.toString() && job.isActive === true
+          job.jobStatusName === OperationsStatus.Completed.toString() &&
+          job.isActive === true
       ).length,
       Cancelled: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Cancelled.toString() && job.isActive === true
+          job.jobStatusName === OperationsStatus.Cancelled.toString() &&
+          job.isActive === true
       ).length,
       "Cancel With Service": apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.CancelWithService.toString() && job.isActive === true
+          job.jobStatusName === OperationsStatus.CancelWithService.toString() &&
+          job.isActive === true
       ).length,
       Posted: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true && job.isPost === true
+          job.jobStatusName === OperationsStatus.Confirmed.toString() &&
+          job.isActive === true &&
+          job.isPost === true
       ).length,
-      InActive: apiData.filter(
-        (job: IJobOrderHd) => job.isActive === false
-      ).length,
+      InActive: apiData.filter((job: IJobOrderHd) => job.isActive === false)
+        .length,
     }
     return counts
   }, [apiData])
@@ -236,7 +242,7 @@ export default function ChecklistPage() {
   const statusCounts = getStatusCounts
 
   return (
-    <div className="@container mx-auto space-y-1 px-2 pt-2 pb-4 sm:space-y-1 sm:px-4 sm:pt-2 sm:pb-4 lg:px-6">
+    <div className="@container mx-auto flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-1 overflow-hidden px-2 pt-2 pb-2 sm:px-4 lg:px-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
@@ -358,7 +364,7 @@ export default function ChecklistPage() {
       </div>
 
       {/* Status Tabs */}
-      <div>
+      <div className="shrink-0">
         <Tabs
           value={selectedStatus}
           onValueChange={handleStatusChange}
@@ -446,7 +452,7 @@ export default function ChecklistPage() {
       </div>
 
       {/* Data Table */}
-      <div className="bg-card rounded-lg border shadow-sm">
+      <div className="bg-card flex min-h-0 flex-1 flex-col rounded-lg border shadow-sm">
         {isLoading || isLoadingJobOrder ? (
           <div className="p-6">
             <div className="mb-4 flex items-center gap-2">
@@ -487,7 +493,7 @@ export default function ChecklistPage() {
             </div>
           </div>
         ) : (
-          <div className="p-2">
+          <div className="flex min-h-0 flex-1 flex-col p-2">
             <ChecklistTable
               data={apiData}
               isLoading={isRefetchingJobOrder}

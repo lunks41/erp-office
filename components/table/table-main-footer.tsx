@@ -38,7 +38,7 @@ export function MainTableFooter({
   extraRightContent,
 }: MainTableFooterProps) {
   return (
-    <div className="sticky bottom-0 z-20 mt-1 bg-background pt-2">
+    <div className="relative z-50 mt-1 border-t bg-background pt-2">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <span className="shrink-0 whitespace-nowrap">

@@ -79,6 +79,15 @@ const nextConfig: NextConfig = {
     // Add local domains for development
     domains: ["localhost"],
   },
+
+  // Expose app version to client components (footer/sidebar).
+  // Priority: explicit .env value -> package.json version -> hard fallback.
+  env: {
+    NEXT_PUBLIC_APP_VERSION:
+      process.env.NEXT_PUBLIC_APP_VERSION ??
+      process.env.npm_package_version ??
+      "1.2.0",
+  },
 }
 
 export default nextConfig

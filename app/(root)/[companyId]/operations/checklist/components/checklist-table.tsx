@@ -59,19 +59,37 @@ export function ChecklistTable({
     return data.filter((job: IJobOrderHd) => {
       switch (selectedStatus) {
         case "Pending":
-          return (job.jobStatusName === OperationsStatus.Pending.toString() && job.isActive === true)
+          return (
+            job.jobStatusName === OperationsStatus.Pending.toString() &&
+            job.isActive === true
+          )
         case "Completed":
-          return (job.jobStatusName === OperationsStatus.Completed.toString() && job.isActive === true)
+          return (
+            job.jobStatusName === OperationsStatus.Completed.toString() &&
+            job.isActive === true
+          )
         case "Cancelled":
-          return (job.jobStatusName === OperationsStatus.Cancelled.toString() && job.isActive === true)
+          return (
+            job.jobStatusName === OperationsStatus.Cancelled.toString() &&
+            job.isActive === true
+          )
         case "Cancel With Service":
           return (
-            job.jobStatusName === OperationsStatus.CancelWithService.toString() && job.isActive === true
+            job.jobStatusName ===
+              OperationsStatus.CancelWithService.toString() &&
+            job.isActive === true
           )
         case "Confirmed":
-          return (job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true)
+          return (
+            job.jobStatusName === OperationsStatus.Confirmed.toString() &&
+            job.isActive === true
+          )
         case "Posted":
-          return (job.jobStatusName === OperationsStatus.Confirmed.toString() && job.isActive === true && job.isPost === true)
+          return (
+            job.jobStatusName === OperationsStatus.Confirmed.toString() &&
+            job.isActive === true &&
+            job.isPost === true
+          )
         case "InActive":
           return job.isActive === false
         default:
@@ -471,7 +489,7 @@ export function ChecklistTable({
   )
 
   return (
-    <div className="text-xs">
+    <div className="flex min-h-0 flex-1 flex-col text-xs">
       <JobTable
         data={filteredData}
         columns={columns}
@@ -479,7 +497,7 @@ export function ChecklistTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.checklist}
-        tableHeight={350}
+
         emptyMessage="No job orders found."
         onRefreshAction={onRefreshAction}
         onCreateAction={canCreate ? onCreateAction : undefined}

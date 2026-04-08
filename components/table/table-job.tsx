@@ -54,7 +54,6 @@ interface JobTableProps<T> {
   onCreateAction?: () => void
   hideCreateButton?: boolean
   tableHeightClassName?: string
-  tableHeight?: number
 }
 
 export function JobTable<T>({
@@ -68,7 +67,6 @@ export function JobTable<T>({
   onRefreshAction,
   onCreateAction,
   tableHeightClassName = "",
-  tableHeight = 350,
 }: JobTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -264,7 +262,7 @@ export function JobTable<T>({
   }, [table])
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden">
       {/* Table Header with Search, Export, and Column Management */}
       <JobTableHeader
         onRefreshAction={onRefreshAction}
@@ -279,14 +277,21 @@ export function JobTable<T>({
         onResetLayout={handleResetLayout}
       />
 
-      <DndContext
+      <div className="min-h-0 flex-1">
+        <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div style={{ height: `${tableHeight}px` }} className={`${tableHeightClassName} overflow-auto rounded-lg border border-border/80 bg-background shadow-xs`}>
+          <div className="flex h-full min-h-0 flex-col">
+            <div
+              className={`${tableHeightClassName} min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-border/80 bg-background shadow-xs`}
+            >
             {/* Fixed Header */}
-            <table className="w-full table-fixed border-collapse">
+            <table
+              className="min-w-full border-collapse"
+              style={{ width: table.getTotalSize() }}
+            >
                 <colgroup>
                   {table.getAllLeafColumns().map((col) => (
                     <col
@@ -444,9 +449,11 @@ export function JobTable<T>({
                   )}
                 </TableBody>
             </table>
+            </div>
           </div>
         </DndContext>
-      <div className="mt-1.5">
+      </div>
+      <div className="mt-1.5 shrink-0">
         <MainTableFooter
           currentPage={currentPage}
           totalPages={Math.ceil(data.length / pageSize)}
