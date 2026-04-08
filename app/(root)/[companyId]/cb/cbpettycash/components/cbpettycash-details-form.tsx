@@ -647,23 +647,43 @@ const CbPettyCashDetailsForm = React.forwardRef<
     // Watch glId to detect changes
     const watchedGlId = form.watch("glId")
 
-    // Set isJobSpecific based on chart of account when editing detail is loaded or glId changes
+    //this code added into useEffect below to set isJobSpecific based on the currently selected chart of account.
+    // if (editingDetail && editingDetail.glId && editingDetail.glId > 0) {
+    //     const glData = chartOfAccounts?.find(
+    //       (gl: IChartOfAccountLookup) => gl.glId === editingDetail.glId
+    //     )
+    //     if (glData) {
+    //       setIsJobSpecific(glData.isJobSpecific || false)
+    //     }
+    //   } else if (watchedGlId && watchedGlId > 0 && chartOfAccounts) {
+    //     const glData = chartOfAccounts?.find(
+    //       (gl: IChartOfAccountLookup) => gl.glId === watchedGlId
+    //     )
+    //     if (glData) {
+    //       setIsJobSpecific(glData.isJobSpecific || false)
+    //     }
+    //   }
+
+    // Set isJobSpecific based on the currently selected chart of account.
+    // In edit mode, watchedGlId must take priority over editingDetail.glId
+    // so switching GL updates the conditional rendering immediately.
     useEffect(() => {
-      if (editingDetail && editingDetail.glId && editingDetail.glId > 0) {
-        const glData = chartOfAccounts?.find(
-          (gl: IChartOfAccountLookup) => gl.glId === editingDetail.glId
-        )
-        if (glData) {
-          setIsJobSpecific(glData.isJobSpecific || false)
-        }
-      } else if (watchedGlId && watchedGlId > 0 && chartOfAccounts) {
-        const glData = chartOfAccounts?.find(
-          (gl: IChartOfAccountLookup) => gl.glId === watchedGlId
-        )
-        if (glData) {
-          setIsJobSpecific(glData.isJobSpecific || false)
-        }
+      if (!chartOfAccounts) return
+
+      const glIdToEvaluate =
+        watchedGlId && watchedGlId > 0
+          ? watchedGlId
+          : (editingDetail?.glId ?? 0)
+
+      if (!glIdToEvaluate || glIdToEvaluate <= 0) {
+        setIsJobSpecific(false)
+        return
       }
+
+      const glData = chartOfAccounts.find(
+        (gl: IChartOfAccountLookup) => gl.glId === glIdToEvaluate
+      )
+      setIsJobSpecific(glData?.isJobSpecific || false)
     }, [editingDetail, chartOfAccounts, watchedGlId])
 
     // Reset form when editingDetail changes
@@ -1722,7 +1742,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
             )}
 
             {/* Barge */}
-            {visible?.m_VesselId && (
+            {visible?.m_VesselId && isJobSpecific && (
               <VesselAutocomplete
                 form={form}
                 name="vesselId"
