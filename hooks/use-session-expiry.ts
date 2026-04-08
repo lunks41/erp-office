@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
+import { toast } from "sonner"
 
 import { refreshToken } from "@/lib/auth-helpers"
 
@@ -116,8 +117,12 @@ export function useSessionExpiry() {
     const check = () => {
       const seconds = getSecondsUntilExpiry(token)
 
-      // Token already expired → force logout immediately
+      // Token already expired → notify and force logout immediately
       if (seconds <= 0) {
+        toast.error("Session Expired", {
+          description: "Your session has expired. Please log in again.",
+          duration: 3000,
+        })
         doSignOut()
         return
       }

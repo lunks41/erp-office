@@ -15,7 +15,8 @@
       "Read(public/**)",
       "Read(styles/**)",
       "Read(types/**)",
-      "Read(utils/**)"
+      "Read(utils/**)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

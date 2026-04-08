@@ -9,6 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
+import { CompanyDocumentTitle } from "@/components/layout/company-document-title"
 import { ChangelogButton } from "@/components/layout/changelog-button"
 import { HeaderUserInfo } from "@/components/layout/header-userinfo"
 import { MobileNav } from "@/components/layout/mobile-nav"
@@ -42,6 +43,7 @@ export function CompanyAppChrome({
   if (isReportWindowRoute(pathname)) {
     return (
       <>
+        <CompanyDocumentTitle />
         <link rel="stylesheet" href={KENDO_THEME_STYLESHEET} />
         <div className="bg-background h-screen w-screen overflow-hidden">
           {children}
@@ -52,6 +54,7 @@ export function CompanyAppChrome({
 
   return (
     <>
+      <CompanyDocumentTitle />
       <SkipLink href="#main-content">Skip to main content</SkipLink>
       <SkipLink href="#navigation">Skip to navigation</SkipLink>
       <SidebarProvider defaultOpen={defaultSidebarOpen}>

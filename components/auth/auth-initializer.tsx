@@ -3,6 +3,7 @@ import React, { useEffect, useMemo } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { jwtDecode } from "@/lib/auth-helpers"
+import { toast } from "sonner"
 /**
  * Auth Initializer Component
  *
@@ -65,6 +66,10 @@ export function AuthInitializer() {
         }
         const isExpired = Date.now() >= decoded.exp * 1000
         if (isExpired) {
+          toast.error("Session Expired", {
+            description: "Your session has expired. Please log in again.",
+            duration: 3000,
+          })
           logOutSuccess()
           router.push("/login")
           return
