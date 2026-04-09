@@ -5,19 +5,12 @@ import { ITaxDt } from "@/interfaces/tax"
 import { TaxDtSchemaType, taxDtSchema } from "@/schemas/tax"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
+import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { TaxAutocomplete } from "@/components/autocomplete"
-import CustomAccordion, {
-  CustomAccordionContent,
-  CustomAccordionItem,
-  CustomAccordionTrigger,
-} from "@/components/custom/custom-accordion"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 
@@ -32,8 +25,8 @@ interface TaxDtFormProps {
 export function TaxDtForm({
   initialData,
   submitAction,
-  onCancelAction,
-  isSubmitting,
+  _onCancelAction,
+  _isSubmitting,
   isReadOnly = false,
 }: TaxDtFormProps) {
   const { decimals } = useAuthStore()
@@ -109,7 +102,7 @@ export function TaxDtForm({
                 name="taxId"
                 label="Tax"
                 isRequired={true}
-                isDisabled={isReadOnly || isSubmitting}
+                isDisabled={isReadOnly || _isSubmitting}
               />
 
               <CustomNumberInput
@@ -117,7 +110,7 @@ export function TaxDtForm({
                 name="taxPercentage"
                 label="Tax Percentage"
                 isRequired
-                isDisabled={isReadOnly || isSubmitting}
+                isDisabled={isReadOnly || _isSubmitting}
                 round={priceDec}
               />
 
@@ -125,105 +118,12 @@ export function TaxDtForm({
                 form={form}
                 name="validFrom"
                 label="Valid From"
-                isDisabled={isReadOnly || isSubmitting}
+                isDisabled={isReadOnly || _isSubmitting}
                 isRequired
               />
             </div>
             {/* Audit Information Section */}
-            {initialData &&
-              (initialData.createBy ||
-                initialData.createDate ||
-                initialData.editBy ||
-                initialData.editDate) && (
-                <div className="space-y-2">
-                  <div className="border-border border-b pb-4"></div>
-
-                  <CustomAccordion
-                    type="single"
-                    collapsible
-                    className="border-border bg-muted/50 rounded-lg border"
-                  >
-                    <CustomAccordionItem
-                      value="audit-info"
-                      className="border-none"
-                    >
-                      <CustomAccordionTrigger className="hover:bg-muted rounded-lg px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">View Audit Trail</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {initialData.createDate ? "Created" : ""}
-                            {initialData.editDate ? " • Modified" : ""}
-                          </Badge>
-                        </div>
-                      </CustomAccordionTrigger>
-                      <CustomAccordionContent className="px-6 pb-4">
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                          {initialData.createDate && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-foreground text-sm font-medium">
-                                  Created By
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className="font-normal"
-                                >
-                                  {initialData.createBy}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                {format(
-                                  new Date(initialData.createDate),
-                                  datetimeFormat
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {initialData.editBy && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-foreground text-sm font-medium">
-                                  Last Modified By
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className="font-normal"
-                                >
-                                  {initialData.editBy}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                {initialData.editDate
-                                  ? format(
-                                      new Date(initialData.editDate),
-                                      datetimeFormat
-                                    )
-                                  : "-"}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </CustomAccordionContent>
-                    </CustomAccordionItem>
-                  </CustomAccordion>
-                </div>
-              )}
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancelAction}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            {!isReadOnly && (
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            )}
+            <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
           </div>
         </form>
       </Form>

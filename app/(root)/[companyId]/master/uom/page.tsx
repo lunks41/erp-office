@@ -84,7 +84,22 @@ export default function UomPage() {
     }
   }, [defaults?.common?.masterGridTotalRecords])
 
-  
+  // Filter handlers
+  const handleUomFilterChange = useCallback(
+    (newFilters: { search?: string; sortOrder?: string }) => {
+      setFilters(newFilters as IUomFilter)
+    },
+    []
+  )
+
+  const handleUomDtFilterChange = useCallback(
+    (newFilters: { search?: string; sortOrder?: string }) => {
+      setDtFilters(newFilters as IUomFilter)
+      setDtCurrentPage(1) // Reset to first page when filtering
+    },
+    []
+  )
+
   const handleUomFilterChangeSearchSubmit = useCallback(() => {
     const normalizedSearch = uomSearchInput.trim() || undefined
     handleUomFilterChange({
@@ -92,7 +107,6 @@ export default function UomPage() {
       sortOrder: filters.sortOrder,
     })
   }, [handleUomFilterChange, filters.sortOrder, uomSearchInput])
-
 
   const handleUomDtFilterChangeSearchSubmit = useCallback(() => {
     const normalizedSearch = uomDtSearchInput.trim() || undefined
@@ -230,22 +244,6 @@ export default function UomPage() {
     setSelectedUomDt(uomDt)
     setIsDtModalOpen(true)
   }
-
-  // Filter handlers
-  const handleUomFilterChange = useCallback(
-    (newFilters: { search?: string; sortOrder?: string }) => {
-      setFilters(newFilters as IUomFilter)
-    },
-    []
-  )
-
-  const handleUomDtFilterChange = useCallback(
-    (newFilters: { search?: string; sortOrder?: string }) => {
-      setDtFilters(newFilters as IUomFilter)
-      setDtCurrentPage(1) // Reset to first page when filtering
-    },
-    []
-  )
 
   // Helper function for API responses
   const handleApiResponse = (response: ApiResponse<IUom | IUomDt>) => {

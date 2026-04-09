@@ -5,11 +5,9 @@ import { ISupplier } from "@/interfaces/supplier"
 import { supplierSchema } from "@/schemas/supplier"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { Badge } from "@/components/ui/badge"
 import { Form } from "@/components/ui/form"
 import {
   AccountSetupAutocomplete,
@@ -21,15 +19,11 @@ import {
   default as CustomerAutocomplete,
   default as SupplierAutocomplete,
 } from "@/components/autocomplete/autocomplete-supplier"
-import SupplierCodeLookupInput from "@/components/lookup/supplier-code-lookup-input"
-import CustomAccordion, {
-  CustomAccordionContent,
-  CustomAccordionItem,
-  CustomAccordionTrigger,
-} from "@/components/custom/custom-accordion"
+import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomInput from "@/components/custom/custom-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import SupplierCodeLookupInput from "@/components/lookup/supplier-code-lookup-input"
 
 interface SupplierFormProps {
   initialData?: ISupplier | null
@@ -251,84 +245,13 @@ export default function SupplierForm({
             </div>
 
             {/* Audit Information Section */}
-            {initialData &&
-              (initialData.createBy ||
-                initialData.createDate ||
-                initialData.editBy ||
-                initialData.editDate) && (
-                <div className="space-y-2">
-                  <div className="border-border border-b pb-4"></div>
-
-                  <CustomAccordion
-                    type="single"
-                    collapsible
-                    className="border-border bg-muted/50 rounded-lg border"
-                  >
-                    <CustomAccordionItem
-                      value="audit-info"
-                      className="border-none"
-                    >
-                      <CustomAccordionTrigger className="hover:bg-muted rounded-lg px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">View Audit Trail</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {initialData.createDate ? "Created" : ""}
-                            {initialData.editDate ? " • Modified" : ""}
-                          </Badge>
-                        </div>
-                      </CustomAccordionTrigger>
-                      <CustomAccordionContent className="px-6 pb-4">
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                          {initialData.createDate && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-foreground text-sm font-medium">
-                                  Created By
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className="font-normal"
-                                >
-                                  {initialData.createBy}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                {format(
-                                  new Date(initialData.createDate),
-                                  datetimeFormat
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {initialData.editBy && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-foreground text-sm font-medium">
-                                  Last Modified By
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className="font-normal"
-                                >
-                                  {initialData.editBy}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                {initialData.editDate
-                                  ? format(
-                                      new Date(initialData.editDate),
-                                      datetimeFormat
-                                    )
-                                  : "-"}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </CustomAccordionContent>
-                    </CustomAccordionItem>
-                  </CustomAccordion>
-                </div>
-              )}
+            <AuditTrailAccordion
+              createBy={initialData?.createBy}
+              createDate={initialData?.createDate}
+              editBy={initialData?.editBy}
+              editDate={initialData?.editDate}
+              datetimeFormat={datetimeFormat}
+            />
           </div>
 
           {/* Hidden submit button for external trigger */}

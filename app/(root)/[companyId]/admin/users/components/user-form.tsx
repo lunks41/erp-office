@@ -5,11 +5,10 @@ import { IUser } from "@/interfaces/admin"
 import { UserSchemaType, userSchema } from "@/schemas/admin"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
 import { Key } from "lucide-react"
 import { useForm } from "react-hook-form"
 
-import { Badge } from "@/components/ui/badge"
+import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -23,11 +22,6 @@ import {
   EmployeeAutocomplete,
   UserRoleAutocomplete,
 } from "@/components/autocomplete"
-import CustomAccordion, {
-  CustomAccordionContent,
-  CustomAccordionItem,
-  CustomAccordionTrigger,
-} from "@/components/custom/custom-accordion"
 import CustomInput from "@/components/custom/custom-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
@@ -216,78 +210,13 @@ export function UserForm({
                 initialData.createDate ||
                 initialData.editBy ||
                 initialData.editDate) && (
-                <div className="space-y-6">
-                  <div className="border-border border-b pb-4"></div>
-
-                  <CustomAccordion
-                    type="single"
-                    collapsible
-                    className="border-border bg-muted/50 rounded-lg border"
-                  >
-                    <CustomAccordionItem
-                      value="audit-info"
-                      className="border-none"
-                    >
-                      <CustomAccordionTrigger className="hover:bg-muted rounded-lg px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">View Audit Trail</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {initialData.createDate ? "Created" : ""}
-                            {initialData.editDate ? " • Modified" : ""}
-                          </Badge>
-                        </div>
-                      </CustomAccordionTrigger>
-                      <CustomAccordionContent className="px-6 pb-4">
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                          {initialData.createDate && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-foreground text-sm font-medium">
-                                  Created By
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className="font-normal"
-                                >
-                                  {initialData.createBy}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                {format(
-                                  new Date(initialData.createDate),
-                                  datetimeFormat
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {initialData.editBy && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-foreground text-sm font-medium">
-                                  Last Modified By
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className="font-normal"
-                                >
-                                  {initialData.editBy}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                {initialData.editDate
-                                  ? format(
-                                      new Date(initialData.editDate),
-                                      datetimeFormat
-                                    )
-                                  : "-"}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </CustomAccordionContent>
-                    </CustomAccordionItem>
-                  </CustomAccordion>
-                </div>
+                <AuditTrailAccordion
+                  createBy={initialData?.createBy}
+                  createDate={initialData?.createDate}
+                  editBy={initialData?.editBy}
+                  editDate={initialData?.editDate}
+                  datetimeFormat={datetimeFormat}
+                />
               )}
           </fieldset>
           {/* Action Buttons Section */}
@@ -321,11 +250,11 @@ export function UserForm({
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                        {initialData ? "Updating..." : "Creating..."}
+                        Saving...
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        {initialData ? "Update User" : "Create User"}
+                        {initialData ? "Edit" : "Add"}
                       </div>
                     )}
                   </Button>

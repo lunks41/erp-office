@@ -1,5 +1,3 @@
-import {
-  ApiResponse } from "@/interfaces/auth"
 import { IGlTransactionDetails } from "@/interfaces/history"
 import { useAuthStore } from "@/stores/auth-store"
 
@@ -40,12 +38,7 @@ export default function GLPostDetails({ creditNoteId }: GLPostDetailsProps) {
       creditNoteId
     )
 
-  const { data: glPostDetailsData } =
-    (glPostDetails as ApiResponse<IGlTransactionDetails>) ?? {
-      result: 0,
-      message: "",
-      data: [],
-    }
+  const glPostDetailsData = glPostDetails?.data ?? []
 
   // const {
   //   result: glPostDetailsResult,
@@ -75,7 +68,7 @@ export default function GLPostDetails({ creditNoteId }: GLPostDetailsProps) {
       </div>
       <div className={HISTORY_SECTION_CONTENT_CLASS}>
         <BasicTable
-          data={glPostDetailsData || []}
+          data={glPostDetailsData}
           columns={columns}
           isLoading={false}
           moduleId={moduleId}
@@ -86,7 +79,9 @@ export default function GLPostDetails({ creditNoteId }: GLPostDetailsProps) {
           showHeader={true}
           showFooter={false}
           maxHeight={HISTORY_EMBEDDED_TABLE_MAX_HEIGHT}
-          pageSizeOption={HISTORY_EMBEDDED_PAGE_SIZE}
+          pageSizeOption={
+            glPostDetailsData.length || HISTORY_EMBEDDED_PAGE_SIZE
+          }
         />
       </div>
     </div>

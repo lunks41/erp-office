@@ -1,24 +1,19 @@
 "use client"
 
-import React, { forwardRef, useEffect, useImperativeHandle } from "react"
+import { forwardRef, useEffect, useImperativeHandle } from "react"
 import { ITemplateHd } from "@/interfaces/template"
 import { TemplateHdSchemaType, templateHdSchema } from "@/schemas/template"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Form } from "@/components/ui/form"
 import { ChargeAutocomplete, TaskAutocomplete } from "@/components/autocomplete"
-import CustomAccordion, {
-  CustomAccordionContent,
-  CustomAccordionItem,
-  CustomAccordionTrigger,
-} from "@/components/custom/custom-accordion"
+import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomInput from "@/components/custom/custom-input"
-import CustomSwitch from "@/components/custom/custom-switch"
 
 import { TemplateDetailsForm } from "./template-details-form"
 
@@ -170,37 +165,44 @@ export const TemplateForm = forwardRef<TemplateFormRef, TemplateFormProps>(
             )}
             className="space-y-3"
           >
-            <div className="grid grid-cols-3 gap-2">
-              <CustomInput
-                form={form}
-                name="templateName"
-                label="Template Name"
-                isRequired
-                isDisabled={mode === "view"}
-              />
-              <TaskAutocomplete
-                form={form}
-                name="taskId"
-                label="Task"
-                isRequired
-                isDisabled={mode === "view" || hasDetails}
-              />
-              <ChargeAutocomplete
-                form={form}
-                name="chargeId"
-                label="Charge"
-                isRequired
-                isDisabled={mode === "view" || hasDetails}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <CustomSwitch
-                form={form}
-                name="isActive"
-                label="Active"
-                isDisabled={mode === "view"}
-              />
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-12">
+              <div className="md:col-span-4">
+                <CustomInput
+                  form={form}
+                  name="templateName"
+                  label="Template Name"
+                  isRequired
+                  isDisabled={mode === "view"}
+                />
+              </div>
+              <div className="md:col-span-3">
+                <TaskAutocomplete
+                  form={form}
+                  name="taskId"
+                  label="Task"
+                  isRequired
+                  isDisabled={mode === "view" || hasDetails}
+                />
+              </div>
+              <div className="md:col-span-4">
+                <ChargeAutocomplete
+                  form={form}
+                  name="chargeId"
+                  label="Charge"
+                  isRequired
+                  isDisabled={mode === "view" || hasDetails}
+                />
+              </div>
+              <div className="md:col-span-1">
+                <div className="mb-1 text-sm font-medium">Active</div>
+                <CustomCheckbox
+                  form={form}
+                  name="isActive"
+                  label=""
+                  className="-mt-1"
+                  isDisabled={mode === "view"}
+                />
+              </div>
             </div>
 
             {/* Details Section */}
@@ -244,105 +246,13 @@ export const TemplateForm = forwardRef<TemplateFormRef, TemplateFormProps>(
               </div>
             )}
 
-            <>
-              {/* Audit Information Section */}
-              {initialData &&
-                (initialData.createBy ||
-                  initialData.createDate ||
-                  initialData.editBy ||
-                  initialData.editDate) && (
-                  <div className="space-y-3 pt-4">
-                    <div className="border-t pt-4">
-                      <CustomAccordion
-                        type="single"
-                        collapsible
-                        className="bg-muted/30 rounded-lg border-0"
-                      >
-                        <CustomAccordionItem
-                          value="audit-info"
-                          className="border-none"
-                        >
-                          <CustomAccordionTrigger className="hover:bg-muted/50 rounded-lg px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-medium">
-                                Audit Trail
-                              </span>
-                              <div className="flex items-center gap-2">
-                                {initialData.createDate && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="px-2 py-1 text-xs"
-                                  >
-                                    Created
-                                  </Badge>
-                                )}
-                                {initialData.editDate && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="px-2 py-1 text-xs"
-                                  >
-                                    Modified
-                                  </Badge>
-                                )}
-                                {initialData.editVersion > 0 && (
-                                  <Badge
-                                    variant="destructive"
-                                    className="px-2 py-1 text-xs"
-                                  >
-                                    Edit Version No. {initialData.editVersion}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </CustomAccordionTrigger>
-                          <CustomAccordionContent className="px-4 pb-4">
-                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                              {initialData.createDate && (
-                                <div className="bg-background rounded-md border p-2">
-                                  <div className="space-y-1">
-                                    <p className="text-muted-foreground text-xs">
-                                      Created By
-                                    </p>
-                                    <p className="text-sm font-semibold">
-                                      {initialData.createBy}
-                                    </p>
-                                    <p className="text-muted-foreground text-xs">
-                                      {format(
-                                        new Date(initialData.createDate),
-                                        datetimeFormat
-                                      )}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-                              {initialData.editBy && (
-                                <div className="bg-background rounded-md border p-2">
-                                  <div className="space-y-1">
-                                    <p className="text-muted-foreground text-xs">
-                                      Modified By
-                                    </p>
-                                    <p className="text-sm font-semibold">
-                                      {initialData.editBy}
-                                    </p>
-                                    <p className="text-muted-foreground text-xs">
-                                      {initialData.editDate
-                                        ? format(
-                                            new Date(initialData.editDate),
-                                            datetimeFormat
-                                          )
-                                        : "-"}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </CustomAccordionContent>
-                        </CustomAccordionItem>
-                      </CustomAccordion>
-                    </div>
-                  </div>
-                )}
-            </>
+            <AuditTrailAccordion
+              createBy={initialData?.createBy}
+              createDate={initialData?.createDate}
+              editBy={initialData?.editBy}
+              editDate={initialData?.editDate}
+              datetimeFormat={datetimeFormat}
+            />
           </form>
         </Form>
       </div>

@@ -848,21 +848,6 @@ export const menuData: { mainNav: MainNavItem[] } = {
     //   url: "/approvals",
     //   icon: ShieldCheck,
     // },
-    // {
-    //   title: "Document",
-    //   url: "/document",
-    //   icon: FileStack,
-    // },
-    // {
-    //   title: "Requests",
-    //   url: "/requests",
-    //   icon: ClipboardList,
-    //   items: [
-    //     { title: "Loan", url: "/requests/loan", icon: Wallet },
-    //     { title: "Leave", url: "/requests/leave", icon: CalendarDays },
-    //     { title: "Petty Cash", url: "/requests/pettycash", icon: HandCoins },
-    //   ],
-    // },
   ],
 }
 

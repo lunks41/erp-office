@@ -59,15 +59,6 @@ export const LoanType = {
   delete: "/master/deleteloantype",
 }
 
-// Document Expiry Endpoints
-export const DocumentExpiry = {
-  get: "/document/GetExpDocument",
-  getById: "/document/GetExpDocumentbyid",
-  add: "/document/SaveExpDocument",
-  update: "/document/SaveExpDocument",
-  delete: "/document/DeleteExpDocument",
-}
-
 // Attendance Endpoints
 export const Hr_Attendance = {
   get: "/hr/GetAttendanceEmployee",
@@ -1499,17 +1490,6 @@ export const Freight = {
 }
 
 // Leave Management Endpoints
-
-export const HrUserRequest = {
-  get: "/hr/leave-request",
-  add: "/hr/Saveleaverequest",
-
-  getloan: "/hr/loan/getloanrequestbyemployee",
-  addloan: "/hr/saveloanrequest",
-
-  getpettycash: "/hr/pettycash-request",
-  addpettycash: "/hr/savepettycashrequest",
-}
 
 export const HrLeaveRequest = {
   get: "/hr/leave-request/getleaverequest",
