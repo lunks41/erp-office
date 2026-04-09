@@ -307,6 +307,7 @@ export function TariffTable({
       showHeader={true}
       showFooter={true}
       showActions={true}
+      showRowSelection={Boolean(onBulkDeleteRows || onBulkCloneRows)}
       // Permission props
       canEdit={canEdit}
       canDelete={canDelete}

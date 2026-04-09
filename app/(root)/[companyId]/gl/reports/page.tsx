@@ -904,41 +904,44 @@ export default function ReportsPage() {
                   />
 
                   {/* VAT Type and VAT in one row - Only show for VAT Details report */}
-                  {selectedReports.includes("vat-details") && (
-                    <div className="flex flex-row gap-3">
-                      <div className="flex flex-1 flex-col gap-0.5">
-                        <label className="text-sm font-medium">VAT Type:</label>
-                        <Select
-                          value={
-                            form.watch("gstTypeId") &&
-                            form.watch("gstTypeId") !== 0
-                              ? form.watch("gstTypeId").toString()
-                              : undefined
-                          }
-                          onValueChange={(value) =>
-                            form.setValue("gstTypeId", Number(value))
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select.." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">Input</SelectItem>
-                            <SelectItem value="2">Output</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  {selectedReports.includes("vat-details") ||
+                    (selectedReports.includes("vat-authority") && (
+                      <div className="flex flex-row gap-3">
+                        <div className="flex flex-1 flex-col gap-0.5">
+                          <label className="text-sm font-medium">
+                            VAT Type:
+                          </label>
+                          <Select
+                            value={
+                              form.watch("gstTypeId") &&
+                              form.watch("gstTypeId") !== 0
+                                ? form.watch("gstTypeId").toString()
+                                : undefined
+                            }
+                            onValueChange={(value) =>
+                              form.setValue("gstTypeId", Number(value))
+                            }
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select.." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">Input</SelectItem>
+                              <SelectItem value="2">Output</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                      <div className="flex-1">
-                        <GSTAutocomplete
-                          form={form}
-                          name="gstId"
-                          label="VAT:"
-                          isRequired={false}
-                        />
+                        <div className="flex-1">
+                          <GSTAutocomplete
+                            form={form}
+                            name="gstId"
+                            label="VAT:"
+                            isRequired={false}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ))}
                 </div>
 
                 {/* Action Buttons */}
