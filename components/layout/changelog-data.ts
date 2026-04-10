@@ -31,6 +31,16 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.8",
+    date: "2026-04-10",
+    changes: [
+      {
+        type: "fixed",
+        text: "AP Credit Note service category validation now matches AP Invoice and is enforced only when VAT amount is non-zero",
+      },
+    ],
+  },
+  {
     version: "1.5.7",
     date: "2026-04-09",
     changes: [

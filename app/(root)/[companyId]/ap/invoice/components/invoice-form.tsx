@@ -493,8 +493,9 @@ export default function InvoiceForm({
   const duplicateRouteParam = React.useMemo(() => {
     const supp = (suppInvoiceNoValue || "").trim()
     const invoiceId = form.getValues("invoiceId") || "0"
+    const supplierId = form.getValues("supplierId") || "0"
     if (!supp) return ""
-    return `${invoiceId}/${encodeURIComponent(supp)}`
+    return `${invoiceId}/${encodeURIComponent(supp)}/${supplierId}`
   }, [suppInvoiceNoValue, form])
 
   const duplicateCheckQuery = useGetById<DuplicateSupplierInvoice[]>(

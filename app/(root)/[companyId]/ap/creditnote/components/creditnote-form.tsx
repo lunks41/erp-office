@@ -544,8 +544,9 @@ export default function CreditNoteForm({
   const duplicateCreditRouteParam = React.useMemo(() => {
     const supp = (suppCreditNoteNoValue || "").trim()
     const creditNoteId = form.getValues("creditNoteId") || "0"
+    const supplierId = form.getValues("supplierId") || "0"
     if (!supp) return ""
-    return `${creditNoteId}/${encodeURIComponent(supp)}`
+    return `${creditNoteId}/${encodeURIComponent(supp)}/${supplierId}`
   }, [suppCreditNoteNoValue, form])
 
   const duplicateCreditCheckQuery = useGetById<DuplicateSupplierCreditNote[]>(

@@ -132,15 +132,27 @@ export const ApCreditNoteHdSchema = (
     isCancel: z.boolean().optional(),
     cancelRemarks: z.string().optional(),
 
-    // Service Category Fields
-    serviceCategoryId: visible?.m_ServiceCategoryId
-      ? z.number().min(1, "Service Category is required")
-      : z.number().optional(),
+    // Service Category: only mandatory when header VAT (gstAmt) is non-zero
+    // (align behavior with AP Invoice)
+    serviceCategoryId: z.number().optional(),
 
     // Nested Details
     data_details: z
       .array(ApCreditNoteDtSchema(required, visible))
       .min(1, "At least one invoice detail is required"),
+  }).superRefine((data, ctx) => {
+    if (!visible?.m_ServiceCategoryId) return
+    const gst = Number(data.gstAmt)
+    const gstNonZero = Number.isFinite(gst) && gst !== 0
+    if (!gstNonZero) return
+    const sc = data.serviceCategoryId ?? 0
+    if (!sc || sc < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Service Category is required when VAT amount is non-zero",
+        path: ["serviceCategoryId"],
+      })
+    }
   })
 }
 
