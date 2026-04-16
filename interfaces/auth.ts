@@ -14,8 +14,6 @@ export interface IUser {
   isActive: boolean
   isLocked: boolean
   failedLoginAttempts: number
-  userGroupId: string
-  userGroupName: string
   userRoleId: string
   userRoleName: string
   profilePicture: string

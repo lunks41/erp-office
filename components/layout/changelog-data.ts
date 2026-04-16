@@ -31,6 +31,24 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.9",
+    date: "2026-04-13",
+    changes: [
+      {
+        type: "added",
+        text: "Added a dedicated same-origin auth login API route with request forwarding to backend auth endpoint",
+      },
+      {
+        type: "improved",
+        text: "Login API now includes per-IP rate limiting and forwards client IP/User-Agent metadata for backend audit fields",
+      },
+      {
+        type: "fixed",
+        text: "Login flow now avoids browser CORS issues by moving auth login calls from client-to-backend direct requests to server-side proxy",
+      },
+    ],
+  },
+  {
     version: "1.5.8",
     date: "2026-04-10",
     changes: [

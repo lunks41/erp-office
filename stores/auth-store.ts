@@ -254,11 +254,10 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null })
 
           try {
-            const response = await fetch(`${BACKEND_API_URL}/auth/login`, {
+            const response = await fetch("/api/auth/login", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "X-Reg-Id": DEFAULT_REGISTRATION_ID,
               },
               body: JSON.stringify({ userName, userPassword }),
             })
@@ -314,11 +313,10 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null })
 
           try {
-            const response = await fetch(`${BACKEND_API_URL}/auth/login`, {
+            const response = await fetch("/api/auth/login", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "X-Reg-Id": DEFAULT_REGISTRATION_ID,
               },
               body: JSON.stringify({ userName, userPassword }),
             })
