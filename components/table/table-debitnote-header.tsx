@@ -64,6 +64,7 @@ type DebitNoteTableHeaderProps<TData> = {
   data?: TData[] // Add data prop for export functionality
   hideCreate?: boolean
   onResetLayout?: () => void // Callback to reset layout in parent component
+  createButtonText?: string
 }
 export function DebitNoteTableHeader<TData>({
   onRefreshAction,
@@ -81,6 +82,7 @@ export function DebitNoteTableHeader<TData>({
   data = [],
   hideCreate = false,
   onResetLayout,
+  createButtonText = "Create",
 }: DebitNoteTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
   // Filter columns based on search - memoized to prevent re-renders
@@ -252,7 +254,7 @@ export function DebitNoteTableHeader<TData>({
                 }
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Create
+                {createButtonText}
               </Button>
             )}
             <Button

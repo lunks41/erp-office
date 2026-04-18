@@ -370,11 +370,15 @@ export function MainTable<T>({
                   const hasSelectedRows =
                     table.getSelectedRowModel().rows.length > 0
                   const isIndeterminate = hasSelectedRows && !isAllSelected
-                  const headerChecked = hasSelectedRows
+                  const headerChecked = isIndeterminate
+                    ? "indeterminate"
+                    : isAllSelected
                   return (
                     <div className="flex min-w-0 items-center gap-0.5 overflow-hidden">
                       <Checkbox
                         checked={headerChecked}
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
                         onCheckedChange={(checked) => {
                           table.toggleAllPageRowsSelected(!!checked)
                         }}
@@ -439,6 +443,13 @@ export function MainTable<T>({
     // ============================================================================
     data, // Data array to display
     columns: tableColumns, // Column definitions (including actions)
+    getRowId: (originalRow, index) => {
+      const id = originalRow[accessorId]
+      if (id !== null && id !== undefined && String(id) !== "") {
+        return String(id)
+      }
+      return String(index)
+    },
     pageCount: Math.ceil((totalRecords || data.length) / pageSize), // Total number of pages
     // ============================================================================
     // STATE CHANGE HANDLERS

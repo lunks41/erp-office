@@ -79,6 +79,7 @@ interface DebitNoteBaseTableProps<T> {
   hideCheckbox?: boolean
   disableOnDebitNoteExists?: boolean
   initialSelectedIds?: string[]
+  createButtonText?: string
 }
 
 export function DebitNoteBaseTable<T>({
@@ -110,6 +111,7 @@ export function DebitNoteBaseTable<T>({
   hideCheckbox = false,
   disableOnDebitNoteExists = true,
   initialSelectedIds = [],
+  createButtonText = "Create",
 }: DebitNoteBaseTableProps<T>) {
   // Always call the hook but pass valid IDs or defaults
   const { data: gridSettings } = useGetGridLayout(
@@ -505,6 +507,7 @@ export function DebitNoteBaseTable<T>({
           data={data}
           hideCreate={hideCreate}
           onResetLayout={handleResetLayout}
+          createButtonText={createButtonText}
         />
       )}
 

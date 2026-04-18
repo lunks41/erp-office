@@ -117,15 +117,17 @@ export function DebitNoteTableActions<T>({
         </Button>
       )}
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-5 w-5 text-[#2f6abb] hover:bg-[#e6edf9]"
-        onClick={() => onCloneAction?.(row)}
-        title="Clone"
-      >
-        <Copy className="h-3 w-3" />
-      </Button>
+      {onCloneAction ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-5 w-5 text-[#2f6abb] hover:bg-[#e6edf9]"
+          onClick={() => onCloneAction(row)}
+          title="Clone"
+        >
+          <Copy className="h-3 w-3" />
+        </Button>
+      ) : null}
     </div>
   )
 }

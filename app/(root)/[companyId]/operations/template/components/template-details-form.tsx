@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 import { ITemplateDt } from "@/interfaces/template"
 import {
   TemplateDtSchemaType,
@@ -148,6 +148,21 @@ export function TemplateDetailsForm({
     detailsForm.reset()
   }
 
+  const handleDetailReorder = useCallback(
+    (newData: ITemplateDt[]) => {
+      const renumbered = newData.map((item, index) => ({
+        ...item,
+        itemNo: index + 1,
+      }))
+      form.setValue("data_details", renumbered, {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+      void form.trigger("data_details")
+    },
+    [form]
+  )
+
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
@@ -184,10 +199,12 @@ export function TemplateDetailsForm({
                   </p>
                 </div>
                 <div>
-                  <p className="text-foreground mb-0.5 font-semibold">Remarks</p>
+                  <p className="text-foreground mb-0.5 font-semibold">
+                    Remarks
+                  </p>
                   <p className="text-muted-foreground">
-                    Enter the template text for this charge. This will be used in
-                    generated operations documents.
+                    Enter the template text for this charge. This will be used
+                    in generated operations documents.
                   </p>
                 </div>
               </div>
@@ -209,7 +226,10 @@ export function TemplateDetailsForm({
                     isRequired
                     onChangeEvent={(selected) => {
                       if (selected) {
-                        detailsForm.setValue("chargeName", selected.chargeName || "")
+                        detailsForm.setValue(
+                          "chargeName",
+                          selected.chargeName || ""
+                        )
                       }
                     }}
                   />
@@ -234,8 +254,7 @@ export function TemplateDetailsForm({
                     )}
                   />
                 </div>
-              </div>
-              <div className="flex justify-end space-x-2">
+
                 <Button
                   type="button"
                   variant="outline"
@@ -250,7 +269,9 @@ export function TemplateDetailsForm({
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    detailsForm.handleSubmit((data) => handleSaveDetail(data, e))()
+                    detailsForm.handleSubmit((data) =>
+                      handleSaveDetail(data, e)
+                    )()
                   }}
                 >
                   {editingDetail ? "Edit" : "Add"}
@@ -266,6 +287,7 @@ export function TemplateDetailsForm({
           ...d,
           remarks: d.remarks || "",
         }))}
+        onDataReorder={handleDetailReorder}
         onEditAction={(detail) => {
           const index = details.findIndex((d) => d.itemNo === detail.itemNo)
           if (index !== -1) {
