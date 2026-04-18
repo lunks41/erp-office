@@ -259,7 +259,7 @@ export default function DebitNoteForm({
     if (!detail?.gstId || detail.gstId <= 0 || !allGst.length) return
     const gstPercentage = form.getValues("gstPercentage") ?? 0
     const gstAmt = form.getValues("gstAmt") ?? 0
-    if (gstPercentage > 0 && gstAmt > 0) return // Already set
+    if (gstPercentage > 0 && gstAmt !== 0) return // Already set
     const timer = setTimeout(() => {
       calculateGstAmt()
     }, 0)
@@ -397,7 +397,7 @@ export default function DebitNoteForm({
     handleTotAmtChange()
   }, [form, handleTotAmtChange])
 
-  // When user enters totLocalAmt, on blur: unitPrice = exhRate / totLocalAmt, then recalc totAmt, gst and totAmtAftGst
+  // When user enters totLocalAmt, on blur: unitPrice = totLocalAmt / exhRate, then recalc totAmt, gst and totAmtAftGst
   const handleTotLocalAmtFocus = useCallback(() => {
     originalTotLocalAmtRef.current = form.getValues("totLocalAmt") ?? 0
   }, [form])
@@ -405,7 +405,7 @@ export default function DebitNoteForm({
   const handleTotLocalAmtBlur = useCallback(() => {
     const totLocalAmt = Number(form.getValues("totLocalAmt")) || 0
     if (totLocalAmt === originalTotLocalAmtRef.current) return
-    if (exhRate <= 0 || totLocalAmt <= 0) return
+    if (exhRate <= 0) return
     const calculatedUnitPrice = Number(
       (totLocalAmt / exhRate).toFixed(priceDec)
     )

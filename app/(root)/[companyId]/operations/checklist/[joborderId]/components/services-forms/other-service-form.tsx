@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { IJobOrderHd, IOtherService } from "@/interfaces/checklist"
 import { IChargeLookup } from "@/interfaces/lookup"
 import { OtherServiceSchema, OtherServiceSchemaType } from "@/schemas/checklist"
@@ -76,9 +76,6 @@ export function OtherServiceForm({
     [dateFormat]
   )
 
-  // State to track if selected charge is "Cash to master" type
-  const [isCashToMaster, setIsCashToMaster] = useState(false)
-
   const form = useForm<OtherServiceSchemaType>({
     resolver: zodResolver(OtherServiceSchema),
     defaultValues: {
@@ -115,8 +112,6 @@ export function OtherServiceForm({
       const isCashToMasterCharge = charge.chargeName
         .toLowerCase()
         .includes("cash to master")
-      setIsCashToMaster(isCashToMasterCharge)
-
       // If it's a "Cash to master" charge, set quantity to 1 and clear amount
       if (isCashToMasterCharge) {
         form.setValue("quantity", 1)
@@ -125,8 +120,6 @@ export function OtherServiceForm({
         // For other charges, set amount to 0 and keep quantity as is
         form.setValue("amount", 0)
       }
-    } else {
-      setIsCashToMaster(false)
     }
   }
 
@@ -221,7 +214,7 @@ export function OtherServiceForm({
                 label="CTM|Amount"
                 round={amtDec}
                 isRequired
-                isDisabled={isConfirmed || !isCashToMaster}
+                isDisabled={isConfirmed}
               />
               <CustomInput
                 form={form}

@@ -31,6 +31,16 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.10",
+    date: "2026-04-13",
+    changes: [
+      {
+        type: "fixed",
+        text: "Debit Note detail amount and VAT amount now support both negative and positive values in line item calculations and validation",
+      },
+    ],
+  },
+  {
     version: "1.5.9",
     date: "2026-04-13",
     changes: [

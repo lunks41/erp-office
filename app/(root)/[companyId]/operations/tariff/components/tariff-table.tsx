@@ -85,7 +85,7 @@ export function TariffTable({
       cell: ({ row }) => {
         return row.getValue("visaName") || ""
       },
-      size: 120,
+      size: 140,
     },
     {
       accessorKey: "uomName",

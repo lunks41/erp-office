@@ -699,13 +699,13 @@ export const debitNoteDtSchema = z
     taskId: z.number().min(1, "Task ID is required"),
     chargeId: z.number().min(1, "Charge is required"),
     qty: z.number().min(0, "Quantity must be 0 or greater"),
-    unitPrice: z.number().min(0, "Unit price must be 0 or greater"),
+    unitPrice: z.number(),
     totLocalAmt: z.number(),
-    totAmt: z.number().min(0, "Total amount must be 0 or greater"),
+    totAmt: z.number(),
     gstId: z.number().min(1, "VAT ID is required"),
     gstPercentage: z.number().min(0, "VAT percentage must be 0 or greater"),
-    gstAmt: z.number().min(0, "VAT amount must be 0 or greater"),
-    totAmtAftGst: z.number().min(0, "Total after GST must be 0 or greater"),
+    gstAmt: z.number(),
+    totAmtAftGst: z.number(),
     remarks: z
       .string()
       .max(5000, "Remarks must be less than 500 characters")
