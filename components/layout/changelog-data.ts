@@ -31,6 +31,58 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.12",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Equipment Used service model now uses Is Loading, Is Offloading, Provider Name, and Gear fields across form and table views",
+      },
+      {
+        type: "removed",
+        text: "Removed forklift, crane, and stevedore charge default fields from Equipment Used service payload and checklist/report displays",
+      },
+      {
+        type: "improved",
+        text: "Equipment Used form layout updated to grouped rows with dedicated Is Loading and Is Offloading lines for tally sheet and loading/offloading values",
+      },
+      {
+        type: "improved",
+        text: "Equipment Used loading/offloading rows now show section status badges and enable inputs only when the related checkbox is turned on",
+      },
+      {
+        type: "improved",
+        text: "Equipment Used Loading and Offloading badges were moved to each section header line for clearer grouped form layout",
+      },
+      {
+        type: "improved",
+        text: "Equipment Used Loading and Offloading sections now render side by side on wider screens",
+      },
+      {
+        type: "improved",
+        text: "Equipment Used loading/offloading section headers now place checkbox and colored badge title side by side",
+      },
+      {
+        type: "improved",
+        text: "Equipment Used form now groups MAFI and Gear into a single two-field span row for cleaner alignment",
+      },
+    ],
+  },
+  {
+    version: "1.5.11",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Tariff dialogs and form grids are now responsive across screen sizes to reduce inconsistent horizontal scrollbar behavior on different systems",
+      },
+      {
+        type: "fixed",
+        text: "Tariff table Actions header checkbox interaction is now reliable by excluding the Actions header from drag-handle behavior",
+      },
+    ],
+  },
+  {
     version: "1.5.10",
     date: "2026-04-13",
     changes: [

@@ -69,6 +69,7 @@ export function TaskServiceForm() {
           acc[`service_${service.taskId}`] = {
             taskId: service.taskId,
             chargeId: 0,
+            craneChargeId: 0,
             forkliftChargeId: 0,
             stevedoreChargeId: 0,
             uomId: 0,
@@ -86,6 +87,7 @@ export function TaskServiceForm() {
           {
             taskId: number
             chargeId: number
+            craneChargeId: number
             forkliftChargeId: number
             stevedoreChargeId: number
             uomId: number
@@ -122,6 +124,7 @@ export function TaskServiceForm() {
           {
             taskId: number
             chargeId: number
+            craneChargeId: number
             forkliftChargeId: number
             stevedoreChargeId: number
             uomId: number
@@ -141,6 +144,7 @@ export function TaskServiceForm() {
           servicesData[serviceKey] = {
             taskId: service.taskId || 0,
             chargeId: service.chargeId || 0,
+            craneChargeId: service.craneChargeId || 0,
             forkliftChargeId: service.forkliftChargeId || 0,
             stevedoreChargeId: service.stevedoreChargeId || 0,
             uomId: service.uomId || 0,
@@ -170,6 +174,10 @@ export function TaskServiceForm() {
       errors.push("Charge is required")
     }
 
+    if (!serviceData.craneChargeId || serviceData.craneChargeId === 0) {
+      errors.push("Crane Charge is required")
+    }
+
     if (!serviceData.uomId || serviceData.uomId === 0) {
       errors.push("UOM is required")
     }
@@ -189,6 +197,7 @@ export function TaskServiceForm() {
     const individualPayload: ServiceFieldValues = {
       taskId: serviceData.taskId,
       chargeId: serviceData.chargeId,
+      craneChargeId: serviceData.craneChargeId,
       forkliftChargeId: serviceData.forkliftChargeId,
       stevedoreChargeId: serviceData.stevedoreChargeId,
       uomId: serviceData.uomId,
@@ -290,6 +299,7 @@ export function TaskServiceForm() {
     serviceData: {
       taskId: number
       chargeId: number
+      craneChargeId: number
       forkliftChargeId: number
       stevedoreChargeId: number
       uomId: number
@@ -376,6 +386,13 @@ export function TaskServiceForm() {
           {/* Forklift Charge and Stevedore Charge - Show for taskId 3 (Equipment Used) */}
           {serviceData.taskId === 3 && (
             <>
+              <ChargeAutocomplete
+                form={form}
+                name={`services.${serviceKey}.craneChargeId`}
+                label="Crane Charge"
+                isRequired={false}
+              />
+
               <ChargeAutocomplete
                 form={form}
                 name={`services.${serviceKey}.forkliftChargeId`}
@@ -466,6 +483,7 @@ export function TaskServiceForm() {
               const serviceData: {
                 taskId: number
                 chargeId: number
+                craneChargeId: number
                 forkliftChargeId: number
                 stevedoreChargeId: number
                 uomId: number
@@ -478,6 +496,7 @@ export function TaskServiceForm() {
               } = {
                 taskId: formServiceData?.taskId ?? service.taskId,
                 chargeId: formServiceData?.chargeId ?? 0,
+                craneChargeId: formServiceData?.craneChargeId ?? 0,
                 forkliftChargeId: formServiceData?.forkliftChargeId ?? 0,
                 stevedoreChargeId: formServiceData?.stevedoreChargeId ?? 0,
                 uomId: formServiceData?.uomId ?? 0,

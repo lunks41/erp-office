@@ -119,37 +119,47 @@ export function EquipmentUsedHistoryDialog({
       minSize: 100,
     },
     {
-      accessorKey: "craneChargeName",
-      header: "Crane Charge",
+      accessorKey: "providerName",
+      header: "Provider Name",
       cell: ({ row }) => (
         <div className="max-w-xs truncate">
-          {row.getValue("craneChargeName") || "-"}
+          {row.getValue("providerName") || "-"}
         </div>
       ),
-      size: 130,
-      minSize: 110,
+      size: 150,
+      minSize: 120,
     },
     {
-      accessorKey: "forkliftChargeName",
-      header: "Forklift Charge",
-      cell: ({ row }) => (
-        <div className="max-w-xs truncate">
-          {row.getValue("forkliftChargeName") || "-"}
-        </div>
-      ),
-      size: 130,
-      minSize: 110,
+      accessorKey: "gear",
+      header: "Gear",
+      cell: ({ row }) => {
+        const v = row.getValue("gear") as number | null | undefined
+        return <div className="text-right">{v != null ? v : "-"}</div>
+      },
+      size: 90,
+      minSize: 80,
     },
     {
-      accessorKey: "stevedoreChargeName",
-      header: "Stevedore Charge",
+      accessorKey: "isLoading",
+      header: "Is Loading",
       cell: ({ row }) => (
-        <div className="max-w-xs truncate">
-          {row.getValue("stevedoreChargeName") || "-"}
+        <div className="text-center">
+          {row.getValue("isLoading") ? "Yes" : "No"}
         </div>
       ),
-      size: 130,
-      minSize: 110,
+      size: 100,
+      minSize: 90,
+    },
+    {
+      accessorKey: "isOffloading",
+      header: "Is Offloading",
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("isOffloading") ? "Yes" : "No"}
+        </div>
+      ),
+      size: 110,
+      minSize: 100,
     },
     {
       accessorKey: "loadingRefNo",
@@ -279,7 +289,7 @@ export function EquipmentUsedHistoryDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[80vh] w-[60vw] !max-w-none overflow-y-auto"
+        className="max-h-[80vh] w-[60vw] max-w-none! overflow-y-auto"
         onPointerDownOutside={(e) => {
           e.preventDefault()
         }}

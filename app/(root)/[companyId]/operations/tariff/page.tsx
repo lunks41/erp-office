@@ -753,10 +753,7 @@ export default function TariffPage() {
       const conv = convertTariffToTariffHd(selectedTariff, Number(companyId))
       return conv ? transformToTariffHd(conv) : undefined
     }
-    if (
-      (modalMode === "edit" || modalMode === "view") &&
-      transformedTariff
-    ) {
+    if ((modalMode === "edit" || modalMode === "view") && transformedTariff) {
       return {
         ...transformedTariff,
         createBy: fetchedTariff?.createBy || "",
@@ -1152,7 +1149,7 @@ export default function TariffPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {/* Search Button - Only show when customer is selected */}
             {watchedCustomerId > 0 && (
               <Button
@@ -1221,7 +1218,7 @@ export default function TariffPage() {
                               ? "destructive"
                               : "outline"
                         }
-                        className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                        className="h-4 min-w-5 px-1.5 text-[11px] font-medium"
                       >
                         {isLoading ||
                         (isTabLoading && activeCategory === category.id)
@@ -1253,7 +1250,7 @@ export default function TariffPage() {
                               ? "destructive"
                               : "outline"
                         }
-                        className="h-4 min-w-[1.25rem] px-1.5 text-[11px] font-medium"
+                        className="h-4 min-w-5 px-1.5 text-[11px] font-medium"
                       >
                         {isLoading ||
                         (isTabLoading && activeCategory === category.id)
@@ -1317,12 +1314,8 @@ export default function TariffPage() {
               onSelect={handleViewTariff}
               onCreateAction={handleCreateTariff}
               clearRowSelectionSignal={tableSelectionResetNonce}
-              onBulkDeleteRows={
-                canDelete ? handleBulkDeleteRequest : undefined
-              }
-              onBulkCloneRows={
-                canCreate ? handleBulkCloneRequest : undefined
-              }
+              onBulkDeleteRows={canDelete ? handleBulkDeleteRequest : undefined}
+              onBulkCloneRows={canCreate ? handleBulkCloneRequest : undefined}
             />
           ) : (
             <div className="text-muted-foreground py-12 text-center">
@@ -1349,7 +1342,7 @@ export default function TariffPage() {
         }}
       >
         <DialogContent
-          className="max-h-[90vh] w-[70vw] !max-w-none overflow-y-auto"
+          className="max-h-[90vh] w-[96vw] max-w-none! overflow-x-hidden overflow-y-auto sm:w-[92vw] lg:w-[80vw] xl:w-[75vw]"
           onPointerDownOutside={(e) => {
             if (hasFormErrors) {
               e.preventDefault()
@@ -1423,7 +1416,7 @@ export default function TariffPage() {
       {showCopyRateForm && (
         <Dialog open={showCopyRateForm} onOpenChange={setShowCopyRateForm}>
           <DialogContent
-            className="max-h-[80vh] w-[80vw] !max-w-none overflow-y-auto"
+            className="max-h-[80vh] w-[96vw] max-w-none! overflow-x-hidden overflow-y-auto sm:w-[92vw] lg:w-[80vw]"
             onPointerDownOutside={(e) => {
               if (hasFormErrors) {
                 e.preventDefault()
@@ -1453,7 +1446,7 @@ export default function TariffPage() {
           onOpenChange={setShowCopyCompanyRateForm}
         >
           <DialogContent
-            className="max-h-[90vh] w-[80vw] !max-w-none overflow-y-auto"
+            className="max-h-[90vh] w-[96vw] max-w-none! overflow-x-hidden overflow-y-auto sm:w-[92vw] lg:w-[80vw]"
             onPointerDownOutside={(e) => {
               if (hasFormErrors) {
                 e.preventDefault()

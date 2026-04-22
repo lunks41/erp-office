@@ -339,7 +339,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     )
 
     return (
-      <div className="max-w flex flex-col gap-2">
+      <div className="max-w-full flex flex-col gap-2 overflow-x-hidden">
         {/* Validation Status */}
         {Object.keys(formErrors).length > 0 && (
           <div className="bg-destructive/10 border-destructive/20 mb-4 rounded-md border p-3">
@@ -392,7 +392,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
             )}
             className="space-y-3"
           >
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5">
               <CustomerAutocomplete
                 key={`customer-autocomplete-${mode}-${customerId}`}
                 form={form}
@@ -427,7 +427,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 isRequired
                 isDisabled={mode === "view" || hasDetails}
               />
-              <div className="col-span-1 grid grid-cols-2 gap-2">
+              <div className="col-span-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <CustomSwitch
                   form={form}
                   name="isPrepayment"
@@ -444,7 +444,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 />
               </div>
             </div>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-6">
               <div className="col-span-2">
                 <ChargeAutocomplete
                   form={form}

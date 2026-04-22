@@ -57,7 +57,7 @@ export function TariffDetailsTable({
 
     {
       accessorKey: "minUnit",
-      header: "Min Unit",
+      header: "Min Range",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("minUnit"), amtDec)}
@@ -67,7 +67,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "maxUnit",
-      header: "Max Unit",
+      header: "Max Range",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("maxUnit"), amtDec)}
@@ -77,7 +77,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "displayRate",
-      header: "Display Rate",
+      header: "Rate (Local)",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("displayRate"), amtDec)}
@@ -87,7 +87,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "basicRate",
-      header: "Basic Rate",
+      header: "Rate (Base)",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("basicRate"), amtDec)}
@@ -98,7 +98,7 @@ export function TariffDetailsTable({
 
     {
       accessorKey: "isAdditional",
-      header: "Is Add.?",
+      header: "Enable Over-Limit?",
       cell: ({ row }) => (
         <div className="text-center">
           <Badge
@@ -112,7 +112,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "additionalUnit",
-      header: "Add. Unit",
+      header: "Per Extra Unit",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("additionalUnit"), amtDec)}
@@ -122,7 +122,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "additionalRate",
-      header: "Add. Rate",
+      header: "Over-Limit Rate",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("additionalRate"), amtDec)}
@@ -132,7 +132,7 @@ export function TariffDetailsTable({
     },
     {
       accessorKey: "isMultiply",
-      header: "Is Multiply?",
+      header: "Calculate by Qty?",
       cell: ({ row }) => (
         <div className="text-center">
           <Badge variant={row.getValue("isMultiply") ? "default" : "secondary"}>

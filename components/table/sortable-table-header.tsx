@@ -71,6 +71,8 @@ export function SortableTableHeader<TData>({
   const isResizing = header.column.getIsResizing()
 
   const handleSortToggle = header.column.getToggleSortingHandler()
+  const isActionsColumn = header.column.id === "actions"
+  const canSort = header.column.getCanSort() && !isActionsColumn
 
   const align =
     (header.column.columnDef.meta as { align?: string } | undefined)?.align ??
@@ -111,11 +113,17 @@ export function SortableTableHeader<TData>({
               )}
             >
               <div
-                {...attributes}
-                {...listeners}
-                className="flex min-w-0 flex-1 cursor-grab items-center gap-0.5 overflow-hidden active:cursor-grabbing"
-                aria-label="Drag to reorder column"
-                title="Drag to reorder column"
+                {...(!isActionsColumn ? attributes : {})}
+                {...(!isActionsColumn ? listeners : {})}
+                className={cn(
+                  "flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden",
+                  !isActionsColumn &&
+                    "cursor-grab active:cursor-grabbing"
+                )}
+                aria-label={
+                  !isActionsColumn ? "Drag to reorder column" : undefined
+                }
+                title={!isActionsColumn ? "Drag to reorder column" : undefined}
               >
                 <span
                   className={cn(
@@ -135,21 +143,23 @@ export function SortableTableHeader<TData>({
                 </span>
               </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground size-5 shrink-0"
-                onClick={handleSortToggle}
-                aria-label={`Sort column ${header.column.id}`}
-              >
-                {isSorted === "asc" && (
-                  <ArrowUpNarrowWide className="h-3 w-3" />
-                )}
-                {isSorted === "desc" && (
-                  <ArrowDownNarrowWide className="h-3 w-3" />
-                )}
-                {!isSorted && <ArrowUpDown className="h-3 w-3" />}
-              </Button>
+              {canSort ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground size-5 shrink-0"
+                  onClick={handleSortToggle}
+                  aria-label={`Sort column ${header.column.id}`}
+                >
+                  {isSorted === "asc" && (
+                    <ArrowUpNarrowWide className="h-3 w-3" />
+                  )}
+                  {isSorted === "desc" && (
+                    <ArrowDownNarrowWide className="h-3 w-3" />
+                  )}
+                  {!isSorted && <ArrowUpDown className="h-3 w-3" />}
+                </Button>
+              ) : null}
             </div>
           </>
         )}

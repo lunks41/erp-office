@@ -1,7 +1,5 @@
 import { z } from "zod"
 
-import { ApRefundDtFiltersSchema } from "./ap-refund"
-
 export const JobOrderHdSchema = z
   .object({
     jobOrderId: z.number(),
@@ -600,9 +598,10 @@ export const EquipmentUsedSchema = z.object({
 
   mafi: z.string().optional(),
   others: z.string().optional(),
-  forkliftChargeId: z.number().optional(),
-  craneChargeId: z.number().optional(),
-  stevedoreChargeId: z.number().optional(),
+  isLoading: z.boolean().optional(),
+  isOffloading: z.boolean().optional(),
+  providerName: z.string().optional(),
+  gear: z.number().optional(),
   loadingRefNo: z.string().optional(),
   craneloading: z.number().optional(),
   forkliftloading: z.number().optional(),

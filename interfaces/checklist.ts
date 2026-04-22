@@ -335,12 +335,10 @@ export interface IEquipmentUsed {
 
   mafi?: string
   others?: string
-  craneChargeId?: number
-  craneChargeName?: string
-  forkliftChargeId?: number
-  forkliftChargeName?: string
-  stevedoreChargeId?: number
-  stevedoreChargeName?: string
+  isLoading?: boolean
+  isOffloading?: boolean
+  providerName?: string
+  gear?: number
   loadingRefNo?: string
   craneloading?: number
   forkliftloading?: number

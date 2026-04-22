@@ -95,12 +95,10 @@ export function EquipmentUsedForm({
       referenceNo: initialData?.referenceNo ?? "",
       mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
-      forkliftChargeId:
-        initialData?.forkliftChargeId ?? taskDefaults.forkliftChargeId ?? 0,
-      craneChargeId:
-        initialData?.craneChargeId ?? taskDefaults.craneChargeId ?? 0,
-      stevedoreChargeId:
-        initialData?.stevedoreChargeId ?? taskDefaults.stevedoreChargeId ?? 0,
+      isLoading: initialData?.isLoading ?? false,
+      isOffloading: initialData?.isOffloading ?? false,
+      providerName: initialData?.providerName ?? "",
+      gear: initialData?.gear ?? 0,
       loadingRefNo: initialData?.loadingRefNo ?? "",
       craneloading: initialData?.craneloading ?? 0,
       forkliftloading: initialData?.forkliftloading ?? 0,
@@ -123,6 +121,8 @@ export function EquipmentUsedForm({
 
   // Watch the isNotes field to control notes field disabled state
   const isNotes = form.watch("isNotes")
+  const isLoadingSectionEnabled = form.watch("isLoading")
+  const isOffloadingSectionEnabled = form.watch("isOffloading")
 
   useEffect(() => {
     form.reset({
@@ -141,12 +141,10 @@ export function EquipmentUsedForm({
       referenceNo: initialData?.referenceNo ?? "",
       mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
-      forkliftChargeId:
-        initialData?.forkliftChargeId ?? taskDefaults.forkliftChargeId ?? 0,
-      craneChargeId:
-        initialData?.craneChargeId ?? taskDefaults.craneChargeId ?? 0,
-      stevedoreChargeId:
-        initialData?.stevedoreChargeId ?? taskDefaults.stevedoreChargeId ?? 0,
+      isLoading: initialData?.isLoading ?? false,
+      isOffloading: initialData?.isOffloading ?? false,
+      providerName: initialData?.providerName ?? "",
+      gear: initialData?.gear ?? 0,
       loadingRefNo: initialData?.loadingRefNo ?? "",
       craneloading: initialData?.craneloading ?? 0,
       forkliftloading: initialData?.forkliftloading ?? 0,
@@ -184,144 +182,158 @@ export function EquipmentUsedForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-2">
-            <div className="grid grid-cols-4 gap-2">
-              <CustomDateNew
-                form={form}
-                name="date"
-                label="Date"
-                isRequired={true}
-                isDisabled={isConfirmed}
-                isFutureShow={true}
-              />
-              <CustomInput
-                form={form}
-                name="referenceNo"
-                label="Reference Number"
-                isRequired
-                isDisabled={isConfirmed}
-              />
-              <ChargeAutocomplete
-                form={form}
-                name="chargeId"
-                label="Charge Name"
-                isRequired={true}
-                isDisabled={isConfirmed}
-              />
-
-              <CustomInput
-                form={form}
-                name="mafi"
-                label="MAFI"
-                isDisabled={isConfirmed}
-              />
-              <CustomInput
-                form={form}
-                name="others"
-                label="Others"
-                isDisabled={isConfirmed}
-              />
-              <CustomInput
-                form={form}
-                name="poNo"
-                label="PO No"
-                isDisabled={isConfirmed}
-              />
-
-              <TaskStatusAutocomplete
-                form={form}
-                name="taskStatusId"
-                label="Status"
-                isRequired={true}
-                isDisabled={isConfirmed}
-              />
-            </div>
-
-            {/* Updated Charges Section - Matches your image */}
-            <div className="grid grid-cols-4 gap-4">
-              {/*   TallySheet No Section */}
-              <div className="space-y-4 rounded-lg border p-4">
-                <h3 className="text-center font-bold">TallySheet No</h3>
-
+            <div className="space-y-2">
+              <div className="grid grid-cols-4 gap-2">
+                <CustomDateNew
+                  form={form}
+                  name="date"
+                  label="Date"
+                  isRequired={true}
+                  isDisabled={isConfirmed}
+                  isFutureShow={true}
+                />
                 <CustomInput
                   form={form}
-                  name="loadingRefNo"
-                  label="Loading TallySheet No"
+                  name="referenceNo"
+                  label="Reference Number"
+                  isRequired
                   isDisabled={isConfirmed}
                 />
                 <CustomInput
                   form={form}
-                  name="offloadingRefNo"
-                  label="Offloading TallySheet No"
+                  name="providerName"
+                  label="Provider Name"
                   isDisabled={isConfirmed}
                 />
-              </div>
-              {/* Crane Charge Section */}
-              <div className="space-y-4 rounded-lg border p-4">
-                <h3 className="text-center font-bold">Crane Hire Charges</h3>
                 <ChargeAutocomplete
                   form={form}
-                  name="craneChargeId"
-                  label="Crane Charge"
+                  name="chargeId"
+                  label="Charge Name"
+                  isRequired={true}
                   isDisabled={isConfirmed}
                 />
-                <CustomNumberInput
+                <CustomInput
                   form={form}
-                  name="craneloading"
-                  label="Crane Loading (hr)"
+                  name="poNo"
+                  label="PO No"
                   isDisabled={isConfirmed}
                 />
-                <CustomNumberInput
+
+                <div className="col-span-1 grid grid-cols-2 gap-2">
+                  <CustomInput
+                    form={form}
+                    name="mafi"
+                    label="MAFI"
+                    isDisabled={isConfirmed}
+                  />
+                  <CustomNumberInput
+                    form={form}
+                    name="gear"
+                    label="Gear"
+                    isDisabled={isConfirmed}
+                  />
+                </div>
+                <CustomInput
                   form={form}
-                  name="craneOffloading"
-                  label="Crane Offloading (hr)"
+                  name="others"
+                  label="Others"
+                  isDisabled={isConfirmed}
+                />
+                <TaskStatusAutocomplete
+                  form={form}
+                  name="taskStatusId"
+                  label="Status"
+                  isRequired={true}
                   isDisabled={isConfirmed}
                 />
               </div>
 
-              {/* Forklift Charge Section */}
-              <div className="space-y-4 rounded-lg border p-4">
-                <h3 className="text-center font-bold">ForkLift Charge</h3>
-                <ChargeAutocomplete
-                  form={form}
-                  name="forkliftChargeId"
-                  label="ForkLift Charge"
-                  isDisabled={isConfirmed}
-                />
-                <CustomNumberInput
-                  form={form}
-                  name="forkliftloading"
-                  label="ForkLift Loading (hr)"
-                  isDisabled={isConfirmed}
-                />
-                <CustomNumberInput
-                  form={form}
-                  name="forkliftOffloading"
-                  label="ForkLift OffLoading (hr)"
-                  isDisabled={isConfirmed}
-                />
-              </div>
+              <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+                <div className="space-y-1 rounded-lg border p-2">
+                  <div className="flex items-center gap-2">
+                    <CustomCheckbox
+                      form={form}
+                      name="isLoading"
+                      label=""
+                      isDisabled={isConfirmed}
+                    />
+                    <Badge
+                      variant="secondary"
+                      className="w-fit bg-blue-100 px-2 py-0 text-[10px] text-blue-800"
+                    >
+                      Loading
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-4 items-end gap-2">
+                    <CustomInput
+                      form={form}
+                      name="loadingRefNo"
+                      label="Tally Sheet No"
+                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="craneloading"
+                      label="Crane  "
+                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="forkliftloading"
+                      label="ForkLift  "
+                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="stevedoreloading"
+                      label="Stevedore  "
+                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                    />
+                  </div>
+                </div>
 
-              {/* Stevedore Charge Section */}
-              <div className="space-y-4 rounded-lg border p-4">
-                <h3 className="text-center font-bold">Stevedor Charge</h3>
-                <ChargeAutocomplete
-                  form={form}
-                  name="stevedoreChargeId"
-                  label="Stevedore Charge"
-                  isDisabled={isConfirmed}
-                />
-                <CustomNumberInput
-                  form={form}
-                  name="stevedoreloading"
-                  label="Stevedor Loading (Nos)"
-                  isDisabled={isConfirmed}
-                />
-                <CustomNumberInput
-                  form={form}
-                  name="stevedoreOffloading"
-                  label="Stevedor OffLoad (Nos)"
-                  isDisabled={isConfirmed}
-                />
+                <div className="space-y-1 rounded-lg border p-2">
+                  <div className="flex items-center gap-2">
+                    <CustomCheckbox
+                      form={form}
+                      name="isOffloading"
+                      label=""
+                      isDisabled={isConfirmed}
+                    />
+                    <Badge
+                      variant="secondary"
+                      className="w-fit bg-purple-100 px-2 py-0 text-[10px] text-purple-800"
+                    >
+                      Offloading
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-4 items-end gap-2">
+                    <CustomInput
+                      form={form}
+                      name="offloadingRefNo"
+                      label="Tally Sheet No"
+                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="craneOffloading"
+                      label="Crane"
+                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="forkliftOffloading"
+                      label="ForkLift"
+                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="stevedoreOffloading"
+                      label="Stevedore"
+                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

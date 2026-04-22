@@ -182,7 +182,7 @@ export function TariffDetailsForm({
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"
-            className="border-indigo-400 bg-gradient-to-r from-indigo-100 to-indigo-200 text-sm font-medium text-indigo-800 shadow-sm"
+            className="border-indigo-400 bg-linear-to-r from-indigo-100 to-indigo-200 text-sm font-medium text-indigo-800 shadow-sm"
           >
             <span className="mr-1.5">•</span>Tariff Details
           </Badge>
@@ -265,17 +265,13 @@ export function TariffDetailsForm({
         <div className="mb-3 space-y-3">
           <Form {...detailsForm}>
             <div className="space-y-3">
-              <div className="bg-card grid grid-cols-8 gap-2 rounded-lg border p-2 shadow-sm">
+              <div className="bg-card grid grid-cols-1 gap-2 rounded-lg border p-2 shadow-sm md:grid-cols-2 xl:grid-cols-8">
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1">
-                    <label className="text-sm font-medium">Local Rate</label>
-                    <span className="text-sm text-red-500">*</span>
-                  </div>
                   <CustomNumberInput
                     form={detailsForm}
                     name="displayRate"
-                    label=""
-                    isRequired
+                    label="Rate (Local)"
+                    isRequired={false}
                     round={amtDec}
                     onBlurEvent={handleDisplayRateBlur}
                   />
@@ -283,32 +279,24 @@ export function TariffDetailsForm({
                 <CustomNumberInput
                   form={detailsForm}
                   name="basicRate"
-                  label="Basic Rate"
+                  label="Rate (Base)"
                   isRequired
                   round={amtDec}
                 />
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1">
-                    <label className="text-sm font-medium">Min Slab</label>
-                    <span className="text-sm text-red-500">*</span>
-                  </div>
                   <CustomNumberInput
                     form={detailsForm}
                     name="minUnit"
-                    label=""
+                    label="Min Range"
                     isRequired
                     round={amtDec}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1">
-                    <label className="text-sm font-medium">Max Slab</label>
-                    <span className="text-sm text-red-500">*</span>
-                  </div>
                   <CustomNumberInput
                     form={detailsForm}
                     name="maxUnit"
-                    label=""
+                    label="Max Range"
                     isRequired
                     round={amtDec}
                   />
@@ -316,7 +304,9 @@ export function TariffDetailsForm({
 
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
-                    <label className="text-sm font-medium">Additional</label>
+                    <label className="text-sm font-medium">
+                      Enable Over-Limit?
+                    </label>
                   </div>
                   <CustomCheckbox
                     form={detailsForm}
@@ -327,7 +317,7 @@ export function TariffDetailsForm({
                 <CustomNumberInput
                   form={detailsForm}
                   name="additionalUnit"
-                  label="Additional Slab"
+                  label="Per Extra Unit"
                   isRequired={isAdditional}
                   isDisabled={!isAdditional}
                   round={amtDec}
@@ -335,7 +325,7 @@ export function TariffDetailsForm({
                 <CustomNumberInput
                   form={detailsForm}
                   name="additionalRate"
-                  label="Additional Rate"
+                  label="Over-Limit Rate"
                   isRequired={isAdditional}
                   isDisabled={!isAdditional}
                   round={amtDec}
@@ -343,7 +333,9 @@ export function TariffDetailsForm({
 
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
-                    <label className="text-sm font-medium">Is Multiply</label>
+                    <label className="text-sm font-medium">
+                      Calculate by Qty?
+                    </label>
                   </div>
                   <CustomCheckbox
                     form={detailsForm}

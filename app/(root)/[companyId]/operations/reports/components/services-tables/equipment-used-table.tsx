@@ -157,40 +157,45 @@ export function EquipmentUsedTable({
         minSize: 100,
       },
       {
-        accessorKey: "craneChargeName",
-        header: "Crane Charge",
+        accessorKey: "providerName",
+        header: "Provider Name",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("craneChargeName") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("providerName") || "-"}</div>
         ),
-        size: 150,
-        minSize: 120,
-        maxSize: 200,
+        size: 170,
+        minSize: 130,
       },
       {
-        accessorKey: "forkliftChargeName",
-        header: "Forklift Charge",
-        cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("forkliftChargeName") || "-"}
-          </div>
-        ),
-        size: 150,
-        minSize: 120,
-        maxSize: 200,
+        accessorKey: "gear",
+        header: "Gear",
+        cell: ({ row }) => {
+          const v = row.getValue("gear") as number | null | undefined
+          return <div className="truncate text-right">{v != null ? v : "-"}</div>
+        },
+        size: 90,
+        minSize: 80,
       },
       {
-        accessorKey: "stevedoreChargeName",
-        header: "Stevedore Charge",
+        accessorKey: "isLoading",
+        header: "Is Loading",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("stevedoreChargeName") || "-"}
+          <div className="truncate text-center">
+            {row.getValue("isLoading") ? "Yes" : "No"}
           </div>
         ),
-        size: 150,
-        minSize: 120,
-        maxSize: 200,
+        size: 100,
+        minSize: 90,
+      },
+      {
+        accessorKey: "isOffloading",
+        header: "Is Offloading",
+        cell: ({ row }) => (
+          <div className="truncate text-center">
+            {row.getValue("isOffloading") ? "Yes" : "No"}
+          </div>
+        ),
+        size: 110,
+        minSize: 100,
       },
 
       {
