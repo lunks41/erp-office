@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useRef,
 } from "react"
-import { ICustomerLookup } from "@/interfaces/lookup"
+import { IChargeLookup, ICustomerLookup } from "@/interfaces/lookup"
 import { ITariffDt, ITariffHd } from "@/interfaces/tariff"
 import { TariffHdSchemaType, tariffHdSchema } from "@/schemas/tariff"
 import { useAuthStore } from "@/stores/auth-store"
@@ -338,6 +338,15 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
       [form, handleExchangeRateChange]
     )
 
+    const handleChargeChange = React.useCallback(
+      (selectedCharge: IChargeLookup | null) => {
+        const newUomId = selectedCharge?.uomId || 0
+        form.setValue("uomId", newUomId)
+        form.trigger("uomId")
+      },
+      [form]
+    )
+
     return (
       <div className="max-w-full flex flex-col gap-2 overflow-x-hidden">
         {/* Validation Status */}
@@ -452,6 +461,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                   label="Charge"
                   isRequired
                   isDisabled={mode === "view"}
+                  onChangeEvent={handleChargeChange}
                 />
               </div>
               <div className="col-span-1">

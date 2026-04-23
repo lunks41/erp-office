@@ -34,6 +34,8 @@ export interface ITariffHd {
 export interface ITariffDt {
   tariffId: number
   itemNo: number
+  lineDescription?: string
+  isCustomDescription: boolean
   displayRate: number
   basicRate: number
   minUnit: number
@@ -93,6 +95,8 @@ export interface ITariff {
   editBy?: string
   editDate?: Date | string
   editVersion?: number
+  isCustomDescription?: boolean
+  lineDescription?: string
 }
 
 export interface ITariffCount {

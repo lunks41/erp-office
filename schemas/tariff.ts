@@ -75,6 +75,8 @@ export type TariffSchemaType = z.infer<typeof tariffSchema>
 export const tariffDtSchema = z.object({
   tariffId: z.number().min(0, "Tariff ID is required"),
   itemNo: z.number().min(1, "Item no is required"),
+  lineDescription: z.string().optional(),
+  isCustomDescription: z.boolean(),
   displayRate: z.number().min(0, "Display Rate must be 0 or greater"),
   basicRate: z.number().min(0, "Basic Rate must be 0 or greater"),
   minUnit: z.number().min(0, "Min Unit must be 0 or greater"),

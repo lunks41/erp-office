@@ -131,6 +131,30 @@ export function TariffDetailsTable({
       size: 120,
     },
     {
+      accessorKey: "lineDescription",
+      header: "Line Description",
+      cell: ({ row }) => (
+        <div className="truncate">{row.getValue("lineDescription") || "-"}</div>
+      ),
+      size: 200,
+    },
+    {
+      accessorKey: "isCustomDescription",
+      header: "Custom Desc?",
+      cell: ({ row }) => (
+        <div className="text-center">
+          <Badge
+            variant={
+              row.getValue("isCustomDescription") ? "default" : "secondary"
+            }
+          >
+            {row.getValue("isCustomDescription") ? "Yes" : "No"}
+          </Badge>
+        </div>
+      ),
+      size: 110,
+    },
+    {
       accessorKey: "isMultiply",
       header: "Calculate by Qty?",
       cell: ({ row }) => (

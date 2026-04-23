@@ -1,6 +1,5 @@
 "use client"
 
-import { Search, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import {
@@ -13,12 +12,14 @@ import {
 import { ChargeGLMappingSchemaType, ChargeSchemaType } from "@/schemas"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { Search, X } from "lucide-react"
 
 import { getById } from "@/lib/api-client"
 import { Charge, ChargeGLMapping } from "@/lib/api-routes"
 import { MasterTransactionId, ModuleId } from "@/lib/utils"
 import { useDelete, useGetWithPagination, usePersist } from "@/hooks/use-common"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -26,9 +27,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { LoadConfirmation } from "@/components/confirmation/load-confirmation"
@@ -496,9 +496,12 @@ export default function ChargePage() {
               chargeId: chargeData.chargeId,
               chargeCode: chargeData.chargeCode,
               chargeName: chargeData.chargeName,
+              uomId: chargeData.uomId,
+              uomName: chargeData.uomName,
               chargeOrder: chargeData.chargeOrder,
               seqNo: chargeData.seqNo,
               isTransport: chargeData.isTransport,
+              isMultiple: chargeData.isMultiple,
               isActive: chargeData.isActive,
               remarks: chargeData.remarks || "",
               createBy: chargeData.createBy,
@@ -537,10 +540,6 @@ export default function ChargePage() {
     setGlMappingSearchInput(glMappingFilters.search || "")
   }, [glMappingFilters.search])
 
-
-
-
-
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
@@ -553,7 +552,7 @@ export default function ChargePage() {
             Manage charge information and settings
           </p>
         </div>
-              <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
+        <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
           {activeTab === "charge" && (
             <>
               <div className="relative w-full">

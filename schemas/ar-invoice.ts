@@ -114,6 +114,7 @@ export const ArInvoiceHdSchema = (
 
     // Customer Details
     moduleFrom: z.string().optional(),
+    isModuleFrom: z.boolean().optional(),
 
     supplierName: z.string().optional(),
     suppInvoiceNo: required?.m_SuppInvoiceNo

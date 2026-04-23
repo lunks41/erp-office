@@ -60,6 +60,7 @@ export interface IArInvoiceHd {
   mobileNo: string
   emailAdd: string
   moduleFrom: string
+  isModuleFrom: boolean
   supplierName: string
 
   apInvoiceId: string

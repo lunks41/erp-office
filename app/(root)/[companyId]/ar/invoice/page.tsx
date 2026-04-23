@@ -14,8 +14,8 @@ import {
   calculateTotalAmounts,
   recalculateAllDetailsLocalAndCtyAmounts,
 } from "@/helpers/ar-invoice-calculations"
-import { ApiResponse } from "@/interfaces/auth"
 import { IArInvoiceDt, IArInvoiceFilter, IArInvoiceHd } from "@/interfaces"
+import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import {
@@ -52,8 +52,8 @@ import { ArInvoice, BasicSetting } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { ARTransactionId, ModuleId } from "@/lib/utils"
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common"
-import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useGetPaymentDetails } from "@/hooks/use-histoy"
+import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -259,6 +259,7 @@ export default function InvoicePage() {
           mobileNo: invoice.mobileNo ?? "",
           emailAdd: invoice.emailAdd ?? "",
           moduleFrom: invoice.moduleFrom ?? "",
+          isModuleFrom: invoice.isModuleFrom ?? false,
           supplierName: invoice.supplierName ?? "",
           suppInvoiceNo: invoice.suppInvoiceNo ?? "",
           addressId: invoice.addressId ?? 0,
@@ -396,7 +397,9 @@ export default function InvoicePage() {
           })
           const label =
             fieldLabelMap[pathKey] ??
-            pathKey.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())
+            pathKey
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase())
           if (!failedFields.includes(label)) failedFields.push(label)
         })
         if (failedFields.length > 0) {
@@ -803,16 +806,16 @@ export default function InvoicePage() {
       if (response.result === 1) {
         toast.success(`Invoice ${invoice.invoiceNo} unposted successfully`)
 
-         const detailedInvoice = Array.isArray(response.data)
-              ? response.data[0]
-              : response.data
-            if (detailedInvoice) {
-              const invoiceData = detailedInvoice as IArInvoiceHd
-              const formValues = transformToSchemaType(invoiceData)
-              setInvoice(formValues)
-              form.reset(formValues)
-            }
-            
+        const detailedInvoice = Array.isArray(response.data)
+          ? response.data[0]
+          : response.data
+        if (detailedInvoice) {
+          const invoiceData = detailedInvoice as IArInvoiceHd
+          const formValues = transformToSchemaType(invoiceData)
+          setInvoice(formValues)
+          form.reset(formValues)
+        }
+
         // // Refresh invoice data
         // if (invoice.invoiceId && invoice.invoiceId !== "0") {
         //   const response = await getById(
@@ -993,6 +996,7 @@ export default function InvoicePage() {
         mobileNo: apiInvoice.mobileNo ?? "",
         emailAdd: apiInvoice.emailAdd ?? "",
         moduleFrom: apiInvoice.moduleFrom ?? "",
+        isModuleFrom: apiInvoice.isModuleFrom ?? false,
         supplierName: apiInvoice.supplierName ?? "",
         suppInvoiceNo: apiInvoice.suppInvoiceNo ?? "",
         apInvoiceId: apiInvoice.apInvoiceId ?? "",
@@ -1329,13 +1333,13 @@ export default function InvoicePage() {
       Number(transactionId),
       effectiveDocIdForHistory || "0",
       {
-        enabled:
-          !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
+        enabled: !!effectiveDocIdForHistory && effectiveDocIdForHistory !== "0",
       }
     )
 
-  const historyRawData =
-    (paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>)?.data
+  const historyRawData = (
+    paymentHistoryResponse as ApiResponse<IPaymentHistoryDetails>
+  )?.data
   const hasPaymentHistory =
     Array.isArray(historyRawData) && historyRawData.length > 0
 
@@ -1431,7 +1435,7 @@ export default function InvoicePage() {
   }
 
   return (
-    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
+    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pt-1 pb-2">
       <Tabs
         defaultValue="main"
         className="flex h-full min-h-0 w-full flex-1 flex-col gap-0"
@@ -1488,7 +1492,7 @@ export default function InvoicePage() {
               )}
             </div>
 
-            <div className="flex min-w-0 w-full items-center justify-center">
+            <div className="flex w-full min-w-0 items-center justify-center">
               <div className="flex shrink-0 items-center gap-1.5">
                 <h1 className="m-0">
                   {/* Outer wrapper: gradient border or yellow pulsing border */}
@@ -1530,185 +1534,195 @@ export default function InvoicePage() {
             </div>
 
             <div className="flex min-w-0 shrink-0 flex-wrap items-center justify-end gap-1.5 justify-self-end pr-2 sm:flex-nowrap sm:pr-3">
-            <div
-              onDoubleClick={handleCopySearchNo}
-              className="min-w-[120px] w-full max-w-xs sm:w-64"
-              title="Double-click to copy to clipboard"
-            >
-              <Input
-                value={searchNo}
-                onChange={(e) => setSearchNo(e.target.value)}
-                onBlur={handleSearchNoBlur}
-                onKeyDown={handleSearchNoKeyDown}
-                placeholder="Search Invoice No"
-                className="h-7 cursor-pointer text-xs"
-                readOnly={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
-                disabled={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowListDialog(true)}
-              disabled={false}
-            >
-              <ListFilter className="mr-1 h-4 w-4" />
-              List
-            </Button>
-
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setShowSaveConfirm(true)}
-              disabled={
-                !canView ||
-                isSaving ||
-                saveMutation.isPending ||
-                updateMutation.isPending ||
-                isCancelled ||
-                payAmt > 0 ||
-                (isEdit && !canEdit) ||
-                (!isEdit && !canCreate) ||
-                (isEdit && hasPaymentHistory)
-              }
-              className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
-            >
-              {isSaving ||
-              saveMutation.isPending ||
-              updateMutation.isPending ? (
-                <Spinner size="sm" className="mr-1" />
-              ) : (
-                <Save className="mr-1 h-4 w-4" />
-              )}
-              {isSaving || saveMutation.isPending || updateMutation.isPending
-                ? isEdit
-                  ? "Updating..."
-                  : "Saving..."
-                : isEdit
-                  ? "Update"
-                  : "Save"}
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!invoice || invoice.invoiceId === "0"}
-                >
-                  <Printer className="mr-1 h-4 w-4" />
-                  Print
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handlePrintInvoice("direct")}>
-                  1. Direct
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handlePrintInvoice("invoice")}>
-                  2. Invoice
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowResetConfirm(true)}
-              //disabled={!invoice}
-            >
-              <RotateCcw className="mr-1 h-4 w-4" />
-              New
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCloneConfirm(true)}
-              disabled={!invoice || invoice.invoiceId === "0" || isCancelled}
-            >
-              <Copy className="mr-1 h-4 w-4" />
-              Clone
-            </Button>
-
-            {/* Cancel button: Show when NOT from OPERATION, OR from OPERATION but unposted (isPost === false) */}
-            {(invoice?.moduleFrom !== "OPERATION" ||
-              invoice?.isPost === false) && (
+              <div
+                onDoubleClick={handleCopySearchNo}
+                className="w-full max-w-xs min-w-[120px] sm:w-64"
+                title="Double-click to copy to clipboard"
+              >
+                <Input
+                  value={searchNo}
+                  onChange={(e) => setSearchNo(e.target.value)}
+                  onBlur={handleSearchNoBlur}
+                  onKeyDown={handleSearchNoKeyDown}
+                  placeholder="Search Invoice No"
+                  className="h-7 cursor-pointer text-xs"
+                  readOnly={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
+                  disabled={!!invoice?.invoiceId && invoice.invoiceId !== "0"}
+                />
+              </div>
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={() => setShowListDialog(true)}
+                disabled={false}
+              >
+                <ListFilter className="mr-1 h-4 w-4" />
+                List
+              </Button>
+
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setShowSaveConfirm(true)}
                 disabled={
                   !canView ||
-                  !invoice ||
-                  invoice.invoiceId === "0" ||
-                  deleteMutation.isPending ||
+                  isSaving ||
+                  saveMutation.isPending ||
+                  updateMutation.isPending ||
                   isCancelled ||
                   payAmt > 0 ||
-                  !canDelete ||
-                  hasPaymentHistory
+                  (isEdit && !canEdit) ||
+                  (!isEdit && !canCreate) ||
+                  (isEdit && hasPaymentHistory)
                 }
+                className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
               >
-                {deleteMutation.isPending ? (
+                {isSaving ||
+                saveMutation.isPending ||
+                updateMutation.isPending ? (
                   <Spinner size="sm" className="mr-1" />
                 ) : (
-                  <Trash2 className="mr-1 h-4 w-4" />
+                  <Save className="mr-1 h-4 w-4" />
                 )}
-                {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
+                {isSaving || saveMutation.isPending || updateMutation.isPending
+                  ? isEdit
+                    ? "Updating..."
+                    : "Saving..."
+                  : isEdit
+                    ? "Update"
+                    : "Save"}
               </Button>
-            )}
 
-            {/* UnPost button: Show only when from OPERATION and posted (isPost === true) */}
-            {invoice?.moduleFrom === "OPERATION" &&
-              invoice?.isPost === true && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!invoice || invoice.invoiceId === "0"}
+                  >
+                    <Printer className="mr-1 h-4 w-4" />
+                    Print
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => handlePrintInvoice("direct")}
+                  >
+                    1. Direct
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handlePrintInvoice("invoice")}
+                  >
+                    2. Invoice
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
-                onClick={handleUnpostInvoice}
-                disabled={
-                  !canView ||
-                  !invoice ||
-                  invoice.invoiceId === "0" ||
-                  unpostMutation.isPending ||
-                  isCancelled ||
-                  payAmt > 0 ||
-                  !canPost
-                }
-                title="UnPost Invoice"
+                onClick={() => setShowResetConfirm(true)}
+                //disabled={!invoice}
               >
-                {unpostMutation.isPending ? (
-                  <Spinner size="sm" className="h-4 w-4" />
-                ) : (
-                  <Undo2 className="h-4 w-4" />
-                )}
-                {"Un Post"}
+                <RotateCcw className="mr-1 h-4 w-4" />
+                New
               </Button>
-            )}
-          </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCloneConfirm(true)}
+                disabled={!invoice || invoice.invoiceId === "0" || isCancelled}
+              >
+                <Copy className="mr-1 h-4 w-4" />
+                Clone
+              </Button>
+
+              {/* Cancel button: Show when NOT from OPERATION, OR from OPERATION but unposted (isPost === false) */}
+              {(invoice?.moduleFrom !== "OPERATION" ||
+                invoice?.isPost === false) && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={
+                    !canView ||
+                    !invoice ||
+                    invoice.invoiceId === "0" ||
+                    deleteMutation.isPending ||
+                    isCancelled ||
+                    payAmt > 0 ||
+                    !canDelete ||
+                    hasPaymentHistory
+                  }
+                >
+                  {deleteMutation.isPending ? (
+                    <Spinner size="sm" className="mr-1" />
+                  ) : (
+                    <Trash2 className="mr-1 h-4 w-4" />
+                  )}
+                  {deleteMutation.isPending ? "Cancelling..." : "Cancel"}
+                </Button>
+              )}
+
+              {/* UnPost button: Show only when from OPERATION and posted (isPost === true) */}
+              {invoice?.moduleFrom === "OPERATION" &&
+                invoice?.isPost === true && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleUnpostInvoice}
+                    disabled={
+                      !canView ||
+                      !invoice ||
+                      invoice.invoiceId === "0" ||
+                      unpostMutation.isPending ||
+                      isCancelled ||
+                      payAmt > 0 ||
+                      !canPost
+                    }
+                    title="UnPost Invoice"
+                  >
+                    {unpostMutation.isPending ? (
+                      <Spinner size="sm" className="h-4 w-4" />
+                    ) : (
+                      <Undo2 className="h-4 w-4" />
+                    )}
+                    {"Un Post"}
+                  </Button>
+                )}
+            </div>
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-0.5">
-        <TabsContent value="main" className="mt-0 focus-visible:outline-none">
-          <Main
-            form={form}
-            onSuccessAction={async () => {
-              handleSaveInvoice()
-            }}
-            isEdit={isEdit}
-            visible={visible}
-            required={required}
-            companyId={Number(companyId)}
-            isCancelled={isCancelled}
-          />
-        </TabsContent>
+          <TabsContent value="main" className="mt-0 focus-visible:outline-none">
+            <Main
+              form={form}
+              onSuccessAction={async () => {
+                handleSaveInvoice()
+              }}
+              isEdit={isEdit}
+              visible={visible}
+              required={required}
+              companyId={Number(companyId)}
+              isCancelled={isCancelled}
+            />
+          </TabsContent>
 
-        <TabsContent value="other" className="mt-0 focus-visible:outline-none">
-          <Other form={form} visible={visible} />
-        </TabsContent>
+          <TabsContent
+            value="other"
+            className="mt-0 focus-visible:outline-none"
+          >
+            <Other form={form} visible={visible} />
+          </TabsContent>
 
-        <TabsContent value="history" className="mt-0 focus-visible:outline-none">
-          <History form={form} isEdit={isEdit} />
-        </TabsContent>
+          <TabsContent
+            value="history"
+            className="mt-0 focus-visible:outline-none"
+          >
+            <History form={form} isEdit={isEdit} />
+          </TabsContent>
         </div>
       </Tabs>
 

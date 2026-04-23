@@ -86,6 +86,18 @@ export function ChargeTable({
       minSize: 50,
     },
     {
+      accessorKey: "uomName",
+      header: "UOM",
+      size: 120,
+      minSize: 50,
+    },
+    {
+      accessorKey: "isMultiple",
+      header: "Multiply?",
+      size: 120,
+      minSize: 50,
+    },
+    {
       accessorKey: "isTransport",
       header: "Transport",
       cell: ({ row }) => (

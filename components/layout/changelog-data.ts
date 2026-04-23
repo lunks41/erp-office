@@ -31,40 +31,90 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.19",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "fixed",
+        text: "CB Petty Cash history Account Details now correctly displays Created/Edited/Cancelled/Approved dates by parsing user-format datetime strings",
+      },
+    ],
+  },
+  {
+    version: "1.5.18",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "fixed",
+        text: "Tariff detail Line Description field is now editable only when Custom Description is enabled",
+      },
+    ],
+  },
+  {
+    version: "1.5.17",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Tariff detail second-row desktop alignment refined with explicit column spans so Custom Description, Line Description, Calculate by Qty, and action buttons match the requested reference positioning",
+      },
+    ],
+  },
+  {
+    version: "1.5.16",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Tariff detail second-row layout now uses a single-line Line Description input between Custom Description and Calculate by Qty to match the compact reference UI",
+      },
+    ],
+  },
+  {
+    version: "1.5.15",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Tariff form now auto-sets Unit (uomId) when a charge is selected using charge lookup defaults",
+      },
+      {
+        type: "improved",
+        text: "Tariff detail editor now places Custom Description, Line Description, and Calculate by Qty controls on a dedicated second row",
+      },
+      {
+        type: "improved",
+        text: "Tariff detail action buttons (Cancel/Edit) are now aligned within the second row for cleaner in-row editing layout",
+      },
+    ],
+  },
+  {
+    version: "1.5.14",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Charge master form now includes UOM autocomplete bound to uomId, with schema/interface support and existing record load mapping",
+      },
+    ],
+  },
+  {
+    version: "1.5.13",
+    date: "2026-04-22",
+    changes: [
+      {
+        type: "improved",
+        text: "Tariff detail model now supports lineDescription and isCustomDescription, including schema validation plus create/edit form inputs and table display columns",
+      },
+    ],
+  },
+  {
     version: "1.5.12",
     date: "2026-04-22",
     changes: [
       {
         type: "improved",
-        text: "Equipment Used service model now uses Is Loading, Is Offloading, Provider Name, and Gear fields across form and table views",
-      },
-      {
-        type: "removed",
-        text: "Removed forklift, crane, and stevedore charge default fields from Equipment Used service payload and checklist/report displays",
-      },
-      {
-        type: "improved",
-        text: "Equipment Used form layout updated to grouped rows with dedicated Is Loading and Is Offloading lines for tally sheet and loading/offloading values",
-      },
-      {
-        type: "improved",
-        text: "Equipment Used loading/offloading rows now show section status badges and enable inputs only when the related checkbox is turned on",
-      },
-      {
-        type: "improved",
-        text: "Equipment Used Loading and Offloading badges were moved to each section header line for clearer grouped form layout",
-      },
-      {
-        type: "improved",
-        text: "Equipment Used Loading and Offloading sections now render side by side on wider screens",
-      },
-      {
-        type: "improved",
-        text: "Equipment Used loading/offloading section headers now place checkbox and colored badge title side by side",
-      },
-      {
-        type: "improved",
-        text: "Equipment Used form now groups MAFI and Gear into a single two-field span row for cleaner alignment",
+        text: "Equipment Used was refactored to use Is Loading/Is Offloading, Provider Name, and Gear fields, replacing old forklift/crane/stevedore charge defaults, with updated checklist/report tables and a cleaner form layout including grouped sections, side-by-side loading/offloading cards, colored header badges with checkbox controls, conditional section editability, and aligned MAFI/Gear inputs",
       },
     ],
   },

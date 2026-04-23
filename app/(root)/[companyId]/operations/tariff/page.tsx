@@ -284,6 +284,8 @@ export default function TariffPage() {
           additionalUnit: detail.additionalUnit ?? 0,
           additionalRate: detail.additionalRate ?? 0,
           editVersion: detail.editVersion ?? 0,
+          isCustomDescription: detail.isCustomDescription ?? false,
+          lineDescription: detail.lineDescription ?? "",
         })) || [],
     }
   }, [])
@@ -335,6 +337,8 @@ export default function TariffPage() {
                 additionalUnit: tariff.additionalUnit ?? 0,
                 additionalRate: tariff.additionalRate ?? 0,
                 editVersion: tariff.editVersion ?? 0,
+                isCustomDescription: tariff.isCustomDescription ?? false,
+                lineDescription: tariff.lineDescription ?? "",
               },
             ]
           : [],

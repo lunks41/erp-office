@@ -3,8 +3,11 @@ export interface ICharge {
   companyId: number
   chargeCode: string
   chargeName: string
+  uomId?: number
+  uomName?: string
   chargeOrder: number
   seqNo: number
+  isMultiple: boolean
   isTransport: boolean
   createById: number
   editById: number

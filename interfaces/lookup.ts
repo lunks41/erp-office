@@ -35,6 +35,7 @@ export interface IChargeLookup {
   chargeName: string
   chargeCode: string
   glId: number
+  uomId: number
 }
 
 export interface IServiceLookup {

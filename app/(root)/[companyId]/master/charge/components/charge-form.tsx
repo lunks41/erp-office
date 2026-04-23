@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
+import { UomAutocomplete } from "@/components/autocomplete"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomInput from "@/components/custom/custom-input"
@@ -19,6 +20,7 @@ const defaultValues = {
   chargeId: 0,
   chargeName: "",
   chargeCode: "",
+  uomId: 0,
   chargeOrder: 0,
   seqNo: 0,
   isTransport: false,
@@ -57,6 +59,7 @@ export function ChargeForm({
           chargeId: initialData.chargeId ?? 0,
           chargeName: initialData.chargeName ?? "",
           chargeCode: initialData.chargeCode ?? "",
+          uomId: initialData.uomId ?? 0,
           seqNo: initialData.seqNo ?? 0,
           remarks: initialData.remarks ?? "",
           isActive: initialData.isActive ?? true,
@@ -75,10 +78,12 @@ export function ChargeForm({
             chargeId: initialData.chargeId ?? 0,
             chargeName: initialData.chargeName ?? "",
             chargeCode: initialData.chargeCode ?? "",
+            uomId: initialData.uomId ?? 0,
             seqNo: initialData.seqNo ?? 0,
             remarks: initialData.remarks ?? "",
             isActive: initialData.isActive ?? true,
             isTransport: initialData.isTransport ?? false,
+            isMultiple: initialData.isMultiple ?? false,
           }
         : {
             ...defaultValues,
@@ -118,6 +123,12 @@ export function ChargeForm({
               isDisabled={isReadOnly}
             />
             <div className="grid grid-cols-2 gap-2">
+              <UomAutocomplete
+                form={form}
+                name="uomId"
+                label="UOM"
+                isDisabled={isReadOnly}
+              />
               <CustomInput
                 form={form}
                 name="seqNo"
@@ -146,8 +157,14 @@ export function ChargeForm({
               label="Transport"
               isDisabled={isReadOnly}
             />
+            <CustomCheckbox
+              form={form}
+              name="isMultiple"
+              label="Multiply?"
+              isDisabled={isReadOnly}
+            />
 
-                        <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2">
               <Button variant="outline" type="button" onClick={onCancelAction}>
                 {isReadOnly ? "Close" : "Cancel"}
               </Button>
@@ -159,7 +176,13 @@ export function ChargeForm({
             </div>
 
             {/* Audit Information Section */}
-            <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+            <AuditTrailAccordion
+              createBy={initialData?.createBy}
+              createDate={initialData?.createDate}
+              editBy={initialData?.editBy}
+              editDate={initialData?.editDate}
+              datetimeFormat={datetimeFormat}
+            />
           </div>
         </form>
       </Form>

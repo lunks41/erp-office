@@ -96,10 +96,10 @@ export default function CustomInput<T extends Record<string, unknown>>({
                 className={cn(
                   "h-8 min-h-8 px-2 py-1 text-xs",
                   isDisabled
-                    ? "cursor-not-allowed !border-gray-400 !bg-gray-100 opacity-70 dark:!border-gray-500 dark:!bg-gray-800"
+                    ? "cursor-not-allowed border-gray-400! bg-gray-100! opacity-70 dark:border-gray-500! dark:bg-gray-800!"
                     : isRequired
-                      ? "focus-visible:ring-primary !border-gray-400 !bg-yellow-50 focus-visible:ring-1 dark:!border-gray-500 dark:!bg-yellow-950/20"
-                      : "bg-muted/5 focus-visible:ring-primary !border-gray-400 focus-visible:ring-1 dark:!border-gray-500"
+                      ? "focus-visible:ring-primary border-gray-400! bg-yellow-50! focus-visible:ring-1 dark:border-gray-500! dark:bg-yellow-950/20!"
+                      : "bg-muted/5 focus-visible:ring-primary border-gray-400! focus-visible:ring-1 dark:border-gray-500!"
                 )}
                 tabIndex={0}
               />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { format } from "date-fns"
+import { format, isValid, parse } from "date-fns"
 
 import { parseDate } from "@/lib/date-utils"
 import { Badge } from "@/components/ui/badge"
@@ -10,13 +10,13 @@ import { Separator } from "@/components/ui/separator"
 
 interface AccountDetailsProps {
   createBy: string
-  createDate: string
+  createDate: string | Date | null
   editBy: string | null
-  editDate: string | null
+  editDate: string | Date | null
   cancelBy: string | null
-  cancelDate: string | null
+  cancelDate: string | Date | null
   appBy: string | null
-  appDate: string | null
+  appDate: string | Date | null
 }
 
 export default function AccountDetails({
@@ -49,6 +49,14 @@ export default function AccountDetails({
       const isoDate = new Date(dateValue)
       if (!isNaN(isoDate.getTime())) {
         return format(isoDate, formatStr)
+      }
+    }
+
+    // Handle already-formatted strings from form values (e.g. dd/MM/yyyy HH:mm:ss)
+    if (typeof dateValue === "string") {
+      const parsedByUserFormat = parse(dateValue, datetimeFormat, new Date())
+      if (isValid(parsedByUserFormat)) {
+        return format(parsedByUserFormat, formatStr)
       }
     }
 

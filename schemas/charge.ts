@@ -11,8 +11,10 @@ export const chargeSchema = z.object({
     .min(2, { message: "charge name must be at least 2 characters" })
     .max(200, { message: "charge name cannot exceed 200 characters" }),
 
+  uomId: z.number().min(1, { message: "uom is required" }),
   seqNo: z.number().min(0, { message: "seq no is required" }),
   isTransport: z.boolean(),
+  isMultiple: z.boolean(),
   remarks: z
     .string()
     .max(255, { message: "Remarks cannot exceed 255 characters" })

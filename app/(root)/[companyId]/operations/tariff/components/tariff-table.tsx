@@ -144,7 +144,7 @@ export function TariffTable({
     },
     {
       accessorKey: "isAdditional",
-      header: "Is Additional",
+      header: "Add.?",
       cell: ({ row }) => (
         <div className="flex justify-center overflow-hidden">
           {row.getValue("isAdditional") ? (
@@ -158,16 +158,17 @@ export function TariffTable({
     },
     {
       accessorKey: "additionalUnit",
-      header: "Additional Unit",
+      header: "Add. Unit",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("additionalUnit"), amtDec)}
         </div>
       ),
+      size: 80,
     },
     {
       accessorKey: "additionalRate",
-      header: "Additional Rate",
+      header: "Add. Rate",
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("additionalRate"), amtDec)}
@@ -177,7 +178,7 @@ export function TariffTable({
     },
     {
       accessorKey: "isPrepayment",
-      header: "Is Prepayment",
+      header: "Prepay?",
       cell: ({ row }) => (
         <div className="flex justify-center overflow-hidden">
           {row.getValue("isPrepayment") ? (

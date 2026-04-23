@@ -112,6 +112,7 @@ const buildDefaultInvoice = (dateFormat: string) => ({
   mobileNo: "",
   emailAdd: "",
   moduleFrom: "",
+  isModuleFrom: false,
   supplierName: "",
   suppInvoiceNo: "",
   apInvoiceId: "0",
