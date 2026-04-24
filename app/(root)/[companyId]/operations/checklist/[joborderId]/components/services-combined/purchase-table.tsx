@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react"
 import { IPurchaseData } from "@/interfaces"
 import { ColumnDef } from "@tanstack/react-table"
+import { Paperclip } from "lucide-react"
 
 import { TableName } from "@/lib/utils"
 import { PurchaseBaseTable } from "@/components/table/table-purchase"
@@ -12,6 +13,7 @@ interface PurchaseTableProps {
   isLoading?: boolean
   onSelect?: (debitNote: IPurchaseData | null) => void
   onDocumentNoClick?: (row: IPurchaseData) => void
+  onPreviewClick?: (row: IPurchaseData) => void
   onDataReorder?: (newData: IPurchaseData[]) => void
   onBulkSelectionChange?: (selectedIds: string[]) => void
   isConfirmed?: boolean
@@ -25,6 +27,7 @@ export function PurchaseTable({
   isLoading = false,
   onSelect: _onSelect,
   onDocumentNoClick,
+  onPreviewClick,
   onDataReorder,
   onBulkSelectionChange,
   isConfirmed,
@@ -32,20 +35,32 @@ export function PurchaseTable({
   selectedIds: _selectedIds = [],
 }: PurchaseTableProps) {
   // Add uniqueId field combining documentId and itemNo for proper identification
-  const dataWithUniqueId = useMemo(
-    () =>
-      data.map((item) => {
-        const uniqueId = `${item.documentId}_${item.itemNo}`
+  const dataWithUniqueId = useMemo(() => {
+    const countByDocumentId = new Map<string, number>()
+    for (const item of data) {
+      const key = String(item.documentId || "").trim()
+      if (!key) continue
+      countByDocumentId.set(key, (countByDocumentId.get(key) ?? 0) + 1)
+    }
 
-        return {
-          ...item,
-          uniqueId,
-        }
-      }),
-    [data]
-  )
+    return data.map((item) => {
+      const uniqueId = `${item.documentId}_${item.itemNo}`
+      const documentKey = String(item.documentId || "").trim()
+      const previewPinCount = documentKey
+        ? (countByDocumentId.get(documentKey) ?? 1)
+        : 1
+
+      return {
+        ...item,
+        uniqueId,
+        previewPinCount,
+      }
+    })
+  }, [data])
   // Define columns for the purchase table
-  const columns: ColumnDef<IPurchaseData & { uniqueId: string }>[] = useMemo(
+  const columns: ColumnDef<
+    IPurchaseData & { uniqueId: string; previewPinCount: number }
+  >[] = useMemo(
     () => [
       {
         accessorKey: "uniqueId",
@@ -177,6 +192,36 @@ export function PurchaseTable({
         minSize: 150,
       },
       {
+        id: "previewPins",
+        header: "Preview",
+        size: 90,
+        minSize: 80,
+        cell: ({ row }) => {
+          const rowData = row.original
+          const pinCount = Math.max(1, Number(rowData.previewPinCount || 1))
+          const visiblePins = Math.min(pinCount, 3)
+
+          return (
+            <button
+              type="button"
+              className="flex items-center gap-0.5 text-green-600 hover:opacity-80"
+              onClick={() => onPreviewClick?.(rowData)}
+              title={`Open preview (${pinCount} linked item${pinCount > 1 ? "s" : ""})`}
+            >
+              {Array.from({ length: visiblePins }).map((_, idx) => (
+                <Paperclip
+                  key={`${rowData.uniqueId}-pin-${idx}`}
+                  className="h-3.5 w-3.5"
+                />
+              ))}
+              {pinCount > 3 && (
+                <span className="text-[10px]">+{pinCount - 3}</span>
+              )}
+            </button>
+          )
+        },
+      },
+      {
         accessorKey: "itemNo",
         header: "Item No",
         meta: { align: "right" },
@@ -232,7 +277,7 @@ export function PurchaseTable({
         },
       },
     ],
-    [onDocumentNoClick]
+    [onDocumentNoClick, onPreviewClick]
   )
 
   // Stable callback functions to prevent infinite re-renders

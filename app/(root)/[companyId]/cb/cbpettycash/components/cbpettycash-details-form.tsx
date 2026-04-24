@@ -1611,7 +1611,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 isRequired={true}
                 className="col-span-1"
                 buttonText=""
-                buttonIcon={<PlusIcon className="h-4 w-4" />}
+                buttonIcon={<PlusIcon className="h-3 w-3" />}
                 buttonPosition="right"
                 onButtonClick={() => setIsSupplierDialogOpen(true)}
                 buttonVariant="default"

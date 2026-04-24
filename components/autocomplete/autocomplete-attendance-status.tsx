@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
@@ -149,11 +149,11 @@ export default function AttendanceStatusAutocomplete<
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
         cn(
           "border-gray-400 dark:border-gray-500 data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50",
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-1 text-xs whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
+          "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-0.5 text-xs whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
           state.isFocused && "ring-2 ring-ring/50 border-ring",
           state.isDisabled && "cursor-not-allowed opacity-50",
           isRequired && !state.isDisabled && "bg-yellow-50 border-gray-400 dark:bg-yellow-950/20 dark:border-gray-500",
-          "h-8 min-h-8",
+          "h-7.5 min-h-7.5",
           className
         ),
       menu: () =>

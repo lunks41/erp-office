@@ -115,9 +115,9 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
                     !isDisabled &&
                     "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20",
                   {
-                    "h-8 text-xs": size === "sm",
-                    "h-9 text-sm": size === "default",
-                    "h-12 text-lg": size === "lg",
+                    "h-7.5 text-xs": size === "sm",
+                    "h-7.5 text-xs": size === "default",
+                    "h-10 text-sm": size === "lg",
                   }
                 )}
                 {...field}

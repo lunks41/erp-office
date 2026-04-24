@@ -68,6 +68,57 @@ export const userRoleSchema = z.object({
 
 export type UserRoleSchemaType = z.infer<typeof userRoleSchema>
 
+export const companySchema = z.object({
+  companyId: z
+    .number()
+    .int({ message: "Company ID must be a whole number" })
+    .min(1, { message: "Company ID must be greater than 0" })
+    .max(255, { message: "Company ID cannot exceed 255" }),
+  companyCode: z
+    .string()
+    .min(1, { message: "Company code is required" })
+    .max(50, { message: "Company code must be less than 50 characters" }),
+  companyName: z
+    .string()
+    .min(1, { message: "Company name is required" })
+    .max(200, { message: "Company name must be less than 200 characters" }),
+  registrationNo: z
+    .string()
+    .max(100, { message: "Registration number must be less than 100 characters" })
+    .optional(),
+  taxRegistrationNo: z
+    .string()
+    .max(100, { message: "Tax registration number must be less than 100 characters" })
+    .optional(),
+  molId: z
+    .string()
+    .max(50, { message: "MOL ID must be less than 50 characters" })
+    .optional(),
+  address: z.string().optional(),
+  email: z
+    .string()
+    .max(200, { message: "Email must be less than 200 characters" })
+    .email({ message: "Invalid email format" })
+    .or(z.literal(""))
+    .optional(),
+  phoneNo: z
+    .string()
+    .max(50, { message: "Phone number must be less than 50 characters" })
+    .optional(),
+  remarks: z
+    .string()
+    .max(255, { message: "Remarks cannot exceed 255 characters" })
+    .optional(),
+  isActive: z.boolean(),
+  currencyId: z.number().min(0, { message: "Currency is required" }),
+  peppolId: z
+    .string()
+    .max(100, { message: "Peppol ID must be less than 100 characters" })
+    .optional(),
+})
+
+export type CompanySchemaType = z.infer<typeof companySchema>
+
 export const userFilterSchema = z.object({
   isActive: z.boolean().optional(),
   search: z.string().optional(),
@@ -91,6 +142,14 @@ export const userRoleFilterSchema = z.object({
 })
 
 export type UserRoleFilterValues = z.infer<typeof userRoleFilterSchema>
+
+export const companyFilterSchema = z.object({
+  isActive: z.boolean().optional(),
+  search: z.string().optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+})
+
+export type CompanyFilterValues = z.infer<typeof companyFilterSchema>
 
 export const resetPasswordSchema = z.object({
   userId: z.number().min(1, { message: "User ID must be greater than 0" }),

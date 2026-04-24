@@ -5,10 +5,10 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
 import { TableName } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { MainTable } from "@/components/table/table-main"
+import { Button } from "@/components/ui/button"
 
-interface JobStatusActivationTableProps {
+interface ChecklistOverridesTableProps {
   data: IJobOrderStatus[]
   isLoading?: boolean
   onEdit?: (job: IJobOrderStatus) => void
@@ -17,14 +17,14 @@ interface JobStatusActivationTableProps {
   initialSearchValue?: string
 }
 
-export function JobStatusActivationTable({
+export function ChecklistOverridesTable({
   data,
   isLoading = false,
   onEdit,
   onRefreshAction,
   onFilterChange,
   initialSearchValue,
-}: JobStatusActivationTableProps) {
+}: ChecklistOverridesTableProps) {
   const columns: ColumnDef<IJobOrderStatus>[] = [
     {
       id: "action",

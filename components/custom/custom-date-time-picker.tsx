@@ -77,10 +77,10 @@ export const CustomDateTimePicker = <T extends FieldValues = FieldValues>({
       case "lg":
         return "h-12 px-4 text-base"
       case "default":
-        return "h-9 px-3 text-sm"
+        return "h-7.5 px-2 text-xs"
       case "sm":
       default:
-        return "h-8 px-2 text-xs"
+        return "h-7.5 px-2 text-xs"
     }
   }
 

@@ -211,7 +211,7 @@ export default function BankReconForm({
           name="prevReconNo"
           label="Previous Reconciliation No"
           isDisabled={true}
-          buttonIcon={isBankSelected ? <Plus className="h-4 w-4" /> : undefined}
+          buttonIcon={isBankSelected ? <Plus className="h-3 w-3" /> : undefined}
           buttonPosition="right"
           onButtonClick={() => setIsBankReconDialogOpen(true)}
           buttonVariant="default"

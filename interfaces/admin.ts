@@ -38,6 +38,26 @@ export interface IUserRole {
   editDate: Date | string
 }
 
+export interface ICompany {
+  companyId: number
+  companyCode: string
+  companyName: string
+  registrationNo: string
+  taxRegistrationNo: string
+  molId?: string | null
+  address?: string | null
+  email?: string | null
+  phoneNo?: string | null
+  remarks: string
+  isActive: boolean
+  currencyId: number
+  peppolId?: string | null
+  createBy: string
+  editBy: string | null
+  createDate: Date | string
+  editDate: Date | string
+}
+
 export interface IAuditLog {
   companyName: string
   moduleName: string
@@ -132,6 +152,12 @@ export interface IUserGroupFilter {
 }
 
 export interface IUserRoleFilter {
+  isActive?: boolean
+  search?: string
+  sortOrder?: "asc" | "desc"
+}
+
+export interface ICompanyFilter {
   isActive?: boolean
   search?: string
   sortOrder?: "asc" | "desc"

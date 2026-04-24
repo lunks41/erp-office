@@ -211,6 +211,7 @@ const getTransactionIcon = (transactionCode: string) => {
     users: Users,
     userroles: UserCheck,
     usergroup: Users,
+    company: Building,
     userrights: ShieldCheck,
     usergrouprights: Shield,
     // Report-oriented rights
@@ -795,31 +796,10 @@ const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
     (m) => m.url !== "/master" && m.url !== "/operations"
   )
 
-  // Activation menu (Account & Job screens)
-  const activationMenu: MenuGroup = {
-    title: "Activation",
-    url: "#",
-    icon: CheckCircle,
-    isDirectLink: false,
-    items: [
-      {
-        title: "Account",
-        url: "/admin/activation/account",
-        icon: Landmark,
-      },
-      {
-        title: "Job",
-        url: "/admin/activation/job",
-        icon: Briefcase,
-      },
-    ],
-  }
-
   return [
     ...(master ? [master] : []),
     ...(operations ? [operations] : []),
     ...accountMenu,
-    activationMenu,
     ...rest,
   ]
 }

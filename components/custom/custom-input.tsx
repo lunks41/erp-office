@@ -59,7 +59,7 @@ export default function CustomInput<T extends Record<string, unknown>>({
         control={form.control}
         name={name}
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex flex-col">
             <FormControl>
               <Input
                 onKeyDown={(e) => {
@@ -94,7 +94,7 @@ export default function CustomInput<T extends Record<string, unknown>>({
                   }
                 }}
                 className={cn(
-                  "h-8 min-h-8 px-2 py-1 text-xs",
+                  "h-7.5 min-h-7.5 px-2 py-0.5 text-xs",
                   isDisabled
                     ? "cursor-not-allowed border-gray-400! bg-gray-100! opacity-70 dark:border-gray-500! dark:bg-gray-800!"
                     : isRequired

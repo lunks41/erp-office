@@ -1,6 +1,12 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+
 import { IJobOrderStatus, ISaveJobOrderStatusRequest } from "@/interfaces/admin"
+import { JobStatusAutocomplete } from "@/components/autocomplete"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -8,20 +14,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { JobStatusAutocomplete } from "@/components/autocomplete"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 
-const jobOrderStatusFormSchema = z.object({
+const checklistOverrideFormSchema = z.object({
   jobOrderId: z.number(),
   jobStatusId: z.coerce.number().min(1, "Job status is required"),
 })
 
-type JobOrderStatusFormValues = z.infer<typeof jobOrderStatusFormSchema>
+type ChecklistOverrideFormValues = z.infer<typeof checklistOverrideFormSchema>
 
-interface JobOrderStatusFormDialogProps {
+interface ChecklistOverrideFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   jobOrder: IJobOrderStatus | null
@@ -29,15 +30,15 @@ interface JobOrderStatusFormDialogProps {
   isSubmitting?: boolean
 }
 
-export function JobOrderStatusFormDialog({
+export function ChecklistOverrideFormDialog({
   open,
   onOpenChange,
   jobOrder,
   onSubmit,
   isSubmitting = false,
-}: JobOrderStatusFormDialogProps) {
-  const form = useForm<JobOrderStatusFormValues>({
-    resolver: zodResolver(jobOrderStatusFormSchema),
+}: ChecklistOverrideFormDialogProps) {
+  const form = useForm<ChecklistOverrideFormValues>({
+    resolver: zodResolver(checklistOverrideFormSchema),
     defaultValues: {
       jobOrderId: 0,
       jobStatusId: 0,
@@ -70,7 +71,8 @@ export function JobOrderStatusFormDialog({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid gap-2">
             <div className="text-muted-foreground text-sm">
-              <span className="font-medium">Job Order No:</span> {jobOrder?.jobOrderNo ?? "-"}
+              <span className="font-medium">Job Order No:</span>{" "}
+              {jobOrder?.jobOrderNo ?? "-"}
             </div>
             <JobStatusAutocomplete
               form={form as ReturnType<typeof useForm<Record<string, unknown>>>}

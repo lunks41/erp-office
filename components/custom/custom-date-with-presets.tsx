@@ -412,9 +412,9 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
                         : "bg-background",
                       "pr-10",
                       {
-                        "h-8 text-xs": size === "sm",
-                        "h-9 text-sm": size === "default",
-                        "h-12 text-lg": size === "lg",
+                        "h-7.5 text-xs": size === "sm",
+                        "h-7.5 text-xs": size === "default",
+                        "h-10 text-sm": size === "lg",
                       }
                     )}
                     value={value}

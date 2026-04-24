@@ -77,6 +77,8 @@ interface AccountBaseTablev1Props<T> {
   pageSizeOption?: number
   /** When false, headers do not reorder rows (keeps drag order and seqNo aligned). */
   enableSorting?: boolean
+  /** When true, the second column (after drag-actions) is frozen/sticky. */
+  freezeSecondColumn?: boolean
 }
 
 export function AccountBaseTablev1<T>({
@@ -108,6 +110,7 @@ export function AccountBaseTablev1<T>({
   maxHeight = "460px",
   pageSizeOption = 50,
   enableSorting = true,
+  freezeSecondColumn = false,
 }: AccountBaseTablev1Props<T>) {
   // Always call the hook but pass valid IDs or defaults
   const { data: gridSettings } = useGetGridLayout(
@@ -471,6 +474,8 @@ export function AccountBaseTablev1<T>({
     setColumnSizing({})
   }, [table])
 
+  const dragActionsWidth = table.getColumn("drag-actions")?.getSize() ?? 160
+
   const rowModel = table.getRowModel().rows
   const isTableEmpty = rowModel.length === 0
   const fillerRowCount = Math.max(
@@ -531,7 +536,7 @@ export function AccountBaseTablev1<T>({
             <TableHeader className="bg-background sticky top-0 z-20">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="bg-muted/50">
-                  {headerGroup.headers.map((header) => {
+                  {headerGroup.headers.map((header, headerIndex) => {
                     if (header.id === "drag-actions") {
                       return (
                         <TableHead
@@ -554,6 +559,34 @@ export function AccountBaseTablev1<T>({
                                   )}
                                 </span>
                               </div>
+                            </div>
+                          )}
+                        </TableHead>
+                      )
+                    }
+                    if (freezeSecondColumn && headerIndex === 1) {
+                      return (
+                        <TableHead
+                          key={header.id}
+                          colSpan={header.colSpan}
+                          style={{
+                            width: header.getSize(),
+                            minWidth: header.column.columnDef.minSize,
+                            maxWidth: header.column.columnDef.maxSize,
+                            position: "sticky",
+                            left: dragActionsWidth,
+                            zIndex: 40,
+                          }}
+                          className="bg-muted group hover:bg-muted/80 top-0 transition-colors border-r border-border/40"
+                        >
+                          {header.isPlaceholder ? null : (
+                            <div className="flex items-center pl-3">
+                              <span className="font-medium">
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                              </span>
                             </div>
                           )}
                         </TableHead>
@@ -586,16 +619,17 @@ export function AccountBaseTablev1<T>({
                     {row.getVisibleCells().map((cell, cellIndex) => {
                       const isActions = cell.column.id === "drag-actions"
                       const isFirstColumn = cellIndex === 0
+                      const isFrozenSecond = freezeSecondColumn && cellIndex === 1
 
                       return (
                         <TableCell
                           key={cell.id}
                           title={String(cell.getValue() ?? "")}
                           className={`py-1 ${
-                            isFirstColumn || isActions
-                              ? "bg-background sticky left-0 z-10"
+                            isFirstColumn || isActions || isFrozenSecond
+                              ? "bg-background z-10"
                               : ""
-                          }`}
+                          }${isFrozenSecond ? " border-r border-border/40" : ""}`}
                           style={{
                             width: `${cell.column.getSize()}px`,
                             minWidth: `${cell.column.getSize()}px`,
@@ -604,11 +638,15 @@ export function AccountBaseTablev1<T>({
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
                             position:
-                              isFirstColumn || isActions
+                              isFirstColumn || isActions || isFrozenSecond
                                 ? "sticky"
                                 : "relative",
-                            left: isFirstColumn || isActions ? 0 : "auto",
-                            zIndex: isFirstColumn || isActions ? 10 : 1,
+                            left: isFrozenSecond
+                              ? dragActionsWidth
+                              : isFirstColumn || isActions
+                                ? 0
+                                : "auto",
+                            zIndex: isFirstColumn || isActions || isFrozenSecond ? 10 : 1,
                           }}
                         >
                           <div className="truncate">
@@ -641,25 +679,30 @@ export function AccountBaseTablev1<T>({
                     {table.getAllLeafColumns().map((column, cellIndex) => {
                       const isActions = column.id === "drag-actions"
                       const isFirstColumn = cellIndex === 0
+                      const isFrozenSecond = freezeSecondColumn && cellIndex === 1
 
                       return (
                         <TableCell
                           key={`empty-${index}-${column.id}`}
                           className={`py-1 ${
-                            isFirstColumn || isActions
-                              ? "bg-background sticky left-0 z-10"
+                            isFirstColumn || isActions || isFrozenSecond
+                              ? "bg-background z-10"
                               : ""
-                          }`}
+                          }${isFrozenSecond ? " border-r border-border/40" : ""}`}
                           style={{
                             width: `${column.getSize()}px`,
                             minWidth: `${column.getSize()}px`,
                             maxWidth: `${column.getSize()}px`,
                             position:
-                              isFirstColumn || isActions
+                              isFirstColumn || isActions || isFrozenSecond
                                 ? "sticky"
                                 : "relative",
-                            left: isFirstColumn || isActions ? 0 : "auto",
-                            zIndex: isFirstColumn || isActions ? 10 : 1,
+                            left: isFrozenSecond
+                              ? dragActionsWidth
+                              : isFirstColumn || isActions
+                                ? 0
+                                : "auto",
+                            zIndex: isFirstColumn || isActions || isFrozenSecond ? 10 : 1,
                           }}
                         />
                       )

@@ -7,10 +7,10 @@ import { format, isValid } from "date-fns"
 import { CheckCircle } from "lucide-react"
 
 import { TableName } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { MainTable } from "@/components/table/table-main"
+import { Button } from "@/components/ui/button"
 
-interface AccountsActivationTableProps {
+interface TransactionRecoveryTableProps {
   data: IActiveDocument[]
   isLoading?: boolean
   onActivate?: (doc: IActiveDocument) => void
@@ -20,7 +20,7 @@ interface AccountsActivationTableProps {
   isActivating?: boolean
 }
 
-export function AccountsActivationTable({
+export function TransactionRecoveryTable({
   data,
   isLoading = false,
   onActivate,
@@ -28,7 +28,7 @@ export function AccountsActivationTable({
   onFilterChange,
   initialSearchValue,
   isActivating = false,
-}: AccountsActivationTableProps) {
+}: TransactionRecoveryTableProps) {
   const { decimals } = useAuthStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yy"

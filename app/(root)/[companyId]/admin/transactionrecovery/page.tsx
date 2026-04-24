@@ -20,10 +20,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
+import { TransactionRecoveryTable } from "./components/transaction-recovery-table"
 
-import { AccountsActivationTable } from "../components/accounts-activation-table"
-
-export default function AdminActivationAccountPage() {
+export default function AdminTransactionRecoveryPage() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState<string>("")
   const [confirmDoc, setConfirmDoc] = useState<IActiveDocument | null>(null)
@@ -87,10 +86,10 @@ export default function AdminActivationAccountPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
-            Accounts Activation
+            Transaction Recovery
           </h1>
           <p className="text-muted-foreground text-sm">
-            Activate cancelled account documents
+            Recover cancelled account documents
           </p>
         </div>
       </div>
@@ -114,7 +113,7 @@ export default function AdminActivationAccountPage() {
           shrinkZero
         />
       ) : (
-        <AccountsActivationTable
+        <TransactionRecoveryTable
           data={Array.isArray(documentsData) ? documentsData : []}
           isLoading={isLoading}
           onActivate={handleActivateClick}

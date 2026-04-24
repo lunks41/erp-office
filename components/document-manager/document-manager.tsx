@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { IDocType, IDocument, IDocumentTypeLookup } from "@/interfaces/lookup"
 import { useAuthStore } from "@/stores/auth-store"
 import { useQueryClient } from "@tanstack/react-query"
@@ -17,6 +17,7 @@ import { toast } from "sonner"
 
 import { Admin } from "@/lib/api-routes"
 import { useDelete, useGet, usePersist } from "@/hooks/use-common"
+import { useDocumentTypeLookup } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -44,6 +45,8 @@ interface DocumentManagerProps {
   maxFileSize?: number // in MB
   allowedFileTypes?: string[]
   maxFiles?: number
+  defaultDocTypeKeyword?: string
+  defaultRemarks?: string
 }
 
 interface UploadFile {
@@ -74,6 +77,8 @@ export default function DocumentManager({
     ".png",
   ],
   maxFiles = 10,
+  defaultDocTypeKeyword,
+  defaultRemarks,
 }: DocumentManagerProps) {
   const { decimals: _decimals } = useAuthStore()
   const form = useForm()
@@ -99,6 +104,7 @@ export default function DocumentManager({
   const [editDocType, setEditDocType] = useState<IDocumentTypeLookup | null>(
     null
   )
+  const { data: documentTypes = [] } = useDocumentTypeLookup()
 
   const { data: documents, isLoading } = useGet<IDocType>(
     `${Admin.getDocumentById}/${moduleId}/${transactionId}/${recordId}`,
@@ -109,6 +115,36 @@ export default function DocumentManager({
     Admin.saveDocument
   )
   const deleteDocumentMutation = useDelete(Admin.deleteDocument)
+
+  useEffect(() => {
+    form.setValue("remarks", defaultRemarks || "")
+  }, [defaultRemarks, form])
+
+  useEffect(() => {
+    if (!defaultDocTypeKeyword || selectedDocType || documentTypes.length === 0) {
+      return
+    }
+
+    const key = defaultDocTypeKeyword.trim().toLowerCase()
+    if (!key) return
+
+    const matched =
+      documentTypes.find(
+        (d) =>
+          d.docTypeCode?.trim().toLowerCase() === key ||
+          d.docTypeName?.trim().toLowerCase() === key
+      ) ||
+      documentTypes.find(
+        (d) =>
+          d.docTypeCode?.toLowerCase().includes(key) ||
+          d.docTypeName?.toLowerCase().includes(key)
+      )
+
+    if (!matched) return
+
+    setSelectedDocType(matched)
+    form.setValue("docTypeId", matched.docTypeId)
+  }, [defaultDocTypeKeyword, selectedDocType, documentTypes, form])
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -546,16 +582,20 @@ export default function DocumentManager({
 
   return (
     <>
-      <div className="grid grid-cols-10 gap-2">
+      <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-10 sm:gap-2">
         {/* Upload Section - 30% */}
-        <div className="col-span-3">
-          <Card className="h-full rounded-md border border-border/60 bg-muted/40 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span>Upload Documents</span>
+        <div className="min-w-0 sm:col-span-3">
+          <Card className="border-border/60 bg-muted/40 h-full rounded-md border shadow-sm">
+            <CardHeader className="min-w-0 space-y-2">
+              <CardTitle>
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                  <span className="min-w-0 shrink-0">Upload Documents</span>
                   {recordId !== "0" && (
-                    <Badge variant="outline" className="w-fit">
+                    <Badge
+                      variant="outline"
+                      className="max-w-full shrink truncate"
+                      title={recordNo || recordId}
+                    >
                       {recordNo || recordId}
                     </Badge>
                   )}
@@ -779,12 +819,12 @@ export default function DocumentManager({
         </div>
 
         {/* Uploaded Documents List - 70% */}
-        <div className="col-span-7">
-          <Card className="h-full rounded-md border border-border/60 bg-muted/40 shadow-sm">
+        <div className="min-w-0 overflow-x-auto sm:col-span-7">
+          <Card className="border-border/60 bg-muted/40 h-full min-w-0 rounded-md border shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
+              <CardTitle className="flex min-w-0 flex-wrap items-center justify-between gap-2">
                 <span>Documents List </span>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   {/* {selectedDocuments.length > 0 && (
                     <Badge variant="default">
                       {selectedDocuments.length} selected

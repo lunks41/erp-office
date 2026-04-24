@@ -94,7 +94,7 @@ const CustomNumberInputRef = forwardRef(function CustomNumberInputRef<
                 allowNegative={false}
                 disabled={isDisabled}
                 className={cn(
-                  "ring-offset-background flex h-8 min-h-8 w-full rounded-md border px-2 py-1 text-right text-xs",
+                  "ring-offset-background flex h-7.5 min-h-7.5 w-full rounded-md border px-2 py-0.5 text-right text-xs",
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
                   showError
                     ? "border-destructive"

@@ -515,7 +515,7 @@ export default function CbGenPaymentForm({
             isRequired={true}
             className="col-span-2"
             buttonText=""
-            buttonIcon={<PlusIcon className="h-4 w-4" />}
+            buttonIcon={<PlusIcon className="h-3 w-3" />}
             buttonPosition="right"
             onButtonClick={handleAddPayeeTo}
             buttonVariant="default"

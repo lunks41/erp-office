@@ -62,7 +62,7 @@ export function CompanyAppChrome({
         <SidebarInset className="flex min-h-screen flex-col">
           <header
             id="navigation"
-            className="bg-background sticky inset-x-0 top-0 isolate z-10 flex shrink-0 items-center gap-2 border-b shadow-sm"
+            className="bg-background sticky inset-x-0 top-0 isolate z-30 flex shrink-0 items-center gap-2 border-b shadow-sm"
             role="banner"
           >
             <link rel="stylesheet" href={KENDO_THEME_STYLESHEET} />

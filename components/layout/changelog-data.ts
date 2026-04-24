@@ -31,49 +31,91 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
-    version: "1.5.19",
+    version: "1.5.25",
+    date: "2026-04-24",
+    changes: [
+      {
+        type: "improved",
+        text: "Sidebar navigation now removes the separate Activation section and places Transaction Recovery and Checklist Overrides under Admin",
+      },
+      {
+        type: "fixed",
+        text: "Removed hardcoded sidebar injection for Transaction Recovery and Checklist Overrides so Admin links come only from user transactions/permissions",
+      },
+      {
+        type: "improved",
+        text: "Rule guidance now enforces day-wise versioning so all updates on the same date stay under a single release version entry",
+      },
+      {
+        type: "improved",
+        text: "Renamed Checklist Overrides component file/symbols to align with its feature folder naming",
+      },
+      {
+        type: "improved",
+        text: "Renamed Transaction Recovery component file/symbols to match its feature folder naming for clearer admin module structure",
+      },
+      {
+        type: "improved",
+        text: "Removed unused admin activation routes after migrating to Transaction Recovery and Checklist Overrides screens",
+      },
+      {
+        type: "added",
+        text: "New Admin Company screen added under /admin/company with list, create/edit/view modal form, delete and save confirmations, currency selection, and permissions-based actions",
+      },
+      {
+        type: "improved",
+        text: "Admin activation screens are separated into dedicated routes: Transaction Recovery and Checklist Overrides, with legacy activation URLs redirected for compatibility",
+      },
+      {
+        type: "improved",
+        text: "CB Petty Cash details grid adds a Docs column (after Actions) with per-line attachment counts, document manager from each row, and a footer with total lines, legend, and total amount",
+      },
+      {
+        type: "improved",
+        text: "CB Petty Cash line document upload now defaults document type to Invoice and pre-fills upload remarks from the selected detail row remarks",
+      },
+      {
+        type: "fixed",
+        text: "Document Manager modal layout: wider dialog, scroll containment, min-width/overflow on grid and record badge to stop overlap and the documents list table squashing",
+      },
+      {
+        type: "improved",
+        text: "Checklist Purchase dialog Document No now opens the source accounting transaction in a new tab via history-doc navigation (with fallback to existing job-transaction edit dialog)",
+      },
+      {
+        type: "improved",
+        text: "Checklist Purchase table adds a pin-based Preview column that shows multiple pins when multiple rows share the same accounting source document",
+      },
+      {
+        type: "improved",
+        text: "Checklist Purchase preview icons now use green paperclip styling to match the requested visual indicator",
+      },
+      {
+        type: "fixed",
+        text: "Checklist Purchase behavior updated so Document No opens Job Transaction form, while Preview pin opens accounting document preview",
+      },
+    ],
+  },
+  {
+    version: "1.5.24",
     date: "2026-04-22",
     changes: [
       {
         type: "fixed",
         text: "CB Petty Cash history Account Details now correctly displays Created/Edited/Cancelled/Approved dates by parsing user-format datetime strings",
       },
-    ],
-  },
-  {
-    version: "1.5.18",
-    date: "2026-04-22",
-    changes: [
       {
         type: "fixed",
         text: "Tariff detail Line Description field is now editable only when Custom Description is enabled",
       },
-    ],
-  },
-  {
-    version: "1.5.17",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Tariff detail second-row desktop alignment refined with explicit column spans so Custom Description, Line Description, Calculate by Qty, and action buttons match the requested reference positioning",
       },
-    ],
-  },
-  {
-    version: "1.5.16",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Tariff detail second-row layout now uses a single-line Line Description input between Custom Description and Calculate by Qty to match the compact reference UI",
       },
-    ],
-  },
-  {
-    version: "1.5.15",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Tariff form now auto-sets Unit (uomId) when a charge is selected using charge lookup defaults",
@@ -86,42 +128,18 @@ export const changelog: ChangelogVersion[] = [
         type: "improved",
         text: "Tariff detail action buttons (Cancel/Edit) are now aligned within the second row for cleaner in-row editing layout",
       },
-    ],
-  },
-  {
-    version: "1.5.14",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Charge master form now includes UOM autocomplete bound to uomId, with schema/interface support and existing record load mapping",
       },
-    ],
-  },
-  {
-    version: "1.5.13",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Tariff detail model now supports lineDescription and isCustomDescription, including schema validation plus create/edit form inputs and table display columns",
       },
-    ],
-  },
-  {
-    version: "1.5.12",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Equipment Used was refactored to use Is Loading/Is Offloading, Provider Name, and Gear fields, replacing old forklift/crane/stevedore charge defaults, with updated checklist/report tables and a cleaner form layout including grouped sections, side-by-side loading/offloading cards, colored header badges with checkbox controls, conditional section editability, and aligned MAFI/Gear inputs",
       },
-    ],
-  },
-  {
-    version: "1.5.11",
-    date: "2026-04-22",
-    changes: [
       {
         type: "improved",
         text: "Tariff dialogs and form grids are now responsive across screen sizes to reduce inconsistent horizontal scrollbar behavior on different systems",
@@ -133,19 +151,13 @@ export const changelog: ChangelogVersion[] = [
     ],
   },
   {
-    version: "1.5.10",
+    version: "1.5.23",
     date: "2026-04-13",
     changes: [
       {
         type: "fixed",
         text: "Debit Note detail amount and VAT amount now support both negative and positive values in line item calculations and validation",
       },
-    ],
-  },
-  {
-    version: "1.5.9",
-    date: "2026-04-13",
-    changes: [
       {
         type: "added",
         text: "Added a dedicated same-origin auth login API route with request forwarding to backend auth endpoint",
@@ -161,7 +173,7 @@ export const changelog: ChangelogVersion[] = [
     ],
   },
   {
-    version: "1.5.8",
+    version: "1.5.22",
     date: "2026-04-10",
     changes: [
       {
@@ -171,7 +183,7 @@ export const changelog: ChangelogVersion[] = [
     ],
   },
   {
-    version: "1.5.7",
+    version: "1.5.21",
     date: "2026-04-09",
     changes: [
       {
@@ -193,7 +205,7 @@ export const changelog: ChangelogVersion[] = [
     ],
   },
   {
-    version: "1.5.6",
+    version: "1.5.20",
     date: "2026-04-08",
     changes: [
       {
@@ -228,12 +240,6 @@ export const changelog: ChangelogVersion[] = [
         type: "improved",
         text: "Release entries now use clearer shadcn badge styling for Added/Improved/Fixed/Removed types",
       },
-    ],
-  },
-  {
-    version: "1.5.0",
-    date: "2026-04-08",
-    changes: [
       {
         type: "improved",
         text: "Tariff, checklist, debit note, and job order updates deployed from April release stream",

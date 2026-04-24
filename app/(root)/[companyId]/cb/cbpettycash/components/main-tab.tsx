@@ -267,7 +267,7 @@ export default function Main({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex w-full flex-col">
       <CbPettyCashForm
         form={form}
         onSuccessAction={onSuccessAction}
@@ -297,6 +297,9 @@ export default function Main({
       <CbPettyCashDetailsTable
         key={tableKey}
         data={(dataDetails as unknown as ICbPettyCashDt[]) || []}
+        paymentId={String(currentGLpaymentId ?? "0")}
+        paymentNo={currentCbPettyCashNo ?? ""}
+        companyId={companyId}
         visible={visible}
         onDeleteAction={handleDelete}
         onBulkDeleteAction={handleBulkDelete}

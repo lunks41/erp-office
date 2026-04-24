@@ -9,11 +9,10 @@ import { toast } from "sonner"
 import { AdminActivation } from "@/lib/api-routes"
 import { useGet, usePersist } from "@/hooks/use-common"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
+import { ChecklistOverrideFormDialog } from "./components/checklist-override-form-dialog"
+import { ChecklistOverridesTable } from "./components/checklist-overrides-table"
 
-import { JobOrderStatusFormDialog } from "../components/job-order-status-form-dialog"
-import { JobStatusActivationTable } from "../components/job-status-activation-table"
-
-export default function AdminActivationJobPage() {
+export default function AdminChecklistOverridesPage() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState<string>("")
   const [editJobOrder, setEditJobOrder] = useState<IJobOrderStatus | null>(null)
@@ -72,10 +71,10 @@ export default function AdminActivationJobPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
-            Job Status
+            Checklist Overrides
           </h1>
           <p className="text-muted-foreground text-sm">
-            Update job order status
+            Manage checklist job status overrides
           </p>
         </div>
       </div>
@@ -88,7 +87,7 @@ export default function AdminActivationJobPage() {
           shrinkZero
         />
       ) : (
-        <JobStatusActivationTable
+        <ChecklistOverridesTable
           data={Array.isArray(jobOrdersData) ? jobOrdersData : []}
           isLoading={isLoading}
           onEdit={handleEdit}
@@ -97,7 +96,7 @@ export default function AdminActivationJobPage() {
         />
       )}
 
-      <JobOrderStatusFormDialog
+      <ChecklistOverrideFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         jobOrder={editJobOrder}
