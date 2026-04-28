@@ -239,6 +239,24 @@ export function EquipmentUsedTable({
         minSize: 80,
       },
       {
+        accessorKey: "bargeName",
+        header: "Barge Name",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("bargeName") || "-"}</div>
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        accessorKey: "ameTally",
+        header: "AME Tally",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("ameTally") || "-"}</div>
+        ),
+        size: 130,
+        minSize: 100,
+      },
+      {
         accessorKey: "isLoading",
         header: "Is Loading",
         cell: ({ row }) => (

@@ -31,6 +31,38 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.27",
+    date: "2026-04-28",
+    changes: [
+      {
+        type: "fixed",
+        text: "Checklist Debit Note detail form now defaults VAT from Job Order GST (gstId and gstPercentage) when the job is taxable with valid GST settings",
+      },
+      {
+        type: "added",
+        text: "Checklist Equipment Used now supports Barge and AME Tally fields in schema/interface, form entry, and list table display",
+      },
+      {
+        type: "removed",
+        text: "AR Invoice header model no longer includes the unused isModuleFrom field in schema, interface, defaults, and page mappings",
+      },
+      {
+        type: "added",
+        text: "Customer master now supports the Is Oversease flag across schema, interface model, customer form checkbox, and customer list table column",
+      },
+    ],
+  },
+  {
+    version: "1.5.26",
+    date: "2026-04-27",
+    changes: [
+      {
+        type: "fixed",
+        text: "GL AR/AP Contra save validation now enforces Remarks only when the Remarks field is visible and marked mandatory, preventing hidden-field validation failures",
+      },
+    ],
+  },
+  {
     version: "1.5.25",
     date: "2026-04-24",
     changes: [

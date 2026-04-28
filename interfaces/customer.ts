@@ -29,6 +29,7 @@ export interface ICustomer {
   isTrader: boolean
   isSupplier: boolean
   isCredit: boolean
+  isOversease: boolean
   peppolId?: string
   remarks: string
   isActive: boolean

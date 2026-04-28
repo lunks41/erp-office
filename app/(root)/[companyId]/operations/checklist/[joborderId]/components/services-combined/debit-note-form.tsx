@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react"
 import { calculateMultiplierAmount } from "@/helpers/account"
-import { IDebitNoteDt, IDebitNoteHd } from "@/interfaces/checklist"
+import { IDebitNoteDt, IDebitNoteHd, IJobOrderHd } from "@/interfaces/checklist"
 import { IChargeLookup, IGstLookup } from "@/interfaces/lookup"
 import { DebitNoteDtSchemaType, debitNoteDtSchema } from "@/schemas/checklist"
 import { useAuthStore } from "@/stores/auth-store"
@@ -50,6 +50,7 @@ interface DebitNoteFormProps {
   ) => void // Callback to update service charge entry when parent changes
   /** When true, form resets to create defaults (e.g. after adding a line item) */
   shouldResetForm?: boolean
+  jobData?: IJobOrderHd
 }
 
 export default function DebitNoteForm({
@@ -68,6 +69,7 @@ export default function DebitNoteForm({
   baseCurrencyCode,
   onServiceChargeUpdate,
   shouldResetForm = false,
+  jobData,
 }: DebitNoteFormProps) {
   const { decimals } = useAuthStore()
 
@@ -105,6 +107,19 @@ export default function DebitNoteForm({
   // Factory for create-mode values (like invoice-details-form createDefaultValues – no separate default object)
   const createDefaultValues = useCallback(
     (itemNo: number): DebitNoteDtSchemaType => ({
+      // If job order is taxable and has valid GST values, default debit note GST from job order.
+      // Otherwise keep existing fallback behavior.
+      ...(jobData?.isTaxable &&
+      (Number(jobData?.gstId) || 0) > 0 &&
+      (Number(jobData?.gstPercentage) || 0) > 0
+        ? {
+            gstId: Number(jobData.gstId),
+            gstPercentage: Number(jobData.gstPercentage),
+          }
+        : {
+            gstId: 1,
+            gstPercentage: 0,
+          }),
       debitNoteId: debitNoteHd?.debitNoteId ?? 0,
       debitNoteNo: debitNoteHd?.debitNoteNo ?? "",
       itemNo,
@@ -114,8 +129,6 @@ export default function DebitNoteForm({
       qty: 0,
       unitPrice: 0,
       totAmt: 0,
-      gstId: 1,
-      gstPercentage: 0,
       gstAmt: 0,
       totAmtAftGst: 0,
       remarks: "",
@@ -124,7 +137,14 @@ export default function DebitNoteForm({
       isServiceCharge: false,
       serviceCharge: 0,
     }),
-    [debitNoteHd?.debitNoteId, debitNoteHd?.debitNoteNo, taskId]
+    [
+      debitNoteHd?.debitNoteId,
+      debitNoteHd?.debitNoteNo,
+      taskId,
+      jobData?.isTaxable,
+      jobData?.gstId,
+      jobData?.gstPercentage,
+    ]
   )
 
   // Stable initial defaultValues; form syncs from editingDetail only when it actually changes (see useEffect below)

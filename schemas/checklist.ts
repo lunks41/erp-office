@@ -602,6 +602,8 @@ export const EquipmentUsedSchema = z.object({
   isOffloading: z.boolean().optional(),
   providerName: z.string().optional(),
   gear: z.number().optional(),
+  bargeId: z.number().optional(),
+  ameTally: z.string().optional(),
   loadingRefNo: z.string().optional(),
   craneloading: z.number().optional(),
   forkliftloading: z.number().optional(),

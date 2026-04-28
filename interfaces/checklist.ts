@@ -339,6 +339,9 @@ export interface IEquipmentUsed {
   isOffloading?: boolean
   providerName?: string
   gear?: number
+  bargeId?: number
+  bargeName?: string
+  ameTally?: string
   loadingRefNo?: string
   craneloading?: number
   forkliftloading?: number

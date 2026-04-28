@@ -32,7 +32,7 @@ export const GLContraHdSchema = (
     exhGainLoss: z.number().optional(),
 
     // Order Details
-    remarks: required?.m_Remarks_Hd
+    remarks: required?.m_Remarks_Hd && visible?.m_Remarks
       ? z.string().min(3, "Remarks must be at least 3 characters")
       : z.string().optional(),
 

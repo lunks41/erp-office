@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import {
+  BargeAutocomplete,
   ChargeAutocomplete,
   TaskStatusAutocomplete,
 } from "@/components/autocomplete"
@@ -99,6 +100,8 @@ export function EquipmentUsedForm({
       isOffloading: initialData?.isOffloading ?? false,
       providerName: initialData?.providerName ?? "",
       gear: initialData?.gear ?? 0,
+      bargeId: initialData?.bargeId ?? 0,
+      ameTally: initialData?.ameTally ?? "",
       loadingRefNo: initialData?.loadingRefNo ?? "",
       craneloading: initialData?.craneloading ?? 0,
       forkliftloading: initialData?.forkliftloading ?? 0,
@@ -145,6 +148,8 @@ export function EquipmentUsedForm({
       isOffloading: initialData?.isOffloading ?? false,
       providerName: initialData?.providerName ?? "",
       gear: initialData?.gear ?? 0,
+      bargeId: initialData?.bargeId ?? 0,
+      ameTally: initialData?.ameTally ?? "",
       loadingRefNo: initialData?.loadingRefNo ?? "",
       craneloading: initialData?.craneloading ?? 0,
       forkliftloading: initialData?.forkliftloading ?? 0,
@@ -212,6 +217,12 @@ export function EquipmentUsedForm({
                   isRequired={true}
                   isDisabled={isConfirmed}
                 />
+                <BargeAutocomplete
+                  form={form}
+                  name="bargeId"
+                  label="Barge"
+                  isDisabled={isConfirmed}
+                />
                 <CustomInput
                   form={form}
                   name="poNo"
@@ -237,6 +248,12 @@ export function EquipmentUsedForm({
                   form={form}
                   name="others"
                   label="Others"
+                  isDisabled={isConfirmed}
+                />
+                <CustomInput
+                  form={form}
+                  name="ameTally"
+                  label="AME Tally"
                   isDisabled={isConfirmed}
                 />
                 <TaskStatusAutocomplete

@@ -37,6 +37,7 @@ export const customerSchema = z.object({
   isTrader: z.boolean().optional(),
   isSupplier: z.boolean().optional(),
   isCredit: z.boolean().optional(),
+  isOversease: z.boolean().optional(),
 
   peppolId: z
     .string()

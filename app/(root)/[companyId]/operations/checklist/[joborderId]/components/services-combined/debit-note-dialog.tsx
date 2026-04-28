@@ -1198,6 +1198,7 @@ export default function DebitNoteDialog({
               baseCurrencyCode={jobOrder?.baseCurrencyCode}
               onServiceChargeUpdate={handleFormServiceChargeUpdate}
               shouldResetForm={shouldResetForm}
+              jobData={jobOrder}
             />
           </div>
 

@@ -55,6 +55,7 @@
     "date-fns": "^4.1.0",
     "form-data": "^4.0.4",
     "framer-motion": "^12.10.0",
+    "graphify": "^1.0.0",
     "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.1",

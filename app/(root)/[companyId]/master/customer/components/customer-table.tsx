@@ -108,6 +108,21 @@ export function CustomerTable({
       minSize: 50,
     },
     {
+      accessorKey: "isOversease",
+      header: "Is Oversease",
+      cell: ({ row }) => (
+        <div className="flex justify-center overflow-hidden">
+          {row.getValue("isOversease") ? (
+            <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+          ) : (
+            <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+          )}
+        </div>
+      ),
+      size: 120,
+      minSize: 50,
+    },
+    {
       accessorKey: "customerOtherName",
       header: "Other Name",
       size: 200,

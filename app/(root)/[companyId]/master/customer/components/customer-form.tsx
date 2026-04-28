@@ -49,6 +49,7 @@ const emptyCustomerFormValues: z.infer<typeof customerSchema> = {
   isTrader: false,
   isSupplier: false,
   isCredit: false,
+  isOversease: false,
   peppolId: "",
   remarks: "",
   isActive: true,
@@ -219,6 +220,11 @@ export default function CustomerForm({
                 label="Is Supplier"
               />
               <CustomCheckbox form={form} name="isCredit" label="Is Credit" />
+              <CustomCheckbox
+                form={form}
+                name="isOversease"
+                label="Is Oversease"
+              />
               <CustomCheckbox
                 form={form}
                 name="isActive"
