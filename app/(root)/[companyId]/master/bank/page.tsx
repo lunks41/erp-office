@@ -660,9 +660,9 @@ export default function BankPage() {
 
       <Separator />
 
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent>
+      <div className="flex flex-col gap-1">
+        <Card className="gap-2 py-2">
+          <CardContent className="px-4 py-0.5">
             <BankForm
               key={key}
               initialData={bank || undefined}
@@ -674,17 +674,17 @@ export default function BankPage() {
         </Card>
 
         {bank && (
-          <Card>
-            <CardContent>
+          <Card className="gap-2 py-2">
+            <CardContent className="px-4 py-0.5">
               <Tabs
                 defaultValue="address"
                 value={activeTab}
                 onValueChange={(value) =>
                   setActiveTab(value as "address" | "contact")
                 }
-                className="w-full"
+                className="w-full gap-1"
               >
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-1 flex items-center justify-between">
                   <TabsList className="grid w-[350px] grid-cols-2">
                     <TabsTrigger value="address">
                       Addresses
@@ -700,7 +700,7 @@ export default function BankPage() {
                     </TabsTrigger>
                   </TabsList>
                 </div>
-                <TabsContent value="address" className="space-y-4">
+                <TabsContent value="address" className="space-y-1">
                   <div className="rounded-md">
                     <AddresssTable
                       key={`address-${bank?.bankId || "new"}`}
@@ -719,7 +719,7 @@ export default function BankPage() {
                     />
                   </div>
                 </TabsContent>
-                <TabsContent value="contact" className="space-y-4">
+                <TabsContent value="contact" className="space-y-1">
                   <div className="rounded-md">
                     <ContactsTable
                       key={`contact-${bank?.bankId || "new"}`}
@@ -745,7 +745,7 @@ export default function BankPage() {
       </div>
 
       <Dialog open={showListDialog} onOpenChange={setShowListDialog}>
-        <DialogContent className="container mx-auto h-[85vh] w-[90vw] !max-w-none space-y-2 overflow-y-auto rounded-lg p-4 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+        <DialogContent className="container mx-auto h-[85vh] w-[90vw] max-w-none! space-y-2 overflow-y-auto rounded-lg p-4 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold tracking-tight">
               Bank List
@@ -776,7 +776,7 @@ export default function BankPage() {
 
       <Dialog open={showAddressForm} onOpenChange={setShowAddressForm}>
         <DialogContent
-          className="@container w-[70vw] !max-w-none overflow-y-auto rounded-lg p-4"
+          className="@container w-[70vw] max-w-none! overflow-y-auto rounded-lg p-4"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -817,7 +817,7 @@ export default function BankPage() {
 
       <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
         <DialogContent
-          className="@container w-[70vw] !max-w-none overflow-y-auto rounded-lg p-4"
+          className="@container w-[70vw] max-w-none! overflow-y-auto rounded-lg p-4"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>

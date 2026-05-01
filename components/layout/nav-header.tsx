@@ -14,7 +14,15 @@ import {
   OperationsTransactionId,
 } from "@/lib/utils"
 import { cn } from "@/lib/utils"
-import { BookOpen, Building2, ClipboardList, CreditCard, Landmark, Receipt } from "lucide-react"
+import {
+  BookOpen,
+  Building2,
+  ClipboardList,
+  CreditCard,
+  FileSpreadsheet,
+  Landmark,
+  Receipt,
+} from "lucide-react"
 
 import { COMPANY_HEADER_PILL_HEIGHT } from "@/components/layout/company-header-utility"
 import {
@@ -41,6 +49,11 @@ export function NavHeader() {
   const canViewChecklist = hasPermission(
     ModuleId.operations,
     OperationsTransactionId.checklist,
+    "isVisible"
+  )
+  const canViewPda = hasPermission(
+    ModuleId.operations,
+    OperationsTransactionId.pda,
     "isVisible"
   )
 
@@ -170,7 +183,7 @@ export function NavHeader() {
                     href={getUrlWithCompanyId("/operations/checklist")}
                     className={cn(
                       COMPANY_HEADER_PILL_HEIGHT,
-                      "!flex flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC] transition-colors hover:bg-[#C4D6FF]",
+                      "flex! flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC] transition-colors hover:bg-[#C4D6FF]",
                       pathname === getUrlWithCompanyId("/operations/checklist") &&
                         "border-[#A8C4FF] bg-[#C4D6FF]"
                     )}
@@ -182,12 +195,31 @@ export function NavHeader() {
               </NavigationMenuItem>
             )}
 
+            {canViewPda && (
+              <NavigationMenuItem className="flex items-center">
+                <NavigationMenuLink asChild>
+                  <Link
+                    href={getUrlWithCompanyId("/operations/pda")}
+                    className={cn(
+                      COMPANY_HEADER_PILL_HEIGHT,
+                      "flex! flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC] transition-colors hover:bg-[#C4D6FF]",
+                      pathname === getUrlWithCompanyId("/operations/pda") &&
+                        "border-[#A8C4FF] bg-[#C4D6FF]"
+                    )}
+                  >
+                    <FileSpreadsheet className="size-4 shrink-0" />
+                    PDA
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+
             {canViewAr && (
               <NavigationMenuItem className="flex items-center">
                 <NavigationMenuTrigger
                   className={cn(
                     COMPANY_HEADER_PILL_HEIGHT,
-                    "!flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    "flex! items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC]! transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:ring-2! focus-visible:ring-[#3355CC]/30!",
                     pathname.startsWith(getUrlWithCompanyId("/ar"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
@@ -223,7 +255,7 @@ export function NavHeader() {
               <NavigationMenuItem className="flex items-center">
                 <NavigationMenuTrigger
                   className={cn(
-                    "!flex h-8 gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    "flex! h-8 gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC]! transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:ring-2! focus-visible:ring-[#3355CC]/30!",
                     pathname.startsWith(getUrlWithCompanyId("/ap"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
@@ -260,7 +292,7 @@ export function NavHeader() {
                 <NavigationMenuTrigger
                   className={cn(
                     COMPANY_HEADER_PILL_HEIGHT,
-                    "!flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    "flex! items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC]! transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:ring-2! focus-visible:ring-[#3355CC]/30!",
                     pathname.startsWith(getUrlWithCompanyId("/cb"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
@@ -297,7 +329,7 @@ export function NavHeader() {
                 <NavigationMenuTrigger
                   className={cn(
                     COMPANY_HEADER_PILL_HEIGHT,
-                    "!flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium !text-[#3355CC] transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:!ring-2 focus-visible:!ring-[#3355CC]/30",
+                    "flex! items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-[#C4D6FF] bg-[#E0EAFF] px-3 text-xs font-medium text-[#3355CC]! transition-colors hover:bg-[#C4D6FF] data-[state=open]:border-[#A8C4FF] data-[state=open]:bg-[#C4D6FF] focus-visible:ring-2! focus-visible:ring-[#3355CC]/30!",
                     pathname.startsWith(getUrlWithCompanyId("/gl"))
                       ? "border-[#A8C4FF] bg-[#C4D6FF]"
                       : ""
@@ -337,7 +369,7 @@ export function NavHeader() {
       <div className="flex flex-1 items-center justify-center">
         {currentCompany && (
           <div className="flex items-center gap-3">
-            <span className="relative flex h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9 md:h-10 md:w-10">
+            <span className="relative flex h-8 w-8 shrink-0 sm:h-9 sm:w-9 md:h-10 md:w-10">
               <Image
                 src={`/uploads/companies/${currentCompany.companyId}.svg`}
                 alt={currentCompany.companyName || "Company Logo"}

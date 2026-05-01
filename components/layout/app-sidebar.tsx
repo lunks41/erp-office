@@ -31,6 +31,7 @@ import {
   FileCheck,
   FileMinus,
   FilePlus,
+  FileSpreadsheet,
   FileStack,
   FileText,
   FileX,
@@ -177,6 +178,7 @@ const getTransactionIcon = (transactionCode: string) => {
     worklocation: MapPin,
     new: ListCheck,
     checklist: ClipboardList,
+    pda: FileSpreadsheet,
     tariff: Coins,
     employees: Users,
     loan: Wallet,
@@ -399,47 +401,199 @@ const ACCOUNT_CATEGORY_ORDER = [
 
 const ACCOUNT_CATEGORY_CONFIG: Record<
   string,
-  { category: string; displayLabel: string; icon: React.ComponentType<{ className?: string }> }
+  {
+    category: string
+    displayLabel: string
+    icon: React.ComponentType<{ className?: string }>
+  }
 > = {
-  "ar_overview": { category: "overview", displayLabel: "AR Overview", icon: BarChart },
-  "ap_overview": { category: "overview", displayLabel: "AP Overview", icon: BarChart },
-  "cb_overview": { category: "overview", displayLabel: "CB Overview", icon: BarChart },
-  "gl_overview": { category: "overview", displayLabel: "GL Overview", icon: BarChart },
-  "ar_invoice": { category: "invoice", displayLabel: "AR Invoice", icon: Receipt },
-  "ap_invoice": { category: "invoice", displayLabel: "AP Invoice", icon: Receipt },
-  "ar_invoicectm": { category: "invoice", displayLabel: "AR Invoice CTM", icon: Receipt },
-  "ar_creditnote": { category: "creditnote", displayLabel: "AR Credit Note", icon: FilePlus },
-  "ap_creditnote": { category: "creditnote", displayLabel: "AP Credit Note", icon: FilePlus },
-  "ar_debitnote": { category: "debitnote", displayLabel: "AR Debit Note", icon: FileMinus },
-  "ap_debitnote": { category: "debitnote", displayLabel: "AP Debit Note", icon: FileMinus },
-  "ar_receipt": { category: "receipt", displayLabel: "AR Receipt", icon: PlusCircle },
-  "cb_cbgenreceipt": { category: "receipt", displayLabel: "CB Receipt", icon: PlusCircle },
-  "ar_receiptmulticurrency": { category: "receipt", displayLabel: "AR Receipt Multicurrency", icon: PlusCircle },
-  "ap_payment": { category: "payment", displayLabel: "AP Payment", icon: MinusCircle },
-  "cb_cbgenpayment": { category: "payment", displayLabel: "CB Payment", icon: MinusCircle },
-  "ar_refund": { category: "refund", displayLabel: "AR Refund", icon: Undo2 },
-  "ap_refund": { category: "refund", displayLabel: "AP Refund", icon: Undo2 },
-  "ar_docsetoff": { category: "setoff", displayLabel: "AR Doc Setoff", icon: FileStack },
-  "ar_documentsetoff": { category: "setoff", displayLabel: "AR Doc Setoff", icon: FileStack },
-  "ap_docsetoff": { category: "setoff", displayLabel: "AP Doc Setoff", icon: FileStack },
-  "ap_documentsetoff": { category: "setoff", displayLabel: "AP Doc Setoff", icon: FileStack },
-  "gl_arapcontra": { category: "setoff", displayLabel: "Ar-Ap Contra", icon: ArrowLeftRight },
-  "cb_cbbanktransfer": { category: "bank", displayLabel: "CB Bank Transfer", icon: ArrowLeftRight },
-  "cb_cbbanktransferctm": { category: "bank", displayLabel: "CB Bank Transfer CTM", icon: ArrowLeftRight },
-  "cb_cbbankrecon": { category: "bank", displayLabel: "CB Bank Reconciliation", icon: Scale },
-  "gl_journalentry": { category: "gl", displayLabel: "GL Journal", icon: BookOpen },
-  "cb_cbpettycash": { category: "pettycash", displayLabel: "Petty Cash", icon: HandCoins },
-  "ar_adjustment": { category: "adjustment", displayLabel: "AR Adjustment", icon: Sliders },
-  "ap_adjustment": { category: "adjustment", displayLabel: "AP Adjustment", icon: Sliders },
-  "ar_reports": { category: "reports", displayLabel: "AR Reports", icon: BarChart },
-  "ap_reports": { category: "reports", displayLabel: "AP Reports", icon: BarChart },
-  "cb_reports": { category: "reports", displayLabel: "CB Reports", icon: BarChart },
-  "gl_reports": { category: "reports", displayLabel: "GL Reports", icon: BarChart },
-  "ap_jobtransactions": { category: "other", displayLabel: "Job Transactions", icon: ClipboardList },
-  "gl_yearendprocess": { category: "other", displayLabel: "Year-End Process", icon: CalendarCheck },
-  "gl_periodclose": { category: "other", displayLabel: "GL Period Close", icon: Lock },
-  "gl_openingbalance": { category: "other", displayLabel: "Opening Balance", icon: Scale },
-  "gl_fixedasset": { category: "other", displayLabel: "Fixed Asset", icon: Landmark },
+  ar_overview: {
+    category: "overview",
+    displayLabel: "AR Overview",
+    icon: BarChart,
+  },
+  ap_overview: {
+    category: "overview",
+    displayLabel: "AP Overview",
+    icon: BarChart,
+  },
+  cb_overview: {
+    category: "overview",
+    displayLabel: "CB Overview",
+    icon: BarChart,
+  },
+  gl_overview: {
+    category: "overview",
+    displayLabel: "GL Overview",
+    icon: BarChart,
+  },
+  ar_invoice: {
+    category: "invoice",
+    displayLabel: "AR Invoice",
+    icon: Receipt,
+  },
+  ap_invoice: {
+    category: "invoice",
+    displayLabel: "AP Invoice",
+    icon: Receipt,
+  },
+  ar_invoicectm: {
+    category: "invoice",
+    displayLabel: "AR Invoice CTM",
+    icon: Receipt,
+  },
+  ar_creditnote: {
+    category: "creditnote",
+    displayLabel: "AR Credit Note",
+    icon: FilePlus,
+  },
+  ap_creditnote: {
+    category: "creditnote",
+    displayLabel: "AP Credit Note",
+    icon: FilePlus,
+  },
+  ar_debitnote: {
+    category: "debitnote",
+    displayLabel: "AR Debit Note",
+    icon: FileMinus,
+  },
+  ap_debitnote: {
+    category: "debitnote",
+    displayLabel: "AP Debit Note",
+    icon: FileMinus,
+  },
+  ar_receipt: {
+    category: "receipt",
+    displayLabel: "AR Receipt",
+    icon: PlusCircle,
+  },
+  cb_cbgenreceipt: {
+    category: "receipt",
+    displayLabel: "CB Receipt",
+    icon: PlusCircle,
+  },
+  ar_receiptmulticurrency: {
+    category: "receipt",
+    displayLabel: "AR Receipt Multicurrency",
+    icon: PlusCircle,
+  },
+  ap_payment: {
+    category: "payment",
+    displayLabel: "AP Payment",
+    icon: MinusCircle,
+  },
+  cb_cbgenpayment: {
+    category: "payment",
+    displayLabel: "CB Payment",
+    icon: MinusCircle,
+  },
+  ar_refund: { category: "refund", displayLabel: "AR Refund", icon: Undo2 },
+  ap_refund: { category: "refund", displayLabel: "AP Refund", icon: Undo2 },
+  ar_docsetoff: {
+    category: "setoff",
+    displayLabel: "AR Doc Setoff",
+    icon: FileStack,
+  },
+  ar_documentsetoff: {
+    category: "setoff",
+    displayLabel: "AR Doc Setoff",
+    icon: FileStack,
+  },
+  ap_docsetoff: {
+    category: "setoff",
+    displayLabel: "AP Doc Setoff",
+    icon: FileStack,
+  },
+  ap_documentsetoff: {
+    category: "setoff",
+    displayLabel: "AP Doc Setoff",
+    icon: FileStack,
+  },
+  gl_arapcontra: {
+    category: "setoff",
+    displayLabel: "Ar-Ap Contra",
+    icon: ArrowLeftRight,
+  },
+  cb_cbbanktransfer: {
+    category: "bank",
+    displayLabel: "CB Bank Transfer",
+    icon: ArrowLeftRight,
+  },
+  cb_cbbanktransferctm: {
+    category: "bank",
+    displayLabel: "CB Bank Transfer CTM",
+    icon: ArrowLeftRight,
+  },
+  cb_cbbankrecon: {
+    category: "bank",
+    displayLabel: "CB Bank Reconciliation",
+    icon: Scale,
+  },
+  gl_journalentry: {
+    category: "gl",
+    displayLabel: "GL Journal",
+    icon: BookOpen,
+  },
+  cb_cbpettycash: {
+    category: "pettycash",
+    displayLabel: "Petty Cash",
+    icon: HandCoins,
+  },
+  ar_adjustment: {
+    category: "adjustment",
+    displayLabel: "AR Adjustment",
+    icon: Sliders,
+  },
+  ap_adjustment: {
+    category: "adjustment",
+    displayLabel: "AP Adjustment",
+    icon: Sliders,
+  },
+  ar_reports: {
+    category: "reports",
+    displayLabel: "AR Reports",
+    icon: BarChart,
+  },
+  ap_reports: {
+    category: "reports",
+    displayLabel: "AP Reports",
+    icon: BarChart,
+  },
+  cb_reports: {
+    category: "reports",
+    displayLabel: "CB Reports",
+    icon: BarChart,
+  },
+  gl_reports: {
+    category: "reports",
+    displayLabel: "GL Reports",
+    icon: BarChart,
+  },
+  ap_jobtransactions: {
+    category: "other",
+    displayLabel: "Job Transactions",
+    icon: ClipboardList,
+  },
+  gl_yearendprocess: {
+    category: "other",
+    displayLabel: "Year-End Process",
+    icon: CalendarCheck,
+  },
+  gl_periodclose: {
+    category: "other",
+    displayLabel: "GL Period Close",
+    icon: Lock,
+  },
+  gl_openingbalance: {
+    category: "other",
+    displayLabel: "Opening Balance",
+    icon: Scale,
+  },
+  gl_fixedasset: {
+    category: "other",
+    displayLabel: "Fixed Asset",
+    icon: Landmark,
+  },
 }
 
 /** Shown in rights / direct URL only — not listed in the sidebar */
@@ -447,7 +601,11 @@ const SIDEBAR_EXCLUDED_ACCOUNT_KEYS = new Set<string>(["ar_invoice_edit"])
 
 const ACCOUNT_CATEGORY_META: Record<
   string,
-  { title: string; icon: React.ComponentType<{ className?: string }>; isDirectLink: boolean }
+  {
+    title: string
+    icon: React.ComponentType<{ className?: string }>
+    isDirectLink: boolean
+  }
 > = {
   overview: { title: "Overview", icon: BarChart, isDirectLink: false },
   invoice: { title: "Invoice", icon: Receipt, isDirectLink: false },
@@ -467,7 +625,15 @@ const ACCOUNT_CATEGORY_META: Record<
 
 const getModuleDisplayPrefix = (moduleCode: string) => {
   const m = moduleCode.toUpperCase()
-  return m === "AR" ? "AR" : m === "AP" ? "AP" : m === "CB" ? "CB" : m === "GL" ? "GL" : moduleCode
+  return m === "AR"
+    ? "AR"
+    : m === "AP"
+      ? "AP"
+      : m === "CB"
+        ? "CB"
+        : m === "GL"
+          ? "GL"
+          : moduleCode
 }
 
 // Color mapping for sidebar icons
@@ -513,14 +679,16 @@ const getIconColor = (identifier: string, title?: string): string => {
   const clean = identifier.replace(/^\//, "").toLowerCase()
   const parts = clean.split("/")
   // Check transaction-level key first (e.g., "ar/invoice" → "invoice")
-  if (parts.length > 1 && parts[1] && ICON_COLORS[parts[1]]) return ICON_COLORS[parts[1]]
+  if (parts.length > 1 && parts[1] && ICON_COLORS[parts[1]])
+    return ICON_COLORS[parts[1]]
   // Then module/category key
   if (parts[0] && ICON_COLORS[parts[0]]) return ICON_COLORS[parts[0]]
   // Fall back to title-based lookup
   if (title) {
     const key = title.toLowerCase().replace(/[\s\-/]/g, "")
     if (ICON_COLORS[key]) return ICON_COLORS[key]
-    if (ICON_COLORS[title.toLowerCase()]) return ICON_COLORS[title.toLowerCase()]
+    if (ICON_COLORS[title.toLowerCase()])
+      return ICON_COLORS[title.toLowerCase()]
   }
   return "text-muted-foreground/70"
 }
@@ -536,7 +704,9 @@ const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
     if (SIDEBAR_EXCLUDED_ACCOUNT_KEYS.has(key)) return
     const config = ACCOUNT_CATEGORY_CONFIG[key]
     const category = config?.category ?? "other"
-    const displayLabel = config?.displayLabel ?? `${getModuleDisplayPrefix(t.moduleCode)} ${t.transactionName}`
+    const displayLabel =
+      config?.displayLabel ??
+      `${getModuleDisplayPrefix(t.moduleCode)} ${t.transactionName}`
     const icon = config?.icon ?? getTransactionIcon(trn)
 
     if (!ACCOUNT_CATEGORY_META[category]) return
@@ -599,15 +769,15 @@ const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
 }
 
 // Build Master menu grouped by AdmTransactionCategory (Region, Product, Customer, etc.)
-const buildMasterMenu = (transactions: IUserTransaction[]): MenuGroup | null => {
+const buildMasterMenu = (
+  transactions: IUserTransaction[]
+): MenuGroup | null => {
   const masterTxs = transactions.filter(
     (t) => t.moduleCode.toLowerCase() === "master" && t.isVisible
   )
   if (masterTxs.length === 0) return null
 
-  const categoryOrder: number[] = MASTER_TRANSACTION_CATEGORIES.map(
-    (c) => c.id
-  )
+  const categoryOrder: number[] = MASTER_TRANSACTION_CATEGORIES.map((c) => c.id)
   const knownCategoryIdSet = new Set(categoryOrder)
   const categoryMap = new Map<
     number,
@@ -694,15 +864,23 @@ const buildMasterMenu = (transactions: IUserTransaction[]): MenuGroup | null => 
   }
 }
 
-const buildOtherModulesMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
+const buildOtherModulesMenu = (
+  transactions: IUserTransaction[]
+): MenuGroup[] => {
   const menuMap = new Map<
     string,
-    { title: string; url: string; icon: React.ComponentType<{ className?: string }>; items: MenuItem[] }
+    {
+      title: string
+      url: string
+      icon: React.ComponentType<{ className?: string }>
+      items: MenuItem[]
+    }
   >()
 
   transactions.forEach((t) => {
     const mod = t.moduleCode.toLowerCase()
-    if (ACCOUNT_MODULES.includes(mod as (typeof ACCOUNT_MODULES)[number])) return
+    if (ACCOUNT_MODULES.includes(mod as (typeof ACCOUNT_MODULES)[number]))
+      return
     if (mod === "master") return // Master uses buildMasterMenu with categories
 
     const moduleKey = `${t.moduleId}_${t.moduleName}`
@@ -757,10 +935,15 @@ const buildOtherModulesMenu = (transactions: IUserTransaction[]): MenuGroup[] =>
 const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
   const visible = transactions.filter((t) => t.isVisible === true)
   const accountTxs = visible.filter((t) =>
-    ACCOUNT_MODULES.includes(t.moduleCode.toLowerCase() as (typeof ACCOUNT_MODULES)[number])
+    ACCOUNT_MODULES.includes(
+      t.moduleCode.toLowerCase() as (typeof ACCOUNT_MODULES)[number]
+    )
   )
   const otherTxs = visible.filter(
-    (t) => !ACCOUNT_MODULES.includes(t.moduleCode.toLowerCase() as (typeof ACCOUNT_MODULES)[number])
+    (t) =>
+      !ACCOUNT_MODULES.includes(
+        t.moduleCode.toLowerCase() as (typeof ACCOUNT_MODULES)[number]
+      )
   )
 
   const accountMenu = buildAccountMenu(accountTxs)
@@ -768,7 +951,9 @@ const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
 
   // Add "Checklist Report" (operations/reports) to Reports group if user has permission
   const opsReports = otherTxs.find(
-    (t) => t.moduleCode.toLowerCase() === "operations" && t.transactionCode.toLowerCase() === "reports"
+    (t) =>
+      t.moduleCode.toLowerCase() === "operations" &&
+      t.transactionCode.toLowerCase() === "reports"
   )
   if (opsReports?.isVisible) {
     const reportsGroup = accountMenu.find((g) => g.title === "Reports")
@@ -792,13 +977,33 @@ const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
 
   const master = buildMasterMenu(visible)
   const operations = otherMenu.find((m) => m.url === "/operations")
+  const hardcodedPdaItem: MenuItem = {
+    title: "PDA",
+    url: "/operations/pda",
+    icon: getTransactionIcon("pda"),
+  }
+  const operationsWithHardcodedPda = operations
+    ? {
+        ...operations,
+        items:
+          operations.items &&
+          operations.items.some((i) => i.url === "/operations/pda")
+            ? operations.items
+            : [hardcodedPdaItem, ...(operations.items ?? [])],
+      }
+    : {
+        title: "Operations",
+        url: "/operations",
+        icon: getModuleIcon("operations"),
+        items: [hardcodedPdaItem],
+      }
   const rest = otherMenu.filter(
     (m) => m.url !== "/master" && m.url !== "/operations"
   )
 
   return [
     ...(master ? [master] : []),
-    ...(operations ? [operations] : []),
+    ...(operationsWithHardcodedPda ? [operationsWithHardcodedPda] : []),
     ...accountMenu,
     ...rest,
   ]
@@ -888,7 +1093,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       }
     }
     for (const group of dynamicMenu) {
-      if (group.isDirectLink && currentPath === getUrlWithCompanyId(group.url)) {
+      if (
+        group.isDirectLink &&
+        currentPath === getUrlWithCompanyId(group.url)
+      ) {
         setSelectedMenu(group.title)
         setOpenMenu(null)
         setOpenCategory(null)
@@ -1000,7 +1208,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           }`}
                         >
                           <div className="relative">
-                            {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
+                            {item.icon && (
+                              <item.icon
+                                className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`}
+                              />
+                            )}
                           </div>
                           <span>{item.title}</span>
                         </SidebarMenuButton>
@@ -1014,7 +1226,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {/* Header */}
                         <div className="bg-muted/50 flex items-center gap-2 border-b px-3 py-2">
-                          {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
+                          {item.icon && (
+                            <item.icon
+                              className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`}
+                            />
+                          )}
                           <span className="font-small text-foreground">
                             {item.title}
                           </span>
@@ -1063,7 +1279,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             }`}
                           >
                             <div className="relative">
-                              {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
+                              {item.icon && (
+                                <item.icon
+                                  className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`}
+                                />
+                              )}
                             </div>
                             <span>{item.title}</span>
                             <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -1079,10 +1299,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                     setHoveredSubMenu(subItem.title)
                                   }
                                   onMouseLeave={() => setHoveredSubMenu(null)}
-                                  className={`hover:bg-accent/50 transition-colors duration-200 rounded-sm ${
+                                  className={`hover:bg-accent/50 rounded-sm transition-colors duration-200 ${
                                     isSubMenuActive(subItem.title) ||
                                     hoveredSubMenu === subItem.title
-                                      ? "bg-primary/15 text-primary font-semibold border-l-2 border-primary"
+                                      ? "bg-primary/15 text-primary border-primary border-l-2 font-semibold"
                                       : "text-muted-foreground"
                                   }`}
                                 >
@@ -1121,7 +1341,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   >
                     <Link href={getUrlWithCompanyId(item.url)}>
                       <div className="relative">
-                        {item.icon && <item.icon className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`} />}
+                        {item.icon && (
+                          <item.icon
+                            className={`h-4 w-4 shrink-0 ${getIconColor(item.url, item.title)}`}
+                          />
+                        )}
                       </div>
                       <span>{item.title}</span>
                     </Link>
@@ -1156,7 +1380,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       }`}
                     >
                       <Link href={getUrlWithCompanyId(group.url)}>
-                        {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
+                        {group.icon && (
+                          <group.icon
+                            className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
+                          />
+                        )}
                         <span>{group.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -1180,7 +1408,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 : ""
                             }`}
                           >
-                            {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
+                            {group.icon && (
+                              <group.icon
+                                className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
+                              />
+                            )}
                             <span>{group.title}</span>
                             <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                           </SidebarMenuButton>
@@ -1197,15 +1429,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 <div>
                                   <CollapsibleTrigger asChild>
                                     <SidebarMenuSubButton
-                                      onClick={() => handleCategoryClick(cat.title)}
-                                      className={`hover:bg-accent/50 transition-colors duration-200 rounded-sm ${
+                                      onClick={() =>
+                                        handleCategoryClick(cat.title)
+                                      }
+                                      className={`hover:bg-accent/50 rounded-sm transition-colors duration-200 ${
                                         isCategoryActive(cat.title)
                                           ? "bg-primary/15 text-primary font-semibold"
                                           : "text-muted-foreground"
                                       }`}
                                     >
-                                      {cat.icon && <cat.icon className={`h-4 w-4 shrink-0 ${getIconColor(cat.transCategoryCode, cat.title)}`} />}
-                                      <span className="text-xs">{cat.title}</span>
+                                      {cat.icon && (
+                                        <cat.icon
+                                          className={`h-4 w-4 shrink-0 ${getIconColor(cat.transCategoryCode, cat.title)}`}
+                                        />
+                                      )}
+                                      <span className="text-xs">
+                                        {cat.title}
+                                      </span>
                                       <ChevronRightIcon className="ml-auto h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/category:rotate-90" />
                                     </SidebarMenuSubButton>
                                   </CollapsibleTrigger>
@@ -1218,16 +1458,20 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                             onMouseEnter={() =>
                                               setHoveredSubMenu(subItem.title)
                                             }
-                                            onMouseLeave={() => setHoveredSubMenu(null)}
-                                            className={`hover:bg-accent/50 transition-colors duration-200 rounded-sm ${
+                                            onMouseLeave={() =>
+                                              setHoveredSubMenu(null)
+                                            }
+                                            className={`hover:bg-accent/50 rounded-sm transition-colors duration-200 ${
                                               isSubMenuActive(subItem.title) ||
                                               hoveredSubMenu === subItem.title
-                                                ? "bg-background text-foreground font-semibold shadow-sm border-l-2 border-primary"
+                                                ? "bg-background text-foreground border-primary border-l-2 font-semibold shadow-sm"
                                                 : "text-muted-foreground"
                                             }`}
                                           >
                                             <Link
-                                              href={getUrlWithCompanyId(subItem.url)}
+                                              href={getUrlWithCompanyId(
+                                                subItem.url
+                                              )}
                                               onClick={() =>
                                                 handleSubMenuClick(
                                                   group.title,
@@ -1251,7 +1495,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                         </CollapsibleContent>
                       </div>
                     </Collapsible>
-                  ) : group.items && group.items.length > 0 && sidebarState === "collapsed" && !isMobile ? (
+                  ) : group.items &&
+                    group.items.length > 0 &&
+                    sidebarState === "collapsed" &&
+                    !isMobile ? (
                     <Popover open={hoveredMenu === group.title}>
                       <PopoverTrigger asChild>
                         <SidebarMenuButton
@@ -1269,7 +1516,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                               : ""
                           }`}
                         >
-                          {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
+                          {group.icon && (
+                            <group.icon
+                              className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
+                            />
+                          )}
                           <span>{group.title}</span>
                         </SidebarMenuButton>
                       </PopoverTrigger>
@@ -1282,7 +1533,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {/* Header */}
                         <div className="bg-muted/50 flex items-center gap-2 border-b px-3 py-2">
-                          {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
+                          {group.icon && (
+                            <group.icon
+                              className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
+                            />
+                          )}
                           <span className="text-foreground text-xs font-medium">
                             {group.title}
                           </span>
@@ -1330,7 +1585,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 : ""
                             }`}
                           >
-                            {group.icon && <group.icon className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`} />}
+                            {group.icon && (
+                              <group.icon
+                                className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
+                              />
+                            )}
                             <span>{group.title}</span>
                             {group.items && (
                               <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -1362,15 +1621,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                           group.title,
                                           subItem.title
                                         )
-                                    }
-                                  >
-                                    <span className="text-xs">
-                                      {subItem.title}
-                                    </span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
+                                      }
+                                    >
+                                      <span className="text-xs">
+                                        {subItem.title}
+                                      </span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
                             </SidebarMenuSub>
                           </CollapsibleContent>
                         )}

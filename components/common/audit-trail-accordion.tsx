@@ -29,15 +29,15 @@ export function AuditTrailAccordion({
   if (!hasAuditData) return null
 
   return (
-    <div className={className ?? "space-y-3 pt-4"}>
-      <div className="border-t pt-4">
+    <div className={className ?? "space-y-1 pt-1"}>
+      <div className="border-t pt-2">
         <CustomAccordion
           type="single"
           collapsible
           className="rounded-md border border-slate-200"
         >
           <CustomAccordionItem value="audit-info" className="border-none">
-            <CustomAccordionTrigger className="hover:bg-muted/30 rounded-t-md px-4 py-2">
+            <CustomAccordionTrigger className="hover:bg-muted/30 rounded-t-md px-4 py-1.5">
               <div className="mr-2 flex flex-1 items-center justify-between gap-3">
                 <span className="text-sm font-medium text-slate-600">
                   Audit Trail
@@ -50,7 +50,7 @@ export function AuditTrailAccordion({
               </div>
             </CustomAccordionTrigger>
             <CustomAccordionContent className="px-4 pb-0">
-              <div className="grid grid-cols-1 gap-4 border-t py-2 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 border-t py-1.5 md:grid-cols-2">
                 {createDate && (
                   <div className="space-y-1">
                     <p className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">

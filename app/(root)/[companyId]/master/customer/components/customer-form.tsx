@@ -100,9 +100,9 @@ export default function CustomerForm({
   }
 
   return (
-    <div className="max-w flex flex-col gap-2">
+    <div className="max-w flex flex-col gap-0">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
           <div className="grid gap-2">
             <div className="grid grid-cols-6 gap-2">
               <CustomerCodeLookupInput
@@ -199,13 +199,11 @@ export default function CustomerForm({
                 placeholder="e.g. scheme:identifier"
               />
             </div>
-            <div className="grid grid-cols-6 gap-2">
-              <div className="col-span-6">
+            <div className="grid grid-cols-9 gap-2">
+              <div className="col-span-2">
                 <CustomTextarea form={form} name="remarks" label="Remarks" />
               </div>
-            </div>
 
-            <div className="grid grid-cols-6 gap-2">
               <CustomCheckbox
                 form={form}
                 name="isCustomer"

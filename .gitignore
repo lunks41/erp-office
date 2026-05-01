@@ -30,6 +30,9 @@
 .cursor/
 .vscode/
 .claude/
+.graphify/
+.graphiy/
+claude.md
 
 # misc
 .DS_Store

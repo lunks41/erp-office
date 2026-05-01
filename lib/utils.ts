@@ -222,6 +222,7 @@ export enum OperationsTransactionId {
   agencyRemuneration = 18,
   transportationLog = 19,
   reports = 20,
+  pda = 21,
 }
 
 export enum ARTransactionId {

@@ -253,6 +253,8 @@ export default function JobOrderServiceItemNoMultiSelect<
     return null
   }, [form, name, options])
 
+  const [filterInput, setFilterInput] = React.useState("")
+
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)
   const isTabPressedRef = React.useRef(false)
@@ -380,6 +382,8 @@ export default function JobOrderServiceItemNoMultiSelect<
                     onChange={handleChange}
                     onMenuClose={handleMenuClose}
                     value={getValue()}
+                    inputValue={filterInput}
+                    onInputChange={(val, { action }) => { if (action === "input-change") setFilterInput(val) }}
                     placeholder="Select Service Item No..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}

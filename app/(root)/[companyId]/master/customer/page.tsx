@@ -692,9 +692,9 @@ export default function CustomerPage() {
 
       <Separator />
 
-      <div className="flex flex-col gap-2">
-        <Card>
-          <CardContent className="p-4">
+      <div className="flex flex-col gap-1">
+        <Card className="gap-2 py-2">
+          <CardContent className="px-4 py-0.5">
             <CustomerForm
               key={key}
               initialData={customer || undefined}
@@ -705,17 +705,17 @@ export default function CustomerPage() {
         </Card>
 
         {customer && (
-          <Card>
-            <CardContent className="p-4">
+          <Card className="gap-2 py-2">
+            <CardContent className="px-4 py-0.5">
               <Tabs
                 defaultValue="address"
                 value={activeTab}
                 onValueChange={(value) =>
                   setActiveTab(value as "address" | "contact")
                 }
-                className="w-full"
+                className="w-full gap-1"
               >
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-1 flex items-center justify-between">
                   <TabsList className="grid w-[350px] grid-cols-2">
                     <TabsTrigger value="address">
                       Addresses
@@ -731,7 +731,7 @@ export default function CustomerPage() {
                     </TabsTrigger>
                   </TabsList>
                 </div>
-                <TabsContent value="address" className="space-y-2">
+                <TabsContent value="address" className="space-y-1">
                   <div className="rounded-md">
                     <AddresssTable
                       key={`address-${customer?.customerId || "new"}`}
@@ -753,7 +753,7 @@ export default function CustomerPage() {
                     />
                   </div>
                 </TabsContent>
-                <TabsContent value="contact" className="space-y-2">
+                <TabsContent value="contact" className="space-y-1">
                   <div className="rounded-md">
                     <ContactsTable
                       key={`contact-${customer?.customerId || "new"}`}
@@ -782,7 +782,7 @@ export default function CustomerPage() {
       </div>
 
       <Dialog open={showListDialog} onOpenChange={setShowListDialog}>
-        <DialogContent className="container mx-auto h-[85vh] w-[90vw] !max-w-none space-y-2 overflow-y-auto rounded-lg p-4 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+        <DialogContent className="container mx-auto h-[85vh] w-[90vw] max-w-none! space-y-2 overflow-y-auto rounded-lg p-4 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold tracking-tight">
               Customer List
@@ -813,7 +813,7 @@ export default function CustomerPage() {
 
       <Dialog open={showAddressForm} onOpenChange={setShowAddressForm}>
         <DialogContent
-          className="@container w-[70vw] !max-w-none overflow-y-auto rounded-lg p-4"
+          className="@container w-[70vw] max-w-none! overflow-y-auto rounded-lg p-4"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -857,7 +857,7 @@ export default function CustomerPage() {
 
       <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
         <DialogContent
-          className="@container w-[70vw] !max-w-none overflow-y-auto rounded-lg p-4"
+          className="@container w-[70vw] max-w-none! overflow-y-auto rounded-lg p-4"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>

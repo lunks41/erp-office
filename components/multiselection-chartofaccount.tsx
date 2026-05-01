@@ -310,7 +310,6 @@ export default function ChartOfAccountMultiSelect<
   const isOptionSelectedRef = React.useRef(false)
 
   const handleMenuClose = React.useCallback(() => {
-    setFilterInput("")
     if (!isTabPressedRef.current && isOptionSelectedRef.current) {
       requestAnimationFrame(() => {
         if (selectControlRef.current) {
@@ -433,7 +432,7 @@ export default function ChartOfAccountMultiSelect<
                     onMenuClose={handleMenuClose}
                     value={getValue()}
                     inputValue={filterInput}
-                    onInputChange={(val) => setFilterInput(val)}
+                    onInputChange={(val, { action }) => { if (action === "input-change") setFilterInput(val) }}
                     placeholder="Select Chart of Account..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}

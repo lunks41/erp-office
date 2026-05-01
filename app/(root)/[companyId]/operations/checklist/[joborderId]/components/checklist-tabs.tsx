@@ -981,7 +981,7 @@ export function ChecklistTabs({
 
       {/* Debit Note Dialog */}
       <Dialog open={showDebitNoteDialog} onOpenChange={setShowDebitNoteDialog}>
-        <DialogContent className="max-h-[90vh] w-[80vw] !max-w-none overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[80vw] max-w-none! overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Debit Note Details</DialogTitle>
             <DialogDescription>

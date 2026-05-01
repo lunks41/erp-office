@@ -863,7 +863,9 @@ export default function InvoicePage() {
   }
 
   // Handle Print Invoice Report
-  const handlePrintInvoice = (reportType: "direct" | "invoice" = "invoice") => {
+  const handlePrintInvoice = (
+    reportType: "direct" | "invoice" | "preprinted" = "invoice"
+  ) => {
     if (!invoice || invoice.invoiceId === "0") {
       toast.error("Please select an invoice to print")
       return
@@ -879,11 +881,14 @@ export default function InvoicePage() {
     const locAmtDec = decimals[0]?.locAmtDec || 2
 
     // Build report parameters
+    const reportTypeId =
+      reportType === "direct" ? 1 : reportType === "preprinted" ? 3 : 2
+
     const reportParams = {
       companyId: companyId,
       invoiceId: invoiceId,
       invoiceNo: invoiceNo,
-      reportType: reportType === "direct" ? 1 : 2,
+      reportType: reportTypeId,
       userName: user?.userName || "",
       amtDec: amtDec,
       locAmtDec: locAmtDec,
@@ -893,7 +898,11 @@ export default function InvoicePage() {
 
     // Determine report file based on type
     const reportFile =
-      reportType === "direct" ? "ar/ArInvoiceDirect.trdp" : "ar/ArInvoice.trdp"
+      reportType === "direct"
+        ? "ar/ArInvoiceDirect.trdp"
+        : reportType === "preprinted"
+          ? "ar/ArInvoice_PrePrinted.trdp"
+          : "ar/ArInvoice.trdp"
 
     // Store report data in sessionStorage
     const reportData = {
@@ -1441,7 +1450,7 @@ export default function InvoicePage() {
         onValueChange={setActiveTab}
       >
         {/* Toolbar: tabs+badges | title centered in gap | search + actions */}
-        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-20 shrink-0 border-b backdrop-blur-sm">
+        <div className="bg-background/95 supports-backdrop-filter:bg-background/80 sticky top-0 z-20 shrink-0 border-b backdrop-blur-sm">
           <div className="grid w-full min-w-0 grid-cols-1 items-center gap-x-2 gap-y-1 py-1 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
             <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2 sm:justify-self-start">
               <TabsList className="h-8 shrink-0 gap-0.5 p-[3px]">
@@ -1497,8 +1506,8 @@ export default function InvoicePage() {
                   <span
                     className={`relative inline-flex rounded-full p-[2px] transition-all ${
                       isEdit
-                        ? "bg-gradient-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
-                        : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500" // default gradient border
+                        ? "bg-linear-to-r from-purple-500 to-blue-500" // pulsing yellow border on edit
+                        : "animate-pulse bg-linear-to-r from-purple-500 to-blue-500" // default gradient border
                     } `}
                   >
                     {/* Inner pill: solid dark background + white text - same size as Fully Paid badge */}
@@ -1612,6 +1621,11 @@ export default function InvoicePage() {
                     onClick={() => handlePrintInvoice("invoice")}
                   >
                     2. Invoice
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handlePrintInvoice("preprinted")}
+                  >
+                    3. PrePrinted
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -1732,7 +1746,7 @@ export default function InvoicePage() {
         }}
       >
         <DialogContent
-          className="@container flex h-auto w-[90vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
+          className="@container flex h-auto w-[90vw] max-w-none! flex-col gap-0 overflow-hidden rounded-lg p-0"
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Header */}

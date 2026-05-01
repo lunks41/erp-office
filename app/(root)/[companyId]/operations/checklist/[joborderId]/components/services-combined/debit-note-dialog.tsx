@@ -1059,7 +1059,7 @@ export default function DebitNoteDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[95vh] w-[90vw] !max-w-none overflow-hidden"
+        className="max-h-[95vh] w-[90vw] max-w-none! overflow-hidden"
         onPointerDownOutside={(e) => {
           e.preventDefault()
         }}
@@ -1310,7 +1310,7 @@ export default function DebitNoteDialog({
             open={bulkChargesDialog.isOpen}
             onOpenChange={handleBulkDialogOpenChange}
           >
-            <DialogContent className="max-h-[90vh] w-[70vw] !max-w-none overflow-y-auto">
+            <DialogContent className="max-h-[90vh] w-[70vw] max-w-none! overflow-y-auto">
               <DialogHeader className="border-b pb-2">
                 <div className="flex items-center justify-between">
                   <div>

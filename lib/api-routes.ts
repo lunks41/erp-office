@@ -1254,6 +1254,18 @@ export const JobOrder = {
   getAllCompanies: "/operations/getjoborderallcompanies", // Cross-company search
 }
 
+// PDA Endpoints
+export const Pda = {
+  list: "/Pda/List",
+  byId: "/Pda/GetById",
+  create: "/Pda/Create",
+  update: "/Pda/Update",
+  delete: "/Pda/Delete",
+  approve: "/Pda/Approve",
+  clone: "/Pda/Clone",
+  loadFromTariff: "/Pda/LoadFromTariff",
+}
+
 // Tariff Endpoints
 export const Tariff = {
   getTariffCount: "/operations/gettariffcount",

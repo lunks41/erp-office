@@ -35,6 +35,94 @@ export const changelog: ChangelogVersion[] = [
     date: "2026-04-28",
     changes: [
       {
+        type: "improved",
+        text: "Bank and Supplier master screens now apply the same compact spacing as Customer by reducing form wrapper gaps, card shell padding, tabs spacing, and address/contact tab content vertical whitespace",
+      },
+      {
+        type: "improved",
+        text: "Customer master vertical whitespace was further reduced by tightening card shell padding/gaps and compacting audit trail accordion top/bottom spacing and row paddings",
+      },
+      {
+        type: "improved",
+        text: "Customer master cards were tightened by removing top/bottom card content padding and reducing customer form vertical gaps to achieve a denser layout",
+      },
+      {
+        type: "improved",
+        text: "AR Invoice print menu now includes a new 3. PrePrinted option wired to ar/ArInvoice_PrePrinted.trdp with dedicated report type parameter mapping",
+      },
+      {
+        type: "improved",
+        text: "PDA History and Timeline tabs were merged into a single History & Timeline tab, rendering both sections side-by-side in a responsive two-column layout",
+      },
+      {
+        type: "improved",
+        text: "PDA history tab now matches checklist history presentation with a two-card layout showing Creation Details, Last Modified info, and a compact version/status history table",
+      },
+      {
+        type: "improved",
+        text: "PDA timeline tab now uses a checklist-style activity timeline card with icon markers, connector line, and Done/Current/Pending badges instead of plain bullet text",
+      },
+      {
+        type: "improved",
+        text: "PDA summary header now renders PDA Reference and PDA Date using disabled CustomInput controls to keep all header fields on the shared custom form input style",
+      },
+      {
+        type: "improved",
+        text: "PDA header summary now uses autocomplete controls for Job Order, Vessel, Customer, Port, and Status via shared components/autocomplete, with form-bound ids for consistent selection behavior",
+      },
+      {
+        type: "improved",
+        text: "PDA summary form fields were aligned with checklist-style input presentation by switching editable fields to custom input/date components and tightening label/field spacing for consistent operations UI",
+      },
+      {
+        type: "improved",
+        text: "PDA list now uses a dedicated operations-style table component aligned with checklist service table behavior, including row actions and inline approve handling",
+      },
+      {
+        type: "improved",
+        text: "PDA editor top area was restyled to match AR Invoice's compact toolbar pattern with slim tabs, inline status badges, and small action buttons on a single header bar",
+      },
+      {
+        type: "improved",
+        text: "PDA feature components were moved from shared components/Operations/Pda into app/(root)/[companyId]/operations/pda/components and route imports were updated to use the new module-local structure",
+      },
+      {
+        type: "improved",
+        text: "Operations PDA routes were refactored to match existing module structure patterns using thinner page shells with route-local page components for list/create/detail composition",
+      },
+      {
+        type: "fixed",
+        text: "PDA editor type issues were resolved by aligning Zod form input types with React Hook Form and updating PDA detail query key usage after usePdaById signature changes",
+      },
+      {
+        type: "improved",
+        text: "PDA hooks now use centralized route constants from lib/api-routes.ts (including LoadFromTariff) instead of local inline endpoint strings",
+      },
+      {
+        type: "improved",
+        text: "Sidebar now hardcodes an Operations PDA menu item so PDA is always visible even when transaction-rights data does not return the PDA entry",
+      },
+      {
+        type: "improved",
+        text: "Canonical Tailwind utility class names were aligned across AR Invoice, Checklist, Debit Note dialog, and navigation header to clear editor intellisense style warnings",
+      },
+      {
+        type: "improved",
+        text: "PDA grouped charge grid now runs in strict mode by blocking orphan sub-rows, allowing sub-row creation only for valid sections, and keeping section amounts fully computed/read-only from child row totals",
+      },
+      {
+        type: "improved",
+        text: "PDA charge grid now renders grouped section headers and sub-rows (RowType/ParentItemNo) with section-level subtotal rollups, qty-only editable sub-rows, inline add-section/add-sub-row actions, and warning/estimate comment indicators",
+      },
+      {
+        type: "improved",
+        text: "PDA detail lines now support database grouping fields RowType and ParentItemNo, including section-header rows and parent-child line linking in the charge grid",
+      },
+      {
+        type: "added",
+        text: "Operations module now includes Proforma Disbursement Account (PDA) screens with list/create/detail routes, charge grid editing, tariff load flow, approval flow, clone/delete actions, and status-driven Draft/Approved/Converted UI",
+      },
+      {
         type: "fixed",
         text: "Checklist Debit Note detail form now defaults VAT from Job Order GST (gstId and gstPercentage) when the job is taxable with valid GST settings",
       },

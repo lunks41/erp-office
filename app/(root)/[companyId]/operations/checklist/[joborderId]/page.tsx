@@ -45,21 +45,21 @@ export default function JobOrderDetailsPage() {
 
   const statusColors: Record<string, string> = {
     Pending:
-      "border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-100 text-amber-800 hover:from-amber-100 hover:to-yellow-200",
+      "border-amber-300 bg-linear-to-r from-amber-50 to-yellow-100 text-amber-800 hover:from-amber-100 hover:to-yellow-200",
     Completed:
-      "border-emerald-300 bg-gradient-to-r from-emerald-50 to-green-100 text-emerald-800 hover:from-emerald-100 hover:to-green-200",
+      "border-emerald-300 bg-linear-to-r from-emerald-50 to-green-100 text-emerald-800 hover:from-emerald-100 hover:to-green-200",
     Cancelled:
-      "border-red-300 bg-gradient-to-r from-red-50 to-rose-100 text-red-800 hover:from-red-100 hover:to-rose-200",
+      "border-red-300 bg-linear-to-r from-red-50 to-rose-100 text-red-800 hover:from-red-100 hover:to-rose-200",
     "Cancel with Service":
-      "border-orange-300 bg-gradient-to-r from-orange-50 to-amber-100 text-orange-800 hover:from-orange-100 hover:to-amber-200",
+      "border-orange-300 bg-linear-to-r from-orange-50 to-amber-100 text-orange-800 hover:from-orange-100 hover:to-amber-200",
     Confirmed:
-      "border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-100 text-blue-800 hover:from-blue-100 hover:to-indigo-200",
+      "border-blue-300 bg-linear-to-r from-blue-50 to-indigo-100 text-blue-800 hover:from-blue-100 hover:to-indigo-200",
     Posted:
-      "border-purple-300 bg-gradient-to-r from-purple-50 to-violet-100 text-purple-800 hover:from-purple-100 hover:to-violet-200",
+      "border-purple-300 bg-linear-to-r from-purple-50 to-violet-100 text-purple-800 hover:from-purple-100 hover:to-violet-200",
     Delivered:
-      "border-teal-300 bg-gradient-to-r from-teal-50 to-cyan-100 text-teal-800 hover:from-teal-100 hover:to-cyan-200",
+      "border-teal-300 bg-linear-to-r from-teal-50 to-cyan-100 text-teal-800 hover:from-teal-100 hover:to-cyan-200",
     Approved:
-      "border-green-300 bg-gradient-to-r from-green-50 to-emerald-100 text-green-800 hover:from-green-100 hover:to-emerald-200",
+      "border-green-300 bg-linear-to-r from-green-50 to-emerald-100 text-green-800 hover:from-green-100 hover:to-emerald-200",
   }
 
   // Handle clone functionality
@@ -133,13 +133,13 @@ export default function JobOrderDetailsPage() {
                 <TooltipTrigger asChild>
                   <Badge
                     variant="outline"
-                    className="flex h-8 items-center border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 px-4 text-sm font-semibold text-blue-800 shadow-sm transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700"
+                    className="flex h-8 items-center border-2 border-blue-200 bg-linear-to-r from-blue-50 to-blue-100 px-4 text-sm font-semibold text-blue-800 shadow-sm transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:bg-linear-to-r hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700"
                   >
                     <span className="mr-1 text-blue-600">📋</span>
                     {`${jobOrderResponse?.data?.jobOrderNo} : v[${jobOrderResponse?.data?.editVersion}]`}
                   </Badge>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-3xl border-2 border-blue-100 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-xl">
+                <TooltipContent className="max-w-3xl border-2 border-blue-100 bg-linear-to-br from-white to-blue-50/30 p-6 shadow-xl">
                   <div className="space-y-4">
                     <div className="border-b-2 border-blue-200 pb-3">
                       <h4 className="text-lg font-bold text-blue-900">
@@ -159,7 +159,7 @@ export default function JobOrderDetailsPage() {
                         <span className="min-w-[100px] font-semibold text-gray-700">
                           Customer:
                         </span>
-                        <span className="font-medium text-gray-900 break-words">
+                        <span className="font-medium text-gray-900 wrap-break-word">
                           {jobOrderResponse?.data?.customerName || "N/A"}
                         </span>
                       </div>
@@ -239,7 +239,7 @@ export default function JobOrderDetailsPage() {
           )}
           {jobOrderResponse?.data?.jobStatusName && (
             <Badge
-              className={`flex h-8 items-center border-2 px-4 text-sm font-semibold shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg ${statusColors[jobOrderResponse.data.jobStatusName as keyof typeof statusColors] || "border-gray-300 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 hover:from-gray-200 hover:to-gray-300"}`}
+              className={`flex h-8 items-center border-2 px-4 text-sm font-semibold shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg ${statusColors[jobOrderResponse.data.jobStatusName as keyof typeof statusColors] || "border-gray-300 bg-linear-to-r from-gray-100 to-gray-200 text-gray-800 hover:from-gray-200 hover:to-gray-300"}`}
             >
               <span className="mr-1">⚡</span>
               {jobOrderResponse.data.jobStatusName}

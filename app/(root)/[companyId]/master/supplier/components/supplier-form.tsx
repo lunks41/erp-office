@@ -99,9 +99,9 @@ export default function SupplierForm({
   }
 
   return (
-    <div className="max-w flex flex-col gap-2">
+    <div className="max-w flex flex-col gap-0">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
           <div className="grid gap-2">
             <div className="grid grid-cols-6 gap-2">
               <SupplierCodeLookupInput
