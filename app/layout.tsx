@@ -19,10 +19,10 @@ const META_THEME_COLORS = {
 
 const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || "ERP",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://172.16.31.6:4000",
   ogImage:
     process.env.NEXT_PUBLIC_SITE_OG_IMAGE ||
-    `${process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com"}/og.jpg`,
+    `${process.env.NEXT_PUBLIC_SITE_URL || "http://172.16.31.6:4000"}/og.jpg`,
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
     "Comprehensive Enterprise Resource Planning system for shipping, logistics, and maritime operations. Streamline your business processes with integrated modules for accounting, project management, and document control.",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   authors: [
     {
       name: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AMES Technologies",
-      url: process.env.NEXT_PUBLIC_SITE_URL || "https://erp.com",
+      url: process.env.NEXT_PUBLIC_SITE_URL || "http://172.16.31.6:4000",
     },
   ],
   creator: process.env.NEXT_PUBLIC_SITE_AUTHOR_NAME || "AMES Technologies",

@@ -75,7 +75,7 @@ export const calculateDiffCurrency = (
     recTotAmt,
     recTotLocalAmt,
     totAmt,
-    totLocalAmt,
+    totLocalAmt: recTotLocalAmt ?? totLocalAmt,
   }
 }
 

@@ -80,6 +80,15 @@ export default function Main({
     }, 0)
   }, [dataDetails])
 
+  // Calculate sum of balLocalAmt (local balance amounts) from receipt details
+  const totalBalanceLocalAmt = useMemo(() => {
+    return dataDetails.reduce((sum, detail) => {
+      const balLocalAmt =
+        Number((detail as unknown as IArReceiptDt).docBalLocalAmt) || 0
+      return sum + balLocalAmt
+    }, 0)
+  }, [dataDetails])
+
   // Clear dialog params when dialog closes
   useEffect(() => {
     if (!showTransactionDialog) {
@@ -732,6 +741,12 @@ export default function Main({
             className="border-orange-200 bg-orange-50 px-3 py-1 text-sm font-medium text-orange-800"
           >
             Balance Amt: {totalBalanceAmt.toFixed(amtDec)}
+          </Badge>
+          <Badge
+            variant="outline"
+            className="border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-800"
+          >
+            Balance Local: {totalBalanceLocalAmt.toFixed(locAmtDec)}
           </Badge>
         </div>
 

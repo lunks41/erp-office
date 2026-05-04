@@ -3,6 +3,7 @@
 import * as React from "react"
 import {
   calculateMultiplierAmount,
+  mathRound,
   setDueDate,
   setExchangeRate,
   setExchangeRateLocal,
@@ -147,11 +148,15 @@ export default function ReceiptForm({
           recTotAmt: newRecTotAmt,
           recTotLocalAmt: newRecTotLocalAmt,
         } = calculateSameCurrency(totAmt || 0, exhRate || 0, decimals[0])
+        const syncedLocalAmt = mathRound(
+          newRecTotLocalAmt ?? newTotLocalAmt ?? 0,
+          locAmtDec
+        )
         form.setValue("recTotAmt", newRecTotAmt, { shouldDirty: true })
-        form.setValue("recTotLocalAmt", newRecTotLocalAmt, {
+        form.setValue("recTotLocalAmt", syncedLocalAmt, {
           shouldDirty: true,
         })
-        form.setValue("totLocalAmt", newTotLocalAmt, { shouldDirty: true })
+        form.setValue("totLocalAmt", syncedLocalAmt, { shouldDirty: true })
 
         // Calculate unallocated amounts using the newly computed values (not stale recTotAmt)
         const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
@@ -184,13 +189,17 @@ export default function ReceiptForm({
           exhRate,
           decimals[0]
         )
+        const syncedLocalAmt = mathRound(
+          newRecTotLocalAmt ?? newTotLocalAmt ?? 0,
+          locAmtDec
+        )
 
         form.setValue("recTotAmt", newRecTotAmt, { shouldDirty: true })
-        form.setValue("recTotLocalAmt", newRecTotLocalAmt, {
+        form.setValue("recTotLocalAmt", syncedLocalAmt, {
           shouldDirty: true,
         })
         form.setValue("totAmt", newTotAmt, { shouldDirty: true })
-        form.setValue("totLocalAmt", newTotLocalAmt, { shouldDirty: true })
+        form.setValue("totLocalAmt", syncedLocalAmt, { shouldDirty: true })
 
         // Calculate unallocated amounts
         const { unAllocAmt, unAllocLocalAmt } = calculateUnallocated(
@@ -272,7 +281,7 @@ export default function ReceiptForm({
         })
       }
     },
-    [form, decimals, dataDetails]
+    [form, decimals, dataDetails, locAmtDec]
   )
 
   // Initialize currency comparison state on component mount and form changes

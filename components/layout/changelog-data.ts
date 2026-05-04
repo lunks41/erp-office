@@ -31,6 +31,28 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.28",
+    date: "2026-05-01",
+    changes: [
+      {
+        type: "improved",
+        text: "Default public site URL and app URL now target the internal dev host http://172.16.31.6:4000 (replacing https://erp.com) in .env and layout metadata fallbacks so manifest and OG URLs stay same-origin and avoid CORS errors",
+      },
+      {
+        type: "improved",
+        text: "AR Receipt and AR Receipt Multi Currency summary strips now include a Balance Local badge, showing total local balance from detail rows alongside Balance Amt",
+      },
+      {
+        type: "fixed",
+        text: "AR Receipt and AR Receipt Multi Currency now keep Rec Total Local Amount and Total Local Amount strictly synchronized during recalculation to prevent one-cent rounding mismatches",
+      },
+      {
+        type: "improved",
+        text: "Git ignore rules now exclude local AI/tooling artifacts by ignoring .graphify, .graphiy, .claude, and claude.md to keep repository commits clean",
+      },
+    ],
+  },
+  {
     version: "1.5.27",
     date: "2026-04-28",
     changes: [
