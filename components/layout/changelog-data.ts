@@ -31,6 +31,34 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.30",
+    date: "2026-05-04",
+    changes: [
+      {
+        type: "fixed",
+        text: "Equipment Used detail line contract now aligns with the updated Ser_EquipmentUsedDt table by using itemNo (instead of detailsId) in TypeScript interfaces, zod schema, and form/helper payload mapping",
+      },
+    ],
+  },
+  {
+    version: "1.5.29",
+    date: "2026-05-03",
+    changes: [
+      {
+        type: "fixed",
+        text: "Equipment Used edit form now reads API `data_details` (as well as `details`) when rebuilding tally lines so every loading/offloading row returned from get-by-id is shown, not only the first line of each type from header fields",
+      },
+      {
+        type: "added",
+        text: "Checklist Equipment Used form now supports multiple loading and offloading tally lines via a `details` array aligned with `Ser_EquipmentUsedDt` (add/remove lines, submit sends `details` plus legacy header summary from the first line of each type)",
+      },
+      {
+        type: "fixed",
+        text: "Checklist Equipment Used: cloning a row from the table now clears loading and offloading tally sheet numbers and equipment quantities (and debit note linkage) so the new record starts with empty tally lines instead of duplicating the previous row",
+      },
+    ],
+  },
+  {
     version: "1.5.28",
     date: "2026-05-01",
     changes: [

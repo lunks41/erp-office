@@ -1,6 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useMemo } from "react"
+import {
+  applyLegacySummaryFromDetails,
+  buildEquipmentUsedDetailsFromApi,
+} from "@/helpers/equipment-used-details"
 import { IEquipmentUsed, IJobOrderHd } from "@/interfaces/checklist"
 import {
   EquipmentUsedSchema,
@@ -9,7 +13,8 @@ import {
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
-import { useForm } from "react-hook-form"
+import { Plus, Trash2 } from "lucide-react"
+import { useFieldArray, useForm } from "react-hook-form"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
@@ -119,13 +124,32 @@ export function EquipmentUsedForm({
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
+      details: buildEquipmentUsedDetailsFromApi(initialData),
     },
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "details",
   })
 
   // Watch the isNotes field to control notes field disabled state
   const isNotes = form.watch("isNotes")
   const isLoadingSectionEnabled = form.watch("isLoading")
   const isOffloadingSectionEnabled = form.watch("isOffloading")
+  const watchedDetails = form.watch("details")
+
+  const loadingIndices = useMemo(() => {
+    return (watchedDetails ?? [])
+      .map((row, i) => (!row?.isOffloading ? i : -1))
+      .filter((i): i is number => i >= 0)
+  }, [watchedDetails])
+
+  const offloadingIndices = useMemo(() => {
+    return (watchedDetails ?? [])
+      .map((row, i) => (row?.isOffloading ? i : -1))
+      .filter((i): i is number => i >= 0)
+  }, [watchedDetails])
 
   useEffect(() => {
     form.reset({
@@ -167,6 +191,7 @@ export function EquipmentUsedForm({
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
+      details: buildEquipmentUsedDetailsFromApi(initialData),
     })
   }, [
     dateFormat,
@@ -179,7 +204,29 @@ export function EquipmentUsedForm({
   ])
 
   const onSubmit = (data: EquipmentUsedSchemaType) => {
-    submitAction(data)
+    submitAction(applyLegacySummaryFromDetails(data))
+  }
+
+  const appendLoadingRow = () => {
+    append({
+      itemNo: 0,
+      isOffloading: false,
+      tallySheetNo: "",
+      crane: 0,
+      forklift: 0,
+      stevedore: 0,
+    })
+  }
+
+  const appendOffloadingRow = () => {
+    append({
+      itemNo: 0,
+      isOffloading: true,
+      tallySheetNo: "",
+      crane: 0,
+      forklift: 0,
+      stevedore: 0,
+    })
   }
 
   return (
@@ -253,7 +300,7 @@ export function EquipmentUsedForm({
                 <CustomInput
                   form={form}
                   name="ameTally"
-                  label="AME Tally"
+                  label="AME Tally / Launch "
                   isDisabled={isConfirmed}
                 />
                 <TaskStatusAutocomplete
@@ -266,7 +313,7 @@ export function EquipmentUsedForm({
               </div>
 
               <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
-                <div className="space-y-1 rounded-lg border p-2">
+                <div className="space-y-2 rounded-lg border p-2">
                   <div className="flex items-center gap-2">
                     <CustomCheckbox
                       form={form}
@@ -281,35 +328,66 @@ export function EquipmentUsedForm({
                       Loading
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-4 items-end gap-2">
-                    <CustomInput
-                      form={form}
-                      name="loadingRefNo"
-                      label="Tally Sheet No"
-                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
-                    />
-                    <CustomNumberInput
-                      form={form}
-                      name="craneloading"
-                      label="Crane  "
-                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
-                    />
-                    <CustomNumberInput
-                      form={form}
-                      name="forkliftloading"
-                      label="ForkLift  "
-                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
-                    />
-                    <CustomNumberInput
-                      form={form}
-                      name="stevedoreloading"
-                      label="Stevedore  "
-                      isDisabled={isConfirmed || !isLoadingSectionEnabled}
-                    />
+                  <div className="space-y-2">
+                    {loadingIndices.map((index) => (
+                      <div
+                        key={fields[index]?.id ?? `loading-${index}`}
+                        className="flex items-end gap-2"
+                      >
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="h-9 shrink-0"
+                          disabled={isConfirmed || !isLoadingSectionEnabled}
+                          onClick={() => remove(index)}
+                          title="Remove line"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="grid min-w-0 flex-1 grid-cols-4 items-end gap-2">
+                          <CustomInput
+                            form={form}
+                            name={`details.${index}.tallySheetNo`}
+                            label="Tally Sheet No"
+                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                          />
+                          <CustomNumberInput
+                            form={form}
+                            name={`details.${index}.crane`}
+                            label="Crane"
+                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                          />
+                          <CustomNumberInput
+                            form={form}
+                            name={`details.${index}.forklift`}
+                            label="ForkLift"
+                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                          />
+                          <CustomNumberInput
+                            form={form}
+                            name={`details.${index}.stevedore`}
+                            label="Stevedore"
+                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    disabled={isConfirmed || !isLoadingSectionEnabled}
+                    onClick={appendLoadingRow}
+                  >
+                    <Plus className="mr-1 h-4 w-4" />
+                    Add loading line
+                  </Button>
                 </div>
 
-                <div className="space-y-1 rounded-lg border p-2">
+                <div className="space-y-2 rounded-lg border p-2">
                   <div className="flex items-center gap-2">
                     <CustomCheckbox
                       form={form}
@@ -324,32 +402,71 @@ export function EquipmentUsedForm({
                       Offloading
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-4 items-end gap-2">
-                    <CustomInput
-                      form={form}
-                      name="offloadingRefNo"
-                      label="Tally Sheet No"
-                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
-                    />
-                    <CustomNumberInput
-                      form={form}
-                      name="craneOffloading"
-                      label="Crane"
-                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
-                    />
-                    <CustomNumberInput
-                      form={form}
-                      name="forkliftOffloading"
-                      label="ForkLift"
-                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
-                    />
-                    <CustomNumberInput
-                      form={form}
-                      name="stevedoreOffloading"
-                      label="Stevedore"
-                      isDisabled={isConfirmed || !isOffloadingSectionEnabled}
-                    />
+                  <div className="space-y-2">
+                    {offloadingIndices.map((index) => (
+                      <div
+                        key={fields[index]?.id ?? `offloading-${index}`}
+                        className="flex items-end gap-2"
+                      >
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="h-9 shrink-0"
+                          disabled={isConfirmed || !isOffloadingSectionEnabled}
+                          onClick={() => remove(index)}
+                          title="Remove line"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="grid min-w-0 flex-1 grid-cols-4 items-end gap-2">
+                          <CustomInput
+                            form={form}
+                            name={`details.${index}.tallySheetNo`}
+                            label="Tally Sheet No"
+                            isDisabled={
+                              isConfirmed || !isOffloadingSectionEnabled
+                            }
+                          />
+                          <CustomNumberInput
+                            form={form}
+                            name={`details.${index}.crane`}
+                            label="Crane"
+                            isDisabled={
+                              isConfirmed || !isOffloadingSectionEnabled
+                            }
+                          />
+                          <CustomNumberInput
+                            form={form}
+                            name={`details.${index}.forklift`}
+                            label="ForkLift"
+                            isDisabled={
+                              isConfirmed || !isOffloadingSectionEnabled
+                            }
+                          />
+                          <CustomNumberInput
+                            form={form}
+                            name={`details.${index}.stevedore`}
+                            label="Stevedore"
+                            isDisabled={
+                              isConfirmed || !isOffloadingSectionEnabled
+                            }
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    disabled={isConfirmed || !isOffloadingSectionEnabled}
+                    onClick={appendOffloadingRow}
+                  >
+                    <Plus className="mr-1 h-4 w-4" />
+                    Add offloading line
+                  </Button>
                 </div>
               </div>
             </div>

@@ -22,6 +22,7 @@ import {
   JobOrder_DebitNote,
   JobOrder_EquipmentUsed,
 } from "@/lib/api-routes"
+import { defaultEquipmentUsedDetailRows } from "@/helpers/equipment-used-details"
 import { formatDateForApi } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
 import { ModuleId, OperationsTransactionId } from "@/lib/utils"
@@ -852,6 +853,18 @@ export function EquipmentUsedTab({
             ...(src as unknown as EquipmentUsedSchemaType),
             equipmentUsedId: 0,
             debitNoteId: 0,
+            debitNoteNo: "",
+            editVersion: 0,
+            // Fresh `Ser_EquipmentUsedDt`-style lines (and legacy header tallies cleared)
+            details: defaultEquipmentUsedDetailRows(),
+            loadingRefNo: "",
+            craneloading: 0,
+            forkliftloading: 0,
+            stevedoreloading: 0,
+            offloadingRefNo: "",
+            craneOffloading: 0,
+            forkliftOffloading: 0,
+            stevedoreOffloading: 0,
             date: formatDateForApi(src.date) || "",
             ...jobDataProps,
           }

@@ -587,6 +587,23 @@ export const LaunchServiceSchema = z.object({
 
 export type LaunchServiceSchemaType = z.infer<typeof LaunchServiceSchema>
 
+export const EquipmentUsedDetailSchema = z.object({
+  itemNo: z.number().optional(),
+  companyId: z.number().optional(),
+  jobOrderId: z.number().optional(),
+  equipmentUsedId: z.number().optional(),
+  /** false = Loading, true = Offloading (matches `Ser_EquipmentUsedDt.IsOffloading`). */
+  isOffloading: z.boolean(),
+  tallySheetNo: z.string().optional(),
+  crane: z.number().optional(),
+  forklift: z.number().optional(),
+  stevedore: z.number().optional(),
+})
+
+export type EquipmentUsedDetailSchemaType = z.infer<
+  typeof EquipmentUsedDetailSchema
+>
+
 export const EquipmentUsedSchema = z.object({
   equipmentUsedId: z.number(),
   date: z.string().min(1, "Date is required"),
@@ -612,6 +629,8 @@ export const EquipmentUsedSchema = z.object({
   craneOffloading: z.number().optional(),
   forkliftOffloading: z.number().optional(),
   stevedoreOffloading: z.number().optional(),
+  /** Line items for `Ser_EquipmentUsedDt`. */
+  details: z.array(EquipmentUsedDetailSchema).optional(),
   remarks: z
     .string()
     .max(500, "Remarks must be less than 500 characters")
