@@ -13,13 +13,13 @@ export const chargeSchema = z.object({
 
   uomId: z.number().min(1, { message: "uom is required" }),
   seqNo: z.number().min(0, { message: "seq no is required" }),
-  isTransport: z.boolean(),
-  isMultiple: z.boolean(),
+  isTransport: z.boolean().default(false),
+  isMultiple: z.boolean().default(false),
   remarks: z
     .string()
     .max(255, { message: "Remarks cannot exceed 255 characters" })
     .optional(),
-  isActive: z.boolean(),
+  isActive: z.boolean().default(true),
 })
 
 export type ChargeSchemaType = z.infer<typeof chargeSchema>

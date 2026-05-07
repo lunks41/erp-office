@@ -1486,8 +1486,9 @@ export const JobOrder_TransportationLog = {
 }
 
 // Transportation Log Endpoints (Logistics Module)
-export const TransportationLog = {
+export const Transportation = {
   get: "/logistics/gettransportation",
+  getByTask: "/logistics/gettransportationbytask",
   getById: "/logistics/gettransportationbyid",
   add: "/logistics/savetransportation",
   delete: "/logistics/deletetransportation",

@@ -41,7 +41,6 @@ import {
 import {
   Copy,
   ListFilter,
-  Printer,
   RefreshCw,
   RotateCcw,
   Save,
@@ -823,58 +822,6 @@ export default function DebitNotePage() {
     toast.success("DebitNote reset successfully")
   }
 
-  // Handle Print Debit Note Report
-  const handlePrintDebitNote = () => {
-    if (!debitNote || debitNote.debitNoteId === "0") {
-      toast.error("Please select a debit note to print")
-      return
-    }
-
-    const formValues = form.getValues()
-    const debitNoteId =
-      formValues.debitNoteId || debitNote.debitNoteId?.toString() || "0"
-    const debitNoteNo = formValues.debitNoteNo || debitNote.debitNoteNo || ""
-
-    // Get decimals
-    const amtDec = decimals[0]?.amtDec || 2
-    const locAmtDec = decimals[0]?.locAmtDec || 2
-
-    // Build report parameters
-    const reportParams = {
-      companyId: companyId,
-      invoiceId: debitNoteId,
-      invoiceNo: debitNoteNo,
-      reportType: 1,
-      userName: user?.userName || "",
-      amtDec: amtDec,
-      locAmtDec: locAmtDec,
-    }
-
-    console.log("reportParams", reportParams)
-
-    // Store report data in sessionStorage
-    const reportData = {
-      reportFile: "ap/ApDebitNote.trdp",
-      parameters: reportParams,
-    }
-
-    try {
-      localStorage.setItem(
-        `report_window_${companyId}`,
-        JSON.stringify(reportData)
-      )
-
-      // Open in a new window (not tab) with specific features
-      const windowFeatures =
-        "width=1200,height=800,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes"
-      const viewerUrl = `/${companyId}/reports/window`
-      window.open(viewerUrl, "_blank", windowFeatures)
-    } catch (error) {
-      console.error("Error opening report:", error)
-      toast.error("Failed to open report")
-    }
-  }
-
   // Helper function to transform IApDebitNoteHd to ApDebitNoteHdSchemaType
   const transformToSchemaType = useCallback(
     (apiDebitNote: IApDebitNoteHd): ApDebitNoteHdSchemaType => {
@@ -1531,16 +1478,6 @@ export default function DebitNotePage() {
                 : isEdit
                   ? "Update"
                   : "Save"}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!debitNote || debitNote.debitNoteId === "0"}
-              onClick={handlePrintDebitNote}
-            >
-              <Printer className="mr-1 h-4 w-4" />
-              Print
             </Button>
 
             <Button

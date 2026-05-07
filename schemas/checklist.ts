@@ -615,20 +615,10 @@ export const EquipmentUsedSchema = z.object({
 
   mafi: z.string().optional(),
   others: z.string().optional(),
-  isLoading: z.boolean().optional(),
-  isOffloading: z.boolean().optional(),
   providerName: z.string().optional(),
   gear: z.number().optional(),
   bargeId: z.number().optional(),
   ameTally: z.string().optional(),
-  loadingRefNo: z.string().optional(),
-  craneloading: z.number().optional(),
-  forkliftloading: z.number().optional(),
-  stevedoreloading: z.number().optional(),
-  offloadingRefNo: z.string().optional(),
-  craneOffloading: z.number().optional(),
-  forkliftOffloading: z.number().optional(),
-  stevedoreOffloading: z.number().optional(),
   /** Line items for `Ser_EquipmentUsedDt`. */
   details: z.array(EquipmentUsedDetailSchema).optional(),
   remarks: z
@@ -779,28 +769,45 @@ export const debitNoteHdSchema = z.object({
 
 export type DebitNoteHdSchemaType = z.infer<typeof debitNoteHdSchema>
 
-export const TransportationLogSchema = z.object({
-  itemNo: z.number().optional(),
+export const SerTransportationDtSchema = z.object({
+  itemNo: z.number().min(1, "Item No is required"),
+  serviceItemNo: z.number().min(1, "Service Item No is required"),
+})
+
+export type SerTransportationDtSchemaType = z.infer<
+  typeof SerTransportationDtSchema
+>
+
+export const SerTransportationHdSchema = z.object({
+  transportationId: z.number().optional(),
   companyId: z.number().min(1, "Company ID is required"),
   jobOrderId: z.number().min(1, "Job Order ID is required"),
+  itemNo: z.number().min(1, "Item No is required"),
   taskId: z.number().min(1, "Task ID is required"),
-  serviceItemNo: z.string().min(1, "Service Item No is required"),
-  serviceItemNoName: z.string().optional(),
-  transportDate: z.union([z.date(), z.string()]).optional(),
+  transportDate: z.union([z.date(), z.string()]),
   fromLocationId: z.number().min(1, "From Location is required"),
   toLocationId: z.number().min(1, "To Location is required"),
   transportModeId: z.number().min(1, "Transport Mode is required"),
-  vehicleNo: z.string().max(50).nullable().optional(),
-  driverName: z.string().max(100).nullable().optional(),
-  passengerCount: z.number().min(0, "Passenger Count must be 0 or greater"),
-  chargeId: z.number().min(1, "Charge is required"),
-  cargoTypeId: z.number().nullable().optional(),
-  remarks: z.string().max(500).nullable().optional(),
   refNo: z.string().max(100).nullable().optional(),
-  vendor: z.string().max(200).nullable().optional(),
-  editVersion: z.number().optional(),
+  vendor: z.string().max(150).nullable().optional(),
+  vehicleNo: z.string().max(100).nullable().optional(),
+  driverName: z.string().max(150).nullable().optional(),
+  passengerCount: z.number().min(0, "Passenger Count must be 0 or greater"),
+  cargoWeight: z.number().min(0, "Cargo Weight must be 0 or greater"),
+  cargoTypeId: z.number().nullable().optional(),
+  chargeId: z.number().nullable().optional(),
+  remarks: z.string().max(500).nullable().optional(),
+  createById: z.number().min(1, "Create By ID is required"),
+  createDate: z.union([z.date(), z.string()]).optional(),
+  editById: z.number().nullable().optional(),
+  editDate: z.union([z.date(), z.string()]).nullable().optional(),
+  editVersion: z
+    .number()
+    .min(0, "Edit Version must be 0 or greater")
+    .optional(),
+  data_details: z.array(SerTransportationDtSchema).optional(),
 })
 
-export type TransportationLogSchemaType = z.infer<
-  typeof TransportationLogSchema
+export type SerTransportationHdSchemaType = z.infer<
+  typeof SerTransportationHdSchema
 >

@@ -1,11 +1,15 @@
 "use client"
 
 import { useCallback, useEffect, useMemo } from "react"
-import { IJobOrderHd, ITransportationLog } from "@/interfaces/checklist"
+import {
+  IJobOrderHd,
+  ISerTransportationDt,
+  ISerTransportationHd,
+} from "@/interfaces/checklist"
 import { IServiceItemNoLookup, ITaskLookup } from "@/interfaces/lookup"
 import {
-  TransportationLogSchema,
-  TransportationLogSchemaType,
+  SerTransportationHdSchema,
+  SerTransportationHdSchemaType,
 } from "@/schemas/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -28,12 +32,17 @@ import JobOrderServiceItemNoMultiSelect from "@/components/multiselection-jobord
 
 interface TransportationLogFormProps {
   jobData: IJobOrderHd
-  initialData?: ITransportationLog
+  initialData?: ISerTransportationHd
   taskDefaults?: Record<string, number>
-  submitAction: (data: TransportationLogSchemaType) => void
+  submitAction: (data: SerTransportationHdSchemaType) => void
   onCancelAction?: () => void
   isSubmitting?: boolean
   isConfirmed?: boolean
+}
+
+type TransportationFormValues = SerTransportationHdSchemaType & {
+  serviceItemNo?: string
+  serviceItemNoName?: string
 }
 
 export function TransportationLogForm({
@@ -46,6 +55,28 @@ export function TransportationLogForm({
   isConfirmed,
 }: TransportationLogFormProps) {
   const { decimals, user } = useAuthStore()
+
+  const getServiceItemNoString = useCallback(
+    (data?: ISerTransportationHd) => {
+      if (!data) return ""
+      const withLegacy = data as ISerTransportationHd & { serviceItemNo?: string }
+      if (withLegacy.serviceItemNo) return withLegacy.serviceItemNo
+      if (data.data_details && data.data_details.length > 0) {
+        return data.data_details.map((detail) => detail.serviceItemNo).join(",")
+      }
+      return ""
+    },
+    []
+  )
+
+  const getServiceItemNoNameString = useCallback(
+    (data?: ISerTransportationHd) => {
+      if (!data) return ""
+      const withLegacy = data as ISerTransportationHd & { serviceItemNoName?: string }
+      return withLegacy.serviceItemNoName ?? ""
+    },
+    []
+  )
 
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
@@ -71,15 +102,16 @@ export function TransportationLogForm({
     [dateFormat]
   )
 
-  const form = useForm<TransportationLogSchemaType>({
-    resolver: zodResolver(TransportationLogSchema),
+  const form = useForm<TransportationFormValues>({
+    resolver: zodResolver(SerTransportationHdSchema) as never,
     defaultValues: {
-      itemNo: initialData?.itemNo,
+      transportationId: initialData?.transportationId ?? 0,
+      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: initialData?.serviceItemNo ?? "",
-      serviceItemNoName: initialData?.serviceItemNoName ?? "",
+      serviceItemNo: getServiceItemNoString(initialData),
+      serviceItemNoName: getServiceItemNoNameString(initialData),
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
@@ -93,23 +125,27 @@ export function TransportationLogForm({
       vehicleNo: initialData?.vehicleNo ?? null,
       driverName: initialData?.driverName ?? null,
       passengerCount: initialData?.passengerCount ?? 0,
+      cargoWeight: 0,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? null,
       cargoTypeId: initialData?.cargoTypeId ?? 0,
       remarks: initialData?.remarks ?? null,
       refNo: initialData?.refNo ?? null,
       vendor: initialData?.vendor ?? null,
+      createById: initialData?.createById ?? (Number(user?.userId) || 1),
       editVersion: initialData?.editVersion,
+      data_details: [],
     },
   })
 
   useEffect(() => {
     form.reset({
-      itemNo: initialData?.itemNo,
+      transportationId: initialData?.transportationId ?? 0,
+      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: initialData?.serviceItemNo ?? "",
-      serviceItemNoName: initialData?.serviceItemNoName ?? "",
+      serviceItemNo: getServiceItemNoString(initialData),
+      serviceItemNoName: getServiceItemNoNameString(initialData),
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
@@ -123,12 +159,15 @@ export function TransportationLogForm({
       vehicleNo: initialData?.vehicleNo ?? null,
       driverName: initialData?.driverName ?? null,
       passengerCount: initialData?.passengerCount ?? 0,
+      cargoWeight: 0,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? null,
       cargoTypeId: initialData?.cargoTypeId ?? 0,
       remarks: initialData?.remarks ?? null,
       refNo: initialData?.refNo ?? null,
       vendor: initialData?.vendor ?? null,
+      createById: initialData?.createById ?? (Number(user?.userId) || 1),
       editVersion: initialData?.editVersion,
+      data_details: [],
     })
   }, [
     dateFormat,
@@ -137,13 +176,15 @@ export function TransportationLogForm({
     jobData.companyId,
     jobData.jobOrderId,
     parseWithFallback,
+    getServiceItemNoString,
+    getServiceItemNoNameString,
     taskDefaults,
     user?.userId,
   ])
 
   // Watch form values to trigger re-renders when they change
-  const watchedJobOrderId = form.watch("jobOrderId")
-  const watchedTaskId = form.watch("taskId")
+  const watchedJobOrderId = Number(form.watch("jobOrderId") ?? 0)
+  const watchedTaskId = Number(form.watch("taskId") ?? 0)
 
   // ============================================================================
   // HANDLERS
@@ -158,19 +199,11 @@ export function TransportationLogForm({
       })
       // Reset service when task changes
       form.setValue("serviceItemNo", "", { shouldValidate: true })
-      form.setValue(
-        "serviceItemNoName" as keyof TransportationLogSchemaType,
-        "",
-        { shouldValidate: false }
-      )
+      form.setValue("serviceItemNoName", "", { shouldValidate: false })
     } else {
       form.setValue("taskId", 0, { shouldValidate: true })
       form.setValue("serviceItemNo", "", { shouldValidate: true })
-      form.setValue(
-        "serviceItemNoName" as keyof TransportationLogSchemaType,
-        "",
-        { shouldValidate: false }
-      )
+      form.setValue("serviceItemNoName", "", { shouldValidate: false })
     }
   }
 
@@ -195,39 +228,57 @@ export function TransportationLogForm({
 
     // Set serviceItemNoName if schema requires it
     if (serviceItemNoNames) {
-      form.setValue(
-        "serviceItemNoName" as keyof TransportationLogSchemaType,
-        serviceItemNoNames,
-        {
-          shouldValidate: false,
-          shouldDirty: true,
-        }
-      )
+      form.setValue("serviceItemNoName", serviceItemNoNames, {
+        shouldValidate: false,
+        shouldDirty: true,
+      })
     }
   }
 
-  const onSubmit = (data: TransportationLogSchemaType) => {
+  const onSubmit = (data: TransportationFormValues) => {
+    const rawServiceItemNo = form.getValues("serviceItemNo" as never) as unknown
+    const rawServiceItemNoName = form.getValues(
+      "serviceItemNoName" as never
+    ) as unknown
+
     // Ensure serviceItemNo is a comma-separated string
     let serviceItemNoString = ""
-    if (typeof data.serviceItemNo === "string") {
-      serviceItemNoString = data.serviceItemNo.trim()
-    } else if (data.serviceItemNo) {
-      serviceItemNoString = String(data.serviceItemNo).trim()
+    const serviceItemNo = rawServiceItemNo ?? data.serviceItemNo
+    if (typeof serviceItemNo === "string") {
+      serviceItemNoString = serviceItemNo.trim()
+    } else if (serviceItemNo) {
+      serviceItemNoString = String(serviceItemNo).trim()
     }
 
     // Ensure serviceItemNoName is a comma-separated string
     let serviceItemNoNameString = ""
-    if (typeof data.serviceItemNoName === "string") {
-      serviceItemNoNameString = data.serviceItemNoName.trim()
-    } else if (data.serviceItemNoName) {
-      serviceItemNoNameString = String(data.serviceItemNoName).trim()
+    const serviceItemNoName = rawServiceItemNoName ?? data.serviceItemNoName
+    if (typeof serviceItemNoName === "string") {
+      serviceItemNoNameString = serviceItemNoName.trim()
+    } else if (serviceItemNoName) {
+      serviceItemNoNameString = String(serviceItemNoName).trim()
     }
 
-    const formattedData = {
-      ...data,
-      serviceItemNo: serviceItemNoString,
-      serviceItemNoName: serviceItemNoNameString,
+    const detailRows: ISerTransportationDt[] = serviceItemNoString
+      .split(",")
+      .map((s) => Number(s.trim()))
+      .filter((n) => Number.isFinite(n) && n > 0)
+      .map((serviceNo, index) => ({
+        itemNo: index + 1,
+        serviceItemNo: serviceNo,
+        serviceItemNoName:
+          serviceItemNoNameString
+            .split(",")
+            .map((name) => name.trim())[index] ?? "",
+      }))
+
+    const formattedData: SerTransportationHdSchemaType = {
+      ...(data as SerTransportationHdSchemaType),
+      data_details: detailRows,
+      createById:
+        (data.createById as number | undefined) ?? (Number(user?.userId) || 1),
     }
+    void serviceItemNoNameString
     submitAction(formattedData)
   }
 
@@ -245,7 +296,7 @@ export function TransportationLogForm({
                 key={`task-${watchedJobOrderId}`}
                 form={form}
                 name="taskId"
-                jobOrderId={watchedJobOrderId || 0}
+                jobOrderId={watchedJobOrderId}
                 label="Task"
                 isRequired
                 isDisabled={isConfirmed}
@@ -255,9 +306,9 @@ export function TransportationLogForm({
                 <JobOrderServiceItemNoMultiSelect
                   key={`service-${watchedJobOrderId}-${watchedTaskId}`}
                   form={form}
-                  name="serviceItemNo"
-                  jobOrderId={watchedJobOrderId || 0}
-                  taskId={watchedTaskId || 0}
+                  name={"serviceItemNo" as never}
+                  jobOrderId={watchedJobOrderId}
+                  taskId={watchedTaskId}
                   label="Service Item No"
                   isRequired
                   isDisabled={isConfirmed}

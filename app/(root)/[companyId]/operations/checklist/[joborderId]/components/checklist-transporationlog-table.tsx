@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useMemo } from "react"
-import { ITransportationLog } from "@/interfaces/checklist"
+import { ISerTransportationHd } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
@@ -12,14 +12,14 @@ import { Badge } from "@/components/ui/badge"
 import { MainTable } from "@/components/table/table-main"
 
 interface TransportationLogTableProps {
-  data: ITransportationLog[]
+  data: ISerTransportationHd[]
   isLoading?: boolean
   onTransportationLogSelect?: (
-    transportationLog: ITransportationLog | null
+    transportationLog: ISerTransportationHd | null
   ) => void
   onDeleteTransportationLog?: (itemNo: string) => void
   onEditActionTransportationLog?: (
-    transportationLog: ITransportationLog
+    transportationLog: ISerTransportationHd
   ) => void
   onCreateActionTransportationLog?: () => void
   onRefreshAction?: () => void
@@ -69,16 +69,31 @@ export function TransportationLogTable({
   )
 
   // Memoize columns to prevent infinite re-renders
-  const columns: ColumnDef<ITransportationLog>[] = useMemo(
+  const columns: ColumnDef<ISerTransportationHd>[] = useMemo(
     () => [
       {
         accessorKey: "serviceItemNo",
         header: "Services",
         cell: ({ row }) => {
-          const serviceItemNo = row.original.serviceItemNo
-          const serviceItemNoName = row.original.serviceItemNoName
+          const record = row.original as ISerTransportationHd & {
+            serviceItemNo?: string
+            serviceItemNoName?: string
+          }
+          const serviceItemNo =
+            record.serviceItemNo ??
+            (record.data_details && record.data_details.length > 0
+              ? record.data_details.map((detail) => detail.serviceItemNo).join(",")
+              : "")
+          const serviceItemNoName = record.serviceItemNoName ?? ""
 
-          if (!serviceItemNo || serviceItemNo.trim() === "") {
+          const serviceItemNoNames = serviceItemNoName
+            ? serviceItemNoName.split(",").map((name) => name.trim())
+            : []
+
+          if (
+            (!serviceItemNo || serviceItemNo.trim() === "") &&
+            serviceItemNoNames.length === 0
+          ) {
             return <span className="text-muted-foreground text-[10px]">-</span>
           }
 
@@ -86,20 +101,17 @@ export function TransportationLogTable({
           const serviceItemNos = serviceItemNo
             .split(",")
             .map((item) => item.trim())
-            .filter((item) => item && !isNaN(Number(item)))
+            .filter((item) => item)
 
-          if (serviceItemNos.length === 0) {
+          if (serviceItemNos.length === 0 && serviceItemNoNames.length === 0) {
             return <span className="text-muted-foreground text-[10px]">-</span>
           }
-
-          // Split serviceItemNoName if available, otherwise use IDs
-          const serviceItemNoNames = serviceItemNoName
-            ? serviceItemNoName.split(",").map((name) => name.trim())
-            : []
+          const rowsCount = Math.max(serviceItemNos.length, serviceItemNoNames.length)
 
           return (
             <div className="flex flex-wrap gap-0.5">
-              {serviceItemNos.map((itemNo, index) => {
+              {Array.from({ length: rowsCount }).map((_, index) => {
+                const itemNo = serviceItemNos[index] || ""
                 // Use name if available and matches index, otherwise use ID
                 const displayText =
                   serviceItemNoNames[index] && serviceItemNoNames[index] !== ""
@@ -314,7 +326,7 @@ export function TransportationLogTable({
   )
 
   return (
-    <MainTable<ITransportationLog>
+    <MainTable<ISerTransportationHd>
       data={data}
       columns={columns}
       isLoading={isLoading}

@@ -31,6 +31,50 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.32",
+    date: "2026-05-07",
+    changes: [
+      {
+        type: "improved",
+        text: "Checklist Transportation was migrated to SerTransportationHd/SerTransportationDt contracts across interfaces, zod schemas, forms, tabs, and save payloads (including itemNo-based detail rows via data_details)",
+      },
+      {
+        type: "fixed",
+        text: "Transportation edit/save flow now preserves and submits transportationId from selected table rows, keeps Service Item values hydrated in edit forms, and prevents empty data_details on submit",
+      },
+      {
+        type: "fixed",
+        text: "Transportation table Services column now renders reliably from serviceItemNoName and data_details fallbacks, and transportationId is hidden from visible table columns",
+      },
+      {
+        type: "improved",
+        text: "Charge form UX/validation was tightened by setting boolean defaults (isTransport/isMultiple/isActive), initializing isMultiple in create mode, and aligning checkbox layout into one row",
+      },
+      {
+        type: "fixed",
+        text: "Changelog side panel now wraps long entry text/identifiers within card width (no overflow clipping) for improved readability on narrower screens",
+      },
+      {
+        type: "fixed",
+        text: "Checklist Equipment Used numeric detail inputs now enforce explicit keyboard tab order so focus moves reliably from Crane to ForkLift in loading/offloading lines",
+      },
+    ],
+  },
+  {
+    version: "1.5.31",
+    date: "2026-05-06",
+    changes: [
+      {
+        type: "improved",
+        text: "AP Invoice, AP Debit Note, and AP Credit Note transaction toolbars now hide the Print action button/menu",
+      },
+      {
+        type: "fixed",
+        text: "Checklist Equipment Used form now correctly resolves loading/offloading section enablement state so the page compiles and section controls no longer reference undefined flags",
+      },
+    ],
+  },
+  {
     version: "1.5.30",
     date: "2026-05-04",
     changes: [

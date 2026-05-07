@@ -101,20 +101,10 @@ export function EquipmentUsedForm({
       referenceNo: initialData?.referenceNo ?? "",
       mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
-      isLoading: initialData?.isLoading ?? false,
-      isOffloading: initialData?.isOffloading ?? false,
       providerName: initialData?.providerName ?? "",
       gear: initialData?.gear ?? 0,
       bargeId: initialData?.bargeId ?? 0,
       ameTally: initialData?.ameTally ?? "",
-      loadingRefNo: initialData?.loadingRefNo ?? "",
-      craneloading: initialData?.craneloading ?? 0,
-      forkliftloading: initialData?.forkliftloading ?? 0,
-      stevedoreloading: initialData?.stevedoreloading ?? 0,
-      offloadingRefNo: initialData?.offloadingRefNo ?? "",
-      craneOffloading: initialData?.craneOffloading ?? 0,
-      forkliftOffloading: initialData?.forkliftOffloading ?? 0,
-      stevedoreOffloading: initialData?.stevedoreOffloading ?? 0,
       remarks: initialData?.remarks ?? "",
       taskStatusId: initialData?.taskStatusId ?? taskDefaults.taskStatusId ?? 1,
       isNotes: initialData?.isNotes ?? false,
@@ -124,6 +114,12 @@ export function EquipmentUsedForm({
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
+      isLoading: buildEquipmentUsedDetailsFromApi(initialData).some(
+        (d) => !d.isOffloading
+      ),
+      isOffloading: buildEquipmentUsedDetailsFromApi(initialData).some(
+        (d) => d.isOffloading
+      ),
       details: buildEquipmentUsedDetailsFromApi(initialData),
     },
   })
@@ -135,9 +131,8 @@ export function EquipmentUsedForm({
 
   // Watch the isNotes field to control notes field disabled state
   const isNotes = form.watch("isNotes")
-  const isLoadingSectionEnabled = form.watch("isLoading")
-  const isOffloadingSectionEnabled = form.watch("isOffloading")
   const watchedDetails = form.watch("details")
+  const watchedFormValues = form.watch()
 
   const loadingIndices = useMemo(() => {
     return (watchedDetails ?? [])
@@ -151,7 +146,16 @@ export function EquipmentUsedForm({
       .filter((i): i is number => i >= 0)
   }, [watchedDetails])
 
+  // Keep section toggles enabled when checked, and also when rows already exist.
+  const isLoadingSectionEnabled =
+    Boolean((watchedFormValues as Record<string, unknown>).isLoading) ||
+    loadingIndices.length > 0
+  const isOffloadingSectionEnabled =
+    Boolean((watchedFormValues as Record<string, unknown>).isOffloading) ||
+    offloadingIndices.length > 0
+
   useEffect(() => {
+    const details = buildEquipmentUsedDetailsFromApi(initialData)
     form.reset({
       equipmentUsedId: initialData?.equipmentUsedId ?? 0,
       date: initialData?.date
@@ -168,20 +172,10 @@ export function EquipmentUsedForm({
       referenceNo: initialData?.referenceNo ?? "",
       mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
-      isLoading: initialData?.isLoading ?? false,
-      isOffloading: initialData?.isOffloading ?? false,
       providerName: initialData?.providerName ?? "",
       gear: initialData?.gear ?? 0,
       bargeId: initialData?.bargeId ?? 0,
       ameTally: initialData?.ameTally ?? "",
-      loadingRefNo: initialData?.loadingRefNo ?? "",
-      craneloading: initialData?.craneloading ?? 0,
-      forkliftloading: initialData?.forkliftloading ?? 0,
-      stevedoreloading: initialData?.stevedoreloading ?? 0,
-      offloadingRefNo: initialData?.offloadingRefNo ?? "",
-      craneOffloading: initialData?.craneOffloading ?? 0,
-      forkliftOffloading: initialData?.forkliftOffloading ?? 0,
-      stevedoreOffloading: initialData?.stevedoreOffloading ?? 0,
       remarks: initialData?.remarks ?? "",
       taskStatusId: initialData?.taskStatusId ?? taskDefaults.taskStatusId ?? 1,
       isNotes: initialData?.isNotes ?? false,
@@ -191,7 +185,9 @@ export function EquipmentUsedForm({
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
-      details: buildEquipmentUsedDetailsFromApi(initialData),
+      isLoading: details.some((d) => !d.isOffloading),
+      isOffloading: details.some((d) => d.isOffloading),
+      details,
     })
   }, [
     dateFormat,
@@ -272,6 +268,12 @@ export function EquipmentUsedForm({
                 />
                 <CustomInput
                   form={form}
+                  name="ameTally"
+                  label="AME Tally / Launch "
+                  isDisabled={isConfirmed}
+                />
+                <CustomInput
+                  form={form}
                   name="poNo"
                   label="PO No"
                   isDisabled={isConfirmed}
@@ -297,12 +299,7 @@ export function EquipmentUsedForm({
                   label="Others"
                   isDisabled={isConfirmed}
                 />
-                <CustomInput
-                  form={form}
-                  name="ameTally"
-                  label="AME Tally / Launch "
-                  isDisabled={isConfirmed}
-                />
+
                 <TaskStatusAutocomplete
                   form={form}
                   name="taskStatusId"
@@ -339,7 +336,7 @@ export function EquipmentUsedForm({
                           variant="outline"
                           size="icon"
                           className="h-9 shrink-0"
-                          disabled={isConfirmed || !isLoadingSectionEnabled}
+                          disabled={isConfirmed}
                           onClick={() => remove(index)}
                           title="Remove line"
                         >

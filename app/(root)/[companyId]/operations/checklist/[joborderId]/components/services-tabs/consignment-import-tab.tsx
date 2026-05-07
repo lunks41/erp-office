@@ -769,7 +769,7 @@ export function ConsignmentImportTab({
                   isSubmitting={
                     saveMutation.isPending || updateMutation.isPending
                   }
-                  isConfirmed={isConfirmed}
+                  isConfirmed={isConfirmed || modalMode === "view"}
                 />
               </TabsContent>
 

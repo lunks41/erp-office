@@ -2,13 +2,17 @@
 
 import { useCallback, useMemo, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
-import { IJobOrderHd, ITransportationLog } from "@/interfaces/checklist"
-import { TransportationLogSchemaType } from "@/schemas/checklist"
+import {
+  IJobOrderHd,
+  ISerTransportationDt,
+  ISerTransportationHd,
+} from "@/interfaces/checklist"
+import { SerTransportationHdSchemaType } from "@/schemas/checklist"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { getData } from "@/lib/api-client"
-import { JobOrder_TransportationLog } from "@/lib/api-routes"
+import { Transportation } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { ModuleId, OperationsTransactionId } from "@/lib/utils"
 import { useDelete, useGetById, usePersist } from "@/hooks/use-common"
@@ -61,7 +65,7 @@ export function TransportationLogTab({
 
   // States
   const [selectedItem, setSelectedItem] = useState<
-    ITransportationLog | undefined
+    ISerTransportationHd | undefined
   >(undefined)
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">(
     "create"
@@ -71,7 +75,7 @@ export function TransportationLogTab({
   // State for save confirmation
   const [saveConfirmation, setSaveConfirmation] = useState<{
     isOpen: boolean
-    formData: Partial<ITransportationLog> | null
+    formData: Partial<SerTransportationHdSchemaType> | null
     operationType: "create" | "update"
   }>({
     isOpen: false,
@@ -102,36 +106,36 @@ export function TransportationLogTab({
   )
 
   // Data fetching
-  const { data: response, refetch } = useGetById<ITransportationLog>(
-    `${JobOrder_TransportationLog.get}`,
+  const { data: response, refetch } = useGetById<ISerTransportationHd>(
+    `${Transportation.get}`,
     "transportationLog",
     `${jobOrderId || ""}`
   )
 
-  const { data } = (response as ApiResponse<ITransportationLog>) ?? {
+  const { data } = (response as ApiResponse<ISerTransportationHd>) ?? {
     result: 0,
     message: "",
     data: [],
   }
 
   // Mutations
-  const saveMutation = usePersist<TransportationLogSchemaType>(
-    `${JobOrder_TransportationLog.add}`
+  const saveMutation = usePersist<SerTransportationHdSchemaType>(
+    `${Transportation.add}`
   )
-  const updateMutation = usePersist<TransportationLogSchemaType>(
-    `${JobOrder_TransportationLog.add}`
+  const updateMutation = usePersist<SerTransportationHdSchemaType>(
+    `${Transportation.add}`
   )
-  const deleteMutation = useDelete(`${JobOrder_TransportationLog.delete}`)
+  const deleteMutation = useDelete(`${Transportation.delete}`)
 
   // Handlers
   const handleSelect = useCallback(
-    async (item: ITransportationLog | null) => {
+    async (item: ISerTransportationHd | null) => {
       if (!item) return
 
       try {
         const response = (await getData(
-          `${JobOrder_TransportationLog.getById}/${jobOrderId}/${item.itemNo}`
-        )) as ApiResponse<ITransportationLog>
+          `${Transportation.getById}/${jobOrderId}/${item.transportationId}`
+        )) as ApiResponse<ISerTransportationHd>
         if (response.result === 1 && response.data) {
           const itemData = Array.isArray(response.data)
             ? response.data[0]
@@ -189,10 +193,12 @@ export function TransportationLogTab({
   }
 
   const handleEdit = useCallback(
-    async (item: ITransportationLog) => {
+    async (item: ISerTransportationHd) => {
+      // Preserve transportationId from selected table row immediately.
+      setSelectedItem(item)
       const response = (await getData(
-        `${JobOrder_TransportationLog.getById}/${jobOrderId}/${item.itemNo}`
-      )) as ApiResponse<ITransportationLog>
+        `${Transportation.getById}/${jobOrderId}/${item.transportationId}`
+      )) as ApiResponse<ISerTransportationHd>
       if (response.result === 1 && response.data) {
         const itemData = Array.isArray(response.data)
           ? response.data[0]
@@ -211,7 +217,7 @@ export function TransportationLogTab({
   )
 
   const handleSubmit = useCallback(
-    (formData: Partial<ITransportationLog>) => {
+    (formData: Partial<SerTransportationHdSchemaType>) => {
       // Show save confirmation instead of directly submitting
       setSaveConfirmation({
         isOpen: true,
@@ -228,21 +234,23 @@ export function TransportationLogTab({
     if (!saveConfirmation.formData) return
 
     try {
-      // Convert null to undefined for chargeId to match schema type (number | undefined, not number | null)
-      const { chargeId, ...restFormData } = saveConfirmation.formData
       const processedData = {
-        ...restFormData,
+        ...saveConfirmation.formData,
         transportDate:
           formatDateForApi(saveConfirmation.formData.transportDate) ||
           undefined,
-        chargeId: chargeId ?? undefined,
       }
-      const submitData = { ...processedData, ...jobDataProps }
+      const submitData: Partial<SerTransportationHdSchemaType> & {
+        data_details?: ISerTransportationDt[]
+      } = { ...processedData, ...jobDataProps }
 
       let response
       if (saveConfirmation.operationType === "update" && selectedItem) {
         response = await updateMutation.mutateAsync({
           ...submitData,
+          transportationId:
+            selectedItem.transportationId ??
+            saveConfirmation.formData.transportationId,
           itemNo: selectedItem.itemNo,
         })
       } else {

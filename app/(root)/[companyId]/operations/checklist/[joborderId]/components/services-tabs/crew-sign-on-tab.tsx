@@ -753,7 +753,7 @@ export function CrewSignOnTab({
                   isSubmitting={
                     saveMutation.isPending || updateMutation.isPending
                   }
-                  isConfirmed={isConfirmed}
+                  isConfirmed={isConfirmed || modalMode === "view"}
                 />
               </TabsContent>
 

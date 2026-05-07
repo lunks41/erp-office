@@ -76,12 +76,6 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
                   }
                 }}
                 onBlur={(e) => {
-                  if (typeof value === "number" && !isNaN(value)) {
-                    const roundedValue = Number(value.toFixed(round))
-                    field.onChange(roundedValue)
-                  } else if (value === undefined || value === null) {
-                    field.onChange(undefined)
-                  }
                   field.onBlur()
                   if (onBlurEvent) {
                     onBlurEvent(e)
@@ -93,7 +87,7 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
                 thousandSeparator={true}
                 allowNegative={true}
                 disabled={isDisabled}
-                tabIndex={isDisabled ? -1 : undefined}
+                tabIndex={isDisabled ? -1 : 0}
                 className={cn(
                   "ring-offset-background flex h-7.5 min-h-7.5 w-full rounded-md border px-2 py-0.5 text-right text-xs",
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",

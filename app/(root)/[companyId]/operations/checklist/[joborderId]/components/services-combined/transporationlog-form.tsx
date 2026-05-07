@@ -1,10 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useMemo } from "react"
-import { IJobOrderHd, ITransportationLog } from "@/interfaces/checklist"
 import {
-  TransportationLogSchema,
-  TransportationLogSchemaType,
+  IJobOrderHd,
+  ISerTransportationDt,
+  ISerTransportationHd,
+} from "@/interfaces/checklist"
+import {
+  SerTransportationHdSchema,
+  SerTransportationHdSchemaType,
 } from "@/schemas/checklist"
 import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -25,12 +29,12 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 
 interface TransportationLogFormProps {
   jobData: IJobOrderHd
-  initialData?: ITransportationLog
+  initialData?: ISerTransportationHd
   taskId: number
   serviceItemNo: number
   formId?: string
   taskDefaults?: Record<string, number>
-  submitAction: (data: TransportationLogSchemaType) => void
+  submitAction: (data: SerTransportationHdSchemaType) => void
   onCancelAction?: () => void
   isSubmitting?: boolean
   isConfirmed?: boolean
@@ -78,15 +82,14 @@ export function TransportationLogForm({
     [dateFormat]
   )
 
-  const form = useForm<TransportationLogSchemaType>({
-    resolver: zodResolver(TransportationLogSchema),
+  const form = useForm<SerTransportationHdSchemaType>({
+    resolver: zodResolver(SerTransportationHdSchema),
     defaultValues: {
-      itemNo: initialData?.itemNo,
+      transportationId: initialData?.transportationId ?? 0,
+      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: initialData?.serviceItemNo ?? String(serviceItemNo ?? ""),
-      serviceItemNoName: initialData?.serviceItemNoName ?? "",
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
@@ -100,23 +103,28 @@ export function TransportationLogForm({
       vehicleNo: initialData?.vehicleNo ?? null,
       driverName: initialData?.driverName ?? null,
       passengerCount: initialData?.passengerCount ?? 0,
+      cargoWeight: initialData?.cargoWeight ?? 0,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? null,
       cargoTypeId: initialData?.cargoTypeId ?? 0,
       remarks: initialData?.remarks ?? null,
       refNo: initialData?.refNo ?? null,
       vendor: initialData?.vendor ?? null,
+      createById: initialData?.createById ?? 0,
       editVersion: initialData?.editVersion,
+      data_details:
+        initialData?.data_details && initialData.data_details.length > 0
+          ? initialData.data_details
+          : ([{ itemNo: 1, serviceItemNo, serviceItemNoName: "" }] as ISerTransportationDt[]),
     },
   })
 
   useEffect(() => {
     form.reset({
-      itemNo: initialData?.itemNo,
+      transportationId: initialData?.transportationId ?? 0,
+      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: initialData?.serviceItemNo ?? String(serviceItemNo ?? ""),
-      serviceItemNoName: initialData?.serviceItemNoName ?? "",
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
@@ -130,12 +138,18 @@ export function TransportationLogForm({
       vehicleNo: initialData?.vehicleNo ?? null,
       driverName: initialData?.driverName ?? null,
       passengerCount: initialData?.passengerCount ?? 0,
+      cargoWeight: initialData?.cargoWeight ?? 0,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? null,
       cargoTypeId: initialData?.cargoTypeId ?? 0,
       remarks: initialData?.remarks ?? null,
       refNo: initialData?.refNo ?? null,
       vendor: initialData?.vendor ?? null,
+      createById: initialData?.createById ?? 0,
       editVersion: initialData?.editVersion,
+      data_details:
+        initialData?.data_details && initialData.data_details.length > 0
+          ? initialData.data_details
+          : ([{ itemNo: 1, serviceItemNo, serviceItemNoName: "" }] as ISerTransportationDt[]),
     })
   }, [
     dateFormat,
@@ -150,27 +164,17 @@ export function TransportationLogForm({
     user?.userId,
   ])
 
-  const onSubmit = (data: TransportationLogSchemaType) => {
-    // Ensure serviceItemNo is a comma-separated string
-    let serviceItemNoString = ""
-    if (typeof data.serviceItemNo === "string") {
-      serviceItemNoString = data.serviceItemNo.trim()
-    } else if (data.serviceItemNo) {
-      serviceItemNoString = String(data.serviceItemNo).trim()
-    }
-
-    // Ensure serviceItemNoName is a comma-separated string
-    let serviceItemNoNameString = ""
-    if (typeof data.serviceItemNoName === "string") {
-      serviceItemNoNameString = data.serviceItemNoName.trim()
-    } else if (data.serviceItemNoName) {
-      serviceItemNoNameString = String(data.serviceItemNoName).trim()
-    }
-
-    const formattedData = {
+  const onSubmit = (data: SerTransportationHdSchemaType) => {
+    const defaultDetails: ISerTransportationDt[] = [
+      { itemNo: 1, serviceItemNo, serviceItemNoName: "" },
+    ]
+    const formattedData: SerTransportationHdSchemaType = {
       ...data,
-      serviceItemNo: serviceItemNoString,
-      serviceItemNoName: serviceItemNoNameString,
+      createById: data.createById ?? user?.userId ?? 1,
+      data_details:
+        data.data_details && data.data_details.length > 0
+          ? data.data_details
+          : defaultDetails,
     }
     submitAction(formattedData)
   }

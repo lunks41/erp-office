@@ -24,6 +24,7 @@ const defaultValues = {
   chargeOrder: 0,
   seqNo: 0,
   isTransport: false,
+  isMultiple: false,
   remarks: "",
   isActive: true,
 }
@@ -64,6 +65,7 @@ export function ChargeForm({
           remarks: initialData.remarks ?? "",
           isActive: initialData.isActive ?? true,
           isTransport: initialData.isTransport ?? false,
+            isMultiple: initialData.isMultiple ?? false,
         }
       : {
           ...defaultValues,
@@ -145,24 +147,28 @@ export function ChargeForm({
               isDisabled={isReadOnly}
             />
 
-            <CustomCheckbox
-              form={form}
-              name="isActive"
-              label="Active Status"
-              isDisabled={isReadOnly}
-            />
-            <CustomCheckbox
-              form={form}
-              name="isTransport"
-              label="Transport"
-              isDisabled={isReadOnly}
-            />
-            <CustomCheckbox
-              form={form}
-              name="isMultiple"
-              label="Multiply?"
-              isDisabled={isReadOnly}
-            />
+            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <CustomCheckbox
+                form={form}
+                name="isActive"
+                label="Active Status"
+                isDisabled={isReadOnly}
+              />
+              <CustomCheckbox
+                form={form}
+                name="isTransport"
+                label="Transport"
+                isDisabled={isReadOnly}
+              />
+              <CustomCheckbox
+                form={form}
+                name="isMultiple"
+                label="Multiply?"
+                isDisabled={isReadOnly}
+              />
+            </div>
+            </div>
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" type="button" onClick={onCancelAction}>

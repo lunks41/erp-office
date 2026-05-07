@@ -37,7 +37,6 @@ import {
 import {
   Copy,
   ListFilter,
-  Printer,
   RefreshCw,
   RotateCcw,
   Save,
@@ -61,12 +60,6 @@ import {
 } from "@/components/layout/transaction-workspace-layout"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { TabsContent } from "@/components/ui/tabs"
@@ -826,58 +819,6 @@ export default function InvoicePage() {
     toast.success("Invoice reset successfully")
   }
 
-  const handlePrintInvoice = (
-    reportType: "direct" | "invoice" = "invoice"
-  ) => {
-    if (!invoice || invoice.invoiceId === "0") {
-      toast.error("Please select an invoice to print")
-      return
-    }
-
-    const formValues = form.getValues()
-    const invoiceId =
-      formValues.invoiceId || invoice.invoiceId?.toString() || "0"
-    const invoiceNo = formValues.invoiceNo || invoice.invoiceNo || ""
-
-    const amtDec = decimals[0]?.amtDec || 2
-    const locAmtDec = decimals[0]?.locAmtDec || 2
-
-    const reportParams = {
-      companyId: companyId,
-      invoiceId: invoiceId,
-      invoiceNo: invoiceNo,
-      reportType: reportType === "direct" ? 1 : 2,
-      userName: user?.userName || "",
-      amtDec: amtDec,
-      locAmtDec: locAmtDec,
-    }
-
-    const reportFile =
-      reportType === "direct"
-        ? "ap/ApInvoiceDirect.trdp"
-        : "ap/ApInvoice.trdp"
-
-    const reportData = {
-      reportFile: reportFile,
-      parameters: reportParams,
-    }
-
-    try {
-      localStorage.setItem(
-        `report_window_${companyId}`,
-        JSON.stringify(reportData)
-      )
-
-      const windowFeatures =
-        "width=1200,height=800,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes"
-      const viewerUrl = `/${companyId}/reports/window`
-      window.open(viewerUrl, "_blank", windowFeatures)
-    } catch (error) {
-      console.error("Error opening report:", error)
-      toast.error("Failed to open report")
-    }
-  }
-
   // Helper function to transform IApInvoiceHd to ApInvoiceHdSchemaType
   const transformToSchemaType = useCallback(
     (apiInvoice: IApInvoiceHd): ApInvoiceHdSchemaType => {
@@ -1526,27 +1467,6 @@ export default function InvoicePage() {
                 ? "Update"
                 : "Save"}
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!invoice || invoice.invoiceId === "0"}
-              >
-                <Printer className="mr-1 h-4 w-4" />
-                Print
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handlePrintInvoice("direct")}>
-                1. Direct
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePrintInvoice("invoice")}>
-                2. Invoice
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           <Button
             variant="outline"

@@ -312,14 +312,12 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
               isValidDateValue(parsedDate) &&
               validateDateConstraints(parsedDate)
             ) {
-              // Reformat to ensure consistent display
               const formattedDate = formatDateForDisplay(parsedDate)
-              setValue(formattedDate)
-              field.onChange(formattedDate)
+              if (formattedDate !== value) setValue(formattedDate)
+              if (formattedDate !== field.value) field.onChange(formattedDate)
             } else if (value === "") {
-              field.onChange("")
+              if (field.value !== "") field.onChange("")
             } else {
-              // Invalid date - clear it
               setValue("")
               field.onChange("")
             }
@@ -338,6 +336,9 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                 onChangeEvent(date)
               }
               setOpen(false)
+              // Radix returns focus to PopoverTrigger (tabIndex=-1) on close;
+              // redirect it to the text input so Tab moves to the next field.
+              setTimeout(() => inputRef.current?.focus(), 0)
             }
           }
 

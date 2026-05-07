@@ -41,7 +41,6 @@ import {
 import {
   Copy,
   ListFilter,
-  Printer,
   RefreshCw,
   RotateCcw,
   Save,
@@ -845,52 +844,6 @@ export default function CreditNotePage() {
     toast.success("CreditNote reset successfully")
   }
 
-  const handlePrintCreditNote = () => {
-    if (!creditNote || creditNote.creditNoteId === "0") {
-      toast.error("Please select a credit note to print")
-      return
-    }
-
-    const formValues = form.getValues()
-    const creditNoteId =
-      formValues.creditNoteId || creditNote.creditNoteId?.toString() || "0"
-    const creditNoteNo =
-      formValues.creditNoteNo || creditNote.creditNoteNo || ""
-
-    const amtDec = decimals[0]?.amtDec || 2
-    const locAmtDec = decimals[0]?.locAmtDec || 2
-
-    const reportParams = {
-      companyId: companyId,
-      invoiceId: creditNoteId,
-      invoiceNo: creditNoteNo,
-      reportType: 1,
-      userName: user?.userName || "",
-      amtDec: amtDec,
-      locAmtDec: locAmtDec,
-    }
-
-    const reportData = {
-      reportFile: "ap/ApCreditNote.trdp",
-      parameters: reportParams,
-    }
-
-    try {
-      localStorage.setItem(
-        `report_window_${companyId}`,
-        JSON.stringify(reportData)
-      )
-
-      const windowFeatures =
-        "width=1200,height=800,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes"
-      const viewerUrl = `/${companyId}/reports/window`
-      window.open(viewerUrl, "_blank", windowFeatures)
-    } catch (error) {
-      console.error("Error opening report:", error)
-      toast.error("Failed to open report")
-    }
-  }
-
   // Helper function to transform IApCreditNoteHd to ApCreditNoteHdSchemaType
   const transformToSchemaType = useCallback(
     (apiCreditNote: IApCreditNoteHd): ApCreditNoteHdSchemaType => {
@@ -1550,16 +1503,6 @@ export default function CreditNotePage() {
                 : isEdit
                   ? "Update"
                   : "Save"}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!creditNote || creditNote.creditNoteId === "0"}
-              onClick={handlePrintCreditNote}
-            >
-              <Printer className="mr-1 h-4 w-4" />
-              Print
             </Button>
 
             <Button

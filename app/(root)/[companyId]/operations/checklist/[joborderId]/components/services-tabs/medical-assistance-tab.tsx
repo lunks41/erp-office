@@ -768,7 +768,7 @@ export function MedicalAssistanceTab({
                   isSubmitting={
                     saveMutation.isPending || updateMutation.isPending
                   }
-                  isConfirmed={isConfirmed}
+                  isConfirmed={isConfirmed || modalMode === "view"}
                 />
               </TabsContent>
 

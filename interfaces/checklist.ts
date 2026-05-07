@@ -349,8 +349,6 @@ export interface IEquipmentUsed {
 
   mafi?: string
   others?: string
-  isLoading?: boolean
-  isOffloading?: boolean
   providerName?: string
   gear?: number
   bargeId?: number
@@ -360,14 +358,6 @@ export interface IEquipmentUsed {
   details?: IEquipmentUsedDt[]
   /** Same shape as `details`; operations get-by-id returns this property name from .NET. */
   data_details?: IEquipmentUsedDt[]
-  loadingRefNo?: string
-  craneloading?: number
-  forkliftloading?: number
-  stevedoreloading?: number
-  offloadingRefNo?: string
-  craneOffloading?: number
-  forkliftOffloading?: number
-  stevedoreOffloading?: number
   remarks?: string
   taskStatusId: number
   taskStatusName?: string
@@ -946,4 +936,39 @@ export interface ITransportationLog {
   transportModeName?: string
   chargeName?: string
   cargoTypeName?: string
+}
+
+// New Transportation interfaces based on Ser_TransportationHd / Ser_TransportationDt tables.
+// Existing transportation interfaces above are intentionally retained.
+export interface ISerTransportationDt {
+  itemNo: number
+  serviceItemNo: number
+  serviceItemNoName: string
+}
+
+export interface ISerTransportationHd {
+  transportationId?: number
+  companyId: number
+  jobOrderId: number
+  itemNo: number
+  taskId: number
+  transportDate: Date | string
+  fromLocationId: number
+  toLocationId: number
+  transportModeId: number
+  refNo?: string | null
+  vendor?: string | null
+  vehicleNo?: string | null
+  driverName?: string | null
+  passengerCount: number
+  cargoWeight: number
+  cargoTypeId?: number | null
+  chargeId?: number | null
+  remarks?: string | null
+  createById: number
+  createDate?: Date | string
+  editById?: number | null
+  editDate?: Date | string | null
+  editVersion?: number
+  data_details?: ISerTransportationDt[]
 }
