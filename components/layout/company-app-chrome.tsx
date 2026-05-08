@@ -15,6 +15,8 @@ import { HeaderUserInfo } from "@/components/layout/header-userinfo"
 import { MobileNav } from "@/components/layout/mobile-nav"
 import { ModeSwitcher } from "@/components/layout/mode-switcher"
 import { NavHeader } from "@/components/layout/nav-header"
+import { NotificationBell } from "@/components/layout/notification-bell"
+import { AnnouncementBanner } from "@/components/layout/announcement-banner"
 import { ScreenLock } from "@/components/layout/screen-lock"
 import { ThemeSelector } from "@/components/layout/theme-selector"
 
@@ -74,11 +76,13 @@ export function CompanyAppChrome({
                 <ChangelogButton />
                 <ThemeSelector />
                 <ModeSwitcher />
+                <NotificationBell />
                 <ScreenLock />
                 <HeaderUserInfo />
               </div>
             </div>
           </header>
+          <AnnouncementBanner />
           <main id="main-content" className="bg-muted/20 flex-1" role="main">
             <div className="min-h-full">{children}</div>
           </main>
