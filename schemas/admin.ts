@@ -15,13 +15,22 @@ export const userSchema = z.object({
     .email({ message: "Invalid email format" })
     .max(50, { message: "User email must be less than 150 characters" }),
   userRoleId: z.number().min(1, { message: "User role is required" }),
-  employeeId: z.number().min(0, { message: "Employee is required" }),
+  userPassword: z.string().optional(),
   remarks: z
     .string()
     .max(255, { message: "Remarks cannot exceed 255 characters" })
     .optional(),
   isActive: z.boolean(),
   isLocked: z.boolean(),
+}).superRefine((data, ctx) => {
+  const isCreateMode = data.userId === 0
+  if (isCreateMode && (!data.userPassword || data.userPassword.trim().length < 8)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["userPassword"],
+      message: "Password must be at least 8 characters long",
+    })
+  }
 })
 
 export type UserSchemaType = z.infer<typeof userSchema>

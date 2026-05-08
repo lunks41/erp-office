@@ -35,6 +35,10 @@ export const changelog: ChangelogVersion[] = [
     date: "2026-05-07",
     changes: [
       {
+        type: "improved",
+        text: "Admin Users module now removes employee linkage from user contracts/forms and introduces create-only password entry with schema validation (minimum 8 characters) during new user creation",
+      },
+      {
         type: "fixed",
         text: "Hardened company switch flow for startup race conditions: when switch is triggered before company list hydration, company-store now auto-fetches companies and exits safely instead of throwing runtime errors",
       },

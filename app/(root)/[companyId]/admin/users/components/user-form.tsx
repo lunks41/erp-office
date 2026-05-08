@@ -18,10 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Form } from "@/components/ui/form"
-import {
-  EmployeeAutocomplete,
-  UserRoleAutocomplete,
-} from "@/components/autocomplete"
+import { UserRoleAutocomplete } from "@/components/autocomplete"
 import CustomInput from "@/components/custom/custom-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
@@ -34,7 +31,7 @@ const defaultValues = {
   userName: "",
   userEmail: "",
   userRoleId: 0,
-  employeeId: 0,
+  userPassword: "",
   isActive: true,
   isLocked: false,
   remarks: "",
@@ -72,7 +69,7 @@ export function UserForm({
           userName: initialData.userName ?? "",
           userEmail: initialData.userEmail ?? "",
           userRoleId: initialData.userRoleId ?? 0,
-          employeeId: initialData.employeeId ?? 0,
+          userPassword: "",
           isActive: initialData.isActive ?? true,
           isLocked: initialData.isLocked ?? false,
           remarks: initialData.remarks ?? "",
@@ -91,7 +88,7 @@ export function UserForm({
             userName: initialData.userName ?? "",
             userEmail: initialData.userEmail ?? "",
             userRoleId: initialData.userRoleId ?? 0,
-            employeeId: initialData.employeeId ?? 0,
+            userPassword: "",
             isActive: initialData.isActive ?? true,
             isLocked: initialData.isLocked ?? false,
             remarks: initialData.remarks ?? "",
@@ -165,13 +162,18 @@ export function UserForm({
                   isRequired={true}
                 />
               </div>
-              <div>
-                <EmployeeAutocomplete
-                  form={form}
-                  name="employeeId"
-                  label="Employee"
-                />
-              </div>
+              {!initialData && (
+                <div>
+                  <CustomInput
+                    form={form}
+                    name="userPassword"
+                    label="Password"
+                    type="password"
+                    isRequired
+                    isDisabled={isReadOnly}
+                  />
+                </div>
+              )}
             </div>
 
             <div>

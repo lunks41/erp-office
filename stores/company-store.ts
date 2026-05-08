@@ -228,6 +228,8 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
   },
 
   reset: () => {
+    txCache.clear()
+    pendingRequests.clear()
     set({
       companies: [],
       currentCompany: null,

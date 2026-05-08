@@ -11,11 +11,8 @@ import { devtools, persist } from "zustand/middleware"
 
 // Constants and Configuration
 // -------------------------
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL
 const ENABLE_COMPANY_SWITCHING =
   process.env.NEXT_PUBLIC_ENABLE_COMPANY_SWITCH === "true"
-const DEFAULT_REGISTRATION_ID = process.env
-  .NEXT_PUBLIC_DEFAULT_REGISTRATION_ID as string
 
 // Storage Keys
 // ------------
@@ -92,6 +89,7 @@ interface AuthState {
   tokenStoredAt?: number
   refreshInProgress: boolean
   lastRefreshAttempt?: number
+  _refreshTimerId?: ReturnType<typeof setTimeout>
   isOnline: boolean
   pendingActions: Array<() => Promise<void>>
   sessionAnalytics: {
@@ -163,6 +161,10 @@ interface AuthState {
   // User Transactions Actions
   getUserTransactions: () => Promise<IUserTransactionRights[]>
 }
+
+// Stable event handler references so addEventListener/removeEventListener match
+const _handleOnline = () => useAuthStore.getState().setOnline(true)
+const _handleOffline = () => useAuthStore.getState().setOnline(false)
 
 // Store Implementation
 // -------------------
@@ -298,9 +300,8 @@ export const useAuthStore = create<AuthState>()(
 
             if (data.result !== 1) {
               get().setAppLocked(true)
-              if (data.user.isLocked === true) {
+              if (data.user?.isLocked === true) {
                 Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
-                Cookies.remove("auth-token")
 
                 set({
                   isAuthenticated: false,
@@ -343,7 +344,11 @@ export const useAuthStore = create<AuthState>()(
             console.warn("Could not decode token expiration:", error)
           }
 
-          Cookies.set(AUTH_TOKEN_COOKIE_NAME, token, { expires: 7 })
+          Cookies.set(AUTH_TOKEN_COOKIE_NAME, token, {
+            expires: 7,
+            secure: true,
+            sameSite: "strict",
+          })
 
           set({
             isAuthenticated: true,
@@ -378,7 +383,6 @@ export const useAuthStore = create<AuthState>()(
          */
         logInFailed: (error: string) => {
           Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
-          Cookies.remove("auth-token")
 
           set({
             isAuthenticated: false,
@@ -456,12 +460,11 @@ export const useAuthStore = create<AuthState>()(
           try {
             const token = get().token
             if (token) {
-              await fetch(`${BACKEND_API_URL}/auth/revoke`, {
+              await fetch("/api/auth/logout", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${token}`,
-                  "X-Reg-Id": DEFAULT_REGISTRATION_ID,
                 },
                 body: JSON.stringify({ refreshToken: get().refreshToken }),
               })
@@ -474,12 +477,9 @@ export const useAuthStore = create<AuthState>()(
 
         logOutSuccess: () => {
           Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
-          Cookies.remove("auth-token")
           get().clearCurrentTabCompanyId()
 
-          // Clear both storages from localStorage
           localStorage.removeItem("auth-storage")
-          localStorage.removeItem("permission-storage")
 
           void import("./company-store").then(({ useCompanyStore }) => {
             useCompanyStore.getState().reset()
@@ -606,9 +606,12 @@ export const useAuthStore = create<AuthState>()(
          * Sets up automatic token refresh
          */
         setupTokenRefresh: () => {
-          const { tokenExpiresAt, refreshInProgress } = get()
+          const { tokenExpiresAt, refreshInProgress, _refreshTimerId } = get()
 
           if (!tokenExpiresAt || refreshInProgress) return
+
+          // Clear any existing timer before scheduling a new one
+          if (_refreshTimerId !== undefined) clearTimeout(_refreshTimerId)
 
           const TOKEN_REFRESH_BUFFER = 1 * 60 * 1000 // 1 minute before expiry (popup shows at 5 min)
           const timeUntilExpiry = tokenExpiresAt - Date.now()
@@ -617,9 +620,10 @@ export const useAuthStore = create<AuthState>()(
             60000
           )
 
-          setTimeout(() => {
+          const timerId = setTimeout(() => {
             get().refreshTokenAutomatically().catch(console.error)
           }, refreshTime)
+          set({ _refreshTimerId: timerId })
         },
 
         /**
@@ -641,12 +645,11 @@ export const useAuthStore = create<AuthState>()(
           set({ refreshInProgress: true, lastRefreshAttempt: Date.now() })
 
           try {
-            const response = await fetch(`${BACKEND_API_URL}/auth/refresh`, {
+            const response = await fetch("/api/auth/refresh", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
-                "X-Reg-Id": DEFAULT_REGISTRATION_ID,
               },
               body: JSON.stringify({ refreshToken }),
             })
@@ -727,22 +730,18 @@ export const useAuthStore = create<AuthState>()(
 
           if (isAuthenticated && token) {
             const isValid = get().validateTokenExpiration(token)
-
             if (!isValid) {
               get().logOutSuccess()
             }
             // No background refresh scheduled — session-expiry popup handles it.
           }
 
-          // Setup online/offline detection
           if (typeof window !== "undefined") {
-            const handleOnline = () => get().setOnline(true)
-            const handleOffline = () => get().setOnline(false)
-
-            window.addEventListener("online", handleOnline)
-            window.addEventListener("offline", handleOffline)
-
-            // Set initial online state
+            // Remove any previously registered listeners before adding new ones
+            window.removeEventListener("online", _handleOnline)
+            window.removeEventListener("offline", _handleOffline)
+            window.addEventListener("online", _handleOnline)
+            window.addEventListener("offline", _handleOffline)
             get().setOnline(navigator.onLine)
           }
         },
@@ -760,16 +759,14 @@ export const useAuthStore = create<AuthState>()(
         partialize: (state) => ({
           isAuthenticated: state.isAuthenticated,
           isAppLocked: state.isAppLocked,
-          token: state.token,
-          refreshToken: state.refreshToken,
           user: state.user,
           companies: state.companies,
-          // Enhanced security fields
           tokenExpiresAt: state.tokenExpiresAt,
           tokenStoredAt: state.tokenStoredAt,
           sessionAnalytics: state.sessionAnalytics,
         }),
       }
-    )
+    ),
+    { enabled: process.env.NODE_ENV === "development" }
   )
 )

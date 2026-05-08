@@ -4,7 +4,7 @@ export interface IUser {
   userName: string
   userEmail: string
   userRoleId: number
-  employeeId: number
+  userPassword?: string
   remarks: string
   isActive: boolean
   isLocked: boolean

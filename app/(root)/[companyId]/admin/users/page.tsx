@@ -214,7 +214,6 @@ export default function AdminUsersPage() {
               userName: userData.userName,
               userEmail: userData.userEmail,
               userRoleId: userData.userRoleId,
-              employeeId: userData.employeeId,
               remarks: userData.remarks,
               isActive: userData.isActive,
               isLocked: userData.isLocked,
