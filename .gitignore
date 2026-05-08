@@ -33,6 +33,9 @@
 .graphify/
 .graphiy/
 claude.md
+graphify-out/
+CLAUDE.md
+CURSOR.md
 
 # misc
 .DS_Store
