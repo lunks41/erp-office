@@ -80,57 +80,25 @@ apiClient.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-/**
- * Helper function to get company ID from client-side session
- * @returns Company ID from Zustand store or sessionStorage
- */
+// URL path is always the authoritative company source — correct in every tab from first load,
+// immune to session storage inheritance when a new tab is opened via window.open("_blank").
+const getCompanyIdFromUrl = (): string | null => {
+  if (typeof window === "undefined") return null
+  const segment = window.location.pathname.split("/")[1]
+  return segment && /^\d+$/.test(segment) ? segment : null
+}
+
 export const getCompanyIdFromSession: () => string | null = () => {
-  // console.log("🔍 Getting company ID from session...")
-  if (typeof window === "undefined") {
-    // console.log("❌ Window is undefined (SSR)")
-    return null
-  }
+  if (typeof window === "undefined") return null
   try {
-    // Try to get from Zustand store first
-    const state = useAuthStore.getState()
-    // console.log("📊 Auth store state:", {
-    //   currentCompany: state.currentCompany,
-    //   isAuthenticated: state.isAuthenticated,
-    // })
-
-    if (state.currentCompany?.companyId) {
-      const companyId = state.currentCompany.companyId.toString()
-      // console.log("✅ Found company ID in Zustand store:", companyId)
-
-      // sessionStorage is tab-authoritative for multi-tab behavior.
-      // If it disagrees with Zustand, prefer tab-local value.
-      const sessionStorageCompanyId = sessionStorage.getItem("tab_company_id")
-      if (sessionStorageCompanyId && sessionStorageCompanyId !== companyId) {
-        console.warn(
-          "⚠️ MISMATCH: Zustand has",
-          companyId,
-          "but sessionStorage has",
-          sessionStorageCompanyId
-        )
-        return sessionStorageCompanyId
-      }
-
-      return companyId
-    }
-    // Fallback to sessionStorage for multi-tab support
+    // URL is always correct — use it first
+    const urlCompanyId = getCompanyIdFromUrl()
+    if (urlCompanyId) return urlCompanyId
+    // Non-company routes (e.g. /company-select): fall back to sessionStorage then Zustand
     const tabCompanyId = sessionStorage.getItem("tab_company_id")
-    // console.log("💾 Checking sessionStorage for tab_company_id:", tabCompanyId)
-
-    if (tabCompanyId) {
-      // console.log("✅ Found company ID in sessionStorage:", tabCompanyId)
-      console.warn(
-        "⚠️ Using sessionStorage fallback - Zustand store might not be updated yet"
-      )
-      // console.log("🔍 This could cause API calls to use old company ID!")
-      return tabCompanyId
-    }
-    // console.log("❌ No company ID found in any source")
-    return null
+    if (tabCompanyId) return tabCompanyId
+    const state = useAuthStore.getState()
+    return state.currentCompany?.companyId?.toString() ?? null
   } catch (error) {
     console.warn("❌ Error getting company ID from session:", error)
     return null

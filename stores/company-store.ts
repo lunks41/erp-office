@@ -76,7 +76,8 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
 
   getCompanies: async () => {
     const auth = useAuthStore.getState()
-    if (!auth.token) return
+    // Use isAuthenticated (persisted in localStorage) not token (in-memory only, null on refresh)
+    if (!auth.isAuthenticated) return
     set({ isLoadingCompanies: true, companiesFetchFailed: false })
     try {
       const response = await getData(Admin.getCompanies)
@@ -94,7 +95,21 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
 
       const current = get().currentCompany
       if (!current && companies.length > 0) {
-        await get().switchCompany(companies[0].companyId, true)
+        // If the URL already has a company ID, switch to that instead of blindly
+        // switching to companies[0] — prevents overwriting the correct company in
+        // new tabs opened via window.open("_blank") from the company switcher.
+        const urlSegment =
+          typeof window !== "undefined"
+            ? window.location.pathname.split("/")[1]
+            : null
+        const urlCompany =
+          urlSegment && /^\d+$/.test(urlSegment)
+            ? companies.find((c) => c.companyId === urlSegment)
+            : null
+        await get().switchCompany(
+          urlCompany ? urlCompany.companyId : companies[0].companyId,
+          true
+        )
       }
     } catch {
       set({ isLoadingCompanies: false, companiesFetchFailed: true })
@@ -113,9 +128,18 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
 
     // Recover when switch is attempted before companies are loaded.
     if (companies.length === 0) {
-      await get().getCompanies()
-      ;({ companies, currentCompany } = get())
-      if (currentCompany?.companyId === normalizedCompanyId) return currentCompany
+      // Fast path: seed from auth-store which persists companies in localStorage.
+      // This avoids an API round-trip on refresh/new-tab when token is not yet
+      // in memory (token is not persisted) but isAuthenticated + companies are.
+      const authCompanies = useAuthStore.getState().companies
+      if (authCompanies.length > 0) {
+        set({ companies: authCompanies })
+        ;({ companies } = get())
+      } else {
+        await get().getCompanies()
+        ;({ companies, currentCompany } = get())
+        if (currentCompany?.companyId === normalizedCompanyId) return currentCompany
+      }
     }
 
     let company = companies.find(

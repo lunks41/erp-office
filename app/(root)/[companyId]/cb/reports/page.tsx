@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePermissions } from "@/hooks/use-permissions"
-import { CbTransactionId, ModuleId } from "@/lib/utils"
+import { CBTransactionId, ModuleId } from "@/lib/utils"
 import {
   endOfMonth,
   format,
@@ -115,7 +115,7 @@ const REPORT_CATEGORIES = [
 
 export default function ReportsPage() {
   const moduleId = ModuleId.cb
-  const transactionId = CbTransactionId.reports
+  const transactionId = CBTransactionId.reports
   const { canPrint, canExport } = usePermissions(moduleId, transactionId)
   const canRunReport = canPrint || canExport
   const params = useParams()

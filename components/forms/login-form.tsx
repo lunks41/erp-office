@@ -196,9 +196,27 @@ export function LoginForm({
       if (loginResponse.result === 1 && !useAuthStore.getState().error) {
         router.push("/company-select")
       } else if (loginResponse.result === 2 && loginResponse.activeSessions?.length) {
-        // Active sessions detected — show the concurrent session dialog
-        setPendingDeviceInfo(deviceInfo)
-        setActiveSessions(loginResponse.activeSessions)
+        const sameDeviceSession = loginResponse.activeSessions.find(
+          (s) =>
+            s.platform === deviceInfo?.platform &&
+            s.screenResolution === deviceInfo?.screenResolution
+        )
+        if (sameDeviceSession) {
+          // Same browser reconnecting after token expiry — silently take over
+          const forced = await loginForce(
+            userName.trim(),
+            userPassword,
+            [sameDeviceSession.sessionId],
+            deviceInfo
+          )
+          if (forced.result === 1) {
+            router.push("/company-select")
+          }
+        } else {
+          // Genuinely different device — prompt user
+          setPendingDeviceInfo(deviceInfo)
+          setActiveSessions(loginResponse.activeSessions)
+        }
       }
     } catch (error) {
       // Handle unexpected errors

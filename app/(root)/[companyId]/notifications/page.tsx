@@ -20,7 +20,7 @@ interface NotificationItem {
 
 const PAGE_SIZE = 20
 
-function formatDate(dateStr: string, fmt: string) {
+function formatDate(dateStr: string, _fmt: string) {
   try {
     return format(parseISO(dateStr), "dd/MM/yyyy HH:mm")
   } catch {

@@ -3,7 +3,6 @@
 import { useCompanyStore } from "@/stores/company-store"
 import * as React from "react"
 import Image from "next/image"
-import { useSearchParams } from "next/navigation"
 import { Check, ChevronsUpDown, Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -22,24 +21,19 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-// Constants for storage keys
-const TAB_COMPANY_ID_KEY = "tab_company_id"
 export function CompanySwitcher() {
   const { isMobile } = useSidebar()
-  const searchParams = useSearchParams()
   const { companies, currentCompany, getCompanies } = useCompanyStore()
   const [isLoading, setIsLoading] = React.useState(false)
   const [isOpen, setIsOpen] = React.useState(false)
-  // Get company ID from URL
-  const urlCompanyId = searchParams.get("companyId")
-  // Get the first letter of company code or name as fallback
+
   const getCompanyInitial = (company: typeof currentCompany) => {
     if (!company) return "?"
     return (company.companyCode || company.companyName || "?")
       .charAt(0)
       .toUpperCase()
   }
-  // Effect to fetch companies if not available
+
   React.useEffect(() => {
     const fetchCompanies = async () => {
       if (companies.length === 0) {
@@ -53,31 +47,23 @@ export function CompanySwitcher() {
     }
     fetchCompanies()
   }, [companies.length, getCompanies])
+
   const handleCompanySwitch = React.useCallback(
-    async (companyId: string) => {
-      if (!companyId) {
-        toast.error("Invalid company ID")
-        return
-      }
+    async (newCompanyId: string) => {
+      if (!newCompanyId || newCompanyId === currentCompany?.companyId) return
       setIsLoading(true)
       try {
-        const companyExists = companies.some((c) => c.companyId === companyId)
+        const companyExists = companies.some((c) => c.companyId === newCompanyId)
         if (!companyExists) {
-          toast.error(
-            "Invalid company selected. Please choose a valid company."
-          )
+          toast.error("Invalid company selected. Please choose a valid company.")
           return
         }
-        // Open new tab with the new company ID; CompanyProvider will handle state
-        // 1. grab current URL
-        const url = new URL(window.location.href)
-        // 2. replace the first pathname segment (old companyId) with the new one
-        //    e.g. '/123/master/country' → ['','123','master','country']
-        const parts = url.pathname.split("/")
-        // parts[1] is the old companyId; overwrite it
-        parts[1] = companyId
-        url.pathname = parts.join("/")
-        window.open(url.toString(), "_blank")
+        // Build the new URL by replacing the company ID segment
+        const parts = window.location.pathname.split("/")
+        parts[1] = newCompanyId
+        const newPath = parts.join("/")
+        // Open in a new tab — each company gets its own isolated tab
+        window.open(newPath, "_blank")
       } catch (error) {
         console.error("Failed to switch company:", error)
         toast.error("Failed to switch company")
@@ -85,20 +71,8 @@ export function CompanySwitcher() {
         setIsLoading(false)
       }
     },
-    [companies]
+    [companies, currentCompany?.companyId]
   )
-  // Effect to handle URL company ID changes
-  React.useEffect(() => {
-    if (urlCompanyId && urlCompanyId !== currentCompany?.companyId) {
-      handleCompanySwitch(urlCompanyId)
-    }
-  }, [urlCompanyId, currentCompany?.companyId, handleCompanySwitch])
-  // Effect to sync tab company ID with current company
-  React.useEffect(() => {
-    if (currentCompany?.companyId) {
-      sessionStorage.setItem(TAB_COMPANY_ID_KEY, currentCompany.companyId)
-    }
-  }, [currentCompany?.companyId])
   // If no current company or companies list is empty, don't render anything
   if (!currentCompany || companies.length === 0) {
     return null

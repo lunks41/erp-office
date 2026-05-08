@@ -24,23 +24,18 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   const [isCompanySwitching, setIsCompanySwitching] = React.useState(false)
   const [hasSwitched, setHasSwitched] = React.useState(false)
 
-  // Ensure each newly opened tab has its own company marker in sessionStorage.
-  // sessionStorage is tab-scoped, so keep it aligned with URL/company state.
-  React.useEffect(() => {
-    if (!_hasHydrated || typeof window === "undefined") return
-
+  // Synchronously align session storage with the URL before any useEffect/API calls fire.
+  // useLayoutEffect runs after render but before useEffect, so X-Company-Id header is
+  // correct for every API call in this tab — including when a new tab inherits stale
+  // tab_company_id from the parent (via window.open "_blank" session storage copy).
+  // No _hasHydrated guard needed: companyId comes from the URL, not Zustand state.
+  React.useLayoutEffect(() => {
+    if (typeof window === "undefined" || !companyId) return
     const sessionCompanyId = getCurrentTabCompanyId()
-    const resolvedCompanyId = companyId || currentCompany?.companyId
-    if (resolvedCompanyId && sessionCompanyId !== resolvedCompanyId) {
-      setCurrentTabCompanyId(resolvedCompanyId)
+    if (sessionCompanyId !== companyId) {
+      setCurrentTabCompanyId(companyId)
     }
-  }, [
-    _hasHydrated,
-    companyId,
-    currentCompany?.companyId,
-    getCurrentTabCompanyId,
-    setCurrentTabCompanyId,
-  ])
+  }, [companyId, getCurrentTabCompanyId, setCurrentTabCompanyId])
 
   const isRouteCompanyOutOfSync =
     _hasHydrated &&
