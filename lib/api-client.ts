@@ -62,6 +62,12 @@ apiClient.interceptors.response.use(
       message: error.message,
       data: error.response?.data,
     })
+    if (error.response?.status === 401) {
+      const { isAuthenticated, forceLogout } = useAuthStore.getState()
+      if (isAuthenticated) {
+        forceLogout()
+      }
+    }
     return Promise.reject(error)
   }
 )

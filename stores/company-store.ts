@@ -45,6 +45,8 @@ interface CompanyState {
   currentCompany: ICompany | null
   decimals: IDecimal[]
   isCompanySwitchEnabled: boolean
+  isLoadingCompanies: boolean
+  companiesFetchFailed: boolean
   setCompanies: (companies: ICompany[]) => void
   setCurrentCompany: (company: ICompany | null) => void
   setDecimals: (decimals: IDecimal[]) => void
@@ -56,6 +58,7 @@ interface CompanyState {
   getDecimals: () => Promise<void>
   getUserTransactions: () => Promise<IUserTransactionRights[]>
   getPermissions: (retryCount?: number) => Promise<void>
+  clearCompanyState: () => void
   reset: () => void
 }
 
@@ -64,6 +67,8 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
   currentCompany: null,
   decimals: [],
   isCompanySwitchEnabled: ENABLE_COMPANY_SWITCHING,
+  isLoadingCompanies: false,
+  companiesFetchFailed: false,
 
   setCompanies: (companies) => set({ companies }),
   setCurrentCompany: (company) => set({ currentCompany: company }),
@@ -72,22 +77,28 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
   getCompanies: async () => {
     const auth = useAuthStore.getState()
     if (!auth.token) return
+    set({ isLoadingCompanies: true, companiesFetchFailed: false })
     try {
       const response = await getData(Admin.getCompanies)
       const companiesData = response?.data || response || []
-      if (!Array.isArray(companiesData) || companiesData.length === 0) return
+      if (!Array.isArray(companiesData) || companiesData.length === 0) {
+        set({ isLoadingCompanies: false })
+        return
+      }
 
       const companies = companiesData.map((company: ICompany) => ({
         ...company,
         companyId: company.companyId.toString(),
       }))
-      set({ companies })
+      set({ companies, isLoadingCompanies: false })
 
       const current = get().currentCompany
       if (!current && companies.length > 0) {
         await get().switchCompany(companies[0].companyId, true)
       }
-    } catch {}
+    } catch {
+      set({ isLoadingCompanies: false, companiesFetchFailed: true })
+    }
   },
 
   switchCompany: async (companyId, fetchDecimals = true) => {
@@ -227,6 +238,19 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
     }
   },
 
+  clearCompanyState: () => {
+    txCache.clear()
+    pendingRequests.clear()
+    set({
+      companies: [],
+      currentCompany: null,
+      decimals: [],
+      isLoadingCompanies: false,
+      companiesFetchFailed: false,
+      isCompanySwitchEnabled: ENABLE_COMPANY_SWITCHING,
+    })
+  },
+
   reset: () => {
     txCache.clear()
     pendingRequests.clear()
@@ -234,6 +258,8 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
       companies: [],
       currentCompany: null,
       decimals: [],
+      isLoadingCompanies: false,
+      companiesFetchFailed: false,
       isCompanySwitchEnabled: ENABLE_COMPANY_SWITCHING,
     })
   },

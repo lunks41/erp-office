@@ -10,6 +10,10 @@ interface PermissionState {
     moduleId: number,
     transactionId: number
   ) => IUserTransactionRights | undefined
+  getPermissionByTransactionCode: (
+    moduleCode: string,
+    transactionCode: string
+  ) => IUserTransactionRights | undefined
   hasPermission: (
     moduleId: number,
     transactionId: number,
@@ -41,6 +45,15 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
   getPermissions: (moduleId: number, transactionId: number) => {
     const key = `${moduleId}-${transactionId}`
     return get().permissions[key]
+  },
+
+  getPermissionByTransactionCode: (moduleCode: string, transactionCode: string) => {
+    const normalize = (s: string) => s.toLowerCase().replace(/-/g, "")
+    const mc = normalize(moduleCode)
+    const tc = normalize(transactionCode)
+    return Object.values(get().permissions).find(
+      (p) => normalize(p.moduleCode) === mc && normalize(p.transactionCode) === tc
+    )
   },
 
   hasPermission: (

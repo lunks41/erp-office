@@ -111,7 +111,8 @@ interface AuthState {
   decimals: IDecimal[]
 
   // Authentication Actions
-  logIn: (userName: string, userPassword: string) => Promise<AuthResponse>
+  logIn: (userName: string, userPassword: string, deviceInfo?: Record<string, unknown>) => Promise<AuthResponse>
+  loginForce: (userName: string, userPassword: string, sessionIdsToRevoke: number[], deviceInfo?: Record<string, unknown>) => Promise<AuthResponse>
 
   applocklogIn: (
     userName: string,
@@ -217,16 +218,19 @@ export const useAuthStore = create<AuthState>()(
          * 5. Fetch companies if login successful
          * @returns Login response data including user info and tokens
          */
-        logIn: async (userName: string, userPassword: string) => {
+        logIn: async (userName: string, userPassword: string, deviceInfo?: Record<string, unknown>) => {
           set({ isLoading: true, error: null })
 
           try {
+            const csrfRes = await fetch("/api/auth/csrf")
+            const { csrfToken } = await csrfRes.json()
             const response = await fetch("/api/auth/login", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "x-csrf-token": csrfToken,
               },
-              body: JSON.stringify({ userName, userPassword }),
+              body: JSON.stringify({ userName, userPassword, deviceInfo }),
             })
 
             if (response.status === 401) {
@@ -248,6 +252,9 @@ export const useAuthStore = create<AuthState>()(
                 await get().getCompanies()
                 console.log("✅ STEP 1 COMPLETE: Companies fetched")
               }
+            } else if (data.result === 2) {
+              // Active sessions detected — UI handles the dialog, not an error
+              set({ isLoading: false })
             } else {
               console.log("🔐 LOGIN FAILED: User not authenticated")
               set({ isLoading: false, error: data.message })
@@ -271,21 +278,46 @@ export const useAuthStore = create<AuthState>()(
           }
         },
 
-        /**
-         * Handles app lock login
-         * Similar to regular login but with additional security checks
-         * @returns Login response data including user info and tokens
-         */
+        loginForce: async (userName: string, userPassword: string, sessionIdsToRevoke: number[], deviceInfo?: Record<string, unknown>) => {
+          set({ isLoading: true, error: null })
+          try {
+            const csrfRes = await fetch("/api/auth/csrf")
+            const { csrfToken } = await csrfRes.json()
+            const response = await fetch("/api/auth/login-force", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
+              body: JSON.stringify({ userName, userPassword, sessionIdsToRevoke, deviceInfo }),
+            })
+            const data: AuthResponse = await response.json()
+
+            if (data.result === 1) {
+              get().logInSuccess(data.user, data.token, data.refreshToken)
+              await get().getCompanies()
+            } else {
+              set({ isLoading: false, error: data.message })
+            }
+            return data
+          } catch (error) {
+            set({ isLoading: false })
+            get().logInFailed(error instanceof Error ? error.message : "An unknown error occurred")
+            throw error
+          }
+        },
+
         applocklogIn: async (userName: string, userPassword: string) => {
           set({ isLoading: true, error: null })
 
           try {
+            const { getDeviceInfo } = await import("@/lib/device-info")
+            const csrfRes = await fetch("/api/auth/csrf")
+            const { csrfToken } = await csrfRes.json()
             const response = await fetch("/api/auth/login", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "x-csrf-token": csrfToken,
               },
-              body: JSON.stringify({ userName, userPassword }),
+              body: JSON.stringify({ userName, userPassword, deviceInfo: getDeviceInfo() }),
             })
 
             if (response.status === 401) {
@@ -482,7 +514,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.removeItem("auth-storage")
 
           void import("./company-store").then(({ useCompanyStore }) => {
-            useCompanyStore.getState().reset()
+            useCompanyStore.getState().clearCompanyState()
           })
           void import("./session-store").then(({ useSessionStore }) => {
             useSessionStore.getState().resetSession()

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { validateCsrfTokens, CSRF_TOKEN_COOKIE, CSRF_TOKEN_HEADER } from "@/lib/csrf"
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL
 const DEFAULT_REG_ID = (
@@ -83,6 +84,15 @@ export async function POST(request: NextRequest) {
           "Retry-After": String(Math.ceil(LOGIN_RATE_LIMIT_WINDOW_MS / 1000)),
         },
       }
+    )
+  }
+
+  const csrfHeader = request.headers.get(CSRF_TOKEN_HEADER)
+  const csrfCookie = request.cookies.get(CSRF_TOKEN_COOKIE)?.value
+  if (!validateCsrfTokens(csrfCookie, csrfHeader ?? undefined)) {
+    return NextResponse.json(
+      { message: "Invalid or missing CSRF token", result: 0 },
+      { status: 403 }
     )
   }
 

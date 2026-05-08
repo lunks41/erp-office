@@ -56,12 +56,26 @@ export interface ApiResponse<T> {
   totalRecords?: number
 }
 
+export interface IActiveSession {
+  sessionId: number
+  browserName?: string
+  browserVersion?: string
+  osName?: string
+  deviceType?: string
+  ipAddress?: string
+  platform?: string
+  screenResolution?: string
+  loginAt: string
+  lastActivityAt?: string
+}
+
 export interface AuthResponse {
   result: number
   message: string
   user: IUser
   token: string
   refreshToken: string
+  activeSessions?: IActiveSession[]
 }
 
 export interface IUserTransactionRights {

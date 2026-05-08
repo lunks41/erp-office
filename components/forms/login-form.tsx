@@ -5,6 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
+import { getDeviceInfo } from "@/lib/device-info"
+import { IActiveSession } from "@/interfaces/auth"
+import { ConcurrentSessionDialog } from "@/components/auth/concurrent-session-dialog"
 
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -91,7 +94,9 @@ export function LoginForm({
     userPassword?: boolean
     form?: boolean
   }>({})
-  const { logIn, isLoading, error } = useAuthStore()
+  const [activeSessions, setActiveSessions] = useState<IActiveSession[] | null>(null)
+  const [pendingDeviceInfo, setPendingDeviceInfo] = useState<Record<string, unknown> | undefined>()
+  const { logIn, loginForce, isLoading, error } = useAuthStore()
   const router = useRouter()
 
   // Validation effects
@@ -185,17 +190,15 @@ export function LoginForm({
       setErrors({})
       setMessage("")
 
-      const loginResponse = await logIn(userName.trim(), userPassword)
+      const deviceInfo = getDeviceInfo()
+      const loginResponse = await logIn(userName.trim(), userPassword, deviceInfo)
 
-      console.log("🔐 LOGIN RESPONSE: ", loginResponse)
-
-      // Check if login was successful
       if (loginResponse.result === 1 && !useAuthStore.getState().error) {
-        // Successful login - redirect to company selection
         router.push("/company-select")
-      } else {
-        // Login failed - error displayed via useEffect that syncs auth store error to errors.general
-        // (do not also set message - that would duplicate the same alert)
+      } else if (loginResponse.result === 2 && loginResponse.activeSessions?.length) {
+        // Active sessions detected — show the concurrent session dialog
+        setPendingDeviceInfo(deviceInfo)
+        setActiveSessions(loginResponse.activeSessions)
       }
     } catch (error) {
       // Handle unexpected errors
@@ -211,9 +214,30 @@ export function LoginForm({
     }
   }
 
+  const handleSignOutOthers = async (sessionIds: number[]) => {
+    try {
+      const response = await loginForce(userName.trim(), userPassword, sessionIds, pendingDeviceInfo)
+      if (response.result === 1) {
+        setActiveSessions(null)
+        router.push("/company-select")
+      }
+    } catch {
+      setActiveSessions(null)
+    }
+  }
+
   // Render
   // ------
   return (
+    <>
+    {activeSessions && (
+      <ConcurrentSessionDialog
+        sessions={activeSessions}
+        isLoading={isLoading}
+        onSignOutOthers={handleSignOutOthers}
+        onCancel={() => setActiveSessions(null)}
+      />
+    )}
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
@@ -338,5 +362,6 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
+    </>
   )
 }
