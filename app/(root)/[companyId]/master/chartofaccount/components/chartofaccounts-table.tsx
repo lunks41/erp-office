@@ -1,7 +1,8 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { IChartOfAccount } from "@/interfaces/chartofaccount"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -62,7 +63,7 @@ export function ChartOfAccountsTable({
   canEdit = true,
   canDelete = true,
 }: ChartOfAccountsTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<IChartOfAccount>[] = [

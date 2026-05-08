@@ -48,7 +48,7 @@ export function ChecklistDetailsForm({
   canCreate: _canCreate,
   canDebitNote: _canDebitNote,
 }: ChecklistDetailsFormProps) {
-  //const { decimals } = useAuthStore()
+  //const { decimals } = useCompanyStore()
   const [activeTab, setActiveTab] = useState("port-expenses")
   const queryClient = useQueryClient()
 

@@ -1,7 +1,8 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { IOrderType } from "@/interfaces/ordertype"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -61,7 +62,7 @@ export function OrderTypeTable({
   canView = true,
   canCreate = true,
 }: OrderTypeTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<IOrderType>[] = [

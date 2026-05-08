@@ -242,7 +242,19 @@ export function TransportationLogTab({
       }
       const submitData: Partial<SerTransportationHdSchemaType> & {
         data_details?: ISerTransportationDt[]
-      } = { ...processedData, ...jobDataProps }
+      } = {
+        ...processedData,
+        ...jobDataProps,
+        data_details: (
+          (processedData.data_details as
+            | Array<Partial<ISerTransportationDt> & { itemNo: number; serviceItemNo: number }>
+            | undefined) ?? []
+        ).map((detail) => ({
+          itemNo: detail.itemNo,
+          serviceItemNo: detail.serviceItemNo,
+          serviceItemNoName: detail.serviceItemNoName ?? "",
+        })),
+      }
 
       let response
       if (saveConfirmation.operationType === "update" && selectedItem) {
@@ -372,7 +384,7 @@ export function TransportationLogTab({
       </div>
       <Dialog open={!inlineMode && isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[60vw] !max-w-none overflow-y-auto"
+          className="max-h-[80vh] w-[60vw] max-w-none! overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}

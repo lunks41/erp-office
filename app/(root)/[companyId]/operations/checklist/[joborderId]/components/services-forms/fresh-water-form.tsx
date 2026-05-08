@@ -1,13 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo } from "react"
 import { IFreshWater, IJobOrderHd } from "@/interfaces/checklist"
 import { FreshWaterSchema, FreshWaterSchemaType } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
-
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
 import { Badge } from "@/components/ui/badge"
@@ -48,7 +48,7 @@ export function FreshWaterForm({
   isSubmitting = false,
   isConfirmed,
 }: FreshWaterFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const dateFormat = useMemo(

@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo } from "react"
 import { IConsignmentExport, IJobOrderHd } from "@/interfaces/checklist"
 import {
   ConsignmentExportSchema,
   ConsignmentExportSchemaType,
 } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -55,7 +56,7 @@ export function ConsignmentExportForm({
   isSubmitting = false,
   isConfirmed,
 }: ConsignmentExportFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 

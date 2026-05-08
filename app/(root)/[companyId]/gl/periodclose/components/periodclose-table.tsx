@@ -1,11 +1,11 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useMemo } from "react"
 import { IGLPeriodClose } from "@/interfaces/gl-periodclose"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-
 import { Checkbox } from "@/components/ui/checkbox"
 import { SettingTable } from "@/components/table/table-setting"
 
@@ -20,7 +20,7 @@ export function PeriodCloseTable({
   isLoading,
   onFieldChange,
 }: PeriodCloseTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 

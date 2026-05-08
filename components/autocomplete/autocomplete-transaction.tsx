@@ -44,9 +44,10 @@ export default function TransactionAutocomplete<
   isRequired?: boolean
   onChangeEvent?: (selectedOption: ITransactionLookup | null) => void
 }) {
-  const { data: transactions = [], isLoading } = useTransactionLookup(
-    form.getValues().moduleId ?? 0
+  const moduleId = Number(
+    (form.getValues() as { moduleId?: number | string }).moduleId ?? 0
   )
+  const { data: transactions = [], isLoading } = useTransactionLookup(moduleId)
   const options: FieldOption[] = React.useMemo(
     () =>
       transactions.map((transaction: ITransactionLookup) => ({

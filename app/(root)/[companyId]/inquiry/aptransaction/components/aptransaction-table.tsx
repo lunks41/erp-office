@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { IApOutTransaction } from "@/interfaces/outtransaction"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -38,7 +38,7 @@ export function ApTransactionTable({
   visible: _visible,
 }: ApTransactionTableProps) {
   const [mounted, setMounted] = useState(false)
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { data: companies = [] } = useCompanyLookup()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2

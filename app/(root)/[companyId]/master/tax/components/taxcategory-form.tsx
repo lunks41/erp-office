@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ITaxCategory } from "@/interfaces/tax"
 import { TaxCategorySchemaType, taxCategorySchema } from "@/schemas/tax"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import { Form } from "@/components/ui/form"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomInput from "@/components/custom/custom-input"
@@ -32,12 +32,12 @@ interface TaxCategoryFormProps {
 export function TaxCategoryForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: TaxCategoryFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<TaxCategorySchemaType>({

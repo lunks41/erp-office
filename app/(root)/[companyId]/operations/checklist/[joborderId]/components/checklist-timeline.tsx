@@ -1,8 +1,9 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo, useState } from "react"
 import { IJobOrderHd } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid } from "date-fns"
 import {
   Activity,
@@ -61,7 +62,7 @@ export function ChecklistLog({
   isConfirmed: _isConfirmed = false,
   activeTab,
 }: ChecklistLogProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const timeFormat = "HH:mm"
   const [isRefreshing, setIsRefreshing] = useState(false)

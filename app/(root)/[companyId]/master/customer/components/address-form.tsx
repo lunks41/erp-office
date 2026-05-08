@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICustomerAddress } from "@/interfaces/customer"
 import {
   CustomerAddressSchemaType,
   customerAddressSchema,
 } from "@/schemas/customer"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -57,7 +58,7 @@ export function CustomerAddressForm({
   isSubmitting = false,
   isReadOnly = false,
 }: CustomerAddressFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   // Validate that customerId is provided and valid

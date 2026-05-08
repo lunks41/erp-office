@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo } from "react"
 import { IAccountSetupDt } from "@/interfaces/accountsetup"
 import {
   AccountSetupDtSchemaType,
   accountSetupDtSchema,
 } from "@/schemas/accountsetup"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -32,12 +33,12 @@ interface AccountSetupDtFormProps {
 export function AccountSetupDtForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting = false,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
   companyId,
 }: AccountSetupDtFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const defaultValues = useMemo(
     () => ({

@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo } from "react"
 import { ICurrencyDt } from "@/interfaces/currency"
 import { CurrencyDtSchemaType, currencyDtSchema } from "@/schemas/currency"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { format } from "date-fns"
 import { useForm } from "react-hook-form"
-
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -30,7 +31,7 @@ export function CurrencyDtForm({
   isSubmitting = false,
   isReadOnly = false,
 }: CurrencyDtFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 

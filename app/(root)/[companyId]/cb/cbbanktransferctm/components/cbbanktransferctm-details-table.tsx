@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { ICbBankTransferCtmDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
-
 import { TableName } from "@/lib/utils"
 import { AccountBaseTable } from "@/components/table/table-account"
 
 // Use flexible data type that can work with form data
+import { useCompanyStore } from "@/stores/company-store"
 interface CbBankTransferCtmDetailsTableProps {
   data: ICbBankTransferCtmDt[]
   onDeleteAction?: (itemNo: number) => void
@@ -33,7 +32,7 @@ export default function CbBankTransferCtmDetailsTable({
   visible,
   isCancelled = false,
 }: CbBankTransferCtmDetailsTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6

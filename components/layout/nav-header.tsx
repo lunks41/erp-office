@@ -1,9 +1,11 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+import { useEffect, useState } from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import {
   ModuleId,
@@ -35,9 +37,14 @@ import {
 } from "@/components/ui/navigation-menu"
 
 export function NavHeader() {
+  const [isMounted, setIsMounted] = useState(false)
   const pathname = usePathname()
-  const { currentCompany } = useAuthStore()
+  const currentCompany = useCompanyStore((s) => s.currentCompany)
   const { hasPermission } = usePermissionStore()
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const getUrlWithCompanyId = (url: string) => {
     if (!currentCompany?.companyId) return url
@@ -169,6 +176,11 @@ export function NavHeader() {
     { title: "Ar-Ap Contra", url: "/gl/arapcontra", canView: canViewGlArapcontra },
     { title: "GL Reports", url: "/gl/reports", canView: canViewGlReports },
   ].filter((i) => i.canView)
+
+  // Avoid SSR/client menu divergence from persisted auth/permission state.
+  if (!isMounted) {
+    return <div className="relative hidden w-full items-center justify-between px-3 sm:flex" />
+  }
 
   return (
     <div className="relative hidden w-full items-center justify-between px-3 sm:flex">

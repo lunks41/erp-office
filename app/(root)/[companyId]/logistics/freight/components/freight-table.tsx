@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react"
 import { IFreight } from "@/interfaces/freight"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -35,7 +35,7 @@ export function FreightTable({
   moduleId,
   transactionId,
 }: FreightTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]

@@ -472,10 +472,11 @@ const PayslipTemplate: React.FC<PayslipTemplateProps> = ({ data }) => {
           <View style={styles.headerRow}>
             {data.companyId && (
               <View style={styles.logoContainer}>
+                {/* react-pdf Image component does not support HTML alt; suppress jsx-a11y false positive */}
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image
                   style={styles.logo}
                   src={`${getBaseUrl()}/uploads/companies/${data.companyId}.png`}
-                  alt="Company Logo"
                 />
               </View>
             )}

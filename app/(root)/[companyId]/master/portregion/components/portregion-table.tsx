@@ -1,7 +1,8 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { IPortRegion } from "@/interfaces/portregion"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -61,7 +62,7 @@ export function PortRegionsTable({
   canView = true,
   canCreate = true,
 }: PortRegionsTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<IPortRegion>[] = [

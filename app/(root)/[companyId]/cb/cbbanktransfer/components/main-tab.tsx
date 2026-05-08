@@ -1,5 +1,6 @@
-// main-tab.tsx - IMPROVED VERSION
 "use client"
+
+// main-tab.tsx - IMPROVED VERSION
 
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankTransferSchemaType } from "@/schemas"

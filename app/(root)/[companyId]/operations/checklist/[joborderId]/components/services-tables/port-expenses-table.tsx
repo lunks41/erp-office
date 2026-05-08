@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useMemo, useState } from "react"
 import {
   IJobOrderHd,
   IPortExpenses,
   IPortExpensesFilter,
 } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -69,7 +70,7 @@ export function PortExpensesTable({
   canCreate = true,
   canDebitNote = true,
 }: PortExpensesTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,

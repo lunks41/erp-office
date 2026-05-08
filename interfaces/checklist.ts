@@ -354,6 +354,15 @@ export interface IEquipmentUsed {
   bargeId?: number
   bargeName?: string
   ameTally?: string
+  /** Legacy summary fields kept for backward compatibility with older API consumers. */
+  loadingRefNo?: string
+  craneloading?: number
+  forkliftloading?: number
+  stevedoreloading?: number
+  offloadingRefNo?: string
+  craneOffloading?: number
+  forkliftOffloading?: number
+  stevedoreOffloading?: number
   /** Detail lines for `Ser_EquipmentUsedDt` when the API returns them (camelCase). */
   details?: IEquipmentUsedDt[]
   /** Same shape as `details`; operations get-by-id returns this property name from .NET. */

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { IArOutTransaction } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -11,6 +10,7 @@ import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { AccountBaseTable } from "@/components/table/table-account"
 
 // Extended column definition with hide property
+import { useCompanyStore } from "@/stores/company-store"
 type ExtendedColumnDef<T> = ColumnDef<T> & {
   hidden?: boolean
 }
@@ -36,7 +36,7 @@ export default function ArOutStandingTransactionsTable({
   visible: _visible,
 }: ArOutStandingTransactionsTableProps) {
   const [mounted, setMounted] = useState(false)
-  const { decimals } = useAuthStore()
+  const decimals = useCompanyStore((state) => state.decimals)
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6

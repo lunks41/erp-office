@@ -1,9 +1,9 @@
 "use client"
 
-import { ApDocSetOffHdSchemaType } from "@/schemas/ap-docsetoff"
-import { useAuthStore } from "@/stores/auth-store"
-import { UseFormReturn } from "react-hook-form"
+import { useCompanyStore } from "@/stores/company-store"
 
+import { ApDocSetOffHdSchemaType } from "@/schemas/ap-docsetoff"
+import { UseFormReturn } from "react-hook-form"
 import AccountDetails from "./history/account-details"
 import EditVersionDetails from "./history/edit-version-details"
 import GLPostDetails from "./history/gl-post-details"
@@ -14,7 +14,7 @@ interface HistoryProps {
 }
 
 export default function History({ form, isEdit: _isEdit }: HistoryProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const _dateFormat = decimals[0]?.dateFormat || "yyyy-MM-dd"
 
   const formValues = form.getValues()

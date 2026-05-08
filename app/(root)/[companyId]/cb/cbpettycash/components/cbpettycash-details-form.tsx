@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, {
   useEffect,
   useImperativeHandle,
@@ -38,7 +40,6 @@ import {
   CbPettyCashDtSchemaType,
   CbPettyCashHdSchemaType,
 } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { PlusIcon, Repeat } from "lucide-react"
@@ -133,7 +134,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
     },
     ref
   ) => {
-    const { decimals } = useAuthStore()
+    const { decimals } = useCompanyStore()
     const amtDec = decimals?.[0]?.amtDec || 2
     const locAmtDec = decimals?.[0]?.locAmtDec || 2
     const ctyAmtDec = decimals?.[0]?.ctyAmtDec || 2

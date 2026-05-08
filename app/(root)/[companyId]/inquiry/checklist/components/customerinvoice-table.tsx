@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { IArInvoiceHd } from "@/interfaces/ar-invoice"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 
@@ -26,7 +26,7 @@ export function CustomerInvoiceTable({
   transactionId,
   onRefreshAction,
 }: CustomerInvoiceTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { data: companies = [] } = useCompanyLookup()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
 

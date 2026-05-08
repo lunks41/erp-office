@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IOrderTypeCategory } from "@/interfaces/ordertype"
 import {
   OrderTypeCategorySchemaType,
   orderTypeCategorySchema,
 } from "@/schemas/ordertype"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -35,12 +36,12 @@ interface OrderTypeCategoryFormProps {
 export function OrderTypeCategoryForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: OrderTypeCategoryFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<OrderTypeCategorySchemaType>({

@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
@@ -112,7 +114,8 @@ const REPORT_CATEGORIES = [
 export default function ReportsPage() {
   const params = useParams()
   const companyId = Number(params.companyId)
-  const { decimals, companies, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals, companies } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const companyName: string | null =

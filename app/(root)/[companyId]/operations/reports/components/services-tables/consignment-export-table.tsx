@@ -1,8 +1,9 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useMemo } from "react"
 import { IConsignmentExport } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -24,7 +25,7 @@ export function ConsignmentExportTable({
   data,
   isLoading = false,
 }: ConsignmentExportTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,

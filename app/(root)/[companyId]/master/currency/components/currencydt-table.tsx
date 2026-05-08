@@ -1,10 +1,10 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { ICurrencyDt } from "@/interfaces/currency"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
-
 import { TableName } from "@/lib/utils"
 import { MainTable } from "@/components/table/table-main"
 
@@ -55,7 +55,7 @@ export function CurrencyDtsTable({
   canEdit = true,
   canDelete = true,
 }: CurrencyDtsTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy"
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const exhRateDec = decimals[0]?.exhRateDec || 9

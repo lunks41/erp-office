@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo } from "react"
 import { IJobOrderHd, ILaunchService } from "@/interfaces/checklist"
 import {
   LaunchServiceSchema,
   LaunchServiceSchemaType,
 } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { differenceInMinutes, format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -61,7 +62,7 @@ export function LaunchServiceForm({
   isSubmitting = false,
   isConfirmed,
 }: LaunchServiceFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const dateFormat = useMemo(

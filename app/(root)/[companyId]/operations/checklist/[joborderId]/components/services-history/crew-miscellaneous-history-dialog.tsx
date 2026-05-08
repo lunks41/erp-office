@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import { ICrewMiscellaneous } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
-
 import { JobOrder_CrewMiscellaneous } from "@/lib/api-routes"
 import { TableName } from "@/lib/utils"
 import { useGet } from "@/hooks/use-common"
@@ -35,7 +35,7 @@ export function CrewMiscellaneousHistoryDialog({
   crewMiscellaneousId,
   crewMiscellaneousIdDisplay,
 }: CrewMiscellaneousHistoryDialogProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   // Fetch history data

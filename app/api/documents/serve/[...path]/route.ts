@@ -5,13 +5,12 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    const { path } = await params
     // Join path segments and decode URL-encoded characters
-    const filePath = params.path
-      .map((segment) => decodeURIComponent(segment))
-      .join("/")
+    const filePath = path.map((segment) => decodeURIComponent(segment)).join("/")
     const fullPath = join(process.cwd(), "public", "documents", filePath)
 
     // Security check - ensure path is within documents directory

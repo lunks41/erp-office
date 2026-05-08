@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICharge } from "@/interfaces/charge"
 import { ChargeSchemaType, chargeSchema } from "@/schemas/charge"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-
+import { Resolver, useForm } from "react-hook-form"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -21,7 +21,6 @@ const defaultValues = {
   chargeName: "",
   chargeCode: "",
   uomId: 0,
-  chargeOrder: 0,
   seqNo: 0,
   isTransport: false,
   isMultiple: false,
@@ -47,14 +46,16 @@ export function ChargeForm({
   onCodeBlur,
   companyId,
 }: ChargeFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals?.[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   // Get chart of account data to ensure it's loaded before setting form values
   useChartOfAccountLookup(Number(companyId))
 
   const form = useForm<ChargeSchemaType>({
-    resolver: zodResolver(chargeSchema),
+    resolver: zodResolver(
+      chargeSchema
+    ) as Resolver<ChargeSchemaType, unknown, ChargeSchemaType>,
     defaultValues: initialData
       ? {
           chargeId: initialData.chargeId ?? 0,
@@ -65,7 +66,7 @@ export function ChargeForm({
           remarks: initialData.remarks ?? "",
           isActive: initialData.isActive ?? true,
           isTransport: initialData.isTransport ?? false,
-            isMultiple: initialData.isMultiple ?? false,
+          isMultiple: initialData.isMultiple ?? false,
         }
       : {
           ...defaultValues,
@@ -148,7 +149,6 @@ export function ChargeForm({
             />
 
             <div className="flex flex-wrap items-center gap-4">
-            <div className="flex flex-wrap items-center gap-4">
               <CustomCheckbox
                 form={form}
                 name="isActive"
@@ -167,7 +167,6 @@ export function ChargeForm({
                 label="Multiply?"
                 isDisabled={isReadOnly}
               />
-            </div>
             </div>
 
             <div className="flex justify-end gap-2">

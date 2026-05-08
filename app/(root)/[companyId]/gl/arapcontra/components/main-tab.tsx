@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   allocateBetweenModules,
@@ -10,7 +12,6 @@ import {
 import { IApOutTransaction, IArOutTransaction, IGLContraDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { GLContraDtSchemaType, GLContraHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { Plus, RotateCcw, Zap } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
@@ -45,7 +46,7 @@ export default function Main({
   companyId,
   isCancelled = false,
 }: MainProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const decimalConfig = useMemo(
     () =>
       decimals[0] ||

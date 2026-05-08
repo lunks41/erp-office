@@ -1,7 +1,7 @@
 "use client"
 
 import { IUserRole } from "@/interfaces/admin"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -50,7 +50,7 @@ export function UserRoleTable({
   canView = true,
   canCreate = true,
 }: UserRoleTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<IUserRole>[] = [

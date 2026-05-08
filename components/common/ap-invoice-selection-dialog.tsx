@@ -1,8 +1,9 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import * as React from "react"
 import { IApSupplierInvoice } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -37,7 +38,7 @@ export default function InvoiceSelectionDialog({
   currencyId,
   onSelect,
 }: InvoiceSelectionDialogProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const dateFormat = decimals[0]?.dateFormat || clientDateFormat
@@ -210,7 +211,7 @@ export default function InvoiceSelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="@container flex h-[70vh] w-[80vw] !max-w-none flex-col gap-0 overflow-hidden p-0">
+      <DialogContent className="@container flex h-[70vh] w-[80vw] max-w-none! flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="border-b px-4 py-3">
           <DialogTitle className="text-xl font-semibold">
             Select Invoice

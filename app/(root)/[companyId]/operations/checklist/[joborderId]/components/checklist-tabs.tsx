@@ -9,6 +9,7 @@ import {
   ISaveDebitNoteItem,
 } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -73,7 +74,8 @@ export function ChecklistTabs({
 }: ChecklistTabsProps) {
   const params = useParams()
   const companyId = params.companyId as string
-  const { decimals, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   const moduleId = ModuleId.operations
   const transactionId = OperationsTransactionId.checklist

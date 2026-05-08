@@ -1,5 +1,7 @@
-// main-tab.tsx - IMPROVED VERSION
 "use client"
+
+import { useCompanyStore } from "@/stores/company-store"
+// main-tab.tsx - IMPROVED VERSION
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { validateFromTotLocalAmt } from "@/helpers/cb-banktransferctm-calculations"
@@ -9,7 +11,6 @@ import {
   CbBankTransferCtmDtSchemaType,
   CbBankTransferCtmHdSchemaType,
 } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { UseFormReturn } from "react-hook-form"
 
 import { useUserSettingDefaults } from "@/hooks/use-settings"
@@ -40,7 +41,7 @@ export default function Main({
   companyId,
   isCancelled = false,
 }: MainProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   // Get user settings with defaults for all modules
   const { defaults: _defaults } = useUserSettingDefaults()

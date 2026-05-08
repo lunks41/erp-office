@@ -1,10 +1,11 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import {
   useEffect,
   useState } from "react"
 import { ICbBankTransferCtmHd } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -48,7 +49,7 @@ interface EditVersionDetailsProps {
 export default function EditVersionDetails({
   transferId,
 }: EditVersionDetailsProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { hasPermission } = usePermissionStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2

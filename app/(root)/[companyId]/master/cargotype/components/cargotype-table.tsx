@@ -1,7 +1,8 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { ICargoType } from "@/interfaces/cargotype"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -61,7 +62,7 @@ export function CargoTypesTable({
   canView = true,
   canCreate = true,
 }: CargoTypesTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<ICargoType>[] = [

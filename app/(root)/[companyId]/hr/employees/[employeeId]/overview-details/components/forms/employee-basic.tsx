@@ -1,9 +1,10 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, { useMemo } from "react"
 import { IEmployeeBasic } from "@/interfaces/employee"
 import { EmployeeBasicValues, employeeBasicSchema } from "@/schemas/employee"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -34,7 +35,7 @@ interface Props {
 }
 
 export function EmployeeBasicForm({ employee, onCancelAction }: Props) {
-  const { decimals } = useAuthStore()
+  const decimals = useCompanyStore((state) => state.decimals)
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]

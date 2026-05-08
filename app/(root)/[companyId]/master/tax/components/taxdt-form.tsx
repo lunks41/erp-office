@@ -1,18 +1,19 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo } from "react"
 import { ITaxDt } from "@/interfaces/tax"
 import { TaxDtSchemaType, taxDtSchema } from "@/schemas/tax"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
 import { Form } from "@/components/ui/form"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { TaxAutocomplete } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import { format } from "date-fns"
 
 interface TaxDtFormProps {
   initialData?: ITaxDt | null
@@ -25,11 +26,11 @@ interface TaxDtFormProps {
 export function TaxDtForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
 }: TaxDtFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const priceDec = decimals[0]?.priceDec || 2
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -130,3 +131,4 @@ export function TaxDtForm({
     </div>
   )
 }
+

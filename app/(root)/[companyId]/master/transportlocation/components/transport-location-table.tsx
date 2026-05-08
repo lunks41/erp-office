@@ -1,7 +1,8 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { ITransportLocation } from "@/interfaces/transport-location"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -61,7 +62,7 @@ export function TransportLocationsTable({
   canView = true,
   canCreate = true,
 }: TransportLocationsTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<ITransportLocation>[] = [

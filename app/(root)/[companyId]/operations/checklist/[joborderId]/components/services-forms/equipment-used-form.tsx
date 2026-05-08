@@ -10,11 +10,11 @@ import {
   EquipmentUsedSchema,
   EquipmentUsedSchemaType,
 } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { Plus, Trash2 } from "lucide-react"
-import { useFieldArray, useForm } from "react-hook-form"
+import { Resolver, useFieldArray, useForm } from "react-hook-form"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
@@ -56,7 +56,7 @@ export function EquipmentUsedForm({
   isSubmitting = false,
   isConfirmed,
 }: EquipmentUsedFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const dateFormat = useMemo(
@@ -84,7 +84,11 @@ export function EquipmentUsedForm({
   )
 
   const form = useForm<EquipmentUsedSchemaType>({
-    resolver: zodResolver(EquipmentUsedSchema),
+    resolver: zodResolver(EquipmentUsedSchema) as Resolver<
+      EquipmentUsedSchemaType,
+      unknown,
+      EquipmentUsedSchemaType
+    >,
     defaultValues: {
       equipmentUsedId: initialData?.equipmentUsedId ?? 0,
       date: initialData?.date
@@ -131,8 +135,9 @@ export function EquipmentUsedForm({
 
   // Watch the isNotes field to control notes field disabled state
   const isNotes = form.watch("isNotes")
+  const isLoading = form.watch("isLoading")
+  const isOffloading = form.watch("isOffloading")
   const watchedDetails = form.watch("details")
-  const watchedFormValues = form.watch()
 
   const loadingIndices = useMemo(() => {
     return (watchedDetails ?? [])
@@ -148,11 +153,9 @@ export function EquipmentUsedForm({
 
   // Keep section toggles enabled when checked, and also when rows already exist.
   const isLoadingSectionEnabled =
-    Boolean((watchedFormValues as Record<string, unknown>).isLoading) ||
-    loadingIndices.length > 0
+    Boolean(isLoading) || loadingIndices.length > 0
   const isOffloadingSectionEnabled =
-    Boolean((watchedFormValues as Record<string, unknown>).isOffloading) ||
-    offloadingIndices.length > 0
+    Boolean(isOffloading) || offloadingIndices.length > 0
 
   useEffect(() => {
     const details = buildEquipmentUsedDetailsFromApi(initialData)

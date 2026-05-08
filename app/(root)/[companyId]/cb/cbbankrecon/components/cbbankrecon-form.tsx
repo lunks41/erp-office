@@ -1,15 +1,15 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import * as React from "react"
 import { IBankLookup, ICurrencyLookup } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankReconHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { endOfMonth, isAfter, isValid, startOfMonth } from "date-fns"
 import { Plus } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
-
 import { parseDate } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -41,7 +41,7 @@ export default function BankReconForm({
   required,
   companyId,
 }: BankReconFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
 
   const [isBankReconDialogOpen, setIsBankReconDialogOpen] =

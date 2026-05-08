@@ -1,6 +1,4 @@
 import { IGlTransactionDetails } from "@/interfaces/history"
-import { useAuthStore } from "@/stores/auth-store"
-
 import { clientDateFormat } from "@/lib/date-utils"
 import { CBTransactionId,
   ModuleId,
@@ -17,12 +15,13 @@ import {
 } from "@/components/table/history-embedded-presets"
 
 
+import { useCompanyStore } from "@/stores/company-store"
 interface GLPostDetailsProps {
   transferId: string
 }
 
 export default function GLPostDetails({ transferId }: GLPostDetailsProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6

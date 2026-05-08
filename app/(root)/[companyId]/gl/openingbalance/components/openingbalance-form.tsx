@@ -1,14 +1,14 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react"
 import { setExchangeRateLocal } from "@/helpers/account"
 import { ICurrencyLookup, IGLOpeningBalance } from "@/interfaces"
 import { GLOpeningBalanceSchema, GLOpeningBalanceSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { FormProvider, Resolver, UseFormReturn, useForm } from "react-hook-form"
-
 import { clientDateFormat } from "@/lib/date-utils"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
@@ -62,7 +62,7 @@ const OpeningBalanceForm = React.forwardRef<
     },
     ref
   ) => {
-    const { decimals } = useAuthStore()
+    const { decimals } = useCompanyStore()
     const amtDec = decimals[0]?.amtDec || 2
     const locAmtDec = decimals[0]?.locAmtDec || 2
     const exhRateDec = decimals[0]?.exhRateDec || 2

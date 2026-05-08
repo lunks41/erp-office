@@ -25,6 +25,7 @@ import {
   CbGenPaymentHdSchemaType,
 } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -92,7 +93,8 @@ export default function CbGenPaymentPage() {
   const transactionId = CBTransactionId.cbgenpayment
 
   const { hasPermission } = usePermissionStore()
-  const { decimals, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { defaults } = useUserSettingDefaults()
   const pageSize = defaults?.common?.trnGridTotalRecords || 100
 

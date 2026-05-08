@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import * as React from "react"
 import {
   calculateDivisionAmount,
@@ -19,7 +21,6 @@ import {
 } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankTransferSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 
@@ -63,7 +64,7 @@ export default function BankTransferForm({
   required,
   companyId: _companyId,
 }: BankTransferFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6

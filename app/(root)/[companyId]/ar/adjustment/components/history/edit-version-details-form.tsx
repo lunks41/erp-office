@@ -1,9 +1,9 @@
 "use client"
 
-import { useMemo } from "react"
-import { useAuthStore } from "@/stores/auth-store"
-import { format } from "date-fns"
+import { useCompanyStore } from "@/stores/company-store"
 
+import { useMemo } from "react"
+import { format } from "date-fns"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -36,7 +36,7 @@ export function EditVersionDetailsForm({
   detailsData,
   summaryData,
 }: EditVersionDetailsFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { Building, Calendar, TrendingUp, Users } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 export default function CompanyDashboardPage() {
   const params = useParams()
   const router = useRouter()
-  const { currentCompany, companies } = useAuthStore()
+  const { currentCompany, companies } = useCompanyStore()
   const companyId = params.companyId as string
 
   useEffect(() => {

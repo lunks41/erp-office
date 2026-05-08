@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { IUserGroup } from "@/interfaces/admin"
 import { UserGroupSchemaType, userGroupSchema } from "@/schemas/admin"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -40,7 +40,7 @@ export function UserGroupForm({
   onSaveConfirmation,
   onCodeBlur,
 }: UserGroupFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const form = useForm<UserGroupSchemaType>({
     resolver: zodResolver(userGroupSchema),

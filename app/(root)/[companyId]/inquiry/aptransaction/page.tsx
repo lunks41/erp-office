@@ -349,6 +349,7 @@ export default function ApTransactionInquiryPage() {
                 m_JobOrderIdHd: false,
                 m_PortIdHd: false,
                 m_VesselIdHd: false,
+                m_BargeIdHd: false,
                 m_AdvRecAmt: false,
                 m_BankChgGLId: false,
                 m_InvoiceDate: false,

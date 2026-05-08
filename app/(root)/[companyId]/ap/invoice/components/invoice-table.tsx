@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { IApInvoiceFilter, IApInvoiceHd } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { X } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
-
 import { ApInvoice } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
@@ -19,6 +17,7 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
+import { useCompanyStore } from "@/stores/company-store"
 export interface InvoiceTableProps {
   onInvoiceSelect: (selectedInvoice: IApInvoiceHd | undefined) => void
   onFilterChange: (filters: IApInvoiceFilter) => void
@@ -39,7 +38,7 @@ export default function InvoiceTable({
   visible,
   isDialogOpen = false,
 }: InvoiceTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 9

@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   autoAllocateAmounts,
@@ -15,7 +17,6 @@ import {
   ArDocSetOffDtSchemaType,
   ArDocSetOffHdSchemaType,
 } from "@/schemas/ar-docsetoff"
-import { useAuthStore } from "@/stores/auth-store"
 import { Plus, RotateCcw, Zap } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
@@ -48,7 +49,7 @@ export default function Main({
   companyId,
   isCancelled = false,
 }: MainProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
 
   const [showTransactionDialog, setShowTransactionDialog] = useState(false)

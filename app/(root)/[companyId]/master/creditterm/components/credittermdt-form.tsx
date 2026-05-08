@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICreditTermDt } from "@/interfaces/creditterm"
 import {
   CreditTermDtSchemaType,
   credittermDtSchema,
 } from "@/schemas/creditterm"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -40,7 +41,7 @@ export function CreditTermDtForm({
   isSubmitting = false,
   isReadOnly = false,
 }: CreditTermDtFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const amtDec = decimals[0]?.amtDec || 2
 

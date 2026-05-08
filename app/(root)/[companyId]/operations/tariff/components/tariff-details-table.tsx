@@ -1,9 +1,9 @@
 "use client"
 
-import { ITariffDt } from "@/interfaces/tariff"
-import { useAuthStore } from "@/stores/auth-store"
-import { ColumnDef } from "@tanstack/react-table"
+import { useCompanyStore } from "@/stores/company-store"
 
+import { ITariffDt } from "@/interfaces/tariff"
+import { ColumnDef } from "@tanstack/react-table"
 import { formatNumber } from "@/lib/format-utils"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -39,7 +39,7 @@ export function TariffDetailsTable({
   onCreateAction,
   createButtonText = "Add Detail",
 }: TariffDetailsTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
 
   // Define columns for the table

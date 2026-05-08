@@ -1,21 +1,17 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import * as React from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
-
 import { Spinner } from "@/components/ui/spinner"
 
 export function CompanyProvider({ children }: { children: React.ReactNode }) {
   const params = useParams()
   const router = useRouter()
-  const {
-    switchCompany,
-    getCurrentTabCompanyId,
-    companies,
-    isAuthenticated,
-    currentCompany,
-  } = useAuthStore()
+  const { switchCompany, getCurrentTabCompanyId, isAuthenticated } = useAuthStore()
+  const { companies, currentCompany } = useCompanyStore()
   const companyId = params.companyId as string
   const [isCompanySwitching, setIsCompanySwitching] = React.useState(false)
   const [hasSwitched, setHasSwitched] = React.useState(false)

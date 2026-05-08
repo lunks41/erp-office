@@ -1,14 +1,14 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo } from "react"
 import { IJobOrderHd, IOtherService } from "@/interfaces/checklist"
 import { IChargeLookup } from "@/interfaces/lookup"
 import { OtherServiceSchema, OtherServiceSchemaType } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
-
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
 import { Badge } from "@/components/ui/badge"
@@ -48,7 +48,7 @@ export function OtherServiceForm({
   isSubmitting = false,
   isConfirmed,
 }: OtherServiceFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 

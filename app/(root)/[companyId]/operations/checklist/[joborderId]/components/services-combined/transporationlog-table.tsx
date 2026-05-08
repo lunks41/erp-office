@@ -1,11 +1,11 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useMemo } from "react"
 import { ISerTransportationHd } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
-
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -44,7 +44,7 @@ export function TransportationLogTable({
   hideCreateButton = false,
   compactView = false,
 }: TransportationLogTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]

@@ -1,11 +1,11 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, { useMemo } from "react"
 import { IGLOpeningBalance } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import { GLTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -23,7 +23,7 @@ export default function YearEndProcessTable({
   onRefreshAction,
   onFilterChange,
 }: YearEndProcessTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const dateFormat = useMemo(

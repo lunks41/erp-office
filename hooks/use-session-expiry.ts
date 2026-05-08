@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
+import { jwtDecode, refreshToken } from "@/lib/auth-helpers"
 import { toast } from "sonner"
-
-import { refreshToken } from "@/lib/auth-helpers"
 
 const WARNING_SECONDS = 5 * 60 // show warning 5 minutes before expiry
 const CHECK_INTERVAL_MS = 10 * 1000 // check every 10 seconds
@@ -15,12 +14,9 @@ type ChannelMessage =
   | { type: "SIGN_OUT" }
 
 const getSecondsUntilExpiry = (token: string): number => {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]))
-    return Math.floor((payload.exp * 1000 - Date.now()) / 1000)
-  } catch {
-    return 0
-  }
+  const payload = jwtDecode(token)
+  if (!payload?.exp) return 0
+  return Math.floor((payload.exp * 1000 - Date.now()) / 1000)
 }
 
 export function useSessionExpiry() {
@@ -146,7 +142,18 @@ export function useSessionExpiry() {
 
     check() // immediate check on mount / token change
     const id = setInterval(check, CHECK_INTERVAL_MS)
-    return () => clearInterval(id)
+
+    // When a backgrounded tab becomes visible again the interval may have been
+    // throttled and skipped the warning window — run an immediate check.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") check()
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return () => {
+      clearInterval(id)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
   }, [isAuthenticated, token, doSignOut, broadcast])
 
   return {

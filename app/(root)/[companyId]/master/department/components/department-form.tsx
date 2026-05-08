@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IDepartment } from "@/interfaces/department"
 import { DepartmentSchemaType, departmentSchema } from "@/schemas/department"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
@@ -38,7 +38,7 @@ export function DepartmentForm({
   isReadOnly = false,
   onCodeBlur,
 }: DepartmentFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<DepartmentSchemaType>({

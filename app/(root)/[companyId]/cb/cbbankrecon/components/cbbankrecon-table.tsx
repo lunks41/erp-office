@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { ICbBankReconFilter, ICbBankReconHd } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
-
 import { CbBankRecon } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -16,6 +14,7 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
+import { useCompanyStore } from "@/stores/company-store"
 export interface BankReconTableProps {
   onBankReconSelect: (selectedBankRecon: ICbBankReconHd | undefined) => void
   onFilterChange: (filters: ICbBankReconFilter) => void
@@ -29,7 +28,7 @@ export default function BankReconTable({
   initialFilters,
   isDialogOpen = false,
 }: BankReconTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
 

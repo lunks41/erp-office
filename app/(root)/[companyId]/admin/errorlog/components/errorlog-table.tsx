@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { IErrorLog } from "@/interfaces/admin"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
@@ -27,7 +27,7 @@ export function ErrorLogTable({
   moduleId,
   transactionId,
 }: ErrorLogTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const today = useMemo(() => new Date(), [])
   const defaultStartDate = useMemo(

@@ -1,8 +1,9 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useMemo } from "react"
 import { IDocType } from "@/interfaces/lookup"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { FileText } from "lucide-react"
@@ -36,7 +37,7 @@ export default function DocumentOperationsManagerTable({
   onBulkSelectionChange,
   onBulkDeleteAction,
 }: DocumentOperationsManagerTableProps) {
-  const { decimals } = useAuthStore()
+  const decimals = useCompanyStore((state) => state.decimals)
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
 
   // Memoize columns to prevent re-creation on every render
@@ -68,8 +69,8 @@ export default function DocumentOperationsManagerTable({
             .documentNo
           return (
             <div className="flex items-start gap-2">
-              <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-              <span className="min-w-0 text-sm break-words whitespace-normal">
+              <FileText className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+              <span className="min-w-0 text-sm wrap-break-word whitespace-normal">
                 {docPath?.split("/").pop() || documentNo || "-"}
               </span>
             </div>
@@ -81,7 +82,7 @@ export default function DocumentOperationsManagerTable({
         header: "Remarks",
         size: 200,
         cell: ({ row }) => (
-          <div className="text-muted-foreground min-w-0 text-sm break-words whitespace-normal">
+          <div className="text-muted-foreground min-w-0 text-sm wrap-break-word whitespace-normal">
             {row.getValue("remarks") || "-"}
           </div>
         ),

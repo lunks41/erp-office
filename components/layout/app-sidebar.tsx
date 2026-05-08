@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -271,7 +273,9 @@ const getTransactionIcon = (transactionCode: string) => {
 
 // Hook to get user transactions (uses cached data from auth store)
 const useUserTransactions = () => {
-  const { currentCompany, user, getUserTransactions } = useAuthStore()
+  const user = useAuthStore((s) => s.user)
+  const getUserTransactions = useAuthStore((s) => s.getUserTransactions)
+  const currentCompany = useCompanyStore((s) => s.currentCompany)
   const [transactions, setTransactions] = React.useState<IUserTransaction[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -1037,7 +1041,7 @@ export const menuData: { mainNav: MainNavItem[] } = {
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { currentCompany } = useAuthStore()
+  const currentCompany = useCompanyStore((s) => s.currentCompany)
   const { transactions, isLoading: transactionsLoading } = useUserTransactions()
   const { state: sidebarState, isMobile } = useSidebar()
   const [openMenu, setOpenMenu] = React.useState<string | null>(null)
@@ -1385,7 +1389,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
                           />
                         )}
-                        <span>{group.title}</span>
+                        {!(sidebarState === "collapsed" && !isMobile) && (
+                          <span>{group.title}</span>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   ) : group.categories && group.categories.length > 0 ? (
@@ -1413,8 +1419,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
                               />
                             )}
-                            <span>{group.title}</span>
-                            <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            {!(sidebarState === "collapsed" && !isMobile) && (
+                              <span>{group.title}</span>
+                            )}
+                            {!(sidebarState === "collapsed" && !isMobile) && (
+                              <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            )}
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
@@ -1521,7 +1531,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                               className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
                             />
                           )}
-                          <span>{group.title}</span>
+                          {!(sidebarState === "collapsed" && !isMobile) && (
+                            <span>{group.title}</span>
+                          )}
                         </SidebarMenuButton>
                       </PopoverTrigger>
                       <PopoverContent
@@ -1590,8 +1602,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                 className={`h-4 w-4 shrink-0 ${getIconColor(group.url, group.title)}`}
                               />
                             )}
-                            <span>{group.title}</span>
-                            {group.items && (
+                            {!(sidebarState === "collapsed" && !isMobile) && (
+                              <span>{group.title}</span>
+                            )}
+                            {group.items &&
+                              !(sidebarState === "collapsed" && !isMobile) && (
                               <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                             )}
                           </SidebarMenuButton>

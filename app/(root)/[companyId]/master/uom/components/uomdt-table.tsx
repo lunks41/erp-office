@@ -1,10 +1,10 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { IUomDt } from "@/interfaces/uom"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
-
 import { TableName } from "@/lib/utils"
 import { MainTable } from "@/components/table/table-main"
 
@@ -55,7 +55,7 @@ export function UomDtTable({
   canEdit = true,
   canDelete = true,
 }: UomDtTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<IUomDt>[] = [

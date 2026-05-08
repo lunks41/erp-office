@@ -17,7 +17,7 @@ import {
 
 const checklistOverrideFormSchema = z.object({
   jobOrderId: z.number(),
-  jobStatusId: z.coerce.number().min(1, "Job status is required"),
+  jobStatusId: z.number().min(1, "Job status is required"),
 })
 
 type ChecklistOverrideFormValues = z.infer<typeof checklistOverrideFormSchema>
@@ -75,7 +75,7 @@ export function ChecklistOverrideFormDialog({
               {jobOrder?.jobOrderNo ?? "-"}
             </div>
             <JobStatusAutocomplete
-              form={form as ReturnType<typeof useForm<Record<string, unknown>>>}
+              form={form}
               name="jobStatusId"
               label="Job Status"
               isRequired

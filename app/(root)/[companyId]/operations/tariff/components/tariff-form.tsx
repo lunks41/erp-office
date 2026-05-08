@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, {
   forwardRef,
   useEffect,
@@ -10,7 +12,6 @@ import React, {
 import { IChargeLookup, ICustomerLookup } from "@/interfaces/lookup"
 import { ITariffDt, ITariffHd } from "@/interfaces/tariff"
 import { TariffHdSchemaType, tariffHdSchema } from "@/schemas/tariff"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -72,7 +73,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     },
     ref
   ) => {
-    const { decimals } = useAuthStore()
+    const { decimals } = useCompanyStore()
     const amtDec = decimals[0]?.amtDec || 2
     const exhRateDec = decimals[0]?.exhRateDec || 6
     const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"

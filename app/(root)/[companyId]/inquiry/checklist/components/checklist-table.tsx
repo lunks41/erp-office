@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { IJobOrderHd } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -30,7 +30,7 @@ export function InquiryTable({
   transactionId,
   onRefreshAction,
 }: InquiryTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { data: companies = [] } = useCompanyLookup()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -77,7 +77,7 @@ export function InquiryTable({
 
                 // Check current company ID before opening new tab
                 const currentCompanyId =
-                  useAuthStore.getState().currentCompany?.companyId
+                  useCompanyStore.getState().currentCompany?.companyId
                 const sessionStorageCompanyId =
                   sessionStorage.getItem("tab_company_id")
                 console.log("🔍 Company ID state before new tab:", {

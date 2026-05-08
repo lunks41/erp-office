@@ -2,7 +2,7 @@
 
 import { IFreight } from "@/interfaces/freight"
 import { FreightSchema, FreightSchemaType } from "@/schemas/freight"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useCallback, useEffect, useMemo } from "react"
@@ -43,7 +43,7 @@ export function FreightForm({
   isConfirmed,
   isEditMode = false,
 }: FreightFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,

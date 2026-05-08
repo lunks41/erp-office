@@ -3,7 +3,7 @@
 import { KeyboardEvent, useCallback, useMemo } from "react"
 import { useParams } from "next/navigation"
 import { IInvalidTransaction } from "@/interfaces/history"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -39,7 +39,7 @@ export function InvalidTransactionTable({
   const params = useParams()
   const companyId = params.companyId as string
   const routeCompanyId = companyId?.trim() || null
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { hasPermission } = usePermissionStore()
   const { data: companies = [] } = useCompanyLookup()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"

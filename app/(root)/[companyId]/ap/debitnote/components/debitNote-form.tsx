@@ -23,7 +23,7 @@ import {
 } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApDebitNoteDtSchemaType, ApDebitNoteHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { format, isValid, parse } from "date-fns"
 import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
@@ -45,7 +45,7 @@ import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
-import { DebitNoteDetailsFormRef } from "./debitnote-details-form"
+import { DebitNoteDetailsFormRef } from "./debitNote-details-form"
 
 interface DebitNoteFormProps {
   form: UseFormReturn<ApDebitNoteHdSchemaType>
@@ -68,7 +68,7 @@ export default function DebitNoteForm({
   defaultCurrencyId = 0,
   detailsFormRef,
 }: DebitNoteFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const ctyAmtDec = decimals[0]?.ctyAmtDec || 2

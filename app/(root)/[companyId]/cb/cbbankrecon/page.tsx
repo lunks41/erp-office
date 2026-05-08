@@ -10,6 +10,7 @@ import {
   CbBankReconHdSchemaType,
 } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { ZodIssue } from "zod"
 import { format, subMonths } from "date-fns"
@@ -62,7 +63,8 @@ import Main from "./components/main-tab"
 export default function BankReconPage() {
   const params = useParams()
   const companyId = params.companyId as string
-  const { decimals, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const moduleId = ModuleId.cb
   const transactionId = CBTransactionId.cbbankrecon
 

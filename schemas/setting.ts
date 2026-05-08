@@ -1,42 +1,12 @@
 import * as z from "zod"
 
 export const decimalFormSchema = z.object({
-  amtDec: z
-    .number({
-      required_error: "Amount Decimals is required",
-    })
-    .min(0, "Amount Decimals must be between 0 and 4")
-    .max(4, "Amount Decimals must be between 0 and 4"),
-  locAmtDec: z
-    .number({
-      required_error: "Local Amount Decimals is required",
-    })
-    .min(0, "Local Amount Decimals must be between 0 and 4")
-    .max(4, "Local Amount Decimals must be between 0 and 4"),
-  ctyAmtDec: z
-    .number({
-      required_error: "Currency Amount Decimals is required",
-    })
-    .min(0, "Currency Amount Decimals must be between 0 and 4")
-    .max(4, "Currency Amount Decimals must be between 0 and 4"),
-  priceDec: z
-    .number({
-      required_error: "Price Decimals is required",
-    })
-    .min(0, "Price Decimals must be between 0 and 10")
-    .max(10, "Price Decimals must be between 0 and 10"),
-  qtyDec: z
-    .number({
-      required_error: "Quantity Decimals is required",
-    })
-    .min(0, "Quantity Decimals must be between 0 and 4")
-    .max(4, "Quantity Decimals must be between 0 and 4"),
-  exhRateDec: z
-    .number({
-      required_error: "Exchange Rate Decimals is required",
-    })
-    .min(0, "Exchange Rate Decimals must be between 0 and 10")
-    .max(10, "Exchange Rate Decimals must be between 0 and 10"),
+  amtDec: z.number().min(0, "Amount Decimals must be between 0 and 4").max(4, "Amount Decimals must be between 0 and 4"),
+  locAmtDec: z.number().min(0, "Local Amount Decimals must be between 0 and 4").max(4, "Local Amount Decimals must be between 0 and 4"),
+  ctyAmtDec: z.number().min(0, "Currency Amount Decimals must be between 0 and 4").max(4, "Currency Amount Decimals must be between 0 and 4"),
+  priceDec: z.number().min(0, "Price Decimals must be between 0 and 10").max(10, "Price Decimals must be between 0 and 10"),
+  qtyDec: z.number().min(0, "Quantity Decimals must be between 0 and 4").max(4, "Quantity Decimals must be between 0 and 4"),
+  exhRateDec: z.number().min(0, "Exchange Rate Decimals must be between 0 and 10").max(10, "Exchange Rate Decimals must be between 0 and 10"),
   dateFormat: z.string().min(1, "Date Format is required"),
   longDateFormat: z.string().min(1, "Long Date Format is required"),
 })

@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IGlTransactionDetails } from "@/interfaces/history"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { z } from "zod"
 
 import { formatDateForApi } from "@/lib/date-utils"
@@ -21,7 +22,10 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import ChartOfAccountMultiSelect from "@/components/multiselection-chartofaccountv1"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 import { BasicTable } from "@/components/table/table-basic"
-import { ExtendedColumnDef } from "@/components/table/table-types"
+
+type ExtendedColumnDef<T> = ColumnDef<T> & {
+  hidden?: boolean
+}
 
 // Schema for filter form
 const filterSchema = z.object({
@@ -40,7 +44,7 @@ export default function GlTransactionInquiryPage() {
 
   const { hasPermission } = usePermissionStore()
   const canView = hasPermission(moduleId, transactionId, "isRead")
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
 
   const [hasSearched, setHasSearched] = useState(false)
@@ -148,7 +152,7 @@ export default function GlTransactionInquiryPage() {
       {
         accessorKey: "accountDate",
         header: "Account Date",
-        cell: ({ row }) => {
+        cell: ({ row }: CellContext<IGlTransactionDetails, unknown>) => {
           const date = row.original.accountDate
             ? new Date(row.original.accountDate)
             : null
@@ -166,7 +170,7 @@ export default function GlTransactionInquiryPage() {
       {
         accessorKey: "isDebit",
         header: "Type",
-        cell: ({ row }) => (
+        cell: ({ row }: CellContext<IGlTransactionDetails, unknown>) => (
           <Badge variant={row.original.isDebit ? "default" : "secondary"}>
             {row.original.isDebit ? "Debit" : "Credit"}
           </Badge>
@@ -175,7 +179,7 @@ export default function GlTransactionInquiryPage() {
       {
         accessorKey: "totAmt",
         header: "Amount",
-        cell: ({ row }) => {
+        cell: ({ row }: CellContext<IGlTransactionDetails, unknown>) => {
           const amount = row.original.totAmt || 0
           return amount.toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -186,7 +190,7 @@ export default function GlTransactionInquiryPage() {
       {
         accessorKey: "totLocalAmt",
         header: "Local Amount",
-        cell: ({ row }) => {
+        cell: ({ row }: CellContext<IGlTransactionDetails, unknown>) => {
           const amount = row.original.totLocalAmt || 0
           return amount.toLocaleString(undefined, {
             minimumFractionDigits: 2,
@@ -201,7 +205,7 @@ export default function GlTransactionInquiryPage() {
       {
         accessorKey: "exhRate",
         header: "Exchange Rate",
-        cell: ({ row }) => {
+        cell: ({ row }: CellContext<IGlTransactionDetails, unknown>) => {
           const rate = row.original.exhRate || 0
           return rate.toLocaleString(undefined, {
             minimumFractionDigits: 6,
@@ -224,7 +228,7 @@ export default function GlTransactionInquiryPage() {
       {
         accessorKey: "createDate",
         header: "Created Date",
-        cell: ({ row }) => {
+        cell: ({ row }: CellContext<IGlTransactionDetails, unknown>) => {
           const date = row.original.createDate
             ? new Date(row.original.createDate)
             : null

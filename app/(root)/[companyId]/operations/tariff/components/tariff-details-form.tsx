@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, { useState } from "react"
 import { ITariffDt } from "@/interfaces/tariff"
 import {
@@ -7,7 +9,6 @@ import {
   TariffHdSchemaType,
   tariffDtSchema,
 } from "@/schemas/tariff"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HelpCircle, XIcon } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
@@ -42,7 +43,7 @@ export function TariffDetailsForm({
   exhRate,
   uomCode,
 }: TariffDetailsFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)

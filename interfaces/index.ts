@@ -6,7 +6,6 @@ export * from "./accountsetup"
 export * from "./accounttype"
 // Excluded to avoid IUser duplicate with auth.ts
 // export * from "./admin"
-export * from "./approval"
 export * from "./attendance"
 export * from "./auth"
 export * from "./bank"

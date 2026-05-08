@@ -1,15 +1,15 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useRef } from "react"
 import { calculateMultiplierAmount } from "@/helpers/account"
 import { IDebitNoteDt, IDebitNoteHd, IJobOrderHd } from "@/interfaces/checklist"
 import { IChargeLookup, IGstLookup } from "@/interfaces/lookup"
 import { DebitNoteDtSchemaType, debitNoteDtSchema } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
-
 import { getData } from "@/lib/api-client"
 import { BasicSetting } from "@/lib/api-routes"
 import { parseDate } from "@/lib/date-utils"
@@ -71,7 +71,7 @@ export default function DebitNoteForm({
   shouldResetForm = false,
   jobData,
 }: DebitNoteFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   // Store callback in ref to avoid dependency issues
   const onServiceChargeUpdateRef = useRef(onServiceChargeUpdate)

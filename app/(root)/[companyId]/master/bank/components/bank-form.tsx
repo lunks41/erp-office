@@ -1,13 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IBank } from "@/interfaces/bank"
 import { bankSchema } from "@/schemas/bank"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-
 import { Form } from "@/components/ui/form"
 import {
   ChartOfAccountAutocomplete,
@@ -31,7 +31,7 @@ export default function BankForm({
   onBankLookup,
   companyId,
 }: BankFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<z.infer<typeof bankSchema>>({

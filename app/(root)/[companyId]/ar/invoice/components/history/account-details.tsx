@@ -1,8 +1,8 @@
 "use client"
 
-import { useAuthStore } from "@/stores/auth-store"
-import { format, isValid, parse } from "date-fns"
+import { useCompanyStore } from "@/stores/company-store"
 
+import { format, isValid, parse } from "date-fns"
 import { parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import { Card, CardContent } from "@/components/ui/card"
@@ -32,7 +32,7 @@ export default function AccountDetails({
   paymentAmt,
   paymentBaseAmt,
 }: AccountDetailsProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"

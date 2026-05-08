@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { IUomDt } from "@/interfaces/uom"
 import { UomDtSchemaType, uomDtSchema } from "@/schemas/uom"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -35,12 +35,12 @@ interface UomDtFormProps {
 export function UomDtForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
 }: UomDtFormProps) {
   console.log("initialData", initialData)
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const qtyDec = decimals[0]?.qtyDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
@@ -176,7 +176,7 @@ export function UomDtForm({
                 Cancel
               </Button>
               <Button type="submit" disabled={_isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                {_isSubmitting ? "Saving..." : "Save"}
               </Button>
             </div>
           )}

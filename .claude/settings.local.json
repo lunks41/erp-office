@@ -16,7 +16,9 @@
       "Read(styles/**)",
       "Read(types/**)",
       "Read(utils/**)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Proj\\\\ERP\\\\ERP\\\\app\\\\\" -Recurse -Filter \"*services-tabs*\" -Directory | Select-Object FullName)",
+      "Bash(node -e ' *)"
     ]
   }
 }

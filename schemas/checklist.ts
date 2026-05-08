@@ -619,6 +619,19 @@ export const EquipmentUsedSchema = z.object({
   gear: z.number().optional(),
   bargeId: z.number().optional(),
   ameTally: z.string().optional(),
+  // Legacy summary line fields retained for compatibility with old screens/helpers.
+  loadingRefNo: z.string().optional(),
+  craneloading: z.number().optional(),
+  forkliftloading: z.number().optional(),
+  stevedoreloading: z.number().optional(),
+  offloadingRefNo: z.string().optional(),
+  craneOffloading: z.number().optional(),
+  forkliftOffloading: z.number().optional(),
+  stevedoreOffloading: z.number().optional(),
+  /** UI-only section toggle for loading lines. */
+  isLoading: z.boolean().optional(),
+  /** UI-only section toggle for offloading lines. */
+  isOffloading: z.boolean().optional(),
   /** Line items for `Ser_EquipmentUsedDt`. */
   details: z.array(EquipmentUsedDetailSchema).optional(),
   remarks: z

@@ -1,12 +1,12 @@
-// main-tab.tsx - GL Year End Process
 "use client"
+
+import { useCompanyStore } from "@/stores/company-store"
+// main-tab.tsx - GL Year End Process
 
 import React, { useEffect, useRef, useState } from "react"
 import { IGLOpeningBalance } from "@/interfaces"
 import { GLYearEndProcessRequestSchemaType } from "@/schemas/gl-yearendprocess"
-import { useAuthStore } from "@/stores/auth-store"
 import { AlertTriangle } from "lucide-react"
-
 import YearEndProcessForm, {
   YearEndProcessFormRef,
 } from "./yearendprocess-form"
@@ -37,7 +37,7 @@ export default function Main({
   onTotalsChange,
   formRef,
 }: MainProps) {
-  const { decimals: _decimals } = useAuthStore()
+  const { decimals: _decimals } = useCompanyStore()
 
   const [dataDetails, setDataDetails] = useState<IGLOpeningBalance[]>([])
   const internalFormRef = useRef<YearEndProcessFormRef>(null)

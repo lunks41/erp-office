@@ -1,20 +1,22 @@
-// main-tab.tsx - IMPROVED VERSION
 "use client"
+
+// main-tab.tsx - IMPROVED VERSION
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { recalculateAndSetHeaderTotals } from "@/helpers/ap-debitnote-calculations"
 import { IApDebitNoteDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApDebitNoteDtSchemaType, ApDebitNoteHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { UseFormReturn } from "react-hook-form"
-
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { DeleteConfirmation } from "@/components/confirmation"
 
-import DebitNoteDetailsForm from "./debitnote-details-form"
+import DebitNoteDetailsForm, {
+  DebitNoteDetailsFormRef,
+} from "./debitNote-details-form"
 import DebitNoteDetailsTable from "./debitnote-details-table"
-import DebitNoteForm from "./debitnote-form"
+import DebitNoteForm from "./debitNote-form"
 
 interface MainProps {
   form: UseFormReturn<ApDebitNoteHdSchemaType>
@@ -35,7 +37,7 @@ export default function Main({
   companyId,
   isCancelled = false,
 }: MainProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   // Get user settings with defaults for all modules
   const { defaults } = useUserSettingDefaults()

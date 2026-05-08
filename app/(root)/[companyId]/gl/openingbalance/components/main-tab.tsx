@@ -1,12 +1,12 @@
-// main-tab.tsx - GL Opening Balance
 "use client"
+
+import { useCompanyStore } from "@/stores/company-store"
+// main-tab.tsx - GL Opening Balance
 
 import { useEffect, useRef, useState } from "react"
 import { IGLOpeningBalance } from "@/interfaces"
 import { GLOpeningBalanceSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { UseFormReturn } from "react-hook-form"
-
 import { GLOpeningBalance } from "@/lib/api-routes"
 import { useGetById } from "@/hooks/use-common"
 import { DeleteConfirmation } from "@/components/confirmation"
@@ -38,7 +38,7 @@ export default function Main({
   isCancelled = false,
   onTotalsChange,
 }: MainProps) {
-  const { decimals: _decimals } = useAuthStore()
+  const { decimals: _decimals } = useCompanyStore()
 
   const [dataDetails, setDataDetails] = useState<IGLOpeningBalance[]>([])
   const [editingDetail, setEditingDetail] =

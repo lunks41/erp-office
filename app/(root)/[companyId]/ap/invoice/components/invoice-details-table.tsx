@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react"
 import { IApInvoiceDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
-
 import { formatNumber } from "@/lib/format-utils"
 import { APTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { AccountBaseTable } from "@/components/table/table-account"
 
 // Use flexible data type that can work with form data
+import { useCompanyStore } from "@/stores/company-store"
 interface InvoiceDetailsTableProps {
   data: IApInvoiceDt[]
   onDeleteAction?: (itemNo: number) => void
@@ -41,7 +40,7 @@ export default function InvoiceDetailsTable({
   rowHeight = 36,
 }: InvoiceDetailsTableProps) {
   const [mounted, setMounted] = useState(false)
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
 

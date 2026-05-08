@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo } from "react"
 import { ICurrencyLocalDt } from "@/interfaces/currency"
 import {
   CurrencyLocalDtSchemaType,
   currencyLocalDtSchema,
 } from "@/schemas/currency"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -21,6 +22,7 @@ import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { CurrencyAutocomplete } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import { format } from "date-fns"
 
 interface CurrencyLocalDtFormProps {
   initialData?: ICurrencyLocalDt | null
@@ -37,7 +39,7 @@ export function CurrencyLocalDtForm({
   isSubmitting = false,
   isReadOnly = false,
 }: CurrencyLocalDtFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
@@ -145,3 +147,4 @@ export function CurrencyLocalDtForm({
     </div>
   )
 }
+

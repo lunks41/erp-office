@@ -12,6 +12,7 @@ import {
   SerTransportationHdSchemaType,
 } from "@/schemas/checklist"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -54,7 +55,8 @@ export function TransportationLogForm({
   isSubmitting = false,
   isConfirmed,
 }: TransportationLogFormProps) {
-  const { decimals, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   const getServiceItemNoString = useCallback(
     (data?: ISerTransportationHd) => {

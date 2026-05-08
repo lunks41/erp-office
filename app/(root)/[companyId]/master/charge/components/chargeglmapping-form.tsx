@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IChargeGLMapping } from "@/interfaces/chargeglmapping"
 import { IChargeLookup, IChartOfAccountLookup } from "@/interfaces/lookup"
@@ -7,7 +9,6 @@ import {
   ChargeGLMappingSchemaType,
   chargeGLMappingSchema,
 } from "@/schemas/chargeglmapping"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -44,7 +45,7 @@ export function ChargeGLMappingForm({
   isReadOnly = false,
   companyId,
 }: ChargeGLMappingFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   // Fetch lookup data for populating code/name fields

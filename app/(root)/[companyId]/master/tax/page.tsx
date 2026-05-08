@@ -89,6 +89,8 @@ export default function TaxPage() {
 
   // State for filters
   const [filters, setFilters] = useState<ITaxFilter>({})
+  const [dtFilters, setDtFilters] = useState<ITaxFilter>({})
+  const [categoryFilters, setCategoryFilters] = useState<ITaxCategoryFilter>({})
 
     const [activeTab, setActiveTab] = useState("taxs")
 
@@ -168,8 +170,33 @@ export default function TaxPage() {
     []
   )
 
-  const [dtFilters, setDtFilters] = useState<ITaxFilter>({})
-  const [categoryFilters, setCategoryFilters] = useState<ITaxCategoryFilter>({})
+  const handleFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = taxSearchInput.trim() || undefined
+    handleFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [taxSearchInput, handleFilterChange, filters.sortOrder])
+
+  const handleDtFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = taxDtSearchInput.trim() || undefined
+    handleDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: dtFilters.sortOrder,
+    })
+  }, [taxDtSearchInput, handleDtFilterChange, dtFilters.sortOrder])
+
+  const handleCategoryFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = taxCategorySearchInput.trim() || undefined
+    handleCategoryFilterChange({
+      search: normalizedSearch,
+      sortOrder: categoryFilters.sortOrder,
+    })
+  }, [
+    taxCategorySearchInput,
+    handleCategoryFilterChange,
+    categoryFilters.sortOrder,
+  ])
 
   // Data fetching
   const {

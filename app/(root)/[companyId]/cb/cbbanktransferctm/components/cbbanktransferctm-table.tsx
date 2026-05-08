@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
 import { ICbBankTransferCtmFilter, ICbBankTransferCtmHd } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
-
 import { CbBankTransferCtm } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -16,6 +14,7 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
+import { useCompanyStore } from "@/stores/company-store"
 export interface CbBankTransferCtmTableProps {
   onCbBankTransferCtmSelect: (
     selectedBankTransferCtm: ICbBankTransferCtmHd | undefined
@@ -37,7 +36,7 @@ export default function CbBankTransferCtmTable({
   visible: _visible,
   isDialogOpen = false,
 }: CbBankTransferCtmTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6

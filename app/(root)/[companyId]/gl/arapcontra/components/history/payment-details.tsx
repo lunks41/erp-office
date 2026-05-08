@@ -1,7 +1,6 @@
 import {
   ApiResponse } from "@/interfaces/auth"
 import { IPaymentDetails } from "@/interfaces/history"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -21,12 +20,13 @@ import {
 } from "@/components/table/history-embedded-presets"
 
 
+import { useCompanyStore } from "@/stores/company-store"
 interface PaymentDetailsProps {
   contraId: string
 }
 
 export default function PaymentDetails({ contraId }: PaymentDetailsProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const dateFormat = decimals[0]?.dateFormat || clientDateFormat

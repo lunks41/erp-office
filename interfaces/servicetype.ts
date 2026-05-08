@@ -20,6 +20,7 @@ export interface IServiceTypeFilter {
   isActive?: boolean
   search?: string
   sortService?: "asc" | "desc"
+  sortOrder?: string
 }
 
 export interface IServiceTypeCategory {
@@ -39,4 +40,5 @@ export interface IServiceTypeCategory {
 export interface IServiceTypeCategoryFilter {
   search?: string
   sortService?: "asc" | "desc"
+  sortOrder?: string
 }

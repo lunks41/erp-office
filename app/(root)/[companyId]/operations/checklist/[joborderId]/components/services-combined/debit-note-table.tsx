@@ -1,11 +1,11 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useMemo } from "react"
 import { IDebitNoteDt } from "@/interfaces/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
-
 import { formatNumber } from "@/lib/format-utils"
 import { TableName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -44,7 +44,7 @@ export function DebitNoteTable({
   transactionId,
   isConfirmed,
 }: DebitNoteTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
 
   // Define columns for the debit note table

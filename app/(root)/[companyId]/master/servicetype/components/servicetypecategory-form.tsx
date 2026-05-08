@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo } from "react"
 import { IServiceTypeCategory } from "@/interfaces/servicetype"
 import {
   ServiceTypeCategorySchemaType,
   serviceTypeCategorySchema,
 } from "@/schemas/servicetype"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -28,12 +29,12 @@ interface ServiceTypeCategoryFormProps {
 export function ServiceTypeCategoryForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: ServiceTypeCategoryFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const defaultValues = useMemo(
     () => ({

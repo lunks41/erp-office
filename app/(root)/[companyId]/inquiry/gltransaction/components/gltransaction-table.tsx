@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { IGlTransactionDetails } from "@/interfaces/history"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -31,7 +31,7 @@ export function GlTransactionTable({
   transactionId = GLTransactionId.journalentry,
   onRefreshAction,
 }: GlTransactionTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { data: companies = [] } = useCompanyLookup()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const amtDec = decimals[0]?.amtDec || 2

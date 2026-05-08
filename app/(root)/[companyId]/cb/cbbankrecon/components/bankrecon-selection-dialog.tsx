@@ -1,13 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useState } from "react"
 import { ICbBankReconHd } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
 import { Search } from "lucide-react"
-
 import { CbBankRecon } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -41,7 +41,7 @@ export default function BankReconSelectionDialog({
   currencyId,
   companyId: _companyId,
 }: BankReconSelectionDialogProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
 
   const moduleId = ModuleId.cb

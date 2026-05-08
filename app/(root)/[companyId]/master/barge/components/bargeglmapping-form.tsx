@@ -1,13 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IBargeGLMapping } from "@/interfaces"
 import { IBargeLookup, IChartOfAccountLookup } from "@/interfaces/lookup"
 import { BargeGLMappingSchemaType, bargeGLMappingSchema } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import { useBargeLookup, useChartOfAccountLookup } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -41,7 +41,7 @@ export function BargeGLMappingForm({
   isReadOnly = false,
   companyId,
 }: BargeGLMappingFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   // Fetch lookup data for populating code/name fields

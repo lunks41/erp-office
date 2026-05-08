@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IVessel } from "@/interfaces/vessel"
 import { VesselSchemaType, vesselSchema } from "@/schemas/vessel"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
@@ -48,7 +48,7 @@ export function VesselForm({
   isReadOnly = false,
   onCodeBlur,
 }: VesselFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<VesselSchemaType>({

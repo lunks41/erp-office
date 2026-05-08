@@ -1,14 +1,14 @@
-// main-tab.tsx - IMPROVED VERSION
 "use client"
+
+import { useCompanyStore } from "@/stores/company-store"
+// main-tab.tsx - IMPROVED VERSION
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { recalculateAndSetHeaderTotals } from "@/helpers/gl-journal-calculations"
 import { IGLJournalDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { GLJournalDtSchemaType, GLJournalHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { UseFormReturn } from "react-hook-form"
-
 import { useUserSettingDefaults } from "@/hooks/use-settings"
 import { DeleteConfirmation } from "@/components/confirmation"
 
@@ -37,7 +37,7 @@ export default function Main({
   companyId,
   isCancelled = false,
 }: MainProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   // Get user settings with defaults for all modules
   const { defaults } = useUserSettingDefaults()

@@ -1,7 +1,8 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { IAccountSetupDt } from "@/interfaces/accountsetup"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -61,7 +62,7 @@ export function AccountSetupDtTable({
   canCreate = true,
 }: AccountSetupDtTableProps) {
   console.log("data", data)
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   console.log("Permission details", canCreate, canDelete, canEdit, canView)

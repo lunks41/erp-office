@@ -31,6 +31,124 @@ export interface ChangelogVersion {
  */
 export const changelog: ChangelogVersion[] = [
   {
+    version: "1.5.34",
+    date: "2026-05-07",
+    changes: [
+      {
+        type: "fixed",
+        text: "Hardened company switch flow for startup race conditions: when switch is triggered before company list hydration, company-store now auto-fetches companies and exits safely instead of throwing runtime errors",
+      },
+      {
+        type: "fixed",
+        text: "Company switching now recovers from stale persisted tab company IDs by falling back to the first available company instead of throwing `Company with ID ... not found` runtime errors",
+      },
+      {
+        type: "fixed",
+        text: "Resolved top navigation hydration mismatch by deferring NavHeader menu render until client mount, preventing SSR/client permission-state divergence in NavigationMenu items",
+      },
+      {
+        type: "fixed",
+        text: "Proxy route secure header forwarding now omits `X-Company-Id` when empty, preventing `/admin/getusercompany` 400 validation failures on company-select before a company is chosen",
+      },
+      {
+        type: "fixed",
+        text: "Final build warning cleanup removed unused company-store imports from checklist details variants and documented the react-pdf logo image a11y lint suppression to keep production build output clean",
+      },
+      {
+        type: "improved",
+        text: "Completed remaining store migration in app screens by moving all `decimals/currentCompany/companies` consumers from auth-store to company-store (AR/AP/CB/GL, inquiry, admin, checklist, logistics, and company landing) while preserving auth-store for user/session-only reads",
+      },
+      {
+        type: "fixed",
+        text: "Post-migration cleanup removed obsolete auth-store imports in migrated files and validated zero remaining company-context destructures from `useAuthStore` with clean workspace typecheck/lint results",
+      },
+      {
+        type: "fixed",
+        text: "Parallel stabilization pass resolved remaining compile blockers across HR payrun payslip image props, GST/Tax master search-submit handlers, ServiceType filter sortOrder typing, and Inquiry AP/AR/GL visible/table typings",
+      },
+      {
+        type: "fixed",
+        text: "Shared utility/component type issues were corrected (transaction autocomplete numeric moduleId normalization and duplicate object keys in date picker class maps), bringing the workspace back to clean TypeScript compilation",
+      },
+      {
+        type: "fixed",
+        text: "Removed stale `./approval` barrel export from interfaces index to match current interface module set and clear missing-module compile failure",
+      },
+      {
+        type: "fixed",
+        text: "Setting schema decimal validators were updated to remove unsupported Zod `required_error` number options, restoring compatibility with current Zod typings",
+      },
+      {
+        type: "fixed",
+        text: "Equipment Used legacy compatibility fields (`loadingRefNo`, loading/offloading crane-forklift-stevedore summaries) were restored as optional in interfaces and schema to unblock older tab/helper flows while detail-line model remains active",
+      },
+      {
+        type: "fixed",
+        text: "Checklist Transportation save payload now guarantees `serviceItemNoName` in `data_details` rows, preventing SerTransportation detail type violations during submit/update flows",
+      },
+      {
+        type: "fixed",
+        text: "Equipment Used form/schema typing was aligned by introducing optional UI section toggles (`isLoading`/`isOffloading`) in schema and tightening RHF resolver typing to remove form generic mismatch compile errors",
+      },
+      {
+        type: "fixed",
+        text: "Master form components now consistently alias destructured props from onCancelAction/isSubmitting to internal underscore variables, removing TS2339 regressions introduced by prop rename mismatches; related missing date-fns `format` imports were restored in affected detail forms",
+      },
+      {
+        type: "fixed",
+        text: "Master forms type-safety cleanup: Charge form resolver typing was aligned with schema output and duplicate checkbox wrapper markup was removed to restore stable compile-time form typing",
+      },
+      {
+        type: "fixed",
+        text: "Account Setup and Account Setup Detail forms now map destructured props to existing interface names (onCancelAction/isSubmitting), and Currency Detail form now imports date-fns `format` used for validFrom defaults/resets",
+      },
+      {
+        type: "fixed",
+        text: "Next document delete/serve catch-all API routes were updated to Next.js App Router context typing (`params` Promise) to remove route handler type validation failures",
+      },
+      {
+        type: "fixed",
+        text: "Operations reports page no longer declares server-style `params` props in a client component, and AP Debit Note component imports were aligned to consistent file casing to avoid duplicate-file typecheck conflicts",
+      },
+      {
+        type: "fixed",
+        text: "AR Overview page duplicate content block was removed to restore a single valid module implementation and eliminate duplicate identifier/runtime compilation failures",
+      },
+      {
+        type: "improved",
+        text: "Safe company-context consumers in custom date inputs, loan hook company selection, and AP/AR/CB/GL plus operations report views now read company fields (currentCompany/companies/decimals) from company-store instead of auth-store with unchanged behavior",
+      },
+      {
+        type: "improved",
+        text: "Low-risk overview/read-only consumers now read decimal formatting settings from company-store instead of auth-store (employee overview/forms, AP/AR outstanding tables, and document manager tables) while preserving existing output formatting",
+      },
+      {
+        type: "improved",
+        text: "AR/AP/CB/GL Overview pages were rebuilt to use live module API routes for date-range driven data, replacing static mock blocks with real transactional summaries",
+      },
+      {
+        type: "improved",
+        text: "Overview data loading now calls dedicated proxy endpoints for each module (`/ar/*`, `/ap/*`, `/gl/*`, `/cb/*`) including KPI, chart sources, and today/week transaction feeds",
+      },
+      {
+        type: "improved",
+        text: "Overview dashboards now include chart-style visual bars for top entities and period distributions using shadcn card layouts for consistent ERP theming",
+      },
+      {
+        type: "improved",
+        text: "A reusable TanStack-based overview data table component was introduced and wired into all four overview modules (AR/AP/CB/GL) with tab-based filtering",
+      },
+      {
+        type: "added",
+        text: "New module dashboard Zustand stores were added (useArDashboardStore/useApDashboardStore/useCbDashboardStore/useGlDashboardStore) with reusable layout state factory support for widget visibility, position updates, and company-scoped local layout persistence",
+      },
+      {
+        type: "improved",
+        text: "State architecture was split toward reference parity by introducing dedicated company-store and session-store modules, with auth-store delegating company/decimal/permission and session queue/analytics workflows to these focused stores while preserving backward compatibility",
+      },
+    ],
+  },
+  {
     version: "1.5.32",
     date: "2026-05-07",
     changes: [
@@ -53,6 +171,14 @@ export const changelog: ChangelogVersion[] = [
       {
         type: "fixed",
         text: "Changelog side panel now wraps long entry text/identifiers within card width (no overflow clipping) for improved readability on narrower screens",
+      },
+      {
+        type: "improved",
+        text: "Global design tokens in app/globals.css were refreshed to a modern ERP accounting theme for both light and dark modes, with warm neutral surfaces, cleaner contrast, and consistent sidebar/semantic color harmony",
+      },
+      {
+        type: "fixed",
+        text: "Sidebar collapsed icon mode now hides top-level menu labels (including Master) and chevrons, preventing text from appearing when the sidebar is collapsed",
       },
       {
         type: "fixed",

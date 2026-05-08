@@ -1,5 +1,6 @@
-// components/providers.tsx
 "use client"
+
+// components/providers.tsx
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ThemeProvider, ThemeProviderProps } from "next-themes"

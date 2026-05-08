@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import * as React from "react"
 import { calculateMultiplierAmount, setExchangeRate } from "@/helpers/account"
 import {
@@ -9,7 +11,6 @@ import {
 } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { GLContraDtSchemaType, GLContraHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { format } from "date-fns"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 
@@ -49,7 +50,7 @@ export default function ContraForm({
   isCancelled = false,
   dataDetails = [],
 }: ContraFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 6

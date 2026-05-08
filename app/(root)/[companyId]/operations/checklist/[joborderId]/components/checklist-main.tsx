@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
@@ -13,7 +15,6 @@ import {
 } from "@/interfaces/lookup"
 import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
 import { JobOrderHdSchema, JobOrderHdSchemaType } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -70,7 +71,7 @@ export function ChecklistMain({
 }: ChecklistMainProps) {
   const params = useParams()
   const companyId = params?.companyId as string | undefined
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
 
   const handleInvoiceNoDoubleClick = useCallback(() => {

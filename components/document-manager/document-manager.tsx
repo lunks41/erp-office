@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { IDocType, IDocument, IDocumentTypeLookup } from "@/interfaces/lookup"
-import { useAuthStore } from "@/stores/auth-store"
 import { useQueryClient } from "@tanstack/react-query"
 import {
   Download,
@@ -80,7 +79,6 @@ export default function DocumentManager({
   defaultDocTypeKeyword,
   defaultRemarks,
 }: DocumentManagerProps) {
-  const { decimals: _decimals } = useAuthStore()
   const form = useForm()
   const queryClient = useQueryClient()
 
@@ -691,7 +689,7 @@ export default function DocumentManager({
                           className="rounded-lg border border-gray-200 p-3"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0">
+                            <div className="shrink-0">
                               <div className="flex h-8 w-8 items-center justify-center rounded-full">
                                 <FileText className="h-4 w-4" />
                               </div>
@@ -875,7 +873,7 @@ export default function DocumentManager({
           setPreviewUrl("")
         }}
       >
-        <DialogContent className="h-[90vh] w-[90vw] !max-w-none">
+        <DialogContent className="h-[90vh] w-[90vw] max-w-none!">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>Document Preview</span>

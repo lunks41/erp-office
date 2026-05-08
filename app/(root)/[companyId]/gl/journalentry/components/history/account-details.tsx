@@ -1,8 +1,8 @@
 "use client"
 
-import { useAuthStore } from "@/stores/auth-store"
-import { format, parse, isValid } from "date-fns"
+import { useCompanyStore } from "@/stores/company-store"
 
+import { format, parse, isValid } from "date-fns"
 import { parseDate } from "@/lib/date-utils"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,7 +25,7 @@ export default function AccountDetails({
   cancelBy,
   cancelDate,
 }: AccountDetailsProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const safeFormatDate = (

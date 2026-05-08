@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useAuthStore } from "@/stores/auth-store"
+import { useSessionStore } from "@/stores/session-store"
 
 const FOOTER_SHOW_THRESHOLD_SECONDS = 10 * 60 // show footer countdown when ≤ 10 min
 const URGENT_THRESHOLD_SECONDS = 5 * 60 // red when < 5 min
@@ -32,7 +33,8 @@ const formatDuration = (ms: number): string => {
 }
 
 export function useSessionCountdown() {
-  const { token, isAuthenticated, sessionAnalytics } = useAuthStore()
+  const { token, isAuthenticated } = useAuthStore()
+  const { sessionAnalytics } = useSessionStore()
   const [secondsRemaining, setSecondsRemaining] = useState<number>(-1)
   const [sessionDurationMs, setSessionDurationMs] = useState<number>(0)
 

@@ -1,9 +1,10 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useRef, useState } from "react"
 import { IArOutTransaction } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse } from "date-fns"
 import { RefreshCw } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -60,7 +61,7 @@ export default function ArOutStandingTransactionsDialog({
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>([])
   const [tableKey, setTableKey] = useState(0)
 
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const dateFormat = decimals[0]?.dateFormat || clientDateFormat
@@ -330,7 +331,7 @@ export default function ArOutStandingTransactionsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className="flex h-[80vh] w-[80vw] !max-w-none flex-col rounded-lg">
+      <DialogContent className="flex h-[80vh] w-[80vw] max-w-none! flex-col rounded-lg">
         <DialogHeader>
           <DialogTitle>AR Transaction List</DialogTitle>
           <DialogDescription>

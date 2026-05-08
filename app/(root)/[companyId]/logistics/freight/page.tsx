@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { ApiResponse } from "@/interfaces/auth"
 import { IFreight } from "@/interfaces/freight"
 import { FreightSchemaType } from "@/schemas/freight"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { Eraser, Search } from "lucide-react"
@@ -38,7 +38,7 @@ export default function FreightManagementPage() {
 
   const _queryClient = useQueryClient()
   const { hasPermission } = usePermissionStore()
-  const { decimals: _decimals } = useAuthStore()
+  const { decimals: _decimals } = useCompanyStore()
 
   const _canView = hasPermission(moduleId, transactionId, "isRead")
   const _canEdit = hasPermission(moduleId, transactionId, "isEdit")

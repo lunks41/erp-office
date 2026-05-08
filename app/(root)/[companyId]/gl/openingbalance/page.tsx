@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "next/navigation"
 import { IGLOpeningBalance } from "@/interfaces"
 import { GLOpeningBalanceSchema, GLOpeningBalanceSchemaType } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
@@ -47,7 +48,8 @@ export default function OpeningBalancePage() {
   const transactionId = GLTransactionId.openingbalance
 
   const { hasPermission } = usePermissionStore()
-  const { decimals, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { defaults } = useUserSettingDefaults()
   const _pageSize = defaults?.common?.trnGridTotalRecords || 100
 

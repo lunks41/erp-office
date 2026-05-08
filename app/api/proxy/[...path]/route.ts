@@ -20,13 +20,22 @@ async function getSecureHeaders(request: NextRequest) {
     }
   }
 
-  return {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    Authorization: authToken ? `Bearer ${authToken}` : "",
     "X-Reg-Id": process.env.NEXT_PUBLIC_DEFAULT_REGISTRATION_ID || "",
-    "X-Company-Id": companyId,
     "X-User-Id": userId,
   }
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`
+  }
+
+  // Do not forward an empty company header; some endpoints reject it.
+  if (companyId) {
+    headers["X-Company-Id"] = companyId
+  }
+
+  return headers
 }
 
 // Helper function to build query string from request parameters

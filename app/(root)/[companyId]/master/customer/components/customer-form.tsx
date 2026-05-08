@@ -1,13 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICustomer } from "@/interfaces/customer"
 import { customerSchema } from "@/schemas/customer"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-
 import { Form } from "@/components/ui/form"
 import {
   AccountSetupAutocomplete,
@@ -60,7 +60,7 @@ export default function CustomerForm({
   onSaveAction,
   onCustomerLookup,
 }: CustomerFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<z.infer<typeof customerSchema>>({

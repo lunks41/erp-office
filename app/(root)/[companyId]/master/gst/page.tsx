@@ -148,6 +148,34 @@ export default function GstPage() {
     []
   )
 
+  const handleFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = gstSearchInput.trim() || undefined
+    handleFilterChange({
+      search: normalizedSearch,
+      sortOrder: filters.sortOrder,
+    })
+  }, [gstSearchInput, handleFilterChange, filters.sortOrder])
+
+  const handleDtFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = gstDtSearchInput.trim() || undefined
+    handleDtFilterChange({
+      search: normalizedSearch,
+      sortOrder: dtFilters.sortOrder,
+    })
+  }, [gstDtSearchInput, handleDtFilterChange, dtFilters.sortOrder])
+
+  const handleCategoryFilterChangeSearchSubmit = useCallback(() => {
+    const normalizedSearch = gstCategorySearchInput.trim() || undefined
+    handleCategoryFilterChange({
+      search: normalizedSearch,
+      sortOrder: categoryFilters.sortOrder,
+    })
+  }, [
+    gstCategorySearchInput,
+    handleCategoryFilterChange,
+    categoryFilters.sortOrder,
+  ])
+
   // Page change handlers
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)

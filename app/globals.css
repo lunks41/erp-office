@@ -2,75 +2,159 @@
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 @import "./themes.css";
+
+/* ============================================================
+   DESIGN TOKENS — ERP Accounting System
+   Light : Clean neutral white  (Odoo / SAP Fiori inspired)
+   Dark  : GitHub Dark Dimmed   (deep cool-gray, not navy)
+   Primary: Orange brand — preserved throughout
+   ============================================================ */
+
 :root {
-    --radius: 0.625rem;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-    --sidebar-icon: oklch(0.45 0 0);
+    --radius: 0.5rem;
+
+    /* ── Surfaces ── */
+    --background:           oklch(0.984 0.002 240);   /* #f8f9fa near-white */
+    --foreground:           oklch(0.160 0.012 254);   /* #1a1d23 dark slate  */
+    --card:                 oklch(1 0 0);
+    --card-foreground:      oklch(0.160 0.012 254);
+    --popover:              oklch(1 0 0);
+    --popover-foreground:   oklch(0.160 0.012 254);
+
+    /* ── Brand primary — orange ── */
+    --primary:              oklch(0.638 0.152 38);
+    --primary-foreground:   oklch(0.99 0.004 85);
+
+    /* ── Secondary surfaces ── */
+    --secondary:            oklch(0.952 0.004 240);
+    --secondary-foreground: oklch(0.275 0.012 254);
+    --muted:                oklch(0.952 0.004 240);
+    --muted-foreground:     oklch(0.472 0.012 254);
+    --accent:               oklch(0.942 0.006 240);
+    --accent-foreground:    oklch(0.252 0.012 254);
+
+    /* ── Semantic ── */
+    --destructive:          oklch(0.568 0.218 26);
+
+    /* ── Borders & inputs ── */
+    --border:               oklch(0.892 0.005 240);
+    --input:                oklch(0.892 0.005 240);
+    --ring:                 oklch(0.638 0.152 38);
+
+    /* ── Charts ── */
+    --chart-1: oklch(0.638 0.152 38);
+    --chart-2: oklch(0.610 0.118 178);
+    --chart-3: oklch(0.528 0.138 252);
+    --chart-4: oklch(0.715 0.138 88);
+    --chart-5: oklch(0.610 0.138 24);
+
+    /* ── Sidebar ── */
+    --sidebar:                      oklch(0.968 0.004 240);
+    --sidebar-foreground:           oklch(0.252 0.012 254);
+    --sidebar-primary:              oklch(0.638 0.152 38);
+    --sidebar-primary-foreground:   oklch(0.99 0.004 85);
+    --sidebar-accent:               oklch(0.930 0.006 240);
+    --sidebar-accent-foreground:    oklch(0.252 0.012 254);
+    --sidebar-border:               oklch(0.878 0.005 240);
+    --sidebar-ring:                 oklch(0.638 0.152 38);
+    --sidebar-icon:                 oklch(0.435 0.014 254);
+
+    /* ── ERP Status tokens — light ── */
+    --status-pending:           oklch(0.618 0.138 68);
+    --status-pending-bg:        oklch(0.975 0.032 82);
+    --status-pending-border:    oklch(0.880 0.060 74);
+    --status-completed:         oklch(0.520 0.148 148);
+    --status-completed-bg:      oklch(0.968 0.038 148);
+    --status-completed-border:  oklch(0.818 0.075 148);
+    --status-cancelled:         oklch(0.542 0.208 26);
+    --status-cancelled-bg:      oklch(0.975 0.038 26);
+    --status-cancelled-border:  oklch(0.852 0.078 26);
+    --status-confirmed:         oklch(0.498 0.148 252);
+    --status-confirmed-bg:      oklch(0.952 0.038 252);
+    --status-confirmed-border:  oklch(0.812 0.075 252);
+    --status-posted:            oklch(0.490 0.135 286);
+    --status-posted-bg:         oklch(0.952 0.035 286);
+    --status-posted-border:     oklch(0.812 0.068 286);
+    --status-cancel-svc:        oklch(0.608 0.142 50);
+    --status-cancel-svc-bg:     oklch(0.970 0.028 55);
+    --status-cancel-svc-border: oklch(0.858 0.058 52);
+    --status-inactive:          oklch(0.510 0.008 254);
+    --status-inactive-bg:       oklch(0.942 0.003 254);
+    --status-inactive-border:   oklch(0.818 0.005 254);
+
+    /* ── Financial ── */
+    --positive-amount: oklch(0.520 0.148 148);
+    --negative-amount: oklch(0.542 0.208 26);
+    --zero-amount:     oklch(0.472 0.012 254);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.269 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.371 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.439 0 0);
-    --sidebar-icon: oklch(0.75 0 0);
+    /* ── GitHub Dark Dimmed style ── */
+    --background:           oklch(0.172 0.010 258);   /* #22272e */
+    --foreground:           oklch(0.918 0.008 248);   /* #adbac7 */
+    --card:                 oklch(0.212 0.010 258);   /* #2d333b */
+    --card-foreground:      oklch(0.918 0.008 248);
+    --popover:              oklch(0.220 0.010 258);
+    --popover-foreground:   oklch(0.918 0.008 248);
+
+    --primary:              oklch(0.708 0.138 42);
+    --primary-foreground:   oklch(0.192 0.010 258);
+
+    --secondary:            oklch(0.252 0.010 258);   /* #373e47 */
+    --secondary-foreground: oklch(0.895 0.006 248);
+    --muted:                oklch(0.248 0.010 258);
+    --muted-foreground:     oklch(0.660 0.008 252);
+    --accent:               oklch(0.278 0.010 258);
+    --accent-foreground:    oklch(0.910 0.006 248);
+
+    --destructive:          oklch(0.668 0.172 22);
+
+    --border:               oklch(0.308 0.010 258);   /* #444c56 */
+    --input:                oklch(0.308 0.010 258);
+    --ring:                 oklch(0.708 0.138 42);
+
+    --chart-1: oklch(0.708 0.138 42);
+    --chart-2: oklch(0.695 0.098 178);
+    --chart-3: oklch(0.695 0.118 252);
+    --chart-4: oklch(0.748 0.118 88);
+    --chart-5: oklch(0.695 0.118 24);
+
+    --sidebar:                      oklch(0.188 0.010 258);   /* #2d333b lighter */
+    --sidebar-foreground:           oklch(0.910 0.006 248);
+    --sidebar-primary:              oklch(0.708 0.138 42);
+    --sidebar-primary-foreground:   oklch(0.192 0.010 258);
+    --sidebar-accent:               oklch(0.252 0.010 258);
+    --sidebar-accent-foreground:    oklch(0.910 0.006 248);
+    --sidebar-border:               oklch(0.315 0.010 258);
+    --sidebar-ring:                 oklch(0.708 0.138 42);
+    --sidebar-icon:                 oklch(0.712 0.008 252);
+
+    /* ── ERP Status tokens — dark ── */
+    --status-pending:           oklch(0.755 0.120 74);
+    --status-pending-bg:        oklch(0.258 0.040 78);
+    --status-pending-border:    oklch(0.378 0.075 75);
+    --status-completed:         oklch(0.672 0.138 148);
+    --status-completed-bg:      oklch(0.235 0.048 148);
+    --status-completed-border:  oklch(0.348 0.078 148);
+    --status-cancelled:         oklch(0.678 0.172 26);
+    --status-cancelled-bg:      oklch(0.242 0.050 26);
+    --status-cancelled-border:  oklch(0.358 0.095 26);
+    --status-confirmed:         oklch(0.672 0.138 252);
+    --status-confirmed-bg:      oklch(0.238 0.048 252);
+    --status-confirmed-border:  oklch(0.350 0.088 252);
+    --status-posted:            oklch(0.672 0.128 288);
+    --status-posted-bg:         oklch(0.238 0.046 288);
+    --status-posted-border:     oklch(0.350 0.078 288);
+    --status-cancel-svc:        oklch(0.715 0.118 52);
+    --status-cancel-svc-bg:     oklch(0.252 0.038 52);
+    --status-cancel-svc-border: oklch(0.368 0.068 52);
+    --status-inactive:          oklch(0.578 0.006 255);
+    --status-inactive-bg:       oklch(0.258 0.006 255);
+    --status-inactive-border:   oklch(0.368 0.007 255);
+
+    --positive-amount: oklch(0.672 0.138 148);
+    --negative-amount: oklch(0.678 0.172 26);
+    --zero-amount:     oklch(0.660 0.008 252);
 }
 
 @theme inline {
@@ -130,31 +214,37 @@
     * {
         @apply border-border outline-ring/50;
         scrollbar-width: thin;
-        scrollbar-color: oklch(0.72 0 0) transparent;
+        scrollbar-color: oklch(0.70 0 0 / 0.45) transparent;
     }
-    /* Table scroll containers */
-    div:has(> table) {
-        scrollbar-width: thin;
-        scrollbar-color: oklch(0.72 0 0) transparent;
-    }
-    .dark div:has(> table) {
-        scrollbar-color: oklch(0.48 0 0) transparent;
-    }
+
+    /* ── Scrollbars ── */
     *::-webkit-scrollbar {
         width: 6px;
-        height: 8px;   /* wider horizontal bar so it's easy to grab */
+        height: 8px;
     }
     *::-webkit-scrollbar-track {
         background: transparent;
     }
     *::-webkit-scrollbar-thumb {
-        background-color: oklch(0.72 0 0);
+        background-color: oklch(0.72 0 0 / 0.40);
         border-radius: 99px;
     }
     *::-webkit-scrollbar-thumb:hover {
-        background-color: oklch(0.50 0 0);
+        background-color: oklch(0.52 0 0 / 0.65);
     }
-    /* Table containers specifically */
+    .dark *::-webkit-scrollbar-thumb {
+        background-color: oklch(0.40 0 0 / 0.60);
+    }
+    .dark *::-webkit-scrollbar-thumb:hover {
+        background-color: oklch(0.58 0 0 / 0.80);
+    }
+    div:has(> table) {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(0.72 0 0 / 0.40) transparent;
+    }
+    .dark div:has(> table) {
+        scrollbar-color: oklch(0.42 0 0 / 0.60) transparent;
+    }
     div:has(> table)::-webkit-scrollbar {
         width: 4px;
         height: 4px;
@@ -163,96 +253,97 @@
         background: transparent;
     }
     div:has(> table)::-webkit-scrollbar-thumb {
-        background-color: oklch(0.72 0 0);
+        background-color: oklch(0.72 0 0 / 0.38);
         border-radius: 99px;
     }
     div:has(> table)::-webkit-scrollbar-thumb:hover {
-        background-color: oklch(0.42 0 0);
+        background-color: oklch(0.44 0 0 / 0.65);
     }
     .dark div:has(> table)::-webkit-scrollbar-thumb {
-        background-color: oklch(0.48 0 0);
+        background-color: oklch(0.42 0 0 / 0.65);
     }
     .dark div:has(> table)::-webkit-scrollbar-thumb:hover {
-        background-color: oklch(0.65 0 0);
+        background-color: oklch(0.60 0 0 / 0.80);
     }
+
+    /* ── Body ── */
     body {
         @apply bg-background text-foreground;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+            "Helvetica Neue", Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-feature-settings: "rlig" 1, "calt" 1;
     }
+
+    /* ── Selection ── */
+    ::selection {
+        background-color: oklch(0.638 0.152 38 / 0.16);
+        color: inherit;
+    }
+    .dark ::selection {
+        background-color: oklch(0.708 0.138 42 / 0.28);
+    }
+
+    /* ── Focus visible ── */
+    :focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+    }
+
+    /* ── Table base ── */
     table th,
     table td {
         font-size: 0.75rem;
     }
+    table td {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Smooth transitions on interactive elements ── */
+    a, button, [role="button"], input, select, textarea,
+    [data-slot="input"], [data-slot="select-trigger"],
+    [data-sidebar="menu-button"], [data-sidebar="menu-sub-button"] {
+        transition-property: color, background-color, border-color,
+            box-shadow, opacity;
+        transition-duration: 120ms;
+        transition-timing-function: ease;
+    }
 }
 
 @layer utilities {
-    /* Sidebar icon standard color */
-    .sidebar-icon {
-        color: var(--sidebar-icon);
-    }
-    /* Responsive Container */
+    .sidebar-icon { color: var(--sidebar-icon); }
+
+    /* ── Responsive Container ── */
     .container-responsive {
         @apply w-full mx-auto px-4;
         max-width: 100%;
     }
     @media (min-width: 320px) {
-        .container-responsive {
-            max-width: 100%;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
+        .container-responsive { max-width: 100%; padding-inline: 1rem; }
     }
     @media (min-width: 768px) {
-        .container-responsive {
-            max-width: 750px;
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
-        }
+        .container-responsive { max-width: 750px; padding-inline: 1.5rem; }
     }
     @media (min-width: 1024px) {
-        .container-responsive {
-            max-width: 970px;
-            padding-left: 2rem;
-            padding-right: 2rem;
-        }
+        .container-responsive { max-width: 970px; padding-inline: 2rem; }
     }
     @media (min-width: 1200px) {
-        .container-responsive {
-            max-width: 1170px;
-            padding-left: 2rem;
-            padding-right: 2rem;
-        }
+        .container-responsive { max-width: 1170px; padding-inline: 2rem; }
     }
-    /* Fluid Typography */
-    .text-fluid-xs {
-        font-size: clamp(0.75rem, 2vw, 0.875rem);
-    }
-    .text-fluid-sm {
-        font-size: clamp(0.875rem, 2.5vw, 1rem);
-    }
-    .text-fluid-base {
-        font-size: clamp(1rem, 3vw, 1.125rem);
-    }
-    .text-fluid-lg {
-        font-size: clamp(1.125rem, 3.5vw, 1.25rem);
-    }
-    .text-fluid-xl {
-        font-size: clamp(1.25rem, 4vw, 1.5rem);
-    }
-    .text-fluid-2xl {
-        font-size: clamp(1.5rem, 5vw, 2rem);
-    }
-    .text-fluid-3xl {
-        font-size: clamp(2rem, 6vw, 3rem);
-    }
-    /* Touch Target Sizes */
-    .touch-target {
-        min-height: 44px;
-        min-width: 44px;
-    }
-    /* Responsive Grid */
+
+    /* ── Fluid Typography ── */
+    .text-fluid-xs   { font-size: clamp(0.75rem,  2vw,   0.875rem); }
+    .text-fluid-sm   { font-size: clamp(0.875rem, 2.5vw, 1rem);     }
+    .text-fluid-base { font-size: clamp(1rem,     3vw,   1.125rem); }
+    .text-fluid-lg   { font-size: clamp(1.125rem, 3.5vw, 1.25rem);  }
+    .text-fluid-xl   { font-size: clamp(1.25rem,  4vw,   1.5rem);   }
+    .text-fluid-2xl  { font-size: clamp(1.5rem,   5vw,   2rem);     }
+    .text-fluid-3xl  { font-size: clamp(2rem,     6vw,   3rem);     }
+
+    .touch-target { min-height: 44px; min-width: 44px; }
+
+    /* ── Responsive Grid ── */
     .grid-responsive {
         display: grid;
         gap: 1rem;
@@ -270,19 +361,16 @@
             gap: 2rem;
         }
     }
-    /* Responsive Flex */
+
     .flex-responsive {
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
     @media (min-width: 768px) {
-        .flex-responsive {
-            flex-direction: row;
-            gap: 1.5rem;
-        }
+        .flex-responsive { flex-direction: row; gap: 1.5rem; }
     }
-    /* Sticky Elements */
+
     .sticky-header {
         position: sticky;
         top: 0;
@@ -297,11 +385,8 @@
         background: var(--background);
         border-top: 1px solid var(--border);
     }
-    /* Accessibility */
-    .focus-visible {
-        outline: 2px solid var(--ring);
-        outline-offset: 2px;
-    }
+
+    .focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
     .sr-only {
         position: absolute;
         width: 1px;
@@ -313,14 +398,27 @@
         white-space: nowrap;
         border: 0;
     }
+
+    /* ── Status badge utilities ── */
+    .badge-pending     { color: var(--status-pending);    background: var(--status-pending-bg);    border: 1px solid var(--status-pending-border);    }
+    .badge-completed   { color: var(--status-completed);  background: var(--status-completed-bg);  border: 1px solid var(--status-completed-border);  }
+    .badge-cancelled   { color: var(--status-cancelled);  background: var(--status-cancelled-bg);  border: 1px solid var(--status-cancelled-border);  }
+    .badge-confirmed   { color: var(--status-confirmed);  background: var(--status-confirmed-bg);  border: 1px solid var(--status-confirmed-border);  }
+    .badge-posted      { color: var(--status-posted);     background: var(--status-posted-bg);     border: 1px solid var(--status-posted-border);     }
+    .badge-cancel-svc  { color: var(--status-cancel-svc); background: var(--status-cancel-svc-bg); border: 1px solid var(--status-cancel-svc-border); }
+    .badge-inactive    { color: var(--status-inactive);   background: var(--status-inactive-bg);   border: 1px solid var(--status-inactive-border);   }
+
+    /* ── Financial amount coloring ── */
+    .amount-positive { color: var(--positive-amount); }
+    .amount-negative { color: var(--negative-amount); }
+    .amount-zero     { color: var(--zero-amount);     }
+
+    .num-tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 }
 
-/*
- * App-wide compact buttons (shadcn Button sets data-slot="button").
- * Also covers DropdownMenuTrigger asChild which may override data-slot to
- * "dropdown-menu-trigger", causing the button override to be skipped.
- * Overrides default / sm / lg height & padding from components/ui/button.tsx.
- */
+/* ============================================================
+   COMPACT BUTTONS
+   ============================================================ */
 [data-slot="button"],
 [data-slot="dropdown-menu-trigger"] {
     font-size: 0.75rem !important;
@@ -339,7 +437,6 @@
     height: 0.75rem !important;
 }
 
-/* size="icon" — compact square icon buttons */
 [data-slot="button"].size-9,
 [data-slot="dropdown-menu-trigger"].size-9 {
     width: 1.75rem !important;
@@ -350,56 +447,54 @@
 }
 
 /* ============================================================
-   ERP UI — TABLE: FIXED HEIGHT + UI IMPROVEMENTS
+   TABLE — FIXED HEIGHT TIERS
    ============================================================ */
 
-/* ── 1. Table heights — 3 tiers based on page complexity ── */
-
-/* TIER 0 — Tables inside DIALOGS (highest priority — must come first)
-   Dialog is h-[85vh]. Breakdown:
-     title+subtitle(65) + filter-bar(46) + toolbar(38) + footer(40) + padding(36) = 225px
-   Use 80vh so table stays within dialog bounds and footer is always visible. */
+/* TIER 0 — Inside dialogs */
 [role="dialog"] div:has(> table.table-fixed) {
     min-height: 180px !important;
     max-height: calc(80vh - 230px) !important;
 }
 
-/* TIER 1 — Simple master pages (Country, Port, etc.)
-   nav(44) + title(55) + toolbar(38) + footer(40) + padding(28) = 205px */
+/* TIER 1 — Simple master pages */
 div:has(> table.table-fixed) {
     min-height: calc(100dvh - 220px) !important;
     max-height: calc(100dvh - 220px) !important;
 }
 
-/* TIER 2 — List pages with filter bar + status tabs (Checklist Management)
-   adds filter-bar(46) + status-tabs(40) = extra ~86px → 306px total */
+/* TIER 2 — Filter bar + status tabs */
 [role="tablist"] ~ div div:has(> table.table-fixed),
 [role="tablist"] ~ * > div:has(> table.table-fixed) {
     min-height: calc(100dvh - 310px) !important;
     max-height: calc(100dvh - 310px) !important;
 }
 
-/* TIER 3 — Detail pages: table is INSIDE a tab panel (Checklist Details services)
-   has: title-row(48) + main-tabs(40) + service-tabs(40) + toolbar(38) + footer(40) + padding(34) = 240 extra → 420px */
+/* TIER 3 — Table inside tab panel */
 [role="tabpanel"] div:has(> table.table-fixed) {
     min-height: calc(100dvh - 430px) !important;
     max-height: calc(100dvh - 430px) !important;
 }
 
-/* TIER 3B — Tables inside tab panels WITHIN dialogs (debit note dialog etc.) */
+/* TIER 3B — Tab panel inside dialog */
 [role="dialog"] [role="tabpanel"] div:has(> table.table-fixed) {
     min-height: 150px !important;
     max-height: calc(75vh - 260px) !important;
 }
 
-/* ── 2. Table header — distinct, professional ── */
+/* ============================================================
+   TABLE — VISUAL STYLES
+   ============================================================ */
+
+/* ── Header ── */
 table thead tr {
-    background-color: oklch(0.945 0.008 252);
-    border-bottom: 1.5px solid oklch(0.89 0.012 252);
+    background-color: oklch(0.944 0.004 240);
+    border-bottom: 1.5px solid oklch(0.878 0.005 240);
+    box-shadow: 0 1px 0 0 oklch(0.878 0.005 240);
 }
 .dark table thead tr {
-    background-color: oklch(0.215 0.012 252);
-    border-bottom: 1.5px solid oklch(0.28 0.015 252);
+    background-color: oklch(0.238 0.010 258);
+    border-bottom: 1.5px solid oklch(0.308 0.010 258);
+    box-shadow: 0 1px 0 0 oklch(0.308 0.010 258);
 }
 table thead th,
 table thead td {
@@ -407,24 +502,24 @@ table thead td {
     font-weight: 700 !important;
     letter-spacing: 0.055em;
     text-transform: uppercase;
-    color: oklch(0.40 0.03 252) !important;
+    color: oklch(0.372 0.018 254) !important;
     padding-top: 0.35rem !important;
     padding-bottom: 0.35rem !important;
 }
 .dark table thead th,
 .dark table thead td {
-    color: oklch(0.72 0.02 252) !important;
+    color: oklch(0.708 0.012 252) !important;
 }
 
-/* ── 3. Compact rows ── */
+/* ── Rows ── */
 table tbody tr {
-    height: 1.25rem !important;  /* 20px — compact data row */
+    height: 1.25rem !important;
     max-height: 1.25rem !important;
-    transition: background-color 0.08s ease;
-    border-bottom: 1px solid oklch(0.935 0.004 252);
+    transition: background-color 0.10s ease;
+    border-bottom: 1px solid oklch(0.926 0.003 240);
 }
 .dark table tbody tr {
-    border-bottom: 1px solid oklch(0.24 0.008 252);
+    border-bottom: 1px solid oklch(0.258 0.010 258);
 }
 table tbody td {
     padding-top: 0 !important;
@@ -432,101 +527,87 @@ table tbody td {
     line-height: 1.25rem !important;
 }
 
-/* ── 4. Zebra striping — very subtle ── */
+/* ── Zebra striping ── */
 table tbody tr:nth-child(even) {
-    background-color: oklch(0.982 0.003 252);
+    background-color: oklch(0.978 0.002 240);
 }
 .dark table tbody tr:nth-child(even) {
-    background-color: oklch(0.178 0.006 252);
+    background-color: oklch(0.195 0.010 258);
 }
 
-/* ── 5. Row hover ── */
+/* ── Row hover ── */
 table tbody tr:hover {
-    background-color: oklch(0.952 0.015 224);
+    background-color: oklch(0.950 0.014 220);
 }
 .dark table tbody tr:hover {
-    background-color: oklch(0.248 0.012 252);
+    background-color: oklch(0.255 0.014 258);
 }
 
-/* ── 6. Table container border + shadow ── */
-/* NOTE: do NOT set overflow here — the container already has
-   overflow-auto from Tailwind; overriding it breaks sticky columns
-   and removes scroll. Use outline (doesn't clip children) for border. */
+/* ── Selected row ── */
+table tbody tr[data-state="selected"],
+table tbody tr.selected {
+    background-color: oklch(0.932 0.026 242) !important;
+    outline: none;
+}
+.dark table tbody tr[data-state="selected"],
+.dark table tbody tr.selected {
+    background-color: oklch(0.278 0.032 258) !important;
+}
 
-/* Light theme: outline acts as border without affecting overflow/sticky */
+/* ── Table container — border + shadow ── */
 div:has(> table.table-fixed) {
-    outline: 1.5px solid oklch(0.28 0.010 252);
+    outline: 1px solid oklch(0.878 0.005 240);
     outline-offset: -1px;
+    border-radius: var(--radius);
     box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.10),
-        0 4px 12px 0 rgb(0 0 0 / 0.06);
+        0 1px 2px 0 rgb(0 0 0 / 0.05),
+        0 3px 10px 0 rgb(0 0 0 / 0.04);
 }
-
-/* Dark theme — use a visible light/white border */
 .dark div:has(> table.table-fixed) {
-    outline: 1.5px solid oklch(0.72 0.008 252);   /* near-white, clearly visible */
+    outline: 1px solid oklch(0.308 0.010 258);
     box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.50),
-        0 4px 16px 0 rgb(0 0 0 / 0.35);
+        0 1px 3px 0 rgb(0 0 0 / 0.45),
+        0 4px 14px 0 rgb(0 0 0 / 0.30);
 }
 
-/* ── 7. Sticky thead — DO NOT re-declare position/z-index here.
-   JSX already applies "sticky top-0 z-20" via Tailwind.
-   Only add the bottom shadow separator. ── */
-table thead tr {
-    box-shadow: 0 1px 0 0 oklch(0.28 0.010 252);
-}
-.dark table thead tr {
-    box-shadow: 0 1px 0 0 oklch(0.42 0.012 252);
-}
-
-/* ── 8. Pinned Actions column: right-side separator shadow ── */
+/* ── First column separator ── */
 table td:first-child,
 table th:first-child {
-    border-right: 1px solid oklch(0.82 0.006 252);
+    border-right: 1px solid oklch(0.862 0.004 240);
 }
 .dark table td:first-child,
 .dark table th:first-child {
-    border-right: 1px solid oklch(0.30 0.010 252);
+    border-right: 1px solid oklch(0.308 0.010 258);
 }
 
-/* ── 9. Sort icon columns: hover highlight ── */
+/* ── Header column hover ── */
 table thead th:hover,
 table thead td:hover {
-    background-color: oklch(0.928 0.012 252);
+    background-color: oklch(0.926 0.008 240);
     cursor: pointer;
 }
 .dark table thead th:hover,
 .dark table thead td:hover {
-    background-color: oklch(0.245 0.015 252);
+    background-color: oklch(0.258 0.014 258);
 }
 
 /* ============================================================
-   SIDEBAR — compact, clean, professional
+   SIDEBAR
    ============================================================ */
 
-/* 1. Width: 15rem (240px) → 10.5rem (168px) */
 [data-slot="sidebar-provider"] {
     --sidebar-width: 10.5rem !important;
 }
-
-/* 2. Sidebar base — slight border on right */
 [data-sidebar="sidebar"] {
     border-right: 1px solid var(--sidebar-border) !important;
 }
-
-/* 3. Header — tighter (company switcher area) */
 [data-sidebar="header"] {
     padding: 0.375rem 0.5rem !important;
     gap: 0.25rem !important;
 }
-
-/* 4. Group — tighter padding */
 [data-sidebar="group"] {
     padding: 0.125rem 0.25rem !important;
 }
-
-/* 5. Group label — shorter, smaller font */
 [data-sidebar="group-label"] {
     height: 1.375rem !important;
     font-size: 0.62rem !important;
@@ -535,48 +616,36 @@ table thead td:hover {
     padding-inline: 0.5rem !important;
     opacity: 0.65 !important;
 }
-
-/* 6. Main menu buttons — compact height + font */
 [data-sidebar="menu-button"] {
-    height: 1.625rem !important;      /* 26px vs 32px default */
+    height: 1.625rem !important;
     font-size: 0.72rem !important;
     padding-inline: 0.5rem !important;
     gap: 0.375rem !important;
     border-radius: 0.3rem !important;
 }
-
-/* 7. Sub-menu buttons — even more compact */
 [data-sidebar="menu-sub-button"] {
-    height: 1.5rem !important;        /* 24px */
-    font-size: 0.7rem !important;
+    height: 1.5rem !important;
+    font-size: 0.70rem !important;
     padding-inline: 0.375rem !important;
     gap: 0.3rem !important;
     border-radius: 0.25rem !important;
 }
-
-/* 8. Sub-menu container — tighter indentation */
 [data-sidebar="menu-sub"] {
     margin-left: 0.125rem !important;
     padding-left: 0.625rem !important;
     border-left: 1px solid var(--sidebar-border) !important;
     gap: 0.0625rem !important;
 }
-
-/* 9. Menu items — no extra margin */
 [data-sidebar="menu-item"],
 [data-sidebar="menu-sub-item"] {
     margin: 0 !important;
 }
-
-/* 10. Icons — 14px, consistent size */
 [data-sidebar="menu-button"] svg,
 [data-sidebar="menu-sub-button"] svg {
     width: 0.8rem !important;
     height: 0.8rem !important;
     flex-shrink: 0 !important;
 }
-
-/* 11. Badge (notification count) — smaller */
 [data-sidebar="menu-badge"] {
     height: 1rem !important;
     min-width: 1rem !important;
@@ -584,8 +653,6 @@ table thead td:hover {
     padding-inline: 0.25rem !important;
     right: 0.25rem !important;
 }
-
-/* 12. Hover/active state — subtle highlight */
 [data-sidebar="menu-button"]:hover,
 [data-sidebar="menu-sub-button"]:hover {
     background-color: var(--sidebar-accent) !important;
@@ -595,77 +662,48 @@ table thead td:hover {
     background-color: var(--sidebar-accent) !important;
     font-weight: 600 !important;
 }
-
-/* 13. Sidebar content — remove extra padding */
 [data-sidebar="content"] {
     padding: 0 !important;
     gap: 0 !important;
 }
 
-/* ── 10. Selected row highlight ── */
-table tbody tr[data-state="selected"],
-table tbody tr.selected {
-    background-color: oklch(0.935 0.025 245) !important;
-    outline: none;
-}
-.dark table tbody tr[data-state="selected"],
-.dark table tbody tr.selected {
-    background-color: oklch(0.265 0.030 252) !important;
-}
-
 /* ============================================================
-   FORM DENSITY — compact forms to fit all fields on one page
+   FORM DENSITY
    ============================================================ */
 
-/* 1. Accordion trigger: py-4 (32px) → py-1 (8px) */
 [role="heading"] > button {
     padding-top: 0.3rem !important;
     padding-bottom: 0.3rem !important;
     font-size: 0.72rem !important;
     font-weight: 500 !important;
 }
-
-/* 2. Accordion content inner div — reduce bottom padding */
 [data-radix-accordion-content] > div {
     padding-top: 0.25rem !important;
     padding-bottom: 0.5rem !important;
 }
-
-/* 3. The empty border-b divider before audit trail wastes ~32px.
-   Target any empty border-b divider (no children) and collapse it. */
 div.border-b:empty {
     margin: 0 !important;
     padding: 0 !important;
     border-bottom-width: 1px !important;
 }
-
-/* 4. The space-y-4 pt-4 wrapper above audit trail — halve it */
 div:has(> .border-b:empty) {
     padding-top: 0.25rem !important;
 }
 div.space-y-4:has(> .border-b:empty) > * + * {
     margin-top: 0.375rem !important;
 }
-
-/* 5. Card content padding — slightly tighter */
 [data-slot="card-content"] {
     padding: 0.75rem !important;
 }
-
-/* 6. Form field labels — compact */
 [data-slot="form-label"],
 label.text-sm {
-    font-size: 0.7rem !important;
+    font-size: 0.70rem !important;
     margin-bottom: 0.125rem !important;
     line-height: 1.2 !important;
 }
-
-/* 7. Form item vertical gap */
 [data-slot="form-item"] {
     gap: 0.125rem !important;
 }
-
-/* 8. Input / select field height — compact */
 [data-slot="input"],
 [data-slot="select-trigger"] {
     height: 1.75rem !important;
@@ -676,51 +714,94 @@ label.text-sm {
 }
 
 /* ============================================================
-   ERP UI — STEP 1: LAYOUT IMPROVEMENTS
+   LAYOUT
    ============================================================ */
 
-/* -- Header: tighter height (56px → 44px) saves vertical space */
 header[id="navigation"] > div {
     height: 44px !important;
     padding-inline: 0.75rem !important;
 }
-
-/* Sharper header shadow + subtle bottom border */
 header[id="navigation"] {
-    box-shadow: 0 1px 0 0 var(--border), 0 2px 8px 0 rgb(0 0 0 / 0.04) !important;
+    box-shadow:
+        0 1px 0 0 var(--border),
+        0 2px 6px 0 rgb(0 0 0 / 0.04) !important;
 }
 
-/* -- Main content: cooler very-light background (feels less "white paper") */
 main[id="main-content"] {
-    background-color: oklch(0.971 0.004 252);
+    background-color: oklch(0.976 0.003 240);
 }
 .dark main[id="main-content"] {
-    background-color: oklch(0.128 0.006 252);
+    background-color: oklch(0.162 0.010 258);
 }
 
-/* -- Sidebar inset: ensure full-height fill */
 [data-sidebar="inset"] {
     min-height: 100dvh;
 }
 
-/* -- Page wrapper: consistent content padding */
 .erp-page {
     padding: 1rem 1.25rem;
 }
-
-/* -- Page title typography — tighter & heavier */
 .erp-page-title {
     font-size: 1.375rem;
     font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1.25;
-    color: oklch(0.18 0.008 252);
+    color: oklch(0.160 0.012 254);
 }
 .dark .erp-page-title {
-    color: oklch(0.95 0 0);
+    color: oklch(0.948 0.005 248);
 }
 .erp-page-subtitle {
     font-size: 0.72rem;
     color: var(--muted-foreground);
     margin-top: 0.125rem;
+}
+
+/* ============================================================
+   PRINT — accounting reports
+   ============================================================ */
+@media print {
+    header[id="navigation"],
+    [data-slot="sidebar-provider"],
+    [data-sidebar="sidebar"],
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 11pt;
+    }
+    main[id="main-content"] {
+        background: white !important;
+        padding: 0 !important;
+    }
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        page-break-inside: auto;
+    }
+    table thead tr {
+        background-color: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    table thead th {
+        font-size: 8pt !important;
+        color: #333 !important;
+        border-bottom: 1.5pt solid #999 !important;
+    }
+    table tbody td {
+        font-size: 8pt !important;
+        border-bottom: 0.5pt solid #ddd !important;
+        padding: 2pt 4pt !important;
+    }
+    table tbody tr:nth-child(even) {
+        background-color: #f9f9f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .print-break-before { page-break-before: always; }
+    .print-break-after  { page-break-after: always;  }
+    .print-no-break     { page-break-inside: avoid;  }
 }

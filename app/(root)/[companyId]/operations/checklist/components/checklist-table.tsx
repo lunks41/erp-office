@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useMemo } from "react"
 import { useParams } from "next/navigation"
 import { IJobOrderHd } from "@/interfaces/checklist"
@@ -46,7 +48,7 @@ export function ChecklistTable({
 }: ChecklistTableProps) {
   const params = useParams()
   const companyId = params.companyId as string
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 

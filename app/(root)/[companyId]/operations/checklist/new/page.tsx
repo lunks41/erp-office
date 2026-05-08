@@ -14,7 +14,7 @@ import {
 } from "@/interfaces/lookup"
 import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
 import { JobOrderHdSchema, JobOrderHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -58,7 +58,7 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 export default function NewChecklistPage() {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
   const router = useRouter()
   const params = useParams()

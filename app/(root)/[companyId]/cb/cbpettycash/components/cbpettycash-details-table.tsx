@@ -1,16 +1,16 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { ICbPettyCashDt } from "@/interfaces"
 import { IDocType } from "@/interfaces/lookup"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 import { Circle, Paperclip } from "lucide-react"
 import { toast } from "sonner"
-
 import { Admin } from "@/lib/api-routes"
 import { parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
@@ -74,7 +74,7 @@ export default function CbPettyCashDetailsTable({
   const [docManagerOpen, setDocManagerOpen] = useState(false)
   const [docContextItemNo, setDocContextItemNo] = useState<number | null>(null)
   const [docContextRemarks, setDocContextRemarks] = useState<string>("")
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const queryClient = useQueryClient()
   const amtDec = decimals?.[0]?.amtDec || 2
   const priceDec = decimals?.[0]?.priceDec || 2

@@ -1,11 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, { useImperativeHandle } from "react"
 import {
   GLYearEndProcessRequestSchema,
   GLYearEndProcessRequestSchemaType,
 } from "@/schemas/gl-yearendprocess"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, Resolver, useForm } from "react-hook-form"
 
@@ -38,7 +39,7 @@ const YearEndProcessForm = React.forwardRef<
     },
     ref
   ) => {
-    const { decimals: _decimals } = useAuthStore()
+    const { decimals: _decimals } = useCompanyStore()
 
     const form = useForm<GLYearEndProcessRequestSchemaType>({
       resolver: zodResolver(

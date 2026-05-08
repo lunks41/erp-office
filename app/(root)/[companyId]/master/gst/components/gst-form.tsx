@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IGst } from "@/interfaces/gst"
 import { GstSchemaType, gstSchema } from "@/schemas/gst"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import { Form } from "@/components/ui/form"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { GstCategoryAutocomplete } from "@/components/autocomplete"
@@ -34,12 +34,12 @@ interface GstFormProps {
 export function GstForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: GstFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   console.log("initialData GstForm", initialData)

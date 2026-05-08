@@ -1,13 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICrewSignOn, IJobOrderHd } from "@/interfaces/checklist"
 import { CrewSignOnSchema, CrewSignOnSchemaType } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
-
 import { Task } from "@/lib/operations-utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -46,7 +46,7 @@ export function CrewSignOnForm({
   isSubmitting = false,
   isConfirmed,
 }: CrewSignOnFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<CrewSignOnSchemaType>({

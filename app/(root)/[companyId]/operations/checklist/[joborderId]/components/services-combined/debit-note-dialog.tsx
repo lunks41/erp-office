@@ -18,6 +18,7 @@ import {
   DebitNoteHdSchemaType,
 } from "@/schemas/checklist"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { ListChecks, Printer, Save, Trash } from "lucide-react"
@@ -75,7 +76,8 @@ export default function DebitNoteDialog({
 }: DebitNoteDialogProps) {
   const params = useParams()
   const companyId = params.companyId as string
-  const { decimals, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"

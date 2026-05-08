@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   format,
   isAfter,
@@ -61,7 +61,7 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   size = "sm",
   isFutureShow = false,
 }: CustomDateNewProps<T>) => {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const decimalDateFormat =
     decimals[0]?.dateFormat || dateFormat || "dd/MM/yyyy"
 

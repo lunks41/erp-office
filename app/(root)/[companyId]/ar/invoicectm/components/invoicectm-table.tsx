@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
 import { IArInvoiceCtmFilter, IArInvoiceCtmHd } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { X } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
-
 import { ArInvoiceCtm } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
@@ -18,6 +16,7 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
+import { useCompanyStore } from "@/stores/company-store"
 export interface InvoiceCtmTableProps {
   onInvoiceSelect: (selectedInvoice: IArInvoiceCtmHd | undefined) => void
   onFilterChange: (filters: IArInvoiceCtmFilter) => void
@@ -37,7 +36,7 @@ export default function InvoiceCtmTable({
   onCloseAction,
   isDialogOpen = false,
 }: InvoiceCtmTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const exhRateDec = decimals[0]?.exhRateDec || 9

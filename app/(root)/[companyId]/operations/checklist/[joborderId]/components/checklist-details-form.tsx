@@ -37,7 +37,7 @@ export function ChecklistDetailsForm({
   jobData,
   isConfirmed,
 }: ChecklistDetailsFormProps) {
-  //const { decimals } = useAuthStore()
+  //const { decimals } = useCompanyStore()
   const [activeTab, setActiveTab] = useState("port-expenses")
   const queryClient = useQueryClient()
 

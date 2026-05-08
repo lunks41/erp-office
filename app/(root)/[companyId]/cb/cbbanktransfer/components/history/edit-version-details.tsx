@@ -1,9 +1,10 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import {
   useState } from "react"
 import { ICbBankTransfer } from "@/interfaces"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { AlertCircle } from "lucide-react"
@@ -40,7 +41,7 @@ interface EditVersionDetailsProps {
 export default function EditVersionDetails({
   invoiceId,
 }: EditVersionDetailsProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"

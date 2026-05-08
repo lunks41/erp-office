@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICoaCategory2 } from "@/interfaces/coacategory"
 import {
   CoaCategory2SchemaType,
   coaCategory2Schema,
 } from "@/schemas/coacategory"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -42,7 +43,7 @@ export function CoaCategory2Form({
   isReadOnly = false,
   onCodeBlur,
 }: CoaCategory2FormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<CoaCategory2SchemaType>({

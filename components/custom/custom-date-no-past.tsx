@@ -1,5 +1,4 @@
 import React from "react"
-import { useAuthStore } from "@/stores/auth-store"
 import { format, isValid, parse, startOfDay } from "date-fns"
 import { Control, FieldValues, Path } from "react-hook-form"
 
@@ -13,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+import { useCompanyStore } from "@/stores/company-store"
 interface CustomDateNoPastProps<T extends FieldValues = FieldValues> {
   form: { control: Control<T> }
   label?: string
@@ -49,7 +49,7 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
   isFutureShow = false,
   allowToday = true,
 }: CustomDateNoPastProps<T>) => {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const decimalDateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
 
   // Convert Date or string to "yyyy-MM-dd" format
@@ -115,8 +115,7 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
                     !isDisabled &&
                     "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20",
                   {
-                    "h-7.5 text-xs": size === "sm",
-                    "h-7.5 text-xs": size === "default",
+                    "h-7.5 text-xs": size === "sm" || size === "default",
                     "h-10 text-sm": size === "lg",
                   }
                 )}

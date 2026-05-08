@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { BadgeCheck, LogOut } from "lucide-react"
@@ -28,7 +30,8 @@ export function NavUser({
   }
 }) {
   const router = useRouter()
-  const { logOut, currentCompany } = useAuthStore()
+  const logOut = useAuthStore((s) => s.logOut)
+  const currentCompany = useCompanyStore((s) => s.currentCompany)
 
   const handleLogout = async () => {
     try {

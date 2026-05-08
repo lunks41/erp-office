@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useAuthStore } from "@/stores/auth-store"
 import {
   endOfYear,
   format,
@@ -34,6 +33,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useCompanyStore } from "@/stores/company-store"
 
 // ---- CalendarWithPresets (merged from calendar-with-presets.tsx) ----
 
@@ -177,7 +177,7 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
   size = "sm",
   isFutureShow = false,
 }: CustomDateWithPresetsProps<T>) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const decimalDateFormat =
     decimals[0]?.dateFormat || dateFormat || "dd/MM/yyyy"
 
@@ -412,8 +412,7 @@ export function CustomDateWithPresets<T extends FieldValues = FieldValues>({
                         : "bg-background",
                       "pr-10",
                       {
-                        "h-7.5 text-xs": size === "sm",
-                        "h-7.5 text-xs": size === "default",
+                        "h-7.5 text-xs": size === "sm" || size === "default",
                         "h-10 text-sm": size === "lg",
                       }
                     )}

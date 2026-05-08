@@ -1,6 +1,7 @@
+"use client"
+
 // Add reusable dialog component (outside main component)
 
-"use client"
 
 import { Button } from "../ui/button"
 import {

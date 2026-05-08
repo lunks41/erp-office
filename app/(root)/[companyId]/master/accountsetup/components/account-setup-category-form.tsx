@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useMemo } from "react"
 import { IAccountSetupCategory } from "@/interfaces/accountsetup"
 import {
   AccountSetupCategorySchemaType,
   accountSetupCategorySchema,
 } from "@/schemas/accountsetup"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -34,7 +35,7 @@ export function AccountSetupCategoryForm({
   isReadOnly = false,
   onCodeBlur,
 }: AccountSetupCategoryFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const defaultValues = useMemo(
     () => ({

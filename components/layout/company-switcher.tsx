@@ -1,8 +1,9 @@
 "use client"
+
+import { useCompanyStore } from "@/stores/company-store"
 import * as React from "react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
-import { useAuthStore } from "@/stores/auth-store"
 import { Check, ChevronsUpDown, Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -26,7 +27,7 @@ const TAB_COMPANY_ID_KEY = "tab_company_id"
 export function CompanySwitcher() {
   const { isMobile } = useSidebar()
   const searchParams = useSearchParams()
-  const { companies, currentCompany, getCompanies } = useAuthStore()
+  const { companies, currentCompany, getCompanies } = useCompanyStore()
   const [isLoading, setIsLoading] = React.useState(false)
   const [isOpen, setIsOpen] = React.useState(false)
   // Get company ID from URL

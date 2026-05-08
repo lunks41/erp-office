@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useParams } from "next/navigation"
 import type {
   IAgencyRemuneration,
   IConsignmentExport,
@@ -56,11 +57,8 @@ interface ReportsFilterForm extends Record<string, unknown> {
   search: string
 }
 
-export default function ReportsPage({
-  params: _params,
-}: {
-  params: { companyId: string }
-}) {
+export default function ReportsPage() {
+  const _params = useParams<{ companyId: string }>()
   const [hasSearched, setHasSearched] = useState(false)
   // Committed search value - only updates when Search button is clicked
   const [committedSearch, setCommittedSearch] = useState<string>("")
@@ -561,7 +559,7 @@ export default function ReportsPage({
   return (
     <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Compact Header */}
-      <div className="flex-shrink-0 border-b px-3 py-1.5">
+      <div className="shrink-0 border-b px-3 py-1.5">
         <h1 className="text-lg font-semibold">Reports</h1>
         <p className="text-muted-foreground text-xs">
           Search and generate operational reports
@@ -569,7 +567,7 @@ export default function ReportsPage({
       </div>
 
       {/* Compact Filter Section */}
-      <div className="bg-card flex-shrink-0 border-b px-3 py-2">
+      <div className="bg-card shrink-0 border-b px-3 py-2">
         <Form {...form}>
           <form>
             <div className="flex items-end gap-2">

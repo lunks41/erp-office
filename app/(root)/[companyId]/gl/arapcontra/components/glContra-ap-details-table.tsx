@@ -2,11 +2,9 @@ import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IGLContraDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import {
@@ -19,6 +17,7 @@ import { DeleteConfirmation } from "@/components/confirmation/delete-confirmatio
 import { AccountReceiptBaseTable } from "@/components/table/table-account-receipt"
 
 // Extended column definition with hide property
+import { useCompanyStore } from "@/stores/company-store"
 type ExtendedColumnDef<T> = ColumnDef<T> & {
   hidden?: boolean
 }
@@ -49,7 +48,7 @@ export default function ApGLContraDetailsTable({
     itemNo: number
     label: string
   } | null>(null)
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { hasPermission } = usePermissionStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2

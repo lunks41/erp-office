@@ -1,5 +1,4 @@
 import React from "react"
-import { useAuthStore } from "@/stores/auth-store"
 import { format } from "date-fns"
 import { CalendarIcon, X } from "lucide-react"
 import { FieldValues, Path, UseFormReturn } from "react-hook-form"
@@ -13,6 +12,7 @@ import { Calendar } from "../ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { TimePicker } from "../ui/time-picker-demo"
 
+import { useCompanyStore } from "@/stores/company-store"
 interface CustomDateTimePickerProps<T extends FieldValues = FieldValues> {
   form: UseFormReturn<T>
   label?: string
@@ -40,7 +40,7 @@ export const CustomDateTimePicker = <T extends FieldValues = FieldValues>({
   size = "sm",
   isFutureShow = false,
 }: CustomDateTimePickerProps<T>) => {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const [isOpen, setIsOpen] = React.useState(false)
 

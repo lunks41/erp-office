@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, {
   useEffect,
   useImperativeHandle,
@@ -37,7 +39,6 @@ import {
   CbGenPaymentDtSchemaType,
   CbGenPaymentHdSchemaType,
 } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -110,7 +111,7 @@ const CbGenPaymentDetailsForm = React.forwardRef<
     },
     ref
   ) => {
-    const { decimals } = useAuthStore()
+    const { decimals } = useCompanyStore()
     const amtDec = decimals[0]?.amtDec || 2
     const locAmtDec = decimals[0]?.locAmtDec || 2
     const ctyAmtDec = decimals[0]?.ctyAmtDec || 2

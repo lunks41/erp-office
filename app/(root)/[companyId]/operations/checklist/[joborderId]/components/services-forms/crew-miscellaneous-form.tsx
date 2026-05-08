@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ICrewMiscellaneous, IJobOrderHd } from "@/interfaces/checklist"
 import {
   CrewMiscellaneousSchema,
   CrewMiscellaneousSchemaType,
 } from "@/schemas/checklist"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -48,7 +49,7 @@ export function CrewMiscellaneousForm({
   isConfirmed,
 }: CrewMiscellaneousFormProps) {
   console.log("taskDefaults", taskDefaults)
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const form = useForm<CrewMiscellaneousSchemaType>({

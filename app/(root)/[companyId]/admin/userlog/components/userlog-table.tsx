@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { IUserLog } from "@/interfaces/admin"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -32,7 +32,7 @@ export function UserLogTable({
   moduleId,
   transactionId,
 }: UserLogTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const today = useMemo(() => new Date(), [])
   const defaultStartDate = useMemo(

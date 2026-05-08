@@ -1,12 +1,12 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { IGstDt } from "@/interfaces/gst"
 import { GstDtSchemaType, gstDtSchema } from "@/schemas/gst"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
 import {
   clientDateFormat,
   formatDateForApi,
@@ -17,6 +17,7 @@ import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { GSTAutocomplete } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomNumberInput from "@/components/custom/custom-number-input"
+import { format } from "date-fns"
 
 const defaultValues = {
   gstId: 0,
@@ -34,11 +35,11 @@ interface GstDtFormProps {
 export function GstDtForm({
   initialData,
   submitAction,
-  _onCancelAction,
-  _isSubmitting,
+  onCancelAction: _onCancelAction,
+  isSubmitting: _isSubmitting = false,
   isReadOnly = false,
 }: GstDtFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const priceDec = decimals[0]?.priceDec || 2
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
@@ -130,3 +131,4 @@ export function GstDtForm({
     </div>
   )
 }
+

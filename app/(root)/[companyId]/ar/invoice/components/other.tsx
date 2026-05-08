@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
@@ -7,9 +9,7 @@ import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
 import { IVisibleFields } from "@/interfaces/setting"
 import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
 import { ArInvoiceHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { UseFormReturn } from "react-hook-form"
-
 import { ARTransactionId, ModuleId } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
@@ -33,7 +33,7 @@ interface OtherProps {
 export default function Other({ form, visible }: OtherProps) {
   const params = useParams()
   const companyId = params.companyId as string
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
 
   const [selectedAddress, setSelectedAddress] =

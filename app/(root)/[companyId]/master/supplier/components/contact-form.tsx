@@ -1,12 +1,13 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useEffect } from "react"
 import { ISupplierContact } from "@/interfaces/supplier"
 import {
   SupplierContactSchemaType,
   supplierContactSchema,
 } from "@/schemas/supplier"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -51,7 +52,7 @@ export function SupplierContactForm({
   isSubmitting = false,
   isReadOnly = false,
 }: SupplierContactFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const form = useForm<SupplierContactSchemaType>({
     resolver: zodResolver(supplierContactSchema),

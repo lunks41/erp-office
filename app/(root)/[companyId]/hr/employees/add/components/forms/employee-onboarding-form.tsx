@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronLeft, ChevronRight, Info, Upload } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { Resolver, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -119,7 +119,9 @@ export function EmployeeOnboardingForm({
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
 
   const form = useForm<EmployeeOnboardingData>({
-    resolver: zodResolver(employeeOnboardingSchema),
+    resolver: zodResolver(
+      employeeOnboardingSchema
+    ) as Resolver<EmployeeOnboardingData, unknown, EmployeeOnboardingData>,
     defaultValues: {
       firstName: "",
       middleName: "",

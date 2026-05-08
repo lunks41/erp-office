@@ -12,10 +12,10 @@ import {
   ILoanRepaymentFormData,
 } from "@/interfaces/loan"
 import { useAuthStore } from "@/stores/auth-store"
-
 import { deleteData, getData, postData, updateData } from "@/lib/api-client"
 
 // API Routes (you would define these in api-routes.ts)
+import { useCompanyStore } from "@/stores/company-store"
 const LoanRoutes = {
   // Applications
   getApplications: "/api/loan/applications",
@@ -86,7 +86,8 @@ interface UseLoanReturn {
 }
 
 export const useLoan = (): UseLoanReturn => {
-  const { token, user, currentCompany } = useAuthStore()
+  const { token, user } = useAuthStore()
+  const { currentCompany } = useCompanyStore()
   const [applications, setApplications] = useState<ILoanApplication[]>([])
   const [loans, setLoans] = useState<ILoan[]>([])
   const [repayments, setRepayments] = useState<ILoanRepayment[]>([])

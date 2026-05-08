@@ -1,7 +1,7 @@
 "use client"
 
 import { IActiveDocument } from "@/interfaces/admin"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 import { CheckCircle } from "lucide-react"
@@ -29,7 +29,7 @@ export function TransactionRecoveryTable({
   initialSearchValue,
   isActivating = false,
 }: TransactionRecoveryTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yy"
 

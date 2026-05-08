@@ -9,7 +9,6 @@ import {
 import { useParams } from "next/navigation"
 import { ICbBankReconDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
-import { useAuthStore } from "@/stores/auth-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse, startOfToday } from "date-fns"
@@ -38,6 +37,7 @@ import {
 import { AccountEditableBaseTable } from "@/components/table/table-account-editable"
 
 // Extended column definition with hide property
+import { useCompanyStore } from "@/stores/company-store"
 type ExtendedColumnDef<T> = ColumnDef<T> & {
   hidden?: boolean
 }
@@ -74,7 +74,7 @@ export default function BankReconDetailsTable({
     return typeof value === "string" && value.trim() ? value.trim() : null
   }, [params])
 
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const { hasPermission } = usePermissionStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2

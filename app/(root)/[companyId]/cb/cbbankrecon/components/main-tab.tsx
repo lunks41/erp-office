@@ -1,14 +1,14 @@
-// main-tab.tsx - Bank Reconciliation
 "use client"
+
+import { useCompanyStore } from "@/stores/company-store"
+// main-tab.tsx - Bank Reconciliation
 
 import { useEffect } from "react"
 import { calculateTotalAmounts } from "@/helpers/cb-bankrecon-calculations"
 import { ICbBankReconDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankReconDtSchemaType, CbBankReconHdSchemaType } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { UseFormReturn } from "react-hook-form"
-
 import BankReconDetailsTable from "./cbbankrecon-details-table"
 import BankReconForm from "./cbbankrecon-form"
 
@@ -29,7 +29,7 @@ export default function Main({
   required,
   companyId,
 }: MainProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
   const locAmtDec = decimals[0]?.locAmtDec || 2
 

@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import React, {
   useEffect,
   useImperativeHandle,
@@ -40,7 +42,6 @@ import {
   ApInvoiceDtSchemaType,
   ApInvoiceHdSchemaType,
 } from "@/schemas"
-import { useAuthStore } from "@/stores/auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Repeat } from "lucide-react"
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
@@ -120,7 +121,7 @@ const InvoiceDetailsForm = React.forwardRef<
     },
     ref
   ) => {
-    const { decimals } = useAuthStore()
+    const { decimals } = useCompanyStore()
     const amtDec = decimals[0]?.amtDec || 2
     const locAmtDec = decimals[0]?.locAmtDec || 2
     const ctyAmtDec = decimals[0]?.ctyAmtDec || 2

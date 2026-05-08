@@ -1,5 +1,6 @@
-//copy-rate-form.tsx
 "use client"
+
+//copy-rate-form.tsx
 
 import { useCallback, useEffect, useState } from "react"
 import { ICustomerLookup, IPortLookup } from "@/interfaces/lookup"

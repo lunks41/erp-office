@@ -1,10 +1,10 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { IEntityType } from "@/interfaces/entitytype"
-import { useAuthStore } from "@/stores/auth-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
-
 import { TableName } from "@/lib/utils"
 import { MainTable } from "@/components/table/table-main"
 
@@ -56,7 +56,7 @@ export function EntityTypesTable({
   canView = true,
   canCreate = true,
 }: EntityTypesTableProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const columns: ColumnDef<IEntityType>[] = [

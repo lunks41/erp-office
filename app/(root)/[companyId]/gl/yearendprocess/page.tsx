@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { IGLOpeningBalance } from "@/interfaces"
 import { GLYearEndProcessRequestSchemaType } from "@/schemas/gl-yearendprocess"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { Save } from "lucide-react"
 import { toast } from "sonner"
@@ -33,7 +33,7 @@ export default function YearEndProcessPage() {
   const transactionId = GLTransactionId.yearendprocess
 
   const { hasPermission } = usePermissionStore()
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
 
   const canView = hasPermission(moduleId, transactionId, "isRead")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")

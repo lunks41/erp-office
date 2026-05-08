@@ -1,5 +1,7 @@
 "use client"
 
+import { useCompanyStore } from "@/stores/company-store"
+
 import { useState } from "react"
 import {
   IEmployee,
@@ -7,7 +9,6 @@ import {
   IEmployeeBasic,
   IEmployeePersonalDetails,
 } from "@/interfaces/employee"
-import { useAuthStore } from "@/stores/auth-store"
 import { format } from "date-fns"
 import {
   Briefcase,
@@ -65,7 +66,7 @@ export function EmployeeOverview({
   employeeBank,
   companyId,
 }: Props) {
-  const { decimals } = useAuthStore()
+  const decimals = useCompanyStore((state) => state.decimals)
   const dateFormat = decimals[0]?.dateFormat || clientDateFormat
 
   const [showIban, setShowIban] = useState(false)
@@ -86,7 +87,7 @@ export function EmployeeOverview({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <Card className="border-border bg-card h-full border shadow-sm">
-            <CardHeader className="relative flex-shrink-0 pb-4">
+            <CardHeader className="relative shrink-0 pb-4">
               <div className="absolute right-4">
                 <Button
                   variant="ghost"
@@ -217,7 +218,7 @@ export function EmployeeOverview({
         {/* Personal Information */}
         <div className="lg:col-span-1">
           <Card className="border-border bg-card h-full border shadow-sm">
-            <CardHeader className="relative flex-shrink-0 pb-4">
+            <CardHeader className="relative shrink-0 pb-4">
               <div className="absolute right-4">
                 <Button
                   variant="ghost"
@@ -389,7 +390,7 @@ export function EmployeeOverview({
         {/* Payment Information */}
         <div className="lg:col-span-1">
           <Card className="border-border bg-card h-full border shadow-sm">
-            <CardHeader className="relative flex-shrink-0 pb-4">
+            <CardHeader className="relative shrink-0 pb-4">
               <div className="absolute right-4">
                 <Button
                   variant="ghost"
@@ -519,7 +520,7 @@ export function EmployeeOverview({
 
       <Dialog open={basicDialogOpen} onOpenChange={setBasicDialogOpen}>
         <DialogContent
-          className="max-h-[80vh] w-[70vw] !max-w-none overflow-y-auto"
+          className="max-h-[80vh] w-[70vw] max-w-none! overflow-y-auto"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -538,7 +539,7 @@ export function EmployeeOverview({
 
       <Dialog open={personalDialogOpen} onOpenChange={setPersonalDialogOpen}>
         <DialogContent
-          className="max-h-[90vh] w-[70vw] !max-w-none overflow-y-auto"
+          className="max-h-[90vh] w-[70vw] max-w-none! overflow-y-auto"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -557,7 +558,7 @@ export function EmployeeOverview({
 
       <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
         <DialogContent
-          className="max-h-[90vh] w-[50vw] !max-w-none overflow-y-auto"
+          className="max-h-[90vh] w-[50vw] max-w-none! overflow-y-auto"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>

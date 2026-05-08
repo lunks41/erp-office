@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { IUser } from "@/interfaces/admin"
 import { UserSchemaType, userSchema } from "@/schemas/admin"
-import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Key } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -58,7 +58,7 @@ export function UserForm({
   onSaveConfirmation,
   onCodeBlur,
 }: UserFormProps) {
-  const { decimals } = useAuthStore()
+  const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false)
