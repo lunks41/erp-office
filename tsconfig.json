@@ -32,6 +32,9 @@
       "@/*": [
         "./*"
       ],
+      "xlsx": [
+        "./lib/xlsx-compat"
+      ],
       "react": [
         "./node_modules/@types/react"
       ]

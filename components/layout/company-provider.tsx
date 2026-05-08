@@ -1,7 +1,5 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import * as React from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
@@ -10,11 +8,45 @@ import { Spinner } from "@/components/ui/spinner"
 export function CompanyProvider({ children }: { children: React.ReactNode }) {
   const params = useParams()
   const router = useRouter()
-  const { switchCompany, getCurrentTabCompanyId, isAuthenticated } = useAuthStore()
-  const { companies, currentCompany } = useCompanyStore()
+  // Use auth-store for companies because it persists across page refreshes.
+  // useCompanyStore().companies is always empty on refresh (no persistence),
+  // which caused CompanyProvider to always redirect to /company-select on reload.
+  const {
+    switchCompany,
+    isAuthenticated,
+    _hasHydrated,
+    companies,
+    currentCompany,
+    getCurrentTabCompanyId,
+    setCurrentTabCompanyId,
+  } = useAuthStore()
   const companyId = params.companyId as string
   const [isCompanySwitching, setIsCompanySwitching] = React.useState(false)
   const [hasSwitched, setHasSwitched] = React.useState(false)
+
+  // Ensure each newly opened tab has its own company marker in sessionStorage.
+  // sessionStorage is tab-scoped, so keep it aligned with URL/company state.
+  React.useEffect(() => {
+    if (!_hasHydrated || typeof window === "undefined") return
+
+    const sessionCompanyId = getCurrentTabCompanyId()
+    const resolvedCompanyId = companyId || currentCompany?.companyId
+    if (resolvedCompanyId && sessionCompanyId !== resolvedCompanyId) {
+      setCurrentTabCompanyId(resolvedCompanyId)
+    }
+  }, [
+    _hasHydrated,
+    companyId,
+    currentCompany?.companyId,
+    getCurrentTabCompanyId,
+    setCurrentTabCompanyId,
+  ])
+
+  const isRouteCompanyOutOfSync =
+    _hasHydrated &&
+    isAuthenticated &&
+    !!companyId &&
+    currentCompany?.companyId !== companyId
 
   // console.log("🏢 CompanyProvider initialized:", {
   //   companyId,
@@ -27,28 +59,11 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   //   })),
   // })
 
-  // Check for undefined currentCompany issue
-  if (isAuthenticated && companies.length > 0 && !currentCompany) {
-    console.warn(
-      "🚨 COMPANY PROVIDER ISSUE: User authenticated with companies but no currentCompany set"
-    )
-    // console.log("📊 State details:", {
-    //   isAuthenticated,
-    //   companiesCount: companies.length,
-    //   currentCompany: currentCompany,
-    //   companyIdFromURL: companyId,
-    // })
-    // console.log("💡 This usually means user needs to select a company first")
-  }
   React.useEffect(() => {
-    //console.log("🔄 CompanyProvider useEffect triggered")
-    // console.log("📊 CompanyProvider state check:", {
-    //   companyIdFromURL: companyId,
-    //   isAuthenticated,
-    //   companiesCount: companies.length,
-    //   currentCompanyId: currentCompany?.companyId,
-    //   sessionStorageCompanyId: sessionStorage.getItem("tab_company_id"),
-    // })
+    // Wait for Zustand to finish rehydrating from localStorage before acting.
+    // Without this guard, companies is always [] on the very first render
+    // (before onRehydrateStorage fires), causing spurious redirects.
+    if (!_hasHydrated) return
 
     // CRITICAL: Check if company switch is needed IMMEDIATELY
     if (
@@ -134,9 +149,9 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     }, 100) // Small delay to allow auth store to initialize
     return () => clearTimeout(timer)
   }, [
+    _hasHydrated,
     companyId,
     switchCompany,
-    getCurrentTabCompanyId,
     companies,
     isAuthenticated,
     router,
@@ -144,7 +159,7 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     hasSwitched,
   ])
   // Show loading state while company is switching
-  if (isCompanySwitching && currentCompany?.companyId !== companyId) {
+  if (isCompanySwitching || isRouteCompanyOutOfSync) {
     // console.log("⏳ Company switching in progress, showing loading state")
     return (
       <div className="flex min-h-screen items-center justify-center">

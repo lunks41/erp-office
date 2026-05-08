@@ -37,9 +37,9 @@ export default function AccessDenied() {
       //console.log("🔄 Clearing session for different account login...")
       // Clear all session data
       await logOut()
-      Cookies.remove("auth-token")
-      Cookies.remove("selectedCompanyId")
-      Cookies.remove("tab_company_id")
+      Cookies.remove("auth-token", { path: "/" })
+      Cookies.remove("selectedCompanyId", { path: "/" })
+      Cookies.remove("tab_company_id", { path: "/" })
 
       // Clear company data
       setCompanies([])

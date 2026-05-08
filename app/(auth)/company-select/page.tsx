@@ -18,7 +18,6 @@ import {
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { SafeImage } from "@/components/ui/safe-image"
-import AccessDenied from "@/app/access-denied"
 
 export default function CompanySelectPage() {
   const {
@@ -28,13 +27,14 @@ export default function CompanySelectPage() {
     switchCompany,
     getCompanies,
     getCurrentTabCompanyId,
+    logOut,
   } = useAuthStore()
 
   // Get the store's get function to access fresh state
   const get = useAuthStore.getState
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
-  const [showAccessDenied, setShowAccessDenied] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
@@ -57,7 +57,7 @@ export default function CompanySelectPage() {
 
       // Mark as initialized to prevent re-runs
       setIsInitialized(true)
-      setShowAccessDenied(false)
+      setFetchError(null)
 
       // Use companies already loaded during login; only fetch if empty
       let currentCompanies = get().companies
@@ -66,16 +66,15 @@ export default function CompanySelectPage() {
         setSelectedCompanyId("")
         try {
           await getCompanies()
-          await new Promise((resolve) => setTimeout(resolve, 100))
           currentCompanies = get().companies
 
           if (currentCompanies.length === 0) {
-            setShowAccessDenied(true)
+            setFetchError("No companies are available for your account. Please contact your administrator.")
             return
           }
         } catch (error) {
           console.error("❌ Failed to fetch companies:", error)
-          setShowAccessDenied(true)
+          setFetchError("Failed to load companies. Please try again.")
           return
         }
       }
@@ -175,8 +174,25 @@ export default function CompanySelectPage() {
       .charAt(0)
       .toUpperCase()
   }
-  if (showAccessDenied) {
-    return <AccessDenied />
+  if (fetchError) {
+    return (
+      <div className="bg-muted dark:bg-background flex min-h-screen flex-col items-center justify-center p-4 text-center">
+        <div className="max-w-md space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold tracking-tighter">Unable to Load Companies</h1>
+            <p className="text-muted-foreground">{fetchError}</p>
+          </div>
+          <div className="flex flex-col justify-center gap-2 min-[400px]:flex-row">
+            <Button onClick={() => { setFetchError(null); setIsInitialized(false) }}>
+              Try Again
+            </Button>
+            <Button variant="outline" onClick={async () => { await logOut(); router.replace("/login") }}>
+              Login with a different account
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
   // Show loading while companies are being fetched or while auto-redirecting
   if (!isAuthenticated || companies.length === 0) {

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { X, Megaphone } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
+import { useAuthStore } from "@/stores/auth-store"
 
 interface Announcement {
   announcementId: number
@@ -14,6 +15,7 @@ interface Announcement {
 export function AnnouncementBanner() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [dismissed, setDismissed] = useState<Set<number>>(new Set())
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -23,7 +25,10 @@ export function AnnouncementBanner() {
     } catch { /* silent */ }
   }, [])
 
-  useEffect(() => { fetchAnnouncements() }, [fetchAnnouncements])
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated) fetchAnnouncements()
+    else if (!isAuthenticated) setAnnouncements([])
+  }, [_hasHydrated, isAuthenticated, fetchAnnouncements])
 
   const visible = announcements.filter((a) => !dismissed.has(a.announcementId))
   if (visible.length === 0) return null

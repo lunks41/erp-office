@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { IChartOfAccountLookup } from "@/interfaces/lookup"
 import { useAuthStore } from "@/stores/auth-store"
+import { usePermissions } from "@/hooks/use-permissions"
 import { IconCopy, IconEye, IconX } from "@tabler/icons-react"
 import {
   endOfMonth,
@@ -19,7 +20,7 @@ import {
 import { FormProvider, useForm } from "react-hook-form"
 
 import { formatDateForApi } from "@/lib/date-utils"
-import { cn } from "@/lib/utils"
+import { cn, GLTransactionId, ModuleId } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -197,6 +198,10 @@ const REPORT_CATEGORIES = [
 ]
 
 export default function ReportsPage() {
+  const moduleId = ModuleId.gl
+  const transactionId = GLTransactionId.reports
+  const { canPrint, canExport } = usePermissions(moduleId, transactionId)
+  const canRunReport = canPrint || canExport
   const params = useParams()
   const companyId = Number(params.companyId)
   const { user } = useAuthStore()
@@ -522,6 +527,7 @@ export default function ReportsPage() {
   }
 
   const handleViewReport = (data: IReportFormData) => {
+    if (!canRunReport) return
     const selectedReportObjects = getSelectedReportObjects()
     if (selectedReportObjects.length === 0) {
       return
@@ -951,7 +957,7 @@ export default function ReportsPage() {
                 <div className="flex gap-2 pt-2">
                   <Button
                     type="submit"
-                    disabled={selectedReports.length === 0}
+                    disabled={selectedReports.length === 0 || !canRunReport}
                     className="flex-1"
                   >
                     <IconEye className="mr-2 size-4" />
@@ -967,6 +973,11 @@ export default function ReportsPage() {
                     Clear
                   </Button>
                 </div>
+                {!canRunReport && (
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    You do not have report print/export rights.
+                  </p>
+                )}
               </form>
             </FormProvider>
           </CardContent>

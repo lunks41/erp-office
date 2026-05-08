@@ -87,13 +87,14 @@ export function UserGroupReportSettingTable() {
 
   const handlePermissionChange = (
     moduleId: number,
-    transactionId: number,
+    reportId: number,
+    itemNo: number,
     permission: PermissionType,
     checked: boolean
   ) => {
     setGroupRights((prev) =>
       prev.map((right) =>
-        right.moduleId === moduleId && right.transactionId === transactionId
+        right.moduleId === moduleId && right.reportId === reportId && right.itemNo === itemNo
           ? { ...right, [permission]: checked }
           : right
       )
@@ -102,12 +103,13 @@ export function UserGroupReportSettingTable() {
 
   const handleRowSelectAll = (
     moduleId: number,
-    transactionId: number,
+    reportId: number,
+    itemNo: number,
     checked: boolean
   ) => {
     setGroupRights((prev) =>
       prev.map((right) =>
-        right.moduleId === moduleId && right.transactionId === transactionId
+        right.moduleId === moduleId && right.reportId === reportId && right.itemNo === itemNo
           ? {
               ...right,
               isExport: checked,
@@ -142,14 +144,14 @@ export function UserGroupReportSettingTable() {
 
   const columns: ColumnDef<IUserGroupReportRights>[] = [
     {
-      accessorKey: "moduleName",
-      header: "Module",
-      size: 150,
+      accessorKey: "repCategoryName",
+      header: "Category",
+      size: 100,
     },
     {
-      accessorKey: "transactionName",
-      header: "Transaction",
-      size: 150,
+      accessorKey: "reportName",
+      header: "Report",
+      size: 200,
     },
     {
       id: "selectAll",
@@ -179,7 +181,8 @@ export function UserGroupReportSettingTable() {
           onCheckedChange={(checked) =>
             handleRowSelectAll(
               row.original.moduleId,
-              row.original.transactionId,
+              row.original.reportId,
+              row.original.itemNo,
               Boolean(checked)
             )
           }
@@ -206,7 +209,8 @@ export function UserGroupReportSettingTable() {
           onCheckedChange={(checked) =>
             handlePermissionChange(
               row.original.moduleId,
-              row.original.transactionId,
+              row.original.reportId,
+              row.original.itemNo,
               "isExport",
               Boolean(checked)
             )
@@ -234,7 +238,8 @@ export function UserGroupReportSettingTable() {
           onCheckedChange={(checked) =>
             handlePermissionChange(
               row.original.moduleId,
-              row.original.transactionId,
+              row.original.reportId,
+              row.original.itemNo,
               "isPrint",
               Boolean(checked)
             )

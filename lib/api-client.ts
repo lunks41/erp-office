@@ -65,7 +65,16 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       const { isAuthenticated, forceLogout } = useAuthStore.getState()
       if (isAuthenticated) {
-        forceLogout()
+        // Only force logout if the auth cookie is actually present.
+        // A missing cookie means the session cookie was never stored (e.g.
+        // set with secure:true on HTTP) or already cleared — calling forceLogout
+        // in that case nukes persisted state and causes a redirect cascade.
+        const hasAuthCookie =
+          typeof document !== "undefined" &&
+          document.cookie.split(";").some((c) => c.trim().startsWith("auth-token="))
+        if (hasAuthCookie) {
+          forceLogout()
+        }
       }
     }
     return Promise.reject(error)
@@ -93,7 +102,8 @@ export const getCompanyIdFromSession: () => string | null = () => {
       const companyId = state.currentCompany.companyId.toString()
       // console.log("✅ Found company ID in Zustand store:", companyId)
 
-      // Also check sessionStorage to see if there's a mismatch
+      // sessionStorage is tab-authoritative for multi-tab behavior.
+      // If it disagrees with Zustand, prefer tab-local value.
       const sessionStorageCompanyId = sessionStorage.getItem("tab_company_id")
       if (sessionStorageCompanyId && sessionStorageCompanyId !== companyId) {
         console.warn(
@@ -102,7 +112,7 @@ export const getCompanyIdFromSession: () => string | null = () => {
           "but sessionStorage has",
           sessionStorageCompanyId
         )
-        // console.log("🔍 This might cause API calls to use wrong company ID!")
+        return sessionStorageCompanyId
       }
 
       return companyId

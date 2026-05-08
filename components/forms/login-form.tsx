@@ -5,9 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
-import { getDeviceInfo } from "@/lib/device-info"
+import { getDeviceInfo, type DeviceInfo } from "@/lib/device-info"
 import { IActiveSession } from "@/interfaces/auth"
-import { ConcurrentSessionDialog } from "@/components/auth/concurrent-session-dialog"
+import { ActiveSessionsView } from "@/components/auth/active-sessions-view"
 
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -95,7 +95,7 @@ export function LoginForm({
     form?: boolean
   }>({})
   const [activeSessions, setActiveSessions] = useState<IActiveSession[] | null>(null)
-  const [pendingDeviceInfo, setPendingDeviceInfo] = useState<Record<string, unknown> | undefined>()
+  const [pendingDeviceInfo, setPendingDeviceInfo] = useState<DeviceInfo | undefined>()
   const { logIn, loginForce, isLoading, error } = useAuthStore()
   const router = useRouter()
 
@@ -226,18 +226,21 @@ export function LoginForm({
     }
   }
 
-  // Render
-  // ------
+  if (activeSessions) {
+    return (
+      <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <ActiveSessionsView
+          sessions={activeSessions}
+          isLoading={isLoading}
+          imageUrl={imageUrl}
+          onSignOutOthers={handleSignOutOthers}
+          onCancel={() => setActiveSessions(null)}
+        />
+      </div>
+    )
+  }
+
   return (
-    <>
-    {activeSessions && (
-      <ConcurrentSessionDialog
-        sessions={activeSessions}
-        isLoading={isLoading}
-        onSignOutOthers={handleSignOutOthers}
-        onCancel={() => setActiveSessions(null)}
-      />
-    )}
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
@@ -362,6 +365,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-    </>
   )
 }

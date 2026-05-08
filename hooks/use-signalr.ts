@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useCallback } from "react"
+import { useEffect, useRef } from "react"
 import * as signalR from "@microsoft/signalr"
 import { useAuthStore } from "@/stores/auth-store"
 
@@ -20,14 +20,6 @@ export function useSignalR(
   const connectionRef = useRef<signalR.HubConnection | null>(null)
   const handlersRef = useRef(handlers)
   handlersRef.current = handlers
-
-  const startConnection = useCallback(async (connection: signalR.HubConnection) => {
-    try {
-      await connection.start()
-    } catch {
-      // Reconnect is handled by withAutomaticReconnect
-    }
-  }, [])
 
   useEffect(() => {
     if (!isAuthenticated || !token || !BACKEND_URL) return
@@ -57,13 +49,16 @@ export function useSignalR(
       forceLogout()
     })
 
-    startConnection(connection)
+    connection.start().catch(() => {
+      // Suppressed — withAutomaticReconnect handles reconnects; errors also
+      // fire when connection.stop() is called during logout cleanup.
+    })
 
     return () => {
       connection.stop()
       connectionRef.current = null
     }
-  }, [isAuthenticated, token, forceLogout, startConnection])
+  }, [isAuthenticated, token, forceLogout])
 
   return connectionRef.current
 }

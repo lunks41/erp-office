@@ -47,7 +47,12 @@ export async function POST(request: NextRequest) {
   }
   if (clientIp && clientIp !== "unknown") headers["X-Forwarded-For"] = clientIp
   const userAgent = request.headers.get("user-agent")
-  if (userAgent) headers["X-User-Agent"] = userAgent
+  const clientFingerprint = request.headers.get("x-client-fingerprint")
+  if (userAgent) {
+    headers["X-User-Agent"] = clientFingerprint
+      ? `${userAgent} | fp:${clientFingerprint}`
+      : userAgent
+  }
 
   try {
     const response = await fetch(`${BACKEND_API_URL}/auth/login-force`, {

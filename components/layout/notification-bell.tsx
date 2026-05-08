@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Bell, CheckCheck, Info, AlertTriangle, AlertCircle, X } from "lucide-react"
 import { useNotificationStore } from "@/stores/notification-store"
+import { useAuthStore } from "@/stores/auth-store"
 import { useSignalR } from "@/hooks/use-signalr"
 import { apiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
@@ -32,8 +33,10 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const { history, unreadCount, markRead, markAllRead, addFromServer, setFromServer, setUnreadCount } = useNotificationStore()
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
 
-  // Fetch from backend on mount
+  // Fetch from backend only after hydration + authenticated — prevents premature
+  // calls that would trigger forceLogout before session cookies are verified
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await apiClient.get("/notifications/getnotifications?pageNumber=1&pageSize=20")
@@ -42,7 +45,9 @@ export function NotificationBell() {
     } catch { /* silent */ }
   }, [setFromServer])
 
-  useEffect(() => { fetchNotifications() }, [fetchNotifications])
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated) fetchNotifications()
+  }, [_hasHydrated, isAuthenticated, fetchNotifications])
 
   // Mark as read on backend
   const handleMarkRead = async (id: string, notificationId: number) => {

@@ -116,8 +116,11 @@ export async function POST(request: NextRequest) {
   }
 
   const userAgent = request.headers.get("user-agent")
+  const clientFingerprint = request.headers.get("x-client-fingerprint")
   if (userAgent) {
-    headers["X-User-Agent"] = userAgent
+    headers["X-User-Agent"] = clientFingerprint
+      ? `${userAgent} | fp:${clientFingerprint}`
+      : userAgent
   }
 
   try {

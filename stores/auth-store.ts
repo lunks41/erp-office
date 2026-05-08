@@ -5,6 +5,7 @@ import {
   IUser,
   IUserTransactionRights,
 } from "@/interfaces/auth"
+import { getClientFingerprint, type DeviceInfo } from "@/lib/device-info"
 import Cookies from "js-cookie"
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
@@ -76,6 +77,7 @@ const syncSessionState = async (
 // --------------
 interface AuthState {
   // Authentication State
+  _hasHydrated: boolean
   isAuthenticated: boolean
   isAppLocked: boolean
   isLoading: boolean
@@ -111,8 +113,8 @@ interface AuthState {
   decimals: IDecimal[]
 
   // Authentication Actions
-  logIn: (userName: string, userPassword: string, deviceInfo?: Record<string, unknown>) => Promise<AuthResponse>
-  loginForce: (userName: string, userPassword: string, sessionIdsToRevoke: number[], deviceInfo?: Record<string, unknown>) => Promise<AuthResponse>
+  logIn: (userName: string, userPassword: string, deviceInfo?: DeviceInfo) => Promise<AuthResponse>
+  loginForce: (userName: string, userPassword: string, sessionIdsToRevoke: number[], deviceInfo?: DeviceInfo) => Promise<AuthResponse>
 
   applocklogIn: (
     userName: string,
@@ -174,6 +176,7 @@ export const useAuthStore = create<AuthState>()(
     persist(
       (set, get) => ({
         // Initial State
+        _hasHydrated: false,
         isAuthenticated: false,
         isAppLocked: false,
         isLoading: false,
@@ -218,7 +221,7 @@ export const useAuthStore = create<AuthState>()(
          * 5. Fetch companies if login successful
          * @returns Login response data including user info and tokens
          */
-        logIn: async (userName: string, userPassword: string, deviceInfo?: Record<string, unknown>) => {
+        logIn: async (userName: string, userPassword: string, deviceInfo?: DeviceInfo) => {
           set({ isLoading: true, error: null })
 
           try {
@@ -229,6 +232,7 @@ export const useAuthStore = create<AuthState>()(
               headers: {
                 "Content-Type": "application/json",
                 "x-csrf-token": csrfToken,
+                "x-client-fingerprint": getClientFingerprint(),
               },
               body: JSON.stringify({ userName, userPassword, deviceInfo }),
             })
@@ -266,6 +270,7 @@ export const useAuthStore = create<AuthState>()(
               user: data.user,
               token: data.token,
               refreshToken: data.refreshToken,
+              activeSessions: data.activeSessions,
             }
           } catch (error) {
             set({ isLoading: false })
@@ -278,14 +283,18 @@ export const useAuthStore = create<AuthState>()(
           }
         },
 
-        loginForce: async (userName: string, userPassword: string, sessionIdsToRevoke: number[], deviceInfo?: Record<string, unknown>) => {
+        loginForce: async (userName: string, userPassword: string, sessionIdsToRevoke: number[], deviceInfo?: DeviceInfo) => {
           set({ isLoading: true, error: null })
           try {
             const csrfRes = await fetch("/api/auth/csrf")
             const { csrfToken } = await csrfRes.json()
             const response = await fetch("/api/auth/login-force", {
               method: "POST",
-              headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
+              headers: {
+                "Content-Type": "application/json",
+                "x-csrf-token": csrfToken,
+                "x-client-fingerprint": getClientFingerprint(),
+              },
               body: JSON.stringify({ userName, userPassword, sessionIdsToRevoke, deviceInfo }),
             })
             const data: AuthResponse = await response.json()
@@ -316,6 +325,7 @@ export const useAuthStore = create<AuthState>()(
               headers: {
                 "Content-Type": "application/json",
                 "x-csrf-token": csrfToken,
+                "x-client-fingerprint": getClientFingerprint(),
               },
               body: JSON.stringify({ userName, userPassword, deviceInfo: getDeviceInfo() }),
             })
@@ -333,7 +343,7 @@ export const useAuthStore = create<AuthState>()(
             if (data.result !== 1) {
               get().setAppLocked(true)
               if (data.user?.isLocked === true) {
-                Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
+                Cookies.remove(AUTH_TOKEN_COOKIE_NAME, { path: "/" })
 
                 set({
                   isAuthenticated: false,
@@ -378,8 +388,9 @@ export const useAuthStore = create<AuthState>()(
 
           Cookies.set(AUTH_TOKEN_COOKIE_NAME, token, {
             expires: 7,
-            secure: true,
+            secure: typeof window !== "undefined" && window.location.protocol === "https:",
             sameSite: "strict",
+            path: "/",
           })
 
           set({
@@ -414,7 +425,7 @@ export const useAuthStore = create<AuthState>()(
          * Clears authentication state and tokens
          */
         logInFailed: (error: string) => {
-          Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
+          Cookies.remove(AUTH_TOKEN_COOKIE_NAME, { path: "/" })
 
           set({
             isAuthenticated: false,
@@ -508,7 +519,7 @@ export const useAuthStore = create<AuthState>()(
         },
 
         logOutSuccess: () => {
-          Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
+          Cookies.remove(AUTH_TOKEN_COOKIE_NAME, { path: "/" })
           get().clearCurrentTabCompanyId()
 
           localStorage.removeItem("auth-storage")
@@ -788,6 +799,9 @@ export const useAuthStore = create<AuthState>()(
       }),
       {
         name: "auth-storage",
+        onRehydrateStorage: () => () => {
+          useAuthStore.setState({ _hasHydrated: true })
+        },
         partialize: (state) => ({
           isAuthenticated: state.isAuthenticated,
           isAppLocked: state.isAppLocked,

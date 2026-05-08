@@ -983,33 +983,13 @@ const buildDynamicMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
 
   const master = buildMasterMenu(visible)
   const operations = otherMenu.find((m) => m.url === "/operations")
-  const hardcodedPdaItem: MenuItem = {
-    title: "PDA",
-    url: "/operations/pda",
-    icon: getTransactionIcon("pda"),
-  }
-  const operationsWithHardcodedPda = operations
-    ? {
-        ...operations,
-        items:
-          operations.items &&
-          operations.items.some((i) => i.url === "/operations/pda")
-            ? operations.items
-            : [hardcodedPdaItem, ...(operations.items ?? [])],
-      }
-    : {
-        title: "Operations",
-        url: "/operations",
-        icon: getModuleIcon("operations"),
-        items: [hardcodedPdaItem],
-      }
   const rest = otherMenu.filter(
     (m) => m.url !== "/master" && m.url !== "/operations"
   )
 
   return [
     ...(master ? [master] : []),
-    ...(operationsWithHardcodedPda ? [operationsWithHardcodedPda] : []),
+    ...(operations ? [operations] : []),
     ...accountMenu,
     ...rest,
   ]

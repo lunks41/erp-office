@@ -191,8 +191,12 @@ export interface IUserGroupReportRights {
   userGroupId: number
   moduleId: number
   moduleName: string
-  transactionId: number
-  transactionName: string
+  reportId: number
+  itemNo: number
+  reportName: string
+  reportFolder: string
+  repCategoryId: number
+  repCategoryName: string
   isExport: boolean
   isPrint: boolean
 }
