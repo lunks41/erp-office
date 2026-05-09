@@ -100,6 +100,12 @@ export interface IGstCategoryLookup {
   gstCategoryName: string
 }
 
+export interface IReportCategoryLookup {
+  repCategoryId: number
+  repCategoryCode: string
+  repCategoryName: string
+}
+
 export interface IAccountSetupLookup {
   accSetupId: number
   accSetupCode: string

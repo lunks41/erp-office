@@ -13,6 +13,7 @@ import {
   Award,
   Banknote,
   BarChart,
+  Bell,
   BookOpen,
   BookOpenText,
   Box,
@@ -671,6 +672,7 @@ const ICON_COLORS: Record<string, string> = {
   adjustment: "text-slate-500",
   reports: "text-blue-400",
   overview: "text-blue-500",
+  notifications: "text-sky-600",
   // Master categories (transCategoryCode)
   region: "text-blue-500",
   product: "text-green-500",
@@ -1013,6 +1015,11 @@ export const menuData: { mainNav: MainNavItem[] } = {
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      title: "Notifications",
+      url: "/notifications",
+      icon: Bell,
     },
     // {
     //   title: "Approvals",

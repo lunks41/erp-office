@@ -795,7 +795,6 @@ export const SerTransportationHdSchema = z.object({
   transportationId: z.number().optional(),
   companyId: z.number().min(1, "Company ID is required"),
   jobOrderId: z.number().min(1, "Job Order ID is required"),
-  itemNo: z.number().min(1, "Item No is required"),
   taskId: z.number().min(1, "Task ID is required"),
   transportDate: z.union([z.date(), z.string()]),
   fromLocationId: z.number().min(1, "From Location is required"),

@@ -126,6 +126,20 @@ export const UserGroupReportRights = {
   clone: "/admin/cloneusergroupreportrights",
 }
 
+/** Report category (AdmReportCategory) */
+export const ReportCategoryMaster = {
+  get: "/admin/GetAdmReportCategory",
+  add: "/admin/SaveAdmReportCategory",
+  delete: "/admin/DeleteAdmReportCategory",
+}
+
+/** Report catalog (AdmReports) */
+export const ReportCatalog = {
+  get: "/admin/GetAdmReport",
+  add: "/admin/SaveAdmReport",
+  delete: "/admin/DeleteAdmReport",
+}
+
 // Share Data Endpoints
 export const ShareData = {
   get: "/admin/getsharedata",
@@ -251,6 +265,7 @@ export const Lookup = {
   getYear: "/master/getperiodcloseyear",
   getFutureYear: "/master/getperiodclosefutureyear",
   getGstCategory: "/master/getgstcategorylookup",
+  getReportCategory: "/master/getreportcategorylookup",
   getTaxCategory: "/master/gettaxcategorylookup",
   getProduct: "/master/getproductlookup",
   getGst: "/master/getgstlookup",

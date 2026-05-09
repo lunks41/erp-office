@@ -86,12 +86,12 @@ export function TransportationLogTab({
   // State for delete confirmation
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean
-    itemNo: string | null
+    transportationId: string | null
     transportationLogName: string | null
     jobOrderId: number | null
   }>({
     isOpen: false,
-    itemNo: null,
+    transportationId: null,
     transportationLogName: null,
     jobOrderId: null,
   })
@@ -160,22 +160,24 @@ export function TransportationLogTab({
   )
 
   const handleDelete = (id: string) => {
-    const itemToDelete = data?.find((item) => item.itemNo.toString() === id)
+    const itemToDelete = data?.find(
+      (item) => String(item.transportationId ?? "") === id
+    )
     if (!itemToDelete) return
 
     setDeleteConfirmation({
       isOpen: true,
-      itemNo: id,
+      transportationId: id,
       transportationLogName: `Transportation ${itemToDelete.fromLocationId} to ${itemToDelete.toLocationId}`,
       jobOrderId: jobData.jobOrderId,
     })
   }
 
   const handleConfirmDelete = async () => {
-    if (deleteConfirmation.itemNo && deleteConfirmation.jobOrderId) {
+    if (deleteConfirmation.transportationId && deleteConfirmation.jobOrderId) {
       try {
         await deleteMutation.mutateAsync(
-          `${deleteConfirmation.jobOrderId}/${deleteConfirmation.itemNo}`
+          `${deleteConfirmation.jobOrderId}/${deleteConfirmation.transportationId}`
         )
         queryClient.invalidateQueries({ queryKey: ["transportationLog"] })
         onTaskAdded?.()
@@ -184,7 +186,7 @@ export function TransportationLogTab({
       } finally {
         setDeleteConfirmation({
           isOpen: false,
-          itemNo: null,
+          transportationId: null,
           jobOrderId: null,
           transportationLogName: null,
         })
@@ -263,7 +265,6 @@ export function TransportationLogTab({
           transportationId:
             selectedItem.transportationId ??
             saveConfirmation.formData.transportationId,
-          itemNo: selectedItem.itemNo,
         })
       } else {
         response = await saveMutation.mutateAsync(submitData)
@@ -475,7 +476,7 @@ export function TransportationLogTab({
         onCancelAction={() =>
           setDeleteConfirmation({
             isOpen: false,
-            itemNo: null,
+            transportationId: null,
             jobOrderId: null,
             transportationLogName: null,
           })

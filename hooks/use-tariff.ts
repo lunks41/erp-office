@@ -16,8 +16,9 @@ import { Tariff } from "@/lib/api-routes"
  * Query Configuration
  */
 const defaultQueryConfig = {
-  staleTime: 60 * 60 * 1000, // 1 hour
-  refetchOnWindowFocus: false,
+  staleTime: 0,
+  gcTime: 0,
+  refetchOnWindowFocus: true,
 }
 /**
  * Error Handler

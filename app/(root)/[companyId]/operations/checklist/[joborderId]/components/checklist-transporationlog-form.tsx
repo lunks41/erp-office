@@ -108,7 +108,6 @@ export function TransportationLogForm({
     resolver: zodResolver(SerTransportationHdSchema) as never,
     defaultValues: {
       transportationId: initialData?.transportationId ?? 0,
-      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
@@ -142,7 +141,6 @@ export function TransportationLogForm({
   useEffect(() => {
     form.reset({
       transportationId: initialData?.transportationId ?? 0,
-      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,

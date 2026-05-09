@@ -201,6 +201,56 @@ export interface IUserGroupReportRights {
   isPrint: boolean
 }
 
+/** AdmReportCategory list/detail row */
+export interface IReportCategory {
+  repCategoryId: number
+  repCategoryCode: string
+  repCategoryName: string
+  remarks?: string | null
+  createById?: number
+  createBy?: string | null
+  createDate?: string | Date
+  editById?: number | null
+  editBy?: string | null
+  editDate?: string | Date | null
+}
+
+/** AdmReports list/detail row */
+export interface IReportCatalog {
+  companyId: number
+  moduleId: number
+  moduleCode?: string | null
+  moduleName?: string | null
+  reportId: number
+  itemNo: number
+  transactionId: number
+  transactionCode?: string | null
+  transactionName?: string | null
+  repCategoryId: number
+  repCategoryCode?: string | null
+  repCategoryName?: string | null
+  reportFolder?: string | null
+  reportName?: string | null
+  reportFileName?: string | null
+  isScreen: boolean
+  isList: boolean
+  isCompSpecific: boolean
+  repParamGroup: number
+  seqNo: number
+  isActive: boolean
+  createById?: number
+  createBy?: string | null
+  createDate?: string | Date
+  editById?: number | null
+  editBy?: string | null
+  editDate?: string | Date | null
+}
+
+/** Grid row with stable key for tables */
+export interface IReportCatalogGridRow extends IReportCatalog {
+  catalogRowKey: string
+}
+
 export interface IShareData {
   userGroupId: number
   moduleId: number

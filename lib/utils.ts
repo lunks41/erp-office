@@ -166,17 +166,28 @@ export enum MasterTransactionId {
   vesselType = 71,
 }
 
+/** Aligns with AdmTransaction.TransactionId / TransactionCode from database */
 export enum AdminTransactionId {
   user = 1,
   userRights = 2,
   userGroup = 3,
   userGroupRights = 4,
-  userGroupReportRights = 10,
   userRoles = 5,
   userProfile = 6,
   shareData = 7,
   company = 8,
   document = 9,
+  auditLog = 10,
+  errorLog = 11,
+  userLog = 12,
+  transactionRecovery = 13,
+  checklistOverrides = 14,
+  sessions = 15,
+  /** TransactionCode reportCategory — route `/admin/reportcategory` */
+  reportcategory = 16,
+  reports = 17,
+  userGroupReportRights = 18,
+  announcements = 901,
   notDefine = 100,
 }
 
@@ -394,6 +405,8 @@ export enum TableName {
   userGroup = "AdmUserGroup",
   userGroupRights = "AdmUserGroupRights",
   userGroupReportRights = "AdmUserGroupReportRights",
+  admReportCategory = "AdmReportCategory",
+  admReports = "AdmReports",
   userRights = "AdmUserRights",
   userProfile = "AdmUserProfile",
   shareData = "AdmShareData",

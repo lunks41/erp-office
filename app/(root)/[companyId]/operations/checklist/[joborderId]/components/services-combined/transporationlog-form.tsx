@@ -88,7 +88,6 @@ export function TransportationLogForm({
     resolver: zodResolver(SerTransportationHdSchema),
     defaultValues: {
       transportationId: initialData?.transportationId ?? 0,
-      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskId ?? taskDefaults.taskId ?? 0,
@@ -116,14 +115,15 @@ export function TransportationLogForm({
       data_details:
         initialData?.data_details && initialData.data_details.length > 0
           ? initialData.data_details
-          : ([{ itemNo: 1, serviceItemNo, serviceItemNoName: "" }] as ISerTransportationDt[]),
+          : ([
+              { itemNo: 1, serviceItemNo, serviceItemNoName: "" },
+            ] as ISerTransportationDt[]),
     },
   })
 
   useEffect(() => {
     form.reset({
       transportationId: initialData?.transportationId ?? 0,
-      itemNo: initialData?.itemNo ?? 1,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskId ?? taskDefaults.taskId ?? 0,
@@ -151,7 +151,9 @@ export function TransportationLogForm({
       data_details:
         initialData?.data_details && initialData.data_details.length > 0
           ? initialData.data_details
-          : ([{ itemNo: 1, serviceItemNo, serviceItemNoName: "" }] as ISerTransportationDt[]),
+          : ([
+              { itemNo: 1, serviceItemNo, serviceItemNoName: "" },
+            ] as ISerTransportationDt[]),
     })
   }, [
     dateFormat,

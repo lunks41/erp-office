@@ -272,3 +272,102 @@ export const userPasswordSchema = z
   })
 
 export type UserPasswordSchemaType = z.infer<typeof userPasswordSchema>
+
+export const report_category_string_limits = {
+  repCategoryCode: 50,
+  repCategoryName: 100,
+  remarks: 255,
+} as const
+
+export const report_category_numeric_limits = {
+  repCategoryId: { min: 0, max: 255 },
+} as const
+
+export const report_catalog_string_limits = {
+  reportFolder: 100,
+  reportName: 100,
+  reportFileName: 100,
+} as const
+
+export const report_catalog_numeric_limits = {
+  moduleId: { min: 0, max: 255 },
+  reportId: { min: 0, max: 32767 },
+  itemNo: { min: 0, max: 255 },
+  transactionId: { min: 0, max: 32767 },
+  repCategoryId: { min: 0, max: 255 },
+  repParamGroup: { min: 0, max: 255 },
+  seqNo: { min: 0, max: 32767 },
+} as const
+
+export const reportCategorySchema = z.object({
+  repCategoryId: z
+    .number()
+    .int()
+    .min(report_category_numeric_limits.repCategoryId.min)
+    .max(report_category_numeric_limits.repCategoryId.max),
+  repCategoryCode: z
+    .string()
+    .min(1, { message: "Category code is required" })
+    .max(report_category_string_limits.repCategoryCode),
+  repCategoryName: z
+    .string()
+    .min(1, { message: "Category name is required" })
+    .max(report_category_string_limits.repCategoryName),
+  remarks: z
+    .string()
+    .max(report_category_string_limits.remarks)
+    .optional(),
+})
+
+export type ReportCategorySchemaType = z.infer<typeof reportCategorySchema>
+
+/** Payload for SaveAdmReport (company comes from API header) */
+export const reportCatalogSaveSchema = z.object({
+  moduleId: z
+    .number()
+    .int()
+    .min(1, { message: "Module is required" })
+    .max(report_catalog_numeric_limits.moduleId.max),
+  reportId: z
+    .number()
+    .int()
+    .min(0)
+    .max(report_catalog_numeric_limits.reportId.max),
+  itemNo: z
+    .number()
+    .int()
+    .min(0)
+    .max(report_catalog_numeric_limits.itemNo.max),
+  transactionId: z
+    .number()
+    .int()
+    .min(1, { message: "Transaction is required" })
+    .max(report_catalog_numeric_limits.transactionId.max),
+  repCategoryId: z
+    .number()
+    .int()
+    .min(1, { message: "Report category is required" })
+    .max(report_catalog_numeric_limits.repCategoryId.max),
+  reportFolder: z.string().max(report_catalog_string_limits.reportFolder),
+  reportName: z
+    .string()
+    .min(1, { message: "Report name is required" })
+    .max(report_catalog_string_limits.reportName),
+  reportFileName: z.string().max(report_catalog_string_limits.reportFileName),
+  isScreen: z.boolean(),
+  isList: z.boolean(),
+  isCompSpecific: z.boolean(),
+  repParamGroup: z
+    .number()
+    .int()
+    .min(0)
+    .max(report_catalog_numeric_limits.repParamGroup.max),
+  seqNo: z
+    .number()
+    .int()
+    .min(0)
+    .max(report_catalog_numeric_limits.seqNo.max),
+  isActive: z.boolean(),
+})
+
+export type ReportCatalogSaveSchemaType = z.infer<typeof reportCatalogSaveSchema>

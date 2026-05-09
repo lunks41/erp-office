@@ -17,7 +17,7 @@ interface TransportationLogTableProps {
   onTransportationLogSelect?: (
     transportationLog: ISerTransportationHd | null
   ) => void
-  onDeleteTransportationLog?: (itemNo: string) => void
+  onDeleteTransportationLog?: (transportationId: string) => void
   onEditActionTransportationLog?: (
     transportationLog: ISerTransportationHd
   ) => void
@@ -355,7 +355,7 @@ export function TransportationLogTable({
       columns={columns}
       isLoading={isLoading}
       tableName={TableName.checklist}
-      accessorId="itemNo"
+      accessorId="transportationId"
       onSelect={onTransportationLogSelect}
       onEditAction={onEditActionTransportationLog}
       onDeleteAction={onDeleteTransportationLog}

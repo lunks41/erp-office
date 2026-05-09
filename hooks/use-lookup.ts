@@ -48,6 +48,7 @@ import {
   IPortRegionLookup,
   IProductLookup,
   IRankLookup,
+  IReportCategoryLookup,
   IServiceCategoryLookup,
   IServiceItemNoLookup,
   IServiceModeLookup,
@@ -399,6 +400,21 @@ export const useGstCategoryLookup = () => {
     queryFn: async () => {
       try {
         const data = await getData(Lookup.getGstCategory)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+  })
+}
+
+export const useReportCategoryLookup = () => {
+  return useQuery<IReportCategoryLookup[]>({
+    queryKey: ["reportCategory-lookup"],
+    ...defaultQueryConfig,
+    queryFn: async () => {
+      try {
+        const data = await getData(Lookup.getReportCategory)
         return data?.data || []
       } catch (error) {
         handleApiError(error)

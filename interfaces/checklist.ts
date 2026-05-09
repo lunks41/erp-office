@@ -959,7 +959,6 @@ export interface ISerTransportationHd {
   transportationId?: number
   companyId: number
   jobOrderId: number
-  itemNo: number
   taskId: number
   transportDate: Date | string
   fromLocationId: number
