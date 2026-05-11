@@ -122,6 +122,8 @@ export const UserGroupRights = {
 // User Group Report Rights Endpoints
 export const UserGroupReportRights = {
   get: "/admin/getusergroupreportrightsbyid",
+  /** GET …/{moduleId} — AR=25, AP=26, CB=27, GL=28 */
+  getMyAccess: "/admin/getmyreportaccessrights",
   add: "/admin/saveusergroupreportrights",
   clone: "/admin/cloneusergroupreportrights",
 }

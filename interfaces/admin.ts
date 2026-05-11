@@ -199,6 +199,18 @@ export interface IUserGroupReportRights {
   repCategoryName: string
   isExport: boolean
   isPrint: boolean
+  isView: boolean
+}
+
+/** Current user's viewable report files (from GetMyReportAccessRights). */
+export interface IUserReportAccess {
+  moduleId: number
+  reportId: number
+  itemNo: number
+  reportFilePath: string
+  isExport: boolean
+  isPrint: boolean
+  isView: boolean
 }
 
 /** AdmReportCategory list/detail row */

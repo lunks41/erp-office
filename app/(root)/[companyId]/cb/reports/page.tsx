@@ -2,10 +2,15 @@
 
 import { useCompanyStore } from "@/stores/company-store"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePermissions } from "@/hooks/use-permissions"
+import {
+  normalizeReportFilePath,
+  reportPathMatchKey,
+  useViewableReportFiles,
+} from "@/hooks/use-viewable-report-files"
 import { CBTransactionId, ModuleId } from "@/lib/utils"
 import {
   endOfMonth,
@@ -130,6 +135,32 @@ export default function ReportsPage() {
   // Use the same date format logic as CustomDateNew
   const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
   const [selectedReports, setSelectedReports] = useState<string[]>([])
+
+  const { viewablePaths, isLoading: isRightsLoading } =
+    useViewableReportFiles(moduleId)
+
+  const visibleReportCategories = useMemo(() => {
+    if (isRightsLoading || viewablePaths === null) return null
+    return REPORT_CATEGORIES.map((category) => ({
+      ...category,
+      reports: category.reports.filter(
+        (report) =>
+          viewablePaths.has(normalizeReportFilePath(report.reportFile)) ||
+          viewablePaths.has(reportPathMatchKey(report.reportFile))
+      ),
+    })).filter((category) => category.reports.length > 0)
+  }, [viewablePaths, isRightsLoading])
+
+  const visibleReportsFlat = useMemo(() => {
+    if (visibleReportCategories === null) return null
+    return visibleReportCategories.flatMap((c) => c.reports)
+  }, [visibleReportCategories])
+
+  useEffect(() => {
+    if (visibleReportsFlat === null) return
+    const allowedIds = new Set(visibleReportsFlat.map((r) => r.id))
+    setSelectedReports((prev) => prev.filter((id) => allowedIds.has(id)))
+  }, [visibleReportsFlat])
 
   // Get current date formatted
   const getCurrentDate = () => {
@@ -302,12 +333,11 @@ export default function ReportsPage() {
   }, [])
 
   const getAllReports = (): IReport[] => {
-    return REPORT_CATEGORIES.flatMap((category) =>
-      category.reports.map((report) => ({
-        ...report,
-        category: category.name,
-      }))
-    )
+    const reports = visibleReportsFlat ?? []
+    return reports.map((report) => ({
+      ...report,
+      category: "",
+    }))
   }
 
   // Update date selection and reportType based on selected report
@@ -338,7 +368,7 @@ export default function ReportsPage() {
         form.setValue("reportType", selectedReport.reportType)
       }
     }
-  }, [selectedReports, form])
+  }, [selectedReports, form, visibleReportsFlat])
 
   const handleReportToggle = (reportId: string) => {
     setSelectedReports((prev) => (prev.includes(reportId) ? [] : [reportId]))
@@ -487,43 +517,44 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[600px]">
-              <div className="space-y-6 pr-4">
-                {REPORT_CATEGORIES.map((category) => (
-                  <div key={category.name} className="space-y-3">
-                    <h3 className="text-foreground text-sm font-medium">
-                      {category.name}
-                    </h3>
-                    <div className="space-y-2">
-                      {category.reports.map((report) => (
-                        <div
-                          key={report.id}
-                          className="hover:bg-muted flex cursor-pointer items-center space-x-2 rounded-md p-2 transition-colors"
-                        >
-                          <Checkbox
-                            checked={selectedReports.includes(report.id)}
-                            onCheckedChange={() => {
-                              handleReportToggle(report.id)
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                            }}
-                          />
-                          <label
-                            className="flex-1 cursor-pointer text-sm font-normal"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleReportToggle(report.id)
-                            }}
-                          >
-                            {report.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    <Separator />
+              <div className="space-y-2 pr-4">
+                {isRightsLoading || visibleReportsFlat === null ? (
+                  <div className="text-muted-foreground flex h-40 items-center justify-center text-sm">
+                    Loading reports…
                   </div>
-                ))}
+                ) : visibleReportsFlat.length === 0 ? (
+                  <div className="text-muted-foreground flex min-h-40 items-center justify-center px-2 text-center text-sm">
+                    No reports are available for your group. Enable View on the
+                    relevant rows in Admin → Group Report Rights.
+                  </div>
+                ) : (
+                  visibleReportsFlat.map((report) => (
+                    <div
+                      key={report.id}
+                      className="hover:bg-muted flex cursor-pointer items-center space-x-2 rounded-md p-2 transition-colors"
+                    >
+                      <Checkbox
+                        checked={selectedReports.includes(report.id)}
+                        onCheckedChange={() => {
+                          handleReportToggle(report.id)
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                        }}
+                      />
+                      <label
+                        className="flex-1 cursor-pointer text-sm font-normal"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleReportToggle(report.id)
+                        }}
+                      >
+                        {report.name}
+                      </label>
+                    </div>
+                  ))
+                )}
               </div>
             </ScrollArea>
           </CardContent>
