@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -87,7 +87,7 @@ export default function AccountDetails({
   }
 
   const labelClass =
-    "text-[10px] font-semibold uppercase leading-none tracking-wide text-blue-600 dark:text-blue-400"
+    "text-[10px] font-semibold uppercase leading-none tracking-wide text-muted-foreground dark:text-blue-400"
 
   const infoBoxClass =
     "bg-card flex flex-col gap-0.5 rounded-md border border-border px-2 py-1.5 shadow-sm"
@@ -130,10 +130,10 @@ export default function AccountDetails({
             <div className={labelClass}>Summary</div>
             <div className="grid grid-cols-3 gap-x-1 gap-y-px text-[11px] leading-tight">
               <div />
-              <div className="text-center font-semibold text-blue-600 dark:text-blue-400">
+              <div className="text-center font-semibold text-muted-foreground dark:text-blue-400">
                 TRANS
               </div>
-              <div className="text-center font-semibold text-blue-600 dark:text-blue-400">
+              <div className="text-center font-semibold text-muted-foreground dark:text-blue-400">
                 LOCAL
               </div>
               <div className="text-muted-foreground font-medium">Balance</div>

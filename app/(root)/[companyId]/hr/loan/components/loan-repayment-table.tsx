@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { ILoanRepayment, ILoanRequest } from "@/interfaces/loan"
 import { ColumnDef } from "@tanstack/react-table"
@@ -148,7 +148,7 @@ export function LoanRepaymentTable({
                 <div className="text-sm text-gray-600">Remaining Amount</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-muted-foreground">
                   {installmentsRemaining}
                 </div>
                 <div className="text-sm text-gray-600">

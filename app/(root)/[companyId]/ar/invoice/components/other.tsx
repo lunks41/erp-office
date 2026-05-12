@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -159,7 +159,7 @@ export default function Other({ form, visible }: OtherProps) {
       <Form {...form}>
         <div className="grid grid-cols-2 gap-1">
           {/* Address Section */}
-          <Card className="gap-2 rounded-md border border-border/60 bg-muted/40 py-2 shadow-sm">
+          <Card className="gap-2 rounded-md border border-border/60 bg-card py-2 shadow-sm">
             <CardContent className="px-2 py-1">
               {customerId > 0 && (
                 <div className="mb-1">
@@ -236,7 +236,7 @@ export default function Other({ form, visible }: OtherProps) {
           </Card>
 
           {/* Contact Section */}
-          <Card className="gap-2 rounded-md border border-border/60 bg-muted/40 py-2 shadow-sm">
+          <Card className="gap-2 rounded-md border border-border/60 bg-card py-2 shadow-sm">
             <CardContent className="px-2 py-1">
               {customerId > 0 && (
                 <div className="mb-1">
@@ -279,7 +279,7 @@ export default function Other({ form, visible }: OtherProps) {
         </div>
         {/* Other Information Section */}
         {(visible?.m_OtherRemarks || visible?.m_AdvRecAmt) && (
-          <Card className="gap-2 rounded-md border border-border/60 bg-muted/40 py-2 shadow-sm">
+          <Card className="gap-2 rounded-md border border-border/60 bg-card py-2 shadow-sm">
             <CardContent className="px-2 py-1">
               <div className="grid grid-cols-2 gap-1">
                 {visible?.m_OtherRemarks && (

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
@@ -151,7 +151,7 @@ export default function Other({ form, visible: _visible }: OtherProps) {
   return (
     <div className="space-y-1">
       <Form {...form}>
-        <Card className="rounded-md border border-border/60 bg-muted/40 shadow-sm">
+        <Card className="rounded-md border border-border/60 bg-card shadow-sm">
           <CardContent className="p-2">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
               {/* Address Section */}

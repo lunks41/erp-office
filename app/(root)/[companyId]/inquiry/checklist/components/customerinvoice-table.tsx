@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo } from "react"
 import { IArInvoiceHd } from "@/interfaces/ar-invoice"
@@ -62,7 +62,7 @@ export function CustomerInvoiceTable({
           const companyId = row.original.companyId
           const companyName = companyMap.get(companyId) || `Company ${companyId}`
           return (
-            <div className="font-medium text-blue-600">{companyName}</div>
+            <div className="font-medium text-muted-foreground">{companyName}</div>
           )
         },
         size: 150,

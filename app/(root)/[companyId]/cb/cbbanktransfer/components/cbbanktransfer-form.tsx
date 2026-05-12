@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -930,7 +930,7 @@ export default function BankTransferForm({
         {/* ============ SECTIONS 2 & 3: FROM BANK & TO BANK (SIDE BY SIDE) ============ */}
         <div className="grid grid-cols-2 gap-4">
           {/* ============ SECTION 2: FROM BANK ============ */}
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-900/20">
+          <div className="rounded-lg border border-border bg-card p-4 dark:border-blue-700 dark:bg-blue-900/20">
             <h3 className="mb-3 text-sm font-semibold text-blue-700 dark:text-blue-300">
               From Bank Details
             </h3>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
@@ -402,7 +402,7 @@ export function PayRunPreviewForm({
                       setEditablePayableDays(employee?.presentDays || 0)
                       setIsEditingPayableDays(true)
                     }}
-                    className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                    className="h-6 w-6 p-0 text-muted-foreground hover:text-primary"
                   >
                     <svg
                       className="h-4 w-4"
@@ -470,7 +470,7 @@ export function PayRunPreviewForm({
                       setEditablePastDays(employee?.pastDays || 0)
                       setIsEditingPastDays(true)
                     }}
-                    className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                    className="h-6 w-6 p-0 text-muted-foreground hover:text-primary"
                   >
                     <svg
                       className="h-4 w-4"
@@ -566,7 +566,7 @@ export function PayRunPreviewForm({
                             }))
                             setEditingEarningId(item.componentId)
                           }}
-                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                          className="h-6 w-6 p-0 text-muted-foreground hover:text-primary"
                         >
                           <svg
                             className="h-4 w-4"
@@ -672,7 +672,7 @@ export function PayRunPreviewForm({
                             }))
                             setEditingDeductionId(item.componentId)
                           }}
-                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                          className="h-6 w-6 p-0 text-muted-foreground hover:text-primary"
                         >
                           <svg
                             className="h-4 w-4"

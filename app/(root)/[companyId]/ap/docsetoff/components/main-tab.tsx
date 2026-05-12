@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -681,7 +681,7 @@ export default function Main({
           </Button>
           <Badge
             variant="secondary"
-            className="border-blue-200 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
+            className="border-border bg-blue-100 px-3 py-1 text-sm font-medium text-primary"
           >
             Total Alloc: {(form.getValues("allocTotAmt") || 0).toFixed(amtDec)}
           </Badge>

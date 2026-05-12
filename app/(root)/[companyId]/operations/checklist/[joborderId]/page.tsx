@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { IJobOrderHd } from "@/interfaces/checklist"
 import { useParams, useRouter } from "next/navigation"
@@ -53,7 +53,7 @@ export default function JobOrderDetailsPage() {
     "Cancel with Service":
       "border-orange-300 bg-linear-to-r from-orange-50 to-amber-100 text-orange-800 hover:from-orange-100 hover:to-amber-200",
     Confirmed:
-      "border-blue-300 bg-linear-to-r from-blue-50 to-indigo-100 text-blue-800 hover:from-blue-100 hover:to-indigo-200",
+      "border-border bg-linear-to-r from-blue-50 to-indigo-100 text-primary hover:from-blue-100 hover:to-indigo-200",
     Posted:
       "border-purple-300 bg-linear-to-r from-purple-50 to-violet-100 text-purple-800 hover:from-purple-100 hover:to-violet-200",
     Delivered:
@@ -133,16 +133,16 @@ export default function JobOrderDetailsPage() {
                 <TooltipTrigger asChild>
                   <Badge
                     variant="outline"
-                    className="flex h-8 items-center border-2 border-blue-200 bg-linear-to-r from-blue-50 to-blue-100 px-4 text-sm font-semibold text-blue-800 shadow-sm transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:bg-linear-to-r hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700"
+                    className="flex h-8 items-center border-2 border-border bg-linear-to-r from-blue-50 to-blue-100 px-4 text-sm font-semibold text-primary shadow-sm transition-all duration-300 hover:scale-105 hover:border-border hover:bg-linear-to-r hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700"
                   >
-                    <span className="mr-1 text-blue-600">📋</span>
+                    <span className="mr-1 text-muted-foreground">📋</span>
                     {`${jobOrderResponse?.data?.jobOrderNo} : v[${jobOrderResponse?.data?.editVersion}]`}
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-3xl border-2 border-blue-100 bg-linear-to-br from-white to-blue-50/30 p-6 shadow-xl">
                   <div className="space-y-4">
-                    <div className="border-b-2 border-blue-200 pb-3">
-                      <h4 className="text-lg font-bold text-blue-900">
+                    <div className="border-b-2 border-border pb-3">
+                      <h4 className="text-lg font-bold text-foreground">
                         Checklist Details
                       </h4>
                     </div>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -698,7 +698,7 @@ export default function PayRunSummaryPage() {
                       onClick={() => setShowEditConfirmation(true)}
                       variant="outline"
                       disabled={isEditingPayroll}
-                      className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                      className="border-blue-500 text-muted-foreground hover:bg-card"
                     >
                       {isEditingPayroll ? "Editing..." : "Edit Payrun"}
                     </Button>
@@ -751,7 +751,7 @@ export default function PayRunSummaryPage() {
                               disabled={isSendingAllPayslips}
                               className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              <Mail className="mr-3 h-4 w-4 text-blue-600" />
+                              <Mail className="mr-3 h-4 w-4 text-muted-foreground" />
                               {isSendingAllPayslips
                                 ? "Sending..."
                                 : "Send All via Email"}
@@ -980,7 +980,7 @@ export default function PayRunSummaryPage() {
               <DialogHeader>
                 <DialogTitle className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-blue-600">
+                    <h2 className="text-xl font-bold text-muted-foreground">
                       {selectedEmployee?.employeeName || "Employee Name"}
                     </h2>
                     <p className="text-sm text-gray-600">
@@ -1103,8 +1103,8 @@ export default function PayRunSummaryPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <h4 className="mb-2 font-semibold text-blue-800">
+            <div className="rounded-lg border border-border bg-card p-4">
+              <h4 className="mb-2 font-semibold text-primary">
                 Choose sharing method:
               </h4>
               <p className="text-sm text-blue-700">
@@ -1150,7 +1150,7 @@ export default function PayRunSummaryPage() {
                 }}
                 className="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
               >
-                <Mail className="mr-3 h-6 w-6 text-blue-600" />
+                <Mail className="mr-3 h-6 w-6 text-muted-foreground" />
                 <div className="text-left">
                   <div className="font-medium text-gray-900">
                     Share via Email

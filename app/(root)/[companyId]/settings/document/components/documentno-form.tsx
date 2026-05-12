@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
@@ -438,7 +438,7 @@ export function DocumentNoForm() {
                       </div>
                       <Badge
                         variant="secondary"
-                        className="bg-blue-100 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                        className="bg-blue-100 text-xs text-primary dark:bg-blue-900 dark:text-blue-200"
                       >
                         {module.transactions.length}
                       </Badge>
@@ -542,7 +542,7 @@ export function DocumentNoForm() {
                   <div className="space-y-6">
                     {/* Live Preview Section */}
                     <div className="space-y-4">
-                      <div className="rounded-lg border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6 dark:border-blue-800 dark:from-blue-950/20 dark:to-purple-950/20">
+                      <div className="rounded-lg border-2 border-border bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6 dark:border-blue-800 dark:from-blue-950/20 dark:to-purple-950/20">
                         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-lg">👁️</span>
@@ -679,8 +679,8 @@ export function DocumentNoForm() {
                           </div>
                           {/* Column 2: Delimiter */}
                           <div className="flex h-full w-full min-w-0 flex-col space-y-4">
-                            <div className="flex h-full w-full flex-col rounded-md bg-blue-500/10 p-3">
-                              <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-blue-600">
+                            <div className="flex h-full w-full flex-col rounded-md bg-card0/10 p-3">
+                              <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                                 🔗 Delimiter Settings
                               </h4>
                               <div className="space-y-3">
@@ -959,7 +959,7 @@ export function DocumentNoForm() {
                               {isCurrentMonth && (
                                 <Badge
                                   variant="default"
-                                  className="hidden bg-blue-500 text-xs text-white sm:inline-flex"
+                                  className="hidden bg-card0 text-xs text-white sm:inline-flex"
                                 >
                                   Current
                                 </Badge>
@@ -973,7 +973,7 @@ export function DocumentNoForm() {
                                 isLastNumber
                                   ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                                   : row.count > 0
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                    ? "bg-blue-100 text-primary dark:bg-blue-900 dark:text-blue-200"
                                     : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                               }`}
                             >

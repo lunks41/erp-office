@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useSearchParams } from "next/navigation"
@@ -407,7 +407,7 @@ export default function OpeningBalancePage() {
           <div className="flex min-w-0 flex-wrap items-center justify-center gap-1.5">
             <Badge
               variant="secondary"
-              className="border-blue-200 bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-800"
+              className="border-border bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-primary"
             >
               Debit: {formatNumber(totals.totDebitLocalAmt, locAmtDec)}
             </Badge>

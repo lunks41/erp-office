@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { IApOutTransaction } from "@/interfaces/outtransaction"
@@ -97,7 +97,7 @@ export function ApTransactionTable({
           const companyId = row.original.companyId
           const companyName =
             companyMap.get(companyId) || `Company ${companyId}`
-          return <div className="font-medium text-blue-600">{companyName}</div>
+          return <div className="font-medium text-muted-foreground">{companyName}</div>
         },
       },
       {

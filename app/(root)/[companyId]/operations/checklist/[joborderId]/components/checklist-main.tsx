@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -953,7 +953,7 @@ export function ChecklistMain({
               <div className="mb-2 flex">
                 <Badge
                   variant="secondary"
-                  className="border-blue-200 bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-800 shadow-sm transition-colors duration-200 hover:bg-blue-200"
+                  className="border-border bg-blue-100 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-colors duration-200 hover:bg-blue-200"
                 >
                   🔧 Operation
                 </Badge>
@@ -1169,7 +1169,7 @@ export function ChecklistMain({
                     variant="outline"
                     role="button"
                     tabIndex={0}
-                    className="cursor-pointer border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800 shadow-sm transition-colors hover:bg-blue-100"
+                    className="cursor-pointer border-border bg-card px-3 py-1.5 text-xs font-semibold text-primary shadow-sm transition-colors hover:bg-blue-100"
                     title="Double-click to open AR Invoice"
                     onDoubleClick={handleInvoiceNoDoubleClick}
                     onKeyDown={(e) => {
@@ -1313,8 +1313,8 @@ export function ChecklistMain({
               </div>
             </div>
           </div>
-          <div className="mt-1 mb-1 rounded-md border border-blue-200 bg-blue-50 px-3 py-2">
-            <p className="text-xs text-blue-800">
+          <div className="mt-1 mb-1 rounded-md border border-border bg-card px-3 py-2">
+            <p className="text-xs text-primary">
               <span className="font-semibold">ℹ️ Note:</span> Updates made here
               will automatically be reflected in invoices when creating invoices
               from this job order.

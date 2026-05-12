@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { ILeave } from "@/interfaces/leave"
@@ -280,7 +280,7 @@ export function LeaveApprovalWorkflow({
                 <div className="flex items-center space-x-4 rounded-lg border p-4">
                   <div className="flex-shrink-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                      <span className="text-sm font-medium text-blue-600">
+                      <span className="text-sm font-medium text-muted-foreground">
                         {approver.level}
                       </span>
                     </div>
@@ -413,23 +413,23 @@ export function LeaveApprovalWorkflow({
         <CardContent>
           <div className="space-y-3 text-sm">
             <div className="flex items-start space-x-2">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-card0"></div>
               <p>Leave requests follow a hierarchical approval process</p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-card0"></div>
               <p>Each level must approve before proceeding to the next</p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-card0"></div>
               <p>Approvers can add comments or provide rejection reasons</p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-card0"></div>
               <p>Employees receive notifications at each approval step</p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-card0"></div>
               <p>If any level rejects, the request is immediately rejected</p>
             </div>
           </div>

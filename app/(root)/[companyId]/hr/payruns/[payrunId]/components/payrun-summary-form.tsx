@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { IPayrollEmployeeDt, IPayrollEmployeeHd } from "@/interfaces/payrun"
@@ -521,7 +521,7 @@ export function PayRunSummaryForm({
               size="sm"
               onClick={handleDownloadPayslip}
               disabled={employee?.status === "Approved"}
-              className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 border-blue-500 text-muted-foreground hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download className="mr-2 h-3 w-3" />
               Download

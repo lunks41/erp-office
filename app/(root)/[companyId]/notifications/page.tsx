@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
 import { Bell, CheckCheck, Loader2 } from "lucide-react"
@@ -127,13 +127,13 @@ export default function NotificationsPage() {
               <div
                 key={n.notificationId}
                 className={`flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50 ${
-                  !n.isRead ? "bg-blue-50/60 dark:bg-blue-950/20" : ""
+                  !n.isRead ? "bg-card/60 dark:bg-blue-950/20" : ""
                 }`}
                 onClick={() => !n.isRead && handleMarkRead(n.notificationId)}
               >
                 <div
                   className={`mt-2 h-2 w-2 shrink-0 rounded-full ${
-                    !n.isRead ? "bg-blue-500" : "bg-transparent"
+                    !n.isRead ? "bg-card0" : "bg-transparent"
                   }`}
                 />
                 <div className="min-w-0 flex-1">

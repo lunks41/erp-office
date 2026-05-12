@@ -24,7 +24,7 @@ type UserGroup = {
   userGroupName: string
 }
 
-type PermissionType = "isExport" | "isPrint"
+type PermissionType = "isExport" | "isPrint" | "isView"
 
 export function UserGroupReportSettingTable() {
   const form = useForm()
@@ -68,7 +68,14 @@ export function UserGroupReportSettingTable() {
       const response =
         userGroupReportRightsResponse as ApiResponse<IUserGroupReportRights>
       if (response.data && Array.isArray(response.data)) {
-        setGroupRights(response.data)
+        setGroupRights(
+          response.data.map((r) => ({
+            ...r,
+            isExport: r.isExport ?? false,
+            isPrint: r.isPrint ?? false,
+            isView: r.isView ?? false,
+          }))
+        )
       } else {
         setGroupRights([])
       }
@@ -114,6 +121,7 @@ export function UserGroupReportSettingTable() {
               ...right,
               isExport: checked,
               isPrint: checked,
+              isView: checked,
             }
           : right
       )
@@ -133,7 +141,7 @@ export function UserGroupReportSettingTable() {
   }
 
   const isRowAllSelected = (right: IUserGroupReportRights) => {
-    return right.isExport && right.isPrint
+    return right.isExport && right.isPrint && right.isView
   }
 
   const isColumnAllSelected = (permission: PermissionType) => {
@@ -169,6 +177,7 @@ export function UserGroupReportSettingTable() {
                   ...right,
                   isExport: isChecked,
                   isPrint: isChecked,
+                  isView: isChecked,
                 }))
               )
             }}
@@ -241,6 +250,35 @@ export function UserGroupReportSettingTable() {
               row.original.reportId,
               row.original.itemNo,
               "isPrint",
+              Boolean(checked)
+            )
+          }
+        />
+      ),
+      size: 100,
+    },
+    {
+      id: "isView",
+      header: () => (
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+          <span>View</span>
+          <Checkbox
+            checked={isColumnAllSelected("isView")}
+            onCheckedChange={(checked) =>
+              handleColumnSelectAll("isView", Boolean(checked))
+            }
+          />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.original.isView}
+          onCheckedChange={(checked) =>
+            handlePermissionChange(
+              row.original.moduleId,
+              row.original.reportId,
+              row.original.itemNo,
+              "isView",
               Boolean(checked)
             )
           }

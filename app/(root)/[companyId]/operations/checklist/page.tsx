@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useState, type ChangeEvent } from "react"
 import { useParams } from "next/navigation"
@@ -428,7 +428,7 @@ export default function ChecklistPage() {
                       "bg-green-100 text-green-800 hover:bg-green-200",
                     value === "Completed" &&
                       count > 0 &&
-                      "bg-blue-100 text-blue-800 hover:bg-blue-200",
+                      "bg-blue-100 text-primary hover:bg-blue-200",
                     value === "Cancelled" &&
                       count > 0 &&
                       "bg-red-100 text-red-800 hover:bg-red-200",

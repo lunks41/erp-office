@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { IFreight } from "@/interfaces/freight"
 import { FreightSchema, FreightSchemaType } from "@/schemas/freight"
@@ -298,7 +298,7 @@ export function FreightForm({
                 <h3 className="text-sm font-semibold">Additional Details</h3>
                 <Badge
                   variant="secondary"
-                  className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                  className="flex items-center gap-1.5 bg-card text-blue-700 border-border hover:bg-blue-100"
                 >
                   <Info className="h-3.5 w-3.5" />
                   <span className="text-xs font-normal">

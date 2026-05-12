@@ -331,7 +331,7 @@ export function MainTableHeader<TData>({
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
+            className="h-7 max-w-[200px] px-2 py-0 text-sm leading-7 md:text-sm"
           />
         )}
         {/* Column Visibility Toggle */}

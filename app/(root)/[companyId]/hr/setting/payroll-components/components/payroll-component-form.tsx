@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { PayrollComponentFormData, componentSchema } from "@/schemas/payroll"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -108,7 +108,7 @@ export function PayrollComponentForm({ initialData, onSaveAction }: Props) {
               label="Is Leave Component"
             />
           </div>
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/30">
+          <div className="rounded-lg border border-border bg-card p-3 dark:border-blue-800 dark:bg-blue-950/30">
             <CustomSwitch
               form={form}
               name="isSalaryComponent"

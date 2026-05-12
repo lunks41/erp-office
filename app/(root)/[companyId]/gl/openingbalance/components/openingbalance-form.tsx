@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -199,7 +199,7 @@ const OpeningBalanceForm = React.forwardRef<
           onSubmit={form.handleSubmit(onSubmit)}
         >
           {/* Section 1 - 60% */}
-          <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-4 lg:col-span-7 dark:border-blue-700 dark:bg-blue-900/20">
+          <div className="space-y-3 rounded-lg border border-border bg-card p-4 lg:col-span-7 dark:border-blue-700 dark:bg-blue-900/20">
             <h3 className="mb-1 text-sm font-semibold text-blue-700 dark:text-blue-300">
               Main Details
             </h3>

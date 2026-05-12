@@ -5,59 +5,59 @@
 
 /* ============================================================
    DESIGN TOKENS — ERP Accounting System
-   Light : Clean neutral white  (Odoo / SAP Fiori inspired)
-   Dark  : GitHub Dark Dimmed   (deep cool-gray, not navy)
-   Primary: Orange brand — preserved throughout
+   Light : Cloud Dancer warm white / Royal Blue accent / Silver Grey borders
+   Dark  : Deep Anthracite #2D3436 / Cyan-Mint accent / Soft White text
+   (2026 Accounting ERP palette)
    ============================================================ */
 
 :root {
     --radius: 0.5rem;
 
     /* ── Surfaces ── */
-    --background:           oklch(0.984 0.002 240);   /* #f8f9fa near-white */
-    --foreground:           oklch(0.160 0.012 254);   /* #1a1d23 dark slate  */
-    --card:                 oklch(1 0 0);
-    --card-foreground:      oklch(0.160 0.012 254);
-    --popover:              oklch(1 0 0);
-    --popover-foreground:   oklch(0.160 0.012 254);
+    --background:           oklch(0.990 0.004 85);    /* Cloud Dancer warm white */
+    --foreground:           oklch(0.268 0 0);          /* Dark Charcoal #333333 */
+    --card:                 oklch(0.990 0.004 85);    /* Same as background — uniform surface */
+    --card-foreground:      oklch(0.268 0 0);
+    --popover:              oklch(0.990 0.004 85);
+    --popover-foreground:   oklch(0.268 0 0);
 
-    /* ── Brand primary — orange ── */
-    --primary:              oklch(0.638 0.152 38);
-    --primary-foreground:   oklch(0.99 0.004 85);
+    /* ── Brand primary — Royal Blue ── */
+    --primary:              oklch(0.520 0.200 262);   /* Royal Blue */
+    --primary-foreground:   oklch(0.99 0 0);
 
-    /* ── Secondary surfaces ── */
-    --secondary:            oklch(0.952 0.004 240);
-    --secondary-foreground: oklch(0.275 0.012 254);
-    --muted:                oklch(0.952 0.004 240);
-    --muted-foreground:     oklch(0.472 0.012 254);
-    --accent:               oklch(0.942 0.006 240);
-    --accent-foreground:    oklch(0.252 0.012 254);
+    /* ── Secondary surfaces — Silver Grey ── */
+    --secondary:            oklch(0.935 0 0);
+    --secondary-foreground: oklch(0.320 0 0);
+    --muted:                oklch(0.950 0 0);
+    --muted-foreground:     oklch(0.520 0 0);
+    --accent:               oklch(0.948 0.015 262);   /* Very light blue hover */
+    --accent-foreground:    oklch(0.268 0 0);
 
     /* ── Semantic ── */
     --destructive:          oklch(0.568 0.218 26);
 
-    /* ── Borders & inputs ── */
-    --border:               oklch(0.892 0.005 240);
-    --input:                oklch(0.892 0.005 240);
-    --ring:                 oklch(0.638 0.152 38);
+    /* ── Borders & inputs — Silver Grey ── */
+    --border:               oklch(0.840 0 0);
+    --input:                oklch(0.840 0 0);
+    --ring:                 oklch(0.520 0.200 262);
 
     /* ── Charts ── */
-    --chart-1: oklch(0.638 0.152 38);
-    --chart-2: oklch(0.610 0.118 178);
-    --chart-3: oklch(0.528 0.138 252);
-    --chart-4: oklch(0.715 0.138 88);
-    --chart-5: oklch(0.610 0.138 24);
+    --chart-1: oklch(0.520 0.200 262);   /* Royal Blue */
+    --chart-2: oklch(0.540 0.178 142);   /* Forest Green */
+    --chart-3: oklch(0.625 0.148 220);   /* Sky Blue */
+    --chart-4: oklch(0.715 0.138 88);    /* Amber */
+    --chart-5: oklch(0.580 0.158 300);   /* Violet */
 
     /* ── Sidebar ── */
-    --sidebar:                      oklch(0.968 0.004 240);
-    --sidebar-foreground:           oklch(0.252 0.012 254);
-    --sidebar-primary:              oklch(0.638 0.152 38);
-    --sidebar-primary-foreground:   oklch(0.99 0.004 85);
-    --sidebar-accent:               oklch(0.930 0.006 240);
-    --sidebar-accent-foreground:    oklch(0.252 0.012 254);
-    --sidebar-border:               oklch(0.878 0.005 240);
-    --sidebar-ring:                 oklch(0.638 0.152 38);
-    --sidebar-icon:                 oklch(0.435 0.014 254);
+    --sidebar:                      oklch(0.978 0.003 85);
+    --sidebar-foreground:           oklch(0.268 0 0);
+    --sidebar-primary:              oklch(0.520 0.200 262);
+    --sidebar-primary-foreground:   oklch(0.99 0 0);
+    --sidebar-accent:               oklch(0.948 0.015 262);
+    --sidebar-accent-foreground:    oklch(0.268 0 0);
+    --sidebar-border:               oklch(0.840 0 0);
+    --sidebar-ring:                 oklch(0.520 0.200 262);
+    --sidebar-icon:                 oklch(0.478 0 0);
 
     /* ── ERP Status tokens — light ── */
     --status-pending:           oklch(0.618 0.138 68);
@@ -86,48 +86,58 @@
     --positive-amount: oklch(0.520 0.148 148);
     --negative-amount: oklch(0.542 0.208 26);
     --zero-amount:     oklch(0.472 0.012 254);
+
+    /* ── Typography: one UI size for forms, tables, summaries, body ── */
+    --erp-ui-font-size: 0.75rem; /* 12px — dense, uniform app chrome */
+    --font-size-h1: 1.0625rem; /* ~17px — page / screen titles */
+    --font-size-h2: 0.9375rem; /* ~15px */
+    --font-size-h3: var(--erp-ui-font-size);
+    --font-size-body: var(--erp-ui-font-size);
+    --font-size-label: var(--erp-ui-font-size);
+    --font-size-table-header: var(--erp-ui-font-size);
+    --font-size-table-cell: var(--erp-ui-font-size);
 }
 
 .dark {
-    /* ── GitHub Dark Dimmed style ── */
-    --background:           oklch(0.172 0.010 258);   /* #22272e */
-    --foreground:           oklch(0.918 0.008 248);   /* #adbac7 */
-    --card:                 oklch(0.212 0.010 258);   /* #2d333b */
-    --card-foreground:      oklch(0.918 0.008 248);
-    --popover:              oklch(0.220 0.010 258);
-    --popover-foreground:   oklch(0.918 0.008 248);
+    /* ── Deep Anthracite style #2D3436 ── */
+    --background:           oklch(0.245 0.010 195);   /* Deep Anthracite #2D3436 */
+    --foreground:           oklch(0.985 0.002 240);   /* Soft White #F9FAFB */
+    --card:                 oklch(0.245 0.010 195);    /* Same as background — uniform surface */
+    --card-foreground:      oklch(0.985 0.002 240);
+    --popover:              oklch(0.258 0.010 195);    /* Slightly elevated for floating menus */
+    --popover-foreground:   oklch(0.985 0.002 240);
 
-    --primary:              oklch(0.708 0.138 42);
-    --primary-foreground:   oklch(0.192 0.010 258);
+    --primary:              oklch(0.895 0.185 167);   /* Cyan/Mint #00FFC2 */
+    --primary-foreground:   oklch(0.180 0.010 195);
 
-    --secondary:            oklch(0.252 0.010 258);   /* #373e47 */
-    --secondary-foreground: oklch(0.895 0.006 248);
-    --muted:                oklch(0.248 0.010 258);
-    --muted-foreground:     oklch(0.660 0.008 252);
-    --accent:               oklch(0.278 0.010 258);
-    --accent-foreground:    oklch(0.910 0.006 248);
+    --secondary:            oklch(0.318 0.008 195);   /* Charcoal Grey */
+    --secondary-foreground: oklch(0.960 0.002 240);
+    --muted:                oklch(0.310 0.008 195);
+    --muted-foreground:     oklch(0.700 0.004 240);
+    --accent:               oklch(0.340 0.010 195);
+    --accent-foreground:    oklch(0.975 0.002 240);
 
     --destructive:          oklch(0.668 0.172 22);
 
-    --border:               oklch(0.308 0.010 258);   /* #444c56 */
-    --input:                oklch(0.308 0.010 258);
-    --ring:                 oklch(0.708 0.138 42);
+    --border:               oklch(0.360 0.008 195);   /* Charcoal Grey border */
+    --input:                oklch(0.360 0.008 195);
+    --ring:                 oklch(0.895 0.185 167);   /* Cyan/Mint */
 
-    --chart-1: oklch(0.708 0.138 42);
-    --chart-2: oklch(0.695 0.098 178);
-    --chart-3: oklch(0.695 0.118 252);
-    --chart-4: oklch(0.748 0.118 88);
-    --chart-5: oklch(0.695 0.118 24);
+    --chart-1: oklch(0.895 0.185 167);   /* Cyan/Mint */
+    --chart-2: oklch(0.720 0.165 142);   /* Mint Green */
+    --chart-3: oklch(0.695 0.118 252);   /* Blue */
+    --chart-4: oklch(0.748 0.118 88);    /* Amber */
+    --chart-5: oklch(0.695 0.118 24);    /* Orange-red */
 
-    --sidebar:                      oklch(0.188 0.010 258);   /* #2d333b lighter */
-    --sidebar-foreground:           oklch(0.910 0.006 248);
-    --sidebar-primary:              oklch(0.708 0.138 42);
-    --sidebar-primary-foreground:   oklch(0.192 0.010 258);
-    --sidebar-accent:               oklch(0.252 0.010 258);
-    --sidebar-accent-foreground:    oklch(0.910 0.006 248);
-    --sidebar-border:               oklch(0.315 0.010 258);
-    --sidebar-ring:                 oklch(0.708 0.138 42);
-    --sidebar-icon:                 oklch(0.712 0.008 252);
+    --sidebar:                      oklch(0.258 0.010 195);
+    --sidebar-foreground:           oklch(0.975 0.002 240);
+    --sidebar-primary:              oklch(0.895 0.185 167);
+    --sidebar-primary-foreground:   oklch(0.180 0.010 195);
+    --sidebar-accent:               oklch(0.318 0.008 195);
+    --sidebar-accent-foreground:    oklch(0.975 0.002 240);
+    --sidebar-border:               oklch(0.370 0.008 195);
+    --sidebar-ring:                 oklch(0.895 0.185 167);
+    --sidebar-icon:                 oklch(0.730 0.004 240);
 
     /* ── ERP Status tokens — dark ── */
     --status-pending:           oklch(0.755 0.120 74);
@@ -269,8 +279,10 @@
     /* ── Body ── */
     body {
         @apply bg-background text-foreground;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
-            "Helvetica Neue", Arial, sans-serif;
+        font-family: var(--font-inter), var(--font-sans),
+            -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        font-size: var(--erp-ui-font-size);
+        line-height: 1.4;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-feature-settings: "rlig" 1, "calt" 1;
@@ -278,11 +290,11 @@
 
     /* ── Selection ── */
     ::selection {
-        background-color: oklch(0.638 0.152 38 / 0.16);
+        background-color: oklch(0.520 0.200 262 / 0.16);
         color: inherit;
     }
     .dark ::selection {
-        background-color: oklch(0.708 0.138 42 / 0.28);
+        background-color: oklch(0.895 0.185 167 / 0.28);
     }
 
     /* ── Focus visible ── */
@@ -294,7 +306,11 @@
     /* ── Table base ── */
     table th,
     table td {
-        font-size: 0.75rem;
+        font-size: var(--font-size-table-cell);
+        line-height: 1.4;
+    }
+    table th {
+        font-weight: 600;
     }
     table td {
         font-variant-numeric: tabular-nums;
@@ -313,6 +329,16 @@
 
 @layer utilities {
     .sidebar-icon { color: var(--sidebar-icon); }
+
+    /* ── Global typography helpers ── */
+    .erp-h1 { font-size: var(--font-size-h1); font-weight: 700; line-height: 1.25; }
+    .erp-h2 { font-size: var(--font-size-h2); font-weight: 600; line-height: 1.3; }
+    .erp-h3 { font-size: var(--font-size-h3); font-weight: 600; line-height: 1.35; }
+    .erp-body { font-size: var(--font-size-body); font-weight: 400; line-height: 1.45; }
+    .erp-label { font-size: var(--font-size-label); font-weight: 400; line-height: 1.35; }
+    .erp-table-header { font-size: var(--font-size-table-header); font-weight: 600; }
+    .erp-table-cell { font-size: var(--font-size-table-cell); font-weight: 400; }
+    .erp-table-cell-mono { font-size: var(--font-size-table-cell); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
 
     /* ── Responsive Container ── */
     .container-responsive {
@@ -421,8 +447,8 @@
    ============================================================ */
 [data-slot="button"],
 [data-slot="dropdown-menu-trigger"] {
-    font-size: 0.75rem !important;
-    line-height: 1rem !important;
+    font-size: var(--erp-ui-font-size) !important;
+    line-height: 1.25 !important;
     min-height: 1.625rem !important;
     height: auto !important;
     padding-inline: 0.5rem !important;
@@ -487,76 +513,76 @@ div:has(> table.table-fixed) {
 
 /* ── Header ── */
 table thead tr {
-    background-color: oklch(0.944 0.004 240);
-    border-bottom: 1.5px solid oklch(0.878 0.005 240);
-    box-shadow: 0 1px 0 0 oklch(0.878 0.005 240);
+    background-color: oklch(0.948 0.012 262);
+    border-bottom: 1.5px solid oklch(0.840 0 0);
+    box-shadow: 0 1px 0 0 oklch(0.840 0 0);
 }
 .dark table thead tr {
-    background-color: oklch(0.238 0.010 258);
-    border-bottom: 1.5px solid oklch(0.308 0.010 258);
-    box-shadow: 0 1px 0 0 oklch(0.308 0.010 258);
+    background-color: oklch(0.290 0.010 195);
+    border-bottom: 1.5px solid oklch(0.360 0.008 195);
+    box-shadow: 0 1px 0 0 oklch(0.360 0.008 195);
 }
 table thead th,
 table thead td {
-    font-size: 0.67rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.055em;
-    text-transform: uppercase;
-    color: oklch(0.372 0.018 254) !important;
-    padding-top: 0.35rem !important;
-    padding-bottom: 0.35rem !important;
+    font-size: var(--font-size-table-header) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: oklch(0.380 0 0) !important;
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
 }
 .dark table thead th,
 .dark table thead td {
-    color: oklch(0.708 0.012 252) !important;
+    color: oklch(0.760 0.005 240) !important;
 }
 
 /* ── Rows ── */
 table tbody tr {
-    height: 1.25rem !important;
-    max-height: 1.25rem !important;
+    min-height: 1.35rem !important;
     transition: background-color 0.10s ease;
-    border-bottom: 1px solid oklch(0.926 0.003 240);
+    border-bottom: 1px solid oklch(0.900 0 0);
 }
 .dark table tbody tr {
-    border-bottom: 1px solid oklch(0.258 0.010 258);
+    border-bottom: 1px solid oklch(0.310 0.008 195);
 }
 table tbody td {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    line-height: 1.25rem !important;
+    font-size: var(--font-size-table-cell) !important;
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
+    line-height: 1.35 !important;
 }
 
 /* ── Zebra striping ── */
 table tbody tr:nth-child(even) {
-    background-color: oklch(0.978 0.002 240);
+    background-color: oklch(0.982 0.002 85);
 }
 .dark table tbody tr:nth-child(even) {
-    background-color: oklch(0.195 0.010 258);
+    background-color: oklch(0.262 0.010 195);
 }
 
 /* ── Row hover ── */
 table tbody tr:hover {
-    background-color: oklch(0.950 0.014 220);
+    background-color: oklch(0.940 0.018 262);
 }
 .dark table tbody tr:hover {
-    background-color: oklch(0.255 0.014 258);
+    background-color: oklch(0.322 0.018 180);
 }
 
 /* ── Selected row ── */
 table tbody tr[data-state="selected"],
 table tbody tr.selected {
-    background-color: oklch(0.932 0.026 242) !important;
+    background-color: oklch(0.918 0.038 262) !important;
     outline: none;
 }
 .dark table tbody tr[data-state="selected"],
 .dark table tbody tr.selected {
-    background-color: oklch(0.278 0.032 258) !important;
+    background-color: oklch(0.345 0.040 167) !important;
 }
 
 /* ── Table container — border + shadow ── */
 div:has(> table.table-fixed) {
-    outline: 1px solid oklch(0.878 0.005 240);
+    outline: 1px solid oklch(0.840 0 0);
     outline-offset: -1px;
     border-radius: var(--radius);
     box-shadow:
@@ -564,7 +590,7 @@ div:has(> table.table-fixed) {
         0 3px 10px 0 rgb(0 0 0 / 0.04);
 }
 .dark div:has(> table.table-fixed) {
-    outline: 1px solid oklch(0.308 0.010 258);
+    outline: 1px solid oklch(0.360 0.008 195);
     box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.45),
         0 4px 14px 0 rgb(0 0 0 / 0.30);
@@ -573,22 +599,22 @@ div:has(> table.table-fixed) {
 /* ── First column separator ── */
 table td:first-child,
 table th:first-child {
-    border-right: 1px solid oklch(0.862 0.004 240);
+    border-right: 1px solid oklch(0.858 0 0);
 }
 .dark table td:first-child,
 .dark table th:first-child {
-    border-right: 1px solid oklch(0.308 0.010 258);
+    border-right: 1px solid oklch(0.360 0.008 195);
 }
 
 /* ── Header column hover ── */
 table thead th:hover,
 table thead td:hover {
-    background-color: oklch(0.926 0.008 240);
+    background-color: oklch(0.930 0.022 262);
     cursor: pointer;
 }
 .dark table thead th:hover,
 .dark table thead td:hover {
-    background-color: oklch(0.258 0.014 258);
+    background-color: oklch(0.315 0.018 195);
 }
 
 /* ============================================================
@@ -610,7 +636,7 @@ table thead td:hover {
 }
 [data-sidebar="group-label"] {
     height: 1.375rem !important;
-    font-size: 0.62rem !important;
+    font-size: calc(var(--erp-ui-font-size) * 0.92) !important;
     letter-spacing: 0.06em !important;
     text-transform: uppercase !important;
     padding-inline: 0.5rem !important;
@@ -618,14 +644,14 @@ table thead td:hover {
 }
 [data-sidebar="menu-button"] {
     height: 1.625rem !important;
-    font-size: 0.72rem !important;
+    font-size: var(--erp-ui-font-size) !important;
     padding-inline: 0.5rem !important;
     gap: 0.375rem !important;
     border-radius: 0.3rem !important;
 }
 [data-sidebar="menu-sub-button"] {
     height: 1.5rem !important;
-    font-size: 0.70rem !important;
+    font-size: var(--erp-ui-font-size) !important;
     padding-inline: 0.375rem !important;
     gap: 0.3rem !important;
     border-radius: 0.25rem !important;
@@ -649,7 +675,7 @@ table thead td:hover {
 [data-sidebar="menu-badge"] {
     height: 1rem !important;
     min-width: 1rem !important;
-    font-size: 0.6rem !important;
+    font-size: calc(var(--erp-ui-font-size) * 0.85) !important;
     padding-inline: 0.25rem !important;
     right: 0.25rem !important;
 }
@@ -674,7 +700,7 @@ table thead td:hover {
 [role="heading"] > button {
     padding-top: 0.3rem !important;
     padding-bottom: 0.3rem !important;
-    font-size: 0.72rem !important;
+    font-size: var(--erp-ui-font-size) !important;
     font-weight: 500 !important;
 }
 [data-radix-accordion-content] > div {
@@ -697,18 +723,22 @@ div.space-y-4:has(> .border-b:empty) > * + * {
 }
 [data-slot="form-label"],
 label.text-sm {
-    font-size: 0.70rem !important;
+    font-size: var(--erp-ui-font-size) !important;
     margin-bottom: 0.125rem !important;
-    line-height: 1.2 !important;
+    line-height: 1.35 !important;
 }
 [data-slot="form-item"] {
     gap: 0.125rem !important;
 }
 [data-slot="input"],
+[data-slot="select-trigger"],
+[data-slot="textarea"] {
+    font-size: var(--erp-ui-font-size) !important;
+}
+[data-slot="input"],
 [data-slot="select-trigger"] {
     height: 1.75rem !important;
     min-height: 1.75rem !important;
-    font-size: 0.75rem !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
@@ -728,10 +758,10 @@ header[id="navigation"] {
 }
 
 main[id="main-content"] {
-    background-color: oklch(0.976 0.003 240);
+    background-color: var(--background);
 }
 .dark main[id="main-content"] {
-    background-color: oklch(0.162 0.010 258);
+    background-color: var(--background);
 }
 
 [data-sidebar="inset"] {
@@ -742,19 +772,111 @@ main[id="main-content"] {
     padding: 1rem 1.25rem;
 }
 .erp-page-title {
-    font-size: 1.375rem;
+    font-size: calc(var(--erp-ui-font-size) * 1.33);
     font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1.25;
-    color: oklch(0.160 0.012 254);
+    color: oklch(0.268 0 0);
 }
 .dark .erp-page-title {
-    color: oklch(0.948 0.005 248);
+    color: oklch(0.985 0.002 240);
 }
 .erp-page-subtitle {
-    font-size: 0.72rem;
+    font-size: var(--erp-ui-font-size);
     color: var(--muted-foreground);
     margin-top: 0.125rem;
+}
+
+/* ============================================================
+   UNIFIED UI TYPOGRAPHY — all text-* classes → --erp-ui-font-size (12px)
+   Covers: main content, dialogs, header, sidebar, auth pages,
+   and Radix UI portals (dropdowns, popovers, selects, tooltips).
+   ============================================================ */
+
+/* Shared selector list — reused across base + responsive blocks */
+:is(
+        main#main-content,
+        [role="dialog"],
+        header#navigation,
+        [data-sidebar="sidebar"],
+        [data-radix-popper-content-wrapper],
+        [data-radix-select-viewport],
+        [data-radix-dropdown-menu-content],
+        [cmdk-root],
+        body:not(:has(#main-content))
+    )
+    :where(
+        .text-xs, .text-sm, .text-base, .text-lg, .text-xl,
+        .text-2xl, .text-3xl, .text-4xl, .text-5xl,
+        .text-\[9px\], .text-\[10px\], .text-\[11px\],
+        .text-\[12px\], .text-\[13px\]
+    ) {
+    font-size: var(--erp-ui-font-size) !important;
+    line-height: 1.4 !important;
+}
+
+/* Radix portal roots themselves (not just their children) */
+[data-radix-popper-content-wrapper],
+[data-radix-select-viewport],
+[data-radix-dropdown-menu-content],
+[cmdk-root] {
+    font-family: var(--font-inter), var(--font-sans), -apple-system, sans-serif !important;
+    font-size: var(--erp-ui-font-size) !important;
+}
+
+@media (min-width: 640px) {
+    :is(
+            main#main-content,
+            [role="dialog"],
+            header#navigation,
+            [data-sidebar="sidebar"],
+            [data-radix-popper-content-wrapper],
+            body:not(:has(#main-content))
+        )
+        :where(
+            .sm\:text-xs, .sm\:text-sm, .sm\:text-base,
+            .sm\:text-lg, .sm\:text-xl, .sm\:text-2xl,
+            .sm\:text-3xl, .sm\:text-4xl
+        ) {
+        font-size: var(--erp-ui-font-size) !important;
+        line-height: 1.4 !important;
+    }
+}
+
+@media (min-width: 768px) {
+    :is(
+            main#main-content,
+            [role="dialog"],
+            header#navigation,
+            [data-sidebar="sidebar"],
+            [data-radix-popper-content-wrapper],
+            body:not(:has(#main-content))
+        )
+        :where(
+            .md\:text-xs, .md\:text-sm, .md\:text-base,
+            .md\:text-lg, .md\:text-xl, .md\:text-2xl, .md\:text-3xl
+        ) {
+        font-size: var(--erp-ui-font-size) !important;
+        line-height: 1.4 !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    :is(
+            main#main-content,
+            [role="dialog"],
+            header#navigation,
+            [data-sidebar="sidebar"],
+            [data-radix-popper-content-wrapper],
+            body:not(:has(#main-content))
+        )
+        :where(
+            .lg\:text-xs, .lg\:text-sm, .lg\:text-base,
+            .lg\:text-lg, .lg\:text-xl, .lg\:text-2xl
+        ) {
+        font-size: var(--erp-ui-font-size) !important;
+        line-height: 1.4 !important;
+    }
 }
 
 /* ============================================================

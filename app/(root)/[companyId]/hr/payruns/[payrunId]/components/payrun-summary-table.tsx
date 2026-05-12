@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { ICompanyLookup, IDepartmentLookup } from "@/interfaces/lookup"
@@ -225,7 +225,7 @@ export function PayRunSummaryTable({
                               ? "border-red-200 bg-red-100 text-xs text-red-800"
                               : employee.isSubmitted && employee.isPaid
                                 ? "bg-green-100 text-xs text-green-800"
-                                : "bg-blue-100 text-xs text-blue-800"
+                                : "bg-blue-100 text-xs text-primary"
                           }
                         >
                           {employee.isRejected

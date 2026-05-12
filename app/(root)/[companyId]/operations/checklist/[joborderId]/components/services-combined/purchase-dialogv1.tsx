@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { IPurchaseData, ISavePurchaseData } from "@/interfaces/checklist"
@@ -196,7 +196,7 @@ export function PurchaseDialog({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-card0"></div>
                   <span className="text-muted-foreground">
                     Total: {totalCount} items
                   </span>
@@ -215,8 +215,8 @@ export function PurchaseDialog({
                 </div>
               </div>
               {totalCount > 0 && (
-                <div className="flex items-center gap-2 text-blue-600">
-                  <div className="h-1 w-1 rounded-full bg-blue-500"></div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="h-1 w-1 rounded-full bg-card0"></div>
                   <span className="text-xs font-medium">
                     Purchase data available
                   </span>

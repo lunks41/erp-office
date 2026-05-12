@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -229,7 +229,7 @@ export function EmployeeOnboardingForm({
                   completedSteps.includes(step.id)
                     ? "bg-green-500 text-white"
                     : currentStep === step.id
-                      ? "bg-blue-500 text-white"
+                      ? "bg-card0 text-white"
                       : "bg-gray-200 text-gray-600"
                 }`}
               >
@@ -382,7 +382,7 @@ export function EmployeeOnboardingForm({
                       The employee will be able to view payslips and social
                       security benefit details through the employee portal.
                     </span>
-                    <Button variant="link" className="h-auto p-0 text-blue-600">
+                    <Button variant="link" className="h-auto p-0 text-muted-foreground">
                       Preview mail
                     </Button>
                   </div>
@@ -632,7 +632,7 @@ export function EmployeeOnboardingForm({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Permanent Address</h3>
-          <Button type="button" variant="link" className="text-blue-600">
+          <Button type="button" variant="link" className="text-muted-foreground">
             Copy Present Residential Address
           </Button>
         </div>
@@ -719,7 +719,7 @@ export function EmployeeOnboardingForm({
                     </div>
                   </div>
                   {field.value === "manual-bank-transfer" && (
-                    <Check className="h-5 w-5 text-blue-600" />
+                    <Check className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
 
@@ -731,7 +731,7 @@ export function EmployeeOnboardingForm({
                     <div className="font-medium">Cheque</div>
                   </div>
                   {field.value === "cheque" && (
-                    <Check className="h-5 w-5 text-blue-600" />
+                    <Check className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
 
@@ -743,7 +743,7 @@ export function EmployeeOnboardingForm({
                     <div className="font-medium">Cash</div>
                   </div>
                   {field.value === "cash" && (
-                    <Check className="h-5 w-5 text-blue-600" />
+                    <Check className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
               </RadioGroup>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { ILeavePolicy } from "@/interfaces/leave"
 import { Edit, Settings } from "lucide-react"
@@ -30,7 +30,7 @@ export function LeavePolicyTable({ policies }: LeavePolicyTableProps) {
       case "sick leave":
         return "bg-red-100 text-red-800 border-red-200"
       case "casual leave":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 text-primary border-border"
       case "maternity leave":
         return "bg-pink-100 text-pink-800 border-pink-200"
       case "bereavement leave":

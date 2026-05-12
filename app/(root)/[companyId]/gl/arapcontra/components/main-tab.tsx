@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -921,7 +921,7 @@ export default function Main({
           <section className="border-border bg-card overflow-hidden rounded-md border shadow-sm">
             <div className="p-2">
               <div className="mb-2 flex flex-wrap items-center gap-1">
-                <Badge className="bg-blue-500 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-500">
+                <Badge className="bg-card0 px-2 py-1 text-xs font-semibold text-white hover:bg-card0">
                   Knock-off AR
                 </Badge>
                 <span className="text-muted-foreground px-1 text-xs">|</span>
@@ -940,7 +940,7 @@ export default function Main({
                   Select Txn
                 </Button>
                 <span className="text-muted-foreground px-1 text-xs">|</span>
-                <Badge className="border-blue-200 bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                <Badge className="border-border bg-blue-100 px-3 py-1 text-xs font-medium text-primary">
                   Tot Alloc: {formatAmount(arSectionTotals.alloc)}
                 </Badge>
                 <span className="text-muted-foreground px-1 text-xs">|</span>
@@ -978,7 +978,7 @@ export default function Main({
           <section className="border-border bg-card overflow-hidden rounded-md border shadow-sm">
             <div className="p-2">
               <div className="mb-2 flex flex-wrap items-center gap-1">
-                <Badge className="bg-blue-500 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-500">
+                <Badge className="bg-card0 px-2 py-1 text-xs font-semibold text-white hover:bg-card0">
                   Knock-off AP
                 </Badge>
                 <span className="text-muted-foreground px-1 text-xs">|</span>
@@ -997,7 +997,7 @@ export default function Main({
                   Select Txn
                 </Button>
                 <span className="text-muted-foreground px-1 text-xs">|</span>
-                <Badge className="border-blue-200 bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                <Badge className="border-border bg-blue-100 px-3 py-1 text-xs font-medium text-primary">
                   Tot Alloc: {formatAmount(apSectionTotals.alloc)}
                 </Badge>
                 <span className="text-muted-foreground px-1 text-xs">|</span>

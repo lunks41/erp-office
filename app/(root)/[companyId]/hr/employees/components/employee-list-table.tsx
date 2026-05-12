@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -269,7 +269,7 @@ export function EmployeeListTable({
                       data-employee-id={employee.employeeId}
                       className={`hover:bg-muted/50 cursor-pointer ${
                         highlightedEmployeeId === employee.employeeId.toString()
-                          ? "border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                          ? "border-l-4 border-l-blue-500 bg-card dark:bg-blue-950/20"
                           : ""
                       }`}
                       onClick={() => onEditAction(employee)}

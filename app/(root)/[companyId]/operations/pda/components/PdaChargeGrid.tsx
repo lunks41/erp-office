@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Fragment, useMemo, useState } from "react"
 import { Circle, Plus, Trash2 } from "lucide-react"
@@ -113,7 +113,7 @@ export function PdaChargeGrid({
               <Fragment key={`group-${section.itemNo}`}>
                 <tr
                   key={`sec-${section.itemNo}`}
-                  className="group cursor-pointer bg-blue-50 text-blue-800 font-medium dark:bg-blue-950"
+                  className="group cursor-pointer bg-card text-primary font-medium dark:bg-blue-950"
                   onClick={() => setSelectedSection(section.itemNo)}
                 >
                   <td className="p-2">{section.sectionNo || section.itemNo}</td>
@@ -123,7 +123,7 @@ export function PdaChargeGrid({
                   <td className="p-2" />
                   <td className="p-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-600 text-xs italic">{section.remarks}</span>
+                      <span className="text-muted-foreground text-xs italic">{section.remarks}</span>
                       <Button
                         type="button"
                         size="sm"
@@ -140,7 +140,7 @@ export function PdaChargeGrid({
                   </td>
                 </tr>
                 {section.children.map((line) => (
-                  <tr key={`sub-${line.itemNo}`} className="bg-white">
+                  <tr key={`sub-${line.itemNo}`} className="bg-card">
                     <td className="p-2" />
                     <td className="p-2 pl-6">
                       <div className="flex items-center gap-2">
@@ -170,7 +170,7 @@ export function PdaChargeGrid({
                         className={`text-xs italic ${
                           line.isWarningComment || /surcharge/i.test(line.remarks || "")
                             ? "text-orange-600 font-medium"
-                            : "text-blue-600"
+                            : "text-muted-foreground"
                         }`}
                       >
                         {line.remarks}
@@ -197,7 +197,7 @@ export function PdaChargeGrid({
               </tr>
             ) : null}
           </tbody>
-          <tfoot className="bg-muted/40 font-medium">
+          <tfoot className="bg-card font-medium">
             <tr>
               <td className="p-2" colSpan={3}>
                 Sub Total

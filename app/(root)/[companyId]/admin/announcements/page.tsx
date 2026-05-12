@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
 import { Loader2, Megaphone, Pencil, Plus, Trash2 } from "lucide-react"
@@ -187,7 +187,7 @@ export default function AnnouncementsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-muted/40">
+                <tr className="border-b bg-card">
                   <th className="px-4 py-3 text-left font-medium">Title</th>
                   <th className="px-4 py-3 text-left font-medium">Message</th>
                   <th className="px-4 py-3 text-left font-medium">Urgent</th>

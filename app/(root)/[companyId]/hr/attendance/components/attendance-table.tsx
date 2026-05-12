@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { IEmployeeAttendance } from "@/interfaces/attendance"
@@ -273,7 +273,7 @@ export function AttendanceTable({
                           type="button"
                           variant="outline"
                           size="icon"
-                          className="h-5 w-5 border-blue-200 bg-blue-100 p-0 text-[10px] text-blue-800 hover:bg-blue-200"
+                          className="h-5 w-5 border-border bg-blue-100 p-0 text-[10px] text-primary hover:bg-blue-200"
                           onClick={() => {
                             setBulkData((prev) =>
                               prev.map((employee) => ({
@@ -343,7 +343,7 @@ export function AttendanceTable({
                         {employee.days.map((day) => (
                           <TableCell
                             key={day.date}
-                            className="border-muted-foreground/10 border-l bg-white px-0 py-1 text-center dark:bg-black/10"
+                            className="border-muted-foreground/10 border-l bg-card px-0 py-1 text-center"
                           >
                             <Button
                               type="button"
@@ -355,7 +355,7 @@ export function AttendanceTable({
                                   : day.status === "A"
                                     ? "border-red-200 bg-red-100 text-red-800"
                                     : day.status === "WK"
-                                      ? "border-blue-200 bg-blue-100 text-blue-800"
+                                      ? "border-border bg-blue-100 text-primary"
                                       : "border-gray-200 bg-yellow-100 text-yellow-800"
                               }`}
                               onClick={() => {
@@ -413,7 +413,7 @@ export function AttendanceTable({
               <span>Absent (A)</span>
             </div>
             <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-              <div className="h-3 w-3 rounded border border-blue-200 bg-blue-100"></div>
+              <div className="h-3 w-3 rounded border border-border bg-blue-100"></div>
               <span>Weekend (WK)</span>
             </div>
             <div className="flex min-w-0 items-center gap-2 overflow-hidden">

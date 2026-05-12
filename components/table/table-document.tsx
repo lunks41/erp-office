@@ -490,7 +490,7 @@ export function DocumentBaseTable<T>({
           onDragEnd={handleDragEnd}
         >
           <table
-            className="w-full table-fixed border-collapse text-xs"
+            className="w-full table-fixed border-collapse text-sm"
             style={{ minWidth: "100%" }}
           >
             <colgroup>

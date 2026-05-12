@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -262,7 +262,7 @@ export function EmployeeOverview({
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Mail className="h-4 w-4 text-blue-600" />
+                    <Mail className="h-4 w-4 text-muted-foreground" />
                     <label className="text-sm font-medium text-gray-500">
                       Personal Email
                     </label>
@@ -293,7 +293,7 @@ export function EmployeeOverview({
                 {/* Document Information */}
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
-                    <IdCard className="h-4 w-4 text-blue-600" />
+                    <IdCard className="h-4 w-4 text-muted-foreground" />
                     <label className="text-sm font-medium text-gray-500">
                       Work Permit No
                     </label>
@@ -434,7 +434,7 @@ export function EmployeeOverview({
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Building className="h-4 w-4 text-blue-600" />
+                    <Building className="h-4 w-4 text-muted-foreground" />
                     <label className="text-sm font-medium text-gray-500">
                       Bank Name
                     </label>
@@ -472,7 +472,7 @@ export function EmployeeOverview({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-auto p-0 text-blue-600 hover:text-blue-700"
+                        className="h-auto p-0 text-muted-foreground hover:text-blue-700"
                         onClick={() => setShowIban(!showIban)}
                       >
                         {showIban ? (

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -125,18 +125,18 @@ export default function LoanPage() {
 
       {/* Dashboard Cards */}
       <div className="grid grid-cols-6 gap-2">
-        <Card className="border-blue-200 bg-blue-50/50">
+        <Card className="border-border bg-card/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
             <CardTitle className="text-xs font-medium text-blue-700">
               Active Loans
             </CardTitle>
-            <CreditCard className="h-3 w-3 text-blue-600" />
+            <CreditCard className="h-3 w-3 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-2">
-            <div className="text-lg font-bold text-blue-900">
+            <div className="text-lg font-bold text-foreground">
               {dashboardStats.activeLoans}
             </div>
-            <p className="text-xs text-blue-600">Active loans</p>
+            <p className="text-xs text-muted-foreground">Active loans</p>
           </CardContent>
         </Card>
 
@@ -242,7 +242,7 @@ export default function LoanPage() {
         <TabsList className="grid w-full grid-cols-3 gap-2 bg-gradient-to-r from-blue-50 to-purple-50">
           <TabsTrigger
             value="active-loans"
-            className="text-xs data-[state=active]:border-blue-200 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 sm:text-sm"
+            className="text-xs data-[state=active]:border-border data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 sm:text-sm"
           >
             Active Loans
           </TabsTrigger>

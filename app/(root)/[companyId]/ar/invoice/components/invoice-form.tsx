@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -560,7 +560,7 @@ export default function InvoiceForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
-        <div className="border-border/60 bg-muted/40 col-span-10 rounded-md border p-3 shadow-sm">
+        <div className="border-border/60 bg-card col-span-10 rounded-md border p-3 shadow-sm">
           <div className="[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-[2.75rem] [&_textarea]:text-sm">
             <div className="grid grid-cols-6 gap-x-2 gap-y-1">
               {/* Transaction Date */}
@@ -823,47 +823,47 @@ export default function InvoiceForm({
           <>
             {/* Summary Box */}
         {/* Right Section: Summary Box */}
-        <div className="col-span-2 flex min-w-0 flex-col justify-start rounded-md border border-blue-200/90 bg-blue-50/95 p-3 shadow-sm">
+        <div className="col-span-2 flex min-w-0 flex-col justify-start rounded-md border border-border bg-card p-3 shadow-sm">
           <div className="w-full">
             {/* Header Row */}
-            <div className="mb-1.5 grid grid-cols-3 gap-x-2 border-b border-blue-300 pb-1.5 text-sm">
-              <div className="text-right font-bold text-blue-800">Trns</div>
+            <div className="mb-1.5 grid grid-cols-3 gap-x-2 border-b border-border pb-1.5 text-sm">
+              <div className="text-right font-bold text-primary">Trns</div>
               <div className="text-center"></div>
-              <div className="text-right font-bold text-blue-800">Local</div>
+              <div className="text-right font-bold text-primary">Local</div>
             </div>
 
             {/* 3-column grid: [Amt] [Label] [Local] */}
             <div className="grid grid-cols-3 gap-x-2 text-sm leading-snug">
               {/* Column 1: Foreign Amounts (Amt) */}
               <div className="space-y-1.5 text-right">
-                <div className="font-medium text-gray-700">
+                <div className="font-medium text-foreground">
                   {(form.watch("totAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
                     maximumFractionDigits: amtDec,
                   })}
                 </div>
                 {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
+                  <div className="font-medium text-foreground">
                     {(form.watch("gstAmt") || 0).toLocaleString(undefined, {
                       minimumFractionDigits: amtDec,
                       maximumFractionDigits: amtDec,
                     })}
                   </div>
                 )}
-                <hr className="my-0.5 border-blue-300" />
-                <div className="font-bold text-blue-900">
+                <hr className="my-0.5 border-border" />
+                <div className="font-bold text-foreground">
                   {(form.watch("totAmtAftGst") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
                     maximumFractionDigits: amtDec,
                   })}
                 </div>
-                <div className="font-bold text-blue-900">
+                <div className="font-bold text-foreground">
                   {(form.watch("payAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
                     maximumFractionDigits: amtDec,
                   })}
                 </div>
-                <div className="font-bold text-blue-900">
+                <div className="font-bold text-foreground">
                   {(form.watch("balAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: amtDec,
                     maximumFractionDigits: amtDec,
@@ -873,26 +873,26 @@ export default function InvoiceForm({
 
               {/* Column 2: Labels */}
               <div className="space-y-1 text-center">
-                <div className="font-medium text-blue-600">Amt</div>
+                <div className="font-medium text-muted-foreground">Amt</div>
                 {visible?.m_GstId && (
-                  <div className="font-medium text-blue-600">VAT</div>
+                  <div className="font-medium text-muted-foreground">VAT</div>
                 )}
                 <div></div>
-                <div className="font-bold text-blue-800">Total</div>
-                <div className="font-bold text-blue-800">Payment</div>
-                <div className="font-bold text-blue-800">Balance</div>
+                <div className="font-bold text-primary">Total</div>
+                <div className="font-bold text-primary">Payment</div>
+                <div className="font-bold text-primary">Balance</div>
               </div>
 
               {/* Column 3: Local Amounts */}
               <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
+                <div className="font-medium text-foreground">
                   {(form.watch("totLocalAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: locAmtDec,
                     maximumFractionDigits: locAmtDec,
                   })}
                 </div>
                 {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
+                  <div className="font-medium text-foreground">
                     {(form.watch("gstLocalAmt") || 0).toLocaleString(
                       undefined,
                       {
@@ -902,8 +902,8 @@ export default function InvoiceForm({
                     )}
                   </div>
                 )}
-                <hr className="my-0.5 border-blue-300" />
-                <div className="font-bold text-blue-900">
+                <hr className="my-0.5 border-border" />
+                <div className="font-bold text-foreground">
                   {(form.watch("totLocalAmtAftGst") || 0).toLocaleString(
                     undefined,
                     {
@@ -912,13 +912,13 @@ export default function InvoiceForm({
                     }
                   )}
                 </div>
-                <div className="font-bold text-blue-900">
+                <div className="font-bold text-foreground">
                   {(form.watch("payLocalAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: locAmtDec,
                     maximumFractionDigits: locAmtDec,
                   })}
                 </div>
-                <div className="font-bold text-blue-900">
+                <div className="font-bold text-foreground">
                   {(form.watch("balLocalAmt") || 0).toLocaleString(undefined, {
                     minimumFractionDigits: locAmtDec,
                     maximumFractionDigits: locAmtDec,

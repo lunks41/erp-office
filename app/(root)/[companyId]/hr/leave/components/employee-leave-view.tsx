@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import { IEmployee } from "@/interfaces/employee"
@@ -499,7 +499,7 @@ export function EmployeeLeaveView({
                   >
                     <div className="flex-shrink-0">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-                        <span className="text-sm font-medium text-blue-600">
+                        <span className="text-sm font-medium text-muted-foreground">
                           {approver.level}
                         </span>
                       </div>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { CheckCircle2, Circle, Mail, Send, ShieldCheck } from "lucide-react"
 
@@ -94,7 +94,7 @@ export function PdaTimeline({ status }: PdaTimelineProps) {
                         isCompleted
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                           : isCurrent
-                            ? "border-blue-200 bg-blue-50 text-blue-700"
+                            ? "border-border bg-card text-blue-700"
                             : "text-muted-foreground"
                       }
                     >

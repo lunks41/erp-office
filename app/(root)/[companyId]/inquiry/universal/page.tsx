@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -382,14 +382,14 @@ export default function UniversalInquiryPage() {
       </div>
 
       {!hasSearched && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <div className="rounded-lg border border-border bg-card p-4 dark:border-blue-800 dark:bg-blue-900/20">
           <div className="flex items-start gap-3">
             <span className="text-xl">ℹ️</span>
             <div className="flex-1">
-              <h3 className="mb-1 font-semibold text-blue-900 dark:text-blue-100">
+              <h3 className="mb-1 font-semibold text-foreground dark:text-blue-100">
                 Cross-Company Universal Search
               </h3>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-primary dark:text-blue-200">
                 Enter any job order or document details above (Job No, Invoice No, Customer,
                 Vessel, Bank, Reference No, etc.), then click &quot;Search&quot; to see
                 results from Job Orders, AR invoices, AP transactions and GL transactions.

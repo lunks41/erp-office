@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
@@ -605,11 +605,11 @@ export function CombinedFormsDialog({
             </TabsList>
 
             <TabsContent value="bulk-update" className="mt-6">
-              <Card className="border-2 border-dashed border-blue-200 bg-transparent">
+              <Card className="border-2 border-dashed border-border bg-transparent">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                      <RefreshCw className="h-5 w-5 text-blue-600" />
+                      <RefreshCw className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
                       <CardTitle className="text-xl">
@@ -734,10 +734,10 @@ export function CombinedFormsDialog({
 
                   {/* Summary */}
                   {selectedField && selectedFieldConfig && (
-                    <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                    <div className="rounded-lg border border-border bg-card/50 p-4">
                       <div className="mb-2 flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium text-blue-900">
+                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">
                           Update Summary
                         </span>
                       </div>

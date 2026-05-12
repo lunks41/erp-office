@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAuthStore } from "@/stores/auth-store"
@@ -218,7 +218,7 @@ export default function DashboardPage() {
               "relative overflow-hidden rounded-2xl border-l-4 p-4 shadow-lg transition hover:shadow-xl",
               isDark
                 ? "border border-slate-700 border-l-violet-400 bg-slate-800/95"
-                : "border border-gray-200 border-l-violet-500 bg-white"
+                : "border border-border border-l-violet-500 bg-card"
             )}
           >
             <div className="absolute top-2 right-2 opacity-20">
@@ -391,7 +391,7 @@ export default function DashboardPage() {
                   "flex gap-3 rounded-xl border p-3 text-left transition hover:shadow-md",
                   isDark
                     ? "border-slate-600 bg-slate-800/95"
-                    : "border-gray-200 bg-white"
+                    : "border-border bg-card"
                 )}
               >
                 <span
@@ -449,7 +449,7 @@ export default function DashboardPage() {
             "animate-fade-in-up mt-6 flex flex-wrap items-center justify-center gap-2 rounded-full border px-6 py-3 shadow-md",
             isDark
               ? "border-slate-600 bg-slate-800/95"
-              : "border-pink-200 bg-white"
+              : "border-border bg-card"
           )}
           style={{ animationDelay: "0.25s" }}
         >

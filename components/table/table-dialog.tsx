@@ -524,11 +524,11 @@ export function DialogDataTable<T>({
         >
           <div
             ref={scrollContainerRef}
-            className="overflow-auto rounded-lg border border-border/80 bg-background text-xs shadow-xs"
+            className="overflow-auto rounded-lg border border-border/80 bg-background text-sm shadow-xs"
             style={{ maxHeight }}
           >
             <table
-              className="w-full table-fixed border-collapse text-xs"
+              className="w-full table-fixed border-collapse text-sm"
               style={{ minWidth: "100%" }}
             >
               <colgroup>

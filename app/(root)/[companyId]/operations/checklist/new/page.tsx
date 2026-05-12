@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -591,7 +591,7 @@ export default function NewChecklistPage() {
                 <div className="mb-2 flex">
                   <Badge
                     variant="secondary"
-                    className="border-blue-200 bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-800 shadow-sm transition-colors duration-200 hover:bg-blue-200"
+                    className="border-border bg-blue-100 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-colors duration-200 hover:bg-blue-200"
                   >
                     🔧 Operation
                   </Badge>

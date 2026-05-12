@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useMemo } from "react"
 import { IPurchaseData } from "@/interfaces"
@@ -113,7 +113,7 @@ export function PurchaseTable({
           return (
             <button
               type="button"
-              className="text-left font-medium text-blue-600 hover:underline"
+              className="text-left font-medium text-muted-foreground hover:underline"
               onClick={() => onDocumentNoClick?.(rowData)}
             >
               {rowData.documentNo}

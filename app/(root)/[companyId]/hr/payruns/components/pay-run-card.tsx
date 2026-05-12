@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { ApiResponse } from "@/interfaces/auth"
 import { IPayrollDashboard } from "@/interfaces/payrun"
@@ -138,7 +138,7 @@ export function ProcessPayRunCard({
   const buttonConfig = getButtonConfig()
 
   return (
-    <Card className="border-2 border-blue-100 bg-blue-50/50">
+    <Card className="border-2 border-blue-100 bg-card/50">
       <CardHeader>
         <div className="flex items-center space-x-3">
           <CardTitle className="text-lg">

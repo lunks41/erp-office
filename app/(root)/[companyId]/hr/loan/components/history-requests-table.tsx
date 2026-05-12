@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { ILoanRequest } from "@/interfaces/loan"
 import { ColumnDef } from "@tanstack/react-table"
@@ -83,7 +83,7 @@ export const columns: ColumnDef<ILoanRequest>[] = [
         case "Completed":
           variant = "default"
           className =
-            "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200"
+            "bg-blue-100 text-primary border-border hover:bg-blue-200"
           break
         default:
           variant = "secondary"

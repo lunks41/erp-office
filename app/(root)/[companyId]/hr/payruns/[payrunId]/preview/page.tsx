@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -391,7 +391,7 @@ export default function PayRunPreviewPage() {
               <DialogHeader>
                 <DialogTitle className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-blue-600">
+                    <h2 className="text-xl font-bold text-muted-foreground">
                       {selectedEmployee?.employeeName || "Employee Name"}
                     </h2>
                     <p className="text-sm text-gray-600">

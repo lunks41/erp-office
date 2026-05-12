@@ -824,11 +824,11 @@ export function MainTable<T>({
         {/* Main table container with horizontal scrolling */}
         <div
           ref={scrollContainerRef}
-          className="border-border/80 bg-background overflow-auto rounded-lg border text-xs shadow-xs"
+          className="border-border/80 bg-background overflow-auto rounded-lg border text-sm shadow-xs"
           style={{ maxHeight: tableHeight ?? "460px" }}
         >
           <table
-            className="w-full table-fixed border-collapse text-xs"
+            className="w-full table-fixed border-collapse text-sm"
             style={{ minWidth: "100%" }}
           >
             <colgroup>

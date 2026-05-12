@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo } from "react"
 import { IJobOrderHd } from "@/interfaces/checklist"
@@ -100,7 +100,7 @@ export function InquiryTable({
                   "🎯 Navigation completed - user can now work in new tab"
                 )
               }}
-              className="text-blue-600 hover:text-blue-800 hover:underline"
+              className="text-muted-foreground hover:text-primary hover:underline"
             >
               {jobNo}
             </button>
@@ -120,7 +120,7 @@ export function InquiryTable({
           return (
             <Badge
               variant="outline"
-              className="border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+              className="border-border bg-card px-2 py-1 text-xs font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
             >
               {companyName}
             </Badge>
@@ -173,13 +173,13 @@ export function InquiryTable({
           const status = row.getValue("jobStatusName") as string
           const statusColors: Record<string, string> = {
             Pending: "bg-yellow-100 text-yellow-800",
-            Completed: "bg-blue-100 text-blue-800",
+            Completed: "bg-blue-100 text-primary",
             Cancelled: "bg-red-100 text-red-800",
             "Cancel with Service": "bg-orange-100 text-orange-800",
             Confirmed: "bg-green-100 text-green-800",
             Posted: "bg-purple-100 text-purple-800",
             Delivered: "bg-green-100 text-green-800",
-            Approved: "bg-blue-100 text-blue-800",
+            Approved: "bg-blue-100 text-primary",
           }
           return (
             <Badge

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo } from "react"
 import {
@@ -323,7 +323,7 @@ export function EquipmentUsedForm({
                     />
                     <Badge
                       variant="secondary"
-                      className="w-fit bg-blue-100 px-2 py-0 text-[10px] text-blue-800"
+                      className="w-fit bg-blue-100 px-2 py-0 text-[10px] text-primary"
                     >
                       Loading
                     </Badge>

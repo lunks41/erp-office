@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo } from "react"
 import { IGlTransactionDetails } from "@/interfaces/history"
@@ -64,7 +64,7 @@ export function GlTransactionTable({
             const companyName =
               companyMap.get(companyId) || `Company ${companyId}`
             return (
-              <div className="font-medium text-blue-600">{companyName}</div>
+              <div className="font-medium text-muted-foreground">{companyName}</div>
             )
           }
           return "-"

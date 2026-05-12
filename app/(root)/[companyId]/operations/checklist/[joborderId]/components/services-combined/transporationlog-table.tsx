@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -126,7 +126,7 @@ export function TransportationLogTable({
                   <Badge
                     key={`${itemNo}-${index}`}
                     variant="default"
-                    className="border-blue-200 bg-blue-100 px-1.5 py-0.5 text-[10px] leading-tight text-blue-800 hover:bg-blue-200"
+                    className="border-border bg-blue-100 px-1.5 py-0.5 text-[10px] leading-tight text-primary hover:bg-blue-200"
                   >
                     {displayText}
                   </Badge>

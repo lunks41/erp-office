@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { ILeaveBalance, ILeavePolicy } from "@/interfaces/leave"
 import {
@@ -55,7 +55,7 @@ export function LeaveBalanceTable({
       case "sick leave":
         return "bg-red-100 text-red-800 border-red-200"
       case "casual leave":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 text-primary border-border"
       case "maternity leave":
         return "bg-pink-100 text-pink-800 border-pink-200"
       case "bereavement leave":
@@ -101,7 +101,7 @@ export function LeaveBalanceTable({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-blue-600" />
+              <Calendar className="h-5 w-5 text-muted-foreground" />
               <span className="text-sm font-medium text-gray-600">
                 Total Allocated
               </span>
@@ -134,12 +134,12 @@ export function LeaveBalanceTable({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <TrendingDown className="h-5 w-5 text-blue-600" />
+              <TrendingDown className="h-5 w-5 text-muted-foreground" />
               <span className="text-sm font-medium text-gray-600">
                 Total Remaining
               </span>
             </div>
-            <div className="mt-2 text-2xl font-bold text-blue-600">
+            <div className="mt-2 text-2xl font-bold text-muted-foreground">
               {balances.reduce(
                 (sum, balance) => sum + balance.remainingBalance,
                 0

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -1048,7 +1048,7 @@ const GLJournalDetailsForm = React.forwardRef<
                       ? "bg-red-100 text-red-800 hover:bg-red-200"
                       : editingDetail
                         ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                        : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                        : "bg-blue-100 text-primary hover:bg-blue-200"
                   }`}
                 >
                   {isCancelled

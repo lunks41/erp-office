@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -443,7 +443,7 @@ export function LaunchServiceForm({
                     <TooltipTrigger asChild>
                       <Badge
                         variant="outline"
-                        className="animate-pulse cursor-help border-blue-200 bg-blue-50 text-blue-700 transition-all duration-300 hover:bg-blue-100"
+                        className="animate-pulse cursor-help border-border bg-card text-blue-700 transition-all duration-300 hover:bg-blue-100"
                       >
                         <div className="flex items-center gap-1">
                           <svg

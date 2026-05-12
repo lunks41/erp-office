@@ -469,7 +469,7 @@ export function TaskTable<T>({
           <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
             {/* Use <table> directly — <Table> wraps in overflow-x-auto div which breaks scrollbar positioning */}
             <table
-              className="w-full table-fixed border-collapse caption-bottom text-xs"
+              className="w-full table-fixed border-collapse caption-bottom text-sm"
               style={{ minWidth: "100%" }}
             >
               {/* Column group for consistent sizing */}

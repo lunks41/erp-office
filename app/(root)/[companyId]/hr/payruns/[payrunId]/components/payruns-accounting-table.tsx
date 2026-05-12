@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState } from "react"
 import { IPayrollAccountViewModel } from "@/interfaces/payroll-account"
@@ -182,7 +182,7 @@ export function PayRunsAccountingTable({
                       <React.Fragment key={companyId}>
                         {/* Company Header Row */}
                         <TableRow
-                          className="bg-muted/30 border-muted hover:bg-muted/40 cursor-pointer border-t-2"
+                          className="bg-muted/30 border-muted hover:bg-card cursor-pointer border-t-2"
                           onClick={() => toggleCompany(Number(companyId))}
                         >
                           <TableCell className="bg-background sticky left-0 z-10 py-2 font-semibold">

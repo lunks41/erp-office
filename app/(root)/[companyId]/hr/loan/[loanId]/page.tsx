@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -197,7 +197,7 @@ export default function LoanDetailsPage() {
               key={loan.loanRequestId}
               className={`cursor-pointer rounded-lg border p-3 transition-colors ${
                 selectedLoan?.loanRequestId === loan.loanRequestId
-                  ? "border-blue-200 bg-blue-50"
+                  ? "border-border bg-card"
                   : "border-gray-200 hover:bg-gray-50"
               }`}
               onClick={() => handleLoanSelect(loan)}
@@ -410,7 +410,7 @@ export default function LoanDetailsPage() {
                     0 && (
                     <a
                       href="#"
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-sm text-muted-foreground hover:text-primary"
                     >
                       {allLoans.filter(
                         (loan) => loan.employeeId === selectedLoan.employeeId
@@ -476,7 +476,7 @@ export default function LoanDetailsPage() {
                   <div className="text-sm text-gray-600">Remaining Amount</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-blue-600">
+                  <div className="text-xl font-bold text-muted-foreground">
                     {installmentsRemaining}
                   </div>
                   <div className="text-sm text-gray-600">

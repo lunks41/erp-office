@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -155,7 +155,7 @@ export function ChecklistTable({
                   "🎯 Navigation completed - user can now work in new tab"
                 )
               }}
-              className="text-blue-600 hover:text-blue-800 hover:underline"
+              className="text-muted-foreground hover:text-primary hover:underline"
             >
               {jobNo}
             </button>
@@ -210,13 +210,13 @@ export function ChecklistTable({
           const status = row.getValue("jobStatusName") as string
           const statusColors: Record<string, string> = {
             Pending: "bg-yellow-100 text-yellow-800",
-            Completed: "bg-blue-100 text-blue-800",
+            Completed: "bg-blue-100 text-primary",
             Cancelled: "bg-red-100 text-red-800",
             "Cancel with Service": "bg-orange-100 text-orange-800",
             Confirmed: "bg-green-100 text-green-800",
             Posted: "bg-purple-100 text-purple-800",
             Delivered: "bg-green-100 text-green-800",
-            Approved: "bg-blue-100 text-blue-800",
+            Approved: "bg-blue-100 text-primary",
           }
           return (
             <Badge

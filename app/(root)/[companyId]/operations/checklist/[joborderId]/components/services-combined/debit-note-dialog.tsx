@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "next/navigation"
@@ -1088,7 +1088,7 @@ export default function DebitNoteDialog({
                   </Badge>
                   <Badge
                     variant="secondary"
-                    className="bg-blue-100 px-2 py-0.5 text-xs whitespace-nowrap text-blue-800 hover:bg-blue-200"
+                    className="bg-blue-100 px-2 py-0.5 text-xs whitespace-nowrap text-primary hover:bg-blue-200"
                   >
                     {debitNoteHdState?.debitNoteDate
                       ? (() => {

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -1222,7 +1222,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`border-border/60 bg-muted/40 -mt-2 mb-1 grid w-full grid-cols-8 gap-1 gap-y-2 rounded-md border p-2 shadow-sm ${
+            className={`border-border/60 bg-card -mt-2 mb-1 grid w-full grid-cols-8 gap-1 gap-y-2 rounded-md border p-2 shadow-sm ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
@@ -1259,7 +1259,7 @@ const InvoiceDetailsForm = React.forwardRef<
                       ? "bg-red-100 text-red-800 hover:bg-red-200"
                       : editingDetail
                         ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                        : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                        : "bg-blue-100 text-primary hover:bg-blue-200"
                   }`}
                 >
                   {isCancelled

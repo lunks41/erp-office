@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useState, type ChangeEvent } from "react"
 import { useParams } from "next/navigation"
@@ -220,14 +220,14 @@ export default function InquiryPage() {
 
       {/* Info Banner */}
       {!hasSearched && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <div className="rounded-lg border border-border bg-card p-4 dark:border-blue-800 dark:bg-blue-900/20">
           <div className="flex items-start gap-3">
             <span className="text-xl">ℹ️</span>
             <div className="flex-1">
-              <h3 className="mb-1 font-semibold text-blue-900 dark:text-blue-100">
+              <h3 className="mb-1 font-semibold text-foreground dark:text-blue-100">
                 Cross-Company Search
               </h3>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-primary dark:text-blue-200">
                 This inquiry screen searches across all companies. Select a tab
                 (Checklist or Customer) and enter search criteria, then click
                 &quot;Search&quot; to view results.

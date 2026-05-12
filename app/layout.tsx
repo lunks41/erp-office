@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
 import { cookies } from "next/headers"
 
 import { fontVariables } from "@/lib/fonts"
@@ -31,8 +30,6 @@ const siteConfig = {
     github: process.env.NEXT_PUBLIC_SITE_GITHUB || "https://github.com/erp",
   },
 }
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
@@ -121,11 +118,10 @@ export default async function RootLayout({
       </head>
       <body
         className={cn(
-          "bg-background overscroll-none font-sans antialiased",
+          "bg-background overscroll-none antialiased",
           activeThemeValue ? `theme-${activeThemeValue}` : "",
           isScaled ? "theme-scaled" : "",
-          fontVariables,
-          inter.className
+          fontVariables
         )}
       >
         <QueryProviders theme={activeThemeValue}>

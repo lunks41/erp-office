@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -243,7 +243,7 @@ export function ChecklistLog({
     const iconMap: Record<string, React.ReactNode> = {
       checklist: (
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-          <ClipboardList className="h-4 w-4 text-blue-600" />
+          <ClipboardList className="h-4 w-4 text-muted-foreground" />
         </div>
       ),
       portexpense: (
@@ -328,13 +328,13 @@ export function ChecklistLog({
       ),
       template: (
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-          <FileText className="h-4 w-4 text-blue-600" />
+          <FileText className="h-4 w-4 text-muted-foreground" />
         </div>
       ),
       // Handle special cases
       transportation: (
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-          <Truck className="h-4 w-4 text-blue-600" />
+          <Truck className="h-4 w-4 text-muted-foreground" />
         </div>
       ),
       debitnote: (
