@@ -1,0 +1,66 @@
+/**
+ * Overview dashboard API paths (relative to `apiClient` base `/api/proxy`).
+ * Must stay aligned with `AccountOverviewController` in api-core (`[Route("api")]` + these segments)
+ * and with `OverviewDashboard` in erp-kendo-portal `lib/api-routes.ts`.
+ */
+export const OverviewDashboardRoutes = {
+  ap: {
+    kpi: "/ap/kpi",
+    aging: "/ap/aging",
+    overdueSuppliers: "/ap/overdue-suppliers",
+    topSuppliers: "/ap/top-suppliers",
+    todayTransactions: "/ap/transactions/today",
+    weekTransactions: "/ap/transactions/week",
+    spendVsPayments: "/ap/spend-vs-payments",
+    paymentTargetVsActual: "/ap/payment-target-vs-actual",
+    cashOutflowForecast: "/ap/cash-outflow-forecast",
+    vendorConcentration: "/ap/vendor-concentration",
+  },
+  ar: {
+    kpi: "/ar/kpi",
+    aging: "/ar/aging",
+    overdueCustomers: "/ar/overdue-customers",
+    topCustomers: "/ar/top-customers",
+    todayTransactions: "/ar/transactions/today",
+    weekTransactions: "/ar/transactions/week",
+    salesVsCollections: "/ar/sales-vs-collections",
+    collectionTargetVsActual: "/ar/collection-target-vs-actual",
+    cashInflowForecast: "/ar/cash-inflow-forecast",
+    creditLimitUtilization: "/ar/credit-limit-utilization",
+    disputedInvoices: "/ar/disputed-invoices",
+    unappliedReceipts: "/ar/unapplied-receipts",
+    openCollectionTasks: "/ar/open-collection-tasks",
+    dsoTrend: "/ar/dso-trend",
+    invoicesDue: "/ar/invoices-due",
+    paymentBehavior: "/ar/payment-behavior",
+    badDebt: "/ar/bad-debt",
+    onHoldCustomers: "/ar/on-hold-customers",
+  },
+  cb: {
+    kpi: "/cb/kpi",
+    bankAccounts: "/cb/bank-accounts",
+    cashFlow: "/cb/cash-flow",
+    recentTransactions: "/cb/transactions/recent",
+    weekTransactions: "/cb/transactions/week",
+    liquidityForecast: "/cb/liquidity-forecast",
+    reconciliationStatus: "/cb/reconciliation-status",
+    cashConcentrationByBank: "/cb/cash-concentration-by-bank",
+    openTreasuryTasks: "/cb/open-treasury-tasks",
+  },
+  gl: {
+    kpi: "/gl/kpi",
+    accountTypeBalances: "/gl/account-type-balances",
+    recentJournals: "/gl/journals/recent",
+    trialBalance: "/gl/trial-balance",
+    accountingPeriodStatus: "/gl/accounting-period-status",
+    suspenseBalances: "/gl/suspense-balances",
+    unpostedJournalSummary: "/gl/unposted-journal-summary",
+    accountTypeMovement: "/gl/account-type-movement",
+  },
+  einvoicing: {
+    kpi: "/einvoicing/kpi",
+    statusSummary: "/einvoicing/status-summary",
+    recentSubmissions: "/einvoicing/submissions/recent",
+    todaySubmissions: "/einvoicing/submissions/today",
+  },
+} as const

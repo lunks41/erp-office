@@ -4,19 +4,27 @@ import { useMemo } from "react"
 import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
-import { AlertCircle, BookOpen, CircleAlert, CircleCheck, Scale } from "lucide-react"
+import {
+  AlertCircle,
+  BookOpen,
+  CircleAlert,
+  CircleCheck,
+  Scale,
+} from "lucide-react"
 
 import { getData } from "@/lib/api-client"
-import { OverviewDataTable } from "@/components/accounting/overview-data-table"
+import { OverviewDashboardRoutes } from "@/lib/overview-dashboard-routes"
+import { pickNumber, pickString } from "@/lib/overview-row-pickers"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { OverviewDataTable } from "@/components/accounting/overview-data-table"
 
 type AnyRecord = Record<string, unknown>
 
 const isRecord = (value: unknown): value is AnyRecord =>
-  typeof value === "object" && value !== null
+  typeof value === "object" && value !== null && !Array.isArray(value)
 
 const unwrapData = (payload: unknown): unknown => {
   if (!isRecord(payload)) {
@@ -28,6 +36,16 @@ const unwrapData = (payload: unknown): unknown => {
     if (data !== undefined && data !== null) {
       return data
     }
+    // SqlResponse with empty/null `data` — do not fall back to the envelope (would parse `result` as KPI).
+    return {}
+  }
+
+  if ("Data" in payload) {
+    const data = (payload as AnyRecord).Data as unknown
+    if (data !== undefined && data !== null) {
+      return data
+    }
+    return {}
   }
 
   return payload
@@ -35,6 +53,12 @@ const unwrapData = (payload: unknown): unknown => {
 
 const getFirstRecord = (...sources: unknown[]): AnyRecord => {
   for (const source of sources) {
+    if (Array.isArray(source) && source.length > 0) {
+      const row = source[0]
+      if (isRecord(row)) {
+        return row
+      }
+    }
     if (isRecord(source)) {
       return source
     }
@@ -63,6 +87,7 @@ const asArray = <T,>(...sources: unknown[]): T[] => {
         current.list,
         current.entries,
         current.data,
+        (current as AnyRecord).Data,
       ]
       queue.push(...candidates)
     }
@@ -72,10 +97,9 @@ const asArray = <T,>(...sources: unknown[]): T[] => {
 }
 
 const asNumber = (value: unknown): number =>
-  typeof value === "number" && Number.isFinite(value) ? value : Number(value || 0)
-
-const asString = (value: unknown, fallback = ""): string =>
-  typeof value === "string" ? value : fallback
+  typeof value === "number" && Number.isFinite(value)
+    ? value
+    : Number(value || 0)
 
 const formatMoney = (value: number) =>
   `AED ${new Intl.NumberFormat("en-US", {
@@ -97,16 +121,21 @@ type GlJournal = {
   amount: number
   status: string
 }
-type GlTrial = { accountCode: string; accountName: string; debit: number; credit: number }
+type GlTrial = {
+  accountCode: string
+  accountName: string
+  debit: number
+  credit: number
+}
 
 const normalizeKpi = (payload: unknown): GlKpi => {
   const base = unwrapData(payload)
   const record = getFirstRecord(base, unwrapData(base))
   return {
-    totalAssets: asNumber(record.totalAssets ?? record.assets),
-    totalLiabilities: asNumber(record.totalLiabilities ?? record.liabilities),
-    netEquity: asNumber(record.netEquity ?? record.equity),
-    ytdPnl: asNumber(record.ytdPnl ?? record.ytdPnL ?? record.pnlYtd),
+    totalAssets: pickNumber(record, ["totalAssets", "assets"]),
+    totalLiabilities: pickNumber(record, ["totalLiabilities", "liabilities"]),
+    netEquity: pickNumber(record, ["netEquity", "equity"]),
+    ytdPnl: pickNumber(record, ["ytdPnl", "ytdPnL", "pnlYtd"]),
   }
 }
 
@@ -114,8 +143,8 @@ const normalizeAccountTypes = (payload: unknown): GlAccountType[] => {
   const base = unwrapData(payload)
   const rows = asArray<AnyRecord>(base, unwrapData(base))
   return rows.map((item) => ({
-    accountType: asString(item.accountType ?? item.type ?? item.name, "Account Type"),
-    amount: asNumber(item.balance ?? item.amount ?? item.total),
+    accountType: pickString(item, ["accountType", "label", "type", "name"], "Account Type"),
+    amount: pickNumber(item, ["balance", "amount", "total"]),
   }))
 }
 
@@ -123,11 +152,11 @@ const normalizeJournals = (payload: unknown): GlJournal[] => {
   const base = unwrapData(payload)
   const rows = asArray<AnyRecord>(base, unwrapData(base))
   return rows.map((item) => ({
-    journalNo: asString(item.journalNo ?? item.journalNumber ?? item.number, "-"),
-    referenceNo: asString(item.referenceNo ?? item.reference ?? item.docNo, "-"),
-    trnDate: asString(item.trnDate ?? item.date ?? item.journalDate, "-"),
-    amount: asNumber(item.amount ?? item.totalAmount ?? item.value),
-    status: asString(item.status, "Open"),
+    journalNo: pickString(item, ["journalNo", "documentNo", "journalNumber", "number"], "-"),
+    referenceNo: pickString(item, ["referenceNo", "reference", "docNo"], "-"),
+    trnDate: pickString(item, ["trnDate", "date", "journalDate", "accountDate"], "-"),
+    amount: pickNumber(item, ["totAmt", "totLocalAmt", "amount", "totalAmount", "value"]),
+    status: pickString(item, ["status"], "Open"),
   }))
 }
 
@@ -135,10 +164,10 @@ const normalizeTrialBalance = (payload: unknown): GlTrial[] => {
   const base = unwrapData(payload)
   const rows = asArray<AnyRecord>(base, unwrapData(base))
   return rows.map((item) => ({
-    accountCode: asString(item.accountCode ?? item.code, "-"),
-    accountName: asString(item.accountName ?? item.name, "-"),
-    debit: asNumber(item.debit ?? item.totalDebit),
-    credit: asNumber(item.credit ?? item.totalCredit),
+    accountCode: pickString(item, ["accountCode", "code"], "-"),
+    accountName: pickString(item, ["accountName", "name"], "-"),
+    debit: pickNumber(item, ["debit", "totalDebit", "closingDebit"]),
+    credit: pickNumber(item, ["credit", "totalCredit", "closingCredit"]),
   }))
 }
 
@@ -158,22 +187,25 @@ export default function GLOverviewPage() {
 
   const kpiQuery = useQuery({
     queryKey: ["gl-overview-kpi", companyId],
-    queryFn: () => getData("/gl/kpi", { companyId }),
+    queryFn: () => getData(OverviewDashboardRoutes.gl.kpi, { companyId }),
     enabled: !!companyId,
   })
   const accountTypeBalancesQuery = useQuery({
     queryKey: ["gl-overview-account-type-balances", companyId],
-    queryFn: () => getData("/gl/account-type-balances", { companyId }),
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.accountTypeBalances, { companyId }),
     enabled: !!companyId,
   })
   const recentJournalsQuery = useQuery({
     queryKey: ["gl-overview-recent-journals", companyId],
-    queryFn: () => getData("/gl/journals/recent", { companyId }),
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.recentJournals, { companyId }),
     enabled: !!companyId,
   })
   const trialBalanceQuery = useQuery({
     queryKey: ["gl-overview-trial-balance", companyId],
-    queryFn: () => getData("/gl/trial-balance", { companyId }),
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.trialBalance, { companyId }),
     enabled: !!companyId,
   })
 
@@ -209,7 +241,9 @@ export default function GLOverviewPage() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => <Badge variant="secondary">{row.original.status}</Badge>,
+        cell: ({ row }) => (
+          <Badge variant="secondary">{row.original.status}</Badge>
+        ),
       },
     ],
     []
@@ -237,7 +271,6 @@ export default function GLOverviewPage() {
     <div className="@container mx-auto space-y-6 px-4 py-6 sm:px-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">GL Overview</h1>
-        <p className="text-muted-foreground">API: `/gl/*` via `/api/proxy`</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -247,7 +280,11 @@ export default function GLOverviewPage() {
           </CardHeader>
           <CardContent className="flex items-center gap-2 text-2xl font-semibold">
             <BookOpen className="h-5 w-5" />
-            {kpiQuery.isLoading ? <Skeleton className="h-7 w-32" /> : formatMoney(kpi.totalAssets)}
+            {kpiQuery.isLoading ? (
+              <Skeleton className="h-7 w-32" />
+            ) : (
+              formatMoney(kpi.totalAssets)
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -269,7 +306,11 @@ export default function GLOverviewPage() {
           </CardHeader>
           <CardContent className="flex items-center gap-2 text-2xl font-semibold">
             <CircleCheck className="h-5 w-5" />
-            {kpiQuery.isLoading ? <Skeleton className="h-7 w-32" /> : formatMoney(kpi.netEquity)}
+            {kpiQuery.isLoading ? (
+              <Skeleton className="h-7 w-32" />
+            ) : (
+              formatMoney(kpi.netEquity)
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -278,12 +319,19 @@ export default function GLOverviewPage() {
           </CardHeader>
           <CardContent className="flex items-center gap-2 text-2xl font-semibold">
             <Scale className="h-5 w-5" />
-            {kpiQuery.isLoading ? <Skeleton className="h-7 w-32" /> : formatMoney(kpi.ytdPnl)}
+            {kpiQuery.isLoading ? (
+              <Skeleton className="h-7 w-32" />
+            ) : (
+              formatMoney(kpi.ytdPnl)
+            )}
           </CardContent>
         </Card>
       </div>
       {kpiQuery.isError && (
-        <SectionError title="KPI unavailable" message="Unable to load GL KPI data at the moment." />
+        <SectionError
+          title="KPI unavailable"
+          message="Unable to load GL KPI data at the moment."
+        />
       )}
 
       <Card>
@@ -309,14 +357,19 @@ export default function GLOverviewPage() {
                   <span>{formatMoney(item.amount)}</span>
                 </div>
                 <div className="bg-muted h-2 rounded">
-                  <div className="bg-primary h-2 rounded" style={{ width: `${(item.amount / chartBase) * 100}%` }} />
+                  <div
+                    className="bg-primary h-2 rounded"
+                    style={{ width: `${(item.amount / chartBase) * 100}%` }}
+                  />
                 </div>
               </div>
             ))}
           {!accountTypeBalancesQuery.isLoading &&
             !accountTypeBalancesQuery.isError &&
             accountTypes.length === 0 && (
-              <p className="text-muted-foreground text-sm">No account type balances found.</p>
+              <p className="text-muted-foreground text-sm">
+                No account type balances found.
+              </p>
             )}
           {accountTypeBalancesQuery.isError && (
             <SectionError
@@ -341,7 +394,11 @@ export default function GLOverviewPage() {
             <OverviewDataTable
               data={journals}
               columns={journalColumns}
-              emptyMessage={recentJournalsQuery.isLoading ? "Loading recent journals..." : "No journals found"}
+              emptyMessage={
+                recentJournalsQuery.isLoading
+                  ? "Loading recent journals..."
+                  : "No journals found"
+              }
             />
           )}
         </CardContent>
@@ -361,7 +418,11 @@ export default function GLOverviewPage() {
             <OverviewDataTable
               data={trialBalance}
               columns={trialColumns}
-              emptyMessage={trialBalanceQuery.isLoading ? "Loading trial balance..." : "No trial balance data found"}
+              emptyMessage={
+                trialBalanceQuery.isLoading
+                  ? "Loading trial balance..."
+                  : "No trial balance data found"
+              }
             />
           )}
         </CardContent>

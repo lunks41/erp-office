@@ -1,6 +1,23 @@
 export const Login = "/auth/login"
 export const RefreshToken = "/auth/refreshtoken"
 
+// E-Invoicing Endpoints
+export const EInvoicing = {
+  kpi: "/einvoicing/kpi",
+  statusSummary: "/einvoicing/status-summary",
+  recentSubmissions: "/einvoicing/submissions/recent",
+  todaySubmissions: "/einvoicing/submissions/today",
+  outgoingList: "/einvoicing/outgoing",
+  incomingList: "/einvoicing/incoming",
+  submit: "/einvoicing/outgoing/submit",
+  retry: "/einvoicing/outgoing/retry",
+  xmlPayload: "/einvoicing/xml",
+  logsList: "/einvoicing/logs",
+  provider: "/einvoicing/provider",
+  providerTest: "/einvoicing/provider/test",
+  settings: "/einvoicing/settings",
+}
+
 // Admin Endpoints
 export const Admin = {
   getUserModules: "/admin/getusersmodules",

@@ -140,6 +140,7 @@ const getModuleIcon = (moduleCode: string) => {
     requests: ClipboardList,
     document: FileText,
     dashboard: LayoutDashboard,
+    einvoicing: FileCheck,
   }
   return moduleIconMap[moduleCode.toLowerCase()] || FolderKanban
 }
@@ -654,6 +655,7 @@ const ICON_COLORS: Record<string, string> = {
   cb: "text-amber-500",
   gl: "text-purple-500",
   hr: "text-teal-500",
+  einvoicing: "text-teal-600",
   logistics: "text-cyan-500",
   inquiry: "text-sky-500",
   settings: "text-slate-400",
