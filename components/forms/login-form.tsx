@@ -1,89 +1,94 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useAuthStore } from "@/stores/auth-store"
-import { getDeviceInfo, type DeviceInfo } from "@/lib/device-info"
 import { IActiveSession } from "@/interfaces/auth"
-import { ActiveSessionsView } from "@/components/auth/active-sessions-view"
+import { useAuthStore } from "@/stores/auth-store"
+import { motion, useReducedMotion } from "framer-motion"
+import { Eye, EyeOff, Layers, Loader2, Lock, User } from "lucide-react"
 
+import { getDeviceInfo, type DeviceInfo } from "@/lib/device-info"
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ActiveSessionsView } from "@/components/auth/active-sessions-view"
 
-/**
- * Validation rules and helpers
- */
+// ─── Animation variants ───────────────────────────────────────────────────────
+
+const fieldList = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+}
+
+const fieldItem = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+  },
+}
+
+// ─── Validation ───────────────────────────────────────────────────────────────
+
 const validateUserName = (value: string): string | undefined => {
-  if (!value.trim()) {
-    return "Username is required"
-  }
-  if (value.trim().length < 2) {
-    return "Username must be at least 2 characters"
-  }
-  if (value.trim().length > 50) {
+  if (!value.trim()) return "Username is required"
+  if (value.trim().length < 2) return "Username must be at least 2 characters"
+  if (value.trim().length > 50)
     return "Username must be less than 50 characters"
-  }
-  if (!/^[a-zA-Z0-9_.-]+$/.test(value.trim())) {
-    return "Username can only contain letters, numbers, dots, hyphens, and underscores"
-  }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(value.trim()))
+    return "Only letters, numbers, dots, hyphens and underscores"
   return undefined
 }
 
 const validatePassword = (value: string): string | undefined => {
-  if (!value) {
-    return "Password is required"
-  }
-  if (value.length < 2) {
-    return "Password must be at least 2 characters"
-  }
-  if (value.length > 128) {
-    return "Password must be less than 128 characters"
-  }
+  if (!value) return "Password is required"
+  if (value.length < 2) return "Password must be at least 2 characters"
+  if (value.length > 128) return "Password must be less than 128 characters"
   return undefined
 }
 
 const validateForm = (userName: string, userPassword: string) => {
-  const errors: { userName?: string; userPassword?: string; general?: string } =
-    {}
-
-  const userNameError = validateUserName(userName)
-  const passwordError = validatePassword(userPassword)
-
-  if (userNameError) errors.userName = userNameError
-  if (passwordError) errors.userPassword = passwordError
-
+  const errors: { userName?: string; userPassword?: string } = {}
+  const u = validateUserName(userName)
+  const p = validatePassword(userPassword)
+  if (u) errors.userName = u
+  if (p) errors.userPassword = p
   return errors
 }
 
-/**
- * Login Form Component
- *
- * This component provides a user interface for authentication with the following features:
- * 1. Username and password input fields with validation
- * 2. Real-time form validation
- * 3. Error handling and display
- * 4. Loading state management
- * 5. Redirect after successful login
- * 6. Links to forgot password and registration
- */
+// ─── Shared styles ─────────────────────────────────────────────────────────────
+
+const CARD_STYLE: React.CSSProperties = {
+  background: "rgba(255,255,255,0.04)",
+  backdropFilter: "blur(28px)",
+  border: "1px solid rgba(255,255,255,0.1)",
+  boxShadow: "0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04)",
+}
+
+const INPUT_CLASS =
+  "bg-white/[0.06] border-white/[0.1] text-white placeholder:text-white/30 " +
+  "focus-visible:ring-emerald-500/40 focus-visible:border-emerald-500/50 " +
+  "hover:border-white/20 transition-colors duration-200 h-11 pl-10"
+
+const LABEL_CLASS = "text-white/70 text-sm font-medium"
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export function LoginForm({
   className,
-  imageUrl,
   ...props
-}: React.ComponentProps<"div"> & {
-  imageUrl?: string
-}) {
-  // State Management
-  // ---------------
+}: React.ComponentProps<"div">) {
+  const reduceMotion = useReducedMotion()
+
   const [userName, setUserName] = useState("")
   const [userPassword, setUserPassword] = useState("")
-  const [message, setMessage] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState<{
     userName?: string
     userPassword?: string
@@ -94,147 +99,110 @@ export function LoginForm({
     userPassword?: boolean
     form?: boolean
   }>({})
-  const [activeSessions, setActiveSessions] = useState<IActiveSession[] | null>(null)
-  const [pendingDeviceInfo, setPendingDeviceInfo] = useState<DeviceInfo | undefined>()
+  const [activeSessions, setActiveSessions] = useState<IActiveSession[] | null>(
+    null
+  )
+  const [pendingDeviceInfo, setPendingDeviceInfo] = useState<
+    DeviceInfo | undefined
+  >()
+
   const { logIn, loginForce, isLoading, error } = useAuthStore()
   const router = useRouter()
 
   // Validation effects
   useEffect(() => {
-    if (touched.userName) {
-      const error = validateUserName(userName)
-      setErrors((prev) => ({ ...prev, userName: error }))
-    }
+    if (touched.userName)
+      setErrors((prev) => ({ ...prev, userName: validateUserName(userName) }))
   }, [userName, touched.userName])
 
   useEffect(() => {
-    if (touched.userPassword) {
-      const error = validatePassword(userPassword)
-      setErrors((prev) => ({ ...prev, userPassword: error }))
-    }
+    if (touched.userPassword)
+      setErrors((prev) => ({
+        ...prev,
+        userPassword: validatePassword(userPassword),
+      }))
   }, [userPassword, touched.userPassword])
 
   useEffect(() => {
-    // Show error from auth store after login attempt
-    if (error) {
-      setErrors((prev) => ({ ...prev, general: error }))
-    } else {
-      // Clear general error when auth store error is cleared
-      setErrors((prev) => ({ ...prev, general: undefined }))
-    }
+    if (error) setErrors((prev) => ({ ...prev, general: error }))
+    else setErrors((prev) => ({ ...prev, general: undefined }))
   }, [error])
 
-  // Input handlers with validation
+  // Handlers
+  const clearGeneralError = () => {
+    setErrors((prev) => ({ ...prev, general: undefined }))
+    if (error) useAuthStore.setState({ error: null })
+  }
+
   const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserName(e.target.value)
-    setErrors((prev) => ({ ...prev, general: undefined }))
-    setMessage("") // Clear any status messages
     setTouched((prev) => ({ ...prev, userName: true }))
-
-    // Clear auth store error when user starts typing
-    if (error) {
-      useAuthStore.setState({ error: null })
-    }
+    clearGeneralError()
   }
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserPassword(e.target.value)
-    setErrors((prev) => ({ ...prev, general: undefined }))
-    setMessage("") // Clear any status messages
     setTouched((prev) => ({ ...prev, userPassword: true }))
-
-    // Clear auth store error when user starts typing
-    if (error) {
-      useAuthStore.setState({ error: null })
-    }
+    clearGeneralError()
   }
 
-  const handleUserNameBlur = () => {
-    setTouched((prev) => ({ ...prev, userName: true }))
-  }
-
-  const handlePasswordBlur = () => {
-    setTouched((prev) => ({ ...prev, userPassword: true }))
-  }
-
-  /**
-   * Handles form submission with validation
-   * Flow:
-   * 1. Validate form inputs
-   * 2. Prevent default form submission
-   * 3. Call login API through auth store
-   * 4. Handle response
-   * 5. Redirect on success
-   * 6. Display message on failure
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Mark all fields as touched to trigger validation
     setTouched({ userName: true, userPassword: true })
-
-    // Validate form
     const validationErrors = validateForm(userName, userPassword)
     setErrors(validationErrors)
-
-    // If there are validation errors, don't submit
-    if (Object.keys(validationErrors).length > 0) {
-      return
-    }
+    if (Object.keys(validationErrors).length > 0) return
 
     try {
-      // Mark form as touched to show errors
       setTouched((prev) => ({ ...prev, form: true }))
-
-      // Clear previous errors and message
       setErrors({})
-      setMessage("")
 
       const deviceInfo = getDeviceInfo()
-      const loginResponse = await logIn(userName.trim(), userPassword, deviceInfo)
+      const loginResponse = await logIn(
+        userName.trim(),
+        userPassword,
+        deviceInfo
+      )
 
       if (loginResponse.result === 1 && !useAuthStore.getState().error) {
         router.push("/company-select")
-      } else if (loginResponse.result === 2 && loginResponse.activeSessions?.length) {
-        const sameDeviceSession = loginResponse.activeSessions.find(
+      } else if (
+        loginResponse.result === 2 &&
+        loginResponse.activeSessions?.length
+      ) {
+        const sameDevice = loginResponse.activeSessions.find(
           (s) =>
             s.platform === deviceInfo?.platform &&
             s.screenResolution === deviceInfo?.screenResolution
         )
-        if (sameDeviceSession) {
-          // Same browser reconnecting after token expiry — silently take over
+        if (sameDevice) {
           const forced = await loginForce(
             userName.trim(),
             userPassword,
-            [sameDeviceSession.sessionId],
+            [sameDevice.sessionId],
             deviceInfo
           )
-          if (forced.result === 1) {
-            router.push("/company-select")
-          }
+          if (forced.result === 1) router.push("/company-select")
         } else {
-          // Genuinely different device — prompt user
           setPendingDeviceInfo(deviceInfo)
           setActiveSessions(loginResponse.activeSessions)
         }
       }
-    } catch (error) {
-      // Handle unexpected errors
-      console.error("Login failed:", error)
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Login failed. Please try again."
-      setErrors((prev) => ({
-        ...prev,
-        general: errorMessage,
-      }))
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Login failed. Please try again."
+      setErrors((prev) => ({ ...prev, general: msg }))
     }
   }
 
   const handleSignOutOthers = async (sessionIds: number[]) => {
     try {
-      const response = await loginForce(userName.trim(), userPassword, sessionIds, pendingDeviceInfo)
+      const response = await loginForce(
+        userName.trim(),
+        userPassword,
+        sessionIds,
+        pendingDeviceInfo
+      )
       if (response.result === 1) {
         setActiveSessions(null)
         router.push("/company-select")
@@ -244,144 +212,335 @@ export function LoginForm({
     }
   }
 
+  // Active sessions overlay
   if (activeSessions) {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <ActiveSessionsView
-          sessions={activeSessions}
-          isLoading={isLoading}
-          imageUrl={imageUrl}
-          onSignOutOthers={handleSignOutOthers}
-          onCancel={() => setActiveSessions(null)}
-        />
+        <div className="rounded-2xl p-6" style={CARD_STYLE}>
+          <ActiveSessionsView
+            sessions={activeSessions}
+            isLoading={isLoading}
+            onSignOutOthers={handleSignOutOthers}
+            onCancel={() => setActiveSessions(null)}
+          />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="p-6 md:p-8">
-            <div className="flex flex-col gap-6">
-              {/* Header */}
-              <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-muted-foreground text-balance">
-                  Login to your account
-                </p>
-              </div>
+    <div className={cn("flex flex-col gap-0", className)} {...props}>
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Glass card */}
+        <div className="overflow-hidden rounded-3xl" style={CARD_STYLE}>
+          <form onSubmit={handleSubmit}>
+            <div className="px-8 pt-9 pb-2 sm:px-10">
+              {/* Logo + welcome */}
+              <motion.div
+                className="flex flex-col items-center text-center"
+                variants={fieldList}
+                initial="hidden"
+                animate="visible"
+              >
+                <motion.div
+                  variants={fieldItem}
+                  className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(6,182,212,0.14) 100%)",
+                    border: "1px solid rgba(16,185,129,0.3)",
+                    boxShadow: "0 4px 20px rgba(16,185,129,0.15)",
+                  }}
+                >
+                  <Layers className="h-6 w-6" style={{ color: "#10b981" }} />
+                </motion.div>
 
-              {/* Status Messages */}
-              {message && (
-                <Alert>
-                  <AlertDescription className="text-center font-medium text-red-500">
-                    {message}
-                  </AlertDescription>
-                </Alert>
-              )}
+                <motion.h2
+                  variants={fieldItem}
+                  className="text-2xl font-bold tracking-tight"
+                  style={{ color: "#fff" }}
+                >
+                  Welcome back
+                </motion.h2>
+                <motion.p
+                  variants={fieldItem}
+                  className="mt-1.5 text-sm"
+                  style={{ color: "rgba(255,255,255,0.45)" }}
+                >
+                  Sign in to your AMES ERP Suite workspace
+                </motion.p>
+              </motion.div>
+            </div>
 
+            {/* Fields */}
+            <motion.div
+              className="flex flex-col gap-4 px-8 py-6 sm:px-10"
+              variants={fieldList}
+              initial="hidden"
+              animate="visible"
+            >
+              {/* General error */}
               {errors.general && (
-                <Alert>
-                  <AlertDescription className="text-center font-medium text-red-500">
-                    {errors.general}
-                  </AlertDescription>
-                </Alert>
+                <motion.div variants={fieldItem}>
+                  <Alert
+                    className="border-red-500/30 bg-red-500/10"
+                    style={{ backdropFilter: "blur(8px)" }}
+                  >
+                    <AlertDescription className="text-center text-sm font-medium text-red-400">
+                      {errors.general}
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
               )}
 
-              {/* Username Field */}
-              <div className="grid gap-3">
-                <Label htmlFor="userName">Username</Label>
-                <Input
-                  id="userName"
-                  type="text"
-                  value={userName}
-                  onChange={handleUserNameChange}
-                  onBlur={handleUserNameBlur}
-                  required
-                  tabIndex={1}
-                  className={cn(
-                    errors.userName &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                  placeholder="Enter your username"
-                />
+              {/* Username */}
+              <motion.div variants={fieldItem} className="grid gap-2">
+                <Label htmlFor="userName" className={LABEL_CLASS}>
+                  Username
+                </Label>
+                <div className="relative">
+                  <User
+                    className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  />
+                  <Input
+                    id="userName"
+                    type="text"
+                    value={userName}
+                    onChange={handleUserNameChange}
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, userName: true }))
+                    }
+                    required
+                    tabIndex={1}
+                    placeholder="Enter your username"
+                    className={cn(
+                      INPUT_CLASS,
+                      errors.userName &&
+                        "border-red-500/50 focus-visible:border-red-500/60 focus-visible:ring-red-500/40"
+                    )}
+                    autoComplete="username"
+                  />
+                </div>
                 {errors.userName && (
-                  <p className="text-sm text-red-500">{errors.userName}</p>
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs text-red-400"
+                  >
+                    {errors.userName}
+                  </motion.p>
                 )}
-              </div>
+              </motion.div>
 
-              {/* Password Field */}
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="userPassword">Password</Label>
+              {/* Password */}
+              <motion.div variants={fieldItem} className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="userPassword" className={LABEL_CLASS}>
+                    Password
+                  </Label>
                   <Link
                     href="/forgot-password"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                    className="text-xs font-medium transition-colors duration-200"
+                    style={{ color: "rgba(16,185,129,0.75)" }}
+                    tabIndex={-1}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "rgba(16,185,129,1)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(16,185,129,0.75)")
+                    }
                   >
-                    Forgot your password?
+                    Forgot password?
                   </Link>
                 </div>
-                <Input
-                  id="userPassword"
-                  type="password"
-                  value={userPassword}
-                  onChange={handlePasswordChange}
-                  onBlur={handlePasswordBlur}
-                  required
-                  tabIndex={2}
-                  className={cn(
-                    errors.userPassword &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                  placeholder="Enter your password"
-                />
+                <div className="relative">
+                  <Lock
+                    className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  />
+                  <Input
+                    id="userPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={userPassword}
+                    onChange={handlePasswordChange}
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, userPassword: true }))
+                    }
+                    required
+                    tabIndex={2}
+                    placeholder="Enter your password"
+                    className={cn(
+                      INPUT_CLASS,
+                      "pr-11",
+                      errors.userPassword &&
+                        "border-red-500/50 focus-visible:border-red-500/60 focus-visible:ring-red-500/40"
+                    )}
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute top-1/2 right-3.5 -translate-y-1/2 transition-colors duration-200"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                    tabIndex={-1}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "rgba(255,255,255,0.65)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(255,255,255,0.3)")
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
                 {errors.userPassword && (
-                  <p className="text-sm text-red-500">{errors.userPassword}</p>
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs text-red-400"
+                  >
+                    {errors.userPassword}
+                  </motion.p>
                 )}
-              </div>
+              </motion.div>
 
-              {/* Submit Button */}
-              <Button
-                className="w-full"
-                onClick={handleSubmit}
-                disabled={isLoading || !userName.trim() || !userPassword}
-                tabIndex={3}
-                type="submit"
+              {/* Remember me */}
+              <motion.div
+                variants={fieldItem}
+                className="flex items-center gap-2.5"
               >
-                {isLoading ? "Logging in..." : "Log in"}
-              </Button>
+                <Checkbox
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onCheckedChange={(v) => setRememberMe(Boolean(v))}
+                  className="border-white/20 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
+                  tabIndex={3}
+                />
+                <Label
+                  htmlFor="rememberMe"
+                  className="cursor-pointer text-sm"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                >
+                  Remember me for 30 days
+                </Label>
+              </motion.div>
 
-              {/* Registration Link */}
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/register" className="underline underline-offset-4">
-                  Sign up
-                </Link>
-              </div>
-            </div>
+              {/* Submit */}
+              <motion.div variants={fieldItem}>
+                <motion.button
+                  type="submit"
+                  disabled={isLoading || !userName.trim() || !userPassword}
+                  tabIndex={4}
+                  className={cn(
+                    "relative w-full overflow-hidden rounded-xl py-2.5 text-sm font-semibold text-white",
+                    "transition-all duration-200",
+                    "disabled:cursor-not-allowed disabled:opacity-50"
+                  )}
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #10b981 0%, #06b6d4 55%, #6366f1 100%)",
+                    boxShadow: isLoading
+                      ? "none"
+                      : "0 4px 24px rgba(16,185,129,0.35)",
+                  }}
+                  whileHover={
+                    reduceMotion || isLoading
+                      ? undefined
+                      : {
+                          scale: 1.015,
+                          boxShadow: "0 6px 32px rgba(16,185,129,0.5)",
+                        }
+                  }
+                  whileTap={
+                    reduceMotion || isLoading ? undefined : { scale: 0.985 }
+                  }
+                >
+                  {/* Shimmer */}
+                  {!isLoading && (
+                    <motion.div
+                      className="absolute inset-0 -skew-x-12"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)",
+                      }}
+                      animate={{ x: ["-100%", "200%"] }}
+                      transition={{
+                        duration: 2.4,
+                        repeat: Infinity,
+                        ease: "linear",
+                        repeatDelay: 1.2,
+                      }}
+                    />
+                  )}
+                  <span className="relative flex items-center justify-center gap-2">
+                    {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isLoading ? "Signing in…" : "Sign in"}
+                  </span>
+                </motion.button>
+              </motion.div>
+            </motion.div>
           </form>
 
-          {/* Background Image */}
-          <div className="bg-primary/50 relative hidden md:block">
-            {imageUrl && (
-              <Image
-                fill
-                src={imageUrl}
-                alt="Image"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            )}
+          {/* Divider + sign-up */}
+          <div className="px-8 pb-8 sm:px-10">
+            <div
+              className="mb-5 h-px"
+              style={{ background: "rgba(255,255,255,0.07)" }}
+            />
+            <p
+              className="text-center text-sm"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="font-medium transition-colors duration-200"
+                style={{ color: "rgba(16,185,129,0.85)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#10b981")}
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "rgba(16,185,129,0.85)")
+                }
+              >
+                Create account
+              </Link>
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Terms and Privacy */}
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
+        {/* Footer note */}
+        <p
+          className="mt-5 text-center text-xs"
+          style={{ color: "rgba(255,255,255,0.22)" }}
+        >
+          By signing in you agree to our{" "}
+          <a
+            href="#"
+            className="underline underline-offset-2 transition-colors duration-200 hover:text-white/40"
+          >
+            Terms
+          </a>{" "}
+          &amp;{" "}
+          <a
+            href="#"
+            className="underline underline-offset-2 transition-colors duration-200 hover:text-white/40"
+          >
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </motion.div>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { IActiveSession } from "@/interfaces/auth"
+import { LoginHeroPanel } from "@/components/auth/login-hero-panel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Monitor, Smartphone, Globe, Clock, ShieldAlert } from "lucide-react"
@@ -38,7 +39,7 @@ export function ActiveSessionsView({
   const sessionIds = sessions.map((s) => s.sessionId)
 
   return (
-    <Card className="overflow-hidden p-0 w-full">
+    <Card className="border-border/60 w-full overflow-hidden rounded-2xl border bg-card/95 p-0 shadow-2xl shadow-primary/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20">
       <CardContent className="grid p-0 md:grid-cols-2">
         {/* Left — session info */}
         <div className="flex flex-col gap-6 p-6 md:p-8">
@@ -118,17 +119,19 @@ export function ActiveSessionsView({
           </p>
         </div>
 
-        {/* Right — background image (same as login) */}
-        <div className="bg-primary/50 relative hidden md:block">
-          {imageUrl && (
+        {/* Right — hero or optional image */}
+        {imageUrl ? (
+          <div className="bg-primary/50 relative hidden min-h-[280px] md:block md:min-h-0">
             <Image
               fill
               src={imageUrl}
-              alt="Background"
+              alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
-          )}
-        </div>
+          </div>
+        ) : (
+          <LoginHeroPanel />
+        )}
       </CardContent>
     </Card>
   )

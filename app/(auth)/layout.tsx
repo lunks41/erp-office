@@ -5,8 +5,8 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-black dark:bg-black dark:text-white">
-      <div className="flex-1">{children}</div>
+    <div className="bg-background text-foreground flex min-h-dvh flex-col">
+      <div className="flex min-h-dvh flex-1 flex-col">{children}</div>
     </div>
   )
 }

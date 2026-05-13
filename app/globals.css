@@ -6,7 +6,7 @@
 /* ============================================================
    DESIGN TOKENS — ERP Accounting System
    Light : Cloud Dancer warm white / Royal Blue accent / Silver Grey borders
-   Dark  : Deep Anthracite #2D3436 / Cyan-Mint accent / Soft White text
+   Dark  : Deep Navy #050a14 / Emerald #10b981 accent / Cyan #06b6d4 + Indigo #6366f1
    (2026 Accounting ERP palette)
    ============================================================ */
 
@@ -99,72 +99,84 @@
 }
 
 .dark {
-    /* ── Deep Anthracite style #2D3436 ── */
-    --background:           oklch(0.245 0.010 195);   /* Deep Anthracite #2D3436 */
-    --foreground:           oklch(0.985 0.002 240);   /* Soft White #F9FAFB */
-    --card:                 oklch(0.245 0.010 195);    /* Same as background — uniform surface */
-    --card-foreground:      oklch(0.985 0.002 240);
-    --popover:              oklch(0.258 0.010 195);    /* Slightly elevated for floating menus */
-    --popover-foreground:   oklch(0.985 0.002 240);
+    /* ── Deep Dark Navy — matches login screen design ── */
+    /* Base:    #050a14  →  deep navy darkness             */
+    /* Primary: #10b981  →  emerald                        */
+    /* Accent:  #06b6d4  →  cyan  /  #6366f1  →  indigo   */
 
-    --primary:              oklch(0.895 0.185 167);   /* Cyan/Mint #00FFC2 */
-    --primary-foreground:   oklch(0.180 0.010 195);
+    /* ── Surfaces ── */
+    --background:           oklch(0.088 0.022 248);   /* #050a14 deep navy */
+    --foreground:           oklch(0.975 0.002 240);   /* near-white */
+    --card:                 oklch(0.112 0.024 246);   /* slightly elevated card surface */
+    --card-foreground:      oklch(0.975 0.002 240);
+    --popover:              oklch(0.128 0.024 245);   /* floating menus */
+    --popover-foreground:   oklch(0.975 0.002 240);
 
-    --secondary:            oklch(0.318 0.008 195);   /* Charcoal Grey */
-    --secondary-foreground: oklch(0.960 0.002 240);
-    --muted:                oklch(0.310 0.008 195);
-    --muted-foreground:     oklch(0.700 0.004 240);
-    --accent:               oklch(0.340 0.010 195);
-    --accent-foreground:    oklch(0.975 0.002 240);
+    /* ── Brand primary — Emerald #10b981 ── */
+    --primary:              oklch(0.696 0.170 162);
+    --primary-foreground:   oklch(0.975 0 0);
 
-    --destructive:          oklch(0.668 0.172 22);
+    /* ── Secondary surfaces ── */
+    --secondary:            oklch(0.155 0.022 245);
+    --secondary-foreground: oklch(0.945 0.002 240);
+    --muted:                oklch(0.142 0.020 246);
+    --muted-foreground:     oklch(0.615 0.006 240);   /* ~rgba(255,255,255,0.45) on dark */
+    --accent:               oklch(0.162 0.020 245);
+    --accent-foreground:    oklch(0.960 0.002 240);
 
-    --border:               oklch(0.360 0.008 195);   /* Charcoal Grey border */
-    --input:                oklch(0.360 0.008 195);
-    --ring:                 oklch(0.895 0.185 167);   /* Cyan/Mint */
+    /* ── Semantic ── */
+    --destructive:          oklch(0.648 0.175 22);
 
-    --chart-1: oklch(0.895 0.185 167);   /* Cyan/Mint */
-    --chart-2: oklch(0.720 0.165 142);   /* Mint Green */
-    --chart-3: oklch(0.695 0.118 252);   /* Blue */
+    /* ── Borders & inputs ── */
+    --border:               oklch(0.228 0.018 245);   /* ~rgba(255,255,255,0.10) on dark */
+    --input:                oklch(0.228 0.018 245);
+    --ring:                 oklch(0.696 0.170 162);   /* emerald focus ring */
+
+    /* ── Charts ── */
+    --chart-1: oklch(0.696 0.170 162);   /* Emerald   #10b981 */
+    --chart-2: oklch(0.762 0.135 201);   /* Cyan      #06b6d4 */
+    --chart-3: oklch(0.541 0.200 280);   /* Indigo    #6366f1 */
     --chart-4: oklch(0.748 0.118 88);    /* Amber */
-    --chart-5: oklch(0.695 0.118 24);    /* Orange-red */
+    --chart-5: oklch(0.648 0.175 22);    /* Red-orange */
 
-    --sidebar:                      oklch(0.258 0.010 195);
-    --sidebar-foreground:           oklch(0.975 0.002 240);
-    --sidebar-primary:              oklch(0.895 0.185 167);
-    --sidebar-primary-foreground:   oklch(0.180 0.010 195);
-    --sidebar-accent:               oklch(0.318 0.008 195);
-    --sidebar-accent-foreground:    oklch(0.975 0.002 240);
-    --sidebar-border:               oklch(0.370 0.008 195);
-    --sidebar-ring:                 oklch(0.895 0.185 167);
-    --sidebar-icon:                 oklch(0.730 0.004 240);
+    /* ── Sidebar ── */
+    --sidebar:                      oklch(0.098 0.026 248);   /* 1 step above background */
+    --sidebar-foreground:           oklch(0.945 0.002 240);
+    --sidebar-primary:              oklch(0.696 0.170 162);
+    --sidebar-primary-foreground:   oklch(0.975 0 0);
+    --sidebar-accent:               oklch(0.158 0.022 245);
+    --sidebar-accent-foreground:    oklch(0.945 0.002 240);
+    --sidebar-border:               oklch(0.205 0.018 245);
+    --sidebar-ring:                 oklch(0.696 0.170 162);
+    --sidebar-icon:                 oklch(0.615 0.006 240);
 
     /* ── ERP Status tokens — dark ── */
     --status-pending:           oklch(0.755 0.120 74);
-    --status-pending-bg:        oklch(0.258 0.040 78);
-    --status-pending-border:    oklch(0.378 0.075 75);
-    --status-completed:         oklch(0.672 0.138 148);
-    --status-completed-bg:      oklch(0.235 0.048 148);
-    --status-completed-border:  oklch(0.348 0.078 148);
-    --status-cancelled:         oklch(0.678 0.172 26);
-    --status-cancelled-bg:      oklch(0.242 0.050 26);
-    --status-cancelled-border:  oklch(0.358 0.095 26);
-    --status-confirmed:         oklch(0.672 0.138 252);
-    --status-confirmed-bg:      oklch(0.238 0.048 252);
-    --status-confirmed-border:  oklch(0.350 0.088 252);
-    --status-posted:            oklch(0.672 0.128 288);
-    --status-posted-bg:         oklch(0.238 0.046 288);
-    --status-posted-border:     oklch(0.350 0.078 288);
+    --status-pending-bg:        oklch(0.148 0.038 78);
+    --status-pending-border:    oklch(0.265 0.068 75);
+    --status-completed:         oklch(0.696 0.138 148);
+    --status-completed-bg:      oklch(0.138 0.042 150);
+    --status-completed-border:  oklch(0.255 0.078 150);
+    --status-cancelled:         oklch(0.648 0.175 22);
+    --status-cancelled-bg:      oklch(0.145 0.048 24);
+    --status-cancelled-border:  oklch(0.260 0.098 24);
+    --status-confirmed:         oklch(0.640 0.148 252);
+    --status-confirmed-bg:      oklch(0.138 0.042 254);
+    --status-confirmed-border:  oklch(0.252 0.088 252);
+    --status-posted:            oklch(0.641 0.132 280);
+    --status-posted-bg:         oklch(0.138 0.040 282);
+    --status-posted-border:     oklch(0.252 0.082 280);
     --status-cancel-svc:        oklch(0.715 0.118 52);
-    --status-cancel-svc-bg:     oklch(0.252 0.038 52);
-    --status-cancel-svc-border: oklch(0.368 0.068 52);
-    --status-inactive:          oklch(0.578 0.006 255);
-    --status-inactive-bg:       oklch(0.258 0.006 255);
-    --status-inactive-border:   oklch(0.368 0.007 255);
+    --status-cancel-svc-bg:     oklch(0.145 0.035 52);
+    --status-cancel-svc-border: oklch(0.262 0.070 52);
+    --status-inactive:          oklch(0.548 0.006 255);
+    --status-inactive-bg:       oklch(0.145 0.010 255);
+    --status-inactive-border:   oklch(0.252 0.014 255);
 
-    --positive-amount: oklch(0.672 0.138 148);
-    --negative-amount: oklch(0.678 0.172 26);
-    --zero-amount:     oklch(0.660 0.008 252);
+    /* ── Financial ── */
+    --positive-amount: oklch(0.696 0.138 148);
+    --negative-amount: oklch(0.648 0.175 22);
+    --zero-amount:     oklch(0.615 0.008 252);
 }
 
 @theme inline {
@@ -243,17 +255,17 @@
         background-color: oklch(0.52 0 0 / 0.65);
     }
     .dark *::-webkit-scrollbar-thumb {
-        background-color: oklch(0.40 0 0 / 0.60);
+        background-color: oklch(0.32 0.018 248 / 0.65);
     }
     .dark *::-webkit-scrollbar-thumb:hover {
-        background-color: oklch(0.58 0 0 / 0.80);
+        background-color: oklch(0.48 0.018 248 / 0.85);
     }
     div:has(> table) {
         scrollbar-width: thin;
         scrollbar-color: oklch(0.72 0 0 / 0.40) transparent;
     }
     .dark div:has(> table) {
-        scrollbar-color: oklch(0.42 0 0 / 0.60) transparent;
+        scrollbar-color: oklch(0.32 0.018 248 / 0.60) transparent;
     }
     div:has(> table)::-webkit-scrollbar {
         width: 4px;
@@ -270,10 +282,10 @@
         background-color: oklch(0.44 0 0 / 0.65);
     }
     .dark div:has(> table)::-webkit-scrollbar-thumb {
-        background-color: oklch(0.42 0 0 / 0.65);
+        background-color: oklch(0.32 0.018 248 / 0.65);
     }
     .dark div:has(> table)::-webkit-scrollbar-thumb:hover {
-        background-color: oklch(0.60 0 0 / 0.80);
+        background-color: oklch(0.50 0.018 248 / 0.82);
     }
 
     /* ── Body ── */
@@ -294,7 +306,7 @@
         color: inherit;
     }
     .dark ::selection {
-        background-color: oklch(0.895 0.185 167 / 0.28);
+        background-color: oklch(0.696 0.170 162 / 0.30);
     }
 
     /* ── Focus visible ── */
@@ -518,9 +530,9 @@ table thead tr {
     box-shadow: 0 1px 0 0 oklch(0.840 0 0);
 }
 .dark table thead tr {
-    background-color: oklch(0.290 0.010 195);
-    border-bottom: 1.5px solid oklch(0.360 0.008 195);
-    box-shadow: 0 1px 0 0 oklch(0.360 0.008 195);
+    background-color: oklch(0.130 0.025 245);
+    border-bottom: 1.5px solid oklch(0.228 0.018 245);
+    box-shadow: 0 1px 0 0 oklch(0.228 0.018 245);
 }
 table thead th,
 table thead td {
@@ -544,7 +556,7 @@ table tbody tr {
     border-bottom: 1px solid oklch(0.900 0 0);
 }
 .dark table tbody tr {
-    border-bottom: 1px solid oklch(0.310 0.008 195);
+    border-bottom: 1px solid oklch(0.205 0.018 245);
 }
 table tbody td {
     font-size: var(--font-size-table-cell) !important;
@@ -558,7 +570,7 @@ table tbody tr:nth-child(even) {
     background-color: oklch(0.982 0.002 85);
 }
 .dark table tbody tr:nth-child(even) {
-    background-color: oklch(0.262 0.010 195);
+    background-color: oklch(0.128 0.024 246);
 }
 
 /* ── Row hover ── */
@@ -566,7 +578,7 @@ table tbody tr:hover {
     background-color: oklch(0.940 0.018 262);
 }
 .dark table tbody tr:hover {
-    background-color: oklch(0.322 0.018 180);
+    background-color: oklch(0.158 0.035 195);
 }
 
 /* ── Selected row ── */
@@ -577,7 +589,7 @@ table tbody tr.selected {
 }
 .dark table tbody tr[data-state="selected"],
 .dark table tbody tr.selected {
-    background-color: oklch(0.345 0.040 167) !important;
+    background-color: oklch(0.168 0.045 162) !important;
 }
 
 /* ── Table container — border + shadow ── */
@@ -590,7 +602,7 @@ div:has(> table.table-fixed) {
         0 3px 10px 0 rgb(0 0 0 / 0.04);
 }
 .dark div:has(> table.table-fixed) {
-    outline: 1px solid oklch(0.360 0.008 195);
+    outline: 1px solid oklch(0.228 0.018 245);
     box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.45),
         0 4px 14px 0 rgb(0 0 0 / 0.30);
@@ -603,7 +615,7 @@ table th:first-child {
 }
 .dark table td:first-child,
 .dark table th:first-child {
-    border-right: 1px solid oklch(0.360 0.008 195);
+    border-right: 1px solid oklch(0.228 0.018 245);
 }
 
 /* ── Header column hover ── */
@@ -614,7 +626,7 @@ table thead td:hover {
 }
 .dark table thead th:hover,
 .dark table thead td:hover {
-    background-color: oklch(0.315 0.018 195);
+    background-color: oklch(0.158 0.030 200);
 }
 
 /* ============================================================

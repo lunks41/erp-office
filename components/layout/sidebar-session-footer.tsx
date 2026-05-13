@@ -2,6 +2,7 @@
 
 import { Clock, Timer } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { useSessionCountdown } from "@/hooks/use-session-countdown"
 import { useSidebar } from "@/components/ui/sidebar"
 import {
@@ -10,9 +11,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
 
-const APP_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "AMES ERP"
+const APP_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "AMES ERP Suite"
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "1.0.0"
 
 export function SidebarSessionFooter() {
@@ -118,7 +118,7 @@ export function SidebarSessionFooter() {
       {/* App info row */}
       <div className="flex items-center justify-between px-0.5">
         {/* App name + version */}
-        <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex min-w-0 items-center gap-1.5">
           <div className={cn("h-1.5 w-1.5 shrink-0 rounded-full", dotColor)} />
           <span className="text-muted-foreground truncate text-[11px] font-medium">
             {APP_NAME}
@@ -129,7 +129,7 @@ export function SidebarSessionFooter() {
         </div>
 
         {/* Session duration */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex shrink-0 items-center gap-1">
           <Timer className="text-muted-foreground/50 h-3 w-3" />
           <span className="text-muted-foreground/70 text-[10px]">
             {sessionDuration}

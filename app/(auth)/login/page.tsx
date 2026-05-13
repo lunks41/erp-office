@@ -2,53 +2,59 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { motion, useReducedMotion } from "framer-motion"
 import { useAuthStore } from "@/stores/auth-store"
 
+import { AuthPageBackground } from "@/components/auth/auth-page-background"
+import { LoginHeroPanel } from "@/components/auth/login-hero-panel"
 import { LoginForm } from "@/components/forms/login-form"
+
 export default function LoginPage() {
-  const { isAuthenticated, logInStatusCheck, isLoading, forceLogout, error } =
+  const { isAuthenticated, logInStatusCheck, isLoading, forceLogout } =
     useAuthStore()
   const router = useRouter()
-  // Check if user is already logged in when the page loads
+  const reduceMotion = useReducedMotion()
+
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        //console.log("🔍 Checking authentication status...")
         await logInStatusCheck()
-        //console.log("✅ Authentication check completed")
-        // If user is authenticated, redirect to company select page
         if (isAuthenticated) {
-          //console.log("🔄 User authenticated, redirecting to company-select")
           router.push("/company-select")
         }
-      } catch (error) {
-        console.error("❌ Auth status check failed:", error)
-        // Force logout to clear any invalid state
+      } catch {
         forceLogout()
       }
     }
     checkAuthStatus()
   }, [isAuthenticated, logInStatusCheck, router, forceLogout])
-  // Ensure loading state is properly reset on login page
+
   useEffect(() => {
-    // Reset loading state when login page mounts
     if (isLoading && !isAuthenticated) {
-      const timer = setTimeout(() => {
-        forceLogout()
-      }, 1000)
+      const timer = setTimeout(() => forceLogout(), 1000)
       return () => clearTimeout(timer)
     }
   }, [isLoading, isAuthenticated, forceLogout])
-  // Clear any authentication errors when page loads
-  useEffect(() => {
-    if (error) {
-    }
-  }, [error])
+
   return (
-    <div className="bg-muted dark:bg-background flex flex-1 flex-col items-center justify-center gap-16 p-6 md:p-50">
-      <div className="theme-login-one w-full max-w-sm md:max-w-3xl">
-        <LoginForm imageUrl="https://images.unsplash.com/photo-1482872376051-5ce74ebf0908?q=80&w=3050&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+    <div className="relative flex min-h-dvh w-full overflow-hidden">
+      {/* Dark animated background — visible on all breakpoints */}
+      <AuthPageBackground />
+
+      {/* Left: hero panel — hidden below lg */}
+      <div className="relative hidden lg:block lg:w-[58%] xl:w-[60%]">
+        <LoginHeroPanel />
       </div>
+
+      {/* Right: glassmorphism form — full-width on mobile, 42% on lg+ */}
+      <motion.div
+        className="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 sm:px-10 lg:w-[42%] xl:w-[40%]"
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <LoginForm className="w-full max-w-[420px]" />
+      </motion.div>
     </div>
   )
 }
