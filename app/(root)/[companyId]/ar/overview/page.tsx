@@ -12,21 +12,27 @@ import {
   FileText,
   Landmark,
   Percent,
+  TrendingUp,
+  Users,
+  Wallet,
 } from "lucide-react"
 
 import { getData } from "@/lib/api-client"
 import { OverviewDashboardRoutes } from "@/lib/overview-dashboard-routes"
 import { pickNumber, pickString } from "@/lib/overview-row-pickers"
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  formatOverviewCompactNumber,
+  OverviewBarList,
+  OverviewMetricCard,
+  OverviewMetricGrid,
+  OverviewPageShell,
+  OverviewSectionCard,
+  OverviewStatChip,
+} from "@/components/accounting/overview-dashboard"
+import { Badge } from "@/components/ui/badge"
 import { OverviewDataTable } from "@/components/accounting/overview-data-table"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 type AnyRecord = Record<string, unknown>
 
@@ -974,964 +980,1121 @@ export default function AROverviewPage() {
     : "No weekly transactions found"
 
   return (
-    <div className="@container mx-auto space-y-6 px-4 py-6 sm:px-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">AR Overview</h1>
-      </div>
-
-      {hasError && (
-        <Card className="border-destructive/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-destructive text-sm">
-              Some sections failed to load
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
+    <OverviewPageShell
+      module="ar"
+      title="Accounts Receivable Overview"
+      description="A modern receivables dashboard for liquidity, collections, customer risk, and transaction flow."
+    >
+      {hasError ? (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Some AR sections failed to load</AlertTitle>
+          <AlertDescription>
             {errorMessage ||
               "One or more AR overview requests returned an unexpected response."}
-          </CardContent>
-        </Card>
-      )}
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
-      {isLoading && (
-        <Card>
-          <CardContent className="text-muted-foreground flex items-center gap-2 py-4 text-sm">
-            <Clock3 className="h-4 w-4" />
-            Fetching AR metrics and transactions...
-          </CardContent>
-        </Card>
-      )}
+      {isLoading ? (
+        <Alert>
+          <Clock3 className="h-4 w-4" />
+          <AlertTitle>Refreshing receivable metrics</AlertTitle>
+          <AlertDescription>
+            Fetching AR metrics, customer exposure, and transaction activity.
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Summary & liquidity
-          </h2>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            Core KPIs from <code className="text-xs">Ovw_AR_Kpi</code> (plus
-            derived current vs overdue).
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Total AR outstanding</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {formatMoney(totalOutstandingValue)}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Landmark className="text-muted-foreground h-4 w-4 shrink-0" />
-                Current / within terms
-              </CardTitle>
-              <CardDescription className="text-xs leading-snug">
-                Derived as total − overdue from KPI (not aged
-                &ldquo;current&rdquo; bucket analysis).
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {formatMoney(withinTermsAR)}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Overdue AR</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="text-destructive flex items-center gap-2 text-2xl font-semibold">
-                <AlertTriangle className="h-5 w-5 shrink-0" />
-                {formatMoney(overdueValue)}
-              </div>
-              <div className="bg-muted h-2 rounded">
-                <div
-                  className="bg-destructive h-2 rounded"
-                  style={{ width: `${overdueRatio}%` }}
-                />
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {overdueRatio.toFixed(1)}% of total AR
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Percent className="text-muted-foreground h-4 w-4 shrink-0" />
-                Overdue % of AR
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {overdueRatio.toFixed(1)}%
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">DSO (days)</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-              <CalendarDays className="text-muted-foreground h-5 w-5 shrink-0" />
-              {dsoValue.toFixed(1)}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">
-                Collection effectiveness (CEI)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              <div
-                className={cn(
-                  "text-2xl font-semibold",
-                  ceiValue >= 80
-                    ? "text-emerald-600"
-                    : ceiValue >= 60
-                      ? "text-amber-500"
-                      : "text-destructive"
-                )}
-              >
-                {ceiValue.toFixed(1)}%
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {ceiValue >= 80
-                  ? "Healthy"
-                  : ceiValue >= 60
-                    ? "Monitor"
-                    : "Action needed"}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Pending approvals</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-              <FileText className="h-5 w-5 shrink-0" />
-              {pendingApprovalsValue}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">AR Turnover ratio</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              <div className="text-2xl font-semibold text-cyan-700">
-                {dsoValue > 0 ? (365 / dsoValue).toFixed(1) : "—"}x
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {dsoValue > 0 ? `365 ÷ ${dsoValue.toFixed(1)} DSO` : "DSO not available"}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+      <OverviewMetricGrid>
+        <OverviewMetricCard
+          module="ar"
+          title="Total outstanding"
+          value={formatMoney(totalOutstandingValue)}
+          subtitle="Open receivable balance across the portfolio."
+          meta={<OverviewStatChip module="ar">Within terms {formatMoney(withinTermsAR)}</OverviewStatChip>}
+          icon={Landmark}
+        />
+        <OverviewMetricCard
+          module="ar"
+          title="Overdue AR"
+          value={formatMoney(overdueValue)}
+          subtitle={`${overdueRatio.toFixed(1)}% of total receivables are overdue.`}
+          meta={<OverviewStatChip module="ar">Ratio {overdueRatio.toFixed(1)}%</OverviewStatChip>}
+          icon={AlertTriangle}
+          tone="danger"
+        />
+        <OverviewMetricCard
+          module="ar"
+          title="DSO"
+          value={`${dsoValue.toFixed(1)} days`}
+          subtitle="Average days sales outstanding across the current cycle."
+          meta={
+            <OverviewStatChip module="ar">
+              Turnover {dsoValue > 0 ? `${(365 / dsoValue).toFixed(1)}x` : "—"}
+            </OverviewStatChip>
+          }
+          icon={CalendarDays}
+        />
+        <OverviewMetricCard
+          module="ar"
+          title="Collection effectiveness"
+          value={`${ceiValue.toFixed(1)}%`}
+          subtitle={
+            ceiValue >= 80
+              ? "Healthy collection efficiency."
+              : ceiValue >= 60
+                ? "Collections need monitoring."
+                : "Collections require action."
+          }
+          meta={<OverviewStatChip module="ar">Pending approvals {formatOverviewCompactNumber(pendingApprovalsValue)}</OverviewStatChip>}
+          icon={Percent}
+          tone={
+            ceiValue >= 80 ? "positive" : ceiValue >= 60 ? "warning" : "danger"
+          }
+        />
+        <OverviewMetricCard
+          module="ar"
+          title="Today transactions"
+          value={formatOverviewCompactNumber(todayRows.length)}
+          subtitle="Documents raised or moved through AR today."
+          meta={<OverviewStatChip module="ar">This week {formatOverviewCompactNumber(weekRows.length)}</OverviewStatChip>}
+          icon={Clock3}
+        />
+        <OverviewMetricCard
+          module="ar"
+          title="Customer exposure"
+          value={formatOverviewCompactNumber(safeTopCustomers.length)}
+          subtitle="Key customers currently driving the largest balances."
+          meta={<OverviewStatChip module="ar">Overdue customers {formatOverviewCompactNumber(safeOverdueCustomers.length)}</OverviewStatChip>}
+          icon={Users}
+        />
+      </OverviewMetricGrid>
 
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Operational activity
-        </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Today transactions</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {todayRows.length}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Week transactions</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {weekRows.length}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Top customers listed</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {safeTopCustomers.length}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">
-                Overdue customers listed
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {safeOverdueCustomers.length}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Risk & concentration
-        </h2>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Aging Buckets</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {safeAging.length > 0 ? (
-                safeAging.map((item, idx) => (
-                  <div
-                    key={`${item.bucket ?? "bucket"}-${idx}`}
-                    className="space-y-1"
-                  >
-                    <div className="flex items-center justify-between text-sm">
-                      <span>{item.bucket ?? "N/A"}</span>
-                      <span>{formatMoney(asNumber(item.amount))}</span>
-                    </div>
-                    <div className="bg-muted h-2 rounded">
-                      <div
-                        className="bg-primary h-2 rounded"
-                        style={{ width: progressWidth(asNumber(item.amount)) }}
-                      />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  No aging bucket data found.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Customers</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {safeTopCustomers.length > 0 ? (
-                safeTopCustomers.map((item, idx) => {
-                  const amount = asNumber(item.outstanding ?? item.amount)
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.3fr_0.9fr]">
+        <OverviewSectionCard
+          module="ar"
+          title="Portfolio mix"
+          description="Receivable composition using the normalized aging rows."
+          icon={BarChart3}
+        >
+          {agingGrandTotal > 0 && safeAging.length > 0 ? (
+            <>
+              <div className="border-border flex h-9 w-full overflow-hidden rounded-2xl border">
+                {safeAging.map((item, idx) => {
+                  const amt = Math.max(0, asNumber(item.amount))
+                  const pct = agingGrandTotal > 0 ? (amt / agingGrandTotal) * 100 : 0
                   return (
                     <div
-                      key={`${item.customerName ?? "customer"}-${idx}`}
-                      className="space-y-1"
-                    >
-                      <div className="flex items-center justify-between text-sm">
-                        <span>{item.customerName ?? "Unknown"}</span>
-                        <span>{formatMoney(amount)}</span>
-                      </div>
-                      <div className="bg-muted h-2 rounded">
-                        <div
-                          className="bg-primary h-2 rounded"
-                          style={{ width: progressWidth(amount) }}
-                        />
-                      </div>
-                    </div>
+                      key={`seg-${item.bucket}-${idx}`}
+                      title={`${item.bucket}: ${formatMoney(amt)} (${pct.toFixed(1)}%)`}
+                      className={cn(
+                        "min-w-px shrink-0 transition-all",
+                        AGING_STACK_SEGMENT[idx % AGING_STACK_SEGMENT.length]
+                      )}
+                      style={{ width: `${Math.max(pct, 0.05)}%` }}
+                    />
                   )
-                })
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  No top customer data found.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Analysis
-        </h2>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <BarChart3 className="text-muted-foreground h-4 w-4 shrink-0" />
-              AR aging composition
-            </CardTitle>
-            <CardDescription className="text-xs leading-relaxed">
-              Share of balances in the aging rows shown above (
-              <code className="text-xs">Ovw_AR_Aging</code>). Segment colors are
-              for readability only.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {agingGrandTotal > 0 && safeAging.length > 0 ? (
-              <>
-                <div className="border-border flex h-8 w-full overflow-hidden rounded-md border">
-                  {safeAging.map((item, idx) => {
-                    const amt = Math.max(0, asNumber(item.amount))
-                    const pct =
-                      agingGrandTotal > 0 ? (amt / agingGrandTotal) * 100 : 0
-                    return (
-                      <div
-                        key={`seg-${item.bucket}-${idx}`}
-                        title={`${item.bucket}: ${formatMoney(amt)} (${pct.toFixed(1)}%)`}
-                        className={cn(
-                          "min-w-px shrink-0 transition-all",
-                          AGING_STACK_SEGMENT[idx % AGING_STACK_SEGMENT.length]
-                        )}
-                        style={{ width: `${Math.max(pct, 0.05)}%` }}
-                      />
-                    )
-                  })}
-                </div>
-                <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                  {safeAging.map((item, idx) => (
-                    <span
-                      key={`lg-${item.bucket}-${idx}`}
-                      className="inline-flex items-center gap-1.5"
-                    >
-                      <span
-                        className={cn(
-                          "inline-block h-2 w-2 shrink-0 rounded-sm",
-                          AGING_STACK_SEGMENT[idx % AGING_STACK_SEGMENT.length]
-                        )}
-                      />
-                      {item.bucket}: {formatMoney(asNumber(item.amount))}
-                    </span>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                No aging amounts to chart. Uses the same normalized rows as
-                &ldquo;Aging buckets&rdquo;.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Credit Limit Utilization</CardTitle>
-              <CardDescription className="text-xs">
-                Outstanding vs approved credit limit per customer
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {creditLimitRows.length > 0 ? (
-                creditLimitRows.slice(0, 6).map((row, idx) => {
-                  const barColor =
-                    row.utilizationPct >= 90
-                      ? "bg-destructive"
-                      : row.utilizationPct >= 75
-                        ? "bg-orange-500"
-                        : row.utilizationPct >= 50
-                          ? "bg-amber-400"
-                          : "bg-emerald-500"
-                  return (
-                    <div key={row.customerId ?? idx} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="truncate">
-                          {row.customerName ?? "Unknown"}
-                        </span>
-                        <span className="text-muted-foreground ml-2 shrink-0">
-                          {row.utilizationPct.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="bg-muted h-2 rounded">
-                        <div
-                          className={cn("h-2 rounded", barColor)}
-                          style={{ width: `${row.utilizationPct}%` }}
-                        />
-                      </div>
-                      <div className="text-muted-foreground flex justify-between text-xs">
-                        <span>OS: {formatMoney(row.outstanding)}</span>
-                        <span>Limit: {formatMoney(row.creditLimit)}</span>
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  No credit limit data.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Open Collection Tasks</CardTitle>
-              <CardDescription className="text-xs">
-                Pending follow-up actions sorted by urgency
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {collectionTaskRows.length > 0 ? (
-                collectionTaskRows.slice(0, 6).map((task, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between gap-3 border-b py-1.5 last:border-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {task.customerName ?? "Unknown"}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {task.taskType} · {task.daysPastDue}d overdue
-                        {task.assignedTo ? ` · ${task.assignedTo}` : ""}
-                      </p>
-                    </div>
+                })}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {safeAging.map((item, idx) => (
+                  <OverviewStatChip key={`aging-chip-${idx}`} module="ar">
                     <span
                       className={cn(
-                        "shrink-0 text-sm font-semibold",
-                        task.daysPastDue > 60
+                        "mr-1.5 inline-block h-2 w-2 rounded-full",
+                        AGING_STACK_SEGMENT[idx % AGING_STACK_SEGMENT.length]
+                      )}
+                    />
+                    {item.bucket}: {formatMoney(asNumber(item.amount))}
+                  </OverviewStatChip>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No aging amounts are available yet.
+            </p>
+          )}
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="ar"
+          title="Operational pulse"
+          description="Fast counters for the latest receivable activity."
+          icon={TrendingUp}
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Today
+              </p>
+              <p className="mt-2 text-2xl font-semibold">
+                {formatOverviewCompactNumber(todayRows.length)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Transactions posted today.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                This week
+              </p>
+              <p className="mt-2 text-2xl font-semibold">
+                {formatOverviewCompactNumber(weekRows.length)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Weekly transaction volume.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Top customers
+              </p>
+              <p className="mt-2 text-2xl font-semibold">
+                {formatOverviewCompactNumber(safeTopCustomers.length)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Highest balance accounts surfaced.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Overdue customers
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-destructive">
+                {formatOverviewCompactNumber(safeOverdueCustomers.length)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Customers currently behind terms.
+              </p>
+            </div>
+          </div>
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="Aging buckets"
+          description="Where the receivable balance is sitting by age band."
+          icon={CalendarDays}
+        >
+          <OverviewBarList
+            module="ar"
+            items={safeAging.map((item, idx) => ({
+              key: `aging-${idx}`,
+              label: item.bucket ?? "N/A",
+              value: formatMoney(asNumber(item.amount)),
+              progress: Number.parseFloat(progressWidth(asNumber(item.amount))),
+            }))}
+            emptyMessage="No aging bucket data found."
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="ar"
+          title="Top customers"
+          description="Largest customer balances ranked by current exposure."
+          icon={Users}
+        >
+          <OverviewBarList
+            module="ar"
+            items={safeTopCustomers.map((item, idx) => {
+              const amount = asNumber(item.outstanding ?? item.amount)
+              return {
+                key: `customer-${idx}`,
+                label: item.customerName ?? "Unknown",
+                value: formatMoney(amount),
+                progress: Number.parseFloat(progressWidth(amount)),
+              }
+            })}
+            emptyMessage="No top customer data found."
+          />
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="Credit limit utilization"
+          description="Outstanding versus approved credit limit by customer."
+          icon={Wallet}
+        >
+          {creditLimitRows.length > 0 ? (
+            creditLimitRows.slice(0, 6).map((row, idx) => {
+              const barTone =
+                row.utilizationPct >= 90
+                  ? "danger"
+                  : row.utilizationPct >= 75
+                    ? "warning"
+                    : row.utilizationPct >= 50
+                      ? "warning"
+                      : "positive"
+              return (
+                <div key={row.customerId ?? idx} className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <span className="truncate font-medium">
+                      {row.customerName ?? "Unknown"}
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 font-semibold",
+                        barTone === "danger"
                           ? "text-destructive"
-                          : task.daysPastDue > 30
-                            ? "text-amber-600"
-                            : "text-foreground"
+                          : barTone === "warning"
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-emerald-600 dark:text-emerald-400"
                       )}
                     >
-                      {formatMoney(task.amount)}
+                      {row.utilizationPct.toFixed(1)}%
                     </span>
                   </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  No open collection tasks.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Disputed Invoices</CardTitle>
-              <CardDescription className="text-xs">
-                Invoices under dispute requiring resolution
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {disputedRows.length > 0 ? (
-                disputedRows.slice(0, 6).map((row, idx) => (
-                  <div
-                    key={row.documentNo ?? idx}
-                    className="flex items-start justify-between gap-3 border-b py-1.5 last:border-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {row.customerName}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {row.documentNo || "—"} · {row.disputeDate}
-                      </p>
-                      <p className="text-muted-foreground truncate text-xs">
-                        {row.disputeReason}
-                      </p>
-                    </div>
-                    <span className="text-destructive shrink-0 text-sm font-semibold">
-                      {formatMoney(row.amount)}
-                    </span>
+                  <div className="bg-muted h-2 rounded-full">
+                    <div
+                      className={cn(
+                        "h-2 rounded-full",
+                        barTone === "danger"
+                          ? "bg-destructive"
+                          : barTone === "warning"
+                            ? "bg-amber-500"
+                            : "bg-emerald-500"
+                      )}
+                      style={{ width: `${Math.max(row.utilizationPct, 2)}%` }}
+                    />
                   </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  No disputed invoices.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Unapplied Receipts</CardTitle>
-              <CardDescription className="text-xs">
-                Cash received but not yet applied to invoices
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {unappliedRows.length > 0 ? (
-                unappliedRows.slice(0, 6).map((row, idx) => (
-                  <div
-                    key={row.documentNo ?? idx}
-                    className="flex items-center justify-between gap-3 border-b py-1.5 last:border-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {row.customerName}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {row.documentNo || "—"} · {row.receiptDate}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-sm font-semibold text-amber-600">
-                      {formatMoney(row.amount)}
-                    </span>
+                  <div className="text-muted-foreground flex justify-between text-xs">
+                    <span>OS: {formatMoney(row.outstanding)}</span>
+                    <span>Limit: {formatMoney(row.creditLimit)}</span>
                   </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  No unapplied receipts.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+                </div>
+              )
+            })
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No credit limit data.
+            </p>
+          )}
+        </OverviewSectionCard>
 
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Sales &amp; collections
-        </h2>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {/* Sales vs Collections */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Sales vs Collections</CardTitle>
-              <CardDescription className="text-xs">Monthly invoiced vs cash collected</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {salesVsCollectionsRows.length > 0 ? (() => {
-                const maxAmt = Math.max(...salesVsCollectionsRows.flatMap((r) => [r.salesAmount, r.collectionsAmount]), 1)
-                const totalS = salesVsCollectionsRows.reduce((s, r) => s + r.salesAmount, 0)
-                const totalC = salesVsCollectionsRows.reduce((s, r) => s + r.collectionsAmount, 0)
-                const rate = totalS > 0 ? (totalC / totalS) * 100 : 0
-                return (
-                  <>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-1">
-                      <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-sm bg-sky-500" />Sales</span>
-                      <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-sm bg-emerald-500" />Collections</span>
-                      <span className="ml-auto font-semibold">Rate: {rate.toFixed(1)}%</span>
-                    </div>
+        <OverviewSectionCard
+          module="ar"
+          title="Open collection tasks"
+          description="Follow-up workload ordered by urgency."
+          icon={FileText}
+        >
+          {collectionTaskRows.length > 0 ? (
+            collectionTaskRows.slice(0, 6).map((task, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {task.customerName ?? "Unknown"}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {task.taskType} · {task.daysPastDue}d overdue
+                    {task.assignedTo ? ` · ${task.assignedTo}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "shrink-0 text-sm font-semibold",
+                    task.daysPastDue > 60
+                      ? "text-destructive"
+                      : task.daysPastDue > 30
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-foreground"
+                  )}
+                >
+                  {formatMoney(task.amount)}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No open collection tasks.
+            </p>
+          )}
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="Disputed invoices"
+          description="Invoices under dispute requiring resolution."
+          icon={AlertTriangle}
+        >
+          {disputedRows.length > 0 ? (
+            disputedRows.slice(0, 6).map((row, idx) => (
+              <div
+                key={row.documentNo ?? idx}
+                className="flex items-start justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {row.customerName}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {row.documentNo || "—"} · {row.disputeDate}
+                  </p>
+                  <p className="text-muted-foreground truncate text-xs">
+                    {row.disputeReason}
+                  </p>
+                </div>
+                <span className="shrink-0 text-sm font-semibold text-destructive">
+                  {formatMoney(row.amount)}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">No disputed invoices.</p>
+          )}
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="ar"
+          title="Unapplied receipts"
+          description="Cash received but not yet matched back to invoices."
+          icon={FileText}
+        >
+          {unappliedRows.length > 0 ? (
+            unappliedRows.slice(0, 6).map((row, idx) => (
+              <div
+                key={row.documentNo ?? idx}
+                className="flex items-center justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {row.customerName}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {row.documentNo || "—"} · {row.receiptDate}
+                  </p>
+                </div>
+                <span className="shrink-0 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                  {formatMoney(row.amount)}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">No unapplied receipts.</p>
+          )}
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="Sales vs collections"
+          description="Monthly invoiced value against cash collected."
+          icon={TrendingUp}
+        >
+          {salesVsCollectionsRows.length > 0 ? (
+            (() => {
+              const maxAmt = Math.max(
+                ...salesVsCollectionsRows.flatMap((r) => [
+                  r.salesAmount,
+                  r.collectionsAmount,
+                ]),
+                1
+              )
+              const totalS = salesVsCollectionsRows.reduce(
+                (sum, row) => sum + row.salesAmount,
+                0
+              )
+              const totalC = salesVsCollectionsRows.reduce(
+                (sum, row) => sum + row.collectionsAmount,
+                0
+              )
+              const rate = totalS > 0 ? (totalC / totalS) * 100 : 0
+
+              return (
+                <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <OverviewStatChip module="ar">
+                      Collection rate {rate.toFixed(1)}%
+                    </OverviewStatChip>
+                    <OverviewStatChip module="ar">
+                      Sales {formatMoney(totalS)}
+                    </OverviewStatChip>
+                    <OverviewStatChip module="ar">
+                      Collections {formatMoney(totalC)}
+                    </OverviewStatChip>
+                  </div>
+                  <div className="space-y-2">
                     {salesVsCollectionsRows.slice(0, 6).map((row, idx) => {
                       const sPct = (row.salesAmount / maxAmt) * 100
                       const cPct = (row.collectionsAmount / maxAmt) * 100
                       const net = row.collectionsAmount - row.salesAmount
-                      return (
-                        <div key={row.period ?? idx} className="space-y-0.5">
-                          <div className="flex justify-between text-xs">
-                            <span>{row.period || "—"}</span>
-                            <span className={cn("font-semibold", net >= 0 ? "text-emerald-600" : "text-destructive")}>
-                              {net >= 0 ? "+" : ""}{formatMoney(Math.abs(net))}
-                            </span>
-                          </div>
-                          <div className="bg-muted h-1.5 rounded"><div className="bg-sky-500 h-1.5 rounded" style={{ width: `${Math.max(sPct, 0.5)}%` }} /></div>
-                          <div className="bg-muted h-1.5 rounded"><div className="bg-emerald-500 h-1.5 rounded" style={{ width: `${Math.max(cPct, 0.5)}%` }} /></div>
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>{formatMoney(row.salesAmount)}</span>
-                            <span>{formatMoney(row.collectionsAmount)}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </>
-                )
-              })() : <p className="text-muted-foreground text-sm">No data available.</p>}
-            </CardContent>
-          </Card>
 
-          {/* Collection Target vs Actual */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Collection Target vs Actual</CardTitle>
-              <CardDescription className="text-xs">Monthly performance against collection targets</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {collectionTargetRows.length > 0 ? (() => {
-                const totalTarget = collectionTargetRows.reduce((s, r) => s + r.target, 0)
-                const totalActual = collectionTargetRows.reduce((s, r) => s + r.actual, 0)
-                const overallPct = totalTarget > 0 ? Math.min(150, (totalActual / totalTarget) * 100) : 0
-                return (
-                  <>
-                    <div className={cn(
-                      "flex items-center justify-between px-3 py-2 rounded-lg text-sm",
-                      overallPct >= 100 ? "bg-emerald-50" : overallPct >= 75 ? "bg-amber-50" : "bg-red-50"
-                    )}>
-                      <span className="text-xs text-muted-foreground">Overall achievement</span>
-                      <span className={cn("text-lg font-bold", overallPct >= 100 ? "text-emerald-600" : overallPct >= 75 ? "text-amber-600" : "text-destructive")}>
-                        {overallPct.toFixed(1)}%
-                      </span>
-                    </div>
-                    {collectionTargetRows.slice(0, 5).map((row, idx) => {
-                      const barW = Math.min(100, row.achievementPct)
-                      const barColor = row.achievementPct >= 100 ? "bg-emerald-500" : row.achievementPct >= 75 ? "bg-amber-400" : "bg-destructive"
                       return (
                         <div key={row.period ?? idx} className="space-y-1">
-                          <div className="flex justify-between text-xs">
+                          <div className="flex justify-between gap-3 text-xs">
                             <span>{row.period || "—"}</span>
-                            <span className={cn("font-semibold", row.achievementPct >= 100 ? "text-emerald-600" : row.achievementPct >= 75 ? "text-amber-600" : "text-destructive")}>
-                              {row.achievementPct.toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="bg-muted h-2 rounded">
-                            <div className={cn("h-2 rounded", barColor)} style={{ width: `${Math.max(barW, 0.5)}%` }} />
-                          </div>
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Actual: {formatMoney(row.actual)}</span>
-                            <span>Target: {formatMoney(row.target)}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </>
-                )
-              })() : <p className="text-muted-foreground text-sm">No data available.</p>}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Cash Inflow Forecast */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Cash Inflow Forecast</CardTitle>
-            <CardDescription className="text-xs">Projected collections by upcoming period</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {cashInflowForecastRows.length > 0 ? (() => {
-              const maxAmt = Math.max(...cashInflowForecastRows.map((r) => r.expectedAmount), 1)
-              const total = cashInflowForecastRows.reduce((s, r) => s + r.expectedAmount, 0)
-              const COLORS = ["bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-fuchsia-500"]
-              return (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {cashInflowForecastRows.map((row, idx) => {
-                    const barW = (row.expectedAmount / maxAmt) * 100
-                    const share = total > 0 ? (row.expectedAmount / total) * 100 : 0
-                    return (
-                      <div key={row.period ?? idx} className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="font-medium">{row.period || `Period ${idx + 1}`}</span>
-                          {row.probability > 0 && <span className="text-muted-foreground">{row.probability.toFixed(0)}% conf.</span>}
-                        </div>
-                        <div className="bg-muted h-2 rounded">
-                          <div className={cn("h-2 rounded", COLORS[idx % COLORS.length])} style={{ width: `${Math.max(barW, 0.5)}%` }} />
-                        </div>
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>{formatMoney(row.expectedAmount)}</span>
-                          <span>{share.toFixed(1)}% of total</span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })() : <p className="text-muted-foreground text-sm">No forecast data available.</p>}
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Risk management
-        </h2>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {/* Bad Debt Exposure */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Bad Debt Exposure</CardTitle>
-              <CardDescription className="text-xs">Accounts at risk of write-off, grouped by risk level</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {badDebtRows.length > 0 ? (() => {
-                const total = badDebtRows.reduce((s, r) => s + r.amount, 0)
-                const highCount = badDebtRows.filter((r) => r.riskCategory.toLowerCase() === "high").length
-                const RISK: Record<string, string> = { high: "bg-red-100 text-red-700", medium: "bg-amber-100 text-amber-700", watch: "bg-blue-100 text-blue-700", low: "bg-slate-100 text-slate-600" }
-                return (
-                  <>
-                    <div className="flex gap-4 text-xs mb-2">
-                      <span className="text-muted-foreground">Total: <span className="font-bold text-destructive">{formatMoney(total)}</span></span>
-                      {highCount > 0 && <span className="text-destructive font-semibold">{highCount} high-risk</span>}
-                    </div>
-                    {badDebtRows.slice(0, 7).map((row, idx) => {
-                      const rk = row.riskCategory.toLowerCase()
-                      const cls = RISK[rk] ?? RISK.watch
-                      return (
-                        <div key={row.documentNo ?? idx} className="flex items-center justify-between gap-2 border-b py-1.5 last:border-0">
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium">{row.customerName}</p>
-                            <p className="text-muted-foreground text-xs">{row.documentNo || "—"} · {row.daysPastDue}d past due</p>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className="text-sm font-bold">{formatMoney(row.amount)}</p>
-                            <span className={cn("text-xs font-semibold rounded-full px-1.5 py-0.5", cls)}>{row.riskCategory}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </>
-                )
-              })() : <p className="text-muted-foreground text-sm">No bad debt exposure on record.</p>}
-            </CardContent>
-          </Card>
-
-          {/* On-Hold Customers */}
-          <Card>
-            <CardHeader>
-              <CardTitle>On-Hold Customers</CardTitle>
-              <CardDescription className="text-xs">Customers with credit hold — blocked from new orders</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {onHoldRows.length > 0 ? (() => {
-                const totalOS = onHoldRows.reduce((s, r) => s + r.outstandingAmount, 0)
-                const totalOrders = onHoldRows.reduce((s, r) => s + r.blockedOrders, 0)
-                return (
-                  <>
-                    <div className="flex gap-4 text-xs mb-2">
-                      <span className="text-muted-foreground">Blocked OS: <span className="font-bold text-orange-600">{formatMoney(totalOS)}</span></span>
-                      {totalOrders > 0 && <span className="text-orange-600 font-semibold">{totalOrders} orders blocked</span>}
-                    </div>
-                    {onHoldRows.slice(0, 7).map((row, idx) => (
-                      <div key={row.customerId ?? idx} className="flex items-center justify-between gap-2 border-b py-1.5 last:border-0">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{row.customerName}</p>
-                          <p className="text-muted-foreground truncate text-xs">
-                            {row.holdReason}{row.holdDate ? ` · since ${row.holdDate}` : ""}
-                          </p>
-                        </div>
-                        <div className="shrink-0 text-right">
-                          <p className="text-sm font-bold text-orange-600">{formatMoney(row.outstandingAmount)}</p>
-                          {row.blockedOrders > 0 && (
-                            <p className="text-xs text-orange-500">{row.blockedOrders} order{row.blockedOrders !== 1 ? "s" : ""} blocked</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                )
-              })() : <p className="text-muted-foreground text-sm">No customers currently on hold.</p>}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          DSO &amp; payment intelligence
-        </h2>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {/* DSO Trend */}
-          <Card>
-            <CardHeader>
-              <CardTitle>DSO Trend</CardTitle>
-              <CardDescription className="text-xs">Days sales outstanding — monthly movement</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {dsoTrendRows.length > 0 ? (() => {
-                const maxDso = Math.max(...dsoTrendRows.map((r) => r.dso), 1)
-                const latest = dsoTrendRows[dsoTrendRows.length - 1]
-                const prev = dsoTrendRows[dsoTrendRows.length - 2]
-                const trend = latest && prev ? latest.dso - prev.dso : null
-                return (
-                  <>
-                    <div className="flex items-end gap-3">
-                      <div>
-                        <p className="text-3xl font-bold">{latest.dso.toFixed(1)}</p>
-                        <p className="text-muted-foreground text-xs">days — {latest.period}</p>
-                      </div>
-                      {trend !== null && (
-                        <span className={cn("text-sm font-semibold mb-1", trend <= 0 ? "text-emerald-600" : "text-destructive")}>
-                          {trend <= 0 ? "▼" : "▲"} {Math.abs(trend).toFixed(1)}d
-                        </span>
-                      )}
-                      {latest.targetDso > 0 && (
-                        <div className="ml-auto text-right">
-                          <p className="text-muted-foreground text-xs">Target</p>
-                          <p className="text-sm font-bold">{latest.targetDso.toFixed(0)}d</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      {dsoTrendRows.slice(-6).map((row, idx) => {
-                        const barPct = (row.dso / maxDso) * 100
-                        const targetPct = row.targetDso > 0 ? Math.min(100, (row.targetDso / maxDso) * 100) : 0
-                        const color = row.targetDso <= 0
-                          ? (row.dso <= 30 ? "bg-emerald-500" : row.dso <= 60 ? "bg-amber-400" : "bg-destructive")
-                          : (row.dso <= row.targetDso ? "bg-emerald-500" : row.dso <= row.targetDso * 1.2 ? "bg-amber-400" : "bg-destructive")
-                        return (
-                          <div key={row.period || idx} className="space-y-0.5">
-                            <div className="flex justify-between text-xs">
-                              <span className="text-muted-foreground">{row.period || `M${idx + 1}`}</span>
-                              <span className="font-semibold">{row.dso.toFixed(1)}d</span>
-                            </div>
-                            <div className="bg-muted h-2 rounded overflow-hidden relative">
-                              <div className={cn("h-full rounded", color)} style={{ width: `${Math.max(barPct, 0.5)}%` }} />
-                              {targetPct > 0 && (
-                                <div className="absolute top-0 bottom-0 w-0.5 bg-slate-600 opacity-60" style={{ left: `${targetPct}%` }} />
+                            <span
+                              className={cn(
+                                "font-semibold",
+                                net >= 0
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : "text-destructive"
                               )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </>
-                )
-              })() : <p className="text-muted-foreground text-sm">No DSO trend data.</p>}
-            </CardContent>
-          </Card>
-
-          {/* Invoices Due */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Invoices Due</CardTitle>
-              <CardDescription className="text-xs">Upcoming &amp; overdue invoices (next 30 days)</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {invoicesDueRows.length > 0 ? (() => {
-                const totalDue = invoicesDueRows.reduce((s, r) => s + r.amount, 0)
-                const overdueCount = invoicesDueRows.filter((r) => r.daysUntilDue < 0).length
-                return (
-                  <>
-                    <div className="flex gap-4 text-xs mb-2">
-                      <span className="text-muted-foreground">Total: <span className="font-bold text-foreground">{formatMoney(totalDue)}</span></span>
-                      {overdueCount > 0 && <span className="text-destructive font-semibold">{overdueCount} overdue</span>}
-                    </div>
-                    {invoicesDueRows.slice(0, 7).map((row, idx) => {
-                      const isOverdue = row.daysUntilDue < 0
-                      const isSoon = !isOverdue && row.daysUntilDue <= 7
-                      const badgeCls = isOverdue
-                        ? "bg-red-100 text-red-700"
-                        : isSoon
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-emerald-100 text-emerald-700"
-                      const badgeLabel = isOverdue
-                        ? `${Math.abs(row.daysUntilDue)}d late`
-                        : `${row.daysUntilDue}d`
-                      return (
-                        <div key={row.documentNo ?? idx} className="flex items-center justify-between gap-2 border-b py-1.5 last:border-0">
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium">{row.customerName}</p>
-                            <p className="text-muted-foreground text-xs">{row.documentNo || "—"} · {row.dueDate || "—"}</p>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className="text-sm font-bold">{formatMoney(row.amount)}</p>
-                            <span className={cn("text-xs font-semibold rounded-full px-1.5 py-0.5", badgeCls)}>{badgeLabel}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </>
-                )
-              })() : <p className="text-muted-foreground text-sm">No invoices due in the next 30 days.</p>}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Payment Behavior */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Behavior</CardTitle>
-            <CardDescription className="text-xs">Avg days to pay vs credit terms by customer</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {paymentBehaviorRows.length > 0 ? (() => {
-              const maxDays = Math.max(...paymentBehaviorRows.map((r) => r.avgDaysToPay), 1)
-              const avgDelinquency = paymentBehaviorRows.reduce((s, r) => s + r.delinquencyDays, 0) / paymentBehaviorRows.length
-              return (
-                <>
-                  <div className="text-xs text-muted-foreground">
-                    Portfolio avg delinquency:{" "}
-                    <span className={cn("font-bold", avgDelinquency <= 0 ? "text-emerald-600" : avgDelinquency <= 15 ? "text-amber-600" : "text-destructive")}>
-                      {avgDelinquency <= 0 ? "On time" : `+${avgDelinquency.toFixed(1)}d`}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {paymentBehaviorRows.slice(0, 9).map((row, idx) => {
-                      const avgPct = (row.avgDaysToPay / maxDays) * 100
-                      const termsPct = Math.min(100, (row.creditTermsDays / maxDays) * 100)
-                      const barColor = row.delinquencyDays <= 0 ? "bg-emerald-500" : row.delinquencyDays <= 15 ? "bg-amber-400" : "bg-destructive"
-                      const labelColor = row.delinquencyDays <= 0 ? "text-emerald-600" : row.delinquencyDays <= 15 ? "text-amber-600" : "text-destructive"
-                      return (
-                        <div key={row.customerId ?? idx} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="truncate max-w-[55%] font-medium">{row.customerName}</span>
-                            <span className={cn("font-semibold", labelColor)}>
-                              {row.delinquencyDays <= 0 ? "On time" : `+${row.delinquencyDays}d`}
+                            >
+                              {net >= 0 ? "+" : "-"}
+                              {formatMoney(Math.abs(net))}
                             </span>
                           </div>
-                          <div className="bg-muted h-2 rounded overflow-hidden relative">
-                            <div className={cn("h-full rounded", barColor)} style={{ width: `${Math.max(avgPct, 0.5)}%` }} />
-                            {termsPct > 0 && (
-                              <div className="absolute top-0 bottom-0 w-0.5 bg-slate-600 opacity-60" style={{ left: `${termsPct}%` }} />
-                            )}
+                          <div className="bg-muted h-1.5 rounded-full">
+                            <div
+                              className="h-1.5 rounded-full bg-sky-500"
+                              style={{ width: `${Math.max(sPct, 1)}%` }}
+                            />
                           </div>
-                          <p className="text-muted-foreground text-xs">{row.avgDaysToPay}d avg · {row.creditTermsDays}d terms</p>
+                          <div className="bg-muted h-1.5 rounded-full">
+                            <div
+                              className="h-1.5 rounded-full bg-emerald-500"
+                              style={{ width: `${Math.max(cPct, 1)}%` }}
+                            />
+                          </div>
+                          <div className="text-muted-foreground flex justify-between text-xs">
+                            <span>Sales {formatMoney(row.salesAmount)}</span>
+                            <span>Collections {formatMoney(row.collectionsAmount)}</span>
+                          </div>
                         </div>
                       )
                     })}
                   </div>
                 </>
               )
-            })() : <p className="text-muted-foreground text-sm">No payment behavior data.</p>}
-          </CardContent>
-        </Card>
-      </section>
+            })()
+          ) : (
+            <p className="text-muted-foreground text-sm">No data available.</p>
+          )}
+        </OverviewSectionCard>
 
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Overdue exposure
-        </h2>
-        <Card>
-          <CardHeader>
-            <CardTitle>Overdue Customers</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {safeOverdueCustomers.length > 0 ? (
-              safeOverdueCustomers.map((item, idx) => {
-                const amount = asNumber(item.outstanding ?? item.amount)
-                return (
-                  <div
-                    key={`${item.customerName ?? "od"}-${idx}`}
-                    className="space-y-1"
-                  >
-                    <div className="flex items-center justify-between text-sm">
-                      <span>{item.customerName ?? "Unknown"}</span>
-                      <span>{formatMoney(amount)}</span>
-                    </div>
-                    <div className="bg-muted h-2 rounded">
-                      <div
-                        className="bg-destructive h-2 rounded"
-                        style={{ width: progressWidth(amount) }}
-                      />
-                    </div>
+        <OverviewSectionCard
+          module="ar"
+          title="Collection target vs actual"
+          description="Monthly performance against collection goals."
+          icon={Percent}
+        >
+          {collectionTargetRows.length > 0 ? (
+            (() => {
+              const totalTarget = collectionTargetRows.reduce(
+                (sum, row) => sum + row.target,
+                0
+              )
+              const totalActual = collectionTargetRows.reduce(
+                (sum, row) => sum + row.actual,
+                0
+              )
+              const overallPct =
+                totalTarget > 0
+                  ? Math.min(150, (totalActual / totalTarget) * 100)
+                  : 0
+
+              return (
+                <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <OverviewStatChip module="ar">
+                      Achievement {overallPct.toFixed(1)}%
+                    </OverviewStatChip>
+                    <OverviewStatChip module="ar">
+                      Actual {formatMoney(totalActual)}
+                    </OverviewStatChip>
+                    <OverviewStatChip module="ar">
+                      Target {formatMoney(totalTarget)}
+                    </OverviewStatChip>
                   </div>
-                )
-              })
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                No overdue customer data found.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </section>
+                  <div className="space-y-2">
+                    {collectionTargetRows.slice(0, 5).map((row, idx) => {
+                      const barW = Math.min(100, row.achievementPct)
+                      const barColor =
+                        row.achievementPct >= 100
+                          ? "bg-emerald-500"
+                          : row.achievementPct >= 75
+                            ? "bg-amber-500"
+                            : "bg-destructive"
 
-      <section className="space-y-3">
-        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-          Recent transactions
-        </h2>
-        <Card>
-          <CardHeader>
-            <CardTitle>Today Transactions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OverviewDataTable
-              data={todayRows}
-              columns={columns}
-              emptyMessage={todayEmptyMessage}
-            />
-          </CardContent>
-        </Card>
+                      return (
+                        <div key={row.period ?? idx} className="space-y-1">
+                          <div className="flex justify-between gap-3 text-xs">
+                            <span>{row.period || "—"}</span>
+                            <span
+                              className={cn(
+                                "font-semibold",
+                                row.achievementPct >= 100
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : row.achievementPct >= 75
+                                    ? "text-amber-600 dark:text-amber-400"
+                                    : "text-destructive"
+                              )}
+                            >
+                              {row.achievementPct.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="bg-muted h-2 rounded-full">
+                            <div
+                              className={cn("h-2 rounded-full", barColor)}
+                              style={{ width: `${Math.max(barW, 1)}%` }}
+                            />
+                          </div>
+                          <div className="text-muted-foreground flex justify-between text-xs">
+                            <span>Actual {formatMoney(row.actual)}</span>
+                            <span>Target {formatMoney(row.target)}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )
+            })()
+          ) : (
+            <p className="text-muted-foreground text-sm">No data available.</p>
+          )}
+        </OverviewSectionCard>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Week Transactions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OverviewDataTable
-              data={weekRows}
-              columns={columns}
-              emptyMessage={weekEmptyMessage}
-            />
-          </CardContent>
-        </Card>
-      </section>
-    </div>
+      <OverviewSectionCard
+        module="ar"
+        title="Cash inflow forecast"
+        description="Projected collections by upcoming period."
+        icon={Wallet}
+      >
+        {cashInflowForecastRows.length > 0 ? (
+          (() => {
+            const maxAmt = Math.max(
+              ...cashInflowForecastRows.map((row) => row.expectedAmount),
+              1
+            )
+            const total = cashInflowForecastRows.reduce(
+              (sum, row) => sum + row.expectedAmount,
+              0
+            )
+            const colors = [
+              "bg-sky-500",
+              "bg-cyan-500",
+              "bg-blue-500",
+              "bg-indigo-500",
+              "bg-violet-500",
+            ]
+
+            return (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {cashInflowForecastRows.map((row, idx) => {
+                  const barW = (row.expectedAmount / maxAmt) * 100
+                  const share = total > 0 ? (row.expectedAmount / total) * 100 : 0
+
+                  return (
+                    <div
+                      key={row.period ?? idx}
+                      className="space-y-1 rounded-2xl border border-border/70 bg-muted/20 p-3"
+                    >
+                      <div className="flex justify-between gap-3 text-xs">
+                        <span className="font-medium">
+                          {row.period || `Period ${idx + 1}`}
+                        </span>
+                        {row.probability > 0 ? (
+                          <span className="text-muted-foreground">
+                            {row.probability.toFixed(0)}% conf.
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="bg-muted h-2 rounded-full">
+                        <div
+                          className={cn(
+                            "h-2 rounded-full",
+                            colors[idx % colors.length]
+                          )}
+                          style={{ width: `${Math.max(barW, 1)}%` }}
+                        />
+                      </div>
+                      <div className="text-muted-foreground flex justify-between text-xs">
+                        <span>{formatMoney(row.expectedAmount)}</span>
+                        <span>{share.toFixed(1)}% of total</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            No forecast data available.
+          </p>
+        )}
+      </OverviewSectionCard>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="Bad debt exposure"
+          description="Accounts at risk of write-off, grouped by risk profile."
+          icon={AlertTriangle}
+        >
+          {badDebtRows.length > 0 ? (
+            (() => {
+              const total = badDebtRows.reduce((sum, row) => sum + row.amount, 0)
+              const highCount = badDebtRows.filter(
+                (row) => row.riskCategory.toLowerCase() === "high"
+              ).length
+              const riskClassNames: Record<string, string> = {
+                high: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300",
+                medium:
+                  "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300",
+                watch:
+                  "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300",
+                low: "bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300",
+              }
+
+              return (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    <OverviewStatChip module="ar">
+                      Total {formatMoney(total)}
+                    </OverviewStatChip>
+                    {highCount > 0 ? (
+                      <OverviewStatChip module="ar">
+                        {highCount} high-risk
+                      </OverviewStatChip>
+                    ) : null}
+                  </div>
+                  {badDebtRows.slice(0, 7).map((row, idx) => {
+                    const riskKey = row.riskCategory.toLowerCase()
+                    const riskClassName =
+                      riskClassNames[riskKey] ?? riskClassNames.watch
+
+                    return (
+                      <div
+                        key={row.documentNo ?? idx}
+                        className="flex items-center justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">
+                            {row.customerName}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {row.documentNo || "—"} · {row.daysPastDue}d past due
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-semibold">
+                            {formatMoney(row.amount)}
+                          </p>
+                          <span
+                            className={cn(
+                              "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold",
+                              riskClassName
+                            )}
+                          >
+                            {row.riskCategory}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </>
+              )
+            })()
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No bad debt exposure on record.
+            </p>
+          )}
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="ar"
+          title="On-hold customers"
+          description="Customers with credit hold currently blocking downstream orders."
+          icon={Users}
+        >
+          {onHoldRows.length > 0 ? (
+            (() => {
+              const totalOS = onHoldRows.reduce(
+                (sum, row) => sum + row.outstandingAmount,
+                0
+              )
+              const totalOrders = onHoldRows.reduce(
+                (sum, row) => sum + row.blockedOrders,
+                0
+              )
+
+              return (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    <OverviewStatChip module="ar">
+                      Blocked OS {formatMoney(totalOS)}
+                    </OverviewStatChip>
+                    {totalOrders > 0 ? (
+                      <OverviewStatChip module="ar">
+                        {totalOrders} orders blocked
+                      </OverviewStatChip>
+                    ) : null}
+                  </div>
+                  {onHoldRows.slice(0, 7).map((row, idx) => (
+                    <div
+                      key={row.customerId ?? idx}
+                      className="flex items-center justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {row.customerName}
+                        </p>
+                        <p className="text-muted-foreground truncate text-xs">
+                          {row.holdReason}
+                          {row.holdDate ? ` · since ${row.holdDate}` : ""}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                          {formatMoney(row.outstandingAmount)}
+                        </p>
+                        {row.blockedOrders > 0 ? (
+                          <p className="text-xs text-amber-600/80 dark:text-amber-400/80">
+                            {row.blockedOrders} order
+                            {row.blockedOrders !== 1 ? "s" : ""} blocked
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )
+            })()
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No customers currently on hold.
+            </p>
+          )}
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="DSO trend"
+          description="Monthly movement in days sales outstanding against target."
+          icon={TrendingUp}
+        >
+          {dsoTrendRows.length > 0 ? (
+            (() => {
+              const maxDso = Math.max(...dsoTrendRows.map((row) => row.dso), 1)
+              const latest = dsoTrendRows[dsoTrendRows.length - 1]
+              const prev = dsoTrendRows[dsoTrendRows.length - 2]
+              const trend = latest && prev ? latest.dso - prev.dso : null
+
+              return (
+                <>
+                  <div className="flex items-end gap-3">
+                    <div>
+                      <p className="text-3xl font-bold">{latest.dso.toFixed(1)}</p>
+                      <p className="text-muted-foreground text-xs">
+                        days · {latest.period}
+                      </p>
+                    </div>
+                    {trend !== null ? (
+                      <span
+                        className={cn(
+                          "mb-1 text-sm font-semibold",
+                          trend <= 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-destructive"
+                        )}
+                      >
+                        {trend <= 0 ? "▼" : "▲"} {Math.abs(trend).toFixed(1)}d
+                      </span>
+                    ) : null}
+                    {latest.targetDso > 0 ? (
+                      <div className="ml-auto text-right">
+                        <p className="text-muted-foreground text-xs">Target</p>
+                        <p className="text-sm font-semibold">
+                          {latest.targetDso.toFixed(0)}d
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="space-y-2">
+                    {dsoTrendRows.slice(-6).map((row, idx) => {
+                      const barPct = (row.dso / maxDso) * 100
+                      const targetPct =
+                        row.targetDso > 0
+                          ? Math.min(100, (row.targetDso / maxDso) * 100)
+                          : 0
+                      const color =
+                        row.targetDso <= 0
+                          ? row.dso <= 30
+                            ? "bg-emerald-500"
+                            : row.dso <= 60
+                              ? "bg-amber-500"
+                              : "bg-destructive"
+                          : row.dso <= row.targetDso
+                            ? "bg-emerald-500"
+                            : row.dso <= row.targetDso * 1.2
+                              ? "bg-amber-500"
+                              : "bg-destructive"
+
+                      return (
+                        <div key={row.period || idx} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">
+                              {row.period || `M${idx + 1}`}
+                            </span>
+                            <span className="font-semibold">
+                              {row.dso.toFixed(1)}d
+                            </span>
+                          </div>
+                          <div className="bg-muted relative h-2 overflow-hidden rounded-full">
+                            <div
+                              className={cn("h-full rounded-full", color)}
+                              style={{ width: `${Math.max(barPct, 1)}%` }}
+                            />
+                            {targetPct > 0 ? (
+                              <div
+                                className="absolute top-0 bottom-0 w-0.5 bg-slate-600/70"
+                                style={{ left: `${targetPct}%` }}
+                              />
+                            ) : null}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )
+            })()
+          ) : (
+            <p className="text-muted-foreground text-sm">No DSO trend data.</p>
+          )}
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="ar"
+          title="Invoices due"
+          description="Upcoming and overdue invoices within the configured horizon."
+          icon={CalendarDays}
+        >
+          {invoicesDueRows.length > 0 ? (
+            (() => {
+              const totalDue = invoicesDueRows.reduce(
+                (sum, row) => sum + row.amount,
+                0
+              )
+              const overdueCount = invoicesDueRows.filter(
+                (row) => row.daysUntilDue < 0
+              ).length
+
+              return (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    <OverviewStatChip module="ar">
+                      Total {formatMoney(totalDue)}
+                    </OverviewStatChip>
+                    {overdueCount > 0 ? (
+                      <OverviewStatChip module="ar">
+                        {overdueCount} overdue
+                      </OverviewStatChip>
+                    ) : null}
+                  </div>
+                  {invoicesDueRows.slice(0, 7).map((row, idx) => {
+                    const isOverdue = row.daysUntilDue < 0
+                    const isSoon = !isOverdue && row.daysUntilDue <= 7
+                    const badgeClassName = isOverdue
+                      ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300"
+                      : isSoon
+                        ? "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
+                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
+                    const badgeLabel = isOverdue
+                      ? `${Math.abs(row.daysUntilDue)}d late`
+                      : `${row.daysUntilDue}d`
+
+                    return (
+                      <div
+                        key={row.documentNo ?? idx}
+                        className="flex items-center justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">
+                            {row.customerName}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {row.documentNo || "—"} · {row.dueDate || "—"}
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-semibold">
+                            {formatMoney(row.amount)}
+                          </p>
+                          <span
+                            className={cn(
+                              "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold",
+                              badgeClassName
+                            )}
+                          >
+                            {badgeLabel}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </>
+              )
+            })()
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No invoices due in the next 30 days.
+            </p>
+          )}
+        </OverviewSectionCard>
+      </div>
+
+      <OverviewSectionCard
+        module="ar"
+        title="Payment behavior"
+        description="Average days to pay versus agreed credit terms by customer."
+        icon={TrendingUp}
+      >
+        {paymentBehaviorRows.length > 0 ? (
+          (() => {
+            const maxDays = Math.max(
+              ...paymentBehaviorRows.map((row) => row.avgDaysToPay),
+              1
+            )
+            const avgDelinquency =
+              paymentBehaviorRows.reduce(
+                (sum, row) => sum + row.delinquencyDays,
+                0
+              ) / paymentBehaviorRows.length
+
+            return (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  <OverviewStatChip module="ar">
+                    Portfolio avg{" "}
+                    {avgDelinquency <= 0
+                      ? "On time"
+                      : `+${avgDelinquency.toFixed(1)}d`}
+                  </OverviewStatChip>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {paymentBehaviorRows.slice(0, 9).map((row, idx) => {
+                    const avgPct = (row.avgDaysToPay / maxDays) * 100
+                    const termsPct = Math.min(
+                      100,
+                      (row.creditTermsDays / maxDays) * 100
+                    )
+                    const barColor =
+                      row.delinquencyDays <= 0
+                        ? "bg-emerald-500"
+                        : row.delinquencyDays <= 15
+                          ? "bg-amber-500"
+                          : "bg-destructive"
+                    const labelColor =
+                      row.delinquencyDays <= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : row.delinquencyDays <= 15
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-destructive"
+
+                    return (
+                      <div
+                        key={row.customerId ?? idx}
+                        className="space-y-1 rounded-2xl border border-border/70 bg-muted/20 p-3"
+                      >
+                        <div className="flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate font-medium">
+                            {row.customerName}
+                          </span>
+                          <span className={cn("font-semibold", labelColor)}>
+                            {row.delinquencyDays <= 0
+                              ? "On time"
+                              : `+${row.delinquencyDays}d`}
+                          </span>
+                        </div>
+                        <div className="bg-muted relative h-2 overflow-hidden rounded-full">
+                          <div
+                            className={cn("h-full rounded-full", barColor)}
+                            style={{ width: `${Math.max(avgPct, 1)}%` }}
+                          />
+                          {termsPct > 0 ? (
+                            <div
+                              className="absolute top-0 bottom-0 w-0.5 bg-slate-600/70"
+                              style={{ left: `${termsPct}%` }}
+                            />
+                          ) : null}
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                          {row.avgDaysToPay}d avg · {row.creditTermsDays}d terms
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            )
+          })()
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            No payment behavior data.
+          </p>
+        )}
+      </OverviewSectionCard>
+
+      <OverviewSectionCard
+        module="ar"
+        title="Overdue customers"
+        description="Customers currently contributing the highest overdue balances."
+        icon={Users}
+      >
+        <OverviewBarList
+          module="ar"
+          items={safeOverdueCustomers.map((item, idx) => {
+            const amount = asNumber(item.outstanding ?? item.amount)
+            return {
+              key: `overdue-${idx}`,
+              label: item.customerName ?? "Unknown",
+              value: formatMoney(amount),
+              progress: Number.parseFloat(progressWidth(amount)),
+              tone: "danger" as const,
+            }
+          })}
+          emptyMessage="No overdue customer data found."
+        />
+      </OverviewSectionCard>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="ar"
+          title="Today transactions"
+          description="Latest receivable transactions posted today."
+          icon={Clock3}
+          contentClassName="pt-0"
+        >
+          <OverviewDataTable
+            data={todayRows}
+            columns={columns}
+            emptyMessage={todayEmptyMessage}
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="ar"
+          title="Week transactions"
+          description="Weekly receivable transaction activity."
+          icon={FileText}
+          contentClassName="pt-0"
+        >
+          <OverviewDataTable
+            data={weekRows}
+            columns={columns}
+            emptyMessage={weekEmptyMessage}
+          />
+        </OverviewSectionCard>
+      </div>
+    </OverviewPageShell>
   )
 }

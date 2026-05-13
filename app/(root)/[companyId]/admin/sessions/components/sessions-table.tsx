@@ -23,7 +23,7 @@ interface SessionsTableProps {
   isLoading?: boolean
 }
 
-function DeviceIcon({ deviceType }: { deviceType: string }) {
+function DeviceIcon({ deviceType }: { deviceType?: string }) {
   const type = deviceType?.toLowerCase() ?? ""
   if (type.includes("mobile") || type.includes("phone"))
     return <Smartphone className="h-4 w-4" />

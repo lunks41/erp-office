@@ -20,6 +20,7 @@ import { ChangeType, changelog } from "./changelog-data"
 import {
   COMPANY_HEADER_UTILITY_BUTTON,
   COMPANY_HEADER_UTILITY_ICON,
+  COMPANY_HEADER_UTILITY_STATUS_DOT,
 } from "./company-header-utility"
 
 const typeMeta: Record<ChangeType, { label: string; className: string }> = {
@@ -53,6 +54,7 @@ export function ChangelogButton() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
+          size="icon"
           variant="outline"
           className={COMPANY_HEADER_UTILITY_BUTTON}
           title="Changelog"
@@ -60,7 +62,7 @@ export function ChangelogButton() {
         >
           <History className={COMPANY_HEADER_UTILITY_ICON} />
           <span
-            className="bg-primary ring-background pointer-events-none absolute top-0 right-0 z-10 h-2.5 w-2.5 translate-x-1/4 -translate-y-1/4 rounded-full shadow-[0_0_10px_hsl(var(--primary))] ring-2"
+            className={`${COMPANY_HEADER_UTILITY_STATUS_DOT} bg-primary shadow-[0_0_10px_hsl(var(--primary))]`}
             aria-hidden
           />
         </Button>

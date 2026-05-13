@@ -3,11 +3,9 @@
 // components/providers.tsx
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ThemeProvider, ThemeProviderProps } from "next-themes"
+import { ThemeProvider } from "next-themes"
 
 import { Toaster } from "@/components/ui/sonner"
-
-import { ActiveThemeProvider } from "./active-theme"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,8 +20,9 @@ const queryClient = new QueryClient({
 
 export function QueryProviders({
   children,
-  theme,
-}: { theme?: string } & ThemeProviderProps) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
@@ -33,10 +32,8 @@ export function QueryProviders({
         disableTransitionOnChange
         enableColorScheme
       >
-        <ActiveThemeProvider initialTheme={theme}>
-          {children}
-          <Toaster />
-        </ActiveThemeProvider>
+        {children}
+        <Toaster />
       </ThemeProvider>
     </QueryClientProvider>
   )

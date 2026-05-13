@@ -111,9 +111,11 @@ export const CustomDateNoPast = <T extends FieldValues = FieldValues>({
                 max={parseDateInput(effectiveMaxDate)}
                 className={cn(
                   "w-full",
-                  isRequired &&
-                    !isDisabled &&
-                    "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20",
+                  isDisabled
+                    ? "cursor-not-allowed border-gray-400! bg-gray-100! opacity-70 dark:border-gray-500! dark:bg-gray-800!"
+                    : isRequired
+                      ? "focus-visible:ring-primary border-gray-400! bg-yellow-50! focus-visible:ring-1 dark:border-gray-500! dark:bg-yellow-950/20!"
+                      : "bg-muted/5 focus-visible:ring-primary border-gray-400! focus-visible:ring-1 dark:border-gray-500!",
                   {
                     "h-7.5 text-xs": size === "sm" || size === "default",
                     "h-10 text-sm": size === "lg",

@@ -417,6 +417,7 @@ export function ScreenLock({ variant = "icon", className }: ScreenLockProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              size="icon"
               variant="outline"
               className={cn(COMPANY_HEADER_UTILITY_BUTTON, className)}
               onClick={handleLockScreen}

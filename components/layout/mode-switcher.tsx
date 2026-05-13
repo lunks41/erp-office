@@ -33,6 +33,7 @@ export function ModeSwitcher() {
 
   return (
     <Button
+      size="icon"
       variant="outline"
       className={cn(COMPANY_HEADER_UTILITY_BUTTON, "group/toggle")}
       onClick={toggleTheme}

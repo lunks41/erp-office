@@ -9,17 +9,28 @@ import {
   BookOpen,
   CircleAlert,
   CircleCheck,
+  Clock3,
+  Landmark,
   Scale,
+  TrendingUp,
 } from "lucide-react"
 
 import { getData } from "@/lib/api-client"
 import { OverviewDashboardRoutes } from "@/lib/overview-dashboard-routes"
 import { pickNumber, pickString } from "@/lib/overview-row-pickers"
+import {
+  formatOverviewCompactNumber,
+  OverviewBarList,
+  OverviewMetricCard,
+  OverviewMetricGrid,
+  OverviewPageShell,
+  OverviewSectionCard,
+  OverviewStatChip,
+} from "@/components/accounting/overview-dashboard"
+import { OverviewDataTable } from "@/components/accounting/overview-data-table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { OverviewDataTable } from "@/components/accounting/overview-data-table"
 
 type AnyRecord = Record<string, unknown>
 
@@ -36,7 +47,6 @@ const unwrapData = (payload: unknown): unknown => {
     if (data !== undefined && data !== null) {
       return data
     }
-    // SqlResponse with empty/null `data` — do not fall back to the envelope (would parse `result` as KPI).
     return {}
   }
 
@@ -71,9 +81,7 @@ const asArray = <T,>(...sources: unknown[]): T[] => {
 
   while (queue.length > 0) {
     const current = queue.shift()
-    if (!current) {
-      continue
-    }
+    if (!current) continue
 
     if (Array.isArray(current)) {
       return current as T[]
@@ -96,11 +104,6 @@ const asArray = <T,>(...sources: unknown[]): T[] => {
   return []
 }
 
-const asNumber = (value: unknown): number =>
-  typeof value === "number" && Number.isFinite(value)
-    ? value
-    : Number(value || 0)
-
 const formatMoney = (value: number) =>
   `AED ${new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
@@ -113,7 +116,12 @@ type GlKpi = {
   netEquity: number
   ytdPnl: number
 }
-type GlAccountType = { accountType: string; amount: number }
+
+type GlAccountType = {
+  accountType: string
+  amount: number
+}
+
 type GlJournal = {
   journalNo: string
   referenceNo: string
@@ -121,11 +129,38 @@ type GlJournal = {
   amount: number
   status: string
 }
+
 type GlTrial = {
   accountCode: string
   accountName: string
   debit: number
   credit: number
+}
+
+type GlAccountingPeriodStatus = {
+  fiscalYear: number
+  periodNo: number
+  periodStatus: string
+  daysOpenInPeriod: number
+}
+
+type GlSuspenseBalance = {
+  accountCode: string
+  accountName: string
+  debit: number
+  credit: number
+}
+
+type GlUnpostedJournalSummary = {
+  unpostedBatchCount: number
+  totalUnpostedAmount: number
+}
+
+type GlAccountTypeMovement = {
+  accountType: string
+  openingBalance: number
+  closingBalance: number
+  netMovement: number
 }
 
 const normalizeKpi = (payload: unknown): GlKpi => {
@@ -143,7 +178,11 @@ const normalizeAccountTypes = (payload: unknown): GlAccountType[] => {
   const base = unwrapData(payload)
   const rows = asArray<AnyRecord>(base, unwrapData(base))
   return rows.map((item) => ({
-    accountType: pickString(item, ["accountType", "label", "type", "name"], "Account Type"),
+    accountType: pickString(
+      item,
+      ["accountType", "label", "type", "name"],
+      "Account Type"
+    ),
     amount: pickNumber(item, ["balance", "amount", "total"]),
   }))
 }
@@ -152,10 +191,24 @@ const normalizeJournals = (payload: unknown): GlJournal[] => {
   const base = unwrapData(payload)
   const rows = asArray<AnyRecord>(base, unwrapData(base))
   return rows.map((item) => ({
-    journalNo: pickString(item, ["journalNo", "documentNo", "journalNumber", "number"], "-"),
+    journalNo: pickString(
+      item,
+      ["journalNo", "documentNo", "journalNumber", "number"],
+      "-"
+    ),
     referenceNo: pickString(item, ["referenceNo", "reference", "docNo"], "-"),
-    trnDate: pickString(item, ["trnDate", "date", "journalDate", "accountDate"], "-"),
-    amount: pickNumber(item, ["totAmt", "totLocalAmt", "amount", "totalAmount", "value"]),
+    trnDate: pickString(
+      item,
+      ["trnDate", "date", "journalDate", "accountDate"],
+      "-"
+    ),
+    amount: pickNumber(item, [
+      "totAmt",
+      "totLocalAmt",
+      "amount",
+      "totalAmount",
+      "value",
+    ]),
     status: pickString(item, ["status"], "Open"),
   }))
 }
@@ -171,14 +224,52 @@ const normalizeTrialBalance = (payload: unknown): GlTrial[] => {
   }))
 }
 
-function SectionError({ title, message }: { title: string; message: string }) {
-  return (
-    <Alert variant="destructive">
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription>{message}</AlertDescription>
-    </Alert>
-  )
+const normalizePeriodStatus = (payload: unknown): GlAccountingPeriodStatus => {
+  const row = getFirstRecord(unwrapData(payload), payload)
+  return {
+    fiscalYear: pickNumber(row, ["FiscalYear", "fiscalYear"]),
+    periodNo: pickNumber(row, ["PeriodNo", "periodNo"]),
+    periodStatus: pickString(row, ["PeriodStatus", "periodStatus"], "Unknown"),
+    daysOpenInPeriod: pickNumber(row, ["DaysOpenInPeriod", "daysOpenInPeriod"]),
+  }
+}
+
+const normalizeSuspenseBalances = (payload: unknown): GlSuspenseBalance[] => {
+  const rows = asArray<AnyRecord>(unwrapData(payload), payload)
+  return rows.map((item) => ({
+    accountCode: pickString(item, ["AccountCode", "accountCode"], "-"),
+    accountName: pickString(item, ["AccountName", "accountName"], "-"),
+    debit: pickNumber(item, ["Debit", "debit"]),
+    credit: pickNumber(item, ["Credit", "credit"]),
+  }))
+}
+
+const normalizeUnpostedSummary = (
+  payload: unknown
+): GlUnpostedJournalSummary => {
+  const row = getFirstRecord(unwrapData(payload), payload)
+  return {
+    unpostedBatchCount: pickNumber(row, [
+      "UnpostedBatchCount",
+      "unpostedBatchCount",
+    ]),
+    totalUnpostedAmount: pickNumber(row, [
+      "TotalUnpostedAmount",
+      "totalUnpostedAmount",
+    ]),
+  }
+}
+
+const normalizeAccountTypeMovement = (
+  payload: unknown
+): GlAccountTypeMovement[] => {
+  const rows = asArray<AnyRecord>(unwrapData(payload), payload)
+  return rows.map((item) => ({
+    accountType: pickString(item, ["AccountType", "accountType"], "Account Type"),
+    openingBalance: pickNumber(item, ["OpeningBalance", "openingBalance"]),
+    closingBalance: pickNumber(item, ["ClosingBalance", "closingBalance"]),
+    netMovement: pickNumber(item, ["NetMovement", "netMovement"]),
+  }))
 }
 
 export default function GLOverviewPage() {
@@ -208,6 +299,30 @@ export default function GLOverviewPage() {
       getData(OverviewDashboardRoutes.gl.trialBalance, { companyId }),
     enabled: !!companyId,
   })
+  const periodStatusQuery = useQuery({
+    queryKey: ["gl-overview-period-status", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.accountingPeriodStatus, { companyId }),
+    enabled: !!companyId,
+  })
+  const suspenseBalancesQuery = useQuery({
+    queryKey: ["gl-overview-suspense-balances", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.suspenseBalances, { companyId }),
+    enabled: !!companyId,
+  })
+  const unpostedSummaryQuery = useQuery({
+    queryKey: ["gl-overview-unposted-summary", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.unpostedJournalSummary, { companyId }),
+    enabled: !!companyId,
+  })
+  const accountTypeMovementQuery = useQuery({
+    queryKey: ["gl-overview-account-type-movement", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.gl.accountTypeMovement, { companyId }),
+    enabled: !!companyId,
+  })
 
   const kpi = useMemo(() => normalizeKpi(kpiQuery.data), [kpiQuery.data])
   const accountTypes = useMemo(
@@ -222,9 +337,25 @@ export default function GLOverviewPage() {
     () => normalizeTrialBalance(trialBalanceQuery.data),
     [trialBalanceQuery.data]
   )
+  const periodStatus = useMemo(
+    () => normalizePeriodStatus(periodStatusQuery.data),
+    [periodStatusQuery.data]
+  )
+  const suspenseBalances = useMemo(
+    () => normalizeSuspenseBalances(suspenseBalancesQuery.data),
+    [suspenseBalancesQuery.data]
+  )
+  const unpostedSummary = useMemo(
+    () => normalizeUnpostedSummary(unpostedSummaryQuery.data),
+    [unpostedSummaryQuery.data]
+  )
+  const accountTypeMovement = useMemo(
+    () => normalizeAccountTypeMovement(accountTypeMovementQuery.data),
+    [accountTypeMovementQuery.data]
+  )
 
   const chartBase = useMemo(
-    () => Math.max(...accountTypes.map((x) => x.amount), 1),
+    () => Math.max(...accountTypes.map((item) => Math.abs(item.amount)), 1),
     [accountTypes]
   )
 
@@ -267,166 +398,333 @@ export default function GLOverviewPage() {
     []
   )
 
-  return (
-    <div className="@container mx-auto space-y-6 px-4 py-6 sm:px-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">GL Overview</h1>
-      </div>
+  const hasError =
+    kpiQuery.isError ||
+    accountTypeBalancesQuery.isError ||
+    recentJournalsQuery.isError ||
+    trialBalanceQuery.isError ||
+    periodStatusQuery.isError ||
+    suspenseBalancesQuery.isError ||
+    unpostedSummaryQuery.isError ||
+    accountTypeMovementQuery.isError
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Total Assets</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-            <BookOpen className="h-5 w-5" />
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-7 w-32" />
+  return (
+    <OverviewPageShell
+      module="gl"
+      title="General Ledger Overview"
+      description="A finance-reporting dashboard for balance composition, accounting controls, and journal completeness."
+    >
+      {hasError ? (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Some GL sections failed to load</AlertTitle>
+          <AlertDescription>
+            The page is rendering available data only while one or more GL
+            endpoints are unavailable.
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
+      <OverviewMetricGrid>
+        <OverviewMetricCard
+          module="gl"
+          title="Total assets"
+          value={
+            kpiQuery.isLoading ? (
+              <Skeleton className="h-8 w-32" />
             ) : (
               formatMoney(kpi.totalAssets)
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Liabilities</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-            <CircleAlert className="h-5 w-5" />
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-7 w-32" />
-            ) : (
-              formatMoney(kpi.totalLiabilities)
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Net Equity</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-            <CircleCheck className="h-5 w-5" />
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-7 w-32" />
+            )
+          }
+          subtitle="Balance sheet asset position."
+          meta={
+            <OverviewStatChip module="gl">
+              Liabilities {formatMoney(kpi.totalLiabilities)}
+            </OverviewStatChip>
+          }
+          icon={BookOpen}
+        />
+        <OverviewMetricCard
+          module="gl"
+          title="Net equity"
+          value={
+            kpiQuery.isLoading ? (
+              <Skeleton className="h-8 w-32" />
             ) : (
               formatMoney(kpi.netEquity)
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">YTD P&amp;L</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-            <Scale className="h-5 w-5" />
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-7 w-32" />
-            ) : (
-              formatMoney(kpi.ytdPnl)
-            )}
-          </CardContent>
-        </Card>
-      </div>
-      {kpiQuery.isError && (
-        <SectionError
-          title="KPI unavailable"
-          message="Unable to load GL KPI data at the moment."
+            )
+          }
+          subtitle="Current equity reflected in the ledger snapshot."
+          meta={
+            <OverviewStatChip module="gl">
+              YTD P&amp;L {formatMoney(kpi.ytdPnl)}
+            </OverviewStatChip>
+          }
+          icon={CircleCheck}
+          tone="positive"
         />
-      )}
+        <OverviewMetricCard
+          module="gl"
+          title="Recent journals"
+          value={formatOverviewCompactNumber(journals.length)}
+          subtitle="Journal rows returned by the recent-journals endpoint."
+          meta={
+            <OverviewStatChip module="gl">
+              Trial rows {formatOverviewCompactNumber(trialBalance.length)}
+            </OverviewStatChip>
+          }
+          icon={Clock3}
+        />
+        <OverviewMetricCard
+          module="gl"
+          title="Accounting period"
+          value={
+            periodStatus.periodNo > 0
+              ? `P${periodStatus.periodNo} FY${periodStatus.fiscalYear}`
+              : "—"
+          }
+          subtitle="Current accounting period status from the control endpoint."
+          meta={
+            <OverviewStatChip module="gl">
+              {periodStatus.periodStatus || "Unknown"}
+            </OverviewStatChip>
+          }
+          icon={Scale}
+        />
+        <OverviewMetricCard
+          module="gl"
+          title="Unposted batches"
+          value={formatOverviewCompactNumber(unpostedSummary.unpostedBatchCount)}
+          subtitle="Journal batches not fully posted yet."
+          meta={
+            <OverviewStatChip module="gl">
+              Amount {formatMoney(unpostedSummary.totalUnpostedAmount)}
+            </OverviewStatChip>
+          }
+          icon={CircleAlert}
+          tone={
+            unpostedSummary.unpostedBatchCount > 0 ? "warning" : "neutral"
+          }
+        />
+        <OverviewMetricCard
+          module="gl"
+          title="Suspense accounts"
+          value={formatOverviewCompactNumber(suspenseBalances.length)}
+          subtitle="Suspense balances currently requiring review."
+          meta={
+            <OverviewStatChip module="gl">
+              Movement rows {formatOverviewCompactNumber(accountTypeMovement.length)}
+            </OverviewStatChip>
+          }
+          icon={Landmark}
+        />
+      </OverviewMetricGrid>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Type Balances (Chart)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {accountTypeBalancesQuery.isLoading &&
-            Array.from({ length: 4 }).map((_, idx) => (
-              <div key={`account-type-skeleton-${idx}`} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-4 w-20" />
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="gl"
+          title="Account type balances"
+          description="Current balance composition across account types."
+          icon={BookOpen}
+        >
+          <OverviewBarList
+            module="gl"
+            items={accountTypes.map((item, idx) => ({
+              key: `${item.accountType}-${idx}`,
+              label: item.accountType,
+              value: formatMoney(item.amount),
+              progress: (Math.abs(item.amount) / chartBase) * 100,
+            }))}
+            emptyMessage={
+              accountTypeBalancesQuery.isLoading
+                ? "Loading account type balances..."
+                : "No account type balances found."
+            }
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="gl"
+          title="Account type movement"
+          description="Opening, closing, and net movement by account type."
+          icon={TrendingUp}
+        >
+          {accountTypeMovement.length > 0 ? (
+            accountTypeMovement.map((row, idx) => (
+              <div
+                key={`${row.accountType}-${idx}`}
+                className="space-y-1 border-b border-border/60 py-2 last:border-0"
+              >
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-medium">{row.accountType}</span>
+                  <span
+                    className={
+                      row.netMovement >= 0
+                        ? "font-semibold text-emerald-600 dark:text-emerald-400"
+                        : "font-semibold text-destructive"
+                    }
+                  >
+                    {row.netMovement >= 0 ? "+" : "-"}
+                    {formatMoney(Math.abs(row.netMovement))}
+                  </span>
                 </div>
-                <Skeleton className="h-2 w-full" />
+                <div className="text-muted-foreground flex justify-between text-xs">
+                  <span>Opening {formatMoney(row.openingBalance)}</span>
+                  <span>Closing {formatMoney(row.closingBalance)}</span>
+                </div>
               </div>
-            ))}
-          {!accountTypeBalancesQuery.isLoading &&
-            accountTypes.map((item, idx) => (
-              <div key={`${item.accountType}-${idx}`} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <span>{item.accountType}</span>
-                  <span>{formatMoney(item.amount)}</span>
-                </div>
-                <div className="bg-muted h-2 rounded">
-                  <div
-                    className="bg-primary h-2 rounded"
-                    style={{ width: `${(item.amount / chartBase) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          {!accountTypeBalancesQuery.isLoading &&
-            !accountTypeBalancesQuery.isError &&
-            accountTypes.length === 0 && (
-              <p className="text-muted-foreground text-sm">
-                No account type balances found.
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              {accountTypeMovementQuery.isLoading
+                ? "Loading account type movement..."
+                : "No account type movement data."}
+            </p>
+          )}
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+        <OverviewSectionCard
+          module="gl"
+          title="Accounting control panel"
+          description="Current period status and unposted journal pressure."
+          icon={Scale}
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Period status
               </p>
-            )}
-          {accountTypeBalancesQuery.isError && (
-            <SectionError
-              title="Account type balances unavailable"
-              message="Unable to load account type balance data."
-            />
-          )}
-        </CardContent>
-      </Card>
+              <p className="mt-2 text-xl font-semibold">
+                {periodStatus.periodStatus || "Unknown"}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                {periodStatus.periodNo > 0
+                  ? `Period ${periodStatus.periodNo} · FY${periodStatus.fiscalYear}`
+                  : "No active period returned"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Days open
+              </p>
+              <p className="mt-2 text-xl font-semibold">
+                {formatOverviewCompactNumber(periodStatus.daysOpenInPeriod)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Days the current period has remained open.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Unposted batches
+              </p>
+              <p className="mt-2 text-xl font-semibold">
+                {formatOverviewCompactNumber(unpostedSummary.unpostedBatchCount)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Batch count returned by the control endpoint.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Unposted amount
+              </p>
+              <p className="mt-2 text-xl font-semibold">
+                {formatMoney(unpostedSummary.totalUnpostedAmount)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Aggregate local amount still awaiting posting.
+              </p>
+            </div>
+          </div>
+        </OverviewSectionCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Journals</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentJournalsQuery.isError ? (
-            <SectionError
-              title="Recent journals unavailable"
-              message="Unable to load recent journal entries."
-            />
+        <OverviewSectionCard
+          module="gl"
+          title="Suspense balances"
+          description="Accounts carrying debit or credit balances that should be resolved."
+          icon={AlertCircle}
+        >
+          {suspenseBalances.length > 0 ? (
+            suspenseBalances.map((row, idx) => {
+              const net = row.debit - row.credit
+              return (
+                <div
+                  key={`${row.accountCode}-${idx}`}
+                  className="space-y-1 border-b border-border/60 py-2 last:border-0"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">
+                        {row.accountCode} · {row.accountName}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        Debit {formatMoney(row.debit)} · Credit {formatMoney(row.credit)}
+                      </p>
+                    </div>
+                    <span
+                      className={
+                        net >= 0
+                          ? "shrink-0 text-sm font-semibold text-emerald-600 dark:text-emerald-400"
+                          : "shrink-0 text-sm font-semibold text-destructive"
+                      }
+                    >
+                      {net >= 0 ? "+" : "-"}
+                      {formatMoney(Math.abs(net))}
+                    </span>
+                  </div>
+                </div>
+              )
+            })
           ) : (
-            <OverviewDataTable
-              data={journals}
-              columns={journalColumns}
-              emptyMessage={
-                recentJournalsQuery.isLoading
-                  ? "Loading recent journals..."
-                  : "No journals found"
-              }
-            />
+            <p className="text-muted-foreground text-sm">
+              {suspenseBalancesQuery.isLoading
+                ? "Loading suspense balances..."
+                : "No suspense balances found."}
+            </p>
           )}
-        </CardContent>
-      </Card>
+        </OverviewSectionCard>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Trial Balance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {trialBalanceQuery.isError ? (
-            <SectionError
-              title="Trial balance unavailable"
-              message="Unable to load trial balance data."
-            />
-          ) : (
-            <OverviewDataTable
-              data={trialBalance}
-              columns={trialColumns}
-              emptyMessage={
-                trialBalanceQuery.isLoading
-                  ? "Loading trial balance..."
-                  : "No trial balance data found"
-              }
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="gl"
+          title="Recent journals"
+          description="Latest journals captured in the overview endpoint."
+          icon={Clock3}
+          contentClassName="pt-0"
+        >
+          <OverviewDataTable
+            data={journals}
+            columns={journalColumns}
+            emptyMessage={
+              recentJournalsQuery.isLoading
+                ? "Loading recent journals..."
+                : "No recent journals found"
+            }
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="gl"
+          title="Trial balance"
+          description="Trial balance rows rendered directly from the overview API."
+          icon={Landmark}
+          contentClassName="pt-0"
+        >
+          <OverviewDataTable
+            data={trialBalance}
+            columns={trialColumns}
+            emptyMessage={
+              trialBalanceQuery.isLoading
+                ? "Loading trial balance..."
+                : "No trial balance found"
+            }
+          />
+        </OverviewSectionCard>
+      </div>
+    </OverviewPageShell>
   )
 }

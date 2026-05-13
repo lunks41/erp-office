@@ -17,8 +17,8 @@ import { ModeSwitcher } from "@/components/layout/mode-switcher"
 import { NavHeader } from "@/components/layout/nav-header"
 import { NotificationBell } from "@/components/layout/notification-bell"
 import { AnnouncementBanner } from "@/components/layout/announcement-banner"
+import { HorizontalModuleNav } from "@/components/layout/horizontal-module-nav"
 import { ScreenLock } from "@/components/layout/screen-lock"
-import { ThemeSelector } from "@/components/layout/theme-selector"
 
 const KENDO_THEME_STYLESHEET =
   "https://kendo.cdn.telerik.com/themes/10.2.0/default/default-ocean-blue.css"
@@ -74,7 +74,6 @@ export function CompanyAppChrome({
               <NavHeader />
               <div className="ml-auto flex items-center gap-1 sm:gap-2">
                 <ChangelogButton />
-                <ThemeSelector />
                 <ModeSwitcher />
                 <NotificationBell />
                 <ScreenLock />
@@ -82,6 +81,7 @@ export function CompanyAppChrome({
               </div>
             </div>
           </header>
+          <HorizontalModuleNav />
           <AnnouncementBanner />
           <main id="main-content" className="bg-muted/20 flex-1" role="main">
             <div className="min-h-full">{children}</div>

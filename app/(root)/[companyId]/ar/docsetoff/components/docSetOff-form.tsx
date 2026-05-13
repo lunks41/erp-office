@@ -12,7 +12,7 @@ import {
 import {
   calauteLocalAmtandGainLoss,
   calculateUnallocated,
-} from "@/helpers/ar-docsetoff-calculations"
+} from "@/helpers/ar-docSetOff-calculations"
 import { IArDocSetOffDt } from "@/interfaces/ar-docsetoff"
 import { ICurrencyLookup, ICustomerLookup } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"

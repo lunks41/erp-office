@@ -375,9 +375,11 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                     disabled={isDisabled}
                     placeholder={placeholder || decimalDateFormat}
                     className={cn(
-                      isRequired && !isDisabled
-                        ? "border-gray-400 bg-yellow-50 dark:border-gray-500 dark:bg-yellow-950/20"
-                        : "bg-background",
+                      isDisabled
+                        ? "cursor-not-allowed border-gray-400! bg-gray-100! opacity-70 dark:border-gray-500! dark:bg-gray-800!"
+                        : isRequired
+                          ? "focus-visible:ring-primary border-gray-400! bg-yellow-50! focus-visible:ring-1 dark:border-gray-500! dark:bg-yellow-950/20!"
+                          : "bg-muted/5 focus-visible:ring-primary border-gray-400! focus-visible:ring-1 dark:border-gray-500!",
                       "pr-10",
                       {
                         "h-7.5 text-xs": size === "sm",

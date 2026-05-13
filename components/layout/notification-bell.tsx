@@ -6,6 +6,12 @@ import { useNotificationStore } from "@/stores/notification-store"
 import { useAuthStore } from "@/stores/auth-store"
 import { useSignalR } from "@/hooks/use-signalr"
 import { apiClient } from "@/lib/api-client"
+
+import {
+  COMPANY_HEADER_UTILITY_BUTTON,
+  COMPANY_HEADER_UTILITY_COUNT_BADGE,
+  COMPANY_HEADER_UTILITY_ICON,
+} from "@/components/layout/company-header-utility"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -92,18 +98,24 @@ export function NotificationBell() {
 
   return (
     <div ref={panelRef} className="relative">
-      <button
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
         onClick={() => setOpen((o) => !o)}
-        className="relative flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+        className={COMPANY_HEADER_UTILITY_BUTTON}
         title="Notifications"
+        aria-label="Notifications"
       >
-        <Bell className="h-4 w-4" />
+        <Bell className={COMPANY_HEADER_UTILITY_ICON} />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+          <span
+            className={`${COMPANY_HEADER_UTILITY_COUNT_BADGE} bg-red-500 text-white`}
+          >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
-      </button>
+      </Button>
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">

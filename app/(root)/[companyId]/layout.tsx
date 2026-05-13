@@ -8,7 +8,7 @@ export default async function AppLayout({
 }>) {
   return (
     <SessionExpiryProvider>
-      <CompanyAppChrome defaultSidebarOpen={true}>
+      <CompanyAppChrome defaultSidebarOpen={false}>
         {children}
       </CompanyAppChrome>
     </SessionExpiryProvider>

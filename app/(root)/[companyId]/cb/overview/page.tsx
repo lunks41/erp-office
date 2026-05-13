@@ -4,16 +4,30 @@ import { useMemo } from "react"
 import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
-import { Landmark, Wallet } from "lucide-react"
+import {
+  AlertTriangle,
+  Clock3,
+  Landmark,
+  TrendingUp,
+  Wallet,
+} from "lucide-react"
 
 import { getData } from "@/lib/api-client"
 import { OverviewDashboardRoutes } from "@/lib/overview-dashboard-routes"
 import { pickNumber, pickString } from "@/lib/overview-row-pickers"
+import {
+  formatOverviewCompactNumber,
+  OverviewBarList,
+  OverviewMetricCard,
+  OverviewMetricGrid,
+  OverviewPageShell,
+  OverviewSectionCard,
+  OverviewStatChip,
+} from "@/components/accounting/overview-dashboard"
+import { OverviewDataTable } from "@/components/accounting/overview-data-table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { OverviewDataTable } from "@/components/accounting/overview-data-table"
 
 type AnyRecord = Record<string, unknown>
 type CbKpi = {
@@ -32,6 +46,25 @@ type CbTxn = {
   status: string
   trnDate: string
 }
+type CbLiquidityForecastRow = {
+  period: string
+  netLiquidityChange: number
+}
+type CbReconciliationStatusRow = {
+  bankAccountId?: string
+  bankName: string
+  unreconciledCount: number
+  unreconciledAmount: number
+}
+type CbCashConcentrationRow = {
+  bankName: string
+  balanceAmount: number
+  pctOfTotalCash: number
+}
+type CbTreasuryTasksSummary = {
+  dueTodayCount: number
+  overdueTaskCount: number
+}
 
 const ARRAY_KEYS = [
   "data",
@@ -42,7 +75,6 @@ const ARRAY_KEYS = [
   "list",
   "records",
 ] as const
-/** Never use SqlResponse numeric `result` as a row object. */
 const OBJECT_KEYS = ["data", "Data", "item", "record", "payload"] as const
 
 const isRecord = (value: unknown): value is AnyRecord =>
@@ -89,38 +121,61 @@ const readObjectFromUnknown = (payload: unknown): AnyRecord => {
   if (!isRecord(payload)) {
     return {}
   }
-  // Prefer SqlResponse `data` / `Data` only (same as overview-sql-response unwrap).
+
   if ("data" in payload) {
-    const d = payload.data
-    if (Array.isArray(d) && d.length > 0) {
-      const row = d[0]
+    const data = payload.data
+    if (Array.isArray(data) && data.length > 0) {
+      const row = data[0]
       if (isRecord(row)) return row
     }
-    if (isRecord(d)) return d
+    if (isRecord(data)) return data
     return {}
   }
+
   if ("Data" in payload) {
-    const d = (payload as AnyRecord).Data
-    if (Array.isArray(d) && d.length > 0) {
-      const row = d[0]
+    const data = (payload as AnyRecord).Data
+    if (Array.isArray(data) && data.length > 0) {
+      const row = data[0]
       if (isRecord(row)) return row
     }
-    if (isRecord(d)) return d
+    if (isRecord(data)) return data
     return {}
   }
+
   for (const key of OBJECT_KEYS) {
     const value = payload[key]
     if (Array.isArray(value) && value.length > 0) {
       const row = value[0]
-      if (isRecord(row)) {
-        return row
-      }
+      if (isRecord(row)) return row
     }
-    if (isRecord(value)) {
-      return value
-    }
+    if (isRecord(value)) return value
   }
+
   return {}
+}
+
+const formatMoney = (value: number): string =>
+  `AED ${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)}`
+
+const formatDate = (value: string): string => {
+  const text = asString(value, "-")
+  if (text === "-") return text
+  const date = new Date(text)
+  return Number.isNaN(date.getTime()) ? text : date.toLocaleDateString("en-GB")
+}
+
+const formatPeriodLabel = (value: string): string => {
+  const text = asString(value, "")
+  if (!text) return "—"
+  const date = new Date(text)
+  if (Number.isNaN(date.getTime())) return text
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  })
 }
 
 const toKpi = (payload: unknown): CbKpi => {
@@ -179,7 +234,7 @@ const toCashFlow = (payload: unknown): CbFlow[] =>
       label: pickString(
         row,
         ["label", "name", "title", "flowDate", "date"],
-        `Flow ${index + 1}`,
+        `Flow ${index + 1}`
       ),
       amount: net !== 0 ? net : receipts - payments,
       type: pickString(row, ["type", "category", "direction"], "flow"),
@@ -193,7 +248,7 @@ const toTransactions = (payload: unknown): CbTxn[] =>
       type: pickString(
         row,
         ["transactionType", "txnType", "type", "TransactionType"],
-        "Unknown",
+        "Unknown"
       ),
       documentNo: pickString(
         row,
@@ -204,12 +259,12 @@ const toTransactions = (payload: unknown): CbTxn[] =>
           "referenceNo",
           "DocumentNo",
         ],
-        "-",
+        "-"
       ),
       bankName: pickString(
         row,
         ["entityName", "bankName", "bank", "accountName", "EntityName"],
-        "Unknown",
+        "Unknown"
       ),
       amount: pickNumber(row, [
         "totLocalAmt",
@@ -233,24 +288,63 @@ const toTransactions = (payload: unknown): CbTxn[] =>
           "transactionDate",
           "createdAt",
         ],
-        "",
+        ""
       ),
     }
   })
 
-const formatMoney = (value: number): string =>
-  `AED ${new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)}`
+const toLiquidityForecast = (payload: unknown): CbLiquidityForecastRow[] =>
+  readArrayFromUnknown<unknown>(payload).map((entry) => {
+    const row = isRecord(entry) ? entry : {}
+    return {
+      period: formatPeriodLabel(
+        pickString(row, ["ForecastDate", "forecastDate", "date"], "")
+      ),
+      netLiquidityChange: pickNumber(row, [
+        "NetLiquidityChange",
+        "netLiquidityChange",
+        "amount",
+      ]),
+    }
+  })
 
-const formatDate = (value: string): string => {
-  const text = asString(value, "-")
-  if (text === "-") {
-    return text
+const toReconciliationStatus = (
+  payload: unknown
+): CbReconciliationStatusRow[] =>
+  readArrayFromUnknown<unknown>(payload).map((entry, index) => {
+    const row = isRecord(entry) ? entry : {}
+    return {
+      bankAccountId: pickString(row, ["BankAccountId", "bankAccountId"], `${index}`),
+      bankName: pickString(row, ["BankName", "bankName"], "Unknown"),
+      unreconciledCount: pickNumber(row, [
+        "UnreconciledCount",
+        "unreconciledCount",
+      ]),
+      unreconciledAmount: pickNumber(row, [
+        "UnreconciledAmount",
+        "unreconciledAmount",
+      ]),
+    }
+  })
+
+const toCashConcentration = (payload: unknown): CbCashConcentrationRow[] =>
+  readArrayFromUnknown<unknown>(payload).map((entry) => {
+    const row = isRecord(entry) ? entry : {}
+    const rawPct = pickNumber(row, ["PctOfTotalCash", "pctOfTotalCash"])
+    const pctOfTotalCash = rawPct > 0 && rawPct <= 1 ? rawPct * 100 : rawPct
+    return {
+      bankName: pickString(row, ["BankName", "bankName"], "Unknown"),
+      balanceAmount: pickNumber(row, ["BalanceAmount", "balanceAmount", "amount"]),
+      pctOfTotalCash,
+    }
+  })
+
+const toTreasuryTaskSummary = (payload: unknown): CbTreasuryTasksSummary => {
+  const row = readObjectFromUnknown(payload)
+  return {
+    dueTodayCount: pickNumber(row, ["DueTodayCount", "dueTodayCount"]),
+    overdueTaskCount: pickNumber(row, ["OverdueTaskCount", "overdueTaskCount"]),
   }
-  const date = new Date(text)
-  return Number.isNaN(date.getTime()) ? text : date.toLocaleDateString("en-GB")
 }
 
 export default function CBOverviewPage() {
@@ -285,6 +379,35 @@ export default function CBOverviewPage() {
       getData(OverviewDashboardRoutes.cb.weekTransactions, { companyId }),
     enabled: Boolean(companyId),
   })
+  const liquidityForecastQuery = useQuery({
+    queryKey: ["cb-overview-liquidity-forecast", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.cb.liquidityForecast, {
+        companyId,
+        horizonDays: "90",
+      }),
+    enabled: Boolean(companyId),
+  })
+  const reconciliationStatusQuery = useQuery({
+    queryKey: ["cb-overview-reconciliation-status", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.cb.reconciliationStatus, { companyId }),
+    enabled: Boolean(companyId),
+  })
+  const cashConcentrationQuery = useQuery({
+    queryKey: ["cb-overview-cash-concentration", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.cb.cashConcentrationByBank, {
+        companyId,
+      }),
+    enabled: Boolean(companyId),
+  })
+  const treasuryTasksQuery = useQuery({
+    queryKey: ["cb-overview-open-treasury-tasks", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.cb.openTreasuryTasks, { companyId }),
+    enabled: Boolean(companyId),
+  })
 
   const kpi = useMemo(() => toKpi(kpiQuery.data), [kpiQuery.data])
   const banks = useMemo(
@@ -303,23 +426,32 @@ export default function CBOverviewPage() {
     () => toTransactions(weekTxnQuery.data),
     [weekTxnQuery.data]
   )
+  const liquidityForecastRows = useMemo(
+    () => toLiquidityForecast(liquidityForecastQuery.data),
+    [liquidityForecastQuery.data]
+  )
+  const reconciliationRows = useMemo(
+    () => toReconciliationStatus(reconciliationStatusQuery.data),
+    [reconciliationStatusQuery.data]
+  )
+  const concentrationRows = useMemo(
+    () => toCashConcentration(cashConcentrationQuery.data),
+    [cashConcentrationQuery.data]
+  )
+  const treasuryTasks = useMemo(
+    () => toTreasuryTaskSummary(treasuryTasksQuery.data),
+    [treasuryTasksQuery.data]
+  )
 
   const chartBase = useMemo(
     () =>
       Math.max(
-        ...banks.map((x) => Math.abs(asNumber(x.balance))),
-        ...cashFlow.map((x) => Math.abs(asNumber(x.amount))),
+        ...banks.map((row) => Math.abs(asNumber(row.balance))),
+        ...cashFlow.map((row) => Math.abs(asNumber(row.amount))),
         1
       ),
     [banks, cashFlow]
   )
-
-  const hasBlockingError =
-    kpiQuery.isError ||
-    bankAccountsQuery.isError ||
-    cashFlowQuery.isError ||
-    recentTxnQuery.isError ||
-    weekTxnQuery.isError
 
   const columns: ColumnDef<CbTxn>[] = [
     { accessorKey: "type", header: "Type" },
@@ -344,22 +476,27 @@ export default function CBOverviewPage() {
     },
   ]
 
-  const isLoadingAny =
-    kpiQuery.isLoading ||
-    bankAccountsQuery.isLoading ||
-    cashFlowQuery.isLoading ||
-    recentTxnQuery.isLoading ||
-    weekTxnQuery.isLoading
+  const hasBlockingError =
+    kpiQuery.isError ||
+    bankAccountsQuery.isError ||
+    cashFlowQuery.isError ||
+    recentTxnQuery.isError ||
+    weekTxnQuery.isError ||
+    liquidityForecastQuery.isError ||
+    reconciliationStatusQuery.isError ||
+    cashConcentrationQuery.isError ||
+    treasuryTasksQuery.isError
 
   return (
-    <div className="@container mx-auto space-y-6 px-4 py-6 sm:px-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">CB Overview</h1>
-      </div>
-
+    <OverviewPageShell
+      module="cb"
+      title="Cash Book Overview"
+      description="A treasury dashboard for bank balances, liquidity movement, reconciliation pressure, and short-term cash readiness."
+    >
       {hasBlockingError ? (
         <Alert variant="destructive">
-          <AlertTitle>Unable to load complete overview</AlertTitle>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Unable to load the full CB overview</AlertTitle>
           <AlertDescription>
             One or more CB endpoints failed. Partial data is still rendered when
             available.
@@ -367,170 +504,265 @@ export default function CBOverviewPage() {
         </Alert>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Total Cash</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-8 w-36" />
-            ) : (
-              formatMoney(kpi.totalCash)
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Total Bank</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-8 w-36" />
-            ) : (
-              formatMoney(kpi.totalBank)
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Pending Receipts</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-            <Wallet className="h-5 w-5" />
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-8 w-20" />
-            ) : (
-              kpi.pendingReceipts
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Pending Payments</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2 text-2xl font-semibold">
-            <Landmark className="h-5 w-5" />
-            {kpiQuery.isLoading ? (
-              <Skeleton className="h-8 w-20" />
-            ) : (
-              kpi.pendingPayments
-            )}
-          </CardContent>
-        </Card>
+      <OverviewMetricGrid>
+        <OverviewMetricCard
+          module="cb"
+          title="Total cash"
+          value={kpiQuery.isLoading ? <Skeleton className="h-8 w-32" /> : formatMoney(kpi.totalCash)}
+          subtitle="Cash on hand across the company."
+          meta={<OverviewStatChip module="cb">Total bank {formatMoney(kpi.totalBank)}</OverviewStatChip>}
+          icon={Wallet}
+        />
+        <OverviewMetricCard
+          module="cb"
+          title="Pending receipts"
+          value={kpiQuery.isLoading ? <Skeleton className="h-8 w-16" /> : formatOverviewCompactNumber(kpi.pendingReceipts)}
+          subtitle="Treasury items waiting to be received."
+          meta={<OverviewStatChip module="cb">Pending payments {formatOverviewCompactNumber(kpi.pendingPayments)}</OverviewStatChip>}
+          icon={TrendingUp}
+        />
+        <OverviewMetricCard
+          module="cb"
+          title="Recent transactions"
+          value={formatOverviewCompactNumber(recentRows.length)}
+          subtitle="Latest treasury and bank transactions."
+          meta={<OverviewStatChip module="cb">Week volume {formatOverviewCompactNumber(weekRows.length)}</OverviewStatChip>}
+          icon={Clock3}
+        />
+        <OverviewMetricCard
+          module="cb"
+          title="Liquidity forecast rows"
+          value={formatOverviewCompactNumber(liquidityForecastRows.length)}
+          subtitle="Forward-looking liquidity periods returned by the API."
+          meta={<OverviewStatChip module="cb">Banks tracked {formatOverviewCompactNumber(banks.length)}</OverviewStatChip>}
+          icon={Landmark}
+        />
+        <OverviewMetricCard
+          module="cb"
+          title="Due today"
+          value={formatOverviewCompactNumber(treasuryTasks.dueTodayCount)}
+          subtitle="Treasury tasks expected to be handled today."
+          meta={<OverviewStatChip module="cb">Overdue tasks {formatOverviewCompactNumber(treasuryTasks.overdueTaskCount)}</OverviewStatChip>}
+          icon={Clock3}
+        />
+        <OverviewMetricCard
+          module="cb"
+          title="Bank concentration"
+          value={
+            concentrationRows.length > 0
+              ? `${concentrationRows[0]?.pctOfTotalCash.toFixed(1)}%`
+              : "—"
+          }
+          subtitle="Largest bank share of total cash."
+          meta={<OverviewStatChip module="cb">Reconciliation rows {formatOverviewCompactNumber(reconciliationRows.length)}</OverviewStatChip>}
+          icon={Wallet}
+        />
+      </OverviewMetricGrid>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="cb"
+          title="Bank accounts"
+          description="Current balance by bank account."
+          icon={Landmark}
+        >
+          <OverviewBarList
+            module="cb"
+            items={banks.map((item, idx) => ({
+              key: `${item.bankName}-${idx}`,
+              label: item.bankName,
+              value: formatMoney(item.balance),
+              progress: (Math.abs(item.balance) / chartBase) * 100,
+            }))}
+            emptyMessage={
+              bankAccountsQuery.isLoading
+                ? "Loading bank accounts..."
+                : "No bank account rows were returned."
+            }
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="cb"
+          title="Cash flow"
+          description="Net movement by treasury flow group."
+          icon={TrendingUp}
+        >
+          <OverviewBarList
+            module="cb"
+            items={cashFlow.map((item, idx) => ({
+              key: `${item.label}-${idx}`,
+              label: item.label,
+              value: formatMoney(item.amount),
+              progress: (Math.abs(item.amount) / chartBase) * 100,
+              tone: item.amount >= 0 ? "positive" : "danger",
+            }))}
+            emptyMessage={
+              cashFlowQuery.isLoading
+                ? "Loading cash-flow rows..."
+                : "No cash-flow rows were returned."
+            }
+          />
+        </OverviewSectionCard>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Bank Accounts</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {bankAccountsQuery.isLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-10/12" />
-                <Skeleton className="h-4 w-8/12" />
-              </div>
-            ) : (
-              banks.map((item, idx) => (
-                <div key={`${item.bankName}-${idx}`} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>{item.bankName}</span>
-                    <span>{formatMoney(asNumber(item.balance))}</span>
-                  </div>
-                  <div className="bg-muted h-2 rounded">
-                    <div
-                      className="bg-primary h-2 rounded"
-                      style={{
-                        width: `${(Math.abs(asNumber(item.balance)) / chartBase) * 100}%`,
-                      }}
-                    />
-                  </div>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="cb"
+          title="Cash concentration by bank"
+          description="How total cash is distributed across banks."
+          icon={Wallet}
+        >
+          <OverviewBarList
+            module="cb"
+            items={concentrationRows.map((row, idx) => ({
+              key: `${row.bankName}-${idx}`,
+              label: row.bankName,
+              value: `${row.pctOfTotalCash.toFixed(1)}%`,
+              hint: formatMoney(row.balanceAmount),
+              progress: row.pctOfTotalCash,
+            }))}
+            emptyMessage={
+              cashConcentrationQuery.isLoading
+                ? "Loading bank concentration..."
+                : "No cash concentration data."
+            }
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="cb"
+          title="Reconciliation status"
+          description="Banks with unreconciled items and value still outstanding."
+          icon={AlertTriangle}
+        >
+          {reconciliationRows.length > 0 ? (
+            reconciliationRows.map((row, idx) => (
+              <div
+                key={row.bankAccountId || idx}
+                className="flex items-center justify-between gap-3 border-b border-border/60 py-2 last:border-0"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{row.bankName}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {formatOverviewCompactNumber(row.unreconciledCount)} unreconciled item(s)
+                  </p>
                 </div>
-              ))
-            )}
-            {!bankAccountsQuery.isLoading && banks.length === 0 ? (
-              <p className="text-muted-foreground text-sm">
-                No bank account rows were returned.
-              </p>
-            ) : null}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Cash Flow</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {cashFlowQuery.isLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-9/12" />
-                <Skeleton className="h-4 w-7/12" />
+                <span className="shrink-0 text-sm font-semibold">
+                  {formatMoney(row.unreconciledAmount)}
+                </span>
               </div>
-            ) : (
-              cashFlow.map((item, idx) => (
-                <div
-                  key={`${item.label}-${item.type}-${idx}`}
-                  className="space-y-1"
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span>{item.label}</span>
-                    <span>{formatMoney(asNumber(item.amount))}</span>
-                  </div>
-                  <div className="bg-muted h-2 rounded">
-                    <div
-                      className="bg-primary h-2 rounded"
-                      style={{
-                        width: `${(Math.abs(asNumber(item.amount)) / chartBase) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))
-            )}
-            {!cashFlowQuery.isLoading && cashFlow.length === 0 ? (
-              <p className="text-muted-foreground text-sm">
-                No cash-flow rows were returned.
-              </p>
-            ) : null}
-          </CardContent>
-        </Card>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              {reconciliationStatusQuery.isLoading
+                ? "Loading reconciliation status..."
+                : "No reconciliation status data."}
+            </p>
+          )}
+        </OverviewSectionCard>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoadingAny ? (
-            <Skeleton className="h-40 w-full" />
-          ) : (
-            <OverviewDataTable
-              data={recentRows}
-              columns={columns}
-              emptyMessage="No recent transactions found"
-            />
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="cb"
+          title="Liquidity forecast"
+          description="Expected liquidity change over the configured horizon."
+          icon={TrendingUp}
+        >
+          <OverviewBarList
+            module="cb"
+            items={liquidityForecastRows.map((row, idx) => {
+              const forecastBase = Math.max(
+                ...liquidityForecastRows.map((entry) => Math.abs(entry.netLiquidityChange)),
+                1
+              )
+              return {
+                key: `${row.period}-${idx}`,
+                label: row.period,
+                value: formatMoney(row.netLiquidityChange),
+                progress: (Math.abs(row.netLiquidityChange) / forecastBase) * 100,
+                tone: row.netLiquidityChange >= 0 ? "positive" : "danger",
+              }
+            })}
+            emptyMessage={
+              liquidityForecastQuery.isLoading
+                ? "Loading liquidity forecast..."
+                : "No liquidity forecast data."
+            }
+          />
+        </OverviewSectionCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Week Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoadingAny ? (
-            <Skeleton className="h-40 w-full" />
-          ) : (
-            <OverviewDataTable
-              data={weekRows}
-              columns={columns}
-              emptyMessage="No week transactions found"
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        <OverviewSectionCard
+          module="cb"
+          title="Open treasury tasks"
+          description="Headline workload for the treasury team."
+          icon={Clock3}
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Due today
+              </p>
+              <p className="mt-2 text-2xl font-semibold">
+                {formatOverviewCompactNumber(treasuryTasks.dueTodayCount)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Treasury actions that should be completed today.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+                Overdue
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-destructive">
+                {formatOverviewCompactNumber(treasuryTasks.overdueTaskCount)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Tasks that are past expected completion.
+              </p>
+            </div>
+          </div>
+        </OverviewSectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <OverviewSectionCard
+          module="cb"
+          title="Recent transactions"
+          description="Latest treasury transactions posted to the cash book."
+          icon={Wallet}
+          contentClassName="pt-0"
+        >
+          <OverviewDataTable
+            data={recentRows}
+            columns={columns}
+            emptyMessage={
+              recentTxnQuery.isLoading
+                ? "Loading recent transactions..."
+                : "No recent transactions found"
+            }
+          />
+        </OverviewSectionCard>
+
+        <OverviewSectionCard
+          module="cb"
+          title="Week transactions"
+          description="Weekly treasury transaction activity."
+          icon={Clock3}
+          contentClassName="pt-0"
+        >
+          <OverviewDataTable
+            data={weekRows}
+            columns={columns}
+            emptyMessage={
+              weekTxnQuery.isLoading
+                ? "Loading week transactions..."
+                : "No week transactions found"
+            }
+          />
+        </OverviewSectionCard>
+      </div>
+    </OverviewPageShell>
   )
 }

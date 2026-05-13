@@ -644,64 +644,8 @@ const getModuleDisplayPrefix = (moduleCode: string) => {
           : moduleCode
 }
 
-// Color mapping for sidebar icons
-const ICON_COLORS: Record<string, string> = {
-  // Modules
-  dashboard: "text-blue-500",
-  master: "text-indigo-500",
-  operations: "text-orange-500",
-  ar: "text-emerald-500",
-  ap: "text-rose-500",
-  cb: "text-amber-500",
-  gl: "text-purple-500",
-  hr: "text-teal-500",
-  einvoicing: "text-teal-600",
-  logistics: "text-cyan-500",
-  inquiry: "text-sky-500",
-  settings: "text-slate-400",
-  admin: "text-blue-600",
-  activation: "text-violet-500",
-  // Account categories
-  invoice: "text-emerald-500",
-  creditnote: "text-green-600",
-  debitnote: "text-red-500",
-  receipt: "text-teal-500",
-  payment: "text-rose-500",
-  refund: "text-orange-400",
-  setoff: "text-purple-400",
-  bank: "text-amber-500",
-  pettycash: "text-yellow-600",
-  adjustment: "text-slate-500",
-  reports: "text-blue-400",
-  overview: "text-blue-500",
-  notifications: "text-sky-600",
-  // Master categories (transCategoryCode)
-  region: "text-blue-500",
-  product: "text-green-500",
-  customer: "text-teal-600",
-  finance: "text-emerald-600",
-  glcode: "text-purple-600",
-  category: "text-orange-500",
-  employee: "text-rose-500",
-}
-
-const getIconColor = (identifier: string, title?: string): string => {
-  const clean = identifier.replace(/^\//, "").toLowerCase()
-  const parts = clean.split("/")
-  // Check transaction-level key first (e.g., "ar/invoice" → "invoice")
-  if (parts.length > 1 && parts[1] && ICON_COLORS[parts[1]])
-    return ICON_COLORS[parts[1]]
-  // Then module/category key
-  if (parts[0] && ICON_COLORS[parts[0]]) return ICON_COLORS[parts[0]]
-  // Fall back to title-based lookup
-  if (title) {
-    const key = title.toLowerCase().replace(/[\s\-/]/g, "")
-    if (ICON_COLORS[key]) return ICON_COLORS[key]
-    if (ICON_COLORS[title.toLowerCase()])
-      return ICON_COLORS[title.toLowerCase()]
-  }
-  return "text-muted-foreground/70"
-}
+const getIconColor = (_identifier?: string, _title?: string): string =>
+  "text-muted-foreground/70"
 
 const buildAccountMenu = (transactions: IUserTransaction[]): MenuGroup[] => {
   const categoryMap = new Map<string, MenuItem[]>()
@@ -1178,7 +1122,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <CompanySwitcher />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent
+        className={
+          sidebarState === "collapsed" && !isMobile
+            ? "overflow-hidden overscroll-none"
+            : undefined
+        }
+      >
         <SidebarGroup className="px-2 py-1">
           <div className="flex flex-col gap-0.5">
             {menuData.mainNav.map((item) => (

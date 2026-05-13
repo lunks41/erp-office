@@ -47,13 +47,14 @@ export function NavUser({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          size="icon"
           variant="outline"
           className={COMPANY_HEADER_UTILITY_BUTTON}
           aria-label="User Profile"
         >
-          <Avatar className="size-7 rounded-md">
+          <Avatar className="size-5 rounded-md">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="rounded-md text-[11px] font-semibold leading-none text-[#3355CC]">
+            <AvatarFallback className="text-foreground rounded-md text-[10px] font-semibold leading-none">
               CN
             </AvatarFallback>
           </Avatar>
@@ -69,7 +70,7 @@ export function NavUser({
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="rounded-lg text-[#3355CC]">CN</AvatarFallback>
+              <AvatarFallback className="text-foreground rounded-lg">CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>

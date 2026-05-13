@@ -124,7 +124,7 @@ export default async function RootLayout({
           fontVariables
         )}
       >
-        <QueryProviders theme={activeThemeValue}>
+        <QueryProviders>
           <SecurityProvider>
             <CompanyProvider>
               <AuthInitializer />

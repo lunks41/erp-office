@@ -9,7 +9,7 @@ import {
   calculateManualAllocation,
   calculateUnallocated,
   validateAllocation as validateAllocationHelper,
-} from "@/helpers/ar-docsetoff-calculations"
+} from "@/helpers/ar-docSetOff-calculations"
 import { IArOutTransaction } from "@/interfaces"
 import { IArDocSetOffDt } from "@/interfaces/ar-docsetoff"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
