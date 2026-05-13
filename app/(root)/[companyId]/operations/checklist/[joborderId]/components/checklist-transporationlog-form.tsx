@@ -58,23 +58,22 @@ export function TransportationLogForm({
   const { user } = useAuthStore()
   const { decimals } = useCompanyStore()
 
-  const getServiceItemNoString = useCallback(
-    (data?: ISerTransportationHd) => {
-      if (!data) return ""
-      const withLegacy = data as ISerTransportationHd & { serviceItemNo?: string }
-      if (withLegacy.serviceItemNo) return withLegacy.serviceItemNo
-      if (data.data_details && data.data_details.length > 0) {
-        return data.data_details.map((detail) => detail.serviceItemNo).join(",")
-      }
-      return ""
-    },
-    []
-  )
+  const getServiceItemNoString = useCallback((data?: ISerTransportationHd) => {
+    if (!data) return ""
+    const withLegacy = data as ISerTransportationHd & { serviceItemNo?: string }
+    if (withLegacy.serviceItemNo) return withLegacy.serviceItemNo
+    if (data.data_details && data.data_details.length > 0) {
+      return data.data_details.map((detail) => detail.serviceItemNo).join(",")
+    }
+    return ""
+  }, [])
 
   const getServiceItemNoNameString = useCallback(
     (data?: ISerTransportationHd) => {
       if (!data) return ""
-      const withLegacy = data as ISerTransportationHd & { serviceItemNoName?: string }
+      const withLegacy = data as ISerTransportationHd & {
+        serviceItemNoName?: string
+      }
       return withLegacy.serviceItemNoName ?? ""
     },
     []
@@ -126,7 +125,7 @@ export function TransportationLogForm({
       vehicleNo: initialData?.vehicleNo ?? null,
       driverName: initialData?.driverName ?? null,
       passengerCount: initialData?.passengerCount ?? 0,
-      cargoWeight: 0,
+      cargoWeight: initialData?.cargoWeight ?? 0,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? null,
       cargoTypeId: initialData?.cargoTypeId ?? 0,
       remarks: initialData?.remarks ?? null,
@@ -159,7 +158,7 @@ export function TransportationLogForm({
       vehicleNo: initialData?.vehicleNo ?? null,
       driverName: initialData?.driverName ?? null,
       passengerCount: initialData?.passengerCount ?? 0,
-      cargoWeight: 0,
+      cargoWeight: initialData?.cargoWeight ?? 0,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? null,
       cargoTypeId: initialData?.cargoTypeId ?? 0,
       remarks: initialData?.remarks ?? null,
@@ -267,13 +266,15 @@ export function TransportationLogForm({
         itemNo: index + 1,
         serviceItemNo: serviceNo,
         serviceItemNoName:
-          serviceItemNoNameString
-            .split(",")
-            .map((name) => name.trim())[index] ?? "",
+          serviceItemNoNameString.split(",").map((name) => name.trim())[
+            index
+          ] ?? "",
       }))
 
     const formattedData: SerTransportationHdSchemaType = {
       ...(data as SerTransportationHdSchemaType),
+      passengerCount: data.passengerCount ?? 0,
+      cargoWeight: data.cargoWeight ?? 0,
       data_details: detailRows,
       createById:
         (data.createById as number | undefined) ?? (Number(user?.userId) || 1),
@@ -380,7 +381,13 @@ export function TransportationLogForm({
               <CustomNumberInput
                 form={form}
                 name="passengerCount"
-                label="Passenger Count | Service Count"
+                label="Number of Passengers"
+                isDisabled={isConfirmed}
+              />
+              <CustomNumberInput
+                form={form}
+                name="cargoWeight"
+                label="Cargo Weight (Ton)"
                 isDisabled={isConfirmed}
               />
               <CargoTypeAutocomplete

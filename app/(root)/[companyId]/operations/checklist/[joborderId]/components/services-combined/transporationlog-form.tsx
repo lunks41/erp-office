@@ -264,7 +264,13 @@ export function TransportationLogForm({
               <CustomNumberInput
                 form={form}
                 name="passengerCount"
-                label="Passenger Count | Service Count"
+                label="Number of Passengers"
+                isDisabled={isConfirmed}
+              />
+              <CustomNumberInput
+                form={form}
+                name="cargoWeight"
+                label="Cargo Weight (Ton)"
                 isDisabled={isConfirmed}
               />
               <CargoTypeAutocomplete

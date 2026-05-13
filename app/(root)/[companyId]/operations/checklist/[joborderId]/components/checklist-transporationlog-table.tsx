@@ -1,11 +1,11 @@
 ﻿"use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo } from "react"
 import { ISerTransportationHd } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
+
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -82,7 +82,9 @@ export function TransportationLogTable({
           const serviceItemNo =
             record.serviceItemNo ??
             (record.data_details && record.data_details.length > 0
-              ? record.data_details.map((detail) => detail.serviceItemNo).join(",")
+              ? record.data_details
+                  .map((detail) => detail.serviceItemNo)
+                  .join(",")
               : "")
           const serviceItemNoName = record.serviceItemNoName ?? ""
 
@@ -106,7 +108,10 @@ export function TransportationLogTable({
           if (serviceItemNos.length === 0 && serviceItemNoNames.length === 0) {
             return <span className="text-muted-foreground text-[10px]">-</span>
           }
-          const rowsCount = Math.max(serviceItemNos.length, serviceItemNoNames.length)
+          const rowsCount = Math.max(
+            serviceItemNos.length,
+            serviceItemNoNames.length
+          )
 
           return (
             <div className="flex flex-wrap gap-0.5">
@@ -122,7 +127,7 @@ export function TransportationLogTable({
                   <Badge
                     key={`${itemNo}-${index}`}
                     variant="default"
-                    className="border-border bg-blue-100 px-1.5 py-0.5 text-[10px] leading-tight text-primary hover:bg-blue-200"
+                    className="border-border text-primary bg-blue-100 px-1.5 py-0.5 text-[10px] leading-tight hover:bg-blue-200"
                   >
                     {displayText}
                   </Badge>
@@ -206,6 +211,15 @@ export function TransportationLogTable({
         ),
         size: 100,
         minSize: 80,
+      },
+      {
+        accessorKey: "cargoWeight",
+        header: "Cargo Weight (Ton)",
+        cell: ({ row }) => (
+          <div className="text-center">{row.getValue("cargoWeight") || 0}</div>
+        ),
+        size: 120,
+        minSize: 100,
       },
       {
         accessorKey: "transportModeName",
