@@ -59,6 +59,7 @@ interface BasicTableProps<T> {
   showFooter?: boolean
   maxHeight?: string
   pageSizeOption?: number
+  tableContainerClassName?: string
 }
 
 export function BasicTable<T>({
@@ -76,6 +77,7 @@ export function BasicTable<T>({
   showFooter = true,
   maxHeight = "460px",
   pageSizeOption = 50,
+  tableContainerClassName,
 }: BasicTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -349,7 +351,7 @@ export function BasicTable<T>({
           onDragEnd={handleDragEnd}
         >
           <div
-            className="overflow-auto rounded-lg border border-border/80 bg-background shadow-xs"
+            className={`overflow-auto rounded-lg border border-border/80 bg-background shadow-xs ${tableContainerClassName ?? ""}`}
             style={{ maxHeight }}
           >
             <table

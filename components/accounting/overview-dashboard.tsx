@@ -3,9 +3,11 @@
 import type { LucideIcon } from "lucide-react"
 import {
   BanknoteArrowDown,
+  ClipboardList,
   CreditCard,
   HandCoins,
   Scale,
+  Users,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -18,7 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-type OverviewModuleKey = "ar" | "ap" | "cb" | "gl"
+type OverviewModuleKey = "ar" | "ap" | "cb" | "gl" | "hr" | "operations"
 type OverviewTone = "brand" | "positive" | "warning" | "danger" | "neutral"
 
 type OverviewTheme = {
@@ -93,6 +95,36 @@ export const OVERVIEW_MODULE_THEMES: Record<OverviewModuleKey, OverviewTheme> = 
     softClassName:
       "border-violet-200/80 bg-violet-50/80 text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/20 dark:text-violet-300",
     borderClassName: "border-violet-200/70 dark:border-violet-900/40",
+  },
+  operations: {
+    label: "Operations",
+    description: "Checklists, job orders, and service activity",
+    icon: ClipboardList,
+    badgeClassName:
+      "border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-teal-300",
+    iconChipClassName:
+      "bg-teal-500/10 text-teal-700 ring-1 ring-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:ring-teal-900/50",
+    heroGlowClassName:
+      "from-teal-500/14 via-cyan-500/10 to-transparent dark:from-teal-500/18 dark:via-cyan-500/12",
+    progressClassName: "bg-teal-500",
+    softClassName:
+      "border-teal-200/80 bg-teal-50/80 text-teal-700 dark:border-teal-900/60 dark:bg-teal-950/20 dark:text-teal-300",
+    borderClassName: "border-teal-200/70 dark:border-teal-900/40",
+  },
+  hr: {
+    label: "HR",
+    description: "Workforce, payroll, and people analytics",
+    icon: Users,
+    badgeClassName:
+      "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300",
+    iconChipClassName:
+      "bg-rose-500/10 text-rose-700 ring-1 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:ring-rose-900/50",
+    heroGlowClassName:
+      "from-rose-500/14 via-pink-500/10 to-transparent dark:from-rose-500/18 dark:via-pink-500/12",
+    progressClassName: "bg-rose-500",
+    softClassName:
+      "border-rose-200/80 bg-rose-50/80 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/20 dark:text-rose-300",
+    borderClassName: "border-rose-200/70 dark:border-rose-900/40",
   },
 }
 

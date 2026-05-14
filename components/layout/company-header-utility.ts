@@ -10,7 +10,7 @@ export const COMPANY_HEADER_PILL_HEIGHT =
  * Trailing controls: intentionally shorter to match the compact Checklist pill.
  */
 export const COMPANY_HEADER_UTILITY_BUTTON = cn(
-  "relative inline-flex size-7 shrink-0 items-center justify-center rounded-[8px] border border-border bg-background p-0 text-muted-foreground shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+  "relative inline-flex size-7 shrink-0 items-center justify-center rounded-[8px] border border-border bg-background p-0 text-muted-foreground shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 dark:text-white dark:hover:text-white"
 )
 
 /** Lucide icons in those buttons */

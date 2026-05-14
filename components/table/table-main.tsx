@@ -136,6 +136,7 @@ interface MainTableProps<T> {
   showActions?: boolean // Whether to show action buttons column
   hideSearch?: boolean // Hide table header search input
   tableHeight?: string // Override table container max-height (e.g. "300px", "50vh")
+  tableContainerClassName?: string
   // ============================================================================
   // PERMISSION CONTROL PROPS
   // ============================================================================
@@ -205,6 +206,7 @@ export function MainTable<T>({
   showActions = true, // Show actions by default
   hideSearch = false,
   tableHeight,
+  tableContainerClassName,
   // Permission props with defaults (all permissions enabled by default)
   canView = true, // View permission
   canCreate = true, // Create permission
@@ -824,7 +826,7 @@ export function MainTable<T>({
         {/* Main table container with horizontal scrolling */}
         <div
           ref={scrollContainerRef}
-          className="border-border/80 bg-background overflow-auto rounded-lg border text-sm shadow-xs"
+          className={`border-border/80 bg-background overflow-auto rounded-lg border text-sm shadow-xs ${tableContainerClassName ?? ""}`}
           style={{ maxHeight: tableHeight ?? "460px" }}
         >
           <table

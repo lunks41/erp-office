@@ -73,6 +73,7 @@ interface TaskTableProps<T> {
   canDelete?: boolean
   canCreate?: boolean
   canDebitNote?: boolean
+  tableContainerClassName?: string
 }
 export function TaskTable<T>({
   data,
@@ -105,6 +106,7 @@ export function TaskTable<T>({
   canDelete = true,
   canCreate: _canCreate = true,
   canDebitNote = true,
+  tableContainerClassName = "rounded-none border-0 bg-transparent shadow-none",
 }: TaskTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -466,7 +468,9 @@ export function TaskTable<T>({
             TABLE CONTAINER
             ============================================================================ */}
           {/* Single container: overflow-auto gives both H+V scrollbars at the container edge */}
-          <div className="max-h-[460px] overflow-auto rounded-lg border border-border/80 bg-background shadow-xs">
+          <div
+            className={`max-h-[460px] overflow-auto ${tableContainerClassName}`}
+          >
             {/* Use <table> directly — <Table> wraps in overflow-x-auto div which breaks scrollbar positioning */}
             <table
               className="w-full table-fixed border-collapse caption-bottom text-sm"

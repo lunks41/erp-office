@@ -72,9 +72,9 @@ export function NavHeader() {
                     href={getUrlWithCompanyId("/operations/checklist")}
                     className={cn(
                       COMPANY_HEADER_PILL_HEIGHT,
-                      "flex! h-7 min-h-7 flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                      "flex! h-7 min-h-7 flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground dark:text-white dark:hover:text-white",
                       pathname === getUrlWithCompanyId("/operations/checklist") &&
-                        "bg-accent text-foreground"
+                        "bg-accent text-foreground dark:text-white"
                     )}
                   >
                     <ClipboardList className="size-3.5 shrink-0" />
@@ -91,9 +91,9 @@ export function NavHeader() {
                     href={getUrlWithCompanyId("/operations/pda")}
                     className={cn(
                       COMPANY_HEADER_PILL_HEIGHT,
-                      "flex! flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                      "flex! flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground dark:text-white dark:hover:text-white",
                       pathname === getUrlWithCompanyId("/operations/pda") &&
-                        "bg-accent text-foreground"
+                        "bg-accent text-foreground dark:text-white"
                     )}
                   >
                     <FileSpreadsheet className="size-4 shrink-0" />

@@ -959,7 +959,7 @@ export function ChecklistMain({
                 </Badge>
               </div>
               <div className="mb-4 border-b border-gray-200"></div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 pt-2">
                 <CustomDateNew
                   form={form}
                   name="jobOrderDate"
@@ -1186,7 +1186,7 @@ export function ChecklistMain({
                 )}
               </div>
               <div className="mb-4 border-b border-gray-200"></div>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2 pt-2">
                 {/* Currency and Exchange Rate in one row */}
                 <div className="grid grid-cols-2 gap-2">
                   <CurrencyAutocomplete
@@ -1336,7 +1336,7 @@ export function ChecklistMain({
 
               <div className="mb-4 border-b border-gray-200"></div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-2 pt-2">
                 <CustomInput
                   form={form}
                   name="billName"
@@ -1411,7 +1411,7 @@ export function ChecklistMain({
 
               <div className="mb-4 border-b border-gray-200"></div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-2 pt-2">
                 <div className="grid grid-cols-2 gap-2">
                   <CustomInput
                     form={form}

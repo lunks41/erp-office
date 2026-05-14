@@ -35,6 +35,59 @@ const dateFilterSchema = z.object({
 
 type DateFilterFormType = z.infer<typeof dateFilterSchema>
 
+const CHECKLIST_STATUS_TABS = [
+  { value: "All", icon: "📋" },
+  { value: "Pending", icon: "⏳" },
+  { value: "Completed", icon: "✅" },
+  { value: "Cancelled", icon: "❌" },
+  { value: "Cancel With Service", icon: "⚠️" },
+  { value: "Confirmed", icon: "✔️" },
+  { value: "Posted", icon: "📤" },
+  { value: "InActive", icon: "🚫" },
+] as const
+
+const CHECKLIST_STATUS_BADGE_CLASSNAME: Record<
+  (typeof CHECKLIST_STATUS_TABS)[number]["value"],
+  string
+> = {
+  All: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300",
+  Pending:
+    "border-yellow-200 bg-yellow-50 text-yellow-800 hover:bg-yellow-100 dark:border-yellow-900/60 dark:bg-yellow-950/30 dark:text-yellow-300",
+  Completed:
+    "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300",
+  Cancelled:
+    "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300",
+  "Cancel With Service":
+    "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 dark:border-violet-900/60 dark:bg-violet-950/30 dark:text-violet-300",
+  Confirmed:
+    "border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-teal-300",
+  Posted:
+    "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 dark:border-cyan-900/60 dark:bg-cyan-950/30 dark:text-cyan-300",
+  InActive:
+    "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300",
+}
+
+const CHECKLIST_STATUS_TAB_CLASSNAME: Record<
+  (typeof CHECKLIST_STATUS_TABS)[number]["value"],
+  string
+> = {
+  All: "data-[state=active]:bg-amber-50 data-[state=active]:text-amber-700 data-[state=active]:border-b-amber-600 dark:data-[state=active]:bg-amber-950/30 dark:data-[state=active]:text-amber-300 dark:data-[state=active]:border-b-amber-400",
+  Pending:
+    "data-[state=active]:bg-yellow-50 data-[state=active]:text-yellow-800 data-[state=active]:border-b-yellow-600 dark:data-[state=active]:bg-yellow-950/30 dark:data-[state=active]:text-yellow-300 dark:data-[state=active]:border-b-yellow-400",
+  Completed:
+    "data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-b-emerald-600 dark:data-[state=active]:bg-emerald-950/30 dark:data-[state=active]:text-emerald-300 dark:data-[state=active]:border-b-emerald-400",
+  Cancelled:
+    "data-[state=active]:bg-red-50 data-[state=active]:text-red-700 data-[state=active]:border-b-red-600 dark:data-[state=active]:bg-red-950/30 dark:data-[state=active]:text-red-300 dark:data-[state=active]:border-b-red-400",
+  "Cancel With Service":
+    "data-[state=active]:bg-violet-50 data-[state=active]:text-violet-700 data-[state=active]:border-b-violet-600 dark:data-[state=active]:bg-violet-950/30 dark:data-[state=active]:text-violet-300 dark:data-[state=active]:border-b-violet-400",
+  Confirmed:
+    "data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700 data-[state=active]:border-b-teal-600 dark:data-[state=active]:bg-teal-950/30 dark:data-[state=active]:text-teal-300 dark:data-[state=active]:border-b-teal-400",
+  Posted:
+    "data-[state=active]:bg-cyan-50 data-[state=active]:text-cyan-700 data-[state=active]:border-b-cyan-600 dark:data-[state=active]:bg-cyan-950/30 dark:data-[state=active]:text-cyan-300 dark:data-[state=active]:border-b-cyan-400",
+  InActive:
+    "data-[state=active]:bg-slate-50 data-[state=active]:text-slate-700 data-[state=active]:border-b-slate-600 dark:data-[state=active]:bg-slate-900/40 dark:data-[state=active]:text-slate-300 dark:data-[state=active]:border-b-slate-400",
+}
+
 export default function ChecklistPage() {
   const params = useParams()
   const companyId = params.companyId as string
@@ -371,82 +424,37 @@ export default function ChecklistPage() {
           className="space-y-1"
         >
           <TabsList className="w-full">
-            {[
-              { value: "All", count: statusCounts.All, icon: "📋" },
-              { value: "Pending", count: statusCounts.Pending, icon: "⏳" },
-              { value: "Completed", count: statusCounts.Completed, icon: "✅" },
-              { value: "Cancelled", count: statusCounts.Cancelled, icon: "❌" },
-              {
-                value: "Cancel With Service",
-                count: statusCounts["Cancel With Service"],
-                icon: "⚠️",
-              },
-              { value: "Confirmed", count: statusCounts.Confirmed, icon: "✔️" },
-              { value: "Posted", count: statusCounts.Posted, icon: "📤" },
-              { value: "InActive", count: statusCounts.InActive, icon: "🚫" },
-            ].map(({ value, count, icon }) => (
-              <TabsTrigger
-                key={value}
-                value={value}
-                className="relative flex flex-col items-center space-y-1 px-2 py-3 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm"
-              >
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">{icon}</span>
-                  <span className="hidden sm:inline">{value}</span>
-                  <span className="sm:hidden">{value.split(" ")[0]}</span>
-                </div>
-                <Badge
-                  variant={
-                    count > 0
-                      ? value === "All"
-                        ? "default"
-                        : value === "Pending"
-                          ? "secondary"
-                          : value === "Confirmed"
-                            ? "default"
-                            : value === "Completed"
-                              ? "default"
-                              : value === "Cancelled"
-                                ? "destructive"
-                                : value === "Cancel With Service"
-                                  ? "secondary"
-                                  : value === "Posted"
-                                    ? "default"
-                                    : value === "InActive"
-                                      ? "secondary"
-                                      : "default"
-                      : "outline"
-                  }
+            {CHECKLIST_STATUS_TABS.map(({ value, icon }) => {
+              const count = statusCounts[value]
+
+              return (
+                <TabsTrigger
+                  key={value}
+                  value={value}
                   className={cn(
-                    "text-xs font-medium",
-                    // Custom colors for different statuses
-                    value === "Pending" &&
-                      count > 0 &&
-                      "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-                    value === "Confirmed" &&
-                      count > 0 &&
-                      "bg-green-100 text-green-800 hover:bg-green-200",
-                    value === "Completed" &&
-                      count > 0 &&
-                      "bg-blue-100 text-primary hover:bg-blue-200",
-                    value === "Cancelled" &&
-                      count > 0 &&
-                      "bg-red-100 text-red-800 hover:bg-red-200",
-                    value === "Cancel With Service" &&
-                      count > 0 &&
-                      "bg-purple-100 text-purple-800 hover:bg-purple-200",
-                    value === "Posted" &&
-                      count > 0 &&
-                      "bg-cyan-100 text-cyan-800 hover:bg-cyan-200",
-                    value === "InActive" &&
-                      count > 0 &&
-                      "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    "relative flex flex-col items-center space-y-1 px-2 py-3 text-xs sm:flex-row sm:space-y-0 sm:space-x-2 sm:px-4 sm:text-sm",
+                    CHECKLIST_STATUS_TAB_CLASSNAME[value]
                   )}
                 >
-                  {count}
-                </Badge>
-              </TabsTrigger>
-            ))}
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{icon}</span>
+                    <span className="hidden sm:inline">{value}</span>
+                    <span className="sm:hidden">{value.split(" ")[0]}</span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-xs font-medium",
+                      count > 0
+                        ? CHECKLIST_STATUS_BADGE_CLASSNAME[value]
+                        : "border-border bg-background text-muted-foreground"
+                    )}
+                  >
+                    {count}
+                  </Badge>
+                </TabsTrigger>
+              )
+            })}
           </TabsList>
         </Tabs>
       </div>

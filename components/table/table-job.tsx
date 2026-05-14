@@ -54,6 +54,7 @@ interface JobTableProps<T> {
   onCreateAction?: () => void
   hideCreateButton?: boolean
   tableHeightClassName?: string
+  tableContainerClassName?: string
 }
 
 export function JobTable<T>({
@@ -67,6 +68,7 @@ export function JobTable<T>({
   onRefreshAction,
   onCreateAction,
   tableHeightClassName = "",
+  tableContainerClassName,
 }: JobTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -285,7 +287,7 @@ export function JobTable<T>({
         >
           <div className="flex h-full min-h-0 flex-col">
             <div
-              className={`${tableHeightClassName} min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-border/80 bg-background shadow-xs`}
+              className={`${tableHeightClassName} min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-border/80 bg-background shadow-xs ${tableContainerClassName ?? ""}`}
             >
             {/* Fixed Header */}
             <table

@@ -63,4 +63,23 @@ export const OverviewDashboardRoutes = {
     recentSubmissions: "/einvoicing/submissions/recent",
     todaySubmissions: "/einvoicing/submissions/today",
   },
+  operations: {
+    kpi: "/operations/overview/kpi",
+    statusBreakdown: "/operations/overview/status-breakdown",
+    topCustomers: "/operations/overview/top-customers",
+    serviceTypeDistribution: "/operations/overview/service-type-distribution",
+    monthlyTrend: "/operations/overview/monthly-trend",
+    recentJobOrders: "/operations/overview/recent-job-orders",
+    todayJobOrders: "/operations/overview/today-job-orders",
+  },
+  hr: {
+    kpi: "/hr/overview/kpi",
+    departmentBreakdown: "/hr/overview/department-breakdown",
+    designationDistribution: "/hr/overview/designation-distribution",
+    leaveSummary: "/hr/overview/leave-summary",
+    payrollVsBudget: "/hr/overview/payroll-vs-budget",
+    payrunHistory: "/hr/overview/payrun-history",
+    loanSummary: "/hr/overview/loan-summary",
+    attendanceSummary: "/hr/overview/attendance-summary",
+  },
 } as const

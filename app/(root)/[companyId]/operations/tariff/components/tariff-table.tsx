@@ -300,6 +300,7 @@ export function TariffTable({
       onRefreshAction={onRefreshAction}
       onFilterChange={onFilterChange}
       initialSearchValue={initialSearchValue}
+      pageSize={100}
       //handler column props
       onSelect={onSelect}
       onCreateAction={onCreateAction}

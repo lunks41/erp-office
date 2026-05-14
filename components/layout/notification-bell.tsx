@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
-import { Bell, CheckCheck, Info, AlertTriangle, AlertCircle, X } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { Bell, CheckCheck, Info, AlertTriangle, AlertCircle } from "lucide-react"
 import { useNotificationStore } from "@/stores/notification-store"
 import { useAuthStore } from "@/stores/auth-store"
 import { useSignalR } from "@/hooks/use-signalr"
@@ -14,6 +14,14 @@ import {
 } from "@/components/layout/company-header-utility"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 type NotifType = "success" | "error" | "info" | "warning"
 
@@ -37,7 +45,6 @@ function formatRelative(ts: number) {
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
-  const panelRef = useRef<HTMLDivElement>(null)
   const { history, unreadCount, markRead, markAllRead, addFromServer, setFromServer, setUnreadCount } = useNotificationStore()
   const { isAuthenticated, _hasHydrated } = useAuthStore()
 
@@ -86,66 +93,66 @@ export function NotificationBell() {
     UnreadCount: (count) => setUnreadCount(count),
   })
 
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      if (!panelRef.current?.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [open])
-
   return (
-    <div ref={panelRef} className="relative">
-      <Button
-        type="button"
-        size="icon"
-        variant="outline"
-        onClick={() => setOpen((o) => !o)}
-        className={COMPANY_HEADER_UTILITY_BUTTON}
-        title="Notifications"
-        aria-label="Notifications"
-      >
-        <Bell className={COMPANY_HEADER_UTILITY_ICON} />
-        {unreadCount > 0 && (
-          <span
-            className={`${COMPANY_HEADER_UTILITY_COUNT_BADGE} bg-red-500 text-white`}
-          >
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
-      </Button>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className={COMPANY_HEADER_UTILITY_BUTTON}
+          title="Notifications"
+          aria-label="Notifications"
+        >
+          <Bell className={COMPANY_HEADER_UTILITY_ICON} />
+          {unreadCount > 0 && (
+            <span
+              className={`${COMPANY_HEADER_UTILITY_COUNT_BADGE} bg-red-500 text-white`}
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </Button>
+      </SheetTrigger>
 
-      {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-            <div className="flex items-center gap-2">
-              <Bell className="h-3.5 w-3.5 text-slate-500" />
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">Notifications</span>
+      <SheetContent
+        side="right"
+        className="flex h-full w-[380px] flex-col overflow-hidden p-0 sm:w-[440px]"
+      >
+        <SheetHeader className="bg-muted/30 border-b px-4 py-3 pr-12">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <SheetTitle className="flex items-center gap-2 pr-2 text-base font-semibold">
+                <Bell className="size-4 shrink-0" />
+                Notifications
+              </SheetTitle>
               {unreadCount > 0 && (
-                <Badge variant="destructive" className="rounded-full px-1.5 py-0.5 text-[10px]">
+                <Badge
+                  variant="destructive"
+                  className="rounded-full px-1.5 py-0.5 text-[10px]"
+                >
                   {unreadCount} new
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1">
-              {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={handleMarkAllRead} className="h-6 px-1.5 text-[10px]">
-                  <CheckCheck className="mr-1 h-3 w-3" /> All read
-                </Button>
-              )}
-              <button onClick={() => setOpen(false)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800">
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllRead}
+                className="h-7 px-2 text-[10px]"
+              >
+                <CheckCheck className="mr-1 h-3 w-3" />
+                All read
+              </Button>
+            )}
           </div>
+        </SheetHeader>
 
-          {/* List */}
-          <div className="max-h-80 overflow-y-auto p-1.5">
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="p-1.5">
             {history.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-10 text-slate-400">
+              <div className="flex flex-col items-center gap-2 py-16 text-slate-400">
                 <Bell className="h-8 w-8 opacity-30" />
                 <p className="text-xs">No notifications yet</p>
               </div>
@@ -160,18 +167,27 @@ export function NotificationBell() {
                       onClick={() => handleMarkRead(item.id, item.notificationId)}
                       className={`group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 ${!item.read ? cfg.bgClass : ""}`}
                     >
-                      {!item.read && <span className={`absolute right-2.5 top-3 h-1.5 w-1.5 rounded-full ${cfg.dotClass}`} />}
+                      {!item.read && (
+                        <span
+                          className={`absolute right-2.5 top-3 h-1.5 w-1.5 rounded-full ${cfg.dotClass}`}
+                        />
+                      )}
                       <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${cfg.iconClass}`} />
                       <div className="min-w-0 flex-1">
-                        {"title" in item && (item as { title?: string }).title && (
+                        {"title" in item &&
+                        (item as { title?: string }).title ? (
                           <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                             {(item as { title?: string }).title}
                           </p>
-                        )}
-                        <p className={`text-xs leading-snug ${item.read ? "text-slate-500" : "font-medium text-slate-800 dark:text-slate-100"}`}>
+                        ) : null}
+                        <p
+                          className={`text-xs leading-snug ${item.read ? "text-slate-500" : "font-medium text-slate-800 dark:text-slate-100"}`}
+                        >
                           {item.message}
                         </p>
-                        <p className="mt-0.5 text-[10px] text-slate-400">{formatRelative(item.createdAt)}</p>
+                        <p className="mt-0.5 text-[10px] text-slate-400">
+                          {formatRelative(item.createdAt)}
+                        </p>
                       </div>
                     </div>
                   )
@@ -179,8 +195,8 @@ export function NotificationBell() {
               </div>
             )}
           </div>
-        </div>
-      )}
-    </div>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   )
 }

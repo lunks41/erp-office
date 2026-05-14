@@ -499,7 +499,7 @@ export function ChecklistTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.checklist}
-
+        tableContainerClassName="rounded-none border-0 bg-transparent shadow-none"
         emptyMessage="No job orders found."
         onRefreshAction={onRefreshAction}
         onCreateAction={canCreate ? onCreateAction : undefined}

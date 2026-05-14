@@ -883,6 +883,36 @@ const buildOtherModulesMenu = (
     }
   }
 
+  // Inject HR Overview at the top of the HR module group
+  const hrGroup = groups.find((m) => m.url === "/hr")
+  if (hrGroup) {
+    const hasHrOverview = hrGroup.items.some(
+      (item) => item.url === "/hr/overview"
+    )
+    if (!hasHrOverview) {
+      hrGroup.items.unshift({
+        title: "HR Overview",
+        url: "/hr/overview",
+        icon: BarChart,
+      })
+    }
+  }
+
+  // Inject Checklist Overview at the top of the Operations module group
+  const operationsGroup = groups.find((m) => m.url === "/operations")
+  if (operationsGroup) {
+    const hasChecklistOverview = operationsGroup.items.some(
+      (item) => item.url === "/operations/checklist/overview"
+    )
+    if (!hasChecklistOverview) {
+      operationsGroup.items.unshift({
+        title: "Checklist Overview",
+        url: "/operations/checklist/overview",
+        icon: BarChart,
+      })
+    }
+  }
+
   return groups
 }
 

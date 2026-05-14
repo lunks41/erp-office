@@ -149,6 +149,7 @@ export function PdaOperationsTable({
       showHeader={false}
       showActions={true}
       canDebitNote={false}
+      tableContainerClassName="rounded-lg border border-border/80 bg-background shadow-xs"
     />
   )
 }

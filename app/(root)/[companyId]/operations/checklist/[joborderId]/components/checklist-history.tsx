@@ -233,19 +233,16 @@ export function ChecklistHistory({
       </Card>
 
       {/* History Table */}
-      <Card>
-        <CardContent>
-          <BasicTable
-            data={historyData}
-            columns={historyColumns}
-            isLoading={isHistoryLoading}
-            tableName={TableName.checklist}
-            emptyMessage="No history records found."
-            showHeader={true}
-            showFooter={false}
-          />
-        </CardContent>
-      </Card>
+      <BasicTable
+        data={historyData}
+        columns={historyColumns}
+        isLoading={isHistoryLoading}
+        tableName={TableName.checklist}
+        emptyMessage="No history records found."
+        showHeader={true}
+        showFooter={false}
+        tableContainerClassName="rounded-none border-0 bg-transparent shadow-none"
+      />
     </div>
   )
 }

@@ -1075,7 +1075,7 @@ export default function TariffPage() {
     isLoadingCount || isLoadingTariffByTask || isSearching || isTabLoading
 
   return (
-    <div className="@container mx-auto space-y-2 px-4 pt-2 pb-4 sm:space-y-3 sm:px-6 sm:pt-3 sm:pb-6">
+    <div className="@container mx-auto space-y-1.5 px-4 pt-2 pb-4 sm:space-y-2 sm:px-6 sm:pt-3 sm:pb-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
@@ -1129,8 +1129,8 @@ export default function TariffPage() {
       </div>
 
       {/* Filter Controls */}
-      <div className="bg-card mb-3 rounded-lg border p-4">
-        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-4">
+      <div className="bg-card mb-2 rounded-lg border p-3">
+        <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-4">
           {/* Customer Selection */}
           <div>
             <CustomerAutocomplete
@@ -1195,7 +1195,7 @@ export default function TariffPage() {
         <Tabs
           value={activeCategory}
           onValueChange={handleCategoryChange}
-          className="mb-6"
+          className="mb-2"
         >
           <div className="bg-card rounded-lg border shadow-sm">
             <div>
@@ -1272,7 +1272,7 @@ export default function TariffPage() {
 
       {/* Placeholder for tabs during SSR */}
       {!mounted && hasSearched && (
-        <div className="mb-6">
+        <div className="mb-2">
           <div className="overflow-x-auto">
             <div className="flex h-14 w-max">
               {Object.values(CATEGORY_CONFIG).map((category) => (
