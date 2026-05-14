@@ -2,10 +2,6 @@
 
 import { IReportCategory } from "@/interfaces/admin"
 import { useCompanyStore } from "@/stores/company-store"
-import {
-  IconCircleCheckFilled,
-  IconSquareRoundedXFilled,
-} from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 

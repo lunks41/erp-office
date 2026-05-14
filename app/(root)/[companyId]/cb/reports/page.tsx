@@ -346,7 +346,7 @@ export default function ReportsPage() {
       const selectedReportId = selectedReports[0]
       const usesTrsDate = TRS_DATE_REPORTS.includes(selectedReportId)
       const usesAsDate = AS_DATE_REPORTS.includes(selectedReportId)
-      const allReports = getAllReports()
+      const allReports = (visibleReportsFlat ?? []).map((report) => ({ ...report, category: "" }))
       const selectedReport = allReports.find((r) => r.id === selectedReportId)
 
       if (usesTrsDate) {

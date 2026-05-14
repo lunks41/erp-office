@@ -1,6 +1,7 @@
 "use client"
 
 import { motion, useReducedMotion } from "framer-motion"
+import { useEffect, useState } from "react"
 import {
   Activity,
   BarChart2,
@@ -40,8 +41,11 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.08, delayChildren: 0.25 } },
 }
 
-export function LoginHeroPanel({ className }: { className?: string }) {
+export function LoginHeroPanel({ className: _className }: { className?: string }) {
   const reduceMotion = useReducedMotion()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const shouldAnimate = mounted && !reduceMotion
 
   return (
     <div
@@ -94,9 +98,9 @@ export function LoginHeroPanel({ className }: { className?: string }) {
             "radial-gradient(circle, rgba(16,185,129,0.11) 0%, transparent 70%)",
         }}
         animate={
-          reduceMotion
-            ? undefined
-            : { scale: [1, 1.22, 1], opacity: [0.5, 0.85, 0.5] }
+          shouldAnimate
+            ? { scale: [1, 1.22, 1], opacity: [0.5, 0.85, 0.5] }
+            : undefined
         }
         transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -113,9 +117,9 @@ export function LoginHeroPanel({ className }: { className?: string }) {
             "radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)",
         }}
         animate={
-          reduceMotion
-            ? undefined
-            : { scale: [1, 1.16, 1], opacity: [0.4, 0.75, 0.4] }
+          shouldAnimate
+            ? { scale: [1, 1.16, 1], opacity: [0.4, 0.75, 0.4] }
+            : undefined
         }
         transition={{
           duration: 17,
@@ -129,7 +133,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
         {/* Brand mark */}
         <motion.div
           className="flex items-center gap-3"
-          initial={{ opacity: 0, y: -10 }}
+          initial={shouldAnimate ? { opacity: 0, y: -10 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -162,7 +166,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
         <div className="relative flex flex-1 items-center justify-center py-6 xl:py-8">
           <motion.div
             className="w-full max-w-[520px]"
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.94, y: 10 }}
+            initial={shouldAnimate ? { opacity: 0, scale: 0.94, y: 10 } : false}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           >
@@ -172,7 +176,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
           {/* ── Floating card: Revenue (left) ── always rendered ── */}
           <motion.div
             className="absolute top-[22%] left-0"
-            initial={reduceMotion ? false : { opacity: 0, x: -22 }}
+            initial={shouldAnimate ? { opacity: 0, x: -22 } : false}
             animate={{ opacity: 1, x: 0 }}
             transition={{
               opacity: { duration: 0.5, delay: 0.55 },
@@ -180,7 +184,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
             }}
           >
             <motion.div
-              animate={reduceMotion ? undefined : { y: [0, -9, 0] }}
+              animate={shouldAnimate ? { y: [0, -9, 0] } : undefined}
               transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
               className="rounded-2xl px-4 py-3"
               style={{
@@ -209,7 +213,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
           {/* ── Floating card: Invoice (top right) ── always rendered ── */}
           <motion.div
             className="absolute top-[8%] right-0"
-            initial={reduceMotion ? false : { opacity: 0, x: 22 }}
+            initial={shouldAnimate ? { opacity: 0, x: 22 } : false}
             animate={{ opacity: 1, x: 0 }}
             transition={{
               opacity: { duration: 0.5, delay: 0.7 },
@@ -217,7 +221,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
             }}
           >
             <motion.div
-              animate={reduceMotion ? undefined : { y: [0, -7, 0] }}
+              animate={shouldAnimate ? { y: [0, -7, 0] } : undefined}
               transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
               className="rounded-2xl px-4 py-3"
               style={{
@@ -233,7 +237,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
                 <motion.div
                   className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: "#10b981" }}
-                  animate={reduceMotion ? undefined : { opacity: [1, 0.4, 1] }}
+                  animate={shouldAnimate ? { opacity: [1, 0.4, 1] } : undefined}
                   transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -252,7 +256,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
           {/* ── Floating card: AI badge (lower right) ── always rendered ── */}
           <motion.div
             className="absolute right-2 bottom-[20%]"
-            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+            initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               opacity: { duration: 0.5, delay: 0.9 },
@@ -260,7 +264,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
             }}
           >
             <motion.div
-              animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
+              animate={shouldAnimate ? { y: [0, -10, 0] } : undefined}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
               className="rounded-2xl px-4 py-3"
               style={{
@@ -289,7 +293,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
           {/* ── Floating pill: Payroll (bottom left) ── always rendered ── */}
           <motion.div
             className="absolute left-4 bottom-[14%]"
-            initial={reduceMotion ? false : { opacity: 0, x: -16 }}
+            initial={shouldAnimate ? { opacity: 0, x: -16 } : false}
             animate={{ opacity: 1, x: 0 }}
             transition={{
               opacity: { duration: 0.5, delay: 1.1 },
@@ -297,7 +301,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
             }}
           >
             <motion.div
-              animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
+              animate={shouldAnimate ? { y: [0, -6, 0] } : undefined}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 3 }}
               className="flex items-center gap-2 rounded-full px-3 py-2"
               style={{
@@ -325,7 +329,7 @@ export function LoginHeroPanel({ className }: { className?: string }) {
         <motion.div
           className="mt-auto"
           variants={stagger}
-          initial="hidden"
+          initial={shouldAnimate ? "hidden" : "visible"}
           animate="visible"
         >
           <motion.h2
@@ -368,14 +372,14 @@ export function LoginHeroPanel({ className }: { className?: string }) {
                   color: "rgba(255,255,255,0.55)",
                 }}
                 whileHover={
-                  reduceMotion
-                    ? undefined
-                    : {
+                  shouldAnimate
+                    ? {
                         scale: 1.06,
                         backgroundColor: "rgba(16,185,129,0.1)",
                         borderColor: "rgba(16,185,129,0.28)",
                         color: "rgba(255,255,255,0.88)",
                       }
+                    : undefined
                 }
                 transition={{ duration: 0.2 }}
               >

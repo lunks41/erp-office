@@ -31,7 +31,6 @@ import {
 } from "@/components/accounting/overview-dashboard"
 import { OverviewDataTable } from "@/components/accounting/overview-data-table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type AnyRecord = Record<string, unknown>
@@ -63,8 +62,6 @@ const firstRowOrRecord = (payload: unknown): AnyRecord => {
     return inner[0] as AnyRecord
   return asRecord(inner)
 }
-const asNumber = (v: unknown): number =>
-  Number.isFinite(Number(v)) ? Number(v) : 0
 const asString = (v: unknown): string =>
   typeof v === "string" ? v : String(v ?? "")
 const formatDate = (v: unknown): string => {
@@ -283,8 +280,8 @@ export default function ChecklistOverviewPage() {
   return (
     <OverviewPageShell
       module="operations"
-      title="Checklist Overview"
-      description="Job order activity, service distribution, customer volume, and operational throughput at a glance."
+      title="Operations Overview"
+      description="Job order activity, service distribution, customer volume, and operational throughput across operations at a glance."
     >
       {hasError ? (
         <Alert variant="destructive">

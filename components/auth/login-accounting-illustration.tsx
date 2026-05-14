@@ -1,6 +1,7 @@
 "use client"
 
 import { motion, useReducedMotion } from "framer-motion"
+import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -10,6 +11,9 @@ export function LoginAccountingIllustration({
   className?: string
 }) {
   const reduce = useReducedMotion()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const shouldAnimate = mounted && !reduce
 
   const barGroups = [
     { x: 344, heights: [68, 44, 20] },
@@ -86,7 +90,7 @@ export function LoginAccountingIllustration({
           fill="url(#il-dash-bg)"
           stroke="rgba(255,255,255,0.09)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0, scale: 0.95 }}
+          initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         />
@@ -121,7 +125,7 @@ export function LoginAccountingIllustration({
         <motion.circle
           cx="425" cy="31" r="3.5"
           fill="#10b981"
-          animate={reduce ? undefined : { opacity: [1, 0.3, 1] }}
+          animate={shouldAnimate ? { opacity: [1, 0.3, 1] } : undefined}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         />
         <rect x="432" y="27" width="22" height="8" rx="2" fill="rgba(16,185,129,0.65)" />
@@ -134,7 +138,7 @@ export function LoginAccountingIllustration({
           fill="rgba(16,185,129,0.07)"
           stroke="rgba(16,185,129,0.2)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0, y: 6 }}
+          initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.18 }}
         />
@@ -153,7 +157,7 @@ export function LoginAccountingIllustration({
           fill="rgba(6,182,212,0.07)"
           stroke="rgba(6,182,212,0.18)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0, y: 6 }}
+          initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.24 }}
         />
@@ -172,7 +176,7 @@ export function LoginAccountingIllustration({
           fill="rgba(99,102,241,0.07)"
           stroke="rgba(99,102,241,0.2)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0, y: 6 }}
+          initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.30 }}
         />
@@ -196,7 +200,7 @@ export function LoginAccountingIllustration({
           fill="rgba(255,255,255,0.022)"
           stroke="rgba(255,255,255,0.07)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0 }}
+          initial={shouldAnimate ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.35 }}
         />
@@ -234,7 +238,7 @@ export function LoginAccountingIllustration({
           d={areaPath}
           fill="url(#il-area)"
           clipPath="url(#il-line-clip)"
-          initial={reduce ? false : { opacity: 0 }}
+          initial={shouldAnimate ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.6 }}
         />
@@ -248,7 +252,7 @@ export function LoginAccountingIllustration({
           strokeLinejoin="round"
           fill="none"
           clipPath="url(#il-line-clip)"
-          initial={reduce ? false : { pathLength: 0, opacity: 0 }}
+          initial={shouldAnimate ? { pathLength: 0, opacity: 0 } : false}
           animate={{ pathLength: 1, opacity: 1 }}
           transition={{ duration: 1.6, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
         />
@@ -261,7 +265,7 @@ export function LoginAccountingIllustration({
             fill="#10b981"
             stroke="#0d1f3c"
             strokeWidth="1.5"
-            initial={reduce ? false : { opacity: 0, scale: 0 }}
+            initial={shouldAnimate ? { opacity: 0, scale: 0 } : false}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.55 + i * 0.14, ease: "backOut" }}
           />
@@ -280,7 +284,7 @@ export function LoginAccountingIllustration({
           fill="rgba(255,255,255,0.022)"
           stroke="rgba(255,255,255,0.07)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0 }}
+          initial={shouldAnimate ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.38 }}
         />
@@ -301,7 +305,7 @@ export function LoginAccountingIllustration({
                 width={8}
                 rx={2}
                 fill={`url(#${gradIds[bi]})`}
-                initial={reduce ? false : { height: 0, y: 258 }}
+                initial={shouldAnimate ? { height: 0, y: 258 } : false}
                 animate={{ height: h, y: 258 - h }}
                 transition={{
                   duration: 0.6,
@@ -327,7 +331,7 @@ export function LoginAccountingIllustration({
           fill="rgba(255,255,255,0.022)"
           stroke="rgba(255,255,255,0.07)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0, y: 8 }}
+          initial={shouldAnimate ? { opacity: 0, y: 8 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         />
@@ -371,7 +375,7 @@ export function LoginAccountingIllustration({
           fill="rgba(255,255,255,0.022)"
           stroke="rgba(255,255,255,0.07)"
           strokeWidth="1"
-          initial={reduce ? false : { opacity: 0, y: 8 }}
+          initial={shouldAnimate ? { opacity: 0, y: 8 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.56 }}
         />

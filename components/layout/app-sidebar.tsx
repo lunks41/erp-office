@@ -1,11 +1,10 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   AlertTriangle,
   Anchor,
@@ -27,7 +26,6 @@ import {
   ChevronRightIcon,
   CircleDot,
   CircleUserRound,
-  Monitor,
   ClipboardList,
   Clock,
   Coins,
@@ -53,6 +51,7 @@ import {
   Lock,
   MapPin,
   MinusCircle,
+  Monitor,
   Package,
   PlusCircle,
   Receipt,
@@ -185,6 +184,7 @@ const getTransactionIcon = (transactionCode: string) => {
     checklist: ClipboardList,
     pda: FileSpreadsheet,
     tariff: Coins,
+    tallyservice: Ship,
     employees: Users,
     loan: Wallet,
     leave: CalendarDays,
@@ -898,16 +898,16 @@ const buildOtherModulesMenu = (
     }
   }
 
-  // Inject Checklist Overview at the top of the Operations module group
+  // Inject Operations Overview at the top of the Operations module group
   const operationsGroup = groups.find((m) => m.url === "/operations")
   if (operationsGroup) {
-    const hasChecklistOverview = operationsGroup.items.some(
-      (item) => item.url === "/operations/checklist/overview"
+    const hasOperationsOverview = operationsGroup.items.some(
+      (item) => item.url === "/operations/overview"
     )
-    if (!hasChecklistOverview) {
+    if (!hasOperationsOverview) {
       operationsGroup.items.unshift({
-        title: "Checklist Overview",
-        url: "/operations/checklist/overview",
+        title: "Operations Overview",
+        url: "/operations/overview",
         icon: BarChart,
       })
     }
@@ -1578,8 +1578,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             )}
                             {group.items &&
                               !(sidebarState === "collapsed" && !isMobile) && (
-                              <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                            )}
+                                <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                              )}
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         {group.items && (

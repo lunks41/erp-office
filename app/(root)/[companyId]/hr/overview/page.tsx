@@ -11,7 +11,6 @@ import {
   Briefcase,
   CalendarCheck,
   CalendarX,
-  Clock3,
   HandCoins,
   TrendingUp,
   UserCheck,
@@ -76,9 +75,6 @@ const firstRowOrRecord = (payload: unknown): AnyRecord => {
     return inner[0] as AnyRecord
   return asRecord(inner)
 }
-
-const asNumber = (v: unknown): number =>
-  Number.isFinite(Number(v)) ? Number(v) : 0
 
 const asString = (v: unknown): string =>
   typeof v === "string" ? v : String(v ?? "")

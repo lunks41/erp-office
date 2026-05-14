@@ -1,30 +1,21 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
 import { useEffect, useState } from "react"
-
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
-import {
-  ModuleId,
-  OperationsTransactionId,
-} from "@/lib/utils"
-import { cn } from "@/lib/utils"
-import {
-  Building2,
-  ClipboardList,
-  FileSpreadsheet,
-} from "lucide-react"
+import { Building2, ClipboardList, FileSpreadsheet } from "lucide-react"
 
-import { COMPANY_HEADER_PILL_HEIGHT } from "@/components/layout/company-header-utility"
+import { cn, ModuleId, OperationsTransactionId } from "@/lib/utils"
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
+import { COMPANY_HEADER_PILL_HEIGHT } from "@/components/layout/company-header-utility"
 
 export function NavHeader() {
   const [isMounted, setIsMounted] = useState(false)
@@ -53,10 +44,11 @@ export function NavHeader() {
     OperationsTransactionId.pda,
     "isVisible"
   )
-
   // Avoid SSR/client menu divergence from persisted auth/permission state.
   if (!isMounted) {
-    return <div className="relative hidden w-full items-center justify-between px-3 sm:flex" />
+    return (
+      <div className="relative hidden w-full items-center justify-between px-3 sm:flex" />
+    )
   }
 
   return (
@@ -72,8 +64,9 @@ export function NavHeader() {
                     href={getUrlWithCompanyId("/operations/checklist")}
                     className={cn(
                       COMPANY_HEADER_PILL_HEIGHT,
-                      "flex! h-7 min-h-7 flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground dark:text-white dark:hover:text-white",
-                      pathname === getUrlWithCompanyId("/operations/checklist") &&
+                      "border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground flex! h-7 min-h-7 flex-row items-center justify-center gap-1.5 rounded-md border px-2.5 text-xs font-medium whitespace-nowrap transition-colors dark:text-white dark:hover:text-white",
+                      pathname ===
+                        getUrlWithCompanyId("/operations/checklist") &&
                         "bg-accent text-foreground dark:text-white"
                     )}
                   >
@@ -91,7 +84,7 @@ export function NavHeader() {
                     href={getUrlWithCompanyId("/operations/pda")}
                     className={cn(
                       COMPANY_HEADER_PILL_HEIGHT,
-                      "flex! flex-row items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground dark:text-white dark:hover:text-white",
+                      "border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground flex! flex-row items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-medium whitespace-nowrap transition-colors dark:text-white dark:hover:text-white",
                       pathname === getUrlWithCompanyId("/operations/pda") &&
                         "bg-accent text-foreground dark:text-white"
                     )}
@@ -102,7 +95,6 @@ export function NavHeader() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )}
-
           </NavigationMenuList>
         </NavigationMenu>
       </div>

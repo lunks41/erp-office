@@ -1323,6 +1323,14 @@ export const Template = {
   delete: "/operations/deletetemplate",
 }
 
+// Tally Service Endpoints
+export const TallyService = {
+  get: "/operations/gettallyservice",
+  getById: "/operations/gettallyservicebyid",
+  add: "/operations/savetallyservice",
+  delete: "/operations/deletetallyservice",
+}
+
 // Port Expenses Endpoints
 export const JobOrder_PortExpenses = {
   get: "/operations/getportexpenses",

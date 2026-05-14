@@ -232,8 +232,9 @@ export enum OperationsTransactionId {
   otherService = 17,
   agencyRemuneration = 18,
   transportationLog = 19,
-  reports = 20,
-  pda = 21,
+  reports = 99,
+  pda = 20,
+  tallyService = 21,
 }
 
 export enum ARTransactionId {
@@ -360,7 +361,9 @@ export function getModuleAndTransactionId(pathname: string): {
       break
     case ModuleId.logistics:
       transactionId =
-        LogisticsTransactionId[transactionName as keyof typeof LogisticsTransactionId] || 0
+        LogisticsTransactionId[
+          transactionName as keyof typeof LogisticsTransactionId
+        ] || 0
       break
     case ModuleId.ar:
       transactionId =
@@ -517,6 +520,7 @@ export enum TableName {
   techniciansSurveyors = "techniciansSurveyors",
   debitNote = "debitNote",
   tariff = "tariff",
+  tallyService = "tallyService",
 
   //AR
   arInvoice = "arInvoice",
@@ -617,22 +621,22 @@ export enum TableName {
  */
 export const StatusIconMap = {
   Pending: "Clock",
-  "PENDING": "Clock",
+  PENDING: "Clock",
   Completed: "CheckCircle",
-  "COMPLETED": "CheckCircle",
+  COMPLETED: "CheckCircle",
   Cancelled: "XCircle",
-  "CANCELLED": "XCircle",
+  CANCELLED: "XCircle",
   Confirmed: "CheckCircle",
-  "CONFIRMED": "CheckCircle",
+  CONFIRMED: "CheckCircle",
   Posted: "Send",
-  "POSTED": "Send",
+  POSTED: "Send",
   Approved: "CheckCircle",
-  "APPROVED": "CheckCircle",
+  APPROVED: "CheckCircle",
   Rejected: "XCircle",
-  "REJECTED": "XCircle",
+  REJECTED: "XCircle",
   "Cancel With Service": "AlertTriangle",
   InActive: "XCircle",
-  "INACTIVE": "XCircle",
+  INACTIVE: "XCircle",
   All: "List",
 } as const
 
