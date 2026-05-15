@@ -1,7 +1,5 @@
 ﻿"use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
@@ -15,6 +13,7 @@ import {
 } from "@/interfaces/lookup"
 import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
 import { JobOrderHdSchema, JobOrderHdSchemaType } from "@/schemas/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -36,8 +35,8 @@ import {
   CountryAutocomplete,
   CurrencyAutocomplete,
   CustomerAutocomplete,
-  GSTAutocomplete,
   GeoLocationAutocomplete,
+  GSTAutocomplete,
   JobStatusAutocomplete,
   PortAutocomplete,
   VesselAutocomplete,
@@ -55,6 +54,12 @@ import { CustomDateTimePicker } from "@/components/custom/custom-date-time-picke
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+
+/** Shared section card + header pill sizing (matches Invoice No badge height). */
+const SECTION_CARD_CLASS = "rounded-lg border px-4 pb-4 pt-3"
+const SECTION_HEADER_ROW_CLASS = "mb-3 flex flex-wrap items-center gap-2"
+const SECTION_HEADER_BADGE_CLASS =
+  "px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition-colors duration-200"
 
 interface ChecklistMainProps {
   jobData?: IJobOrderHd | null
@@ -949,11 +954,11 @@ export function ChecklistMain({
           {/* Main Content - Side by Side Layout */}
           <div className="flex gap-4">
             {/* Operation Card - 75% */}
-            <div className="w-[75%] rounded-lg border p-4">
-              <div className="mb-2 flex">
+            <div className={`w-[75%] ${SECTION_CARD_CLASS}`}>
+              <div className={SECTION_HEADER_ROW_CLASS}>
                 <Badge
                   variant="secondary"
-                  className="border-border bg-blue-100 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-colors duration-200 hover:bg-blue-200"
+                  className={`${SECTION_HEADER_BADGE_CLASS} border-border text-primary bg-blue-100 hover:bg-blue-200`}
                 >
                   🔧 Operation
                 </Badge>
@@ -1156,11 +1161,11 @@ export function ChecklistMain({
             </div>
 
             {/* Accounts Card - 25% */}
-            <div className="w-[25%] rounded-lg border p-4">
-              <div className="mb-2 flex items-center gap-2">
+            <div className={`w-[25%] ${SECTION_CARD_CLASS}`}>
+              <div className={SECTION_HEADER_ROW_CLASS}>
                 <Badge
                   variant="outline"
-                  className="border-green-300 bg-green-100 px-4 py-2 text-sm font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
+                  className={`${SECTION_HEADER_BADGE_CLASS} border-green-300 bg-green-100 text-green-800 hover:bg-green-200`}
                 >
                   💰 Accounts
                 </Badge>
@@ -1169,7 +1174,7 @@ export function ChecklistMain({
                     variant="outline"
                     role="button"
                     tabIndex={0}
-                    className="cursor-pointer border-border bg-card px-3 py-1.5 text-xs font-semibold text-primary shadow-sm transition-colors hover:bg-blue-100"
+                    className={`${SECTION_HEADER_BADGE_CLASS} border-border bg-card text-primary cursor-pointer hover:bg-blue-100`}
                     title="Double-click to open AR Invoice"
                     onDoubleClick={handleInvoiceNoDoubleClick}
                     onKeyDown={(e) => {
@@ -1179,9 +1184,7 @@ export function ChecklistMain({
                       }
                     }}
                   >
-                    <span className="text-xs">
-                      Invoice No: {jobData.invoiceNo}
-                    </span>
+                    Invoice No: {jobData.invoiceNo}
                   </Badge>
                 )}
               </div>
@@ -1313,8 +1316,8 @@ export function ChecklistMain({
               </div>
             </div>
           </div>
-          <div className="mt-1 mb-1 rounded-md border border-border bg-card px-3 py-2">
-            <p className="text-xs text-primary">
+          <div className="border-border bg-card mt-1 mb-1 rounded-md border px-3 py-2">
+            <p className="text-primary text-xs">
               <span className="font-semibold">ℹ️ Note:</span> Updates made here
               will automatically be reflected in invoices when creating invoices
               from this job order.
@@ -1324,11 +1327,11 @@ export function ChecklistMain({
           {/* Address and Contact Section */}
           <div className="grid grid-cols-2 gap-2">
             {/* Address Section */}
-            <div className="rounded-lg border p-4">
-              <div className="mb-2 flex">
+            <div className={SECTION_CARD_CLASS}>
+              <div className={SECTION_HEADER_ROW_CLASS}>
                 <Badge
                   variant="outline"
-                  className="border-purple-200 bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-800 shadow-sm transition-colors duration-200 hover:bg-purple-200"
+                  className={`${SECTION_HEADER_BADGE_CLASS} border-purple-200 bg-purple-100 text-purple-800 hover:bg-purple-200`}
                 >
                   📍 Address Details
                 </Badge>
@@ -1399,11 +1402,11 @@ export function ChecklistMain({
             </div>
 
             {/* Contact Section */}
-            <div className="rounded-lg border p-4">
-              <div className="mb-2 flex">
+            <div className={SECTION_CARD_CLASS}>
+              <div className={SECTION_HEADER_ROW_CLASS}>
                 <Badge
                   variant="outline"
-                  className="border-indigo-200 bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm transition-colors duration-200 hover:bg-indigo-200"
+                  className={`${SECTION_HEADER_BADGE_CLASS} border-indigo-200 bg-indigo-100 text-indigo-800 hover:bg-indigo-200`}
                 >
                   👤 Contact Details
                 </Badge>

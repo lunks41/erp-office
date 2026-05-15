@@ -776,7 +776,7 @@ export default function NewChecklistPage() {
                 <div className="mb-2 flex">
                   <Badge
                     variant="outline"
-                    className="border-green-300 bg-green-100 px-4 py-2 text-sm font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
+                    className="border-green-300 bg-green-100 inline-flex h-9 min-h-9 items-center px-3 py-0 text-xs font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
                   >
                     💰 Accounts
                   </Badge>

@@ -84,12 +84,12 @@ export function NavHeader() {
                     href={getUrlWithCompanyId("/operations/pda")}
                     className={cn(
                       COMPANY_HEADER_PILL_HEIGHT,
-                      "border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground flex! flex-row items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-medium whitespace-nowrap transition-colors dark:text-white dark:hover:text-white",
+                      "border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground flex! h-7 min-h-7 flex-row items-center justify-center gap-1.5 rounded-md border px-2.5 text-xs font-medium whitespace-nowrap transition-colors dark:text-white dark:hover:text-white",
                       pathname === getUrlWithCompanyId("/operations/pda") &&
                         "bg-accent text-foreground dark:text-white"
                     )}
                   >
-                    <FileSpreadsheet className="size-4 shrink-0" />
+                    <FileSpreadsheet className="size-3.5 shrink-0" />
                     PDA
                   </Link>
                 </NavigationMenuLink>

@@ -12,60 +12,72 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 
 interface CloneConfirmationProps {
-  // Title of the confirmation dialog
   title?: string
-  // Description of the confirmation dialog
   description?: string
-  // Name of the item to clone (will be shown in the description)
+  /** When true, shows `description` only (no "Do you want to clone…" prefix). */
+  skipDefaultPrompt?: boolean
   itemName?: string
-  // Whether the dialog is open
   open?: boolean
-  // Called when the dialog open state changes
   onOpenChange?: (open: boolean) => void
-  // Called when the user confirms the clone
   onConfirm: () => void
-  // Called when the user cancels the clone
   onCancelAction?: () => void
-  // Whether the clone operation is in progress
+  /** Wizard step: return to the previous screen (e.g. service selection). */
+  onBack?: () => void
+  backLabel?: string
+  cancelLabel?: string
+  confirmLabel?: string
   isCloning?: boolean
+  /** When false, parent closes the dialog after async clone (default true for AR/AP/CB/GL). */
+  closeOnConfirm?: boolean
 }
 
 export function CloneConfirmation({
   title = "Clone Confirmation",
   description = "This will create a copy as a new record.",
+  skipDefaultPrompt = false,
   itemName,
   open,
   onOpenChange,
   onConfirm,
   onCancelAction,
+  onBack,
+  backLabel = "Back",
+  cancelLabel = "Cancel",
+  confirmLabel = "Clone",
   isCloning = false,
+  closeOnConfirm = true,
 }: CloneConfirmationProps) {
-  // Use internal state if open/onOpenChange are not provided
   const [internalOpen, setInternalOpen] = useState(false)
 
-  // Determine if we're using controlled or uncontrolled state
   const isOpen = open !== undefined ? open : internalOpen
   const setIsOpen = onOpenChange || setInternalOpen
 
-  // Handle the confirm action
   const handleConfirm = () => {
     onConfirm()
-    setIsOpen(false)
+    if (closeOnConfirm) {
+      setIsOpen(false)
+    }
   }
 
-  // Handle the cancel action
   const handleCancel = () => {
     onCancelAction?.()
     setIsOpen(false)
   }
 
-  // Construct the full description
-  const fullDescription = itemName
-    ? `Do you want to clone "${itemName}"? ${description}`
-    : `Do you want to clone this record? ${description}`
+  const handleBack = () => {
+    onBack?.()
+    setIsOpen(false)
+  }
+
+  const fullDescription = skipDefaultPrompt
+    ? description
+    : itemName
+      ? `Do you want to clone "${itemName}"? ${description}`
+      : `Do you want to clone this record? ${description}`
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -76,9 +88,20 @@ export function CloneConfirmation({
             <div className="text-blue-600">{fullDescription}</div>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="flex flex-row flex-wrap items-center gap-3 sm:justify-end">
+          {onBack ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="mr-auto"
+              onClick={handleBack}
+              disabled={isCloning}
+            >
+              {backLabel}
+            </Button>
+          ) : null}
           <AlertDialogCancel onClick={handleCancel} disabled={isCloning}>
-            Cancel
+            {cancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
@@ -86,7 +109,7 @@ export function CloneConfirmation({
             className="bg-blue-600 text-white hover:bg-blue-700"
           >
             {isCloning && <Spinner className="mr-2" size="sm" />}
-            {isCloning ? "Cloning..." : "Clone"}
+            {isCloning ? "Cloning..." : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -52,6 +52,7 @@ import {
   CompanyAutocomplete,
   CompanyCustomerAutocomplete,
 } from "@/components/autocomplete"
+import { CloneConfirmation } from "@/components/confirmation/clone-confirmation"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 
 import { ChecklistDetailsForm } from "./checklist-details-form"
@@ -59,6 +60,7 @@ import { ChecklistHistory } from "./checklist-history"
 import { ChecklistMain } from "./checklist-main"
 import { ChecklistLog } from "./checklist-timeline"
 import { TransportationLogTab } from "./checklist-transporationlog"
+import { CloneChecklistSelectDialog } from "./clone-checklist-select-dialog"
 import { DebitNoteItemsTable } from "./debit-note-items-table"
 
 interface ChecklistTabsProps {
@@ -115,6 +117,10 @@ export function ChecklistTabs({
   const [showCloneCompanyDialog, setShowCloneCompanyDialog] = useState(false)
   const [showCloneCompanyConfirmDialog, setShowCloneCompanyConfirmDialog] =
     useState(false)
+  const [showCloneSelectDialog, setShowCloneSelectDialog] = useState(false)
+  const [pendingCloneServiceKeys, setPendingCloneServiceKeys] = useState<
+    string[]
+  >([])
   const [isCloning, setIsCloning] = useState(false)
 
   // Clone Company Form Schema
@@ -346,6 +352,9 @@ export function ChecklistTabs({
         fromJobOrderId: currentJobData.jobOrderId,
         toCompanyId: formValues.companyId as number,
         toCustomerId: formValues.customerId,
+        ...(pendingCloneServiceKeys.length > 0
+          ? { selectedServiceKeys: pendingCloneServiceKeys.join(",") }
+          : {}),
       }
 
       const response = await apiClient.post(JobOrder.cloneChecklist, cloneData)
@@ -368,6 +377,8 @@ export function ChecklistTabs({
           // Close dialogs
           setShowCloneCompanyDialog(false)
           setShowCloneCompanyConfirmDialog(false)
+          setShowCloneSelectDialog(false)
+          setPendingCloneServiceKeys([])
           cloneCompanyForm.reset()
 
           // Create URL and open in new tab
@@ -943,43 +954,56 @@ export function ChecklistTabs({
                   toast.error("Please select both company and customer")
                   return
                 }
-                setShowCloneCompanyConfirmDialog(true)
+                setShowCloneCompanyDialog(false)
+                setShowCloneSelectDialog(true)
               }}
               disabled={isCloning}
             >
-              Clone
+              Next
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Clone Company Confirmation Dialog */}
-      <Dialog
+      <CloneChecklistSelectDialog
+        open={showCloneSelectDialog}
+        jobOrderId={currentJobData?.jobOrderId ?? 0}
+        initialSelectedKeys={pendingCloneServiceKeys}
+        onOpenChange={setShowCloneSelectDialog}
+        onBack={() => {
+          setShowCloneSelectDialog(false)
+          setShowCloneCompanyDialog(true)
+        }}
+        onNext={(keys) => {
+          setPendingCloneServiceKeys(keys)
+          setShowCloneSelectDialog(false)
+          setShowCloneCompanyConfirmDialog(true)
+        }}
+      />
+
+      <CloneConfirmation
         open={showCloneCompanyConfirmDialog}
-        onOpenChange={setShowCloneCompanyConfirmDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Clone</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to clone this job order to the selected
-              company? A new job order will be created and opened in a new tab.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowCloneCompanyConfirmDialog(false)}
-              disabled={isCloning}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCloneCompany} disabled={isCloning}>
-              {isCloning ? "Cloning..." : "Yes, Clone"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onOpenChange={(open) => {
+          setShowCloneCompanyConfirmDialog(open)
+          if (!open) setPendingCloneServiceKeys([])
+        }}
+        title="Confirm Clone"
+        skipDefaultPrompt
+        description={`Are you sure you want to clone this job order to the selected company${
+          pendingCloneServiceKeys.length > 0
+            ? ` with ${pendingCloneServiceKeys.length} service line(s)`
+            : ""
+        }? A new job order will be created and opened in a new tab.`}
+        onBack={() => {
+          setShowCloneCompanyConfirmDialog(false)
+          setShowCloneSelectDialog(true)
+        }}
+        onCancelAction={() => setPendingCloneServiceKeys([])}
+        onConfirm={handleCloneCompany}
+        isCloning={isCloning}
+        confirmLabel="Yes, Clone"
+        closeOnConfirm={false}
+      />
 
       {/* Debit Note Dialog */}
       <Dialog open={showDebitNoteDialog} onOpenChange={setShowDebitNoteDialog}>

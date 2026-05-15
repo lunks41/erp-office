@@ -85,14 +85,14 @@ export function CompanySwitcher() {
             <SidebarMenuButton
               size="lg"
               className={cn(
-                "transition-colors duration-200",
+                "h-auto min-h-14 py-2.5 transition-colors duration-200",
                 isLoading && "cursor-not-allowed opacity-50"
               )}
               disabled={isLoading}
             >
               <div
                 className={cn(
-                  "flex aspect-square size-8 items-center justify-center rounded-lg",
+                  "flex aspect-square size-10 shrink-0 items-center justify-center rounded-lg",
                   "bg-transparent"
                 )}
               >
@@ -103,8 +103,8 @@ export function CompanySwitcher() {
                     <Image
                       src={`/uploads/companies/${currentCompany.companyId}.svg`}
                       alt={currentCompany.companyName || "Company Logo"}
-                      width={32}
-                      height={32}
+                      width={40}
+                      height={40}
                       className="object-contain"
                       onError={(e) => {
                         // Hide the image on error and show the initial
@@ -120,11 +120,11 @@ export function CompanySwitcher() {
                   </>
                 )}
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid min-h-0 flex-1 gap-0.5 text-left text-sm leading-snug">
                 <span className="truncate font-medium">
                   {currentCompany.companyName || "Unknown Company"}
                 </span>
-                <span className="text-muted-foreground truncate text-xs">
+                <span className="text-muted-foreground truncate text-xs leading-snug">
                   {currentCompany.companyCode || "No Code"}
                 </span>
               </div>

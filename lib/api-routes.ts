@@ -1284,6 +1284,7 @@ export const JobOrder = {
   getTaskCount: "/operations/gettaskcount",
   getHistory: "/operations/getjoborderbyidhistory",
   cloneChecklist: "/operations/CloneChecklist",
+  getCloneChecklistServices: "/operations/GetCloneChecklistServices",
   cloneTaskChecklist: "/operations/CloneTaskFromChecklist",
   getAllCompanies: "/operations/getjoborderallcompanies", // Cross-company search
 }

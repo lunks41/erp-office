@@ -83,6 +83,8 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const reduceMotion = useReducedMotion()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const [userName, setUserName] = useState("")
   const [userPassword, setUserPassword] = useState("")
@@ -230,7 +232,7 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-0", className)} {...props}>
       <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+        initial={!mounted || reduceMotion ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
