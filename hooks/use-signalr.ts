@@ -9,7 +9,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
 export type SignalREventMap = {
   ReceiveNotification: (payload: { title: string; message: string; type: string; notificationId: number }) => void
   UnreadCount: (count: number) => void
-  ReceiveAnnouncement: (payload: { title: string; message: string }) => void
+  ReceiveAnnouncement: (payload: { title: string; message: string; isUrgent: boolean }) => void
+  ReceiveApprovalNotification: (payload: { title: string; message: string; approvalRequestId: number; isApproved?: boolean }) => void
   ForceLogout: (payload: { reason: string }) => void
 }
 
@@ -44,6 +45,9 @@ export function useSignalR(
     })
     connection.on("ReceiveAnnouncement", (payload) => {
       handlersRef.current?.ReceiveAnnouncement?.(payload)
+    })
+    connection.on("ReceiveApprovalNotification", (payload) => {
+      handlersRef.current?.ReceiveApprovalNotification?.(payload)
     })
     connection.on("ForceLogout", () => {
       forceLogout()

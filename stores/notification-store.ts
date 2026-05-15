@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-export type NotificationType = "success" | "error" | "info" | "warning"
+export type NotificationType = "success" | "error" | "info" | "warning" | "approval"
 
 export interface BackendNotification {
   notificationId: number
@@ -43,6 +43,7 @@ function typeFromString(t: string | undefined): NotificationType {
   if (lower.includes("error") || lower.includes("alert")) return "error"
   if (lower.includes("warn")) return "warning"
   if (lower.includes("success")) return "success"
+  if (lower.includes("approv")) return "approval"
   return "info"
 }
 

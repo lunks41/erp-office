@@ -123,9 +123,6 @@ export default function AnnouncementsPage() {
         isUrgent: form.isUrgent,
         validFrom: form.validFrom ? new Date(form.validFrom).toISOString() : null,
         validTo: form.validTo ? new Date(form.validTo).toISOString() : null,
-        // API contract expects these fields even for broadcast announcements.
-        targetUserIds: [] as number[],
-        tags: [] as string[],
       }
       if (editId) {
         await apiClient.post(`/notifications/UpdateAnnouncement/${editId}`, payload)

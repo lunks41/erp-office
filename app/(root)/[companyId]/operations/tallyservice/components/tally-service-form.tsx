@@ -652,12 +652,6 @@ export function TallyServiceForm({
                 label="Boat Operator"
                 isDisabled={isReadOnly}
               />
-              <CustomInput
-                form={form}
-                name="invoiceNo"
-                label="Invoice No"
-                isDisabled={isReadOnly}
-              />
               <CustomNumberInput
                 form={form}
                 name="deliveredWeight"

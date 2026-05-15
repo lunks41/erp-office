@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { Bell, CheckCheck, Info, AlertTriangle, AlertCircle } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Bell, CheckCheck, Info, AlertTriangle, AlertCircle, ClipboardCheck } from "lucide-react"
 import { useNotificationStore } from "@/stores/notification-store"
 import { useAuthStore } from "@/stores/auth-store"
 import { useSignalR } from "@/hooks/use-signalr"
@@ -23,13 +23,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
-type NotifType = "success" | "error" | "info" | "warning"
+type NotifType = "success" | "error" | "info" | "warning" | "approval"
 
 const TYPE_CONFIG: Record<NotifType, { icon: React.ComponentType<{ className?: string }>; iconClass: string; dotClass: string; bgClass: string }> = {
-  error:   { icon: AlertCircle,   iconClass: "text-red-500",     dotClass: "bg-red-500",     bgClass: "bg-red-50 dark:bg-red-950/30" },
-  warning: { icon: AlertTriangle, iconClass: "text-amber-500",   dotClass: "bg-amber-500",   bgClass: "bg-amber-50 dark:bg-amber-950/30" },
-  info:    { icon: Info,          iconClass: "text-blue-500",    dotClass: "bg-blue-500",    bgClass: "bg-blue-50 dark:bg-blue-950/30" },
-  success: { icon: Info,          iconClass: "text-emerald-500", dotClass: "bg-emerald-500", bgClass: "bg-emerald-50 dark:bg-emerald-950/30" },
+  error:    { icon: AlertCircle,    iconClass: "text-red-500",      dotClass: "bg-red-500",      bgClass: "bg-red-50 dark:bg-red-950/30" },
+  warning:  { icon: AlertTriangle,  iconClass: "text-amber-500",    dotClass: "bg-amber-500",    bgClass: "bg-amber-50 dark:bg-amber-950/30" },
+  info:     { icon: Info,           iconClass: "text-blue-500",     dotClass: "bg-blue-500",     bgClass: "bg-blue-50 dark:bg-blue-950/30" },
+  success:  { icon: Info,           iconClass: "text-emerald-500",  dotClass: "bg-emerald-500",  bgClass: "bg-emerald-50 dark:bg-emerald-950/30" },
+  approval: { icon: ClipboardCheck, iconClass: "text-violet-500",   dotClass: "bg-violet-500",   bgClass: "bg-violet-50 dark:bg-violet-950/30" },
 }
 
 function formatRelative(ts: number) {
@@ -45,8 +46,19 @@ function formatRelative(ts: number) {
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
+  const [ringing, setRinging] = useState(false)
+  const prevUnread = useRef(0)
   const { history, unreadCount, markRead, markAllRead, addFromServer, setFromServer, setUnreadCount } = useNotificationStore()
   const { isAuthenticated, _hasHydrated } = useAuthStore()
+
+  useEffect(() => {
+    if (unreadCount > prevUnread.current) {
+      setRinging(true)
+      const t = setTimeout(() => setRinging(false), 2000)
+      return () => clearTimeout(t)
+    }
+    prevUnread.current = unreadCount
+  }, [unreadCount])
 
   // Fetch from backend only after hydration + authenticated — prevents premature
   // calls that would trigger forceLogout before session cookies are verified
@@ -90,6 +102,17 @@ export function NotificationBell() {
         readOn: null,
       })
     },
+    ReceiveApprovalNotification: (payload) => {
+      addFromServer({
+        notificationId: payload.approvalRequestId,
+        title: payload.title,
+        message: payload.message,
+        notificationType: "approval",
+        createdDate: new Date().toISOString(),
+        isRead: false,
+        readOn: null,
+      })
+    },
     UnreadCount: (count) => setUnreadCount(count),
   })
 
@@ -104,7 +127,7 @@ export function NotificationBell() {
           title="Notifications"
           aria-label="Notifications"
         >
-          <Bell className={COMPANY_HEADER_UTILITY_ICON} />
+          <Bell className={`${COMPANY_HEADER_UTILITY_ICON} ${ringing ? "animate-bounce" : ""}`} />
           {unreadCount > 0 && (
             <span
               className={`${COMPANY_HEADER_UTILITY_COUNT_BADGE} bg-red-500 text-white`}
