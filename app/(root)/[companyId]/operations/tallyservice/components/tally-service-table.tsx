@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react"
 import { ITallyService } from "@/interfaces"
+import { openTallyServiceTab } from "./tally-service-utils"
 import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
@@ -12,9 +13,11 @@ import { Badge } from "@/components/ui/badge"
 import { MainTable } from "@/components/table/table-main"
 
 interface TallyServiceTableProps {
+  companyId: string
   data: ITallyService[]
   isLoading?: boolean
   totalRecords?: number
+  onOpenRecord?: (item: ITallyService) => void
   onDeleteAction?: (item: ITallyService) => void
   onEditAction?: (item: ITallyService) => void
   onRefreshAction?: () => void
@@ -31,7 +34,6 @@ interface TallyServiceTableProps {
   canDelete?: boolean
   canView?: boolean
   canCreate?: boolean
-  onSelect?: (item: ITallyService | null) => void
   onCreateAction?: () => void
 }
 
@@ -42,9 +44,11 @@ function formatDuration(value?: number | null): string {
 }
 
 export function TallyServiceTable({
+  companyId,
   data,
   isLoading = false,
   totalRecords,
+  onOpenRecord,
   onDeleteAction,
   onEditAction,
   onRefreshAction,
@@ -61,7 +65,6 @@ export function TallyServiceTable({
   canDelete = true,
   canView = true,
   canCreate = true,
-  onSelect,
   onCreateAction,
 }: TallyServiceTableProps) {
   const { decimals } = useCompanyStore()
@@ -103,12 +106,56 @@ export function TallyServiceTable({
     [dateFormat, datetimeFormat]
   )
 
+  const openRecord = useCallback(
+    (item: ITallyService) => {
+      if (onOpenRecord) {
+        onOpenRecord(item)
+        return
+      }
+      openTallyServiceTab(companyId, item.tallyServiceId)
+    },
+    [companyId, onOpenRecord]
+  )
+
   const columns: ColumnDef<ITallyService>[] = useMemo(
     () => [
+      {
+        accessorKey: "tallyServiceId",
+        header: "Tally #",
+        cell: ({ row }) => {
+          const id = row.original.tallyServiceId
+          const label = row.original.receiptNo || `#${id}`
+          return (
+            <button
+              type="button"
+              onClick={() => openRecord(row.original)}
+              className="text-muted-foreground hover:text-primary hover:underline"
+            >
+              {label}
+            </button>
+          )
+        },
+        size: 140,
+      },
       {
         accessorKey: "date",
         header: "Service Date",
         cell: ({ row }) => formatDateValue(row.getValue("date")),
+        size: 120,
+      },
+      {
+        accessorKey: "customerName",
+        header: "Customer",
+        size: 180,
+      },
+      {
+        accessorKey: "vesselName",
+        header: "Vessel",
+        size: 150,
+      },
+      {
+        accessorKey: "portName",
+        header: "Port",
         size: 120,
       },
       {
@@ -118,11 +165,11 @@ export function TallyServiceTable({
         size: 120,
       },
       {
-        accessorKey: "taskStatusName",
+        accessorKey: "jobStatusName",
         header: "Status",
         cell: ({ row }) => (
           <Badge variant="secondary">
-            {row.getValue("taskStatusName") || "-"}
+            {row.getValue("jobStatusName") || "-"}
           </Badge>
         ),
         size: 130,
@@ -176,12 +223,6 @@ export function TallyServiceTable({
         accessorKey: "boatOperator",
         header: "Boat Operator",
         size: 160,
-      },
-      {
-        accessorKey: "distance",
-        header: "Distance",
-        cell: ({ row }) => row.getValue("distance") || "-",
-        size: 110,
       },
       {
         accessorKey: "loadingTime",
@@ -264,11 +305,6 @@ export function TallyServiceTable({
         size: 100,
       },
       {
-        accessorKey: "poNo",
-        header: "PO No",
-        size: 130,
-      },
-      {
         accessorKey: "remarks",
         header: "Remarks",
         size: 220,
@@ -296,7 +332,7 @@ export function TallyServiceTable({
         size: 180,
       },
     ],
-    [formatDateTimeValue, formatDateValue]
+    [formatDateTimeValue, formatDateValue, openRecord]
   )
 
   const handleDelete = (tallyServiceId: string) => {
@@ -327,7 +363,6 @@ export function TallyServiceTable({
       currentPage={currentPage}
       pageSize={pageSize}
       serverSidePagination={serverSidePagination}
-      onSelect={onSelect}
       onCreateAction={onCreateAction}
       onEditAction={onEditAction}
       onDeleteAction={handleDelete}

@@ -2,9 +2,47 @@ export interface ITallyService {
   companyId: number
   tallyServiceId: number
   date: Date | string
-  /** Optional alias in case the backend uses a more explicit field name. */
   serviceDate?: Date | string | null
   accountDate?: Date | string | null
+  customerId?: number | null
+  customerCode?: string | null
+  customerName?: string | null
+  currencyId?: number | null
+  currencyCode?: string | null
+  currencyName?: string | null
+  exhRate?: number | null
+  vesselId?: number | null
+  vesselName?: string | null
+  imoCode?: string | null
+  vesselDistance?: number | null
+  portId?: number | null
+  portName?: string | null
+  addressId?: number | null
+  contactId?: number | null
+  isTaxable?: boolean
+  gstId?: number | null
+  gstName?: string | null
+  gstPercentage?: number | null
+  isActive?: boolean
+  isClose?: boolean
+  isPost?: boolean
+  isCancel?: boolean
+  cancelById?: number | null
+  cancelDate?: Date | string | null
+  cancelRemarks?: string | null
+  billName?: string | null
+  address1?: string | null
+  address2?: string | null
+  address3?: string | null
+  address4?: string | null
+  pinCode?: string | null
+  countryId?: number | null
+  countryName?: string | null
+  phoneNo?: string | null
+  faxNo?: string | null
+  contactName?: string | null
+  mobileNo?: string | null
+  emailAdd?: string | null
   chargeId: number
   chargeName?: string | null
   bargeId: number
@@ -18,7 +56,6 @@ export interface ITallyService {
   ameTally?: string | null
   boatopTally?: string | null
   boatOperator?: string | null
-  distance?: number | null
   loadingTime?: Date | string | null
   leftJetty?: Date | string | null
   waitingTime?: number | null
@@ -31,10 +68,8 @@ export interface ITallyService {
   annexure?: string | null
   invoiceId?: number | null
   invoiceNo?: string | null
-  poNo?: string | null
-  isPost?: boolean
-  taskStatusId: number
-  taskStatusName?: string | null
+  jobStatusId: number
+  jobStatusName?: string | null
   remarks?: string | null
   createById: number
   createDate: Date | string
