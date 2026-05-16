@@ -148,6 +148,11 @@ const CATEGORY_CONFIG: Record<
     label: "Agency Remuneration",
     taskId: Task.AgencyRemuneration,
   },
+  transportation: {
+    id: "transportation",
+    label: "Transportation",
+    taskId: Task.Transportation,
+  },
 }
 
 /** Bulk tariff APIs return result > 0 (often a count), not always exactly 1. */
@@ -315,6 +320,7 @@ export default function TariffPage() {
         toLocationId: tariff.toLocationId ?? null,
         isPrepayment: tariff.isPrepayment || false,
         prepaymentPercentage: tariff.prepaymentPercentage || 0,
+        isViceVersa: tariff.isViceVersa || false,
         itemNo: null,
         remarks: tariff.remarks || null,
         isActive: tariff.isActive ?? true,
@@ -1056,6 +1062,7 @@ export default function TariffPage() {
         [Task.LandingItems]: "landingItems",
         [Task.OtherService]: "otherService",
         [Task.AgencyRemuneration]: "agencyRemuneration",
+        [Task.Transportation]: "transportation",
       }
 
       const propertyName = taskCountMap[config.taskId as number]

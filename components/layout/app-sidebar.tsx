@@ -997,11 +997,11 @@ export const menuData: { mainNav: MainNavItem[] } = {
       url: "/notifications",
       icon: Bell,
     },
-    // {
-    //   title: "Approvals",
-    //   url: "/approvals",
-    //   icon: ShieldCheck,
-    // },
+    {
+      title: "Approvals",
+      url: "/approvals/pending",
+      icon: ShieldCheck,
+    },
   ],
 }
 

@@ -102,6 +102,17 @@ export function NotificationBell() {
         readOn: null,
       })
     },
+    ReceiveAnnouncement: (payload) => {
+      addFromServer({
+        notificationId: Date.now(),
+        title: payload.title,
+        message: payload.message,
+        notificationType: payload.isUrgent ? "warning" : "info",
+        createdDate: new Date().toISOString(),
+        isRead: false,
+        readOn: null,
+      })
+    },
     ReceiveApprovalNotification: (payload) => {
       addFromServer({
         notificationId: payload.approvalRequestId,

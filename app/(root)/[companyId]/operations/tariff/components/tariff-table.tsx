@@ -104,6 +104,20 @@ export function TariffTable({
       size: 120,
     },
     {
+      accessorKey: "isViceVersa",
+      header: "Vice Versa",
+      cell: ({ row }) => (
+        <div className="flex justify-center overflow-hidden">
+          {row.getValue("isViceVersa") ? (
+            <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+          ) : (
+            <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+          )}
+        </div>
+      ),
+      size: 90,
+    },
+    {
       accessorKey: "displayRate",
       header: "Display Rate",
       cell: ({ row }) => (

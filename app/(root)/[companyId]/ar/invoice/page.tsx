@@ -25,6 +25,7 @@ import {
 } from "@/schemas"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
+import { useNotificationStore } from "@/stores/notification-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -93,6 +94,7 @@ export default function InvoicePage() {
   const { hasPermission } = usePermissionStore()
   const { user } = useAuthStore()
   const { decimals } = useCompanyStore()
+  const { add: addNotification } = useNotificationStore()
   const { defaults } = useUserSettingDefaults()
   const pageSize = defaults?.common?.trnGridTotalRecords || 100
 
@@ -780,18 +782,20 @@ export default function InvoicePage() {
       })
 
       if (response.result === 1) {
+        const msg = `Invoice ${invoice.invoiceNo} cancelled successfully`
         setInvoice(null)
         setSearchNo("") // Clear search input
         form.reset({
           ...defaultInvoiceValues,
           data_details: [],
         })
-        toast.success(`Invoice ${invoice.invoiceNo} deleted successfully`)
+        setTimeout(() => addNotification(msg, "info"), 0)
         // Data refresh handled by InvoiceTable component
       } else {
         toast.error(response.message || "Failed to delete invoice")
       }
-    } catch {
+    } catch (err) {
+      console.error("handleInvoiceDelete error:", err)
       toast.error("Network error while deleting invoice")
     }
   }
@@ -805,7 +809,8 @@ export default function InvoicePage() {
       })
 
       if (response.result === 1) {
-        toast.success(`Invoice ${invoice.invoiceNo} unposted successfully`)
+        const msg = `Invoice ${invoice.invoiceNo} unposted successfully`
+        addNotification(msg, "info")
 
         const detailedInvoice = Array.isArray(response.data)
           ? response.data[0]
@@ -1479,6 +1484,25 @@ export default function InvoicePage() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {!isCancelled && invoice?.appStatusId === 1 && (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-400" />
+                  Pending Approval
+                </span>
+              )}
+              {!isCancelled && invoice?.appStatusId === 2 && (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-400" />
+                  Approved
+                </span>
+              )}
+              {!isCancelled && invoice?.appStatusId === 3 && (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+                  Rejected
+                </span>
               )}
 
               {!isCancelled && paymentStatus === "Not Paid" && (

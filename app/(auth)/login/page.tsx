@@ -49,9 +49,9 @@ export default function LoginPage() {
       {/* Right: glassmorphism form — full-width on mobile, 42% on lg+ */}
       <motion.div
         className="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 sm:px-10 lg:w-[42%] xl:w-[40%]"
-        initial={reduceMotion ? false : { opacity: 0 }}
+        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.5, ease: "easeOut" }}
       >
         <LoginForm className="w-full max-w-[420px]" />
       </motion.div>

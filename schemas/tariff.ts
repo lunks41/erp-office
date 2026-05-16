@@ -30,6 +30,7 @@ export const tariffSchema = z
     additionalRate: z.number().optional(),
     prepaymentPercentage: z.number().optional(),
     isPrepayment: z.boolean(),
+    isViceVersa: z.boolean(),
     seqNo: z.number().optional(),
     isDefault: z.boolean(),
     remarks: z.string().optional(),
@@ -109,6 +110,7 @@ export const tariffHdSchema = z
     prepaymentPercentage: z
       .number()
       .min(0, "Prepayment Percentage must be 0 or greater"),
+    isViceVersa: z.boolean(),
     itemNo: z.number().nullable().optional(),
     remarks: z
       .string()

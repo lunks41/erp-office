@@ -25,24 +25,33 @@ export function ForgotPasswordForm({
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
     try {
-      // Replace with your actual password reset function
-      // await requestPasswordReset(email)
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
 
-      // For demo, we'll just show success message
-      setTimeout(() => {
-        setSuccess(true)
-        setIsLoading(false)
-      }, 1000)
-    } catch (error) {
-      console.error("Password reset error:", error)
-      setError("Failed to send reset instructions. Please try again.")
+      const data = await response.json()
+
+      if (!response.ok || data.result === -1) {
+        throw new Error(data.message || "Failed to send reset instructions.")
+      }
+
+      setSuccess(true)
+    } catch (err) {
+      console.error("Password reset error:", err)
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to send reset instructions. Please try again."
+      )
+    } finally {
       setIsLoading(false)
     }
   }

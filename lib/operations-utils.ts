@@ -23,6 +23,7 @@ export enum Task {
   LandingItems = 13,
   OtherService = 14,
   AgencyRemuneration = 15,
+  Transportation = 16,
 }
 
 // Helper function to get task name by task ID
@@ -49,4 +50,5 @@ export const TaskIdToName: Record<number, string> = {
   [Task.LandingItems]: "Landing Items",
   [Task.OtherService]: "Other Service",
   [Task.AgencyRemuneration]: "Agency Remuneration",
+  [Task.Transportation]: "Transportation",
 }

@@ -56,7 +56,6 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 
 const SECTION_CARD_CLASS = "rounded-lg border px-4 pb-4 pt-5"
 const SECTION_HEADER_ROW_CLASS = "mb-1 flex flex-wrap items-center gap-2"
-const SECTION_DIVIDER_CLASS = "mb-2 border-b border-gray-200"
 const SECTION_BODY_CLASS = "pt-1"
 const SECTION_HEADER_BADGE_CLASS =
   "px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition-colors duration-200"
@@ -532,7 +531,6 @@ export function TallyServiceForm({
                 ⚓ Tally Service Details
               </Badge>
             </div>
-            <div className={SECTION_DIVIDER_CLASS} />
             <div className={`grid grid-cols-8 gap-2 ${SECTION_BODY_CLASS}`}>
               <CustomDateNew
                 form={form}
@@ -759,7 +757,6 @@ export function TallyServiceForm({
                   💰 Accounts
                 </Badge>
               </div>
-              <div className={SECTION_DIVIDER_CLASS} />
               <div className={`grid grid-cols-2 gap-2 ${SECTION_BODY_CLASS}`}>
                 <CurrencyAutocomplete
                   form={form}
@@ -881,7 +878,7 @@ export function TallyServiceForm({
                     📍 Address Details
                   </Badge>
                 </div>
-                <div className={SECTION_DIVIDER_CLASS} />
+
                 <div className={`grid gap-2 ${SECTION_BODY_CLASS}`}>
                   <CustomInput
                     form={form}
@@ -952,7 +949,7 @@ export function TallyServiceForm({
                     👤 Contact Details
                   </Badge>
                 </div>
-                <div className={SECTION_DIVIDER_CLASS} />
+
                 <div className={`grid gap-2 ${SECTION_BODY_CLASS}`}>
                   <CustomInput
                     form={form}

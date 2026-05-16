@@ -24,8 +24,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+
+interface UserOption {
+  userId: number
+  userName: string
+}
 
 interface ApprovalSetup {
   processId: number
@@ -63,12 +75,21 @@ const emptyForm: SetupForm = {
 
 export default function ApprovalsAdminPage() {
   const [items, setItems] = useState<ApprovalSetup[]>([])
+  const [users, setUsers] = useState<UserOption[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [editId, setEditId] = useState<number | null>(null)
   const [form, setForm] = useState<SetupForm>(emptyForm)
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await apiClient.get("/Admin/GetUser?pageNumber=1&pageSize=200")
+      const data = res.data?.data ?? res.data?.items ?? []
+      setUsers(data.map((u: { userId: number; userName: string }) => ({ userId: u.userId, userName: u.userName })))
+    } catch { /* silent */ }
+  }, [])
 
   const fetchSetups = useCallback(async () => {
     setIsLoading(true)
@@ -84,7 +105,7 @@ export default function ApprovalsAdminPage() {
     }
   }, [])
 
-  useEffect(() => { fetchSetups() }, [fetchSetups])
+  useEffect(() => { fetchSetups(); fetchUsers() }, [fetchSetups, fetchUsers])
 
   const openCreate = () => {
     setEditId(null)
@@ -305,16 +326,22 @@ export default function ApprovalsAdminPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ap-approver">
-                Approver User ID <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="ap-approver"
-                type="number"
-                placeholder="User ID"
+              <Label>Approver <span className="text-destructive">*</span></Label>
+              <Select
                 value={form.approverId}
-                onChange={(e) => setForm((f) => ({ ...f, approverId: e.target.value }))}
-              />
+                onValueChange={(v) => setForm((f) => ({ ...f, approverId: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select approver..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((u) => (
+                    <SelectItem key={u.userId} value={String(u.userId)}>
+                      {u.userName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

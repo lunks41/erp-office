@@ -838,6 +838,7 @@ export interface ITaskDetails {
   landingItems: number
   otherService: number
   agencyRemuneration: number
+  transportation: number
 }
 
 export interface IDebitNoteData {

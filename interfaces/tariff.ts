@@ -20,6 +20,7 @@ export interface ITariffHd {
   toLocationId?: number | null
   isPrepayment: boolean
   prepaymentPercentage: number
+  isViceVersa: boolean
   itemNo?: number | null
   remarks?: string | null
   isActive: boolean
@@ -86,6 +87,7 @@ export interface ITariff {
   additionalRate?: number
   prepaymentPercentage?: number
   isPrepayment: boolean
+  isViceVersa?: boolean
   seqNo?: number
   isDefault: boolean
   remarks?: string

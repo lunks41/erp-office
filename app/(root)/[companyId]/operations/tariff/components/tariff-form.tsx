@@ -110,6 +110,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         toLocationId: initialData?.toLocationId || null,
         prepaymentPercentage: initialData?.prepaymentPercentage || 0,
         isPrepayment: initialData?.isPrepayment || false,
+        isViceVersa: initialData?.isViceVersa || false,
         itemNo: initialData?.itemNo || null,
         remarks: initialData?.remarks || null,
         isActive: initialData?.isActive ?? true,
@@ -184,6 +185,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           toLocationId: initialData.toLocationId || null,
           prepaymentPercentage: initialData.prepaymentPercentage || 0,
           isPrepayment: initialData.isPrepayment || false,
+          isViceVersa: initialData.isViceVersa || false,
           itemNo: initialData.itemNo || null,
           remarks: initialData.remarks || null,
           isActive: initialData.isActive ?? true,
@@ -220,6 +222,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           toLocationId: null,
           prepaymentPercentage: 0,
           isPrepayment: false,
+          isViceVersa: false,
           itemNo: null,
           remarks: null,
           isActive: true,
@@ -306,6 +309,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         isPrepayment: formValues.isPrepayment ?? data.isPrepayment,
         prepaymentPercentage:
           formValues.prepaymentPercentage ?? data.prepaymentPercentage,
+        isViceVersa: formValues.isViceVersa ?? data.isViceVersa,
         itemNo: formValues.itemNo ?? data.itemNo ?? null,
         remarks: formValues.remarks ?? data.remarks ?? null,
         isActive: formValues.isActive ?? data.isActive,
@@ -496,6 +500,14 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                   form={form}
                   name="toLocationId"
                   label="To Location"
+                  isDisabled={mode === "view"}
+                />
+              </div>
+              <div className="col-span-1">
+                <CustomSwitch
+                  form={form}
+                  name="isViceVersa"
+                  label="Vice Versa"
                   isDisabled={mode === "view"}
                 />
               </div>

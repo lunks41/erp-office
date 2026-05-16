@@ -276,9 +276,9 @@ export default function CompanySelectPage() {
       <Shell>
         <motion.div
           className="text-center"
-          initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: reduceMotion ? 0 : 0.4 }}
         >
           <div
             className="flex flex-col items-center gap-5 rounded-3xl px-12 py-12"
@@ -329,9 +329,9 @@ export default function CompanySelectPage() {
       <Shell>
         <motion.div
           className="w-full max-w-md"
-          initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
+          transition={{ duration: reduceMotion ? 0 : 0.45 }}
         >
           <div className="overflow-hidden rounded-3xl" style={CARD_STYLE}>
             {/* Header */}
@@ -386,9 +386,9 @@ export default function CompanySelectPage() {
     <Shell>
       <motion.div
         className="w-full max-w-3xl"
-        initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="overflow-hidden rounded-3xl" style={CARD_STYLE}>
           {/* ── Card header ── */}
@@ -485,11 +485,11 @@ export default function CompanySelectPage() {
                 return (
                   <motion.div
                     key={company.companyId}
-                    initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
                       delay: reduceMotion ? 0 : index * 0.055,
-                      duration: 0.38,
+                      duration: reduceMotion ? 0 : 0.38,
                       ease: [0.22, 1, 0.36, 1],
                     }}
                   >

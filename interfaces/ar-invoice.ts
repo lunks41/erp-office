@@ -172,4 +172,5 @@ export interface IArInvoiceDt {
   apInvoiceNo: string
   suppInvoiceNo: string
   editVersion: number
+  approvalStatus?: string | null
 }
