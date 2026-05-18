@@ -59,7 +59,7 @@ export default function AdminReportCategoryPage() {
     }
 
   const gridData: IReportCategory[] = useMemo(
-    () => listRaw ?? [],
+    () => (Array.isArray(listRaw) ? listRaw : []),
     [listRaw]
   )
 

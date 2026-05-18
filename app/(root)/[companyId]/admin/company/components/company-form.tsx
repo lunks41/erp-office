@@ -14,7 +14,7 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 const defaultValues: CompanySchemaType = {
   companyId: 0,
@@ -30,6 +30,7 @@ const defaultValues: CompanySchemaType = {
   isActive: true,
   currencyId: 0,
   peppolId: "",
+  navColor: "",
 }
 
 interface CompanyFormProps {
@@ -67,6 +68,7 @@ export function CompanyForm({
           isActive: initialData.isActive ?? true,
           currencyId: initialData.currencyId ?? 0,
           peppolId: initialData.peppolId ?? "",
+          navColor: initialData.navColor ?? "",
         }
       : defaultValues,
   })
@@ -88,6 +90,7 @@ export function CompanyForm({
             isActive: initialData.isActive ?? true,
             currencyId: initialData.currencyId ?? 0,
             peppolId: initialData.peppolId ?? "",
+            navColor: initialData.navColor ?? "",
           }
         : defaultValues
     )
@@ -169,12 +172,41 @@ export function CompanyForm({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               <CustomInput
                 form={form}
                 name="peppolId"
                 label="Peppol ID"
                 isDisabled={isReadOnly}
+              />
+              <FormField
+                control={form.control}
+                name="navColor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nav Bar Color</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          disabled={isReadOnly}
+                          value={field.value || "#ffffff"}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="h-9 w-10 cursor-pointer rounded border border-input bg-transparent p-1 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                        <input
+                          type="text"
+                          disabled={isReadOnly}
+                          placeholder="#ffffff"
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
               <CustomSwitch
                 form={form}

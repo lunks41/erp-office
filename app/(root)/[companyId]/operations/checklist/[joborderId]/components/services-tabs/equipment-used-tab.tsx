@@ -1,12 +1,17 @@
 ﻿"use client"
 
 import { useCallback, useMemo, useState } from "react"
+import {
+  defaultEquipmentUsedDetailRows,
+  mapEquipmentUsedDetailsForSave,
+  type EquipmentUsedDetailFormValues,
+} from "@/helpers/equipment-used-details"
 import { ApiResponse } from "@/interfaces/auth"
 import {
   IDebitNoteData,
   IDebitNoteHd,
-  IJobOrderHd,
   IEquipmentUsed,
+  IJobOrderHd,
 } from "@/interfaces/checklist"
 import { EquipmentUsedSchemaType } from "@/schemas/checklist"
 import { usePermissionStore } from "@/stores/permission-store"
@@ -22,7 +27,6 @@ import {
   JobOrder_DebitNote,
   JobOrder_EquipmentUsed,
 } from "@/lib/api-routes"
-import { defaultEquipmentUsedDetailRows } from "@/helpers/equipment-used-details"
 import { formatDateForApi } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
 import { ModuleId, OperationsTransactionId } from "@/lib/utils"
@@ -359,20 +363,47 @@ export function EquipmentUsedTab({
   const handleSubmit = useCallback(
     async (formData: EquipmentUsedSchemaType) => {
       try {
+        const headerEquipmentUsedId =
+          modalMode === "edit" && selectedItem
+            ? selectedItem.equipmentUsedId
+            : (formData.equipmentUsedId ?? 0)
+
         const processedData = {
           ...formData,
-          date: formatDateForApi(formData.date) || undefined,
+          equipmentUsedId: headerEquipmentUsedId,
+          details: mapEquipmentUsedDetailsForSave(
+            (formData.details ?? []).map(
+              (d): EquipmentUsedDetailFormValues => ({
+                ...d,
+                date: formatDateForApi(d.date) ?? "",
+                referenceNo: (d.referenceNo ?? "").trim(),
+              })
+            ),
+            {
+              equipmentUsedId: headerEquipmentUsedId,
+              jobOrderId: formData.jobOrderId,
+            }
+          ),
         }
         const submitData = { ...processedData, ...jobDataProps }
+
+        const detailsForApi = submitData.details.map((d) => ({
+          ...d,
+          date: d.date || "",
+        }))
 
         let response
         if (modalMode === "edit" && selectedItem) {
           response = await updateMutation.mutateAsync({
             ...submitData,
             equipmentUsedId: selectedItem.equipmentUsedId,
+            details: detailsForApi,
           })
         } else {
-          response = await saveMutation.mutateAsync(submitData)
+          response = await saveMutation.mutateAsync({
+            ...submitData,
+            details: detailsForApi,
+          })
         }
 
         // Check if API response indicates success (result=1)
@@ -694,7 +725,7 @@ export function EquipmentUsedTab({
       </div>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[85vh] w-[95vw] !max-w-[1400px] overflow-x-hidden overflow-y-auto"
+          className="max-h-[85vh] w-[90vw] max-w-none! overflow-x-hidden overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}
@@ -715,7 +746,7 @@ export function EquipmentUsedTab({
                     ? "border-green-200 bg-green-100 text-green-800"
                     : modalMode === "edit"
                       ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-border bg-blue-100 text-primary"
+                      : "border-border text-primary bg-blue-100"
                 }
               >
                 {modalMode === "create"
@@ -865,7 +896,6 @@ export function EquipmentUsedTab({
             craneOffloading: 0,
             forkliftOffloading: 0,
             stevedoreOffloading: 0,
-            date: formatDateForApi(src.date) || "",
             ...jobDataProps,
           }
           const response = await saveMutation.mutateAsync(submitData)
@@ -990,9 +1020,9 @@ export function EquipmentUsedTab({
           <DialogHeader>
             <DialogTitle>Confirm Clone</DialogTitle>
             <DialogDescription>
-                Are you sure you want to clone {selectedItems.length} equipment used
-              used(s) to the selected company and job order? This action will
-              create new records in the target job order.
+              Are you sure you want to clone {selectedItems.length} equipment
+              used used(s) to the selected company and job order? This action
+              will create new records in the target job order.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

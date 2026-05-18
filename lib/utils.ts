@@ -183,8 +183,8 @@ export enum AdminTransactionId {
   transactionRecovery = 13,
   checklistOverrides = 14,
   sessions = 15,
-  /** TransactionCode reportCategory — route `/admin/reportcategory` */
-  reportcategory = 16,
+  /** Report category — align with backend E_Admin.AdmReportCategory (15) */
+  reportCategory = 16,
   reports = 17,
   userGroupReportRights = 18,
   userGroupHierarchy = 19,

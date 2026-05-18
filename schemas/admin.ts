@@ -124,6 +124,11 @@ export const companySchema = z.object({
     .string()
     .max(100, { message: "Peppol ID must be less than 100 characters" })
     .optional(),
+  navColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, { message: "Must be a valid hex color (e.g. #1a2b3c)" })
+    .optional()
+    .or(z.literal("")),
 })
 
 export type CompanySchemaType = z.infer<typeof companySchema>

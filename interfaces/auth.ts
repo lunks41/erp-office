@@ -23,6 +23,7 @@ export interface ICompany {
   companyId: string
   companyName: string
   companyCode: string
+  navColor?: string | null
 }
 
 export interface IDecimal {

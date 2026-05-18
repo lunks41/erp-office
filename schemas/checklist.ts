@@ -589,11 +589,10 @@ export type LaunchServiceSchemaType = z.infer<typeof LaunchServiceSchema>
 
 export const EquipmentUsedDetailSchema = z.object({
   itemNo: z.number().optional(),
-  companyId: z.number().optional(),
-  jobOrderId: z.number().optional(),
   equipmentUsedId: z.number().optional(),
-  /** false = Loading, true = Offloading (matches `Ser_EquipmentUsedDt.IsOffloading`). */
   isOffloading: z.boolean(),
+  date: z.string().min(1, "Date is required"),
+  referenceNo: z.string().max(20).optional(),
   tallySheetNo: z.string().optional(),
   crane: z.number().optional(),
   forklift: z.number().optional(),
@@ -604,49 +603,49 @@ export type EquipmentUsedDetailSchemaType = z.infer<
   typeof EquipmentUsedDetailSchema
 >
 
-export const EquipmentUsedSchema = z.object({
-  equipmentUsedId: z.number(),
-  date: z.string().min(1, "Date is required"),
-  referenceNo: z.string().min(1, "Reference Number is required"),
-  jobOrderId: z.number().min(1, "Job Order ID is required"),
-  jobOrderNo: z.string().min(1, "Job Order No is required"),
-  taskId: z.number().min(1, "Task ID is required"),
-  chargeId: z.number().min(1, "Charge is required"),
+export const EquipmentUsedSchema = z
+  .object({
+    equipmentUsedId: z.number(),
+    jobOrderId: z.number().min(1, "Job Order ID is required"),
+    jobOrderNo: z.string().min(1, "Job Order No is required"),
+    taskId: z.number().min(1, "Task ID is required"),
+    chargeId: z.number().min(1, "Charge is required"),
 
-  mafi: z.string().optional(),
-  others: z.string().optional(),
-  providerName: z.string().optional(),
-  gear: z.number().optional(),
-  bargeId: z.number().optional(),
-  ameTally: z.string().optional(),
-  // Legacy summary line fields retained for compatibility with old screens/helpers.
-  loadingRefNo: z.string().optional(),
-  craneloading: z.number().optional(),
-  forkliftloading: z.number().optional(),
-  stevedoreloading: z.number().optional(),
-  offloadingRefNo: z.string().optional(),
-  craneOffloading: z.number().optional(),
-  forkliftOffloading: z.number().optional(),
-  stevedoreOffloading: z.number().optional(),
-  /** UI-only section toggle for loading lines. */
-  isLoading: z.boolean().optional(),
-  /** UI-only section toggle for offloading lines. */
-  isOffloading: z.boolean().optional(),
-  /** Line items for `Ser_EquipmentUsedDt`. */
-  details: z.array(EquipmentUsedDetailSchema).optional(),
-  remarks: z
-    .string()
-    .max(500, "Remarks must be less than 500 characters")
-    .optional()
-    .optional(),
-  taskStatusId: z.number().min(1, "Status is required"),
-  isNotes: z.boolean(),
-  notes: z.string().optional(),
-  debitNoteId: z.number().optional(),
-  debitNoteNo: z.string().optional(),
-  poNo: z.string().optional(),
-  editVersion: z.number(),
-})
+    mafi: z.string().optional(),
+    others: z.string().optional(),
+    providerName: z.string().optional(),
+    gear: z.number().optional(),
+    bargeId: z.number().optional(),
+    ameTally: z.string().optional(),
+    /** UI-only section toggle for loading lines. */
+    isLoading: z.boolean().optional(),
+    /** UI-only section toggle for offloading lines. */
+    isOffloading: z.boolean().optional(),
+    /** Line items for `Ser_EquipmentUsedDt`. */
+    details: z.array(EquipmentUsedDetailSchema).optional(),
+    remarks: z
+      .string()
+      .max(500, "Remarks must be less than 500 characters")
+      .optional()
+      .optional(),
+    taskStatusId: z.number().min(1, "Status is required"),
+    isNotes: z.boolean(),
+    notes: z.string().optional(),
+    debitNoteId: z.number().optional(),
+    debitNoteNo: z.string().optional(),
+    poNo: z.string().optional(),
+    editVersion: z.number(),
+  })
+  .superRefine((data, ctx) => {
+    const details = data.details ?? []
+    if (details.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Add at least one loading or offloading line",
+        path: ["details"],
+      })
+    }
+  })
 
 export type EquipmentUsedSchemaType = z.infer<typeof EquipmentUsedSchema>
 

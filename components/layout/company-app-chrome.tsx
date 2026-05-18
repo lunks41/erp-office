@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { useCompanyStore } from "@/stores/company-store"
 
 import { SkipLink } from "@/components/ui/accessibility"
 import {
@@ -41,6 +42,7 @@ export function CompanyAppChrome({
   defaultSidebarOpen: boolean
 }) {
   const pathname = usePathname()
+  const currentCompany = useCompanyStore((s) => s.currentCompany)
 
   if (isReportWindowRoute(pathname)) {
     return (
@@ -65,6 +67,7 @@ export function CompanyAppChrome({
           <header
             id="navigation"
             className="bg-background sticky inset-x-0 top-0 isolate z-30 flex shrink-0 items-center gap-2 border-b shadow-sm"
+            style={currentCompany?.navColor ? { backgroundColor: currentCompany.navColor } : undefined}
             role="banner"
           >
             <link rel="stylesheet" href={KENDO_THEME_STYLESHEET} />

@@ -103,21 +103,21 @@ export function NavHeader() {
       <div className="flex flex-1 items-center justify-center">
         {currentCompany && (
           <div className="flex items-center gap-3">
-            <span className="relative flex h-8 w-8 shrink-0 sm:h-9 sm:w-9 md:h-10 md:w-10">
+            <span className="relative flex h-12 w-36 shrink-0 sm:h-12 sm:w-40 md:h-12 md:w-48">
               <Image
                 src={`/uploads/companies/${currentCompany.companyId}.svg`}
                 alt={currentCompany.companyName || "Company Logo"}
-                width={40}
-                height={40}
+                width={192}
+                height={48}
                 className="object-contain"
                 onError={(e) => {
                   e.currentTarget.style.display = "none"
                   e.currentTarget.nextElementSibling?.classList.remove("hidden")
                 }}
               />
-              <Building2 className="text-primary absolute inset-0 hidden h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10" />
+              <Building2 className="text-primary absolute inset-0 hidden h-12 w-12" />
             </span>
-            <span className="text-foreground max-w-[240px] truncate text-lg font-bold sm:max-w-[320px] sm:text-xl md:max-w-[400px] md:text-2xl lg:max-w-[500px]">
+            <span className="text-foreground max-w-[200px] truncate text-2xl font-bold sm:max-w-[280px] sm:text-2xl md:max-w-[360px] md:text-3xl lg:max-w-[460px]">
               {currentCompany.companyName}
             </span>
           </div>

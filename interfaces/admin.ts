@@ -52,6 +52,7 @@ export interface ICompany {
   isActive: boolean
   currencyId: number
   peppolId?: string | null
+  navColor?: string | null
   createBy: string
   editBy: string | null
   createDate: Date | string

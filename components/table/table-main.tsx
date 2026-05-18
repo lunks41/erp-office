@@ -232,7 +232,8 @@ export function MainTable<T>({
   const getInitialSorting = (): SortingState => {
     if (gridSettings?.grdSort) {
       try {
-        return JSON.parse(gridSettings.grdSort) || []
+        const parsed = JSON.parse(gridSettings.grdSort)
+        return Array.isArray(parsed) ? parsed : []
       } catch {
         return []
       }
@@ -319,7 +320,8 @@ export function MainTable<T>({
         // Parse saved settings from JSON strings
         const colVisible = JSON.parse(gridSettings.grdColVisible || "{}") // Column visibility settings
         const colSize = JSON.parse(gridSettings.grdColSize || "{}") // Column width settings
-        const sort = JSON.parse(gridSettings.grdSort || "[]") // Sorting configuration
+        const sortParsed = JSON.parse(gridSettings.grdSort || "[]") // Sorting configuration
+        const sort = Array.isArray(sortParsed) ? sortParsed : []
         // Update state only if it's different from current state
         setColumnVisibility((prev) => {
           const newVisibility =
@@ -543,7 +545,7 @@ export function MainTable<T>({
         // Parse saved column order from JSON string
         const colOrder = JSON.parse(gridSettings.grdColOrder || "[]")
         // Apply column order if there are saved column positions
-        if (colOrder.length > 0) {
+        if (Array.isArray(colOrder) && colOrder.length > 0) {
           table.setColumnOrder(colOrder) // Reorder columns according to saved preferences
         }
       } catch (error) {

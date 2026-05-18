@@ -323,10 +323,10 @@ export interface ICrewSignOn {
 /** Matches `dbo.Ser_EquipmentUsedDt` (one row per tally line; IsOffloading 0 = Loading, 1 = Offloading). */
 export interface IEquipmentUsedDt {
   itemNo?: number | null
-  companyId?: number
-  jobOrderId?: number
   equipmentUsedId?: number
   isOffloading: boolean
+  date?: Date | string | null
+  referenceNo?: string | null
   tallySheetNo?: string | null
   crane?: number | null
   forklift?: number | null
@@ -336,8 +336,6 @@ export interface IEquipmentUsedDt {
 
 export interface IEquipmentUsed {
   equipmentUsedId: number
-  date: Date | string
-  referenceNo: string
   companyId: number
   jobOrderId: number
   jobOrderNo: string
@@ -354,15 +352,6 @@ export interface IEquipmentUsed {
   bargeId?: number
   bargeName?: string
   ameTally?: string
-  /** Legacy summary fields kept for backward compatibility with older API consumers. */
-  loadingRefNo?: string
-  craneloading?: number
-  forkliftloading?: number
-  stevedoreloading?: number
-  offloadingRefNo?: string
-  craneOffloading?: number
-  forkliftOffloading?: number
-  stevedoreOffloading?: number
   /** Detail lines for `Ser_EquipmentUsedDt` when the API returns them (camelCase). */
   details?: IEquipmentUsedDt[]
   /** Same shape as `details`; operations get-by-id returns this property name from .NET. */

@@ -11,12 +11,18 @@ import {
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
+import { getDisplayDetailLines } from "@/helpers/equipment-used-details"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { OperationsTransactionId, TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { TaskTable } from "@/components/table/table-task"
 
 import EquipmentUsedHistoryDialog from "../services-history/equipment-used-history-dialog"
+import {
+  EquipmentUsedInlineNumberCell,
+  EquipmentUsedInlineTextCell,
+  EquipmentUsedInlineTypeCell,
+} from "./equipment-used-inline-detail-cells"
 
 interface EquipmentUsedTableProps {
   data: IEquipmentUsed[]
@@ -36,8 +42,7 @@ interface EquipmentUsedTableProps {
   onCloneTask?: (selectedIds: string[]) => void
   onCloneRow?: (row: IEquipmentUsed) => void
   isConfirmed?: boolean
-  jobData?: IJobOrderHd | null // Job order data for document upload
-  // Permission props
+  jobData?: IJobOrderHd | null
   canView?: boolean
   canEdit?: boolean
   canDelete?: boolean
@@ -64,7 +69,6 @@ export function EquipmentUsedTable({
   onCloneRow,
   isConfirmed,
   jobData,
-  // Permission props
   canView: _canView,
   canEdit: _canEdit,
   canDelete: _canDelete,
@@ -114,7 +118,6 @@ export function EquipmentUsedTable({
     [dateFormat, datetimeFormat]
   )
 
-  // State for history dialog
   const [historyDialog, setHistoryDialog] = useState<{
     isOpen: boolean
     jobOrderId: number
@@ -127,7 +130,6 @@ export function EquipmentUsedTable({
     equipmentUsedIdDisplay: 0,
   })
 
-  // Handler to open history dialog
   const handleOpenHistory = useCallback((item: IEquipmentUsed) => {
     setHistoryDialog({
       isOpen: true,
@@ -137,7 +139,6 @@ export function EquipmentUsedTable({
     })
   }, [])
 
-  // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IEquipmentUsed>[] = useMemo(
     () => [
       {
@@ -176,36 +177,99 @@ export function EquipmentUsedTable({
         minSize: 100,
       },
       {
-        accessorKey: "date",
-        header: "Service Date",
-        cell: ({ row }) => {
-          return (
-            <div className="truncate">
-              {formatDateValue(row.getValue("date"))}
-            </div>
-          )
-        },
-        size: 120,
-        minSize: 100,
-      },
-      {
-        accessorKey: "referenceNo",
-        header: "Reference No",
-        cell: ({ row }) => (
-          <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
-        ),
-        size: 130,
-        minSize: 100,
-      },
-      {
         accessorKey: "chargeName",
         header: "Charge Name",
         cell: ({ row }) => (
-          <div className="truncate">{row.getValue("chargeName") || "-"}</div>
+          <div className="truncate font-medium">
+            {row.getValue("chargeName") || "-"}
+          </div>
         ),
         size: 200,
         minSize: 150,
         enableColumnFilter: true,
+      },
+      {
+        id: "lineType",
+        header: "Type",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineTypeCell
+            lines={getDisplayDetailLines(row.original)}
+          />
+        ),
+        size: 100,
+        minSize: 90,
+      },
+      {
+        id: "lineDate",
+        header: "Date",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineTextCell
+            lines={getDisplayDetailLines(row.original)}
+            format={(line) => formatDateValue(line.date)}
+          />
+        ),
+        size: 110,
+        minSize: 95,
+      },
+      {
+        id: "lineReferenceNo",
+        header: "Ref No",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineTextCell
+            lines={getDisplayDetailLines(row.original)}
+            format={(line) => line.referenceNo?.trim() || "-"}
+          />
+        ),
+        size: 100,
+        minSize: 85,
+      },
+      {
+        id: "lineTallySheetNo",
+        header: "Tally No",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineTextCell
+            lines={getDisplayDetailLines(row.original)}
+            format={(line) => line.tallySheetNo?.trim() || "-"}
+          />
+        ),
+        size: 100,
+        minSize: 85,
+      },
+      {
+        id: "lineCrane",
+        header: "Crane",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineNumberCell
+            lines={getDisplayDetailLines(row.original)}
+            getValue={(line) => line.crane}
+          />
+        ),
+        size: 70,
+        minSize: 60,
+      },
+      {
+        id: "lineForklift",
+        header: "Forklift",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineNumberCell
+            lines={getDisplayDetailLines(row.original)}
+            getValue={(line) => line.forklift}
+          />
+        ),
+        size: 75,
+        minSize: 65,
+      },
+      {
+        id: "lineStevedore",
+        header: "Stevedore",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineNumberCell
+            lines={getDisplayDetailLines(row.original)}
+            getValue={(line) => line.stevedore}
+          />
+        ),
+        size: 80,
+        minSize: 70,
       },
       {
         accessorKey: "mafi",
@@ -264,117 +328,6 @@ export function EquipmentUsedTable({
         minSize: 100,
       },
       {
-        accessorKey: "isLoading",
-        header: "Is Loading",
-        cell: ({ row }) => (
-          <div className="truncate text-center">
-            {row.getValue("isLoading") ? "Yes" : "No"}
-          </div>
-        ),
-        size: 100,
-        minSize: 90,
-      },
-      {
-        accessorKey: "isOffloading",
-        header: "Is Offloading",
-        cell: ({ row }) => (
-          <div className="truncate text-center">
-            {row.getValue("isOffloading") ? "Yes" : "No"}
-          </div>
-        ),
-        size: 110,
-        minSize: 100,
-      },
-      {
-        accessorKey: "loadingRefNo",
-        header: "Loading Ref No",
-        cell: ({ row }) => (
-          <div className="truncate">{row.getValue("loadingRefNo") || "-"}</div>
-        ),
-        size: 120,
-        minSize: 100,
-      },
-      {
-        accessorKey: "craneloading",
-        header: "Crane Load",
-        cell: ({ row }) => {
-          const v = row.getValue("craneloading") as number | null | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
-        size: 90,
-        minSize: 80,
-      },
-      {
-        accessorKey: "forkliftloading",
-        header: "Forklift Load",
-        cell: ({ row }) => {
-          const v = row.getValue("forkliftloading") as number | null | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
-        size: 100,
-        minSize: 80,
-      },
-      {
-        accessorKey: "stevedoreloading",
-        header: "Stevedore Load",
-        cell: ({ row }) => {
-          const v = row.getValue("stevedoreloading") as
-            | number
-            | null
-            | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
-        size: 110,
-        minSize: 90,
-      },
-      {
-        accessorKey: "offloadingRefNo",
-        header: "Offload Ref No",
-        cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("offloadingRefNo") || "-"}
-          </div>
-        ),
-        size: 120,
-        minSize: 100,
-      },
-      {
-        accessorKey: "craneOffloading",
-        header: "Crane Offload",
-        cell: ({ row }) => {
-          const v = row.getValue("craneOffloading") as number | null | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
-        size: 100,
-        minSize: 80,
-      },
-      {
-        accessorKey: "forkliftOffloading",
-        header: "Forklift Offload",
-        cell: ({ row }) => {
-          const v = row.getValue("forkliftOffloading") as
-            | number
-            | null
-            | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
-        size: 110,
-        minSize: 90,
-      },
-      {
-        accessorKey: "stevedoreOffloading",
-        header: "Stevedore Offload",
-        cell: ({ row }) => {
-          const v = row.getValue("stevedoreOffloading") as
-            | number
-            | null
-            | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
-        size: 120,
-        minSize: 90,
-      },
-      {
         accessorKey: "remarks",
         header: "Remarks",
         size: 200,
@@ -431,13 +384,11 @@ export function EquipmentUsedTable({
       {
         accessorKey: "createDate",
         header: "Create Date",
-        cell: ({ row }) => {
-          return (
-            <div className="truncate">
-              {formatDateTimeValue(row.getValue("createDate"))}
-            </div>
-          )
-        },
+        cell: ({ row }) => (
+          <div className="truncate">
+            {formatDateTimeValue(row.getValue("createDate"))}
+          </div>
+        ),
         size: 180,
         minSize: 150,
         maxSize: 200,
@@ -455,13 +406,11 @@ export function EquipmentUsedTable({
       {
         accessorKey: "editDate",
         header: "Edit Date",
-        cell: ({ row }) => {
-          return (
-            <div className="truncate">
-              {formatDateTimeValue(row.getValue("editDate"))}
-            </div>
-          )
-        },
+        cell: ({ row }) => (
+          <div className="truncate">
+            {formatDateTimeValue(row.getValue("editDate"))}
+          </div>
+        ),
         size: 180,
         minSize: 150,
         maxSize: 200,
@@ -470,7 +419,6 @@ export function EquipmentUsedTable({
     [formatDateValue, formatDateTimeValue, handleOpenHistory, canDebitNote]
   )
 
-  // Wrapper functions to handle type differences
   const handleFilterChange = (filters: {
     search?: string
     sortOrder?: string
@@ -530,7 +478,6 @@ export function EquipmentUsedTable({
         canDebitNote={canDebitNote}
       />
 
-      {/* History Dialog */}
       {historyDialog.isOpen && (
         <EquipmentUsedHistoryDialog
           open={historyDialog.isOpen}

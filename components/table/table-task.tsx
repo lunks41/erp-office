@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
 import { IJobOrderHd } from "@/interfaces/checklist"
 import {
   DndContext,
@@ -74,6 +74,9 @@ interface TaskTableProps<T> {
   canCreate?: boolean
   canDebitNote?: boolean
   tableContainerClassName?: string
+  expandedRowIds?: Set<string>
+  onToggleRowExpanded?: (rowId: string) => void
+  renderExpandedContent?: (row: T) => React.ReactNode | null
 }
 export function TaskTable<T>({
   data,
@@ -107,6 +110,9 @@ export function TaskTable<T>({
   canCreate: _canCreate = true,
   canDebitNote = true,
   tableContainerClassName = "rounded-none border-0 bg-transparent shadow-none",
+  expandedRowIds,
+  onToggleRowExpanded: _onToggleRowExpanded,
+  renderExpandedContent,
 }: TaskTableProps<T>) {
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
@@ -531,45 +537,61 @@ export function TaskTable<T>({
               <TableBody>
                 {/* Render data rows */}
                 {table.getRowModel().rows.map((row) => {
+                  const isExpanded = expandedRowIds?.has(row.id) ?? false
+                  const expandedContent = renderExpandedContent?.(row.original)
+                  const leafColumnCount = table.getAllLeafColumns().length
+
                   return (
-                    <TableRow key={row.id} className="h-7">
-                      {row.getVisibleCells().map((cell, cellIndex) => {
-                        const isActions = cell.column.id === "actions"
-                        const isFirstColumn = cellIndex === 0
-                        return (
-                          <TableCell
-                            key={cell.id}
-                            title={String(cell.getValue() ?? "")}
-                            className={`py-1 ${
-                              isFirstColumn || isActions
-                                ? "bg-background sticky left-0 z-10"
-                                : ""
-                            }`}
-                            style={{
-                              width: `${cell.column.getSize()}px`,
-                              minWidth: `${cell.column.getSize()}px`,
-                              maxWidth: `${cell.column.getSize()}px`,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              position:
+                    <Fragment key={row.id}>
+                      <TableRow className="h-7">
+                        {row.getVisibleCells().map((cell, cellIndex) => {
+                          const isActions = cell.column.id === "actions"
+                          const isFirstColumn = cellIndex === 0
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              title={String(cell.getValue() ?? "")}
+                              className={`py-1 ${
                                 isFirstColumn || isActions
-                                  ? "sticky"
-                                  : "relative",
-                              left: isFirstColumn || isActions ? 0 : "auto",
-                              zIndex: isFirstColumn || isActions ? 10 : 1,
-                            }}
+                                  ? "bg-background sticky left-0 z-10"
+                                  : ""
+                              }`}
+                              style={{
+                                width: `${cell.column.getSize()}px`,
+                                minWidth: `${cell.column.getSize()}px`,
+                                maxWidth: `${cell.column.getSize()}px`,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                position:
+                                  isFirstColumn || isActions
+                                    ? "sticky"
+                                    : "relative",
+                                left: isFirstColumn || isActions ? 0 : "auto",
+                                zIndex: isFirstColumn || isActions ? 10 : 1,
+                              }}
+                            >
+                              <div className="truncate">
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </div>
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                      {isExpanded && expandedContent ? (
+                        <TableRow key={`${row.id}-expanded`} className="h-auto">
+                          <TableCell
+                            colSpan={leafColumnCount}
+                            className="bg-muted/20 px-3 py-2"
                           >
-                            <div className="truncate">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </div>
+                            {expandedContent}
                           </TableCell>
-                        )
-                      })}
-                    </TableRow>
+                        </TableRow>
+                      ) : null}
+                    </Fragment>
                   )
                 })}
                 {/* Empty rows to fill page size */}

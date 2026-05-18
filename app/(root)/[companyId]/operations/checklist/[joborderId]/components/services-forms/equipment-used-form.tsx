@@ -1,9 +1,10 @@
 ﻿"use client"
 
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   applyLegacySummaryFromDetails,
   buildEquipmentUsedDetailsFromApi,
+  countEquipmentUsedLinesByType,
 } from "@/helpers/equipment-used-details"
 import { IEquipmentUsed, IJobOrderHd } from "@/interfaces/checklist"
 import {
@@ -16,8 +17,9 @@ import { format, isValid, parse } from "date-fns"
 import { Plus, Trash2 } from "lucide-react"
 import { Resolver, useFieldArray, useForm } from "react-hook-form"
 
-import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -91,18 +93,10 @@ export function EquipmentUsedForm({
     >,
     defaultValues: {
       equipmentUsedId: initialData?.equipmentUsedId ?? 0,
-      date: initialData?.date
-        ? format(
-            parseWithFallback(initialData.date as string) || new Date(),
-            dateFormat
-          )
-        : format(new Date(), dateFormat),
       jobOrderId: jobData.jobOrderId,
       jobOrderNo: jobData.jobOrderNo,
       taskId: Task.EquipmentUsed,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? 0,
-
-      referenceNo: initialData?.referenceNo ?? "",
       mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
       providerName: initialData?.providerName ?? "",
@@ -118,13 +112,9 @@ export function EquipmentUsedForm({
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
-      isLoading: buildEquipmentUsedDetailsFromApi(initialData).some(
-        (d) => !d.isOffloading
-      ),
-      isOffloading: buildEquipmentUsedDetailsFromApi(initialData).some(
-        (d) => d.isOffloading
-      ),
       details: buildEquipmentUsedDetailsFromApi(initialData),
+      isLoading: false,
+      isOffloading: false,
     },
   })
 
@@ -133,46 +123,44 @@ export function EquipmentUsedForm({
     name: "details",
   })
 
-  // Watch the isNotes field to control notes field disabled state
+  const [lineFilter, setLineFilter] = useState<
+    "all" | "loading" | "offloading"
+  >("all")
+
   const isNotes = form.watch("isNotes")
-  const isLoading = form.watch("isLoading")
-  const isOffloading = form.watch("isOffloading")
   const watchedDetails = form.watch("details")
 
-  const loadingIndices = useMemo(() => {
-    return (watchedDetails ?? [])
-      .map((row, i) => (!row?.isOffloading ? i : -1))
-      .filter((i): i is number => i >= 0)
-  }, [watchedDetails])
+  const visibleDetailRows = useMemo(() => {
+    const details = watchedDetails ?? []
+    return details
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => {
+        if (lineFilter === "loading") return !row.isOffloading
+        if (lineFilter === "offloading") return row.isOffloading
+        return true
+      })
+      .sort(
+        (a, b) =>
+          Number(a.row.isOffloading) - Number(b.row.isOffloading) ||
+          a.index - b.index
+      )
+  }, [watchedDetails, lineFilter])
 
-  const offloadingIndices = useMemo(() => {
-    return (watchedDetails ?? [])
-      .map((row, i) => (row?.isOffloading ? i : -1))
-      .filter((i): i is number => i >= 0)
-  }, [watchedDetails])
+  const lineCounts = useMemo(
+    () => countEquipmentUsedLinesByType(watchedDetails ?? []),
+    [watchedDetails]
+  )
 
-  // Keep section toggles enabled when checked, and also when rows already exist.
-  const isLoadingSectionEnabled =
-    Boolean(isLoading) || loadingIndices.length > 0
-  const isOffloadingSectionEnabled =
-    Boolean(isOffloading) || offloadingIndices.length > 0
+  const detailsError = form.formState.errors.details?.message
 
   useEffect(() => {
     const details = buildEquipmentUsedDetailsFromApi(initialData)
     form.reset({
       equipmentUsedId: initialData?.equipmentUsedId ?? 0,
-      date: initialData?.date
-        ? format(
-            parseWithFallback(initialData.date as string) || new Date(),
-            dateFormat
-          )
-        : format(new Date(), dateFormat),
       jobOrderId: jobData.jobOrderId,
       jobOrderNo: jobData.jobOrderNo,
       taskId: Task.EquipmentUsed,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? 0,
-
-      referenceNo: initialData?.referenceNo ?? "",
       mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
       providerName: initialData?.providerName ?? "",
@@ -188,9 +176,9 @@ export function EquipmentUsedForm({
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
       editVersion: initialData?.editVersion ?? 0,
+      details,
       isLoading: details.some((d) => !d.isOffloading),
       isOffloading: details.some((d) => d.isOffloading),
-      details,
     })
   }, [
     dateFormat,
@@ -203,13 +191,41 @@ export function EquipmentUsedForm({
   ])
 
   const onSubmit = (data: EquipmentUsedSchemaType) => {
-    submitAction(applyLegacySummaryFromDetails(data))
+    const details = data.details ?? []
+    submitAction(
+      applyLegacySummaryFromDetails({
+        ...data,
+        isLoading: details.some((d) => !d.isOffloading),
+        isOffloading: details.some((d) => d.isOffloading),
+        details: details.map((d) => ({
+          ...d,
+          date: formatDateForApi(d.date) ?? "",
+        })),
+      })
+    )
+  }
+
+  const getNewDetailLineDefaults = (isOffloading: boolean) => {
+    const details = form.getValues("details") ?? []
+    const sameType = [...details]
+      .reverse()
+      .find((d) => d.isOffloading === isOffloading)
+    const template = sameType ?? details[details.length - 1]
+    return {
+      date: template?.date ?? format(new Date(), dateFormat),
+      referenceNo: template?.referenceNo ?? "",
+    }
   }
 
   const appendLoadingRow = () => {
+    const defaults = getNewDetailLineDefaults(false)
+    const equipmentUsedId = form.getValues("equipmentUsedId") ?? 0
     append({
       itemNo: 0,
+      equipmentUsedId,
       isOffloading: false,
+      date: defaults.date,
+      referenceNo: defaults.referenceNo,
       tallySheetNo: "",
       crane: 0,
       forklift: 0,
@@ -218,9 +234,14 @@ export function EquipmentUsedForm({
   }
 
   const appendOffloadingRow = () => {
+    const defaults = getNewDetailLineDefaults(true)
+    const equipmentUsedId = form.getValues("equipmentUsedId") ?? 0
     append({
       itemNo: 0,
+      equipmentUsedId,
       isOffloading: true,
+      date: defaults.date,
+      referenceNo: defaults.referenceNo,
       tallySheetNo: "",
       crane: 0,
       forklift: 0,
@@ -233,21 +254,13 @@ export function EquipmentUsedForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-2">
-            <div className="space-y-2">
-              <div className="grid grid-cols-4 gap-2">
-                <CustomDateNew
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
+                <ChargeAutocomplete
                   form={form}
-                  name="date"
-                  label="Date"
+                  name="chargeId"
+                  label="Charge Name"
                   isRequired={true}
-                  isDisabled={isConfirmed}
-                  isFutureShow={true}
-                />
-                <CustomInput
-                  form={form}
-                  name="referenceNo"
-                  label="Reference Number"
-                  isRequired
                   isDisabled={isConfirmed}
                 />
                 <CustomInput
@@ -256,23 +269,18 @@ export function EquipmentUsedForm({
                   label="Provider Name"
                   isDisabled={isConfirmed}
                 />
-                <ChargeAutocomplete
-                  form={form}
-                  name="chargeId"
-                  label="Charge Name"
-                  isRequired={true}
-                  isDisabled={isConfirmed}
-                />
                 <BargeAutocomplete
                   form={form}
                   name="bargeId"
                   label="Barge"
+                  isRequired={true}
                   isDisabled={isConfirmed}
                 />
+
                 <CustomInput
                   form={form}
                   name="ameTally"
-                  label="AME Tally / Launch "
+                  label="AME Tally / Launch"
                   isDisabled={isConfirmed}
                 />
                 <CustomInput
@@ -281,8 +289,7 @@ export function EquipmentUsedForm({
                   label="PO No"
                   isDisabled={isConfirmed}
                 />
-
-                <div className="col-span-1 grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <CustomInput
                     form={form}
                     name="mafi"
@@ -312,156 +319,144 @@ export function EquipmentUsedForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
-                <div className="space-y-2 rounded-lg border p-2">
-                  <div className="flex items-center gap-2">
-                    <CustomCheckbox
-                      form={form}
-                      name="isLoading"
-                      label=""
-                      isDisabled={isConfirmed}
-                    />
-                    <Badge
-                      variant="secondary"
-                      className="w-fit bg-blue-100 px-2 py-0 text-[10px] text-primary"
-                    >
-                      Loading
-                    </Badge>
+              <div className="space-y-2 rounded-lg border p-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Tally lines</p>
+                    <p className="text-muted-foreground text-xs">
+                      {lineCounts.loading} loading · {lineCounts.offloading}{" "}
+                      offloading
+                    </p>
                   </div>
+                  <div className="flex flex-wrap gap-1">
+                    {(
+                      [
+                        ["all", "All"],
+                        ["loading", "Loading"],
+                        ["offloading", "Offloading"],
+                      ] as const
+                    ).map(([value, label]) => (
+                      <Button
+                        key={value}
+                        type="button"
+                        size="sm"
+                        variant={lineFilter === value ? "default" : "outline"}
+                        disabled={isConfirmed}
+                        onClick={() => setLineFilter(value)}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {detailsError ? (
+                  <p className="text-destructive text-xs">{detailsError}</p>
+                ) : null}
+
+                {fields.length === 0 ? (
+                  <p className="text-muted-foreground text-xs">
+                    No tally lines yet. Add a loading or offloading line below.
+                  </p>
+                ) : visibleDetailRows.length === 0 ? (
+                  <p className="text-muted-foreground text-xs">
+                    No lines match this filter.
+                  </p>
+                ) : (
                   <div className="space-y-2">
-                    {loadingIndices.map((index) => (
+                    {visibleDetailRows.map(({ row, index }) => (
                       <div
-                        key={fields[index]?.id ?? `loading-${index}`}
-                        className="flex items-end gap-2"
+                        key={fields[index]?.id ?? `detail-${index}`}
+                        className={cn(
+                          "flex flex-col gap-2 rounded-md border p-2 sm:flex-row sm:items-end",
+                          row.isOffloading
+                            ? "border-purple-200 bg-purple-50/40"
+                            : "border-blue-200 bg-blue-50/40"
+                        )}
                       >
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
-                          className="h-9 shrink-0"
+                          className="h-9 shrink-0 self-start sm:self-end"
                           disabled={isConfirmed}
                           onClick={() => remove(index)}
                           title="Remove line"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                        <div className="grid min-w-0 flex-1 grid-cols-4 items-end gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            "h-6 w-fit shrink-0 self-start sm:self-end",
+                            row.isOffloading
+                              ? "bg-purple-100 text-purple-800"
+                              : "text-primary bg-blue-100"
+                          )}
+                        >
+                          {row.isOffloading ? "Offloading" : "Loading"}
+                        </Badge>
+                        <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-7">
+                          <CustomDateNew
+                            form={form}
+                            name={`details.${index}.date`}
+                            label="Date"
+                            isRequired
+                            isDisabled={isConfirmed}
+                            isFutureShow={true}
+                          />
+                          <CustomInput
+                            form={form}
+                            name={`details.${index}.referenceNo`}
+                            label="Reference No"
+                            isDisabled={isConfirmed}
+                          />
                           <CustomInput
                             form={form}
                             name={`details.${index}.tallySheetNo`}
                             label="Tally Sheet No"
-                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                            isDisabled={isConfirmed}
                           />
                           <CustomNumberInput
                             form={form}
                             name={`details.${index}.crane`}
                             label="Crane"
-                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                            isDisabled={isConfirmed}
                           />
                           <CustomNumberInput
                             form={form}
                             name={`details.${index}.forklift`}
                             label="ForkLift"
-                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                            isDisabled={isConfirmed}
                           />
                           <CustomNumberInput
                             form={form}
                             name={`details.${index}.stevedore`}
                             label="Stevedore"
-                            isDisabled={isConfirmed || !isLoadingSectionEnabled}
+                            isDisabled={isConfirmed}
                           />
                         </div>
                       </div>
                     ))}
                   </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 pt-1">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="w-full sm:w-auto"
-                    disabled={isConfirmed || !isLoadingSectionEnabled}
+                    disabled={isConfirmed}
                     onClick={appendLoadingRow}
                   >
                     <Plus className="mr-1 h-4 w-4" />
                     Add loading line
                   </Button>
-                </div>
-
-                <div className="space-y-2 rounded-lg border p-2">
-                  <div className="flex items-center gap-2">
-                    <CustomCheckbox
-                      form={form}
-                      name="isOffloading"
-                      label=""
-                      isDisabled={isConfirmed}
-                    />
-                    <Badge
-                      variant="secondary"
-                      className="w-fit bg-purple-100 px-2 py-0 text-[10px] text-purple-800"
-                    >
-                      Offloading
-                    </Badge>
-                  </div>
-                  <div className="space-y-2">
-                    {offloadingIndices.map((index) => (
-                      <div
-                        key={fields[index]?.id ?? `offloading-${index}`}
-                        className="flex items-end gap-2"
-                      >
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="h-9 shrink-0"
-                          disabled={isConfirmed || !isOffloadingSectionEnabled}
-                          onClick={() => remove(index)}
-                          title="Remove line"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <div className="grid min-w-0 flex-1 grid-cols-4 items-end gap-2">
-                          <CustomInput
-                            form={form}
-                            name={`details.${index}.tallySheetNo`}
-                            label="Tally Sheet No"
-                            isDisabled={
-                              isConfirmed || !isOffloadingSectionEnabled
-                            }
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name={`details.${index}.crane`}
-                            label="Crane"
-                            isDisabled={
-                              isConfirmed || !isOffloadingSectionEnabled
-                            }
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name={`details.${index}.forklift`}
-                            label="ForkLift"
-                            isDisabled={
-                              isConfirmed || !isOffloadingSectionEnabled
-                            }
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name={`details.${index}.stevedore`}
-                            label="Stevedore"
-                            isDisabled={
-                              isConfirmed || !isOffloadingSectionEnabled
-                            }
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="w-full sm:w-auto"
-                    disabled={isConfirmed || !isOffloadingSectionEnabled}
+                    disabled={isConfirmed}
                     onClick={appendOffloadingRow}
                   >
                     <Plus className="mr-1 h-4 w-4" />
