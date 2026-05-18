@@ -140,6 +140,12 @@ export function OtherServiceTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IOtherService>[] = useMemo(
     () => [
+      {
+        accessorKey: "otherServiceId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

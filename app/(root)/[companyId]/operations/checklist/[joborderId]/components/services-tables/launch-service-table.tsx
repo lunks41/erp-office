@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IJobOrderHd,
   ILaunchService,
   ILaunchServiceFilter,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -140,6 +139,12 @@ export function LaunchServiceTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<ILaunchService>[] = useMemo(
     () => [
+      {
+        accessorKey: "launchServiceId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

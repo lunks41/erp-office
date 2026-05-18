@@ -152,6 +152,12 @@ export function MedicalAssistanceTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IMedicalAssistance>[] = useMemo(
     () => [
+      {
+        accessorKey: "medicalAssistanceId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

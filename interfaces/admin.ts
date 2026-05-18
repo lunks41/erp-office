@@ -151,6 +151,21 @@ export interface IUserGroupFilter {
   sortOrder?: "asc" | "desc"
 }
 
+export interface IUserGroupHierarchy {
+  id: number
+  groupId: number
+  groupCode: string
+  groupName: string
+  parentGroupId: number
+  parentGroupCode: string
+  parentGroupName: string
+}
+
+export interface ISaveUserGroupHierarchy {
+  groupId: number
+  parentGroupId: number
+}
+
 export interface IUserRoleFilter {
   isActive?: boolean
   search?: string

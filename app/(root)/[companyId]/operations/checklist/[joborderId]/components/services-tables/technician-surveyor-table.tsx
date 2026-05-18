@@ -152,6 +152,12 @@ export function TechnicianSurveyorTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<ITechnicianSurveyor>[] = useMemo(
     () => [
+      {
+        accessorKey: "technicianSurveyorId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

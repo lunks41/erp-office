@@ -187,6 +187,7 @@ export enum AdminTransactionId {
   reportcategory = 16,
   reports = 17,
   userGroupReportRights = 18,
+  userGroupHierarchy = 19,
   announcements = 901,
   notDefine = 100,
 }

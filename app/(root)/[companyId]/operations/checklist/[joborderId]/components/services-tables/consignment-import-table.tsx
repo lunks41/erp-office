@@ -139,6 +139,12 @@ export function ConsignmentImportTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IConsignmentImport>[] = useMemo(
     () => [
+      {
+        accessorKey: "consignmentImportId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

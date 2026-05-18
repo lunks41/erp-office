@@ -29,6 +29,8 @@ interface NotificationState {
   history: NotificationHistoryItem[]
   unreadCount: number
 
+  /** Client-side toast-style entry shown in the notification bell */
+  add: (message: string, type?: NotificationType, title?: string) => void
   addFromServer: (n: BackendNotification) => void
   setFromServer: (items: BackendNotification[]) => void
   setUnreadCount: (count: number) => void
@@ -52,6 +54,22 @@ export const useNotificationStore = create<NotificationState>()(
     (set) => ({
       history: [],
       unreadCount: 0,
+
+      add: (message, type = "info", title = "Notification") => {
+        const item: NotificationHistoryItem = {
+          id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          notificationId: 0,
+          title,
+          message,
+          type,
+          createdAt: Date.now(),
+          read: false,
+        }
+        set((state) => ({
+          history: [item, ...state.history].slice(0, 50),
+          unreadCount: state.unreadCount + 1,
+        }))
+      },
 
       addFromServer: (n) => {
         const item: NotificationHistoryItem = {

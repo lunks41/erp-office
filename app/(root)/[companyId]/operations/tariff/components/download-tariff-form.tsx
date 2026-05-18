@@ -42,19 +42,27 @@ type DownloadSchemaType = z.infer<typeof downloadSchema>
 interface DownloadTariffFormProps {
   onCancelAction: () => void
   onDownloadAction: (data: ITariffRPTRequest) => void
+  defaultCompanyId?: number
+  defaultCustomerId?: number
+  defaultPortId?: number
 }
 
 export function DownloadTariffForm({
   onCancelAction,
   onDownloadAction,
+  defaultCompanyId = 0,
+  defaultCustomerId = 0,
+  defaultPortId = 0,
 }: DownloadTariffFormProps) {
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number>(0)
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number>(
+    defaultCompanyId > 0 ? defaultCompanyId : 0
+  )
   const downloadForm = useForm<DownloadSchemaType>({
     resolver: zodResolver(downloadSchema),
     defaultValues: {
-      companyId: 0,
-      customerId: 0,
-      portId: 0,
+      companyId: defaultCompanyId > 0 ? defaultCompanyId : 0,
+      customerId: defaultCustomerId > 0 ? defaultCustomerId : 0,
+      portId: defaultPortId > 0 ? defaultPortId : 0,
       isAllPorts: false,
     },
   })
@@ -171,7 +179,7 @@ export function DownloadTariffForm({
             </Button>
             <Button type="submit" className="flex items-center gap-2">
               <DownloadIcon className="h-4 w-4" />
-              Download
+              Download Excel
             </Button>
           </div>
         </form>

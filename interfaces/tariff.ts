@@ -146,30 +146,23 @@ export interface ITariffRPTRequest {
   isAllPorts: boolean
 }
 export interface ITariffRPT {
-  companyName: string
-  customerName: string
-  currencyCode: string
-  portName: string
   taskName: string
+  portName: string
   chargeName: string
-  uomName: string
   visaName: string
-  displayRate: number // decimal in C#
-  basicRate: number // decimal in C#
+  uomName: string
+  fromTransportLocationName: string
+  toTransportLocationName: string
+  isPrepayment: boolean
+  prepaymentPercentage: number
+  isViceVersa: boolean
+  displayRate: number
+  basicRate: number
   minUnit: number
   maxUnit: number
-  isAdditional: boolean
-  additionalRate: number // decimal in C#
   additionalUnit: number
-  isPrepayment: boolean
-  prepaymentPercentage: number // decimal in C#
-  seqNo: string
-  remarks: string
-  isDefault: boolean
-  isActive: boolean
-  createBy: string
-  createDate: string | null // DateTime? in C#
-  editBy: string
-  editDate: string | null // DateTime? in C#
-  editVersion: number
+  additionalRate: number
+  isCustomDescription: boolean
+  lineDescription: string
+  isMultiply: boolean
 }

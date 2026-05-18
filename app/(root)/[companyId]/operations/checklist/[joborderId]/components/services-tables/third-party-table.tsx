@@ -139,6 +139,12 @@ export function ThirdPartyTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IThirdParty>[] = useMemo(
     () => [
+      {
+        accessorKey: "thirdPartyId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

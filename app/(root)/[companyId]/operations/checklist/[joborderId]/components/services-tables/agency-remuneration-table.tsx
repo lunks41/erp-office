@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IAgencyRemuneration,
   IAgencyRemunerationFilter,
   IJobOrderHd,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -133,6 +132,12 @@ export function AgencyRemunerationTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IAgencyRemuneration>[] = useMemo(
     () => [
+      {
+        accessorKey: "agencyRemunerationId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {
@@ -143,6 +148,7 @@ export function AgencyRemunerationTable({
             },
           ]
         : []),
+
       {
         accessorKey: "taskStatusName",
         header: "Status",

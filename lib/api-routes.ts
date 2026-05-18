@@ -120,6 +120,12 @@ export const UserGroup = {
   delete: "/admin/deleteusergroup",
 }
 
+// User Group Hierarchy Endpoints
+export const UserGroupHierarchy = {
+  get: "/admin/GetUserGroupHierarchy",
+  save: "/admin/SaveUserGroupHierarchy",
+}
+
 // User Role Endpoints
 export const UserRole = {
   get: "/admin/getuserrole",

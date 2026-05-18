@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IJobOrderHd,
   IPortExpenses,
   IPortExpensesFilter,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -139,6 +138,12 @@ export function PortExpensesTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IPortExpenses>[] = useMemo(
     () => [
+      {
+        accessorKey: "portExpenseId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {
@@ -183,7 +188,11 @@ export function PortExpensesTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,

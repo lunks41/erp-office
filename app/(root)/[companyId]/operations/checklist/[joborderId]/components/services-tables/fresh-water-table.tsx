@@ -140,6 +140,12 @@ export function FreshWaterTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<IFreshWater>[] = useMemo(
     () => [
+      {
+        accessorKey: "freshWaterId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

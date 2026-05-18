@@ -156,6 +156,7 @@ export const ArInvoiceHdSchema = (
     bargeId: z.number().optional(),
 
     isPost: z.boolean().optional(),
+    appStatusId: z.number().optional(),
 
     // Nested Details
     data_details: z

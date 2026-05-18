@@ -201,7 +201,7 @@ export function TallyServiceForm({
       annexure: initialData?.annexure ?? "",
       invoiceId: initialData?.invoiceId ?? 0,
       invoiceNo: initialData?.invoiceNo ?? "",
-      jobStatusId: initialData?.jobStatusId ?? 1,
+      jobStatusId: initialData?.jobStatusId ?? 201,
       remarks: initialData?.remarks ?? "",
       editVersion: initialData?.editVersion ?? 0,
     }
@@ -501,7 +501,7 @@ export function TallyServiceForm({
       annexure: data.annexure || "",
       invoiceId: data.invoiceId ?? 0,
       invoiceNo: data.invoiceNo || "",
-      jobStatusId: data.jobStatusId ?? 1,
+      jobStatusId: data.jobStatusId ?? 201,
       remarks: data.remarks || "",
       createById: initialData?.createById ?? 0,
       createDate: initialData?.createDate ?? new Date(),

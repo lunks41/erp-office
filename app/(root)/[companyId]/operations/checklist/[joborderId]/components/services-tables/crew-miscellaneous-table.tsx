@@ -134,6 +134,12 @@ export function CrewMiscellaneousTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<ICrewMiscellaneous>[] = useMemo(
     () => [
+      {
+        accessorKey: "crewMiscellaneousId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

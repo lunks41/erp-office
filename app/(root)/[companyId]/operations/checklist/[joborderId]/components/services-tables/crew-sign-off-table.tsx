@@ -122,6 +122,12 @@ export function CrewSignOffTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<ICrewSignOff>[] = useMemo(
     () => [
+      {
+        accessorKey: "crewSignOffId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

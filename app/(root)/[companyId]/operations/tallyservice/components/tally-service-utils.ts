@@ -53,7 +53,7 @@ export function createEmptyTallyService(companyId: number): ITallyService {
     annexure: "",
     invoiceId: 0,
     invoiceNo: "",
-    jobStatusId: 1,
+    jobStatusId: 201,
     jobStatusName: "",
     remarks: "",
     createById: 0,
@@ -186,7 +186,7 @@ export function mapTallyServiceForSave(data: ITallyService): TallyServiceSavePay
     annexure: data.annexure || "",
     invoiceId: data.invoiceId ?? 0,
     invoiceNo: data.invoiceNo || "",
-    jobStatusId: data.jobStatusId ?? 1,
+    jobStatusId: data.jobStatusId ?? 201,
     remarks: data.remarks || "",
     editVersion: data.editVersion ?? 0,
   }

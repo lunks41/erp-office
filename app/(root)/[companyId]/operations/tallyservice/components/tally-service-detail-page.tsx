@@ -45,6 +45,19 @@ const FORM_ID = "tally-service-form"
 const INVOICE_BADGE_CLASS =
   "px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition-colors duration-200"
 
+const STATUS_BADGE_COLORS: Record<string, string> = {
+  Pending:
+    "border-amber-300 bg-linear-to-r from-amber-50 to-yellow-100 text-amber-800 hover:from-amber-100 hover:to-yellow-200",
+  Completed:
+    "border-emerald-300 bg-linear-to-r from-emerald-50 to-green-100 text-emerald-800 hover:from-emerald-100 hover:to-green-200",
+  Cancelled:
+    "border-red-300 bg-linear-to-r from-red-50 to-rose-100 text-red-800 hover:from-red-100 hover:to-rose-200",
+  "Cancel with Service":
+    "border-orange-300 bg-linear-to-r from-orange-50 to-amber-100 text-orange-800 hover:from-orange-100 hover:to-amber-200",
+  Confirmed:
+    "border-border bg-linear-to-r from-blue-50 to-indigo-100 text-primary hover:from-blue-100 hover:to-indigo-200",
+}
+
 interface TallyServiceDetailPageProps {
   mode: "create" | "edit"
   tallyServiceId?: string
@@ -67,7 +80,7 @@ export function TallyServiceDetailPage({
   const transactionId = OperationsTransactionId.tallyService
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
-  const isReadOnly =
+  const isPermissionReadOnly =
     mode === "edit" ? !canEdit : !canCreate
 
   const isValidId =
@@ -103,6 +116,9 @@ export function TallyServiceDetailPage({
     ? isStatusConfirmed(tallyService.jobStatusName)
     : false
 
+  const isFormLocked = mode === "edit" && isConfirmed
+  const isReadOnly = isPermissionReadOnly || isFormLocked
+
   const hasPostedInvoice =
     Number(tallyService?.invoiceId ?? 0) > 0 && tallyService?.isPost === true
 
@@ -110,7 +126,7 @@ export function TallyServiceDetailPage({
     mode === "edit" &&
     isConfirmed &&
     !hasPostedInvoice &&
-    !isReadOnly &&
+    !isPermissionReadOnly &&
     !tallyService?.isCancel
 
   const handleInvoiceNoDoubleClick = useCallback(() => {
@@ -298,6 +314,24 @@ export function TallyServiceDetailPage({
             </Badge>
           )}
 
+          {mode === "edit" && tallyService?.jobStatusName && (
+            <Badge
+              className={`flex h-8 items-center border-2 px-4 text-sm font-semibold shadow-sm ${STATUS_BADGE_COLORS[tallyService.jobStatusName] || "border-gray-300 bg-linear-to-r from-gray-100 to-gray-200 text-gray-800"}`}
+            >
+              <span className="mr-1">⚡</span>
+              {tallyService.jobStatusName}
+            </Badge>
+          )}
+
+          {hasPostedInvoice && (
+            <Badge
+              variant="outline"
+              className="flex h-8 items-center border-2 border-green-300 bg-green-100 px-4 text-sm font-semibold text-green-800"
+            >
+              Posted
+            </Badge>
+          )}
+
           {mode === "edit" && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -353,9 +387,9 @@ export function TallyServiceDetailPage({
           )}
 
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {isReadOnly ? "Close" : "Cancel"}
+            {isPermissionReadOnly || isFormLocked ? "Close" : "Cancel"}
           </Button>
-          {!isReadOnly && (
+          {!isPermissionReadOnly && !isFormLocked && (
             <Button
               type="submit"
               form={FORM_ID}
@@ -370,7 +404,9 @@ export function TallyServiceDetailPage({
       <TallyServiceForm
         companyId={numericCompanyId}
         initialData={tallyService}
-        mode={isReadOnly ? "view" : mode === "create" ? "create" : "edit"}
+        mode={
+          isReadOnly ? "view" : mode === "create" ? "create" : "edit"
+        }
         submitAction={handleSaveRequest}
         onCancelAction={handleCancel}
         isSubmitting={saveMutation.isPending}

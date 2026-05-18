@@ -140,6 +140,12 @@ export function LandingItemsTable({
   // Memoize columns to prevent infinite re-renders
   const columns: ColumnDef<ILandingItems>[] = useMemo(
     () => [
+      {
+        accessorKey: "landingItemId",
+        header: "No",
+        size: 80,
+        minSize: 50,
+      },
       ...(canDebitNote
         ? [
             {

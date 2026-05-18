@@ -131,7 +131,6 @@ const buildDefaultInvoice = (dateFormat: string) => ({
   isPost: false,
   postById: "",
   postDate: "",
-  appStatusId: "",
   appById: "",
   appDate: "",
   jobOrderId: 0,
@@ -142,6 +141,7 @@ const buildDefaultInvoice = (dateFormat: string) => ({
   otherRemarks: "",
   advRecAmt: 0,
   bargeId: 0,
+  appStatusId: 0,
   data_details: [],
 })
 

@@ -803,44 +803,17 @@ export default function InvoicePage() {
   const handleUnpostInvoice = async () => {
     if (!invoice) return
 
+    const invoiceId = invoice.invoiceId?.toString() ?? ""
+    const invoiceNo = invoice.invoiceNo ?? ""
+
     try {
       const response = await unpostMutation.mutateAsync({
-        invoiceId: invoice.invoiceId?.toString() ?? "",
+        invoiceId,
       })
 
       if (response.result === 1) {
-        const msg = `Invoice ${invoice.invoiceNo} unposted successfully`
-        addNotification(msg, "info")
-
-        const detailedInvoice = Array.isArray(response.data)
-          ? response.data[0]
-          : response.data
-        if (detailedInvoice) {
-          const invoiceData = detailedInvoice as IArInvoiceHd
-          const formValues = transformToSchemaType(invoiceData)
-          setInvoice(formValues)
-          form.reset(formValues)
-        }
-
-        // // Refresh invoice data
-        // if (invoice.invoiceId && invoice.invoiceId !== "0") {
-        //   const response = await getById(
-        //     `${ArInvoice.getByIdNo}/${invoice.invoiceId}`
-        //   )
-        //   if (response?.result === 1) {
-        //     const detailedInvoice = Array.isArray(response.data)
-        //       ? response.data[0]
-        //       : response.data
-        //     if (detailedInvoice) {
-        //       const invoiceData = detailedInvoice as IArInvoiceHd
-        //       const formValues = transformToSchemaType(invoiceData)
-        //       setInvoice(formValues)
-        //       form.reset(formValues)
-        //     }
-        //   }
-        // }
-      } else {
-        toast.error(response.message || "Failed to unpost invoice")
+        addNotification(`Invoice ${invoiceNo} unposted successfully`, "info")
+        await loadInvoice({ invoiceId, invoiceNo, showLoader: true })
       }
     } catch (error) {
       console.error("Error unposting invoice:", error)
@@ -1165,6 +1138,7 @@ export default function InvoicePage() {
         )
 
         if (response?.result === 1) {
+          debugger
           const detailedInvoice = Array.isArray(response.data)
             ? response.data[0]
             : response.data

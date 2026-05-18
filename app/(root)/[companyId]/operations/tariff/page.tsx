@@ -60,6 +60,7 @@ import { BulkCloneTariffForm } from "./components/bulk-clone-tariff-form"
 import { CopyCompanyRateForm } from "./components/copy-company-rate-form"
 import { CopyRateForm } from "./components/copy-rate-form"
 import { DownloadTariffForm } from "./components/download-tariff-form"
+import { downloadTariffExcel } from "./components/tariff-export"
 import { TariffForm, TariffFormRef } from "./components/tariff-form"
 import { TariffTable } from "./components/tariff-table"
 
@@ -869,12 +870,28 @@ export default function TariffPage() {
   const handleDownloadTariff = async (data: ITariffRPTRequest) => {
     try {
       setIsDownloading(true)
-      const response = await getTariffRptDirect(data)
+      const response = await getTariffRptDirect({
+        ...data,
+        companyId: data.companyId || companyId,
+      })
 
       if (response?.result === 1 && response.data) {
-        // Convert data to CSV format
-        const csvData = convertToCSV(response.data)
-        downloadCSV(csvData, `tariff_rates_${new Date().getTime()}.csv`)
+        const raw = response.data
+        const rows: ITariffRPT[] = Array.isArray(raw)
+          ? raw.length > 0 && Array.isArray(raw[0])
+            ? (raw as ITariffRPT[][]).flat()
+            : (raw as ITariffRPT[])
+          : [raw as ITariffRPT]
+
+        if (rows.length === 0) {
+          toast.error("No tariff records found for the selected filters")
+          return
+        }
+
+        await downloadTariffExcel(
+          rows,
+          `tariff_rates_${new Date().getTime()}.xlsx`
+        )
         toast.success(
           response.message || "Tariff rates downloaded successfully"
         )
@@ -890,68 +907,6 @@ export default function TariffPage() {
     } finally {
       setIsDownloading(false)
     }
-  }
-
-  // Helper function to convert camelCase to Title Case
-  const camelCaseToTitleCase = (str: string): string => {
-    return str
-      .replace(/([A-Z])/g, " $1") // Add space before capital letters
-      .replace(/^./, (char) => char.toUpperCase()) // Capitalize first letter
-      .trim()
-  }
-
-  // Helper function to convert ITariffRPT[] to CSV
-  const convertToCSV = (data: ITariffRPT[]): string => {
-    if (!data || data.length === 0) {
-      return ""
-    }
-
-    // Get headers from the first object
-    const headers = Object.keys(data[0])
-
-    // Convert headers to Title Case (e.g., "companyName" -> "Company Name")
-    const formattedHeaders = headers.map((header) =>
-      camelCaseToTitleCase(header)
-    )
-
-    // Create CSV header row with formatted headers
-    const csvHeaders = formattedHeaders.join(",")
-
-    // Create CSV data rows
-    const csvRows = data.map((row) => {
-      return headers
-        .map((header) => {
-          const value = row[header as keyof ITariffRPT]
-          // Handle null/undefined values
-          if (value === null || value === undefined) {
-            return ""
-          }
-          // Escape commas and quotes in values
-          const stringValue = String(value)
-          if (stringValue.includes(",") || stringValue.includes('"')) {
-            return `"${stringValue.replace(/"/g, '""')}"`
-          }
-          return stringValue
-        })
-        .join(",")
-    })
-
-    // Combine headers and rows
-    return [csvHeaders, ...csvRows].join("\n")
-  }
-
-  // Helper function to download CSV file
-  const downloadCSV = (csvContent: string, filename: string) => {
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
-    const url = URL.createObjectURL(blob)
-
-    link.setAttribute("href", url)
-    link.setAttribute("download", filename)
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
   }
 
   const handleConfirmCopyRate = async () => {
@@ -1101,7 +1056,7 @@ export default function TariffPage() {
             variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            title="Download Rates"
+            title="Download Excel"
           >
             <DownloadIcon className="h-4 w-4" />
           </Button>
@@ -1487,12 +1442,15 @@ export default function TariffPage() {
             <DialogHeader>
               <DialogTitle>Download Tariff Rates</DialogTitle>
               <DialogDescription>
-                Select filters to download tariff rates
+                Select customer and port to export tariff rates to Excel
               </DialogDescription>
             </DialogHeader>
             <DownloadTariffForm
               onCancelAction={() => setShowDownloadForm(false)}
               onDownloadAction={handleDownloadTariff}
+              defaultCompanyId={companyId}
+              defaultCustomerId={watchedCustomerId}
+              defaultPortId={form.watch("portId")}
             />
             {isDownloading && (
               <div className="text-muted-foreground py-2 text-center text-sm">

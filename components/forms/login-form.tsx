@@ -171,10 +171,11 @@ export function LoginForm({
         loginResponse.result === 2 &&
         loginResponse.activeSessions?.length
       ) {
+        const normalize = (r?: string) => r?.replace("×", "x") ?? ""
         const sameDevice = loginResponse.activeSessions.find(
           (s) =>
             s.platform === deviceInfo?.platform &&
-            s.screenResolution === deviceInfo?.screenResolution
+            normalize(s.screenResolution) === normalize(deviceInfo?.screenResolution)
         )
         if (sameDevice) {
           const forced = await loginForce(
