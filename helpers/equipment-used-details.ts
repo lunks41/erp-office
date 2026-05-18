@@ -100,6 +100,9 @@ function mapApiDetailRows(rows: IEquipmentUsedDt[]): EquipmentUsedDetailFormValu
     crane: d.crane ?? 0,
     forklift: d.forklift ?? 0,
     stevedore: d.stevedore ?? 0,
+    mafi: (d.mafi ?? "").trim(),
+    gear: d.gear ?? 0,
+    remarks: (d.remarks ?? "").trim(),
   }))
 }
 
@@ -133,6 +136,9 @@ export function buildEquipmentUsedDetailsFromApi(
       crane: data.craneloading ?? 0,
       forklift: data.forkliftloading ?? 0,
       stevedore: data.stevedoreloading ?? 0,
+      mafi: data.mafi ?? "",
+      gear: data.gear ?? 0,
+      remarks: data.remarks ?? "",
     },
     {
       itemNo: 0,
@@ -146,6 +152,9 @@ export function buildEquipmentUsedDetailsFromApi(
       crane: data.craneOffloading ?? 0,
       forklift: data.forkliftOffloading ?? 0,
       stevedore: data.stevedoreOffloading ?? 0,
+      mafi: data.mafi ?? "",
+      gear: data.gear ?? 0,
+      remarks: data.remarks ?? "",
     },
   ]
 }
@@ -165,6 +174,28 @@ function formatDateRangeLabel(
   const sorted = [...formatted].sort()
   if (sorted[0] === sorted[sorted.length - 1]) return sorted[0]
   return `${sorted[0]}–${sorted[sorted.length - 1]}`
+}
+
+/** `REF | TALLY, REF | TALLY : Remarks` for lookups / transportation labels. */
+export function formatEquipmentUsedServiceItemLabel(
+  lines: Pick<IEquipmentUsedDt, "referenceNo" | "tallySheetNo" | "remarks">[],
+  remarks?: string | null
+): string {
+  const pairs = lines
+    .map((line) => {
+      const ref = (line.referenceNo ?? "").trim() || "-"
+      const tally = (line.tallySheetNo ?? "").trim() || "-"
+      return `${ref} | ${tally}`
+    })
+    .filter(Boolean)
+  const body = pairs.join(", ")
+  const lineRemarks = lines
+    .map((l) => (l.remarks ?? "").trim())
+    .filter(Boolean)
+    .join("; ")
+  const note = (remarks ?? lineRemarks).trim()
+  if (!body) return note
+  return note ? `${body} : ${note}` : body
 }
 
 /** Summary for list row: counts and optional date span per type. */
@@ -234,5 +265,8 @@ export function applyLegacySummaryFromDetails(
     craneOffloading: firstOff?.crane ?? 0,
     forkliftOffloading: firstOff?.forklift ?? 0,
     stevedoreOffloading: firstOff?.stevedore ?? 0,
+    mafi: (firstLine?.mafi ?? "").trim(),
+    gear: firstLine?.gear ?? 0,
+    remarks: (firstLine?.remarks ?? "").trim(),
   }
 }

@@ -597,6 +597,12 @@ export const EquipmentUsedDetailSchema = z.object({
   crane: z.number().optional(),
   forklift: z.number().optional(),
   stevedore: z.number().optional(),
+  mafi: z.string().max(100).optional(),
+  gear: z.number().optional(),
+  remarks: z
+    .string()
+    .max(500, "Remarks must be less than 500 characters")
+    .optional(),
 })
 
 export type EquipmentUsedDetailSchemaType = z.infer<
@@ -611,10 +617,8 @@ export const EquipmentUsedSchema = z
     taskId: z.number().min(1, "Task ID is required"),
     chargeId: z.number().min(1, "Charge is required"),
 
-    mafi: z.string().optional(),
     others: z.string().optional(),
     providerName: z.string().optional(),
-    gear: z.number().optional(),
     bargeId: z.number().optional(),
     ameTally: z.string().optional(),
     /** UI-only section toggle for loading lines. */
@@ -623,11 +627,6 @@ export const EquipmentUsedSchema = z
     isOffloading: z.boolean().optional(),
     /** Line items for `Ser_EquipmentUsedDt`. */
     details: z.array(EquipmentUsedDetailSchema).optional(),
-    remarks: z
-      .string()
-      .max(500, "Remarks must be less than 500 characters")
-      .optional()
-      .optional(),
     taskStatusId: z.number().min(1, "Status is required"),
     isNotes: z.boolean(),
     notes: z.string().optional(),

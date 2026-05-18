@@ -272,10 +272,13 @@ export function EquipmentUsedTable({
         minSize: 70,
       },
       {
-        accessorKey: "mafi",
+        id: "lineMafi",
         header: "MAFI",
         cell: ({ row }) => (
-          <div className="truncate">{row.getValue("mafi") || "-"}</div>
+          <EquipmentUsedInlineTextCell
+            lines={getDisplayDetailLines(row.original)}
+            format={(line) => (line.mafi ?? "").trim() || "-"}
+          />
         ),
         size: 100,
         minSize: 80,
@@ -300,12 +303,14 @@ export function EquipmentUsedTable({
         minSize: 130,
       },
       {
-        accessorKey: "gear",
+        id: "lineGear",
         header: "Gear",
-        cell: ({ row }) => {
-          const v = row.getValue("gear") as number | null | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
-        },
+        cell: ({ row }) => (
+          <EquipmentUsedInlineNumberCell
+            lines={getDisplayDetailLines(row.original)}
+            getValue={(line) => line.gear}
+          />
+        ),
         size: 90,
         minSize: 80,
       },
@@ -328,8 +333,14 @@ export function EquipmentUsedTable({
         minSize: 100,
       },
       {
-        accessorKey: "remarks",
+        id: "lineRemarks",
         header: "Remarks",
+        cell: ({ row }) => (
+          <EquipmentUsedInlineTextCell
+            lines={getDisplayDetailLines(row.original)}
+            format={(line) => (line.remarks ?? "").trim() || "-"}
+          />
+        ),
         size: 200,
         minSize: 150,
       },

@@ -97,13 +97,10 @@ export function EquipmentUsedForm({
       jobOrderNo: jobData.jobOrderNo,
       taskId: Task.EquipmentUsed,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? 0,
-      mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
       providerName: initialData?.providerName ?? "",
-      gear: initialData?.gear ?? 0,
       bargeId: initialData?.bargeId ?? 0,
       ameTally: initialData?.ameTally ?? "",
-      remarks: initialData?.remarks ?? "",
       taskStatusId: initialData?.taskStatusId ?? taskDefaults.taskStatusId ?? 1,
       isNotes: initialData?.isNotes ?? false,
       notes:
@@ -161,13 +158,10 @@ export function EquipmentUsedForm({
       jobOrderNo: jobData.jobOrderNo,
       taskId: Task.EquipmentUsed,
       chargeId: initialData?.chargeId ?? taskDefaults.chargeId ?? 0,
-      mafi: initialData?.mafi ?? "",
       others: initialData?.others ?? "",
       providerName: initialData?.providerName ?? "",
-      gear: initialData?.gear ?? 0,
       bargeId: initialData?.bargeId ?? 0,
       ameTally: initialData?.ameTally ?? "",
-      remarks: initialData?.remarks ?? "",
       taskStatusId: initialData?.taskStatusId ?? taskDefaults.taskStatusId ?? 1,
       isNotes: initialData?.isNotes ?? false,
       notes:
@@ -214,6 +208,9 @@ export function EquipmentUsedForm({
     return {
       date: template?.date ?? format(new Date(), dateFormat),
       referenceNo: template?.referenceNo ?? "",
+      mafi: template?.mafi ?? "",
+      gear: template?.gear ?? 0,
+      remarks: template?.remarks ?? "",
     }
   }
 
@@ -230,6 +227,9 @@ export function EquipmentUsedForm({
       crane: 0,
       forklift: 0,
       stevedore: 0,
+      mafi: defaults.mafi,
+      gear: defaults.gear,
+      remarks: defaults.remarks,
     })
   }
 
@@ -246,6 +246,9 @@ export function EquipmentUsedForm({
       crane: 0,
       forklift: 0,
       stevedore: 0,
+      mafi: defaults.mafi,
+      gear: defaults.gear,
+      remarks: defaults.remarks,
     })
   }
 
@@ -289,20 +292,6 @@ export function EquipmentUsedForm({
                   label="PO No"
                   isDisabled={isConfirmed}
                 />
-                <div className="grid grid-cols-2 gap-2">
-                  <CustomInput
-                    form={form}
-                    name="mafi"
-                    label="MAFI"
-                    isDisabled={isConfirmed}
-                  />
-                  <CustomNumberInput
-                    form={form}
-                    name="gear"
-                    label="Gear"
-                    isDisabled={isConfirmed}
-                  />
-                </div>
                 <CustomInput
                   form={form}
                   name="others"
@@ -368,73 +357,115 @@ export function EquipmentUsedForm({
                       <div
                         key={fields[index]?.id ?? `detail-${index}`}
                         className={cn(
-                          "flex flex-col gap-2 rounded-md border p-2 sm:flex-row sm:items-end",
+                          "flex flex-col gap-2 rounded-md border p-2",
                           row.isOffloading
                             ? "border-purple-200 bg-purple-50/40"
                             : "border-blue-200 bg-blue-50/40"
                         )}
                       >
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="h-9 shrink-0 self-start sm:self-end"
-                          disabled={isConfirmed}
-                          onClick={() => remove(index)}
-                          title="Remove line"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "h-6 w-fit shrink-0 self-start sm:self-end",
-                            row.isOffloading
-                              ? "bg-purple-100 text-purple-800"
-                              : "text-primary bg-blue-100"
-                          )}
-                        >
-                          {row.isOffloading ? "Offloading" : "Loading"}
-                        </Badge>
-                        <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-7">
-                          <CustomDateNew
-                            form={form}
-                            name={`details.${index}.date`}
-                            label="Date"
-                            isRequired
-                            isDisabled={isConfirmed}
-                            isFutureShow={true}
-                          />
-                          <CustomInput
-                            form={form}
-                            name={`details.${index}.referenceNo`}
-                            label="Reference No"
-                            isDisabled={isConfirmed}
-                          />
-                          <CustomInput
-                            form={form}
-                            name={`details.${index}.tallySheetNo`}
-                            label="Tally Sheet No"
-                            isDisabled={isConfirmed}
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name={`details.${index}.crane`}
-                            label="Crane"
-                            isDisabled={isConfirmed}
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name={`details.${index}.forklift`}
-                            label="ForkLift"
-                            isDisabled={isConfirmed}
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name={`details.${index}.stevedore`}
-                            label="Stevedore"
-                            isDisabled={isConfirmed}
-                          />
+                        <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-end">
+                          {/* 1. Name (type + remove) */}
+                          <div className="flex shrink-0 items-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-9 shrink-0"
+                              disabled={isConfirmed}
+                              onClick={() => remove(index)}
+                              title="Remove line"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                            <div className="flex min-w-22 flex-col gap-0.5">
+                              <span className="text-xs font-medium">Name</span>
+                              <Badge
+                                variant="secondary"
+                                className={cn(
+                                  "h-9 w-full justify-center px-2 text-xs",
+                                  row.isOffloading
+                                    ? "bg-purple-100 text-purple-800"
+                                    : "text-primary bg-blue-100"
+                                )}
+                              >
+                                {row.isOffloading ? "Offloading" : "Loading"}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          {/* 2. Date */}
+                          <div className="shrink-0">
+                            <CustomDateNew
+                              form={form}
+                              name={`details.${index}.date`}
+                              label="Date"
+                              isRequired
+                              isDisabled={isConfirmed}
+                              isFutureShow={true}
+                              className="w-35"
+                            />
+                          </div>
+
+                          {/* 3. Reference, tally, equipment counts */}
+                          <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+                            <CustomInput
+                              form={form}
+                              name={`details.${index}.referenceNo`}
+                              label="Reference No"
+                              isDisabled={isConfirmed}
+                            />
+                            <CustomInput
+                              form={form}
+                              name={`details.${index}.tallySheetNo`}
+                              label="Tally Sheet No"
+                              isDisabled={isConfirmed}
+                            />
+                            <CustomNumberInput
+                              form={form}
+                              name={`details.${index}.crane`}
+                              label="Crane"
+                              isDisabled={isConfirmed}
+                              className="min-w-0 max-w-22"
+                            />
+                            <CustomNumberInput
+                              form={form}
+                              name={`details.${index}.forklift`}
+                              label="ForkLift"
+                              isDisabled={isConfirmed}
+                              className="min-w-0 max-w-22"
+                            />
+                            <CustomNumberInput
+                              form={form}
+                              name={`details.${index}.stevedore`}
+                              label="Stevedore"
+                              isDisabled={isConfirmed}
+                              className="min-w-0 max-w-22"
+                            />
+                            <CustomInput
+                              form={form}
+                              name={`details.${index}.mafi`}
+                              label="MAFI"
+                              isDisabled={isConfirmed}
+                              className="min-w-0 max-w-22"
+                            />
+                            <CustomNumberInput
+                              form={form}
+                              name={`details.${index}.gear`}
+                              label="Gear"
+                              isDisabled={isConfirmed}
+                              className="min-w-0 max-w-22"
+                            />
+                          </div>
+
+                          {/* 4. Remarks (2-col width) */}
+                          <div className="min-w-0 xl:w-56 xl:shrink-0 2xl:w-64">
+                            <CustomTextarea
+                              form={form}
+                              name={`details.${index}.remarks`}
+                              label="Remarks"
+                              isDisabled={isConfirmed}
+                            />
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -467,15 +498,7 @@ export function EquipmentUsedForm({
             </div>
 
             <div className="grid grid-cols-4 gap-2">
-              <div className="col-span-2">
-                <CustomTextarea
-                  form={form}
-                  name="remarks"
-                  label="Remarks"
-                  isDisabled={isConfirmed}
-                />
-              </div>
-              <div className="col-span-2 flex w-full gap-2">
+              <div className="col-span-4 flex w-full gap-2">
                 <div className="w-1/3">
                   <CustomCheckbox
                     form={form}

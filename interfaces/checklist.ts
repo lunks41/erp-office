@@ -331,6 +331,9 @@ export interface IEquipmentUsedDt {
   crane?: number | null
   forklift?: number | null
   stevedore?: number | null
+  mafi?: string | null
+  gear?: number | null
+  remarks?: string | null
   createDate?: Date | string | null
 }
 
@@ -345,9 +348,11 @@ export interface IEquipmentUsed {
   chargeId: number
   chargeName?: string
 
+  /** Summary from first detail line when API returns list header fields. */
   mafi?: string
   others?: string
   providerName?: string
+  /** Summary from first detail line when API returns list header fields. */
   gear?: number
   bargeId?: number
   bargeName?: string
