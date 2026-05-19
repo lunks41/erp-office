@@ -6,7 +6,6 @@ import { toast } from "sonner"
 import {
   deleteData,
   deleteDataWithRemarks,
-  getById,
   getData,
   saveData,
 } from "@/lib/api-client"
@@ -25,6 +24,11 @@ const baseQueryConfig = {
   pageNumber: "1",
   pageSize: "2000",
 }
+
+const noCacheQueryOptions = {
+  staleTime: 0,
+  gcTime: 0,
+} as const
 
 interface GridLayoutData {
   companyId: number
@@ -60,10 +64,7 @@ export function useGet<T>(
       }
       return await getData(cleanUrl(baseUrl), params)
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnMount: false, // Prevent refetch on mount if data exists
+    ...noCacheQueryOptions,
     ...options,
   })
 }
@@ -75,16 +76,20 @@ export function useGetById<T>(
   baseUrl: string,
   queryKey: string,
   id: string,
-  options?: Partial<UseQueryOptions<ApiResponse<T>>>
+  options?: Partial<UseQueryOptions<ApiResponse<T>>>,
+  queryParams?: Partial<QueryParams>
 ) {
   return useQuery<ApiResponse<T>>({
-    queryKey: [queryKey, id],
-    queryFn: async () => await getById(`${cleanUrl(baseUrl)}/${id}`),
+    queryKey: [queryKey, id, queryParams],
+    queryFn: async () => {
+      const params: QueryParams = {
+        ...baseQueryConfig,
+        ...queryParams,
+      }
+      return await getData(`${cleanUrl(baseUrl)}/${id}`, params)
+    },
     enabled: !!id?.trim(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnMount: false, // Prevent refetch on mount if data exists
+    ...noCacheQueryOptions,
     ...options,
   })
 }
@@ -108,10 +113,7 @@ export function useGetByPath<T>(
       }
       return await getData(`${cleanUrl(baseUrl)}/${path}`, params)
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnMount: false, // Prevent refetch on mount if data exists
+    ...noCacheQueryOptions,
     ...options,
   })
 }
@@ -128,10 +130,7 @@ export function useGetByParams<T>(
   return useQuery<ApiResponse<T>>({
     queryKey: [queryKey, params],
     queryFn: async () => await getData(`${cleanUrl(baseUrl)}/${params}`),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnMount: false, // Prevent refetch on mount if data exists
+    ...noCacheQueryOptions,
     ...options,
   })
 }
@@ -162,11 +161,7 @@ export function useGetWithDates<T>(
       }
       return await getData(cleanUrl(baseUrl), params)
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    ...noCacheQueryOptions,
     enabled, // won't auto-fetch unless manually triggered
     ...options,
   })
@@ -197,11 +192,7 @@ export function useGetByBody<T>(
       // Use getData to send as query parameters and ensure headers are sent via interceptors
       return await getData(cleanUrl(baseUrl), params)
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    ...noCacheQueryOptions,
     enabled, // won't auto-fetch unless manually triggered
     ...options,
   })
@@ -233,10 +224,8 @@ export function useGetWithPagination<T>(
       }
       return await getData(cleanUrl(baseUrl), params)
     },
-    staleTime: 0, // No stale time for pagination to ensure fresh data
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnMount: true, // Allow refetch on mount for pagination
+    ...noCacheQueryOptions,
+    refetchOnMount: true,
     ...options,
   })
 }
@@ -282,11 +271,7 @@ export function useGetWithDatesAndPagination<T>(
       }
       return await getData(cleanUrl(baseUrl), params)
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    ...noCacheQueryOptions,
     enabled, // won't auto-fetch unless manually triggered
     ...options,
   })

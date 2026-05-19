@@ -448,12 +448,12 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-auto overflow-hidden p-0"
+                      className="z-100 w-auto p-0"
                       align="end"
                       alignOffset={-8}
                       side="bottom"
                       sideOffset={10}
-                      avoidCollisions={false}
+                      collisionPadding={16}
                     >
                       <Calendar
                         mode="single"
