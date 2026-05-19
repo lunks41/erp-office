@@ -376,3 +376,13 @@ export const reportCatalogSaveSchema = z.object({
 })
 
 export type ReportCatalogSaveSchemaType = z.infer<typeof reportCatalogSaveSchema>
+
+export const announcementSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  message: z.string().min(1, "Message is required"),
+  isUrgent: z.boolean(),
+  validFrom: z.string().optional(),
+  validTo: z.string().optional(),
+})
+
+export type AnnouncementSchemaType = z.infer<typeof announcementSchema>

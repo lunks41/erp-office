@@ -821,3 +821,26 @@ export const SerTransportationHdSchema = z.object({
 export type SerTransportationHdSchemaType = z.infer<
   typeof SerTransportationHdSchema
 >
+
+/** Transportation log form (includes service item selection before data_details is built) */
+export const SerTransportationHdFormSchema = SerTransportationHdSchema.extend({
+  serviceItemNo: z.string().optional(),
+  serviceItemNoName: z.string().optional(),
+}).superRefine((data, ctx) => {
+  const serviceItemNos = (data.serviceItemNo ?? "")
+    .split(",")
+    .map((s) => Number(s.trim()))
+    .filter((n) => Number.isFinite(n) && n > 0)
+
+  if (serviceItemNos.length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Service Item No is required",
+      path: ["serviceItemNo"],
+    })
+  }
+})
+
+export type SerTransportationHdFormSchemaType = z.infer<
+  typeof SerTransportationHdFormSchema
+>

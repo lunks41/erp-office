@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { IUserGroupHierarchy } from "@/interfaces/admin"
+import { IconArrowRight } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -10,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { IconArrowRight } from "@tabler/icons-react"
 
 interface HierarchyFormProps {
   item: IUserGroupHierarchy
@@ -27,16 +27,34 @@ export function HierarchyForm({
   onSubmit,
   onCancel,
 }: HierarchyFormProps) {
+  const portalRef = useRef<HTMLDivElement>(null)
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+    null
+  )
+
   const [parentGroupId, setParentGroupId] = useState<string>(
-    String(item.parentGroupId),
+    String(item.parentGroupId)
   )
 
   useEffect(() => {
     setParentGroupId(String(item.parentGroupId))
-  }, [item.parentGroupId])
+  }, [item.groupId, item.parentGroupId])
 
-  const selectedParent = allGroups.find(
-    (g) => g.groupId === Number(parentGroupId),
+  useEffect(() => {
+    setPortalContainer(portalRef.current)
+  }, [])
+
+  const parentOptions = useMemo(
+    () =>
+      allGroups.filter(
+        (g) => g.groupId !== item.groupId && g.groupId > 0
+      ),
+    [allGroups, item.groupId]
+  )
+
+  const selectedParent = useMemo(
+    () => parentOptions.find((g) => g.groupId === Number(parentGroupId)),
+    [parentOptions, parentGroupId]
   )
 
   const handleSave = () => {
@@ -45,7 +63,7 @@ export function HierarchyForm({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div ref={portalRef} className="flex flex-col gap-5">
       {/* Read-only acting group info */}
       <div className="rounded-md border bg-muted/40 p-3 text-sm">
         <p className="text-xs font-medium text-muted-foreground mb-1">
@@ -70,11 +88,17 @@ export function HierarchyForm({
           <span className="text-destructive">*</span>
         </label>
         <Select value={parentGroupId} onValueChange={setParentGroupId}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a parent group…" />
           </SelectTrigger>
-          <SelectContent>
-            {allGroups.map((g) => (
+          <SelectContent
+            container={portalContainer}
+            position="popper"
+            side="bottom"
+            sideOffset={4}
+            className="z-[100] max-h-72"
+          >
+            {parentOptions.map((g) => (
               <SelectItem key={g.groupId} value={String(g.groupId)}>
                 <span className="font-mono text-xs text-muted-foreground mr-2">
                   {g.groupCode}
@@ -88,11 +112,11 @@ export function HierarchyForm({
         {selectedParent && (
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">{item.groupCode}</span>
-            <IconArrowRight className="h-3 w-3" />
+            <IconArrowRight className="h-3 w-3 shrink-0" />
             <span className="font-medium text-foreground">
               {selectedParent.groupCode}
             </span>
-            <IconArrowRight className="h-3 w-3" />
+            <IconArrowRight className="h-3 w-3 shrink-0" />
             <span>… → ADMIN</span>
           </p>
         )}

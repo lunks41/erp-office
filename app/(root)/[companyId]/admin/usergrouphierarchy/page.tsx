@@ -124,10 +124,17 @@ export default function UserGroupHierarchyPage() {
       </div>
 
       {/* Edit dialog */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open)
+          if (!open) setSelectedItem(undefined)
+        }}
+      >
         <DialogContent
           className="sm:max-w-md"
           onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
             <DialogTitle>
@@ -142,6 +149,7 @@ export default function UserGroupHierarchyPage() {
           <Separator />
           {selectedItem && (
             <HierarchyForm
+              key={selectedItem.groupId}
               item={selectedItem}
               allGroups={gridData}
               isSubmitting={saveMutation.isPending}

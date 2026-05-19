@@ -1,17 +1,15 @@
 ﻿"use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Loader2, Megaphone, Pencil, Plus, Trash2 } from "lucide-react"
+import { format, parseISO } from "date-fns"
+import { toast } from "sonner"
+
 import { apiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -25,8 +23,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { toast } from "sonner"
-import { format, parseISO } from "date-fns"
+import {
+  AnnouncementForm,
+  AnnouncementFormValues,
+  toAnnouncementIsoDate,
+  toFormDate,
+} from "./components/announcement-form"
+import { useCompanyStore } from "@/stores/company-store"
+import { clientDateFormat } from "@/lib/date-utils"
 
 interface Announcement {
   announcementId: number
@@ -40,22 +44,6 @@ interface Announcement {
   createdByName: string
 }
 
-interface AnnouncementForm {
-  title: string
-  message: string
-  isUrgent: boolean
-  validFrom: string
-  validTo: string
-}
-
-const emptyForm: AnnouncementForm = {
-  title: "",
-  message: "",
-  isUrgent: false,
-  validFrom: "",
-  validTo: "",
-}
-
 function fmtDate(str: string | null) {
   if (!str) return "—"
   try {
@@ -66,13 +54,15 @@ function fmtDate(str: string | null) {
 }
 
 export default function AnnouncementsPage() {
+  const { decimals } = useCompanyStore()
+  const dateFormat = decimals[0]?.dateFormat || clientDateFormat
+
   const [items, setItems] = useState<Announcement[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
-  const [editId, setEditId] = useState<number | null>(null)
-  const [form, setForm] = useState<AnnouncementForm>(emptyForm)
+  const [editItem, setEditItem] = useState<Announcement | null>(null)
 
   const fetchAnnouncements = useCallback(async () => {
     setIsLoading(true)
@@ -92,46 +82,54 @@ export default function AnnouncementsPage() {
     fetchAnnouncements()
   }, [fetchAnnouncements])
 
+  const formInitialValues = useMemo<AnnouncementFormValues | undefined>(() => {
+    if (!editItem) return undefined
+    return {
+      title: editItem.title,
+      message: editItem.message,
+      isUrgent: editItem.isUrgent,
+      validFrom: toFormDate(editItem.validFrom, dateFormat),
+      validTo: toFormDate(editItem.validTo, dateFormat),
+    }
+  }, [editItem, dateFormat])
+
   const openCreate = () => {
-    setEditId(null)
-    setForm(emptyForm)
+    setEditItem(null)
     setDialogOpen(true)
   }
 
   const openEdit = (a: Announcement) => {
-    setEditId(a.announcementId)
-    setForm({
-      title: a.title,
-      message: a.message,
-      isUrgent: a.isUrgent,
-      validFrom: a.validFrom ? a.validFrom.substring(0, 10) : "",
-      validTo: a.validTo ? a.validTo.substring(0, 10) : "",
-    })
+    setEditItem(a)
     setDialogOpen(true)
   }
 
-  const handleSave = async () => {
-    if (!form.title.trim() || !form.message.trim()) {
-      toast.error("Title and message are required.")
-      return
-    }
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open)
+    if (!open) setEditItem(null)
+  }
+
+  const handleSave = async (values: AnnouncementFormValues) => {
     setIsSaving(true)
     try {
       const payload = {
-        title: form.title.trim(),
-        message: form.message.trim(),
-        isUrgent: form.isUrgent,
-        validFrom: form.validFrom ? new Date(form.validFrom).toISOString() : null,
-        validTo: form.validTo ? new Date(form.validTo).toISOString() : null,
+        title: values.title.trim(),
+        message: values.message.trim(),
+        isUrgent: values.isUrgent,
+        validFrom: toAnnouncementIsoDate(values.validFrom),
+        validTo: toAnnouncementIsoDate(values.validTo),
       }
-      if (editId) {
-        await apiClient.post(`/notifications/UpdateAnnouncement/${editId}`, payload)
+      if (editItem) {
+        await apiClient.post(
+          `/notifications/UpdateAnnouncement/${editItem.announcementId}`,
+          payload
+        )
         toast.success("Announcement updated.")
       } else {
         await apiClient.post("/notifications/SaveAnnouncement", payload)
         toast.success("Announcement created.")
       }
       setDialogOpen(false)
+      setEditItem(null)
       fetchAnnouncements()
     } catch {
       toast.error("Failed to save announcement.")
@@ -260,101 +258,25 @@ export default function AnnouncementsPage() {
         )}
       </div>
 
-      {/* Create / Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editId ? "Edit Announcement" : "New Announcement"}
+              {editItem ? "Edit Announcement" : "New Announcement"}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="ann-title">
-                Title <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="ann-title"
-                value={form.title}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, title: e.target.value }))
-                }
-                placeholder="Announcement title"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="ann-message">
-                Message <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="ann-message"
-                value={form.message}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, message: e.target.value }))
-                }
-                placeholder="Announcement message"
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="ann-from">Valid From</Label>
-                <Input
-                  id="ann-from"
-                  type="date"
-                  value={form.validFrom}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, validFrom: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ann-to">Valid To</Label>
-                <Input
-                  id="ann-to"
-                  type="date"
-                  value={form.validTo}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, validTo: e.target.value }))
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="ann-urgent"
-                checked={form.isUrgent}
-                onCheckedChange={(v) =>
-                  setForm((f) => ({ ...f, isUrgent: v === true }))
-                }
-              />
-              <Label htmlFor="ann-urgent" className="cursor-pointer font-normal">
-                Mark as Urgent
-              </Label>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={isSaving}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {editId ? "Save Changes" : "Create"}
-            </Button>
-          </DialogFooter>
+          <AnnouncementForm
+            key={editItem?.announcementId ?? "new"}
+            initialValues={formInitialValues}
+            isSubmitting={isSaving}
+            submitLabel={editItem ? "Save Changes" : "Create"}
+            onSubmit={handleSave}
+            onCancel={() => handleDialogOpenChange(false)}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
       <AlertDialog
         open={deleteId != null}
         onOpenChange={(open) => !open && setDeleteId(null)}

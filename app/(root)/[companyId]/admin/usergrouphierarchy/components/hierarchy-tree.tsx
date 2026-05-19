@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import type { IUserGroupHierarchy } from "@/interfaces/admin"
 
 interface TreeNode {
@@ -76,7 +77,7 @@ function TreeNodeItem({
 }
 
 export function HierarchyTree({ data }: { data: IUserGroupHierarchy[] }) {
-  const roots = buildTree(data)
+  const roots = useMemo(() => buildTree(data), [data])
 
   if (roots.length === 0) {
     return (

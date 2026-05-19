@@ -8,9 +8,11 @@ import {
 } from "@/interfaces/checklist"
 import { IServiceItemNoLookup, ITaskLookup } from "@/interfaces/lookup"
 import {
-  SerTransportationHdSchema,
+  SerTransportationHdFormSchema,
+  SerTransportationHdFormSchemaType,
   SerTransportationHdSchemaType,
 } from "@/schemas/checklist"
+import { toast } from "sonner"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -41,10 +43,7 @@ interface TransportationLogFormProps {
   isConfirmed?: boolean
 }
 
-type TransportationFormValues = SerTransportationHdSchemaType & {
-  serviceItemNo?: string
-  serviceItemNoName?: string
-}
+type TransportationFormValues = SerTransportationHdFormSchemaType
 
 export function TransportationLogForm({
   jobData,
@@ -104,7 +103,7 @@ export function TransportationLogForm({
   )
 
   const form = useForm<TransportationFormValues>({
-    resolver: zodResolver(SerTransportationHdSchema) as never,
+    resolver: zodResolver(SerTransportationHdFormSchema),
     defaultValues: {
       transportationId: initialData?.transportationId ?? 0,
       companyId: jobData.companyId,
@@ -270,6 +269,15 @@ export function TransportationLogForm({
             index
           ] ?? "",
       }))
+
+    if (detailRows.length === 0) {
+      form.setError("serviceItemNo", {
+        type: "manual",
+        message: "Service Item No is required",
+      })
+      toast.error("Service Item No is required")
+      return
+    }
 
     const formattedData: SerTransportationHdSchemaType = {
       ...(data as SerTransportationHdSchemaType),
