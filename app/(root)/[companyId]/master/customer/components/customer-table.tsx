@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback, useEffect, useState } from "react"
 import { useCompanyStore } from "@/stores/company-store"
 
 import { ICustomer, ICustomerFilter } from "@/interfaces/customer"
@@ -12,6 +13,7 @@ import { format, isValid } from "date-fns"
 
 import { TableName } from "@/lib/utils"
 import { DialogDataTable } from "@/components/table/table-dialog"
+import { MasterTableSearchBar } from "@/components/table/master-table-search-bar"
 
 interface CustomerTableProps {
   data: ICustomer[]
@@ -48,6 +50,22 @@ export function CustomerTable({
 }: CustomerTableProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+  const [searchInput, setSearchInput] = useState(initialSearchValue ?? "")
+
+  useEffect(() => {
+    setSearchInput(initialSearchValue ?? "")
+  }, [initialSearchValue])
+
+  const handleSearchClick = useCallback(() => {
+    onFilterChange?.({
+      search: searchInput.trim() || undefined,
+    })
+  }, [onFilterChange, searchInput])
+
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("")
+    onFilterChange?.({ search: "" })
+  }, [onFilterChange])
 
   const columns: ColumnDef<ICustomer>[] = [
     {
@@ -212,7 +230,7 @@ export function CustomerTable({
   }) => {
     if (onFilterChange) {
       const newFilters: ICustomerFilter = {
-        search: filters.search,
+        search: filters.search ?? initialSearchValue,
         sortOrder: filters.sortOrder as "asc" | "desc" | undefined,
       }
       onFilterChange(newFilters)
@@ -222,6 +240,15 @@ export function CustomerTable({
   // Original table implementation for backward compatibility
   return (
     <div className="w-full overflow-auto">
+      {serverSidePagination && (
+        <MasterTableSearchBar
+          value={searchInput}
+          onChange={setSearchInput}
+          onSearch={handleSearchClick}
+          onClear={handleClearSearch}
+          isLoading={isLoading}
+        />
+      )}
       <DialogDataTable
         data={data}
         columns={columns}
@@ -239,6 +266,7 @@ export function CustomerTable({
         currentPage={currentPage}
         pageSize={pageSize}
         serverSidePagination={serverSidePagination}
+        externalSearch={serverSidePagination}
         onRowSelect={onSelect}
       />
     </div>

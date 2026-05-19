@@ -526,7 +526,7 @@ export default function SupplierPage() {
 
   const handleFilterChange = useCallback(
     (newFilters: { search?: string; sortOrder?: string }) => {
-      setFilters(newFilters as ISupplierFilter)
+      setFilters((prev) => ({ ...prev, ...newFilters }) as ISupplierFilter)
       setCurrentPage(1) // Reset to first page when filtering
     },
     []

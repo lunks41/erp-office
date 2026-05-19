@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback, useEffect, useState } from "react"
 import { useCompanyStore } from "@/stores/company-store"
 
 import { IBank, IBankFilter } from "@/interfaces/bank"
@@ -13,6 +14,7 @@ import { format, isValid } from "date-fns"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { DialogDataTable } from "@/components/table/table-dialog"
+import { MasterTableSearchBar } from "@/components/table/master-table-search-bar"
 
 interface BankTableProps {
   data: IBank[]
@@ -49,6 +51,22 @@ export function BankTable({
 }: BankTableProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+  const [searchInput, setSearchInput] = useState(initialSearchValue ?? "")
+
+  useEffect(() => {
+    setSearchInput(initialSearchValue ?? "")
+  }, [initialSearchValue])
+
+  const handleSearchClick = useCallback(() => {
+    onFilterChange?.({
+      search: searchInput.trim() || undefined,
+    })
+  }, [onFilterChange, searchInput])
+
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("")
+    onFilterChange?.({ search: "" })
+  }, [onFilterChange])
 
   const columns: ColumnDef<IBank>[] = [
     {
@@ -209,7 +227,7 @@ export function BankTable({
   }) => {
     if (onFilterChange) {
       const newFilters: IBankFilter = {
-        search: filters.search,
+        search: filters.search ?? initialSearchValue,
         sortOrder: filters.sortOrder as "asc" | "desc" | undefined,
       }
       onFilterChange(newFilters)
@@ -218,6 +236,15 @@ export function BankTable({
 
   return (
     <div className="w-full overflow-auto">
+      {serverSidePagination && (
+        <MasterTableSearchBar
+          value={searchInput}
+          onChange={setSearchInput}
+          onSearch={handleSearchClick}
+          onClear={handleClearSearch}
+          isLoading={isLoading}
+        />
+      )}
       <DialogDataTable
         data={data}
         columns={columns}
@@ -235,6 +262,7 @@ export function BankTable({
         currentPage={currentPage}
         pageSize={pageSize}
         serverSidePagination={serverSidePagination}
+        externalSearch={serverSidePagination}
         onRowSelect={onSelect}
       />
     </div>

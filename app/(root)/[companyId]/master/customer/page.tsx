@@ -518,7 +518,7 @@ export default function CustomerPage() {
 
   const handleFilterChange = useCallback(
     (newFilters: { search?: string; sortOrder?: string }) => {
-      setFilters(newFilters as ICustomerFilter)
+      setFilters((prev) => ({ ...prev, ...newFilters }) as ICustomerFilter)
       setCurrentPage(1) // Reset to first page when filtering
     },
     []

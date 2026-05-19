@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback, useEffect, useState } from "react"
 import { useCompanyStore } from "@/stores/company-store"
 
 import { ISupplier, ISupplierFilter } from "@/interfaces/supplier"
@@ -13,6 +14,7 @@ import { format, isValid } from "date-fns"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { DialogDataTable } from "@/components/table/table-dialog"
+import { MasterTableSearchBar } from "@/components/table/master-table-search-bar"
 
 interface SupplierTableProps {
   data: ISupplier[]
@@ -49,6 +51,22 @@ export function SupplierTable({
 }: SupplierTableProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+  const [searchInput, setSearchInput] = useState(initialSearchValue ?? "")
+
+  useEffect(() => {
+    setSearchInput(initialSearchValue ?? "")
+  }, [initialSearchValue])
+
+  const handleSearchClick = useCallback(() => {
+    onFilterChange?.({
+      search: searchInput.trim() || undefined,
+    })
+  }, [onFilterChange, searchInput])
+
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("")
+    onFilterChange?.({ search: "" })
+  }, [onFilterChange])
 
   const columns: ColumnDef<ISupplier>[] = [
     {
@@ -279,7 +297,7 @@ export function SupplierTable({
   }) => {
     if (onFilterChange) {
       const newFilters: ISupplierFilter = {
-        search: filters.search,
+        search: filters.search ?? initialSearchValue,
         sortOrder: filters.sortOrder as "asc" | "desc" | undefined,
       }
       onFilterChange(newFilters)
@@ -288,6 +306,15 @@ export function SupplierTable({
 
   return (
     <div className="w-full overflow-auto">
+      {serverSidePagination && (
+        <MasterTableSearchBar
+          value={searchInput}
+          onChange={setSearchInput}
+          onSearch={handleSearchClick}
+          onClear={handleClearSearch}
+          isLoading={isLoading}
+        />
+      )}
       <DialogDataTable
         data={data}
         columns={columns}
@@ -305,6 +332,7 @@ export function SupplierTable({
         currentPage={currentPage}
         pageSize={pageSize}
         serverSidePagination={serverSidePagination}
+        externalSearch={serverSidePagination}
         onRowSelect={onSelect}
       />
     </div>

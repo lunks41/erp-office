@@ -66,6 +66,8 @@ interface DialogDataTableProps<T> {
   totalRecords?: number
   serverSidePagination?: boolean
   showSearch?: boolean // When false, hide the header search box (default true)
+  /** When true, search is controlled outside the table (no header search / no search debounce) */
+  externalSearch?: boolean
   footerRightContent?: ReactNode // Optional extra content on the right side of footer
   columnFooters?: Record<string, ReactNode> // Per-column footer content (aligned with accessorKey)
   /** Max height of the scrollable grid area */
@@ -94,6 +96,7 @@ export function DialogDataTable<T>({
   totalRecords,
   serverSidePagination = false, // Whether to use server-side pagination
   showSearch = true,
+  externalSearch = false,
   footerRightContent,
   columnFooters,
   maxHeight = "480px",
@@ -222,13 +225,10 @@ export function DialogDataTable<T>({
       return
     }
 
-    // Only sync if initialSearchValue is provided and different from tracked searchQuery
-    if (
-      initialSearchValue !== undefined &&
-      initialSearchValue !== searchQueryRef.current
-    ) {
-      setSearchQuery(initialSearchValue)
-      searchQueryRef.current = initialSearchValue
+    const nextSearch = initialSearchValue ?? ""
+    if (nextSearch !== searchQueryRef.current) {
+      setSearchQuery(nextSearch)
+      searchQueryRef.current = nextSearch
     }
   }, [initialSearchValue]) // Only depend on initialSearchValue to avoid loops
 
@@ -285,7 +285,8 @@ export function DialogDataTable<T>({
             pageIndex: currentPage - 1, // Convert to 0-based index
             pageSize, // Items per page
           },
-      globalFilter: searchQuery, // Current search query
+      globalFilter:
+        serverSidePagination && externalSearch ? "" : searchQuery,
     },
   })
 
@@ -331,7 +332,12 @@ export function DialogDataTable<T>({
 
     // If user clears the search (empty string), immediately update parent filters
     // This allows the user to clear the search box
-    if (query === "" && serverSidePagination && onFilterChange) {
+    if (
+      query === "" &&
+      serverSidePagination &&
+      onFilterChange &&
+      !externalSearch
+    ) {
       const newFilters = {
         search: undefined, // Clear the search in parent
         sortOrder: sorting[0]?.desc ? "desc" : "asc",
@@ -358,7 +364,7 @@ export function DialogDataTable<T>({
    */
   useEffect(() => {
     // Only debounce for server-side pagination
-    if (!serverSidePagination || !onFilterChange) return
+    if (!serverSidePagination || !onFilterChange || externalSearch) return
 
     // Skip debounce on first render to prevent unnecessary API call on mount
     if (isFirstRender.current) {
@@ -403,7 +409,12 @@ export function DialogDataTable<T>({
    */
   useEffect(() => {
     // Only for non-server-side pagination with no local data
-    if (serverSidePagination || (data && data.length > 0) || !onFilterChange)
+    if (
+      externalSearch ||
+      serverSidePagination ||
+      (data && data.length > 0) ||
+      !onFilterChange
+    )
       return
 
     // Debounce this as well
@@ -471,6 +482,7 @@ export function DialogDataTable<T>({
   }
 
   useEffect(() => {
+    if (externalSearch) return
     if (!data?.length && !isLoading && onFilterChange) {
       const filters = {
         search: searchQuery,
@@ -479,7 +491,7 @@ export function DialogDataTable<T>({
       onFilterChange(filters)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sorting, searchQuery, data?.length, isLoading])
+  }, [sorting, searchQuery, data?.length, isLoading, externalSearch])
 
   // Handle reset layout - reset all columns to visible and default sizes
   const handleResetLayout = useCallback(() => {
@@ -515,7 +527,7 @@ export function DialogDataTable<T>({
           moduleId={moduleId || 1}
           transactionId={transactionId || 1}
           onResetLayout={handleResetLayout}
-          showSearch={showSearch}
+          showSearch={showSearch && !externalSearch}
         />
         <DndContext
           sensors={sensors}

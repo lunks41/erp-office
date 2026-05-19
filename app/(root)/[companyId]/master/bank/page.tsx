@@ -505,7 +505,7 @@ export default function BankPage() {
 
   const handleFilterChange = useCallback(
     (newFilters: IBankFilter) => {
-      setFilters(newFilters)
+      setFilters((prev) => ({ ...prev, ...newFilters }))
       setCurrentPage(1)
     },
     []
