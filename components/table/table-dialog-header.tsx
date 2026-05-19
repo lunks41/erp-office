@@ -59,6 +59,9 @@ type DialogDataTableHeaderProps<TData> = {
   transactionId: number
   onResetLayout?: () => void // Callback to reset layout in parent component
   showSearch?: boolean // When false, hide the search box (default true)
+  explicitSearchButtons?: boolean // Search/Cancel buttons trigger API (no debounce while typing)
+  onSearchSubmit?: () => void
+  onSearchCancel?: () => void
 }
 export function DialogDataTableHeader<TData>({
   onRefreshAction,
@@ -71,6 +74,9 @@ export function DialogDataTableHeader<TData>({
   transactionId,
   onResetLayout,
   showSearch = true,
+  explicitSearchButtons = false,
+  onSearchSubmit,
+  onSearchCancel,
 }: DialogDataTableHeaderProps<TData>) {
   const [columnSearch, setColumnSearch] = useState("")
   const [isSaveLayoutOpen, setIsSaveLayoutOpen] = useState(false)
@@ -267,14 +273,48 @@ export function DialogDataTableHeader<TData>({
       </div>
       {/* Search Input */}
       <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-        {showSearch && (
-          <Input
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
-          />
-        )}
+        {showSearch &&
+          (explicitSearchButtons ? (
+            <>
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    onSearchSubmit?.()
+                  }
+                }}
+                className="h-7 w-[160px] min-w-0 px-2 py-0 text-xs leading-7 md:text-xs"
+              />
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => onSearchSubmit?.()}
+              >
+                Search
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => onSearchCancel?.()}
+              >
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="h-7 max-w-[200px] px-2 py-0 text-xs leading-7 md:text-xs"
+            />
+          ))}
         {/* Column Visibility Toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
