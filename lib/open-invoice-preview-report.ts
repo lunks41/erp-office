@@ -8,7 +8,7 @@ export type OpenInvoicePreviewReportParams = {
   locAmtDec?: number
 }
 
-/** Opens Telerik report window for draft invoice (ar/ArInvoicePreview.trdp). */
+/** Opens Telerik report window for draft invoice (checklist/InvoicePreview.trdp). */
 export function openInvoicePreviewReport({
   companyId,
   previewKey,
@@ -22,7 +22,7 @@ export function openInvoicePreviewReport({
   }
 
   const reportData = {
-    reportFile: "ar/ArInvoicePreview.trdp",
+    reportFile: "checklist/InvoicePreview.trdp",
     parameters: {
       companyId,
       previewKey,

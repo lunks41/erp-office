@@ -2,7 +2,13 @@
 
 import { useCallback, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { isStatusConfirmed } from "@/helpers/project"
+import {
+  canShowInvoicePost,
+  canShowInvoicePreview,
+  canShowJobSummaryPrint,
+  isJobLocked,
+  isJobStatusLocked,
+} from "@/helpers/project"
 import { ITallyService } from "@/interfaces"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
@@ -124,20 +130,31 @@ export function TallyServiceDetailPage({
     return normalizeTallyService(rows[0], numericCompanyId)
   }, [mode, numericCompanyId, response?.data])
 
-  const isConfirmed = tallyService?.jobStatusName
-    ? isStatusConfirmed(tallyService.jobStatusName)
-    : false
+  const jobStatus = {
+    jobStatusId: tallyService?.jobStatusId,
+    jobStatusName: tallyService?.jobStatusName,
+  }
+  const isConfirmed = isJobLocked(jobStatus)
+  const isPosted = isJobStatusLocked(jobStatus, tallyService?.isPost)
+  const allowInvoicePreviewButton = canShowInvoicePreview(jobStatus)
+  const allowInvoicePostButton = canShowInvoicePost(
+    jobStatus,
+    tallyService?.isPost
+  )
+  const allowJobSummaryPrint = canShowJobSummaryPrint(
+    jobStatus,
+    tallyService?.isPost
+  )
 
-  const isFormLocked = mode === "edit" && isConfirmed
-  const isReadOnly = isPermissionReadOnly || isFormLocked
+  const isFieldsLocked = mode === "edit" && isConfirmed
+  const isReadOnly = isPermissionReadOnly
 
   const hasPostedInvoice =
     Number(tallyService?.invoiceId ?? 0) > 0 && tallyService?.isPost === true
 
   const canPostInvoice =
     mode === "edit" &&
-    isConfirmed &&
-    !hasPostedInvoice &&
+    allowInvoicePostButton &&
     !isPermissionReadOnly &&
     !tallyService?.isCancel
 
@@ -392,7 +409,8 @@ export function TallyServiceDetailPage({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {hasPostedInvoice ? (
+                {allowJobSummaryPrint &&
+                Number(tallyService?.invoiceId ?? 0) > 0 ? (
                   <DropdownMenuItem onClick={handlePrintInvoice}>
                     Invoice Print
                   </DropdownMenuItem>
@@ -405,29 +423,29 @@ export function TallyServiceDetailPage({
             </DropdownMenu>
           )}
 
-          {mode === "edit" && isConfirmed && (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={tallyService?.isCancel}
-                onClick={handlePreviewInvoice}
-              >
-                <Eye className="mr-1 h-4 w-4" />
-                Preview Invoice
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={!canPostInvoice || isPostingInvoice}
-                onClick={() => setShowPostInvoiceConfirm(true)}
-              >
-                <FileText className="mr-1 h-4 w-4" />
-                Post Invoice
-              </Button>
-            </>
+          {mode === "edit" && allowInvoicePreviewButton && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={tallyService?.isCancel}
+              onClick={handlePreviewInvoice}
+            >
+              <Eye className="mr-1 h-4 w-4" />
+              Preview Invoice
+            </Button>
+          )}
+          {mode === "edit" && allowInvoicePostButton && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!canPostInvoice || isPostingInvoice}
+              onClick={() => setShowPostInvoiceConfirm(true)}
+            >
+              <FileText className="mr-1 h-4 w-4" />
+              Post Invoice
+            </Button>
           )}
 
           {mode === "edit" && tallyService?.invoiceNo && (
@@ -450,9 +468,9 @@ export function TallyServiceDetailPage({
           )}
 
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {isPermissionReadOnly || isFormLocked ? "Close" : "Cancel"}
+            {isPermissionReadOnly || isPosted ? "Close" : "Cancel"}
           </Button>
-          {!isPermissionReadOnly && !isFormLocked && (
+          {!isPermissionReadOnly && !isPosted && (
             <Button
               type="submit"
               form={FORM_ID}
@@ -478,6 +496,8 @@ export function TallyServiceDetailPage({
         mode={
           isReadOnly ? "view" : mode === "create" ? "create" : "edit"
         }
+        isFieldsLocked={isFieldsLocked}
+        isJobStatusLocked={isPosted}
         submitAction={handleSaveRequest}
         onCancelAction={handleCancel}
         isSubmitting={saveMutation.isPending}

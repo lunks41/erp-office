@@ -2,17 +2,23 @@
 
 import React, { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { isStatusConfirmed } from "@/helpers/project"
+import {
+  canShowInvoicePost,
+  canShowInvoicePreview,
+  canShowJobSummaryPrint,
+  isJobLocked,
+  isJobStatusLocked,
+} from "@/helpers/project"
 import {
   IDebitNoteItem,
   IJobOrderHd,
   ISaveDebitNoteItem,
 } from "@/interfaces/checklist"
+import { IInvoicePreview } from "@/interfaces/invoice-preview"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { IInvoicePreview } from "@/interfaces/invoice-preview"
 import {
   Building2,
   Edit3,
@@ -200,9 +206,21 @@ export function ChecklistTabs({
   const currentJobData = isDetailedJobData ? detailedJobData.data : jobData
 
   // ✅ SAFE: Check if currentJobData exists before accessing statusName
-  const isConfirmed = currentJobData?.jobStatusName
-    ? isStatusConfirmed(currentJobData.jobStatusName)
-    : false
+  const jobStatus = {
+    jobStatusId: currentJobData?.jobStatusId,
+    jobStatusName: currentJobData?.jobStatusName,
+  }
+  const isConfirmed = isJobLocked(jobStatus)
+  const isPosted = isJobStatusLocked(jobStatus, currentJobData?.isPost)
+  const allowInvoicePreviewButton = canShowInvoicePreview(jobStatus)
+  const allowInvoicePostButton = canShowInvoicePost(
+    jobStatus,
+    currentJobData?.isPost
+  )
+  const allowJobSummaryPrint = canShowJobSummaryPrint(
+    jobStatus,
+    currentJobData?.isPost
+  )
 
   // console.log("Original jobData:", jobData)
   // console.log("Detailed jobData:", detailedJobData)
@@ -272,7 +290,7 @@ export function ChecklistTabs({
         }
         break
       case "jobSummary":
-        if (currentJobData.isPost !== true) {
+        if (!allowJobSummaryPrint) {
           toast.error(
             "Job Summary is available only after the invoice has been posted."
           )
@@ -496,14 +514,7 @@ export function ChecklistTabs({
     }
   }
 
-  const hasPostedInvoice =
-    Boolean(currentJobData?.invoiceId) &&
-    parseInt(String(currentJobData?.invoiceId ?? 0), 10) > 0 &&
-    currentJobData?.isPost === true
-
-  const canPostInvoice =
-    isConfirmed &&
-    !hasPostedInvoice
+  const canPostInvoice = allowInvoicePostButton
 
   const handlePreviewInvoice = useCallback(async () => {
     if (!currentJobData?.jobOrderId) {
@@ -528,7 +539,9 @@ export function ChecklistTabs({
           setInvoicePreviewError("Could not read invoice preview data")
         }
       } else {
-        setInvoicePreviewError(response.data.message || "Failed to load preview")
+        setInvoicePreviewError(
+          response.data.message || "Failed to load preview"
+        )
       }
     } catch (error) {
       console.error("Error loading invoice preview:", error)
@@ -718,14 +731,14 @@ export function ChecklistTabs({
               <DropdownMenuItem onClick={() => handlePrint("purchaseList")}>
                 Purchase List
               </DropdownMenuItem>
-              {currentJobData?.isPost === true && (
+              {allowJobSummaryPrint && (
                 <DropdownMenuItem onClick={() => handlePrint("jobSummary")}>
                   Job Summary
                 </DropdownMenuItem>
               )}
-              {isConfirmed &&
+              {allowJobSummaryPrint &&
                 currentJobData?.invoiceId &&
-                currentJobData?.isPost === true && (
+                Number(currentJobData.invoiceId) > 0 && (
                   <DropdownMenuItem onClick={() => handlePrint("invoice")}>
                     Invoice Print
                   </DropdownMenuItem>
@@ -748,34 +761,29 @@ export function ChecklistTabs({
             </Button>
           )}
 
-          {/* Invoice preview / post — only when confirmed */}
-          {isConfirmed && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePreviewInvoice}
-              >
-                <Eye className="mr-1 h-4 w-4" />
-                Preview Invoice
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!canPostInvoice}
-                onClick={() => {
-                  setConfirmAction({
-                    type: "generateInvoice",
-                    title: "Generate Invoice",
-                    message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
-                  })
-                  setShowConfirmDialog(true)
-                }}
-              >
-                <FileText className="mr-1 h-4 w-4" />
-                Post Invoice
-              </Button>
-            </>
+          {allowInvoicePreviewButton && (
+            <Button variant="outline" size="sm" onClick={handlePreviewInvoice}>
+              <Eye className="mr-1 h-4 w-4" />
+              Preview Invoice
+            </Button>
+          )}
+          {allowInvoicePostButton && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!canPostInvoice}
+              onClick={() => {
+                setConfirmAction({
+                  type: "generateInvoice",
+                  title: "Generate Invoice",
+                  message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
+                })
+                setShowConfirmDialog(true)
+              }}
+            >
+              <FileText className="mr-1 h-4 w-4" />
+              Post Invoice
+            </Button>
           )}
 
           {/* Refresh button */}
@@ -850,7 +858,7 @@ export function ChecklistTabs({
           {canEdit && activeTab === "main" && (
             <Button
               size="sm"
-              disabled={isConfirmed}
+              disabled={isPosted}
               onClick={() => {
                 setConfirmAction({
                   type: "update",
@@ -873,6 +881,7 @@ export function ChecklistTabs({
             jobData={currentJobData}
             setFormRef={setFormRef}
             isConfirmed={isConfirmed}
+            isPosted={isPosted}
             onUpdateSuccess={() => {
               // Refetch data in ChecklistTabs
               refetch()
@@ -891,13 +900,6 @@ export function ChecklistTabs({
           />
         </TabsContent>
 
-        {/* <TabsContent value="documents" className="mt-0">
-          <ChecklistDocuments
-            jobData={currentJobData}
-            isConfirmed={isConfirmed}
-          />
-        </TabsContent> */}
-
         <TabsContent value="transportation" className="mt-0">
           <TransportationLogTab
             jobData={currentJobData}
@@ -914,10 +916,7 @@ export function ChecklistTabs({
         </TabsContent>
 
         <TabsContent value="history" className="mt-0">
-          <ChecklistHistory
-            jobData={currentJobData}
-            isConfirmed={isConfirmed}
-          />
+          <ChecklistHistory jobData={currentJobData} />
         </TabsContent>
 
         <TabsContent value="logs" className="mt-0">

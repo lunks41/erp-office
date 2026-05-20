@@ -65,6 +65,7 @@ interface ChecklistMainProps {
   jobData?: IJobOrderHd | null
   setFormRef?: (ref: HTMLFormElement | null) => void
   isConfirmed?: boolean
+  isPosted?: boolean
   onUpdateSuccess?: () => void
 }
 
@@ -72,6 +73,7 @@ export function ChecklistMain({
   jobData,
   setFormRef,
   isConfirmed,
+  isPosted,
   onUpdateSuccess,
 }: ChecklistMainProps) {
   const params = useParams()
@@ -1146,7 +1148,7 @@ export function ChecklistMain({
                   name="jobStatusId"
                   label="Job Status"
                   isRequired={true}
-                  isDisabled={isConfirmed}
+                  isDisabled={isPosted ?? false}
                 />
                 <div className="col-span-2">
                   <CustomTextarea
@@ -1245,23 +1247,6 @@ export function ChecklistMain({
                   onChangeEvent={handleContactSelect}
                   isDisabled={isConfirmed}
                 />
-
-                {/* <AddressAutocomplete
-                  form={form}
-                  name="addressId"
-                  label="Address"
-                  isRequired={false}
-                  customerId={customerId || 0}
-                  isDisabled={isConfirmed}
-                />
-                <ContactAutocomplete
-                  form={form}
-                  name="contactId"
-                  label="Contact"
-                  isRequired={false}
-                  customerId={customerId || 0}
-                  isDisabled={isConfirmed}
-                /> */}
 
                 <div className="grid grid-cols-3 gap-2">
                   <CustomCheckbox

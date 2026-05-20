@@ -23,6 +23,11 @@ export interface IInvoicePreviewHeader {
   address3?: string
   address4?: string
   pinCode?: string
+  phoneNo?: string
+  countryName?: string
+  customerRegNo?: string
+  currencyName?: string
+  refNo?: string
   vesselId?: number
   vesselName?: string
   portId?: number

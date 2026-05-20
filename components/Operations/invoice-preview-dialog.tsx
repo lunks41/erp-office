@@ -35,6 +35,30 @@ function formatAmount(value: number | undefined, decimals = 2) {
   })
 }
 
+function formatPreviewDate(value: string | undefined) {
+  if (!value) return "—"
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return String(value).slice(0, 10)
+  return d.toLocaleDateString("en-GB")
+}
+
+function joinNonEmpty(parts: (string | undefined)[], separator: string) {
+  return parts.map((p) => (p ?? "").trim()).filter(Boolean).join(separator)
+}
+
+function formatCurrency(header: IInvoicePreviewHeader | undefined) {
+  const name = header?.currencyName?.trim()
+  const code = header?.currencyCode?.trim()
+  if (name && code && name !== code) return `${name} (${code})`
+  return name || code || "—"
+}
+
+function formatTelephone(phone: string | undefined) {
+  const p = phone?.trim()
+  if (!p) return "—"
+  return p.toUpperCase().startsWith("TEL") ? p : `TEL : ${p}`
+}
+
 function normalizePreview(data: unknown): IInvoicePreview | null {
   if (!data || typeof data !== "object") return null
   const raw = data as Record<string, unknown>
@@ -63,6 +87,49 @@ type InvoicePreviewDialogProps = {
   userName?: string
   amtDec?: number
   locAmtDec?: number
+}
+
+function PreviewHeaderBlock({ header }: { header: IInvoicePreviewHeader }) {
+  const addressLine2Country = joinNonEmpty(
+    [header.address2, header.countryName],
+    ", "
+  )
+
+  return (
+    <div className="grid gap-4 rounded-md border p-4 text-sm sm:grid-cols-2">
+      <div className="space-y-1">
+        <div className="font-medium text-muted-foreground">Address :</div>
+        <div className="font-medium">{header.billName?.trim() || "—"}</div>
+        {header.address1?.trim() ? <div>{header.address1}</div> : null}
+        {addressLine2Country ? <div>{addressLine2Country}</div> : null}
+        <div>{formatTelephone(header.phoneNo)}</div>
+        {header.customerRegNo?.trim() ? (
+          <div>VAT TRN#: {header.customerRegNo}</div>
+        ) : null}
+      </div>
+
+      <div className="space-y-1 sm:text-right">
+        <div>
+          <span className="text-muted-foreground">Invoice Date : </span>
+          {formatPreviewDate(
+            header.accountDate ? String(header.accountDate) : undefined
+          )}
+        </div>
+        <div>
+          <span className="text-muted-foreground">Currency : </span>
+          {formatCurrency(header)}
+        </div>
+        <div>
+          <span className="text-muted-foreground">Ref No. : </span>
+          {header.refNo?.trim() || "—"}
+        </div>
+        <div>
+          <span className="text-muted-foreground">Vessel : </span>
+          {header.vesselName?.trim() || "—"}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function InvoicePreviewDialog({
@@ -119,32 +186,9 @@ export function InvoicePreviewDialog({
             </div>
           ) : loadError ? (
             <p className="text-sm text-destructive">{loadError}</p>
-          ) : preview ? (
+          ) : preview && header ? (
             <div className="space-y-4">
-              <div className="grid gap-2 rounded-md border p-3 text-sm sm:grid-cols-2">
-                <div>
-                  <span className="text-muted-foreground">Customer: </span>
-                  {header?.customerName || "—"}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Reference: </span>
-                  {header?.referenceNo || "—"}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Account date: </span>
-                  {header?.accountDate
-                    ? String(header.accountDate).slice(0, 10)
-                    : "—"}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Currency: </span>
-                  {header?.currencyCode || "—"} @ {header?.exhRate ?? 1}
-                </div>
-                <div className="sm:col-span-2">
-                  <span className="text-muted-foreground">Bill to: </span>
-                  {header?.billName || "—"}
-                </div>
-              </div>
+              <PreviewHeaderBlock header={header} />
 
               <Table>
                 <TableHeader>
@@ -169,8 +213,10 @@ export function InvoicePreviewDialog({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    lines.map((line) => (
-                      <TableRow key={line.itemNo ?? line.remarks}>
+                    lines.map((line, index) => (
+                      <TableRow
+                        key={`${line.itemNo ?? index}-${line.remarks ?? line.chargeName ?? index}`}
+                      >
                         <TableCell>{line.itemNo}</TableCell>
                         <TableCell className="max-w-md whitespace-pre-wrap">
                           {line.remarks || line.chargeName || "—"}
@@ -198,15 +244,14 @@ export function InvoicePreviewDialog({
 
               <div className="flex flex-col items-end gap-1 text-sm">
                 <div>
-                  Subtotal: {formatAmount(header?.totAmt)}{" "}
-                  {header?.currencyCode}
+                  Subtotal: {formatAmount(header.totAmt)} {header.currencyCode}
                 </div>
                 <div>
-                  VAT: {formatAmount(header?.gstAmt)} {header?.currencyCode}
+                  VAT: {formatAmount(header.gstAmt)} {header.currencyCode}
                 </div>
                 <div className="text-base font-semibold">
-                  Total: {formatAmount(header?.totAmtAftGst)}{" "}
-                  {header?.currencyCode}
+                  Total: {formatAmount(header.totAmtAftGst)}{" "}
+                  {header.currencyCode}
                 </div>
               </div>
             </div>

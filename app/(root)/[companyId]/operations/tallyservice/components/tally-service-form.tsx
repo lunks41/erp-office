@@ -67,6 +67,10 @@ interface TallyServiceFormProps {
   isSubmitting?: boolean
   formId?: string
   hideActions?: boolean
+  /** Lock most fields when confirmed or posted (not job status). */
+  isFieldsLocked?: boolean
+  /** Lock job status only when posted (IsPost or status Posted). */
+  isJobStatusLocked?: boolean
   /** Fires when freshwater/launch line eligibility for save changes (at least one valid line). */
   onSaveEligibilityChange?: (hasRequiredServiceLine: boolean) => void
 }
@@ -86,6 +90,8 @@ export function TallyServiceForm({
   isSubmitting = false,
   formId,
   hideActions = false,
+  isFieldsLocked = false,
+  isJobStatusLocked = false,
   onSaveEligibilityChange,
 }: TallyServiceFormProps) {
   const { decimals } = useCompanyStore()
@@ -95,7 +101,8 @@ export function TallyServiceForm({
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]
   )
-  const isReadOnly = mode === "view"
+  const isReadOnly = mode === "view" || isFieldsLocked
+  const isJobStatusDisabled = mode === "view" || isJobStatusLocked
   const [customerCode, setCustomerCode] = useState(
     initialData?.customerCode ?? ""
   )
@@ -579,7 +586,7 @@ export function TallyServiceForm({
                     name="jobStatusId"
                     label="Job Status"
                     isRequired
-                    isDisabled={isReadOnly}
+                    isDisabled={isJobStatusDisabled}
                   />
                   <CustomTextarea
                     form={form}

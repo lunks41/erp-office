@@ -9,13 +9,9 @@ import DocumentOperationsManager from "@/components/document-manager/document-op
 
 interface ChecklistDocumentsFormProps {
   jobData?: IJobOrderHd | null
-  isConfirmed?: boolean
 }
 
-export function ChecklistDocuments({
-  jobData,
-  isConfirmed: _isConfirmed = false,
-}: ChecklistDocumentsFormProps) {
+export function ChecklistDocuments({ jobData }: ChecklistDocumentsFormProps) {
   const params = useParams()
   const companyId = params.companyId as string
 

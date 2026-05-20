@@ -1,11 +1,11 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo } from "react"
 import { IJobOrderHd } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
+
 import { JobOrder } from "@/lib/api-routes"
 import { TableName } from "@/lib/utils"
 import { useGet } from "@/hooks/use-common"
@@ -30,13 +30,9 @@ interface IJobOrderHistory {
 
 interface ChecklistHistoryFormProps {
   jobData?: IJobOrderHd | null
-  isConfirmed?: boolean
 }
 
-export function ChecklistHistory({
-  jobData,
-  isConfirmed: _isConfirmed = false,
-}: ChecklistHistoryFormProps) {
+export function ChecklistHistory({ jobData }: ChecklistHistoryFormProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 

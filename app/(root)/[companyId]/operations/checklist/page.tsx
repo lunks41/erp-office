@@ -39,10 +39,10 @@ const CHECKLIST_STATUS_TABS = [
   { value: "All", icon: "📋" },
   { value: "Pending", icon: "⏳" },
   { value: "Completed", icon: "✅" },
-  { value: "Cancelled", icon: "❌" },
-  { value: "Cancel With Service", icon: "⚠️" },
   { value: "Confirmed", icon: "✔️" },
   { value: "Posted", icon: "📤" },
+  { value: "Cancelled", icon: "❌" },
+  { value: "Cancel With Service", icon: "⚠️" },
   { value: "InActive", icon: "🚫" },
 ] as const
 
