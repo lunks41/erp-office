@@ -998,6 +998,11 @@ export const menuData: { mainNav: MainNavItem[] } = {
       icon: Bell,
     },
     {
+      title: "Document Expiry",
+      url: "/document-expiry/dashboard",
+      icon: CalendarCheck,
+    },
+    {
       title: "Approvals",
       url: "/approvals/pending",
       icon: ShieldCheck,
