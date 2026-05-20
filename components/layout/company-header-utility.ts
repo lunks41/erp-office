@@ -24,3 +24,7 @@ export const COMPANY_HEADER_UTILITY_STATUS_DOT =
 /** Notification count badge positioned outside the button corner */
 export const COMPANY_HEADER_UTILITY_COUNT_BADGE =
   "absolute -top-1 -right-1 z-10 flex min-h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none"
+
+/** Uses globals.css --primary / --primary-foreground (brand orange) */
+export const COMPANY_HEADER_UTILITY_COUNT_BADGE_COLORS =
+  "bg-primary text-primary-foreground ring-2 ring-background"

@@ -6,17 +6,29 @@ import { useAuthStore } from "@/stores/auth-store"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
 
+export type SignalRNotificationPayload = {
+  notificationId: number
+  headerNotificationId?: number
+  title: string
+  message: string
+  notificationType?: string
+  type?: string
+  priorityLevel?: number
+  actionUrl?: string
+  createdDate?: string
+  isRead?: boolean
+}
+
 export type SignalREventMap = {
-  ReceiveNotification: (payload: { title: string; message: string; type: string; notificationId: number }) => void
+  ReceiveNotification: (payload: SignalRNotificationPayload) => void
   UnreadCount: (count: number) => void
-  ReceiveAnnouncement: (payload: { title: string; message: string; isUrgent: boolean }) => void
+  ReceiveAnnouncement: (payload: { title: string; message: string; isUrgent: boolean; announcementId?: number }) => void
   ReceiveApprovalNotification: (payload: { title: string; message: string; approvalRequestId: number; isApproved?: boolean }) => void
+  NotificationMarkedAsRead: (notificationUserId: number) => void
   ForceLogout: (payload: { reason: string }) => void
 }
 
-export function useSignalR(
-  handlers?: Partial<SignalREventMap>
-) {
+export function useSignalR(handlers?: Partial<SignalREventMap>) {
   const { token, isAuthenticated, forceLogout } = useAuthStore()
   const connectionRef = useRef<signalR.HubConnection | null>(null)
   const handlersRef = useRef(handlers)
@@ -31,7 +43,7 @@ export function useSignalR(
         transport: signalR.HttpTransportType.WebSockets,
         skipNegotiation: true,
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
       .build()
 
@@ -49,14 +61,22 @@ export function useSignalR(
     connection.on("ReceiveApprovalNotification", (payload) => {
       handlersRef.current?.ReceiveApprovalNotification?.(payload)
     })
+    connection.on("NotificationMarkedAsRead", (id: number) => {
+      handlersRef.current?.NotificationMarkedAsRead?.(id)
+    })
     connection.on("ForceLogout", () => {
       forceLogout()
     })
 
-    connection.start().catch(() => {
-      // Suppressed — withAutomaticReconnect handles reconnects; errors also
-      // fire when connection.stop() is called during logout cleanup.
+    connection.onreconnected(async () => {
+      try {
+        await connection.invoke("OnReconnected")
+      } catch {
+        /* hub may not expose method on older server */
+      }
     })
+
+    connection.start().catch(() => {})
 
     return () => {
       connection.stop()

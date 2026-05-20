@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react"
 import { Bell, CheckCheck, Loader2 } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
+import { parseNotificationListResponse } from "@/stores/notification-store"
+import { NotificationRoutes } from "@/lib/notification-routes"
 import { useCompanyStore } from "@/stores/company-store"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -41,10 +43,11 @@ export default function NotificationsPage() {
     setIsLoading(true)
     try {
       const res = await apiClient.get(
-        `/notifications/getnotifications?pageNumber=${p}&pageSize=${PAGE_SIZE}`
+        `${NotificationRoutes.list}?pageNumber=${p}&pageSize=${PAGE_SIZE}`
       )
-      setItems(res.data?.data ?? res.data?.items ?? [])
-      setTotal(res.data?.totalRecords ?? res.data?.totalCount ?? 0)
+      setItems(parseNotificationListResponse(res))
+      const body = res.data as { totalRecords?: number; totalCount?: number }
+      setTotal(body?.totalRecords ?? body?.totalCount ?? 0)
       setPage(p)
     } catch {
       toast.error("Failed to load notifications.")

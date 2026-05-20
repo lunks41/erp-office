@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { X, Megaphone, AlertTriangle } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
+import { NotificationRoutes } from "@/lib/notification-routes"
 import { useAuthStore } from "@/stores/auth-store"
 import { useSignalR } from "@/hooks/use-signalr"
 import {
@@ -79,8 +80,15 @@ export function AnnouncementBanner() {
     },
   })
 
+  const dismissOnServer = async (id: number) => {
+    try {
+      await apiClient.post(NotificationRoutes.dismissAnnouncement(id))
+    } catch { /* local dismiss still applies */ }
+  }
+
   const dismissUrgentModal = () => {
     if (!urgentModal) return
+    void dismissOnServer(urgentModal.announcementId)
     const updated = getDismissedUrgent()
     updated.add(urgentModal.announcementId)
     persistDismissedUrgent(updated)
@@ -88,6 +96,7 @@ export function AnnouncementBanner() {
   }
 
   const dismissBanner = (id: number) => {
+    void dismissOnServer(id)
     setDismissedBanner((prev) => new Set([...prev, id]))
   }
 
