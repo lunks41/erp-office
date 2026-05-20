@@ -401,7 +401,7 @@ export function DialogDataTable<T>({
 
     // Cleanup: clear timer if searchQuery changes before timeout
     return () => clearTimeout(debounceTimer)
-  }, [searchQuery, serverSidePagination, onFilterChange, sorting])
+  }, [searchQuery, serverSidePagination, onFilterChange, sorting, externalSearch])
 
   /**
    * Handle search for non-server-side pagination when no local data
@@ -428,7 +428,7 @@ export function DialogDataTable<T>({
     }, 400)
 
     return () => clearTimeout(debounceTimer)
-  }, [searchQuery, serverSidePagination, data, onFilterChange, sorting])
+  }, [searchQuery, serverSidePagination, data, onFilterChange, sorting, externalSearch])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
