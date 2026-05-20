@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React from "react"
 import { IAccountSetupCategoryLookup } from "@/interfaces/lookup"
@@ -273,6 +273,7 @@ export default function AccountSetupCategoryAutocomplete<
                   isDisabled={isDisabled || isLoading}
                   isClearable={true}
                   isSearchable={true}
+                    tabSelectsValue={false}
                   styles={customStyles}
                   classNames={selectClassNames}
                   components={{
@@ -328,6 +329,7 @@ export default function AccountSetupCategoryAutocomplete<
         isDisabled={isDisabled || isLoading}
         isClearable={true}
         isSearchable={true}
+                    tabSelectsValue={false}
         styles={customStyles}
         classNames={selectClassNames}
         components={{

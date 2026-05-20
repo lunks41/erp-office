@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React from "react"
 import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
@@ -260,74 +260,11 @@ export default function EmploymentTypeAutocomplete<
     })
   }, [])
 
-  // Handle Tab key to close menu and allow normal tab navigation
+  // Handle Tab key to allow normal tab navigation
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === "Tab") {
-        // Set flag to prevent onMenuClose from refocusing
         isTabPressedRef.current = true
-        // Close the menu by blurring the input, then allow normal tab navigation
-        const target = event.currentTarget
-        if (target) {
-          const input = target.querySelector("input") as HTMLElement
-          if (input && document.activeElement === input) {
-            event.preventDefault()
-            const form = target.closest("form")
-            let targetElement: HTMLElement | null = null
-            if (form) {
-              const allFocusable = Array.from(
-                form.querySelectorAll<HTMLElement>(
-                  "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([disabled]):not([tabindex='-1'])"
-                )
-              )
-              // Find the input's position in the focusable elements
-              const inputIndex = allFocusable.findIndex(
-                (el) => el === input || el.contains(input)
-              )
-
-              if (event.shiftKey) {
-                // Shift+Tab: go to previous element
-                if (inputIndex !== -1 && inputIndex > 0) {
-                  targetElement = allFocusable[inputIndex - 1]
-                } else {
-                  // Fallback: find previous element before wrapper div
-                  const wrapperIndex = allFocusable.findIndex(
-                    (el) => target.contains(el) || el.contains(target)
-                  )
-                  if (wrapperIndex !== -1 && wrapperIndex > 0) {
-                    targetElement = allFocusable[wrapperIndex - 1]
-                  }
-                }
-              } else {
-                // Tab: go to next element
-                if (inputIndex !== -1 && inputIndex < allFocusable.length - 1) {
-                  targetElement = allFocusable[inputIndex + 1]
-                } else {
-                  // Fallback: find next element after wrapper div
-                  const wrapperIndex = allFocusable.findIndex(
-                    (el) => target.contains(el) || el.contains(target)
-                  )
-                  if (
-                    wrapperIndex !== -1 &&
-                    wrapperIndex < allFocusable.length - 1
-                  ) {
-                    targetElement = allFocusable[wrapperIndex + 1]
-                  }
-                }
-              }
-            }
-            // Blur to close menu and immediately focus target element to prevent flicker
-            if (targetElement) {
-              // Focus target element first (synchronously) to prevent form from receiving focus
-              targetElement.focus()
-              // Then blur to close menu (this won't affect the already-focused element)
-              input.blur()
-            } else {
-              // If no target element found, just blur
-              input.blur()
-            }
-          }
-        }
       }
     },
     []
@@ -364,6 +301,7 @@ export default function EmploymentTypeAutocomplete<
                     isDisabled={isDisabled}
                     isClearable={true}
                     isSearchable={true}
+                    tabSelectsValue={false}
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
@@ -420,6 +358,7 @@ export default function EmploymentTypeAutocomplete<
           isDisabled={isDisabled}
           isClearable={true}
           isSearchable={true}
+                    tabSelectsValue={false}
           styles={customStyles}
           classNames={selectClassNames}
           components={{

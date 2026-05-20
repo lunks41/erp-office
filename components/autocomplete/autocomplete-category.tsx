@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React from "react"
 import { ICategoryLookup } from "@/interfaces/lookup"
@@ -258,6 +258,7 @@ export default function CategoryAutocomplete<
                   isDisabled={isDisabled || isLoading}
                   isClearable={true}
                   isSearchable={true}
+                    tabSelectsValue={false}
                   styles={customStyles}
                   classNames={selectClassNames}
                   components={{
@@ -314,6 +315,7 @@ export default function CategoryAutocomplete<
         isDisabled={isDisabled || isLoading}
         isClearable={true}
         isSearchable={true}
+                    tabSelectsValue={false}
         styles={customStyles}
         classNames={selectClassNames}
         components={{
