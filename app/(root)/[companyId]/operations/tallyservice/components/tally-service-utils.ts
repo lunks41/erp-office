@@ -1,4 +1,40 @@
-import { ITallyService } from "@/interfaces"
+import { readTallyServiceLineArray } from "@/helpers/tally-service-details"
+import {
+  ITallyFreshWaterLine,
+  ITallyLaunchServiceLine,
+  ITallyService,
+} from "@/interfaces"
+import {
+  TallyFreshWaterLineSchemaType,
+  TallyLaunchServiceLineSchemaType,
+  TallyServiceSchemaType,
+} from "@/schemas"
+
+import { formatDateForApi, formatDateTimeForApi } from "@/lib/date-utils"
+
+export function createEmptyFreshWaterLine(): TallyFreshWaterLineSchemaType {
+  return {
+    itemNo: 0,
+    chargeId: 0,
+    uomId: 0,
+    quantity: 1,
+    distance: 0,
+    tallyNo: "",
+  }
+}
+
+export function createEmptyLaunchLine(): TallyLaunchServiceLineSchemaType {
+  return {
+    itemNo: 0,
+    chargeId: 0,
+    waitingTime: 0,
+    timeDiff: 0,
+    deliveredWeight: 0,
+    landedWeight: 0,
+    distance: 0,
+    tallyNo: "",
+  }
+}
 
 export function createEmptyTallyService(companyId: number): ITallyService {
   return {
@@ -11,8 +47,6 @@ export function createEmptyTallyService(companyId: number): ITallyService {
     currencyId: 0,
     exhRate: 0,
     vesselId: 0,
-    imoCode: "",
-    vesselDistance: 0,
     portId: 0,
     addressId: 0,
     contactId: 0,
@@ -39,21 +73,9 @@ export function createEmptyTallyService(companyId: number): ITallyService {
     chargeId: 0,
     bargeId: 0,
     uomId: 0,
-    quantity: 1,
-    receiptNo: "",
-    ameTally: "",
-    boatopTally: "",
-    boatOperator: "",
-    operatorName: "",
-    supplyBarge: "",
-    waitingTime: 0,
-    timeDiff: 0,
-    deliveredWeight: 0,
-    landedWeight: 0,
-    annexure: "",
     invoiceId: 0,
     invoiceNo: "",
-    jobStatusId: 201,
+    jobStatusId: 1,
     jobStatusName: "",
     remarks: "",
     createById: 0,
@@ -75,8 +97,6 @@ export type TallyServiceSavePayload = {
   currencyId?: number | null
   exhRate?: number | null
   vesselId?: number | null
-  imoCode?: string | null
-  vesselDistance?: number | null
   portId?: number | null
   addressId?: number | null
   contactId?: number | null
@@ -103,31 +123,185 @@ export type TallyServiceSavePayload = {
   chargeId: number
   bargeId?: number | null
   uomId: number
-  operatorName?: string | null
-  supplyBarge?: string | null
-  quantity: number
-  receiptNo?: string | null
-  ameTally?: string | null
-  boatopTally?: string | null
-  boatOperator?: string | null
-  loadingTime?: string | Date | null
-  leftJetty?: string | Date | null
-  waitingTime?: number | null
-  alongsideVessel?: string | Date | null
-  departedFromVessel?: string | Date | null
-  timeDiff?: number | null
-  arrivedAtJetty?: string | Date | null
-  deliveredWeight?: number | null
-  landedWeight?: number | null
-  annexure?: string | null
   invoiceId?: number | null
   invoiceNo?: string | null
   jobStatusId: number
   remarks?: string | null
   editVersion: number
+  freshWaterLines?: ITallyFreshWaterLine[]
+  launchServiceLines?: ITallyLaunchServiceLine[]
 }
 
-export function mapTallyServiceForSave(data: ITallyService): TallyServiceSavePayload {
+export function buildFreshWaterLineFromTally(
+  item?: Partial<ITallyService>
+): TallyFreshWaterLineSchemaType {
+  const firstLine = item?.freshWaterLines?.[0]
+  return {
+    itemNo: 0,
+    chargeId: firstLine?.chargeId ?? item?.chargeId ?? 0,
+    uomId: firstLine?.uomId ?? item?.uomId ?? 0,
+    quantity: firstLine?.quantity ?? 1,
+    distance: firstLine?.distance ?? 0,
+    tallyNo: firstLine?.tallyNo ?? "",
+  }
+}
+
+export function buildLaunchLineFromTally(
+  item?: Partial<ITallyService>
+): TallyLaunchServiceLineSchemaType {
+  const firstLine = item?.launchServiceLines?.[0]
+  return {
+    itemNo: 0,
+    chargeId: firstLine?.chargeId ?? item?.chargeId ?? 0,
+    loadingTime: firstLine?.loadingTime ?? undefined,
+    leftJetty: firstLine?.leftJetty ?? undefined,
+    waitingTime: firstLine?.waitingTime ?? 0,
+    alongsideVessel: firstLine?.alongsideVessel ?? undefined,
+    departedFromVessel: firstLine?.departedFromVessel ?? undefined,
+    timeDiff: firstLine?.timeDiff ?? 0,
+    arrivedAtJetty: firstLine?.arrivedAtJetty ?? undefined,
+    deliveredWeight: firstLine?.deliveredWeight ?? 0,
+    landedWeight: firstLine?.landedWeight ?? 0,
+    distance: firstLine?.distance ?? 0,
+    tallyNo: firstLine?.tallyNo ?? "",
+  }
+}
+
+export function buildFreshWaterLinesFromTally(
+  item?: Partial<ITallyService>
+): TallyFreshWaterLineSchemaType[] {
+  const lines = readTallyServiceLineArray<ITallyFreshWaterLine>(
+    item,
+    "freshWaterLines",
+    "FreshWaterLines"
+  )
+  if (lines.length === 0) return []
+
+  return lines.map((line) => ({
+    itemNo: line.itemNo ?? 0,
+    chargeId: line.chargeId ?? 0,
+    uomId: line.uomId ?? 0,
+    quantity: line.quantity ?? 1,
+    distance: line.distance ?? 0,
+    tallyNo: line.tallyNo ?? "",
+  }))
+}
+
+export function buildLaunchLinesFromTally(
+  item?: Partial<ITallyService>
+): TallyLaunchServiceLineSchemaType[] {
+  const lines = readTallyServiceLineArray<ITallyLaunchServiceLine>(
+    item,
+    "launchServiceLines",
+    "LaunchServiceLines"
+  )
+  if (lines.length === 0) return []
+
+  return lines.map((line) => ({
+    itemNo: line.itemNo ?? 0,
+    chargeId: line.chargeId ?? 0,
+    loadingTime: line.loadingTime ?? undefined,
+    leftJetty: line.leftJetty ?? undefined,
+    waitingTime: line.waitingTime ?? 0,
+    alongsideVessel: line.alongsideVessel ?? undefined,
+    departedFromVessel: line.departedFromVessel ?? undefined,
+    timeDiff: line.timeDiff ?? 0,
+    arrivedAtJetty: line.arrivedAtJetty ?? undefined,
+    deliveredWeight: line.deliveredWeight ?? 0,
+    landedWeight: line.landedWeight ?? 0,
+    distance: line.distance ?? 0,
+    tallyNo: line.tallyNo ?? "",
+  }))
+}
+
+export function mapFormToTallyService(
+  data: TallyServiceSchemaType,
+  companyId: number,
+  initialData?: ITallyService
+): ITallyService {
+  const freshWaterLines = data.freshWaterLines ?? []
+  const launchServiceLines = data.launchServiceLines ?? []
+  const firstFresh = freshWaterLines[0]
+  const formattedDate = formatDateForApi(data.date) || data.date
+  const formattedAccountDate =
+    formatDateForApi(data.accountDate) || data.accountDate
+
+  return {
+    companyId,
+    tallyServiceId: data.tallyServiceId,
+    date: formattedDate,
+    serviceDate: formattedDate,
+    accountDate: formattedAccountDate,
+    customerId: data.customerId,
+    currencyId: data.currencyId,
+    exhRate: data.exhRate,
+    vesselId: data.vesselId,
+    portId: data.portId,
+    addressId: data.addressId || 0,
+    contactId: data.contactId || 0,
+    isTaxable: data.isTaxable,
+    gstId: data.gstId,
+    gstPercentage: data.gstPercentage,
+    isActive: data.isActive,
+    isClose: data.isClose,
+    isPost: data.isPost,
+    isCancel: data.isCancel,
+    cancelRemarks: data.cancelRemarks || "",
+    billName: data.billName || "",
+    address1: data.address1 || "",
+    address2: data.address2 || "",
+    address3: data.address3 || "",
+    address4: data.address4 || "",
+    pinCode: data.pinCode || "",
+    countryId: data.countryId,
+    phoneNo: data.phoneNo || "",
+    faxNo: data.faxNo || "",
+    contactName: data.contactName || "",
+    mobileNo: data.mobileNo || "",
+    emailAdd: data.emailAdd || "",
+    chargeId: firstFresh?.chargeId ?? 0,
+    bargeId: data.bargeId,
+    uomId: firstFresh?.uomId ?? 0,
+    invoiceId: data.invoiceId ?? 0,
+    invoiceNo: data.invoiceNo || "",
+    jobStatusId: data.jobStatusId ?? 1,
+    remarks: data.remarks || "",
+    createById: initialData?.createById ?? 0,
+    createDate: initialData?.createDate ?? new Date(),
+    editById: initialData?.editById ?? 0,
+    editDate: initialData?.editDate ?? new Date(),
+    createBy: initialData?.createBy ?? "",
+    editBy: initialData?.editBy ?? "",
+    editVersion: data.editVersion || initialData?.editVersion || 0,
+    freshWaterLines: freshWaterLines.map((line, index) => ({
+      itemNo: index + 1,
+      chargeId: line.chargeId,
+      uomId: line.uomId,
+      quantity: line.quantity,
+      distance: line.distance ?? 0,
+      tallyNo: line.tallyNo || "",
+    })),
+    launchServiceLines: launchServiceLines.map((line, index) => ({
+      itemNo: index + 1,
+      chargeId: line.chargeId,
+      loadingTime: formatDateTimeForApi(line.loadingTime),
+      leftJetty: formatDateTimeForApi(line.leftJetty),
+      waitingTime: line.waitingTime ?? 0,
+      alongsideVessel: formatDateTimeForApi(line.alongsideVessel),
+      departedFromVessel: formatDateTimeForApi(line.departedFromVessel),
+      timeDiff: line.timeDiff ?? 0,
+      arrivedAtJetty: formatDateTimeForApi(line.arrivedAtJetty),
+      deliveredWeight: line.deliveredWeight ?? 0,
+      landedWeight: line.landedWeight ?? 0,
+      distance: line.distance ?? 0,
+      tallyNo: line.tallyNo || "",
+    })),
+  }
+}
+
+export function mapTallyServiceForSave(
+  data: ITallyService
+): TallyServiceSavePayload {
   const serviceDate = String(data.serviceDate || data.date || "")
   const accountDate = String(data.accountDate || serviceDate)
 
@@ -139,8 +313,6 @@ export function mapTallyServiceForSave(data: ITallyService): TallyServiceSavePay
     currencyId: data.currencyId,
     exhRate: data.exhRate,
     vesselId: data.vesselId,
-    imoCode: data.imoCode || "",
-    vesselDistance: data.vesselDistance ?? 0,
     portId: data.portId,
     addressId: data.addressId || 0,
     contactId: data.contactId || 0,
@@ -167,28 +339,13 @@ export function mapTallyServiceForSave(data: ITallyService): TallyServiceSavePay
     chargeId: data.chargeId,
     bargeId: data.bargeId,
     uomId: data.uomId,
-    operatorName: data.operatorName || "",
-    supplyBarge: data.supplyBarge || "",
-    quantity: data.quantity ?? 1,
-    receiptNo: data.receiptNo || "",
-    ameTally: data.ameTally || "",
-    boatopTally: data.boatopTally || "",
-    boatOperator: data.boatOperator || "",
-    loadingTime: data.loadingTime,
-    leftJetty: data.leftJetty,
-    waitingTime: data.waitingTime ?? 0,
-    alongsideVessel: data.alongsideVessel,
-    departedFromVessel: data.departedFromVessel,
-    timeDiff: data.timeDiff ?? 0,
-    arrivedAtJetty: data.arrivedAtJetty,
-    deliveredWeight: data.deliveredWeight ?? 0,
-    landedWeight: data.landedWeight ?? 0,
-    annexure: data.annexure || "",
     invoiceId: data.invoiceId ?? 0,
     invoiceNo: data.invoiceNo || "",
-    jobStatusId: data.jobStatusId ?? 201,
+    jobStatusId: data.jobStatusId ?? 1,
     remarks: data.remarks || "",
     editVersion: data.editVersion ?? 0,
+    freshWaterLines: data.freshWaterLines,
+    launchServiceLines: data.launchServiceLines,
   }
 }
 
@@ -223,8 +380,6 @@ export function normalizeTallyService(
     currencyId: item.currencyId ?? base.currencyId,
     exhRate: item.exhRate ?? base.exhRate,
     vesselId: item.vesselId ?? base.vesselId,
-    imoCode: item.imoCode ?? base.imoCode,
-    vesselDistance: item.vesselDistance ?? base.vesselDistance,
     portId: item.portId ?? base.portId,
     addressId: item.addressId ?? base.addressId,
     contactId: item.contactId ?? base.contactId,
@@ -251,7 +406,6 @@ export function normalizeTallyService(
     chargeId: item.chargeId ?? 0,
     bargeId: item.bargeId ?? 0,
     uomId: item.uomId ?? 0,
-    quantity: item.quantity ?? base.quantity,
     invoiceId: item.invoiceId ?? base.invoiceId,
     invoiceNo: item.invoiceNo ?? base.invoiceNo,
     jobStatusId: item.jobStatusId ?? base.jobStatusId,
@@ -259,6 +413,16 @@ export function normalizeTallyService(
     createById: item.createById ?? base.createById,
     createDate: item.createDate ?? base.createDate,
     editVersion: item.editVersion ?? base.editVersion,
+    freshWaterLines: readTallyServiceLineArray(
+      item,
+      "freshWaterLines",
+      "FreshWaterLines"
+    ),
+    launchServiceLines: readTallyServiceLineArray(
+      item,
+      "launchServiceLines",
+      "LaunchServiceLines"
+    ),
   }
 }
 

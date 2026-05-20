@@ -1337,6 +1337,7 @@ export const TallyService = {
   add: "/operations/savetallyservice",
   delete: "/operations/deletetallyservice",
   generateInvoice: "/operations/GetGenerateInvoiceByTallyServiceId",
+  previewInvoice: "/operations/GetPreviewInvoiceByTallyServiceId",
 }
 
 // Port Expenses Endpoints

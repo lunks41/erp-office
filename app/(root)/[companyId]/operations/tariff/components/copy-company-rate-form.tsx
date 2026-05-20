@@ -467,7 +467,7 @@ export function CopyCompanyRateForm({
                   }}
                 />
                 <label htmlFor="isDelete" className="text-sm font-medium">
-                  Delete source after copy
+                  Clear destination before copy
                 </label>
               </div>
             </div>

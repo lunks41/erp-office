@@ -132,6 +132,7 @@ export interface CopyRate {
   toCustomerId: number
   multipleId: string
   isOverwrite: boolean
+  /** When true, clear all To tariffs in scope before copy. Overwrite uses SP update/insert without clearing first. */
   isDelete: boolean
 }
 

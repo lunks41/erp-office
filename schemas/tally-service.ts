@@ -1,5 +1,10 @@
 import { z } from "zod"
 
+import {
+  tallyFreshWaterLineSchema,
+  tallyLaunchServiceLineSchema,
+} from "./tally-service-lines"
+
 export const tallyServiceSchema = z.object({
   tallyServiceId: z.number(),
   date: z.string().min(1, "Service Date is required"),
@@ -8,8 +13,7 @@ export const tallyServiceSchema = z.object({
   currencyId: z.number().min(1, "Currency is required"),
   exhRate: z.number().min(0, "Exchange rate must be 0 or greater"),
   vesselId: z.number().min(1, "Vessel is required"),
-  imoCode: z.string().optional(),
-  vesselDistance: z.number().min(0, "Vessel distance must be 0 or greater"),
+  bargeId: z.number().min(1, "Barge is required"),
   portId: z.number().min(1, "Port is required"),
   addressId: z.number().optional(),
   contactId: z.number().optional(),
@@ -33,32 +37,8 @@ export const tallyServiceSchema = z.object({
   contactName: z.string().optional(),
   mobileNo: z.string().optional(),
   emailAdd: z.string().optional(),
-  chargeId: z.number().min(1, "Charge is required"),
-  bargeId: z.number().min(1, "Barge is required"),
-  uomId: z.number().min(1, "UOM is required"),
-  operatorName: z.string().optional(),
-  supplyBarge: z.string().optional(),
-  quantity: z.number().min(0, "Quantity must be 0 or greater"),
-  receiptNo: z.string().optional(),
-  ameTally: z.string().min(1, "AME Tally is required"),
-  boatopTally: z.string().optional(),
-  boatOperator: z.string().optional(),
-  loadingTime: z.union([z.date(), z.string()]).optional(),
-  leftJetty: z.union([z.date(), z.string()]).optional(),
-  waitingTime: z.number().min(0, "Waiting time must be 0 or greater"),
-  alongsideVessel: z.union([z.date(), z.string()]).optional(),
-  departedFromVessel: z.union([z.date(), z.string()]).optional(),
-  timeDiff: z.number().min(0, "Time difference must be 0 or greater"),
-  arrivedAtJetty: z.union([z.date(), z.string()]).optional(),
-  deliveredWeight: z
-    .number()
-    .min(0, "Delivered weight must be 0 or greater")
-    .optional(),
-  landedWeight: z
-    .number()
-    .min(0, "Landed weight must be 0 or greater")
-    .optional(),
-  annexure: z.string().optional(),
+  freshWaterLines: z.array(tallyFreshWaterLineSchema),
+  launchServiceLines: z.array(tallyLaunchServiceLineSchema),
   invoiceId: z.number().min(0, "Invoice Id must be 0 or greater"),
   invoiceNo: z.string().optional(),
   jobStatusId: z.number().min(1, "Status is required"),
@@ -70,3 +50,12 @@ export const tallyServiceSchema = z.object({
 })
 
 export type TallyServiceSchemaType = z.infer<typeof tallyServiceSchema>
+
+export {
+  tallyFreshWaterLineSchema,
+  tallyLaunchServiceLineSchema,
+} from "./tally-service-lines"
+export type {
+  TallyFreshWaterLineSchemaType,
+  TallyLaunchServiceLineSchemaType,
+} from "./tally-service-lines"

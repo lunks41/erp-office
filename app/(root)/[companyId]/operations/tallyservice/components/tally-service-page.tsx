@@ -223,15 +223,14 @@ export function TallyServicePage() {
         onOpenChange={(isOpen) =>
           setDeleteConfirmation((prev) => ({ ...prev, isOpen }))
         }
-        title="Delete Tally Service"
+        title="Cancel Tally Service"
         itemName={
-          deleteConfirmation.item?.receiptNo ||
           deleteConfirmation.item?.chargeName ||
           (deleteConfirmation.item
             ? `Tally Service #${deleteConfirmation.item.tallyServiceId}`
             : "")
         }
-        description="This action cannot be undone."
+        description="This will mark the tally service as cancelled. It cannot be cancelled if an invoice has already been generated."
         onConfirm={handleDeleteConfirm}
         onCancelAction={() =>
           setDeleteConfirmation({ isOpen: false, item: null })

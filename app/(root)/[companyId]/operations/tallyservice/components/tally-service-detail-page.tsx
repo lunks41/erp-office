@@ -8,7 +8,8 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { FileText, Printer } from "lucide-react"
+import { IInvoicePreview } from "@/interfaces/invoice-preview"
+import { Eye, FileText, Printer } from "lucide-react"
 import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api-client"
@@ -32,6 +33,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
+import {
+  InvoicePreviewDialog,
+  normalizePreview,
+} from "@/components/operations/invoice-preview-dialog"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
 import { TallyServiceForm } from "./tally-service-form"
@@ -105,6 +110,12 @@ export function TallyServiceDetailPage({
   }>({ isOpen: false, data: null })
   const [showPostInvoiceConfirm, setShowPostInvoiceConfirm] = useState(false)
   const [isPostingInvoice, setIsPostingInvoice] = useState(false)
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false)
+  const [invoicePreview, setInvoicePreview] = useState<IInvoicePreview | null>(
+    null
+  )
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false)
+  const [previewError, setPreviewError] = useState<string | null>(null)
 
   const tallyService = useMemo(() => {
     if (mode === "create") return undefined
@@ -189,6 +200,38 @@ export function TallyServiceDetailPage({
     }
   }, [companyId, decimals, tallyService, user?.userName])
 
+  const handlePreviewInvoice = useCallback(async () => {
+    if (!tallyService?.tallyServiceId) {
+      toast.error("Invalid tally service data")
+      return
+    }
+
+    setShowInvoicePreview(true)
+    setIsLoadingPreview(true)
+    setPreviewError(null)
+    setInvoicePreview(null)
+
+    try {
+      const response = await apiClient.get(
+        `${TallyService.previewInvoice}/${tallyService.tallyServiceId}`
+      )
+      if (response.data.result === 1) {
+        const parsed = normalizePreview(response.data.data)
+        if (parsed) {
+          setInvoicePreview(parsed)
+        } else {
+          setPreviewError("Could not read invoice preview data")
+        }
+      } else {
+        setPreviewError(response.data.message || "Failed to load preview")
+      }
+    } catch {
+      setPreviewError("An error occurred while loading invoice preview")
+    } finally {
+      setIsLoadingPreview(false)
+    }
+  }, [tallyService?.tallyServiceId])
+
   const handleGenerateInvoice = useCallback(async () => {
     if (!tallyService?.tallyServiceId) {
       toast.error("Invalid tally service data")
@@ -206,6 +249,7 @@ export function TallyServiceDetailPage({
         await queryClient.invalidateQueries({ queryKey: ["tallyServices"] })
         refetch()
         setShowPostInvoiceConfirm(false)
+        setShowInvoicePreview(false)
       } else {
         toast.error(response.data.message || "Failed to generate invoice")
       }
@@ -216,6 +260,10 @@ export function TallyServiceDetailPage({
     }
   }, [queryClient, refetch, tallyService?.tallyServiceId])
 
+  const handlePostFromPreview = useCallback(() => {
+    setShowPostInvoiceConfirm(true)
+  }, [])
+
   const handleSaveRequest = (data: ITallyService) => {
     setSaveConfirmation({ isOpen: true, data })
   }
@@ -225,7 +273,9 @@ export function TallyServiceDetailPage({
 
     try {
       const payload = mapTallyServiceForSave(saveConfirmation.data)
-      const result = await saveMutation.mutateAsync(payload)
+      const result = await saveMutation.mutateAsync(
+        payload as unknown as Partial<ITallyService>
+      )
       const savedRows = extractRows<ITallyService>(result?.data)
       const savedId =
         savedRows[0]?.tallyServiceId ?? payload.tallyServiceId ?? 0
@@ -286,7 +336,7 @@ export function TallyServiceDetailPage({
   const title =
     mode === "create"
       ? "Create Tally Service"
-      : `Tally Service${tallyService?.receiptNo ? ` — ${tallyService.receiptNo}` : ""}`
+      : `Tally Service${tallyService?.tallyServiceId ? ` #${tallyService.tallyServiceId}` : ""}`
 
   return (
     <div className="@container mx-auto space-y-3 px-4 pt-2 pb-6 sm:px-8 lg:px-12">
@@ -355,16 +405,28 @@ export function TallyServiceDetailPage({
           )}
 
           {mode === "edit" && isConfirmed && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!canPostInvoice || isPostingInvoice}
-              onClick={() => setShowPostInvoiceConfirm(true)}
-            >
-              <FileText className="mr-1 h-4 w-4" />
-              Post Invoice
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={tallyService?.isCancel}
+                onClick={handlePreviewInvoice}
+              >
+                <Eye className="mr-1 h-4 w-4" />
+                Preview Invoice
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!canPostInvoice || isPostingInvoice}
+                onClick={() => setShowPostInvoiceConfirm(true)}
+              >
+                <FileText className="mr-1 h-4 w-4" />
+                Post Invoice
+              </Button>
+            </>
           )}
 
           {mode === "edit" && tallyService?.invoiceNo && (
@@ -423,9 +485,9 @@ export function TallyServiceDetailPage({
           mode === "create" ? "Create Tally Service" : "Update Tally Service"
         }
         itemName={
-          saveConfirmation.data?.receiptNo ||
-          saveConfirmation.data?.chargeName ||
-          "this tally service"
+          saveConfirmation.data?.tallyServiceId
+            ? `Tally Service #${saveConfirmation.data.tallyServiceId}`
+            : saveConfirmation.data?.chargeName || "this tally service"
         }
         operationType={mode === "create" ? "create" : "update"}
         onConfirm={handleSaveConfirm}
@@ -435,17 +497,30 @@ export function TallyServiceDetailPage({
         isSaving={saveMutation.isPending}
       />
 
+      <InvoicePreviewDialog
+        open={showInvoicePreview}
+        onOpenChange={setShowInvoicePreview}
+        preview={invoicePreview}
+        isLoading={isLoadingPreview}
+        loadError={previewError}
+        canPost={canPostInvoice}
+        isPosting={isPostingInvoice}
+        onPostInvoice={handlePostFromPreview}
+        companyId={companyId}
+        userName={user?.userName || ""}
+        amtDec={decimals[0]?.amtDec || 2}
+        locAmtDec={decimals[0]?.locAmtDec || 2}
+      />
+
       <Dialog open={showPostInvoiceConfirm} onOpenChange={setShowPostInvoiceConfirm}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Generate Invoice</DialogTitle>
             <DialogDescription>
               Are you sure you want to generate an invoice for tally service
-              {tallyService?.receiptNo
-                ? ` ${tallyService.receiptNo}`
-                : tallyService?.tallyServiceId
-                  ? ` #${tallyService.tallyServiceId}`
-                  : ""}
+              {tallyService?.tallyServiceId
+                ? ` #${tallyService.tallyServiceId}`
+                : ""}
               ? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

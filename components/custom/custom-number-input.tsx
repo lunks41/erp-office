@@ -39,7 +39,10 @@ export default function CustomNumberInput<TSchemaType extends FieldValues>({
       {label && (
         <Label
           htmlFor={name}
-          className={cn("text-xs font-medium", isRequired && "text-red-500")}
+          className={cn(
+            "text-xs font-medium",
+            isRequired && "text-red-500 dark:text-red-400"
+          )}
         >
           {label}
           {isRequired && <span className="ml-1">*</span>}

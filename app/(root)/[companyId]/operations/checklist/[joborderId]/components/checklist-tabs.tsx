@@ -12,9 +12,11 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { IInvoicePreview } from "@/interfaces/invoice-preview"
 import {
   Building2,
   Edit3,
+  Eye,
   FileText,
   Printer,
   Receipt,
@@ -54,6 +56,10 @@ import {
 } from "@/components/autocomplete"
 import { CloneConfirmation } from "@/components/confirmation/clone-confirmation"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
+import {
+  InvoicePreviewDialog,
+  normalizePreview,
+} from "@/components/operations/invoice-preview-dialog"
 
 import { ChecklistDetailsForm } from "./checklist-details-form"
 import { ChecklistHistory } from "./checklist-history"
@@ -147,6 +153,15 @@ export function ChecklistTabs({
   const [debitNoteLoading, setDebitNoteLoading] = useState(false)
   const [debitNoteSaving, setDebitNoteSaving] = useState(false)
   const [_debitNoteError, setDebitNoteError] = useState<string | null>(null)
+
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false)
+  const [invoicePreview, setInvoicePreview] = useState<IInvoicePreview | null>(
+    null
+  )
+  const [isLoadingInvoicePreview, setIsLoadingInvoicePreview] = useState(false)
+  const [invoicePreviewError, setInvoicePreviewError] = useState<string | null>(
+    null
+  )
 
   // Fetch detailed job order data when jobData is available
   const jobOrderId = jobData?.jobOrderId?.toString() || ""
@@ -257,6 +272,12 @@ export function ChecklistTabs({
         }
         break
       case "jobSummary":
+        if (currentJobData.isPost !== true) {
+          toast.error(
+            "Job Summary is available only after the invoice has been posted."
+          )
+          return
+        }
         reportFile = "checklist/JobSummary.trdp"
         // Build report parameters - same structure as ar/report
         reportParams = {
@@ -475,6 +496,48 @@ export function ChecklistTabs({
     }
   }
 
+  const hasPostedInvoice =
+    Boolean(currentJobData?.invoiceId) &&
+    parseInt(String(currentJobData?.invoiceId ?? 0), 10) > 0 &&
+    currentJobData?.isPost === true
+
+  const canPostInvoice =
+    isConfirmed &&
+    !hasPostedInvoice
+
+  const handlePreviewInvoice = useCallback(async () => {
+    if (!currentJobData?.jobOrderId) {
+      toast.error("Invalid job order data")
+      return
+    }
+
+    setShowInvoicePreview(true)
+    setIsLoadingInvoicePreview(true)
+    setInvoicePreviewError(null)
+    setInvoicePreview(null)
+
+    try {
+      const response = await apiClient.get(
+        `/operations/GetPreviewInvoiceByJobOrderId/${currentJobData.jobOrderId}`
+      )
+      if (response.data.result === 1) {
+        const parsed = normalizePreview(response.data.data)
+        if (parsed) {
+          setInvoicePreview(parsed)
+        } else {
+          setInvoicePreviewError("Could not read invoice preview data")
+        }
+      } else {
+        setInvoicePreviewError(response.data.message || "Failed to load preview")
+      }
+    } catch (error) {
+      console.error("Error loading invoice preview:", error)
+      setInvoicePreviewError("An error occurred while loading invoice preview")
+    } finally {
+      setIsLoadingInvoicePreview(false)
+    }
+  }, [currentJobData?.jobOrderId])
+
   const handleGenerateInvoice = useCallback(async () => {
     if (!currentJobData?.jobOrderId) {
       toast.error("Invalid job order data")
@@ -488,7 +551,7 @@ export function ChecklistTabs({
 
       if (response.data.result === 1) {
         toast.success(response.data.message || "Invoice generated successfully")
-        // Refresh the job order data to get updated invoiceId
+        setShowInvoicePreview(false)
         refetch()
         onUpdateSuccess?.()
       } else {
@@ -499,6 +562,15 @@ export function ChecklistTabs({
       toast.error("An error occurred while generating invoice")
     }
   }, [currentJobData?.jobOrderId, refetch, onUpdateSuccess])
+
+  const handlePostInvoiceFromPreview = useCallback(() => {
+    setConfirmAction({
+      type: "generateInvoice",
+      title: "Generate Invoice",
+      message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
+    })
+    setShowConfirmDialog(true)
+  }, [currentJobData?.jobOrderNo])
 
   // Handle delete job order confirmation
   const handleConfirmDeleteJobOrder = useCallback(async () => {
@@ -646,9 +718,11 @@ export function ChecklistTabs({
               <DropdownMenuItem onClick={() => handlePrint("purchaseList")}>
                 Purchase List
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePrint("jobSummary")}>
-                Job Summary
-              </DropdownMenuItem>
+              {currentJobData?.isPost === true && (
+                <DropdownMenuItem onClick={() => handlePrint("jobSummary")}>
+                  Job Summary
+                </DropdownMenuItem>
+              )}
               {isConfirmed &&
                 currentJobData?.invoiceId &&
                 currentJobData?.isPost === true && (
@@ -674,28 +748,34 @@ export function ChecklistTabs({
             </Button>
           )}
 
-          {/* Invoice Create button - only show when status is confirmed */}
+          {/* Invoice preview / post — only when confirmed */}
           {isConfirmed && (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Boolean(
-                currentJobData?.invoiceId &&
-                  currentJobData.isPost === true &&
-                  parseInt(currentJobData.invoiceId) > 0
-              )}
-              onClick={() => {
-                setConfirmAction({
-                  type: "generateInvoice",
-                  title: "Generate Invoice",
-                  message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
-                })
-                setShowConfirmDialog(true)
-              }}
-            >
-              <FileText className="mr-1 h-4 w-4" />
-              Post Invoice
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviewInvoice}
+              >
+                <Eye className="mr-1 h-4 w-4" />
+                Preview Invoice
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!canPostInvoice}
+                onClick={() => {
+                  setConfirmAction({
+                    type: "generateInvoice",
+                    title: "Generate Invoice",
+                    message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
+                  })
+                  setShowConfirmDialog(true)
+                }}
+              >
+                <FileText className="mr-1 h-4 w-4" />
+                Post Invoice
+              </Button>
+            </>
           )}
 
           {/* Refresh button */}
@@ -848,6 +928,20 @@ export function ChecklistTabs({
           />
         </TabsContent>
       </Tabs>
+
+      <InvoicePreviewDialog
+        open={showInvoicePreview}
+        onOpenChange={setShowInvoicePreview}
+        preview={invoicePreview}
+        isLoading={isLoadingInvoicePreview}
+        loadError={invoicePreviewError}
+        canPost={canPostInvoice}
+        onPostInvoice={handlePostInvoiceFromPreview}
+        companyId={companyId}
+        userName={user?.userName || ""}
+        amtDec={decimals[0]?.amtDec || 2}
+        locAmtDec={decimals[0]?.locAmtDec || 2}
+      />
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>

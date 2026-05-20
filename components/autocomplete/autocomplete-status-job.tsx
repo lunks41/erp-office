@@ -6,12 +6,12 @@ import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
+  components,
   DropdownIndicatorProps,
   MultiValue,
   OptionProps,
   SingleValue,
   StylesConfig,
-  components,
 } from "react-select"
 
 import { cn } from "@/lib/utils"

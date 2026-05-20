@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react"
 import { ITallyService } from "@/interfaces"
+import { getDisplayTallyServiceLines } from "@/helpers/tally-service-details"
 import { openTallyServiceTab } from "./tally-service-utils"
 import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
@@ -11,6 +12,12 @@ import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { MainTable } from "@/components/table/table-main"
+
+import {
+  TallyServiceInlineNumberCell,
+  TallyServiceInlineTextCell,
+  TallyServiceInlineTypeCell,
+} from "./tally-service-inline-detail-cells"
 
 interface TallyServiceTableProps {
   companyId: string
@@ -124,175 +131,252 @@ export function TallyServiceTable({
         header: "Tally #",
         cell: ({ row }) => {
           const id = row.original.tallyServiceId
-          const label = row.original.receiptNo || `#${id}`
           return (
             <button
               type="button"
               onClick={() => openRecord(row.original)}
               className="text-muted-foreground hover:text-primary hover:underline"
             >
-              {label}
+              #{id}
             </button>
           )
         },
-        size: 140,
+        size: 90,
+        minSize: 70,
       },
       {
         accessorKey: "date",
         header: "Service Date",
-        cell: ({ row }) => formatDateValue(row.getValue("date")),
-        size: 120,
+        cell: ({ row }) => (
+          <div className="truncate">
+            {formatDateValue(row.getValue("date"))}
+          </div>
+        ),
+        size: 110,
+        minSize: 95,
       },
       {
         accessorKey: "customerName",
         header: "Customer",
-        size: 180,
+        cell: ({ row }) => (
+          <div className="truncate">
+            {row.getValue("customerName") || "-"}
+          </div>
+        ),
+        size: 160,
+        minSize: 130,
       },
       {
         accessorKey: "vesselName",
         header: "Vessel",
-        size: 150,
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("vesselName") || "-"}</div>
+        ),
+        size: 140,
+        minSize: 110,
       },
       {
         accessorKey: "portName",
         header: "Port",
-        size: 120,
-      },
-      {
-        accessorKey: "accountDate",
-        header: "Account Date",
-        cell: ({ row }) => formatDateValue(row.getValue("accountDate")),
-        size: 120,
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("portName") || "-"}</div>
+        ),
+        size: 110,
+        minSize: 90,
       },
       {
         accessorKey: "jobStatusName",
         header: "Status",
         cell: ({ row }) => (
-          <Badge variant="secondary">
-            {row.getValue("jobStatusName") || "-"}
-          </Badge>
+          <div className="text-center">
+            <Badge variant="secondary">
+              {row.getValue("jobStatusName") || "-"}
+            </Badge>
+          </div>
         ),
-        size: 130,
+        size: 110,
+        minSize: 90,
       },
       {
         accessorKey: "chargeName",
-        header: "Charge",
-        size: 200,
+        header: "Charge Name",
+        cell: ({ row }) => (
+          <div className="truncate font-medium">
+            {row.getValue("chargeName") || "-"}
+          </div>
+        ),
+        size: 170,
+        minSize: 130,
       },
       {
         accessorKey: "bargeName",
         header: "Barge",
-        size: 160,
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("bargeName") || "-"}</div>
+        ),
+        size: 130,
+        minSize: 100,
       },
       {
-        accessorKey: "uomName",
+        id: "lineType",
+        header: "Type",
+        cell: ({ row }) => (
+          <TallyServiceInlineTypeCell
+            lines={getDisplayTallyServiceLines(row.original)}
+          />
+        ),
+        size: 100,
+        minSize: 90,
+      },
+      {
+        id: "lineTallyNo",
+        header: "Tally No",
+        cell: ({ row }) => (
+          <TallyServiceInlineTextCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) => (entry.line.tallyNo ?? "").trim() || "-"}
+          />
+        ),
+        size: 110,
+        minSize: 90,
+      },
+      {
+        id: "lineDistance",
+        header: "Distance",
+        cell: ({ row }) => (
+          <TallyServiceInlineNumberCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) => entry.line.distance ?? 0}
+          />
+        ),
+        size: 80,
+        minSize: 70,
+      },
+      {
+        id: "lineCharge",
+        header: "Line Charge",
+        cell: ({ row }) => (
+          <TallyServiceInlineTextCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) => {
+              const line = entry.line as {
+                chargeName?: string | null
+                ChargeName?: string | null
+              }
+              return (
+                line.chargeName?.trim() ||
+                line.ChargeName?.trim() ||
+                "-"
+              )
+            }}
+          />
+        ),
+        size: 150,
+        minSize: 120,
+      },
+      {
+        id: "lineUom",
         header: "UOM",
-        size: 100,
+        cell: ({ row }) => (
+          <TallyServiceInlineTextCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) => {
+              if (entry.kind !== "freshwater") return "-"
+              const line = entry.line as {
+                uomName?: string | null
+                UomName?: string | null
+              }
+              return line.uomName?.trim() || line.UomName?.trim() || "-"
+            }}
+          />
+        ),
+        size: 80,
+        minSize: 65,
       },
       {
-        accessorKey: "quantity",
-        header: "Quantity",
-        size: 100,
+        id: "lineQuantity",
+        header: "Qty",
+        cell: ({ row }) => (
+          <TallyServiceInlineNumberCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) =>
+              entry.kind === "freshwater" ? entry.line.quantity ?? 0 : "-"
+            }
+          />
+        ),
+        size: 70,
+        minSize: 55,
       },
       {
-        accessorKey: "receiptNo",
-        header: "Receipt No",
-        size: 130,
+        id: "lineDelivered",
+        header: "Delivered",
+        cell: ({ row }) => (
+          <TallyServiceInlineNumberCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) =>
+              entry.kind === "launch"
+                ? entry.line.deliveredWeight ?? 0
+                : "-"
+            }
+          />
+        ),
+        size: 85,
+        minSize: 70,
       },
       {
-        accessorKey: "operatorName",
-        header: "Operator Name",
-        size: 160,
+        id: "lineLanded",
+        header: "Landed",
+        cell: ({ row }) => (
+          <TallyServiceInlineNumberCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) =>
+              entry.kind === "launch" ? entry.line.landedWeight ?? 0 : "-"
+            }
+          />
+        ),
+        size: 80,
+        minSize: 65,
       },
       {
-        accessorKey: "supplyBarge",
-        header: "Supply Barge",
-        size: 160,
+        id: "lineWaiting",
+        header: "Waiting",
+        cell: ({ row }) => (
+          <TallyServiceInlineTextCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) =>
+              entry.kind === "launch"
+                ? formatDuration(entry.line.waitingTime)
+                : "-"
+            }
+          />
+        ),
+        size: 80,
+        minSize: 65,
       },
       {
-        accessorKey: "ameTally",
-        header: "AME Tally",
-        size: 130,
-      },
-      {
-        accessorKey: "boatopTally",
-        header: "Boat Operator Tally",
-        size: 160,
-      },
-      {
-        accessorKey: "boatOperator",
-        header: "Boat Operator",
-        size: 160,
-      },
-      {
-        accessorKey: "loadingTime",
-        header: "Loading Time",
-        cell: ({ row }) => formatDateTimeValue(row.getValue("loadingTime")),
-        size: 180,
-      },
-      {
-        accessorKey: "leftJetty",
-        header: "Left Jetty",
-        cell: ({ row }) => formatDateTimeValue(row.getValue("leftJetty")),
-        size: 180,
-      },
-      {
-        accessorKey: "waitingTime",
-        header: "Waiting Time",
-        cell: ({ row }) =>
-          formatDuration(row.getValue("waitingTime") as number),
-        size: 120,
-      },
-      {
-        accessorKey: "alongsideVessel",
-        header: "Alongside Vessel",
-        cell: ({ row }) => formatDateTimeValue(row.getValue("alongsideVessel")),
-        size: 180,
-      },
-      {
-        accessorKey: "departedFromVessel",
-        header: "Departed Vessel",
-        cell: ({ row }) =>
-          formatDateTimeValue(row.getValue("departedFromVessel")),
-        size: 180,
-      },
-      {
-        accessorKey: "timeDiff",
-        header: "Time Difference",
-        cell: ({ row }) => formatDuration(row.getValue("timeDiff") as number),
-        size: 130,
-      },
-      {
-        accessorKey: "arrivedAtJetty",
-        header: "Arrived at Jetty",
-        cell: ({ row }) => formatDateTimeValue(row.getValue("arrivedAtJetty")),
-        size: 180,
-      },
-      {
-        accessorKey: "deliveredWeight",
-        header: "Delivered Weight",
-        size: 140,
-      },
-      {
-        accessorKey: "landedWeight",
-        header: "Landed Weight",
-        size: 140,
-      },
-      {
-        accessorKey: "annexure",
-        header: "Annexure",
-        size: 140,
-      },
-      {
-        accessorKey: "invoiceId",
-        header: "Invoice Id",
-        cell: ({ row }) => row.getValue("invoiceId") || "-",
-        size: 120,
+        id: "lineTimeDiff",
+        header: "Time diff",
+        cell: ({ row }) => (
+          <TallyServiceInlineTextCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) =>
+              entry.kind === "launch"
+                ? formatDuration(entry.line.timeDiff)
+                : "-"
+            }
+          />
+        ),
+        size: 85,
+        minSize: 70,
       },
       {
         accessorKey: "invoiceNo",
         header: "Invoice No",
-        size: 130,
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("invoiceNo") || "-"}</div>
+        ),
+        size: 120,
+        minSize: 100,
       },
       {
         accessorKey: "isPost",
@@ -302,34 +386,37 @@ export function TallyServiceTable({
             {row.getValue("isPost") ? "Yes" : "No"}
           </Badge>
         ),
-        size: 100,
+        size: 80,
+        minSize: 65,
       },
       {
         accessorKey: "remarks",
         header: "Remarks",
-        size: 220,
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("remarks") || "-"}</div>
+        ),
+        size: 180,
+        minSize: 120,
       },
       {
         accessorKey: "createBy",
         header: "Created By",
-        size: 120,
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("createBy") || "-"}</div>
+        ),
+        size: 110,
+        minSize: 90,
       },
       {
         accessorKey: "createDate",
         header: "Created Date",
-        cell: ({ row }) => formatDateTimeValue(row.getValue("createDate")),
-        size: 180,
-      },
-      {
-        accessorKey: "editBy",
-        header: "Edited By",
-        size: 120,
-      },
-      {
-        accessorKey: "editDate",
-        header: "Edited Date",
-        cell: ({ row }) => formatDateTimeValue(row.getValue("editDate")),
-        size: 180,
+        cell: ({ row }) => (
+          <div className="truncate">
+            {formatDateTimeValue(row.getValue("createDate"))}
+          </div>
+        ),
+        size: 160,
+        minSize: 130,
       },
     ],
     [formatDateTimeValue, formatDateValue, openRecord]

@@ -378,7 +378,7 @@ export function CopyRateForm({
                   }}
                 />
                 <label htmlFor="isDelete" className="text-sm font-medium">
-                  Delete source after copy
+                  Clear destination before copy
                 </label>
               </div>
             </div>
@@ -398,6 +398,14 @@ export function CopyRateForm({
                   You can copy between different customers or the same customer
                   with different ports. From and To must differ by customer and/or
                   port (e.g. same customer, different port).
+                </p>
+                <p className="text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
+                  <strong>Overwrite existing rates:</strong> updates matching tariffs at
+                  To and inserts any that do not exist yet (destination is not cleared first).
+                </p>
+                <p className="text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
+                  <strong>Clear destination before copy:</strong> removes all To
+                  customer/port/task tariffs first, then copies from From. Source rates are kept.
                 </p>
               </div>
             </div>

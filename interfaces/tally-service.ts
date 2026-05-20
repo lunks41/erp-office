@@ -1,3 +1,31 @@
+export interface ITallyFreshWaterLine {
+  itemNo?: number
+  chargeId: number
+  chargeName?: string | null
+  uomId: number
+  uomName?: string | null
+  quantity: number
+  distance?: number | null
+  tallyNo?: string | null
+}
+
+export interface ITallyLaunchServiceLine {
+  itemNo?: number
+  chargeId: number
+  chargeName?: string | null
+  loadingTime?: Date | string | null
+  leftJetty?: Date | string | null
+  waitingTime?: number | null
+  alongsideVessel?: Date | string | null
+  departedFromVessel?: Date | string | null
+  timeDiff?: number | null
+  arrivedAtJetty?: Date | string | null
+  deliveredWeight?: number | null
+  landedWeight?: number | null
+  distance?: number | null
+  tallyNo?: string | null
+}
+
 export interface ITallyService {
   companyId: number
   tallyServiceId: number
@@ -13,8 +41,6 @@ export interface ITallyService {
   exhRate?: number | null
   vesselId?: number | null
   vesselName?: string | null
-  imoCode?: string | null
-  vesselDistance?: number | null
   portId?: number | null
   portName?: string | null
   addressId?: number | null
@@ -49,23 +75,6 @@ export interface ITallyService {
   bargeName?: string | null
   uomId: number
   uomName?: string | null
-  operatorName?: string | null
-  supplyBarge?: string | null
-  quantity: number
-  receiptNo?: string | null
-  ameTally?: string | null
-  boatopTally?: string | null
-  boatOperator?: string | null
-  loadingTime?: Date | string | null
-  leftJetty?: Date | string | null
-  waitingTime?: number | null
-  alongsideVessel?: Date | string | null
-  departedFromVessel?: Date | string | null
-  timeDiff?: number | null
-  arrivedAtJetty?: Date | string | null
-  deliveredWeight?: number | null
-  landedWeight?: number | null
-  annexure?: string | null
   invoiceId?: number | null
   invoiceNo?: string | null
   jobStatusId: number
@@ -78,6 +87,8 @@ export interface ITallyService {
   createBy?: string | null
   editBy?: string | null
   editVersion: number
+  freshWaterLines?: ITallyFreshWaterLine[]
+  launchServiceLines?: ITallyLaunchServiceLine[]
 }
 
 export interface ITallyServiceFilter {
