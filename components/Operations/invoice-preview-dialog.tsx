@@ -79,10 +79,6 @@ type InvoicePreviewDialogProps = {
   preview: IInvoicePreview | null
   isLoading?: boolean
   loadError?: string | null
-  onPostInvoice?: () => void
-  isPosting?: boolean
-  canPost?: boolean
-  postButtonLabel?: string
   companyId: string | number
   userName?: string
   amtDec?: number
@@ -138,10 +134,6 @@ export function InvoicePreviewDialog({
   preview,
   isLoading = false,
   loadError = null,
-  onPostInvoice,
-  isPosting = false,
-  canPost = false,
-  postButtonLabel = "Post Invoice",
   companyId,
   userName = "",
   amtDec = 2,
@@ -270,11 +262,6 @@ export function InvoicePreviewDialog({
             <Printer className="mr-2 h-4 w-4" />
             Print
           </Button>
-          {canPost && onPostInvoice ? (
-            <Button onClick={onPostInvoice} disabled={isPosting || isLoading}>
-              {isPosting ? "Posting..." : postButtonLabel}
-            </Button>
-          ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -25,6 +25,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
+import { isChecklistPostedJob } from "@/helpers/project"
+
 import { ChecklistTable } from "./components/checklist-table"
 
 // Schema for date filter form
@@ -263,7 +265,8 @@ export default function ChecklistPage() {
       Confirmed: apiData.filter(
         (job: IJobOrderHd) =>
           job.jobStatusName === OperationsStatus.Confirmed.toString() &&
-          job.isActive === true
+          job.isActive === true &&
+          !isChecklistPostedJob(job)
       ).length,
       Completed: apiData.filter(
         (job: IJobOrderHd) =>
@@ -282,9 +285,7 @@ export default function ChecklistPage() {
       ).length,
       Posted: apiData.filter(
         (job: IJobOrderHd) =>
-          job.jobStatusName === OperationsStatus.Confirmed.toString() &&
-          job.isActive === true &&
-          job.isPost === true
+          job.isActive === true && isChecklistPostedJob(job)
       ).length,
       InActive: apiData.filter((job: IJobOrderHd) => job.isActive === false)
         .length,

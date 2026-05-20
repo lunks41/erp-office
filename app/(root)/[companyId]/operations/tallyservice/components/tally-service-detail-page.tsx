@@ -278,10 +278,6 @@ export function TallyServiceDetailPage({
     }
   }, [queryClient, refetch, tallyService?.tallyServiceId])
 
-  const handlePostFromPreview = useCallback(() => {
-    setShowPostInvoiceConfirm(true)
-  }, [])
-
   const handleSaveRequest = (data: ITallyService) => {
     setSaveConfirmation({ isOpen: true, data })
   }
@@ -541,9 +537,6 @@ export function TallyServiceDetailPage({
         preview={invoicePreview}
         isLoading={isLoadingPreview}
         loadError={previewError}
-        canPost={canPostInvoice}
-        isPosting={isPostingInvoice}
-        onPostInvoice={handlePostFromPreview}
         companyId={companyId}
         userName={user?.userName || ""}
         amtDec={decimals[0]?.amtDec || 2}

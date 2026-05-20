@@ -69,3 +69,24 @@ export const canShowJobSummaryPrint = (
   status?: JobStatusInput,
   isPost?: boolean
 ) => isStatusPosted(status) || isInvoicePosted(isPost)
+
+/** Checklist list: Confirmed + IsPost or status Posted displays as Posted */
+export const getChecklistJobDisplayStatus = (job: {
+  jobStatusId?: number
+  jobStatusName?: string | null
+  isPost?: boolean
+}): string => {
+  if (
+    isStatusPosted(job) ||
+    (isInvoicePosted(job.isPost) && isStatusConfirmed(job))
+  ) {
+    return "Posted"
+  }
+  return job.jobStatusName?.trim() || "-"
+}
+
+export const isChecklistPostedJob = (job: {
+  jobStatusId?: number
+  jobStatusName?: string | null
+  isPost?: boolean
+}): boolean => getChecklistJobDisplayStatus(job) === "Posted"

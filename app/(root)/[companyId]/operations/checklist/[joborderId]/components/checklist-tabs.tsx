@@ -576,15 +576,6 @@ export function ChecklistTabs({
     }
   }, [currentJobData?.jobOrderId, refetch, onUpdateSuccess])
 
-  const handlePostInvoiceFromPreview = useCallback(() => {
-    setConfirmAction({
-      type: "generateInvoice",
-      title: "Generate Invoice",
-      message: `Are you sure you want to generate an invoice for Job Order ${currentJobData?.jobOrderNo || ""}? This action cannot be undone.`,
-    })
-    setShowConfirmDialog(true)
-  }, [currentJobData?.jobOrderNo])
-
   // Handle delete job order confirmation
   const handleConfirmDeleteJobOrder = useCallback(async () => {
     if (!deleteJobOrderConfirmation.jobOrderId) {
@@ -934,8 +925,6 @@ export function ChecklistTabs({
         preview={invoicePreview}
         isLoading={isLoadingInvoicePreview}
         loadError={invoicePreviewError}
-        canPost={canPostInvoice}
-        onPostInvoice={handlePostInvoiceFromPreview}
         companyId={companyId}
         userName={user?.userName || ""}
         amtDec={decimals[0]?.amtDec || 2}

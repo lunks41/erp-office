@@ -14,6 +14,10 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 
 import { OperationsStatus } from "@/lib/operations-utils"
+import {
+  getChecklistJobDisplayStatus,
+  isChecklistPostedJob,
+} from "@/helpers/project"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { JobTable } from "@/components/table/table-job"
@@ -84,14 +88,11 @@ export function ChecklistTable({
         case "Confirmed":
           return (
             job.jobStatusName === OperationsStatus.Confirmed.toString() &&
-            job.isActive === true
+            job.isActive === true &&
+            !isChecklistPostedJob(job)
           )
         case "Posted":
-          return (
-            job.jobStatusName === OperationsStatus.Confirmed.toString() &&
-            job.isActive === true &&
-            job.isPost === true
-          )
+          return job.isActive === true && isChecklistPostedJob(job)
         case "InActive":
           return job.isActive === false
         default:
@@ -207,7 +208,7 @@ export function ChecklistTable({
         accessorKey: "jobStatusName",
         header: "Status",
         cell: ({ row }) => {
-          const status = row.getValue("jobStatusName") as string
+          const status = getChecklistJobDisplayStatus(row.original)
           const statusColors: Record<string, string> = {
             Pending: "bg-yellow-100 text-yellow-800",
             Completed: "bg-blue-100 text-primary",

@@ -42,6 +42,7 @@ import { Separator } from "@/components/ui/separator"
 import {
   ChartOfAccountAutocomplete,
   CurrencyAutocomplete,
+  DepartmentAutocomplete,
   GSTAutocomplete,
 } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
@@ -64,6 +65,7 @@ interface IReportFormData extends Record<string, unknown> {
   reportType: number
   gstTypeId: number
   gstId: number
+  departmentId: number
 }
 
 interface IReportParameters {
@@ -78,6 +80,7 @@ interface IReportParameters {
   reportType: number
   gstTypeId: number
   gstId: number | null
+  departmentId: number
 }
 
 interface IReport {
@@ -283,6 +286,7 @@ export default function ReportsPage() {
       reportType: 0,
       gstTypeId: 0,
       gstId: 0,
+      departmentId: 0,
     },
   })
 
@@ -554,6 +558,8 @@ export default function ReportsPage() {
       reportType: typeof data.reportType === "number" ? data.reportType : 0,
       gstTypeId: typeof data.gstTypeId === "number" ? data.gstTypeId : 0,
       gstId: typeof data.gstId === "number" ? data.gstId : null,
+      departmentId:
+        typeof data.departmentId === "number" ? data.departmentId : 0,
     }
   }
 
@@ -585,6 +591,7 @@ export default function ReportsPage() {
       reptype: parameters.reportType,
       gstTypeId: parameters.gstTypeId || 0,
       gstId: parameters.gstId || 0,
+      departmentId: parameters.departmentId || 0,
       amtDec: amtDec,
       locAmtDec: locAmtDec,
       url: baseUrl,
@@ -643,6 +650,7 @@ export default function ReportsPage() {
       reportType: 0,
       gstTypeId: 0,
       gstId: 0,
+      departmentId: 0,
     })
     setSelectedReports([])
   }
@@ -936,8 +944,14 @@ export default function ReportsPage() {
                   </div>
                 )}
 
-                {/* Currency */}
+                {/* Department & Currency */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <DepartmentAutocomplete
+                    form={form}
+                    name="departmentId"
+                    label="Department"
+                    isRequired={false}
+                  />
                   <CurrencyAutocomplete
                     form={form}
                     name="currencyId"
