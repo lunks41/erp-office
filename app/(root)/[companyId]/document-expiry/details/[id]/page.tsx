@@ -6,6 +6,7 @@ import { useParams } from "next/navigation"
 import { format, parseISO } from "date-fns"
 import { ArrowLeft, Pencil, RefreshCw } from "lucide-react"
 
+import { DocumentComments } from "@/components/document-expiry/document-comments"
 import { DocumentHistoryTimeline } from "@/components/document-expiry/document-history-timeline"
 import { ExpiryBadge } from "@/components/document-expiry/expiry-badge"
 import { UploadDropzone } from "@/components/document-expiry/upload-dropzone"
@@ -180,13 +181,10 @@ export default function DocumentDetailsPage() {
             <CardTitle className="text-base">Comments</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Document comments API is not yet exposed. Use remarks on the document
-              or renewal notes in history.
-            </p>
+            <DocumentComments documentId={id} />
             {doc.remarks && (
-              <blockquote className="border-muted mt-3 border-l-2 pl-3 text-sm italic">
-                {doc.remarks}
+              <blockquote className="border-muted mt-4 border-l-2 pl-3 text-sm italic text-muted-foreground">
+                Remarks: {doc.remarks}
               </blockquote>
             )}
           </CardContent>

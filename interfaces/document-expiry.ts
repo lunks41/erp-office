@@ -145,7 +145,14 @@ export interface DocumentCommentDto {
   commentId: number
   documentId: number
   commentText: string
+  createdById?: number
+  createdByName?: string | null
   createdDate: string
+}
+
+export interface SaveDocumentCommentDto {
+  documentId: number
+  commentText: string
 }
 
 export interface DashboardSummaryDto {

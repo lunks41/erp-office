@@ -11,6 +11,9 @@ export const DocumentExpiryRoutes = {
       `/documentexpiry/documents/${id}/attachments`,
     attachment: (id: number | string, attachmentId: number | string) =>
       `/documentexpiry/documents/${id}/attachments/${attachmentId}`,
+    comments: (id: number | string) => `/documentexpiry/documents/${id}/comments`,
+    comment: (id: number | string, commentId: number | string) =>
+      `/documentexpiry/documents/${id}/comments/${commentId}`,
   },
   documentTypes: {
     types: "/documentexpiry/documenttypes/types",

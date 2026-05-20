@@ -10,7 +10,9 @@ import {
   RenewalHistoryReportRowDto,
   RenewDocumentDto,
   SaveDocumentDto,
+  SaveDocumentCommentDto,
   SaveReminderRuleDto,
+  DocumentCommentDto,
 } from "@/interfaces/document-expiry"
 import { DocumentExpiryRoutes } from "@/lib/document-expiry-routes"
 import {
@@ -66,6 +68,7 @@ export const documentExpiryKeys = {
   critical: ["doc-expiry-critical"] as const,
   reminderRules: ["doc-expiry-reminder-rules"] as const,
   attachments: (id: string) => ["doc-expiry-attachments", id] as const,
+  comments: (id: string) => ["doc-expiry-comments", id] as const,
   expiryReport: (params: DocumentQueryParams) =>
     ["doc-expiry-report-expiry", params] as const,
   renewalHistory: (from?: string, to?: string) =>
@@ -312,6 +315,69 @@ export function useUploadDocumentAttachment() {
       }
     },
     onError: () => toast.error("Upload failed"),
+  })
+}
+
+export function useDocumentComments(documentId: string) {
+  return useQuery({
+    queryKey: documentExpiryKeys.comments(documentId),
+    queryFn: async () =>
+      (await getData(
+        DocumentExpiryRoutes.documents.comments(documentId)
+      )) as DocumentExpiryApiResponse<DocumentCommentDto[]>,
+    enabled: !!documentId?.trim(),
+    ...noCache,
+  })
+}
+
+export function useAddDocumentComment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      commentText,
+    }: {
+      documentId: number | string
+      commentText: string
+    }) =>
+      (await saveData(DocumentExpiryRoutes.documents.comments(documentId), {
+        documentId: Number(documentId),
+        commentText,
+      })) as DocumentExpiryApiResponse<DocumentCommentDto>,
+    onSuccess: (res, vars) => {
+      if (res.result === 1) {
+        toast.success("Comment added")
+        void queryClient.invalidateQueries({
+          queryKey: documentExpiryKeys.comments(String(vars.documentId)),
+        })
+      } else {
+        toast.error(res.message || "Failed to add comment")
+      }
+    },
+    onError: () => toast.error("Failed to add comment"),
+  })
+}
+
+export function useDeleteDocumentComment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      commentId,
+    }: {
+      documentId: number | string
+      commentId: number | string
+    }) =>
+      deleteData(
+        DocumentExpiryRoutes.documents.comment(documentId, commentId)
+      ),
+    onSuccess: (_, vars) => {
+      toast.success("Comment removed")
+      void queryClient.invalidateQueries({
+        queryKey: documentExpiryKeys.comments(String(vars.documentId)),
+      })
+    },
+    onError: () => toast.error("Failed to remove comment"),
   })
 }
 
