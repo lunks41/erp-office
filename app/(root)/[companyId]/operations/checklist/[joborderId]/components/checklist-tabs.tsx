@@ -59,7 +59,7 @@ import { DeleteConfirmation } from "@/components/confirmation/delete-confirmatio
 import {
   InvoicePreviewDialog,
   normalizePreview,
-} from "@/components/operations/invoice-preview-dialog"
+} from "@/components/Operations/invoice-preview-dialog"
 
 import { ChecklistDetailsForm } from "./checklist-details-form"
 import { ChecklistHistory } from "./checklist-history"

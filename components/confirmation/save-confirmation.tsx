@@ -33,6 +33,8 @@ interface SaveConfirmationProps {
   isSaving?: boolean
   // Type of operation (create, update, etc.)
   operationType?: "create" | "update" | "save" | "clone"
+  /** When false, parent must close the dialog after async save completes (default true). */
+  closeOnConfirm?: boolean
 }
 
 export function SaveConfirmation({
@@ -45,6 +47,7 @@ export function SaveConfirmation({
   onCancelAction,
   isSaving = false,
   operationType = "save",
+  closeOnConfirm = true,
 }: SaveConfirmationProps) {
   // Use internal state if open/onOpenChange are not provided
   const [internalOpen, setInternalOpen] = useState(false)
@@ -56,7 +59,9 @@ export function SaveConfirmation({
   // Handle the confirm action
   const handleConfirm = () => {
     onConfirm()
-    setIsOpen(false)
+    if (closeOnConfirm) {
+      setIsOpen(false)
+    }
   }
 
   // Handle the cancel action

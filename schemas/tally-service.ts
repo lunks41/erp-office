@@ -48,6 +48,20 @@ export const tallyServiceSchema = z.object({
     .optional(),
   editVersion: z.number(),
 })
+  .superRefine((data, ctx) => {
+    const hasFreshWater = data.freshWaterLines.some(
+      (l) => l.chargeId > 0 && l.uomId > 0
+    )
+    const hasLaunch = data.launchServiceLines.some((l) => l.chargeId > 0)
+    if (!hasFreshWater && !hasLaunch) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Add at least one freshwater line (charge and UOM) or one launch service line (charge).",
+        path: ["freshWaterLines", 0, "chargeId"],
+      })
+    }
+  })
 
 export type TallyServiceSchemaType = z.infer<typeof tallyServiceSchema>
 

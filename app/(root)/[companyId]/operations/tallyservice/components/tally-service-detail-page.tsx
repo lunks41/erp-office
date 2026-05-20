@@ -36,7 +36,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import {
   InvoicePreviewDialog,
   normalizePreview,
-} from "@/components/operations/invoice-preview-dialog"
+} from "@/components/Operations/invoice-preview-dialog"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 
 import { TallyServiceForm } from "./tally-service-form"
@@ -104,6 +104,7 @@ export function TallyServiceDetailPage({
   )
 
   const saveMutation = usePersist<ITallyService>(TallyService.add)
+  const [hasRequiredServiceLine, setHasRequiredServiceLine] = useState(false)
   const [saveConfirmation, setSaveConfirmation] = useState<{
     isOpen: boolean
     data: ITallyService | null
@@ -455,7 +456,15 @@ export function TallyServiceDetailPage({
             <Button
               type="submit"
               form={FORM_ID}
-              disabled={saveMutation.isPending}
+              disabled={
+                saveMutation.isPending ||
+                !hasRequiredServiceLine
+              }
+              title={
+                !hasRequiredServiceLine
+                  ? "Add at least one freshwater line (charge + UOM) or one launch line (charge) on the Service tab"
+                  : undefined
+              }
             >
               {saveMutation.isPending ? "Saving..." : "Save"}
             </Button>
@@ -474,23 +483,32 @@ export function TallyServiceDetailPage({
         isSubmitting={saveMutation.isPending}
         formId={FORM_ID}
         hideActions
+        onSaveEligibilityChange={setHasRequiredServiceLine}
       />
 
       <SaveConfirmation
         open={saveConfirmation.isOpen}
-        onOpenChange={(isOpen) =>
-          setSaveConfirmation((prev) => ({ ...prev, isOpen }))
-        }
+        closeOnConfirm={false}
+        onOpenChange={(isOpen) => {
+          if (!saveMutation.isPending) {
+            setSaveConfirmation((prev) => ({ ...prev, isOpen }))
+            if (!isOpen) {
+              setSaveConfirmation((prev) => ({ ...prev, data: null }))
+            }
+          }
+        }}
         title={
           mode === "create" ? "Create Tally Service" : "Update Tally Service"
         }
         itemName={
           saveConfirmation.data?.tallyServiceId
             ? `Tally Service #${saveConfirmation.data.tallyServiceId}`
-            : saveConfirmation.data?.chargeName || "this tally service"
+            : saveConfirmation.data?.customerName ||
+              saveConfirmation.data?.chargeName ||
+              "this tally service"
         }
         operationType={mode === "create" ? "create" : "update"}
-        onConfirm={handleSaveConfirm}
+        onConfirm={() => void handleSaveConfirm()}
         onCancelAction={() =>
           setSaveConfirmation({ isOpen: false, data: null })
         }

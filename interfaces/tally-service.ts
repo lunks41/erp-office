@@ -69,11 +69,13 @@ export interface ITallyService {
   contactName?: string | null
   mobileNo?: string | null
   emailAdd?: string | null
-  chargeId: number
+  /** Display only — from first freshwater line when loaded from API */
+  chargeId?: number
   chargeName?: string | null
   bargeId: number
   bargeName?: string | null
-  uomId: number
+  /** Display only — from first freshwater line when loaded from API */
+  uomId?: number
   uomName?: string | null
   invoiceId?: number | null
   invoiceNo?: string | null

@@ -2,8 +2,8 @@ import { z } from "zod"
 
 export const tallyFreshWaterLineSchema = z.object({
   itemNo: z.number().optional(),
-  chargeId: z.number().min(1, "Charge is required"),
-  uomId: z.number().min(1, "UOM is required"),
+  chargeId: z.number().min(0),
+  uomId: z.number().min(0),
   quantity: z.number().min(0, "Quantity must be 0 or greater"),
   distance: z.number().min(0, "Distance must be 0 or greater").optional(),
   tallyNo: z.string().optional(),
@@ -11,7 +11,7 @@ export const tallyFreshWaterLineSchema = z.object({
 
 export const tallyLaunchServiceLineSchema = z.object({
   itemNo: z.number().optional(),
-  chargeId: z.number().min(1, "Charge is required"),
+  chargeId: z.number().min(0),
   loadingTime: z.union([z.date(), z.string()]).optional(),
   leftJetty: z.union([z.date(), z.string()]).optional(),
   waitingTime: z.number().min(0).optional(),

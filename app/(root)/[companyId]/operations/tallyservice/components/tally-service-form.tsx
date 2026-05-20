@@ -10,7 +10,7 @@ import { tallyServiceSchema, TallyServiceSchemaType } from "@/schemas"
 import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { differenceInMinutes, format, isValid, parse } from "date-fns"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useFieldArray, useForm, type FieldErrors } from "react-hook-form"
 import { toast } from "sonner"
 
 import { getData } from "@/lib/api-client"
@@ -47,6 +47,7 @@ import { TallyServiceServiceTab } from "./tally-service-service-tab"
 import {
   buildFreshWaterLinesFromTally,
   buildLaunchLinesFromTally,
+  createEmptyFreshWaterLine,
   mapFormToTallyService,
 } from "./tally-service-utils"
 
@@ -66,6 +67,8 @@ interface TallyServiceFormProps {
   isSubmitting?: boolean
   formId?: string
   hideActions?: boolean
+  /** Fires when freshwater/launch line eligibility for save changes (at least one valid line). */
+  onSaveEligibilityChange?: (hasRequiredServiceLine: boolean) => void
 }
 
 function formatDurationToHhMm(value?: number | null): string {
@@ -83,6 +86,7 @@ export function TallyServiceForm({
   isSubmitting = false,
   formId,
   hideActions = false,
+  onSaveEligibilityChange,
 }: TallyServiceFormProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -164,11 +168,11 @@ export function TallyServiceForm({
       contactName: initialData?.contactName ?? "",
       mobileNo: initialData?.mobileNo ?? "",
       emailAdd: initialData?.emailAdd ?? "",
-      freshWaterLines: buildFreshWaterLinesFromTally(initialData).map(
-        (line) => ({
-          ...line,
-        })
-      ),
+      freshWaterLines: (() => {
+        const lines = buildFreshWaterLinesFromTally(initialData)
+        if (lines.length > 0) return lines
+        return mode === "create" ? [createEmptyFreshWaterLine()] : []
+      })(),
       launchServiceLines: buildLaunchLinesFromTally(initialData).map(
         (line) => ({
           ...line,
@@ -195,7 +199,7 @@ export function TallyServiceForm({
       remarks: initialData?.remarks ?? "",
       editVersion: initialData?.editVersion ?? 0,
     }
-  }, [dateFormat, initialData, parseWithFallback])
+  }, [dateFormat, initialData, mode, parseWithFallback])
 
   const form = useForm<TallyServiceSchemaType>({
     resolver: zodResolver(tallyServiceSchema),
@@ -471,12 +475,47 @@ export function TallyServiceForm({
     submitAction(mapFormToTallyService(data, companyId, initialData))
   }
 
+  const onSubmitInvalid = (errors: FieldErrors<TallyServiceSchemaType>) => {
+    const collectFirst = (
+      e: FieldErrors<TallyServiceSchemaType> | Record<string, unknown> | undefined
+    ): string | undefined => {
+      if (!e || typeof e !== "object") return undefined
+      for (const v of Object.values(e)) {
+        if (!v) continue
+        if (typeof v === "object" && "message" in v && typeof v.message === "string") {
+          return v.message
+        }
+        const nested = collectFirst(v as Record<string, unknown>)
+        if (nested) return nested
+      }
+      return undefined
+    }
+    const msg =
+      collectFirst(errors) ||
+      "Please fix validation errors before saving."
+    toast.error(msg)
+  }
+
+  const watchedFresh = form.watch("freshWaterLines")
+  const watchedLaunch = form.watch("launchServiceLines")
+
+  const hasRequiredServiceLine = useMemo(
+    () =>
+      (watchedFresh ?? []).some((l) => l.chargeId > 0 && l.uomId > 0) ||
+      (watchedLaunch ?? []).some((l) => l.chargeId > 0),
+    [watchedFresh, watchedLaunch]
+  )
+
+  useEffect(() => {
+    onSaveEligibilityChange?.(hasRequiredServiceLine)
+  }, [hasRequiredServiceLine, onSaveEligibilityChange])
+
   return (
     <div className="flex flex-col gap-2">
       <Form {...form}>
         <form
           id={formId}
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, onSubmitInvalid)}
           className="space-y-3"
         >
           <Tabs defaultValue="main" className="w-full">

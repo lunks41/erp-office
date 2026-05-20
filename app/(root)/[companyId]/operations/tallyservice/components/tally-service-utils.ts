@@ -23,6 +23,18 @@ export function createEmptyFreshWaterLine(): TallyFreshWaterLineSchemaType {
   }
 }
 
+export function filterFreshWaterLinesForSave(
+  lines?: ITallyFreshWaterLine[]
+): ITallyFreshWaterLine[] {
+  return (lines ?? []).filter((line) => line.chargeId > 0 && line.uomId > 0)
+}
+
+export function filterLaunchLinesForSave(
+  lines?: ITallyLaunchServiceLine[]
+): ITallyLaunchServiceLine[] {
+  return (lines ?? []).filter((line) => line.chargeId > 0)
+}
+
 export function createEmptyLaunchLine(): TallyLaunchServiceLineSchemaType {
   return {
     itemNo: 0,
@@ -120,9 +132,7 @@ export type TallyServiceSavePayload = {
   contactName?: string | null
   mobileNo?: string | null
   emailAdd?: string | null
-  chargeId: number
   bargeId?: number | null
-  uomId: number
   invoiceId?: number | null
   invoiceNo?: string | null
   jobStatusId: number
@@ -221,7 +231,6 @@ export function mapFormToTallyService(
 ): ITallyService {
   const freshWaterLines = data.freshWaterLines ?? []
   const launchServiceLines = data.launchServiceLines ?? []
-  const firstFresh = freshWaterLines[0]
   const formattedDate = formatDateForApi(data.date) || data.date
   const formattedAccountDate =
     formatDateForApi(data.accountDate) || data.accountDate
@@ -259,9 +268,10 @@ export function mapFormToTallyService(
     contactName: data.contactName || "",
     mobileNo: data.mobileNo || "",
     emailAdd: data.emailAdd || "",
-    chargeId: firstFresh?.chargeId ?? 0,
+    chargeId:
+      freshWaterLines.find((line) => line.chargeId > 0)?.chargeId ?? 0,
     bargeId: data.bargeId,
-    uomId: firstFresh?.uomId ?? 0,
+    uomId: freshWaterLines.find((line) => line.uomId > 0)?.uomId ?? 0,
     invoiceId: data.invoiceId ?? 0,
     invoiceNo: data.invoiceNo || "",
     jobStatusId: data.jobStatusId ?? 1,
@@ -273,15 +283,19 @@ export function mapFormToTallyService(
     createBy: initialData?.createBy ?? "",
     editBy: initialData?.editBy ?? "",
     editVersion: data.editVersion || initialData?.editVersion || 0,
-    freshWaterLines: freshWaterLines.map((line, index) => ({
-      itemNo: index + 1,
-      chargeId: line.chargeId,
-      uomId: line.uomId,
-      quantity: line.quantity,
-      distance: line.distance ?? 0,
-      tallyNo: line.tallyNo || "",
-    })),
-    launchServiceLines: launchServiceLines.map((line, index) => ({
+    freshWaterLines: freshWaterLines
+      .filter((line) => line.chargeId > 0 && line.uomId > 0)
+      .map((line, index) => ({
+        itemNo: index + 1,
+        chargeId: line.chargeId,
+        uomId: line.uomId,
+        quantity: line.quantity,
+        distance: line.distance ?? 0,
+        tallyNo: line.tallyNo || "",
+      })),
+    launchServiceLines: launchServiceLines
+      .filter((line) => line.chargeId > 0)
+      .map((line, index) => ({
       itemNo: index + 1,
       chargeId: line.chargeId,
       loadingTime: formatDateTimeForApi(line.loadingTime),
@@ -336,16 +350,14 @@ export function mapTallyServiceForSave(
     contactName: data.contactName || "",
     mobileNo: data.mobileNo || "",
     emailAdd: data.emailAdd || "",
-    chargeId: data.chargeId,
     bargeId: data.bargeId,
-    uomId: data.uomId,
     invoiceId: data.invoiceId ?? 0,
     invoiceNo: data.invoiceNo || "",
     jobStatusId: data.jobStatusId ?? 1,
     remarks: data.remarks || "",
     editVersion: data.editVersion ?? 0,
-    freshWaterLines: data.freshWaterLines,
-    launchServiceLines: data.launchServiceLines,
+    freshWaterLines: filterFreshWaterLinesForSave(data.freshWaterLines),
+    launchServiceLines: filterLaunchLinesForSave(data.launchServiceLines),
   }
 }
 
@@ -410,6 +422,7 @@ export function normalizeTallyService(
     invoiceNo: item.invoiceNo ?? base.invoiceNo,
     jobStatusId: item.jobStatusId ?? base.jobStatusId,
     jobStatusName: item.jobStatusName ?? base.jobStatusName,
+    remarks: item.remarks ?? base.remarks,
     createById: item.createById ?? base.createById,
     createDate: item.createDate ?? base.createDate,
     editVersion: item.editVersion ?? base.editVersion,
