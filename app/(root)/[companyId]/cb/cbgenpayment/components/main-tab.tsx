@@ -288,7 +288,7 @@ export default function Main({
         required={required}
         existingDetails={dataDetails as CbGenPaymentDtSchemaType[]}
         defaultGlId={defaults.ap.invoiceGlId}
-        defaultGstId={defaults.common.gstId || 0}
+        defaultGstId={defaults.common.gstId || 1}
         isCancelled={isCancelled}
       />
 

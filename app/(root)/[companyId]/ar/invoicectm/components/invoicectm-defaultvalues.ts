@@ -25,7 +25,7 @@ const buildDefaultInvoiceDetails = (dateFormat: string) => ({
   totCtyAmt: 0,
   debitNoteNo: "",
   remarks: "",
-  gstId: 0,
+  gstId: 1,
   gstName: "",
   gstPercentage: 0,
   gstAmt: 0,

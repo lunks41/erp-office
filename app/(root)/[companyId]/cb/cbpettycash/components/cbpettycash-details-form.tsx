@@ -129,7 +129,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
       companyId,
       existingDetails = [],
       defaultGlId = 0,
-      defaultGstId = 0,
+      defaultGstId = 1,
       isCancelled = false,
     },
     ref
@@ -336,7 +336,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
             totLocalAmt: editingDetail.totLocalAmt ?? 0,
             totCtyAmt: editingDetail.totCtyAmt ?? 0,
             remarks: editingDetail.remarks ?? "",
-            gstId: editingDetail.gstId ?? 0,
+            gstId: editingDetail.gstId ?? defaultGstId,
             gstName: editingDetail.gstName ?? "",
             gstPercentage: editingDetail.gstPercentage ?? 0,
             gstAmt: editingDetail.gstAmt ?? 0,

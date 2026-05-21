@@ -168,7 +168,7 @@ export const useUserSettingDefaults = () => {
       },
       // Common defaults (shared across modules)
       common: {
-        gstId: settings?.gstId || 0,
+        gstId: settings?.gstId && settings.gstId > 0 ? settings.gstId : 1,
         uomId: settings?.uomId || 0,
         trnGridTotalRecords: settings?.trn_Grd_TotRec || 0,
         masterGridTotalRecords: settings?.m_Grd_TotRec || 0,

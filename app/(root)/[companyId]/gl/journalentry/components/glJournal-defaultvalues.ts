@@ -18,7 +18,7 @@ const buildDefaultGLJournalDetails = (_dateFormat: string) => ({
   totAmt: 0,
   totLocalAmt: 0,
   totCtyAmt: 0,
-  gstId: 0,
+  gstId: 1,
   gstName: "",
   gstPercentage: 0,
   gstAmt: 0,

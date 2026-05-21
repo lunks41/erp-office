@@ -1009,7 +1009,7 @@ export default function InvoiceCtmPage() {
                 totCtyAmt: detail.totCtyAmt ?? 0,
                 remarks: detail.remarks ?? "",
                 debitNoteNo: detail.debitNoteNo ?? "",
-                gstId: detail.gstId ?? 0,
+                gstId: detail.gstId ?? 1,
                 gstName: detail.gstName ?? "",
                 gstPercentage: detail.gstPercentage ?? 0,
                 gstAmt: detail.gstAmt ?? 0,

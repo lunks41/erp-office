@@ -993,7 +993,7 @@ export default function AdjustmentPage() {
                 totLocalAmt: detail.totLocalAmt ?? 0,
                 totCtyAmt: detail.totCtyAmt ?? 0,
                 remarks: detail.remarks ?? "",
-                gstId: detail.gstId ?? 0,
+                gstId: detail.gstId ?? 1,
                 gstName: detail.gstName ?? "",
                 gstPercentage: detail.gstPercentage ?? 0,
                 gstAmt: detail.gstAmt ?? 0,
