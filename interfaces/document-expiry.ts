@@ -88,12 +88,52 @@ export interface DocumentCategoryDto {
   documentCategoryId: number
   documentCategoryCode: string
   documentCategoryName: string
+  isActive: boolean
 }
 
 export interface ReferenceTypeDto {
   referenceTypeId: number
   referenceTypeCode: string
   referenceTypeName: string
+  isActive: boolean
+}
+
+export interface DocumentStatusDto {
+  statusId: number
+  statusCode: string
+  statusName: string
+  isActive: boolean
+}
+
+export interface SaveDocumentTypeDto {
+  documentTypeId: number
+  documentTypeCode: string
+  documentTypeName: string
+  defaultReminderDays: number
+  isExpiryRequired: boolean
+  isMandatory: boolean
+  isActive: boolean
+}
+
+export interface SaveDocumentCategoryDto {
+  documentCategoryId: number
+  documentCategoryCode: string
+  documentCategoryName: string
+  isActive: boolean
+}
+
+export interface SaveReferenceTypeDto {
+  referenceTypeId: number
+  referenceTypeCode: string
+  referenceTypeName: string
+  isActive: boolean
+}
+
+export interface SaveDocumentStatusDto {
+  statusId: number
+  statusCode: string
+  statusName: string
+  isActive: boolean
 }
 
 export interface ReminderRuleDto {

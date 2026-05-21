@@ -1001,6 +1001,33 @@ export const menuData: { mainNav: MainNavItem[] } = {
       title: "Document Expiry",
       url: "/document-expiry/dashboard",
       icon: CalendarCheck,
+      items: [
+        {
+          title: "Dashboard",
+          url: "/document-expiry/dashboard",
+          icon: LayoutDashboard,
+        },
+        {
+          title: "All documents",
+          url: "/document-expiry/list",
+          icon: FileText,
+        },
+        {
+          title: "New document",
+          url: "/document-expiry/new",
+          icon: FilePlus,
+        },
+        {
+          title: "Reports",
+          url: "/document-expiry/reports",
+          icon: BarChart,
+        },
+        {
+          title: "Settings",
+          url: "/document-expiry/settings",
+          icon: Settings,
+        },
+      ],
     },
     {
       title: "Approvals",
@@ -1154,7 +1181,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" className={props.className} {...props}>
-      <SidebarHeader className="shrink-0 overflow-visible border-b px-3 py-3">
+      <SidebarHeader className="shrink-0 overflow-visible border-b px-3 py-3 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-2">
         <CompanySwitcher />
       </SidebarHeader>
       <SidebarContent
@@ -1338,10 +1365,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="px-2 py-1">
           <SidebarMenu className="gap-0.5">
             {transactionsLoading ? (
-              <div className="flex items-center justify-center p-4">
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <div className="flex items-center justify-center p-2 group-data-[collapsible=icon]:p-1">
+                <div className="text-muted-foreground flex items-center gap-2 text-sm group-data-[collapsible=icon]:gap-0">
                   <Spinner size="sm" />
-                  <span>Loading menu...</span>
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    Loading menu...
+                  </span>
                 </div>
               </div>
             ) : (

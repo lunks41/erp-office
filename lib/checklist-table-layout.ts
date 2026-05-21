@@ -1,0 +1,5 @@
+/**
+ * Scrollable grid body height on checklist job detail (header, tabs, toolbar, pagination).
+ * Applied as height + maxHeight so the table fills the viewport like admin list pages.
+ */
+export const CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT = "calc(100dvh - 200px)"

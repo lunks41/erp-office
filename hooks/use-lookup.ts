@@ -24,6 +24,9 @@ import {
   IDepartmentLookup,
   IDesignationLookup,
   IDocumentTypeLookup,
+  IDocExpiryDocumentCategoryLookup,
+  IDocExpiryDocumentTypeLookup,
+  IDocExpiryReferenceTypeLookup,
   IDynamicLookup,
   IEmployeeLookup,
   IEmployerLookup,
@@ -1948,5 +1951,50 @@ export const useFutureYearLookup = () => {
       }
     },
     refetchOnWindowFocus: false,
+  })
+}
+
+export const useDocExpiryDocumentTypeLookup = () => {
+  return useQuery<IDocExpiryDocumentTypeLookup[]>({
+    queryKey: ["doc-expiry-document-type-lookup"],
+    ...defaultQueryConfig,
+    queryFn: async () => {
+      try {
+        const data = await getData(Lookup.getDocExpiryDocumentType)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+  })
+}
+
+export const useDocExpiryDocumentCategoryLookup = () => {
+  return useQuery<IDocExpiryDocumentCategoryLookup[]>({
+    queryKey: ["doc-expiry-document-category-lookup"],
+    ...defaultQueryConfig,
+    queryFn: async () => {
+      try {
+        const data = await getData(Lookup.getDocExpiryDocumentCategory)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+  })
+}
+
+export const useDocExpiryReferenceTypeLookup = () => {
+  return useQuery<IDocExpiryReferenceTypeLookup[]>({
+    queryKey: ["doc-expiry-reference-type-lookup"],
+    ...defaultQueryConfig,
+    queryFn: async () => {
+      try {
+        const data = await getData(Lookup.getDocExpiryReferenceType)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
   })
 }

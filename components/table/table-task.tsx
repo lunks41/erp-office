@@ -1,6 +1,7 @@
 "use client"
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
+import { usePathname } from "next/navigation"
 import { IJobOrderHd } from "@/interfaces/checklist"
 import {
   DndContext,
@@ -25,6 +26,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
+import { CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT } from "@/lib/checklist-table-layout"
 import { TableName } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"
 // Virtual scrolling removed - using empty rows instead
@@ -74,6 +76,7 @@ interface TaskTableProps<T> {
   canCreate?: boolean
   canDebitNote?: boolean
   tableContainerClassName?: string
+  tableMaxHeight?: string
   expandedRowIds?: Set<string>
   onToggleRowExpanded?: (rowId: string) => void
   renderExpandedContent?: (row: T) => React.ReactNode | null
@@ -110,10 +113,19 @@ export function TaskTable<T>({
   canCreate: _canCreate = true,
   canDebitNote = true,
   tableContainerClassName = "rounded-none border-0 bg-transparent shadow-none",
+  tableMaxHeight,
   expandedRowIds,
   onToggleRowExpanded: _onToggleRowExpanded,
   renderExpandedContent,
 }: TaskTableProps<T>) {
+  const pathname = usePathname()
+  const isChecklistJobDetail = /\/operations\/checklist\/[^/]+/.test(
+    pathname ?? ""
+  )
+  const resolvedTableMaxHeight =
+    tableMaxHeight ??
+    (isChecklistJobDetail ? CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT : "460px")
+
   const { data: gridSettings } = useGetGridLayout(
     moduleId?.toString() || "",
     transactionId?.toString() || "",
@@ -475,7 +487,8 @@ export function TaskTable<T>({
             ============================================================================ */}
           {/* Single container: overflow-auto gives both H+V scrollbars at the container edge */}
           <div
-            className={`max-h-[460px] overflow-auto ${tableContainerClassName}`}
+            className={`overflow-auto ${tableContainerClassName}`}
+            style={{ maxHeight: resolvedTableMaxHeight }}
           >
             {/* Use <table> directly — <Table> wraps in overflow-x-auto div which breaks scrollbar positioning */}
             <table

@@ -1,21 +1,34 @@
 "use client"
 
+import { useMemo } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import {
-  BarChart3,
   FileText,
   List,
+  RefreshCw,
   Settings,
+  SlidersHorizontal,
 } from "lucide-react"
 
+import {
+  buildCategoryBars,
+  buildExpiryTimeline,
+  buildMandatoryBars,
+  buildReferenceTypeBars,
+  buildStatusBarsFromSummary,
+  buildTypeBars,
+} from "@/lib/document-expiry-analytics"
 import { DashboardCards } from "@/components/document-expiry/dashboard-cards"
+import { DashboardCharts } from "@/components/document-expiry/dashboard-charts"
+import { DashboardInsight } from "@/components/document-expiry/dashboard-insight"
 import { DocumentTable } from "@/components/document-expiry/document-table"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   useCriticalDocuments,
   useDashboardSummary,
+  useDocumentsList,
   useExpiringDocuments,
 } from "@/hooks/use-document-expiry"
 
@@ -23,15 +36,56 @@ export default function DocumentExpiryDashboardPage() {
   const params = useParams()
   const companyId = String(params.companyId ?? "")
 
-  const { data: summaryRes, isLoading: summaryLoading } = useDashboardSummary()
+  const {
+    data: summaryRes,
+    isLoading: summaryLoading,
+    refetch: refetchSummary,
+    isFetching: summaryFetching,
+  } = useDashboardSummary()
   const { data: expiringRes, isLoading: expiringLoading } = useExpiringDocuments({
     pageSize: 5,
   })
   const { data: criticalRes, isLoading: criticalLoading } = useCriticalDocuments()
+  const { data: allDocsRes, isLoading: docsLoading } = useDocumentsList({
+    pageSize: 500,
+    pageNumber: 1,
+  })
 
   const summary = summaryRes?.data
   const expiring = expiringRes?.data ?? []
   const critical = criticalRes?.data ?? []
+  const allDocuments = useMemo(
+    () => allDocsRes?.data ?? [],
+    [allDocsRes?.data]
+  )
+
+  const statusBars = useMemo(
+    () => (summary ? buildStatusBarsFromSummary(summary) : []),
+    [summary]
+  )
+  const categoryBars = useMemo(
+    () => buildCategoryBars(allDocuments),
+    [allDocuments]
+  )
+  const typeBars = useMemo(() => buildTypeBars(allDocuments), [allDocuments])
+  const referenceBars = useMemo(
+    () => buildReferenceTypeBars(allDocuments),
+    [allDocuments]
+  )
+  const mandatoryBars = useMemo(
+    () => buildMandatoryBars(allDocuments),
+    [allDocuments]
+  )
+  const timelineItems = useMemo(
+    () => buildExpiryTimeline(allDocuments),
+    [allDocuments]
+  )
+
+  const chartsLoading = summaryLoading || docsLoading
+
+  const handleRefresh = () => {
+    void refetchSummary()
+  }
 
   return (
     <div className="@container mx-auto space-y-6 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
@@ -41,10 +95,22 @@ export default function DocumentExpiryDashboardPage() {
             Document Expiry
           </h1>
           <p className="text-muted-foreground text-sm">
-            Track licenses, certificates, and compliance documents.
+            Track licenses, certificates, and compliance documents — with live
+            status charts and renewal priorities.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={summaryFetching}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${summaryFetching ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/${companyId}/document-expiry/list`}>
               <List className="mr-2 h-4 w-4" />
@@ -52,7 +118,7 @@ export default function DocumentExpiryDashboardPage() {
             </Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/create`}>
+            <Link href={`/${companyId}/document-expiry/new`}>
               <FileText className="mr-2 h-4 w-4" />
               New document
             </Link>
@@ -66,10 +132,27 @@ export default function DocumentExpiryDashboardPage() {
         isLoading={summaryLoading}
       />
 
+      {!summaryLoading && <DashboardInsight summary={summary} />}
+
+      <DashboardCharts
+        statusBars={statusBars}
+        categoryBars={categoryBars}
+        typeBars={typeBars}
+        referenceBars={referenceBars}
+        mandatoryBars={mandatoryBars}
+        timelineItems={timelineItems}
+        isLoading={chartsLoading}
+      />
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Expiring soon</CardTitle>
+            <div>
+              <CardTitle className="text-base">Expiring soon</CardTitle>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Documents approaching expiry — renew before status changes.
+              </p>
+            </div>
             <Button variant="link" size="sm" asChild>
               <Link href={`/${companyId}/document-expiry/list`}>View all</Link>
             </Button>
@@ -85,7 +168,12 @@ export default function DocumentExpiryDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Critical (7 days)</CardTitle>
+            <div>
+              <CardTitle className="text-base">Critical (7 days)</CardTitle>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Highest priority — due within the next week.
+              </p>
+            </div>
             <Button variant="link" size="sm" asChild>
               <Link href={`/${companyId}/document-expiry/list?filter=critical`}>
                 View all
@@ -104,31 +192,32 @@ export default function DocumentExpiryDashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <BarChart3 className="h-4 w-4" />
-            By category (placeholder)
-          </CardTitle>
+          <CardTitle className="text-base">Quick actions</CardTitle>
+          <p className="text-muted-foreground text-sm">
+            Reports, reminders, and setup for document types and categories.
+          </p>
         </CardHeader>
-        <CardContent>
-          <div className="text-muted-foreground flex h-40 items-center justify-center rounded-lg border border-dashed text-sm">
-            Category distribution chart — connect when analytics endpoint is available.
-          </div>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/${companyId}/document-expiry/reports`}>
+              <FileText className="mr-2 h-4 w-4" />
+              Reports
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/${companyId}/document-expiry/settings/reminders`}>
+              <Settings className="mr-2 h-4 w-4" />
+              Reminder rules
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/${companyId}/document-expiry/settings`}>
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              Module settings
+            </Link>
+          </Button>
         </CardContent>
       </Card>
-
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/${companyId}/document-expiry/reports`}>
-            Reports
-          </Link>
-        </Button>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/${companyId}/document-expiry/settings/reminders`}>
-            <Settings className="mr-2 h-4 w-4" />
-            Reminder rules
-          </Link>
-        </Button>
-      </div>
     </div>
   )
 }

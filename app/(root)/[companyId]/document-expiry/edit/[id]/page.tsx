@@ -7,12 +7,9 @@ import { ArrowLeft } from "lucide-react"
 import { DocumentForm } from "@/components/document-expiry/document-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  useDocumentById,
-  useDocumentExpiryMasters,
-  useSaveDocument,
-} from "@/hooks/use-document-expiry"
+import { useDocumentById, useSaveDocument } from "@/hooks/use-document-expiry"
 import { SaveDocumentDto } from "@/interfaces/document-expiry"
+import { formatDateForApi } from "@/lib/date-utils"
 
 export default function EditDocumentPage() {
   const params = useParams()
@@ -21,26 +18,21 @@ export default function EditDocumentPage() {
   const id = String(params.id ?? "")
 
   const { data: docRes, isLoading: docLoading } = useDocumentById(id)
-  const { data: masters, isLoading: mastersLoading } = useDocumentExpiryMasters()
   const saveMutation = useSaveDocument()
 
   const handleSubmit = async (values: SaveDocumentDto) => {
     const res = await saveMutation.mutateAsync({
       ...values,
       documentId: Number(id),
-      expiryDate: values.expiryDate
-        ? new Date(values.expiryDate).toISOString()
-        : values.expiryDate,
-      issueDate: values.issueDate
-        ? new Date(values.issueDate).toISOString()
-        : undefined,
+      documentTitle: values.documentTitle.trim(),
+      expiryDate: formatDateForApi(values.expiryDate) ?? "",
+      issueDate: formatDateForApi(values.issueDate) ?? undefined,
     })
     if (res.result === 1) {
       router.push(`/${companyId}/document-expiry/details/${id}`)
     }
   }
 
-  const m = masters
   const doc = docRes?.data
 
   return (
@@ -59,12 +51,9 @@ export default function EditDocumentPage() {
         <CardContent>
           <DocumentForm
             document={doc}
-            types={m?.types ?? []}
-            categories={m?.categories ?? []}
-            referenceTypes={m?.referenceTypes ?? []}
             onSubmit={handleSubmit}
             isSubmitting={saveMutation.isPending}
-            isLoading={docLoading || mastersLoading}
+            isLoading={docLoading}
           />
         </CardContent>
       </Card>

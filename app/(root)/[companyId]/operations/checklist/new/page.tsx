@@ -853,12 +853,21 @@ export default function NewChecklistPage() {
                     onChangeEvent={handleContactSelect}
                   />
 
-                  <CustomCheckbox
-                    form={form}
-                    name="isActive"
-                    label="Active"
-                    isRequired={false}
-                  />
+                  <div className="flex flex-row flex-wrap items-center gap-6">
+                    <CustomCheckbox
+                      form={form}
+                      name="isActive"
+                      label="Active"
+                      isRequired={false}
+                    />
+                    <CustomCheckbox
+                      form={form}
+                      name="isPost"
+                      label="Posted"
+                      isRequired={false}
+                      isDisabled
+                    />
+                  </div>
                 </div>
               </div>
             </div>

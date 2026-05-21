@@ -1259,13 +1259,22 @@ export function ChecklistMain({
                   onChangeEvent={handleContactSelect}
                   isDisabled={isConfirmed}
                 />
-                <CustomCheckbox
-                  form={form}
-                  name="isActive"
-                  label="Active"
-                  isRequired={false}
-                  isDisabled={isConfirmed}
-                />
+                <div className="flex flex-row flex-wrap items-center gap-6">
+                  <CustomCheckbox
+                    form={form}
+                    name="isActive"
+                    label="Active"
+                    isRequired={false}
+                    isDisabled={isConfirmed}
+                  />
+                  <CustomCheckbox
+                    form={form}
+                    name="isPost"
+                    label="Posted"
+                    isRequired={false}
+                    isDisabled
+                  />
+                </div>
               </div>
             </div>
           </div>

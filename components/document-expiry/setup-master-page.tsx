@@ -5,10 +5,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react"
 
-import {
-  ReminderRuleForm,
-  ReminderRuleFormValues,
-} from "@/components/document-expiry/reminder-rule-form"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -27,51 +24,76 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ReminderRuleDto } from "@/interfaces/document-expiry"
-import {
-  useDeleteReminderRule,
-  useDocumentExpiryMasters,
-  useReminderRules,
-  useSaveReminderRule,
-} from "@/hooks/use-document-expiry"
-import { EXPIRY_PRIORITY_LABELS } from "@/lib/document-expiry-routes"
 
-export default function ReminderRulesPage() {
+export type SetupRow = {
+  id: number
+  code: string
+  name: string
+  isActive: boolean
+  subtitle?: string
+  meta?: Record<string, unknown>
+}
+
+export function SetupMasterPage<TFormValues>({
+  title,
+  description,
+  settingsHref,
+  rows,
+  isLoading,
+  FormComponent,
+  onSave,
+  isSaving,
+  onDelete,
+  isDeleting,
+  refetch,
+}: {
+  title: string
+  description: string
+  settingsHref?: string
+  rows: SetupRow[]
+  isLoading: boolean
+  FormComponent: React.ComponentType<{
+    initialId?: number
+    row?: SetupRow | null
+    onSubmit: (values: TFormValues) => void | Promise<void>
+    isSubmitting?: boolean
+    onCancel?: () => void
+  }>
+  onSave: (values: TFormValues) => Promise<void>
+  isSaving: boolean
+  onDelete: (id: string) => Promise<void>
+  isDeleting: boolean
+  refetch: () => void
+}) {
   const params = useParams()
   const companyId = String(params.companyId ?? "")
 
-  const { data: rulesRes, isLoading, refetch } = useReminderRules()
-  const { data: masters } = useDocumentExpiryMasters()
-  const saveMutation = useSaveReminderRule()
-  const deleteMutation = useDeleteReminderRule()
-
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editRule, setEditRule] = useState<ReminderRuleDto | null>(null)
+  const [editRow, setEditRow] = useState<SetupRow | null>(null)
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
-  const rules = rulesRes?.data ?? []
-  const types = masters?.types ?? []
-
-  const handleSave = async (values: ReminderRuleFormValues) => {
-    await saveMutation.mutateAsync(values)
+  const handleSave = async (values: TFormValues) => {
+    await onSave(values)
     setDialogOpen(false)
-    setEditRule(null)
+    setEditRow(null)
     refetch()
   }
 
   const handleDelete = async () => {
     if (deleteId == null) return
-    await deleteMutation.mutateAsync(String(deleteId))
+    await onDelete(String(deleteId))
     setDeleteId(null)
     refetch()
   }
 
+  const backHref =
+    settingsHref ?? `/${companyId}/document-expiry/settings`
+
   return (
     <div className="@container mx-auto space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <Button variant="ghost" size="sm" asChild>
-        <Link href={`/${companyId}/document-expiry/settings`}>
+        <Link href={backHref}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Settings
         </Link>
@@ -79,75 +101,65 @@ export default function ReminderRulesPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
-            Reminder rules
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Configure when users are notified before expiry.
-          </p>
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{title}</h1>
+          <p className="text-muted-foreground text-sm">{description}</p>
         </div>
         <Button
           size="sm"
           onClick={() => {
-            setEditRule(null)
+            setEditRow(null)
             setDialogOpen(true)
           }}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add rule
+          Add
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Active rules</CardTitle>
+          <CardTitle className="text-base">Records</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="space-y-2">
-              {Array.from({ length: 3 }).map((_, i) => (
+              {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-14 w-full" />
               ))}
             </div>
-          ) : rules.length === 0 ? (
+          ) : rows.length === 0 ? (
             <p className="text-muted-foreground py-6 text-center text-sm">
-              No reminder rules configured.
+              No records yet.
             </p>
           ) : (
             <ul className="divide-y">
-              {rules.map((rule) => (
+              {rows.map((row) => (
                 <li
-                  key={rule.reminderRuleId}
+                  key={row.id}
                   className="flex flex-wrap items-center justify-between gap-2 py-3"
                 >
                   <div>
                     <p className="font-medium">
-                      {rule.documentTypeName ?? "All types"} ·{" "}
-                      {rule.daysBeforeExpiry} days before
+                      {row.name}{" "}
+                      <span className="text-muted-foreground font-normal">
+                        ({row.code})
+                      </span>
                     </p>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      <Badge variant="outline">
-                        {EXPIRY_PRIORITY_LABELS[
-                          rule.priorityLevel as 1 | 2 | 3
-                        ] ?? "Info"}
+                    {row.subtitle && (
+                      <p className="text-muted-foreground text-xs">{row.subtitle}</p>
+                    )}
+                    {!row.isActive && (
+                      <Badge variant="destructive" className="mt-1">
+                        Inactive
                       </Badge>
-                      {rule.isPopupEnabled && (
-                        <Badge variant="secondary">Popup</Badge>
-                      )}
-                      {rule.isEmailEnabled && (
-                        <Badge variant="secondary">Email</Badge>
-                      )}
-                      {!rule.isActive && (
-                        <Badge variant="destructive">Inactive</Badge>
-                      )}
-                    </div>
+                    )}
                   </div>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        setEditRule(rule)
+                        setEditRow(row)
                         setDialogOpen(true)
                       }}
                     >
@@ -156,7 +168,8 @@ export default function ReminderRulesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setDeleteId(rule.reminderRuleId)}
+                      disabled={!row.isActive}
+                      onClick={() => setDeleteId(row.id)}
                     >
                       <Trash2 className="text-destructive h-4 w-4" />
                     </Button>
@@ -171,15 +184,12 @@ export default function ReminderRulesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editRule ? "Edit reminder rule" : "New reminder rule"}
-            </DialogTitle>
+            <DialogTitle>{editRow ? `Edit ${title}` : `New ${title}`}</DialogTitle>
           </DialogHeader>
-          <ReminderRuleForm
-            rule={editRule}
-            types={types}
+          <FormComponent
+            row={editRow}
             onSubmit={handleSave}
-            isSubmitting={saveMutation.isPending}
+            isSubmitting={isSaving}
             onCancel={() => setDialogOpen(false)}
           />
         </DialogContent>
@@ -191,14 +201,17 @@ export default function ReminderRulesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete rule?</AlertDialogTitle>
+            <AlertDialogTitle>Deactivate record?</AlertDialogTitle>
             <AlertDialogDescription>
-              This reminder rule will be removed permanently.
+              The record will be marked inactive and hidden from document forms.
+              Existing documents are not affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction disabled={isDeleting} onClick={handleDelete}>
+              Deactivate
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

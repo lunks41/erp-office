@@ -349,6 +349,9 @@ export const Lookup = {
   getPayrollComponentGroupLookup: "/master/getpayrollcomponentgrouplookup",
 
   getDocumentType: "/master/getdocumenttypelookup",
+  getDocExpiryDocumentType: "/master/getdocexpirydocumenttypelookup",
+  getDocExpiryDocumentCategory: "/master/getdocexpirydocumentcategorylookup",
+  getDocExpiryReferenceType: "/master/getdocexpiryreferencetypelookup",
   getEntityType: "/master/getentitytypelookup",
   getEmployer: "/master/getemployerlookup",
 

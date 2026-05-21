@@ -649,17 +649,26 @@ export function TallyServiceForm({
                       isDisabled={isReadOnly}
                     />
                     <div className="col-span-2 grid grid-cols-2 gap-2">
-                      <CustomCheckbox
-                        form={form}
-                        name="isActive"
-                        label="Active"
-                        isDisabled={isReadOnly}
-                      />
+                      <div className="col-span-2 flex flex-row flex-wrap items-center gap-6">
+                        <CustomCheckbox
+                          form={form}
+                          name="isActive"
+                          label="Active"
+                          isDisabled={isReadOnly}
+                        />
+                        <CustomCheckbox
+                          form={form}
+                          name="isPost"
+                          label="Posted"
+                          isDisabled
+                        />
+                      </div>
                       <CustomCheckbox
                         form={form}
                         name="isCancel"
                         label="Cancel"
                         isDisabled={isReadOnly}
+                        className="col-span-2"
                       />
                       <GSTAutocomplete
                         form={form}

@@ -3,70 +3,59 @@
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 
+import { format } from "date-fns"
+
+import { DocumentDto, SaveDocumentDto } from "@/interfaces/document-expiry"
+import { IDocExpiryDocumentTypeLookup } from "@/interfaces/lookup"
+import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import {
-  DocumentCategoryDto,
-  DocumentDto,
-  DocumentTypeDto,
-  ReferenceTypeDto,
-  SaveDocumentDto,
-} from "@/interfaces/document-expiry"
+  DocExpiryDocumentCategoryAutocomplete,
+  DocExpiryDocumentTypeAutocomplete,
+  DocExpiryReferenceTypeAutocomplete,
+} from "@/components/autocomplete"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
+import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
+import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomTextarea from "@/components/custom/custom-textarea"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Form } from "@/components/ui/form"
 import { Skeleton } from "@/components/ui/skeleton"
 
-function toDateInput(value?: string | null) {
+function toFormDate(value?: string | null) {
   if (!value) return ""
-  try {
-    return value.split("T")[0]
-  } catch {
-    return ""
-  }
+  const parsed = parseDate(value)
+  if (!parsed) return ""
+  return format(parsed, clientDateFormat)
 }
 
 export function DocumentForm({
   document,
-  types,
-  categories,
-  referenceTypes,
   onSubmit,
   isSubmitting,
   isLoading,
 }: {
   document?: DocumentDto | null
-  types: DocumentTypeDto[]
-  categories: DocumentCategoryDto[]
-  referenceTypes: ReferenceTypeDto[]
   onSubmit: (values: SaveDocumentDto) => void
   isSubmitting?: boolean
   isLoading?: boolean
 }) {
-  const { register, handleSubmit, setValue, watch, reset } =
-    useForm<SaveDocumentDto>({
-      defaultValues: {
-        documentId: 0,
-        documentTypeId: 0,
-        documentCategoryId: 0,
-        referenceTypeId: 0,
-        referenceId: 0,
-        documentTitle: "",
-        isMandatory: false,
-        expiryDate: "",
-      },
-    })
+  const form = useForm<SaveDocumentDto>({
+    defaultValues: {
+      documentId: 0,
+      documentTypeId: 0,
+      documentCategoryId: 0,
+      referenceTypeId: 0,
+      referenceId: 0,
+      documentTitle: "",
+      isMandatory: false,
+      expiryDate: "",
+    },
+  })
 
   useEffect(() => {
     if (document) {
-      reset({
+      form.reset({
         documentId: document.documentId,
         branchId: document.branchId ?? undefined,
         documentTypeId: document.documentTypeId,
@@ -76,25 +65,24 @@ export function DocumentForm({
         documentNo: document.documentNo ?? "",
         documentTitle: document.documentTitle,
         description: document.description ?? "",
-        issueDate: toDateInput(document.issueDate),
-        expiryDate: toDateInput(document.expiryDate),
+        issueDate: toFormDate(document.issueDate),
+        expiryDate: toFormDate(document.expiryDate),
         reminderDays: document.reminderDays,
         isMandatory: document.isMandatory,
         remarks: document.remarks ?? "",
       })
     }
-  }, [document, reset])
+  }, [document, form])
 
-  const selectedTypeId = watch("documentTypeId")
-
-  useEffect(() => {
-    if (!selectedTypeId || document) return
-    const t = types.find((x) => x.documentTypeId === selectedTypeId)
-    if (t?.defaultReminderDays) {
-      setValue("reminderDays", t.defaultReminderDays)
-      if (t.isMandatory) setValue("isMandatory", true)
+  const handleDocumentTypeChange = (type: IDocExpiryDocumentTypeLookup | null) => {
+    if (document || !type) return
+    if (type.defaultReminderDays) {
+      form.setValue("reminderDays", type.defaultReminderDays)
     }
-  }, [selectedTypeId, types, setValue, document])
+    if (type.isMandatory) {
+      form.setValue("isMandatory", true)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -107,150 +95,98 @@ export function DocumentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="documentTitle">Document title *</Label>
-          <Input
-            id="documentTitle"
-            {...register("documentTitle", { required: true })}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <CustomInput
+            form={form}
+            name="documentTitle"
+            label="Document title"
+            isRequired
+            className="md:col-span-2"
+          />
+
+          <DocExpiryDocumentTypeAutocomplete
+            form={form}
+            name="documentTypeId"
+            label="Document type"
+            isRequired
+            onChangeEvent={handleDocumentTypeChange}
+          />
+
+          <DocExpiryDocumentCategoryAutocomplete
+            form={form}
+            name="documentCategoryId"
+            label="Category"
+            isRequired
+          />
+
+          <DocExpiryReferenceTypeAutocomplete
+            form={form}
+            name="referenceTypeId"
+            label="Reference type"
+            isRequired
+          />
+
+          <CustomNumberInput
+            form={form}
+            name="referenceId"
+            label="Reference ID"
+            isRequired
+            round={0}
+          />
+
+          <CustomInput form={form} name="documentNo" label="Document number" />
+
+          <CustomDateNew
+            form={form}
+            name="issueDate"
+            label="Issue date"
+            isFutureShow
+          />
+
+          <CustomDateNew
+            form={form}
+            name="expiryDate"
+            label="Expiry date"
+            isRequired
+            isFutureShow
+          />
+
+          <CustomNumberInput
+            form={form}
+            name="reminderDays"
+            label="Reminder days"
+            round={0}
+          />
+
+          <CustomCheckbox
+            form={form}
+            name="isMandatory"
+            label="Mandatory document"
+            className="pt-5"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label>Document type *</Label>
-          <Select
-            value={selectedTypeId ? String(selectedTypeId) : ""}
-            onValueChange={(v) => setValue("documentTypeId", Number(v))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              {types.map((t) => (
-                <SelectItem
-                  key={t.documentTypeId}
-                  value={String(t.documentTypeId)}
-                >
-                  {t.documentTypeName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <CustomTextarea
+          form={form}
+          name="description"
+          label="Description"
+          minRows={3}
+        />
+
+        <CustomTextarea form={form} name="remarks" label="Remarks" minRows={2} />
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? "Saving…"
+              : document
+                ? "Update document"
+                : "Create document"}
+          </Button>
         </div>
-
-        <div className="space-y-2">
-          <Label>Category *</Label>
-          <Select
-            value={
-              watch("documentCategoryId")
-                ? String(watch("documentCategoryId"))
-                : ""
-            }
-            onValueChange={(v) => setValue("documentCategoryId", Number(v))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem
-                  key={c.documentCategoryId}
-                  value={String(c.documentCategoryId)}
-                >
-                  {c.documentCategoryName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Reference type *</Label>
-          <Select
-            value={
-              watch("referenceTypeId") ? String(watch("referenceTypeId")) : ""
-            }
-            onValueChange={(v) => setValue("referenceTypeId", Number(v))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select reference" />
-            </SelectTrigger>
-            <SelectContent>
-              {referenceTypes.map((r) => (
-                <SelectItem
-                  key={r.referenceTypeId}
-                  value={String(r.referenceTypeId)}
-                >
-                  {r.referenceTypeName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="referenceId">Reference ID *</Label>
-          <Input
-            id="referenceId"
-            type="number"
-            {...register("referenceId", { valueAsNumber: true })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="documentNo">Document number</Label>
-          <Input id="documentNo" {...register("documentNo")} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="issueDate">Issue date</Label>
-          <Input id="issueDate" type="date" {...register("issueDate")} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="expiryDate">Expiry date *</Label>
-          <Input
-            id="expiryDate"
-            type="date"
-            {...register("expiryDate", { required: true })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="reminderDays">Reminder days</Label>
-          <Input
-            id="reminderDays"
-            type="number"
-            {...register("reminderDays", { valueAsNumber: true })}
-          />
-        </div>
-
-        <div className="flex items-center gap-2 pt-6">
-          <Switch
-            id="isMandatory"
-            checked={watch("isMandatory")}
-            onCheckedChange={(c) => setValue("isMandatory", c)}
-          />
-          <Label htmlFor="isMandatory">Mandatory document</Label>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" rows={3} {...register("description")} />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="remarks">Remarks</Label>
-        <Textarea id="remarks" rows={2} {...register("remarks")} />
-      </div>
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : document ? "Update document" : "Create document"}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </Form>
   )
 }

@@ -245,15 +245,6 @@ export default function JobOrderDetailsPage() {
               {jobOrderResponse.data.jobStatusName}
             </Badge>
           )}
-          {jobOrderResponse?.data?.isPost === true &&
-            Number(jobOrderResponse?.data?.invoiceId) > 0 && (
-              <Badge
-                variant="outline"
-                className="flex h-8 items-center border-2 border-green-300 bg-green-100 px-4 text-sm font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
-              >
-                Posted
-              </Badge>
-            )}
         </div>
         <div className="flex items-center gap-2">
           <Badge

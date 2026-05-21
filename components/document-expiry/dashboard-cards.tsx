@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 
 import { DashboardSummaryDto } from "@/interfaces/document-expiry"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
@@ -21,52 +21,100 @@ type CardConfig = {
   title: string
   icon: LucideIcon
   href?: string
-  accent: string
+  iconBg: string
+  iconColor: string
+  valueColor: string
 }
 
 const cards: CardConfig[] = [
   {
     key: "totalDocuments",
-    title: "Total Documents",
+    title: "Total",
     icon: FileCheck,
     href: "list",
-    accent: "text-primary",
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+    valueColor: "text-foreground",
   },
   {
     key: "activeCount",
     title: "Active",
     icon: FileCheck,
-    accent: "text-emerald-600",
+    iconBg: "bg-emerald-500/10",
+    iconColor: "text-emerald-600",
+    valueColor: "text-emerald-700 dark:text-emerald-400",
   },
   {
     key: "expiringCount",
-    title: "Expiring Soon",
+    title: "Expiring",
     icon: CalendarClock,
     href: "list?filter=expiring",
-    accent: "text-amber-600",
+    iconBg: "bg-amber-500/10",
+    iconColor: "text-amber-600",
+    valueColor: "text-amber-700 dark:text-amber-400",
+  },
+  {
+    key: "expiring30DaysCount",
+    title: "30 Days",
+    icon: CalendarClock,
+    href: "list?filter=expiring",
+    iconBg: "bg-orange-500/10",
+    iconColor: "text-orange-600",
+    valueColor: "text-orange-700 dark:text-orange-400",
   },
   {
     key: "expiredCount",
     title: "Expired",
     icon: FileX,
     href: "list?filter=expired",
-    accent: "text-red-600",
+    iconBg: "bg-red-500/10",
+    iconColor: "text-red-600",
+    valueColor: "text-red-700 dark:text-red-400",
   },
   {
     key: "critical7DaysCount",
-    title: "Critical (7 days)",
+    title: "Critical",
     icon: AlertTriangle,
     href: "list?filter=critical",
-    accent: "text-red-600",
+    iconBg: "bg-red-600/10",
+    iconColor: "text-red-700",
+    valueColor: "text-red-700 dark:text-red-400",
   },
   {
     key: "renewedThisMonthCount",
-    title: "Renewed This Month",
+    title: "Renewed",
     icon: RefreshCw,
     href: "reports",
-    accent: "text-blue-600",
+    iconBg: "bg-blue-500/10",
+    iconColor: "text-blue-600",
+    valueColor: "text-blue-700 dark:text-blue-400",
   },
 ]
+
+function cardSubtitle(
+  key: keyof DashboardSummaryDto,
+  summary: DashboardSummaryDto
+): string {
+  const total = Math.max(summary.totalDocuments, 1)
+  switch (key) {
+    case "totalDocuments":
+      return "In system"
+    case "activeCount":
+      return `${Math.round((summary.activeCount / total) * 100)}% portfolio`
+    case "expiringCount":
+      return "Soon"
+    case "expiring30DaysCount":
+      return "8–30 days"
+    case "expiredCount":
+      return "Action needed"
+    case "critical7DaysCount":
+      return "≤ 7 days"
+    case "renewedThisMonthCount":
+      return "This month"
+    default:
+      return ""
+  }
+}
 
 export function DashboardCards({
   companyId,
@@ -79,56 +127,95 @@ export function DashboardCards({
 }) {
   const reduceMotion = useReducedMotion()
 
+  const rowClass =
+    "flex w-full min-w-0 gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:thin] sm:overflow-visible"
+
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-28 rounded-xl" />
+      <div className={rowClass}>
+        {Array.from({ length: 7 }).map((_, i) => (
+          <Skeleton
+            key={i}
+            className="h-20 min-w-22 flex-1 shrink-0 rounded-xl sm:min-w-0"
+          />
         ))}
       </div>
     )
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={rowClass}>
       {cards.map((cfg, index) => {
         const Icon = cfg.icon
         const value = summary ? Number(summary[cfg.key] ?? 0) : 0
+        const subtitle =
+          summary && cfg.key !== "companyId"
+            ? cardSubtitle(cfg.key, summary)
+            : ""
+
+        const isAlert =
+          (cfg.key === "critical7DaysCount" || cfg.key === "expiredCount") &&
+          value > 0
+
         const content = (
-          <Card className="h-full transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-muted-foreground text-sm font-medium">
-                {cfg.title}
-              </CardTitle>
-              <Icon className={cn("h-4 w-4", cfg.accent)} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold tabular-nums">{value}</div>
+          <Card
+            className={cn(
+              "h-full gap-0 py-0 transition-all hover:shadow-md",
+              isAlert && "ring-destructive/30 ring-1"
+            )}
+          >
+            <CardContent className="flex flex-col gap-1.5 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-muted-foreground truncate text-[11px] font-medium leading-tight">
+                  {cfg.title}
+                </span>
+                <div className={cn("shrink-0 rounded-md p-1", cfg.iconBg)}>
+                  <Icon className={cn("h-3 w-3", cfg.iconColor)} />
+                </div>
+              </div>
+              <div className={cn("text-xl leading-none font-bold tabular-nums", cfg.valueColor)}>
+                {value}
+              </div>
+              {subtitle && (
+                <p className="text-muted-foreground truncate text-[10px] leading-tight">
+                  {subtitle}
+                </p>
+              )}
             </CardContent>
           </Card>
         )
 
-        const inner = reduceMotion ? (
+        const wrapper = reduceMotion ? (
           content
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            className="min-w-22 flex-1 shrink-0 basis-0 sm:min-w-0"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, duration: 0.3 }}
+            transition={{ delay: index * 0.05, duration: 0.2 }}
           >
             {content}
           </motion.div>
         )
 
-        if (!cfg.href) return <div key={cfg.key}>{inner}</div>
+        if (!cfg.href) {
+          return (
+            <div
+              key={cfg.key}
+              className="min-w-22 flex-1 shrink-0 basis-0 sm:min-w-0"
+            >
+              {wrapper}
+            </div>
+          )
+        }
 
         return (
           <Link
             key={cfg.key}
             href={`/${companyId}/document-expiry/${cfg.href}`}
-            className="block"
+            className="min-w-22 flex-1 shrink-0 basis-0 sm:min-w-0"
           >
-            {inner}
+            {wrapper}
           </Link>
         )
       })}

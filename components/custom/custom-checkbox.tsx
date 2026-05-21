@@ -41,7 +41,7 @@ export default function CustomCheckbox({
             <FormItem className="flex flex-row items-center gap-3">
               <FormControl>
                 <div
-                  className="flex h-8 min-h-8 items-center gap-2"
+                  className="flex h-6 min-h-6 items-center gap-1.5"
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
@@ -74,7 +74,7 @@ export default function CustomCheckbox({
                       initial={{ opacity: 0, x: -5 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -5 }}
-                      className="text-primary-foreground bg-primary rounded px-1.5 py-0.5 text-xs"
+                      className="text-primary-foreground bg-primary inline-flex h-4 items-center rounded px-1 text-[10px] leading-none"
                     >
                       On
                     </motion.span>
@@ -85,7 +85,7 @@ export default function CustomCheckbox({
                       initial={{ opacity: 0, x: -5 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -5 }}
-                      className="text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs"
+                      className="text-muted-foreground bg-muted inline-flex h-4 items-center rounded px-1 text-[10px] leading-none"
                     >
                       Off
                     </motion.span>

@@ -891,7 +891,10 @@ export function ChecklistTabs({
           />
         </TabsContent>
 
-        <TabsContent value="transportation" className="mt-0">
+        <TabsContent
+          value="transportation"
+          className="mt-0 flex min-h-0 flex-col"
+        >
           <TransportationLogTab
             jobData={currentJobData}
             moduleId={1}

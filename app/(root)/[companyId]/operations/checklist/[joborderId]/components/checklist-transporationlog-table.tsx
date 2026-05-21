@@ -7,6 +7,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT } from "@/lib/checklist-table-layout"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { MainTable } from "@/components/table/table-main"
@@ -345,6 +346,7 @@ export function TransportationLogTable({
       columns={columns}
       isLoading={isLoading}
       tableName={TableName.checklist}
+      tableHeight={CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT}
       accessorId="transportationId"
       onSelect={onTransportationLogSelect}
       onEditAction={onEditActionTransportationLog}

@@ -56,6 +56,7 @@ import {
 
 // Virtual scrolling removed - using empty rows instead
 // Utility types and custom hooks
+import { CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT } from "@/lib/checklist-table-layout"
 import { TableName } from "@/lib/utils"
 // Type for table names
 import { useGetGridLayout } from "@/hooks/use-settings"
@@ -775,6 +776,15 @@ export function MainTable<T>({
 
   // Use native scrollbars (always visible)
 
+  const resolvedTableHeight =
+    tableHeight ??
+    (tableName === TableName.checklist
+      ? CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT
+      : "460px")
+
+  const fillScrollBodyHeight =
+    Boolean(tableHeight) || tableName === TableName.checklist
+
   // ============================================================================
   // RENDER SECTION
   // ============================================================================
@@ -829,7 +839,15 @@ export function MainTable<T>({
         <div
           ref={scrollContainerRef}
           className={`border-border/80 bg-background overflow-auto rounded-lg border text-sm shadow-xs ${tableContainerClassName ?? ""}`}
-          style={{ maxHeight: tableHeight ?? "460px" }}
+          style={
+            fillScrollBodyHeight
+              ? {
+                  height: resolvedTableHeight,
+                  maxHeight: resolvedTableHeight,
+                  minHeight: resolvedTableHeight,
+                }
+              : { maxHeight: resolvedTableHeight }
+          }
         >
           <table
             className="w-full table-fixed border-collapse text-sm"

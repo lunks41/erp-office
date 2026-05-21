@@ -35,6 +35,11 @@ export { default as DepartmentAutocomplete } from "./autocomplete-department"
 export { default as DesignationAutocomplete } from "./autocomplete-designation"
 export { default as DisbursementStatusAutocomplete } from "./autocomplete-disbursement-status"
 export { default as DocumentTypeAutocomplete } from "./autocomplete-document-type"
+export {
+  DocExpiryDocumentCategoryAutocomplete,
+  DocExpiryDocumentTypeAutocomplete,
+  DocExpiryReferenceTypeAutocomplete,
+} from "./autocomplete-doc-expiry-lookup"
 export { default as DynamicCustomerAutocomplete } from "./autocomplete-dynamic-customer"
 export { default as DynamicJobOrderAutocomplete } from "./autocomplete-dynamic-joborder"
 export { default as DynamicSupplierAutocomplete } from "./autocomplete-dynamic-supplier"

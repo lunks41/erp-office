@@ -8,6 +8,7 @@ import { SkipLink } from "@/components/ui/accessibility"
 import {
   SidebarInset,
   SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { CompanyDocumentTitle } from "@/components/layout/company-document-title"
@@ -44,7 +45,7 @@ export function CompanyAppChrome({
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
 
   const handleSidebarOpenChange = React.useCallback((open: boolean) => {
-    if (open) setSidebarOpen(true)
+    setSidebarOpen(open)
   }, [])
 
   if (isReportWindowRoute(pathname)) {
@@ -80,6 +81,7 @@ export function CompanyAppChrome({
             <link rel="stylesheet" href={KENDO_THEME_STYLESHEET} />
             <div className="flex h-14 w-full items-center gap-2 px-3 sm:px-4 lg:px-6">
               <MobileNav />
+              <SidebarTrigger className="hidden md:inline-flex" />
               <NavHeader />
               <div className="ml-auto flex items-center gap-1 sm:gap-2">
                 <ChangelogButton />

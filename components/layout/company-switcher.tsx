@@ -18,7 +18,8 @@ import {
 import { useSidebar } from "@/components/ui/sidebar"
 
 export function CompanySwitcher() {
-  const { isMobile } = useSidebar()
+  const { isMobile, state } = useSidebar()
+  const isCollapsed = state === "collapsed" && !isMobile
   const { companies, currentCompany, getCompanies } = useCompanyStore()
   const [isLoading, setIsLoading] = React.useState(false)
   const [isOpen, setIsOpen] = React.useState(false)
@@ -84,6 +85,7 @@ export function CompanySwitcher() {
           className={cn(
             "hover:bg-sidebar-accent flex w-full min-w-0 items-start gap-2.5 rounded-lg p-1 text-left transition-colors",
             "focus-visible:ring-sidebar-ring outline-none focus-visible:ring-2",
+            isCollapsed && "justify-center gap-0 p-0.5",
             isLoading && "cursor-not-allowed opacity-50"
           )}
           aria-label={`Current company: ${companyName}. Switch company.`}
@@ -110,7 +112,12 @@ export function CompanySwitcher() {
               </>
             )}
           </div>
-          <div className="min-w-0 flex-1 space-y-0.5 pt-0.5">
+          <div
+            className={cn(
+              "min-w-0 flex-1 space-y-0.5 pt-0.5",
+              isCollapsed && "hidden"
+            )}
+          >
             <p
               className="text-sidebar-foreground text-xs leading-snug font-semibold wrap-break-word"
               title={companyName}
@@ -124,7 +131,12 @@ export function CompanySwitcher() {
               {companyCode}
             </p>
           </div>
-          <ChevronsUpDown className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+          <ChevronsUpDown
+            className={cn(
+              "text-muted-foreground mt-0.5 size-4 shrink-0",
+              isCollapsed && "hidden"
+            )}
+          />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

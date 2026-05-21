@@ -410,6 +410,26 @@ export interface IDocumentTypeLookup {
   docTypeName: string
 }
 
+export interface IDocExpiryDocumentTypeLookup {
+  documentTypeId: number
+  documentTypeCode: string
+  documentTypeName: string
+  defaultReminderDays: number
+  isMandatory: boolean
+}
+
+export interface IDocExpiryDocumentCategoryLookup {
+  documentCategoryId: number
+  documentCategoryCode: string
+  documentCategoryName: string
+}
+
+export interface IDocExpiryReferenceTypeLookup {
+  referenceTypeId: number
+  referenceTypeCode: string
+  referenceTypeName: string
+}
+
 export interface IEntityTypeLookup {
   entityTypeId: number
   entityTypeCode: string

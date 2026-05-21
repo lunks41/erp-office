@@ -36,6 +36,18 @@ export const DocumentExpiryRoutes = {
     expiry: "/documentexpiry/reports/expiry",
     renewalHistory: "/documentexpiry/reports/renewal-history",
   },
+  setup: {
+    types: "/documentexpiry/setup/types",
+    categories: "/documentexpiry/setup/categories",
+    referenceTypes: "/documentexpiry/setup/referencetypes",
+    statuses: "/documentexpiry/setup/statuses",
+    deleteType: (id: number | string) => `/documentexpiry/setup/types/${id}`,
+    deleteCategory: (id: number | string) =>
+      `/documentexpiry/setup/categories/${id}`,
+    deleteReferenceType: (id: number | string) =>
+      `/documentexpiry/setup/referencetypes/${id}`,
+    deleteStatus: (id: number | string) => `/documentexpiry/setup/statuses/${id}`,
+  },
 } as const
 
 export type DocumentExpiryPriority = 1 | 2 | 3

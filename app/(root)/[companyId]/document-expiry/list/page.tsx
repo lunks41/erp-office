@@ -127,7 +127,7 @@ export default function DocumentExpiryListPage() {
             Export CSV
           </Button>
           <Button size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/create`}>
+            <Link href={`/${companyId}/document-expiry/new`}>
               <Plus className="mr-2 h-4 w-4" />
               New
             </Link>
