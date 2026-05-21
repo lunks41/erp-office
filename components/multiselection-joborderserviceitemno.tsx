@@ -21,6 +21,7 @@ import Select, {
 
 import { cn } from "@/lib/utils"
 import { useJobOrderChargeLookup } from "@/hooks/use-lookup"
+import { useMultiSelectSearchFilter } from "@/hooks/use-multi-select-search-filter"
 import { FormField, FormItem } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
@@ -189,6 +190,14 @@ export default function JobOrderServiceItemNoMultiSelect<
     []
   )
 
+  const {
+    filterInput,
+    handleInputChange,
+    clearInputAfterSelect,
+    resetSearchFilter,
+    filterOption,
+  } = useMultiSelectSearchFilter()
+
   // Memoize handleChange to handle comma-separated string storage
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
@@ -197,8 +206,13 @@ export default function JobOrderServiceItemNoMultiSelect<
         : option
           ? [option]
           : []
-      // Mark that an option was selected (not just cleared)
       isOptionSelectedRef.current = selectedOptions.length > 0
+
+      if (selectedOptions.length > 0) {
+        clearInputAfterSelect()
+      } else {
+        resetSearchFilter()
+      }
 
       if (form && name) {
         // Convert array to comma-separated string
@@ -223,7 +237,7 @@ export default function JobOrderServiceItemNoMultiSelect<
         onChangeEvent(selectedServices)
       }
     },
-    [form, name, onChangeEvent, services]
+    [form, name, onChangeEvent, services, clearInputAfterSelect, resetSearchFilter]
   )
 
   // Memoize getValue to convert comma-separated string to array
@@ -253,14 +267,14 @@ export default function JobOrderServiceItemNoMultiSelect<
     return null
   }, [form, name, options])
 
-  const [filterInput, setFilterInput] = React.useState("")
-
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
 
   const handleMenuClose = React.useCallback(() => {
+    resetSearchFilter()
+
     if (!isTabPressedRef.current && isOptionSelectedRef.current) {
       requestAnimationFrame(() => {
         if (selectControlRef.current) {
@@ -290,7 +304,7 @@ export default function JobOrderServiceItemNoMultiSelect<
       isTabPressedRef.current = false
       isOptionSelectedRef.current = false
     })
-  }, [])
+  }, [resetSearchFilter])
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -383,7 +397,8 @@ export default function JobOrderServiceItemNoMultiSelect<
                     onMenuClose={handleMenuClose}
                     value={getValue()}
                     inputValue={filterInput}
-                    onInputChange={(val, { action }) => { if (action === "input-change") setFilterInput(val) }}
+                    onInputChange={handleInputChange}
+                    filterOption={filterOption}
                     placeholder="Select Service Item No..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
@@ -462,6 +477,9 @@ export default function JobOrderServiceItemNoMultiSelect<
           onChange={handleChange}
           onMenuClose={handleMenuClose}
           value={getValue()}
+          inputValue={filterInput}
+          onInputChange={handleInputChange}
+          filterOption={filterOption}
           placeholder="Select Service Item No..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}

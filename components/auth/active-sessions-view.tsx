@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { IActiveSession } from "@/interfaces/auth"
 import { LoginHeroPanel } from "@/components/auth/login-hero-panel"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Monitor, Smartphone, Globe, Clock, ShieldAlert } from "lucide-react"
@@ -11,6 +12,8 @@ interface Props {
   sessions: IActiveSession[]
   isLoading?: boolean
   imageUrl?: string
+  /** When false, omits the hero column (use on login — page already has LoginHeroPanel). */
+  showHeroPanel?: boolean
   onSignOutOthers: (sessionIds: number[]) => void
   onCancel: () => void
 }
@@ -33,15 +36,21 @@ export function ActiveSessionsView({
   sessions,
   isLoading,
   imageUrl,
+  showHeroPanel = false,
   onSignOutOthers,
   onCancel,
 }: Props) {
   const sessionIds = sessions.map((s) => s.sessionId)
+  const showSidePanel = Boolean(imageUrl) || showHeroPanel
 
   return (
     <Card className="border-border/60 w-full overflow-hidden rounded-2xl border bg-card/95 p-0 shadow-2xl shadow-primary/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20">
-      <CardContent className="grid p-0 md:grid-cols-2">
-        {/* Left — session info */}
+      <CardContent
+        className={cn(
+          "grid p-0",
+          showSidePanel && "md:grid-cols-2"
+        )}
+      >
         <div className="flex flex-col gap-6 p-6 md:p-8">
           {/* Icon + heading */}
           <div className="flex flex-col items-center gap-3 text-center">
@@ -119,19 +128,19 @@ export function ActiveSessionsView({
           </p>
         </div>
 
-        {/* Right — hero or optional image */}
-        {imageUrl ? (
-          <div className="bg-primary/50 relative hidden min-h-[280px] md:block md:min-h-0">
-            <Image
-              fill
-              src={imageUrl}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </div>
-        ) : (
-          <LoginHeroPanel />
-        )}
+        {showSidePanel &&
+          (imageUrl ? (
+            <div className="bg-primary/50 relative hidden min-h-[280px] md:block md:min-h-0">
+              <Image
+                fill
+                src={imageUrl}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <LoginHeroPanel />
+          ))}
       </CardContent>
     </Card>
   )

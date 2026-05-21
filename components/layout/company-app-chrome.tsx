@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { usePathname } from "next/navigation"
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -7,7 +8,6 @@ import { SkipLink } from "@/components/ui/accessibility"
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { CompanyDocumentTitle } from "@/components/layout/company-document-title"
@@ -36,13 +36,16 @@ function isReportWindowRoute(pathname: string | null): boolean {
 
 export function CompanyAppChrome({
   children,
-  defaultSidebarOpen,
 }: {
   children: React.ReactNode
-  defaultSidebarOpen: boolean
 }) {
   const pathname = usePathname()
   const currentCompany = useCompanyStore((s) => s.currentCompany)
+  const [sidebarOpen, setSidebarOpen] = React.useState(true)
+
+  const handleSidebarOpenChange = React.useCallback((open: boolean) => {
+    if (open) setSidebarOpen(true)
+  }, [])
 
   if (isReportWindowRoute(pathname)) {
     return (
@@ -61,7 +64,11 @@ export function CompanyAppChrome({
       <CompanyDocumentTitle />
       <SkipLink href="#main-content">Skip to main content</SkipLink>
       <SkipLink href="#navigation">Skip to navigation</SkipLink>
-      <SidebarProvider defaultOpen={defaultSidebarOpen}>
+      <SidebarProvider
+        defaultOpen
+        open={sidebarOpen}
+        onOpenChange={handleSidebarOpenChange}
+      >
         <AppSidebar className="hidden md:block" />
         <SidebarInset className="flex min-h-screen flex-col">
           <header
@@ -73,7 +80,6 @@ export function CompanyAppChrome({
             <link rel="stylesheet" href={KENDO_THEME_STYLESHEET} />
             <div className="flex h-14 w-full items-center gap-2 px-3 sm:px-4 lg:px-6">
               <MobileNav />
-              <SidebarTrigger className="-ml-1.5 hidden md:flex" />
               <NavHeader />
               <div className="ml-auto flex items-center gap-1 sm:gap-2">
                 <ChangelogButton />

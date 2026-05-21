@@ -22,6 +22,7 @@ import Select, {
 
 import { cn } from "@/lib/utils"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
+import { useMultiSelectSearchFilter } from "@/hooks/use-multi-select-search-filter"
 import { FormField, FormItem } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
@@ -228,6 +229,17 @@ export default function ChartOfAccountMultiSelect<
     []
   )
 
+  const [scrollToValueAfterSelect, setScrollToValueAfterSelect] =
+    React.useState<string | null>(null)
+
+  const {
+    filterInput,
+    handleInputChange,
+    clearInputAfterSelect,
+    resetSearchFilter,
+    filterOption,
+  } = useMultiSelectSearchFilter()
+
   // Memoize handleChange to handle comma-separated string storage
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
@@ -236,8 +248,13 @@ export default function ChartOfAccountMultiSelect<
         : option
           ? [option]
           : []
-      // Mark that an option was selected (not just cleared)
       isOptionSelectedRef.current = selectedOptions.length > 0
+
+      if (selectedOptions.length > 0) {
+        clearInputAfterSelect()
+      } else {
+        resetSearchFilter()
+      }
 
       // Scroll menu to show next code after selected (so list doesn't reset to top)
       if (selectedOptions.length > 0) {
@@ -267,7 +284,14 @@ export default function ChartOfAccountMultiSelect<
         onChangeEvent(selectedAccounts)
       }
     },
-    [form, name, onChangeEvent, chartOfAccounts]
+    [
+      form,
+      name,
+      onChangeEvent,
+      chartOfAccounts,
+      clearInputAfterSelect,
+      resetSearchFilter,
+    ]
   )
 
   // Memoize getValue to convert comma-separated string to array
@@ -297,19 +321,14 @@ export default function ChartOfAccountMultiSelect<
     return null
   }, [form, name, options])
 
-  // Scroll menu to "next" option after selection so list doesn't jump back to top
-  const [scrollToValueAfterSelect, setScrollToValueAfterSelect] =
-    React.useState<string | null>(null)
-
-  // Control filter input: clear after selection so "next list" shows without typing
-  const [filterInput, setFilterInput] = React.useState("")
-
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
 
   const handleMenuClose = React.useCallback(() => {
+    resetSearchFilter()
+
     if (!isTabPressedRef.current && isOptionSelectedRef.current) {
       requestAnimationFrame(() => {
         if (selectControlRef.current) {
@@ -339,7 +358,7 @@ export default function ChartOfAccountMultiSelect<
       isTabPressedRef.current = false
       isOptionSelectedRef.current = false
     })
-  }, [])
+  }, [resetSearchFilter])
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -432,7 +451,8 @@ export default function ChartOfAccountMultiSelect<
                     onMenuClose={handleMenuClose}
                     value={getValue()}
                     inputValue={filterInput}
-                    onInputChange={(val, { action }) => { if (action === "input-change") setFilterInput(val) }}
+                    onInputChange={handleInputChange}
+                    filterOption={filterOption}
                     placeholder="Select Chart of Account..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
@@ -518,7 +538,8 @@ export default function ChartOfAccountMultiSelect<
           onMenuClose={handleMenuClose}
           value={getValue()}
           inputValue={filterInput}
-          onInputChange={(val) => setFilterInput(val)}
+          onInputChange={handleInputChange}
+          filterOption={filterOption}
           placeholder="Select Chart of Account..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}

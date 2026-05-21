@@ -113,7 +113,7 @@ export function PurchaseTable({
           return (
             <button
               type="button"
-              className="text-left font-medium text-muted-foreground hover:underline"
+              className="table-cell-link"
               onClick={() => onDocumentNoClick?.(rowData)}
             >
               {rowData.documentNo}

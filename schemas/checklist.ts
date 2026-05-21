@@ -65,6 +65,7 @@ export const JobOrderHdSchema = z
     invoiceNo: z.string().optional(),
     accountDate: z.union([z.date(), z.string()]).optional(),
     seriesDate: z.union([z.date(), z.string()]).optional(),
+    advanceAmt: z.number().min(0, "Advance amount must be 0 or greater").optional(),
     addressId: z.number().optional(),
     contactId: z.number().optional(),
     remarks: z
@@ -90,8 +91,6 @@ export const JobOrderHdSchema = z
     emailAdd: z.string().optional(),
 
     isActive: z.boolean().optional(),
-    isTaxable: z.boolean().optional(),
-    isClose: z.boolean().optional(),
     isPost: z.boolean().optional(),
     editVersion: z.number().optional(),
     createdBy: z.string().optional(),
@@ -99,19 +98,6 @@ export const JobOrderHdSchema = z
     editedBy: z.string().optional(),
     editedDate: z.union([z.date(), z.string()]).optional(),
   })
-  .refine(
-    (data) => {
-      // If isTaxable is true, gstId is required
-      if (data.isTaxable && (!data.gstId || data.gstId === 0)) {
-        return false
-      }
-      return true
-    },
-    {
-      message: "VAT is required when taxable is enabled",
-      path: ["gstId"],
-    }
-  )
 
 export type JobOrderHdSchemaType = z.infer<typeof JobOrderHdSchema>
 

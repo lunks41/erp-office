@@ -183,7 +183,7 @@ export default function AdminCompanyPage() {
         </LockSkeleton>
       ) : (
         <CompanyTable
-          data={filters.search ? [] : companiesData || []}
+          data={companiesData || []}
           isLoading={isLoading}
           onSelect={canView ? handleView : undefined}
           onDeleteAction={canDelete ? handleDelete : undefined}

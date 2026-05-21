@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ActiveSessionsView } from "@/components/auth/active-sessions-view"
+import { ConcurrentSessionPanel } from "@/components/auth/concurrent-session-panel"
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -214,18 +214,15 @@ export function LoginForm({
     }
   }
 
-  // Active sessions overlay
   if (activeSessions) {
     return (
-      <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <div className="rounded-2xl p-6" style={CARD_STYLE}>
-          <ActiveSessionsView
-            sessions={activeSessions}
-            isLoading={isLoading}
-            onSignOutOthers={handleSignOutOthers}
-            onCancel={() => setActiveSessions(null)}
-          />
-        </div>
+      <div className={cn("flex flex-col gap-0", className)} {...props}>
+        <ConcurrentSessionPanel
+          sessions={activeSessions}
+          isLoading={isLoading}
+          onSignOutOthers={handleSignOutOthers}
+          onCancel={() => setActiveSessions(null)}
+        />
       </div>
     )
   }

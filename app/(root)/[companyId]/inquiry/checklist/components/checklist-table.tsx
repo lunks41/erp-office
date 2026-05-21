@@ -14,6 +14,7 @@ import { TableName } from "@/lib/utils"
 import { useCompanyLookup } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { JobTable } from "@/components/table/table-job"
+import { TableCellLink } from "@/components/ui/table-cell-link"
 
 interface InquiryTableProps {
   data: IJobOrderHd[]
@@ -55,7 +56,7 @@ export function InquiryTable({
           const jobOrderId = row.original.jobOrderId
           const companyId = row.original.companyId
           return (
-            <button
+            <TableCellLink
               onClick={() => {
                 console.log("🚀 STEP 1: Job Order Click Initiated")
                 console.log("📋 Job Order Details:", {
@@ -100,10 +101,9 @@ export function InquiryTable({
                   "🎯 Navigation completed - user can now work in new tab"
                 )
               }}
-              className="text-muted-foreground hover:text-primary hover:underline"
             >
               {jobNo}
-            </button>
+            </TableCellLink>
           )
         },
         size: 200,

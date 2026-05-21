@@ -11,6 +11,7 @@ import { format, isValid, parse } from "date-fns"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { TableCellLink } from "@/components/ui/table-cell-link"
 import { MainTable } from "@/components/table/table-main"
 
 import {
@@ -132,13 +133,9 @@ export function TallyServiceTable({
         cell: ({ row }) => {
           const id = row.original.tallyServiceId
           return (
-            <button
-              type="button"
-              onClick={() => openRecord(row.original)}
-              className="text-muted-foreground hover:text-primary hover:underline"
-            >
+            <TableCellLink type="button" onClick={() => openRecord(row.original)}>
               #{id}
-            </button>
+            </TableCellLink>
           )
         },
         size: 90,

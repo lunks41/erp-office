@@ -579,7 +579,7 @@ export default function BankReconDetailsTable({
             type="button"
             onDoubleClick={handleActivate}
             onKeyDown={handleKeyDown}
-            className="text-orange-500 underline decoration-orange-500 decoration-dotted underline-offset-2 hover:text-orange-600 hover:decoration-solid"
+            className="table-cell-link"
           >
             {docNo}
           </button>

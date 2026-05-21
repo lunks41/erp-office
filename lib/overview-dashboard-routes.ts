@@ -71,6 +71,13 @@ export const OverviewDashboardRoutes = {
     monthlyTrend: "/operations/overview/monthly-trend",
     recentJobOrders: "/operations/overview/recent-job-orders",
     todayJobOrders: "/operations/overview/today-job-orders",
+    tallyKpi: "/operations/overview/tally/kpi",
+    tallyStatusBreakdown: "/operations/overview/tally/status-breakdown",
+    tallyTopCustomers: "/operations/overview/tally/top-customers",
+    tallyServiceTypeDistribution:
+      "/operations/overview/tally/service-type-distribution",
+    tallyRecent: "/operations/overview/tally/recent",
+    tallyToday: "/operations/overview/tally/today",
   },
   hr: {
     kpi: "/hr/overview/kpi",

@@ -38,8 +38,8 @@ import {
   CurrencyAutocomplete,
   CustomerAutocomplete,
   DynamicVesselAutocomplete,
-  GSTAutocomplete,
   GeoLocationAutocomplete,
+  GSTAutocomplete,
   JobStatusAutocomplete,
   PortAutocomplete,
   VoyageAutocomplete,
@@ -60,6 +60,7 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 export default function NewChecklistPage() {
   const { decimals } = useCompanyStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
+  const amtDec = decimals[0]?.amtDec || 2
   const router = useRouter()
   const params = useParams()
   const companyId = params.companyId as string
@@ -129,6 +130,7 @@ export default function NewChecklistPage() {
       chartersAgent: "",
       accountDate: format(new Date(), dateFormat), // Set to current date as string for new records
       seriesDate: format(new Date(), dateFormat), // Set to current date as string for new records
+      advanceAmt: 0,
       addressId: 0,
       contactId: 0,
       billName: "",
@@ -145,20 +147,15 @@ export default function NewChecklistPage() {
       emailAdd: "",
       natureOfCall: "",
       isps: "",
-      isTaxable: false,
-      isClose: false,
-      isPost: false,
       isActive: true,
+      isPost: false,
       remarks: "",
       jobStatusId: 1,
-      gstId: 0,
+      gstId: 1,
       gstPercentage: 0,
       editVersion: 0,
     },
   })
-
-  // Watch isTaxable to conditionally show GST field
-  const isTaxable = form.watch("isTaxable")
 
   // Watch customerId to reset address and contact when customer changes
   const customerId = form.watch("customerId")
@@ -287,8 +284,7 @@ export default function NewChecklistPage() {
   // Fetch GST percentage when gstId or accountDate changes
   useEffect(() => {
     const fetchGstPercentage = async () => {
-      // Only fetch if taxable is true and both gstId and accountDate are available
-      if (isTaxable && gstId && accountDate) {
+      if (gstId && accountDate) {
         try {
           // Format date to yyyy-MM-dd (matching account.ts pattern)
           const parsedAccountDate = parseWithFallback(accountDate)
@@ -307,14 +303,13 @@ export default function NewChecklistPage() {
         } catch (error) {
           console.error("Error fetching GST percentage:", error)
         }
-      } else if (!isTaxable || !gstId) {
-        // Reset GST percentage when not taxable or no GST selected
+      } else if (!gstId) {
         form.setValue("gstPercentage", 0)
       }
     }
 
     fetchGstPercentage()
-  }, [gstId, accountDate, isTaxable, form, parseWithFallback])
+  }, [gstId, accountDate, form, parseWithFallback])
 
   // Handle currency selection
   const handleCurrencyChange = useCallback(
@@ -591,7 +586,7 @@ export default function NewChecklistPage() {
                 <div className="mb-2 flex">
                   <Badge
                     variant="secondary"
-                    className="border-border bg-blue-100 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-colors duration-200 hover:bg-blue-200"
+                    className="border-border text-primary bg-blue-100 px-4 py-2 text-sm font-semibold shadow-sm transition-colors duration-200 hover:bg-blue-200"
                   >
                     🔧 Operation
                   </Badge>
@@ -659,22 +654,22 @@ export default function NewChecklistPage() {
                     isRequired={false}
                     onChangeEvent={handleGeoLocationChange}
                   />
-                 <div className="grid grid-cols-2 gap-2">
-                <CustomInput
-                  form={form}
-                  name="latitude"
-                  label="Latitude"
-                  isRequired={false}
-                  isDisabled={true}
-                />
-                <CustomInput
-                  form={form}
-                  name="longitude"
-                  label="Longitude"
-                  isRequired={false}
-                  isDisabled={true}
-                />
-                </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <CustomInput
+                      form={form}
+                      name="latitude"
+                      label="Latitude"
+                      isRequired={false}
+                      isDisabled={true}
+                    />
+                    <CustomInput
+                      form={form}
+                      name="longitude"
+                      label="Longitude"
+                      isRequired={false}
+                      isDisabled={true}
+                    />
+                  </div>
 
                   <PortAutocomplete
                     form={form}
@@ -776,7 +771,7 @@ export default function NewChecklistPage() {
                 <div className="mb-2 flex">
                   <Badge
                     variant="outline"
-                    className="border-green-300 bg-green-100 inline-flex h-9 min-h-9 items-center px-3 py-0 text-xs font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
+                    className="inline-flex h-9 min-h-9 items-center border-green-300 bg-green-100 px-3 py-0 text-xs font-semibold text-green-800 shadow-sm transition-colors duration-200 hover:bg-green-200"
                   >
                     💰 Accounts
                   </Badge>
@@ -803,17 +798,41 @@ export default function NewChecklistPage() {
                       className="text-right"
                     />
                   </div>
-                  <CustomDateNew
+                  <div className="grid grid-cols-2 gap-2">
+                    <CustomDateNew
+                      form={form}
+                      name="accountDate"
+                      label="Account | Debit Note Date"
+                      isFutureShow={true}
+                    />
+                    <CustomDateNew
+                      form={form}
+                      name="seriesDate"
+                      label="Series Date"
+                      isFutureShow={true}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <GSTAutocomplete
+                      form={form}
+                      name="gstId"
+                      label="VAT"
+                      isRequired={true}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="gstPercentage"
+                      label="VAT Percentage"
+                      isRequired={true}
+                    />
+                  </div>
+                  <CustomNumberInput
                     form={form}
-                    name="accountDate"
-                    label="Account | Debit Note Date"
-                    isFutureShow={true}
-                  />
-                  <CustomDateNew
-                    form={form}
-                    name="seriesDate"
-                    label="Series Date"
-                    isFutureShow={true}
+                    name="advanceAmt"
+                    label="Advance Amount"
+                    isRequired={false}
+                    round={amtDec}
+                    className="text-right"
                   />
 
                   <DynamicAddressAutocomplete
@@ -834,44 +853,6 @@ export default function NewChecklistPage() {
                     onChangeEvent={handleContactSelect}
                   />
 
-                  <div className="grid grid-cols-3 gap-2">
-                    <CustomCheckbox
-                      form={form}
-                      name="isClose"
-                      label="Close"
-                      isRequired={false}
-                    />
-                    <CustomCheckbox
-                      form={form}
-                      name="isPost"
-                      label="Post"
-                      isRequired={false}
-                    />
-                    <CustomCheckbox
-                      form={form}
-                      name="isTaxable"
-                      label="Taxable"
-                      isRequired={false}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                  {isTaxable && (
-                    <GSTAutocomplete
-                      form={form}
-                      name="gstId"
-                      label="VAT"
-                      isRequired={true}
-                    />
-                  )}
-                  {isTaxable && (
-                    <CustomNumberInput
-                      form={form}
-                      name="gstPercentage"
-                      label="VAT Percentage"
-                      isRequired={true}
-                    />
-                  )}
-                  </div>
                   <CustomCheckbox
                     form={form}
                     name="isActive"

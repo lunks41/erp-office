@@ -42,6 +42,7 @@ export interface IJobOrderHd {
   invoiceNo?: string
   accountDate?: Date | string
   seriesDate?: Date | string
+  advanceAmt?: number
   addressId?: number
   contactId?: number
   remarks?: string
@@ -50,8 +51,6 @@ export interface IJobOrderHd {
   gstId?: number
   gstPercentage?: number
   isActive?: boolean
-  isTaxable?: boolean
-  isClose?: boolean
   isPost?: boolean
   editVersion?: number
   createById?: number

@@ -45,12 +45,10 @@ export interface ITallyService {
   portName?: string | null
   addressId?: number | null
   contactId?: number | null
-  isTaxable?: boolean
   gstId?: number | null
   gstName?: string | null
   gstPercentage?: number | null
   isActive?: boolean
-  isClose?: boolean
   isPost?: boolean
   isCancel?: boolean
   cancelById?: number | null

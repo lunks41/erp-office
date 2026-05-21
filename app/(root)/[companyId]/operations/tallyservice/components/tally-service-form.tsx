@@ -155,11 +155,9 @@ export function TallyServiceForm({
       portId: initialData?.portId ?? 0,
       addressId: initialData?.addressId ?? 0,
       contactId: initialData?.contactId ?? 0,
-      isTaxable: initialData?.isTaxable ?? false,
-      gstId: initialData?.gstId ?? 0,
+      gstId: Number(initialData?.gstId) || 1,
       gstPercentage: initialData?.gstPercentage ?? 0,
       isActive: initialData?.isActive ?? true,
-      isClose: initialData?.isClose ?? false,
       isPost: initialData?.isPost ?? false,
       isCancel: initialData?.isCancel ?? false,
       cancelRemarks: initialData?.cancelRemarks ?? "",
@@ -238,19 +236,11 @@ export function TallyServiceForm({
     setCustomerCode(initialData?.customerCode ?? "")
   }, [buildDefaultValues, form, initialData?.customerCode])
 
-  const isTaxable = form.watch("isTaxable")
   const customerId = form.watch("customerId")
   const accountDate = form.watch("accountDate")
   const currencyId = form.watch("currencyId")
   const gstId = form.watch("gstId")
   const isCancel = form.watch("isCancel")
-
-  useEffect(() => {
-    if (!isTaxable) {
-      form.setValue("gstId", 1, { shouldValidate: false })
-      form.setValue("gstPercentage", 0, { shouldValidate: false })
-    }
-  }, [isTaxable, form])
 
   useEffect(() => {
     const updateExchangeRate = async () => {
@@ -276,7 +266,7 @@ export function TallyServiceForm({
 
   useEffect(() => {
     const fetchGstPercentage = async () => {
-      if (isTaxable && gstId && accountDate) {
+      if (gstId && accountDate) {
         try {
           const parsedAccountDate = parseWithFallback(accountDate)
           if (!parsedAccountDate) return
@@ -291,12 +281,12 @@ export function TallyServiceForm({
         } catch {
           /* ignore */
         }
-      } else if (!isTaxable || !gstId) {
+      } else if (!gstId) {
         form.setValue("gstPercentage", 0)
       }
     }
     fetchGstPercentage()
-  }, [gstId, accountDate, isTaxable, form, parseWithFallback])
+  }, [gstId, accountDate, form, parseWithFallback])
 
   const handleCurrencyChange = useCallback(
     async (selectedCurrency: ICurrencyLookup | null) => {
@@ -658,7 +648,7 @@ export function TallyServiceForm({
                       onChangeEvent={handleContactSelect}
                       isDisabled={isReadOnly}
                     />
-                    <div className="col-span-2 grid grid-cols-3 gap-2">
+                    <div className="col-span-2 grid grid-cols-2 gap-2">
                       <CustomCheckbox
                         form={form}
                         name="isActive"
@@ -667,47 +657,24 @@ export function TallyServiceForm({
                       />
                       <CustomCheckbox
                         form={form}
-                        name="isClose"
-                        label="Close"
-                        isDisabled={isReadOnly}
-                      />
-                      <CustomCheckbox
-                        form={form}
-                        name="isPost"
-                        label="Post"
-                        isDisabled={isReadOnly}
-                      />
-
-                      <CustomCheckbox
-                        form={form}
                         name="isCancel"
                         label="Cancel"
                         isDisabled={isReadOnly}
                       />
-                      <CustomCheckbox
+                      <GSTAutocomplete
                         form={form}
-                        name="isTaxable"
-                        label="Taxable"
+                        name="gstId"
+                        label="VAT"
+                        isRequired
                         isDisabled={isReadOnly}
                       />
-                      {isTaxable && (
-                        <>
-                          <GSTAutocomplete
-                            form={form}
-                            name="gstId"
-                            label="VAT"
-                            isRequired
-                            isDisabled={isReadOnly}
-                          />
-                          <CustomNumberInput
-                            form={form}
-                            name="gstPercentage"
-                            label="VAT %"
-                            isRequired
-                            isDisabled={isReadOnly}
-                          />
-                        </>
-                      )}
+                      <CustomNumberInput
+                        form={form}
+                        name="gstPercentage"
+                        label="VAT %"
+                        isRequired
+                        isDisabled={isReadOnly}
+                      />
                     </div>
 
                     {isCancel && (

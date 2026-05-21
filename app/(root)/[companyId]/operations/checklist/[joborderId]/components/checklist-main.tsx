@@ -80,6 +80,7 @@ export function ChecklistMain({
   const companyId = params?.companyId as string | undefined
   const { decimals } = useCompanyStore()
   const exhRateDec = decimals[0]?.exhRateDec || 6
+  const amtDec = decimals[0]?.amtDec || 2
 
   const handleInvoiceNoDoubleClick = useCallback(() => {
     const invoiceId = jobData?.invoiceId
@@ -190,6 +191,7 @@ export function ChecklistMain({
             dateFormat
           )
         : format(new Date(), dateFormat),
+      advanceAmt: jobData?.advanceAmt ?? 0,
       addressId: jobData?.addressId ?? 0,
       billName: jobData?.billName ?? "",
       address1: jobData?.address1 ?? "",
@@ -206,20 +208,15 @@ export function ChecklistMain({
       emailAdd: jobData?.emailAdd ?? "",
       natureOfCall: jobData?.natureOfCall ?? "",
       isps: jobData?.isps ?? "",
-      isTaxable: jobData?.isTaxable ?? false,
-      isClose: jobData?.isClose ?? false,
-      isPost: jobData?.isPost ?? false,
       isActive: jobData?.isActive ?? true,
+      isPost: jobData?.isPost ?? false,
       remarks: jobData?.remarks ?? "",
       jobStatusId: jobData?.jobStatusId ?? 1,
-      gstId: jobData?.gstId ?? 0,
+      gstId: Number(jobData?.gstId) || 1,
       gstPercentage: jobData?.gstPercentage ?? 0,
       editVersion: jobData?.editVersion ?? 0,
     },
   })
-
-  // Watch isTaxable to conditionally show GST field
-  const isTaxable = form.watch("isTaxable")
 
   // Watch customerId to reset address and contact when customer changes
   const customerId = form.watch("customerId")
@@ -232,14 +229,6 @@ export function ChecklistMain({
 
   // Watch gstId to fetch GST percentage
   const gstId = form.watch("gstId")
-
-  // Set gstId to 1 when isTaxable is false
-  useEffect(() => {
-    if (!isTaxable) {
-      form.setValue("gstId", 1, { shouldValidate: false })
-      form.setValue("gstPercentage", 0, { shouldValidate: false })
-    }
-  }, [isTaxable, form])
 
   // Handler for ETA Date blur - validate against ETD when user finishes selecting
   const handleEtaDateBlur = useCallback(
@@ -350,6 +339,7 @@ export function ChecklistMain({
             dateFormat
           )
         : format(new Date(), dateFormat),
+      advanceAmt: jobData?.advanceAmt ?? 0,
       addressId: jobData?.addressId ?? 0,
       billName: jobData?.billName ?? "",
       address1: jobData?.address1 ?? "",
@@ -367,13 +357,11 @@ export function ChecklistMain({
       natureOfCall: jobData?.natureOfCall ?? "",
       isps: jobData?.isps ?? "",
       imoCode: jobData?.imoCode ?? "",
-      isTaxable: jobData?.isTaxable ?? false,
-      isClose: jobData?.isClose ?? false,
-      isPost: jobData?.isPost ?? false,
       isActive: jobData?.isActive ?? true,
+      isPost: jobData?.isPost ?? false,
       remarks: jobData?.remarks ?? "",
       jobStatusId: jobData?.jobStatusId ?? 1,
-      gstId: jobData?.gstId ?? 0,
+      gstId: Number(jobData?.gstId) || 1,
       gstPercentage: jobData?.gstPercentage ?? 0,
       editVersion: jobData?.editVersion ?? 0,
       vesselDistance: jobData?.vesselDistance ?? 10,
@@ -500,7 +488,7 @@ export function ChecklistMain({
   useEffect(() => {
     const fetchGstPercentage = async () => {
       // Only fetch if taxable is true and both gstId and accountDate are available
-      if (isTaxable && gstId && accountDate) {
+      if (gstId && accountDate) {
         try {
           // Format date to yyyy-MM-dd (matching account.ts pattern)
           const parsedAccountDate = parseWithFallback(accountDate)
@@ -519,14 +507,14 @@ export function ChecklistMain({
         } catch (error) {
           console.error("Error fetching GST percentage:", error)
         }
-      } else if (!isTaxable || !gstId) {
+      } else if (!gstId) {
         // Reset GST percentage when not taxable or no GST selected
         form.setValue("gstPercentage", 0)
       }
     }
 
     fetchGstPercentage()
-  }, [gstId, accountDate, isTaxable, form, parseWithFallback])
+  }, [gstId, accountDate, form, parseWithFallback])
 
   // Initialize customer code when jobData is loaded
   useEffect(() => {
@@ -585,6 +573,7 @@ export function ChecklistMain({
             dateFormat
           )
         : format(new Date(), dateFormat),
+      advanceAmt: apiJobOrder.advanceAmt ?? 0,
       addressId: apiJobOrder.addressId ?? 0,
       contactId: apiJobOrder.contactId ?? 0,
       billName: apiJobOrder.billName ?? "",
@@ -602,13 +591,11 @@ export function ChecklistMain({
       natureOfCall: apiJobOrder.natureOfCall ?? "",
       isps: apiJobOrder.isps ?? "",
       imoCode: apiJobOrder.imoCode ?? "",
-      isTaxable: apiJobOrder.isTaxable ?? false,
-      isClose: apiJobOrder.isClose ?? false,
-      isPost: apiJobOrder.isPost ?? false,
       isActive: apiJobOrder.isActive ?? true,
+      isPost: apiJobOrder.isPost ?? false,
       remarks: apiJobOrder.remarks ?? "",
       jobStatusId: apiJobOrder.jobStatusId ?? 1,
-      gstId: apiJobOrder.gstId ?? 0,
+      gstId: Number(apiJobOrder.gstId) || 1,
       gstPercentage: apiJobOrder.gstPercentage ?? 0,
       editVersion: apiJobOrder.editVersion ?? 0,
       vesselDistance: apiJobOrder.vesselDistance ?? 10,
@@ -1213,19 +1200,44 @@ export function ChecklistMain({
                     className="text-right"
                   />
                 </div>
-                <CustomDateNew
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomDateNew
+                    form={form}
+                    name="accountDate"
+                    label="Account | Debit Note Date"
+                    isDisabled={isConfirmed}
+                    isFutureShow={true}
+                  />
+                  <CustomDateNew
+                    form={form}
+                    name="seriesDate"
+                    label="Series Date"
+                    isFutureShow={true}
+                    isDisabled={isConfirmed}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <GSTAutocomplete
+                    form={form}
+                    name="gstId"
+                    label="VAT"
+                    isRequired={true}
+                  />
+                  <CustomNumberInput
+                    form={form}
+                    name="gstPercentage"
+                    label="VAT Percentage"
+                    isRequired={true}
+                  />
+                </div>
+                <CustomNumberInput
                   form={form}
-                  name="accountDate"
-                  label="Account | Debit Note Date"
+                  name="advanceAmt"
+                  label="Advance Amount"
+                  isRequired={false}
                   isDisabled={isConfirmed}
-                  isFutureShow={true}
-                />
-                <CustomDateNew
-                  form={form}
-                  name="seriesDate"
-                  label="Series Date"
-                  isFutureShow={true}
-                  isDisabled={isConfirmed}
+                  round={amtDec}
+                  className="text-right"
                 />
 
                 <DynamicAddressAutocomplete
@@ -1247,50 +1259,6 @@ export function ChecklistMain({
                   onChangeEvent={handleContactSelect}
                   isDisabled={isConfirmed}
                 />
-
-                <div className="grid grid-cols-3 gap-2">
-                  <CustomCheckbox
-                    form={form}
-                    name="isClose"
-                    label="Close"
-                    isRequired={false}
-                    isDisabled={isConfirmed}
-                  />
-                  <CustomCheckbox
-                    form={form}
-                    name="isPost"
-                    label="Post"
-                    isRequired={false}
-                    isDisabled={isConfirmed}
-                  />
-                  <CustomCheckbox
-                    form={form}
-                    name="isTaxable"
-                    label="Taxable"
-                    isRequired={false}
-                    isDisabled={isConfirmed}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {isTaxable && (
-                    <GSTAutocomplete
-                      form={form}
-                      name="gstId"
-                      label="VAT"
-                      isRequired={true}
-                      isDisabled={isConfirmed}
-                    />
-                  )}
-                  {isTaxable && (
-                    <CustomNumberInput
-                      form={form}
-                      name="gstPercentage"
-                      label="VAT Percentage"
-                      isRequired={true}
-                      isDisabled={isConfirmed}
-                    />
-                  )}
-                </div>
                 <CustomCheckbox
                   form={form}
                   name="isActive"

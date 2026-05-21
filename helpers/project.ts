@@ -45,7 +45,7 @@ export const isInvoicePosted = (isPost?: boolean) => isPost === true
 export const isJobLocked = (status?: JobStatusInput) =>
   isStatusConfirmed(status) || isStatusPosted(status)
 
-/** Lock Job Status autocomplete only when posted (IsPost or status Posted) */
+/** Lock Job Status autocomplete when posted (IsPost or status Posted) */
 export const isJobStatusLocked = (
   status?: JobStatusInput,
   isPost?: boolean
@@ -55,14 +55,11 @@ export const isJobStatusLocked = (
 export const canShowInvoicePreview = (status?: JobStatusInput) =>
   isStatusConfirmed(status)
 
-/** Confirmed and invoice not posted yet: show generate/post invoice */
+/** Posted (not yet invoiced to AR): show generate/post invoice — hidden on Confirmed */
 export const canShowInvoicePost = (
   status?: JobStatusInput,
   isPost?: boolean
-) =>
-  isStatusConfirmed(status) &&
-  !isStatusPosted(status) &&
-  !isInvoicePosted(isPost)
+) => isStatusPosted(status) && !isInvoicePosted(isPost)
 
 /** Invoice posted or job status Posted: job summary / invoice prints */
 export const canShowJobSummaryPrint = (

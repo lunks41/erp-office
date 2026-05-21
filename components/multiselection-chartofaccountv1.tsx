@@ -21,6 +21,7 @@ import Select, {
 
 import { cn } from "@/lib/utils"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
+import { useMultiSelectSearchFilter } from "@/hooks/use-multi-select-search-filter"
 import { FormField, FormItem } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
@@ -285,6 +286,36 @@ export default function ChartOfAccountMultiSelect<
     []
   )
 
+  const {
+    filterInput,
+    handleInputChange,
+    clearInputAfterSelect,
+    resetSearchFilter,
+    filterOption: filterByMenuSearch,
+  } = useMultiSelectSearchFilter()
+
+  const matchMenuSearch = React.useCallback(
+    (option: FieldOption, inputValue: string) =>
+      filterByMenuSearch(option, inputValue),
+    [filterByMenuSearch]
+  )
+
+  const filterOption = React.useCallback(
+    (option: FieldOption, inputValue: string) => {
+      if (form && name) {
+        const formValue = form.getValues(name)
+        if (formValue) {
+          const values = Array.isArray(formValue) ? formValue : [formValue]
+          if (values.some((val) => option.value === val.toString())) {
+            return true
+          }
+        }
+      }
+      return matchMenuSearch(option, inputValue)
+    },
+    [form, name, matchMenuSearch]
+  )
+
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOptions = Array.isArray(option)
@@ -294,6 +325,12 @@ export default function ChartOfAccountMultiSelect<
           : []
       // Mark that an option was selected (not just cleared)
       isOptionSelectedRef.current = selectedOptions.length > 0
+
+      if (selectedOptions.length > 0) {
+        clearInputAfterSelect()
+      } else {
+        resetSearchFilter()
+      }
 
       if (form && name) {
         const values = selectedOptions.map((opt) => Number(opt.value))
@@ -312,7 +349,7 @@ export default function ChartOfAccountMultiSelect<
         onChangeEvent(selectedChartOfAccounts)
       }
     },
-    [form, name, onChangeEvent, chartOfAccounts]
+    [form, name, onChangeEvent, chartOfAccounts, clearInputAfterSelect, resetSearchFilter]
   )
 
   const getValue = React.useCallback(() => {
@@ -346,6 +383,8 @@ export default function ChartOfAccountMultiSelect<
   const isOptionSelectedRef = React.useRef(false)
 
   const handleMenuClose = React.useCallback(() => {
+    resetSearchFilter()
+
     // Only refocus if:
     // 1. Tab was NOT pressed (to allow Tab navigation)
     // 2. An option was actually selected (to distinguish from clicking outside)
@@ -384,7 +423,7 @@ export default function ChartOfAccountMultiSelect<
       isTabPressedRef.current = false
       isOptionSelectedRef.current = false
     })
-  }, [])
+  }, [resetSearchFilter])
 
   // Handle Tab key to close menu and allow normal tab navigation
   const handleKeyDown = React.useCallback(
@@ -548,6 +587,8 @@ export default function ChartOfAccountMultiSelect<
                     options={options}
                     value={getValue()}
                     onChange={handleChange}
+                    inputValue={filterInput}
+                    onInputChange={handleInputChange}
                     onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
                     placeholder="Select Chart of Account..."
@@ -555,25 +596,7 @@ export default function ChartOfAccountMultiSelect<
                     isClearable={true}
                     isSearchable={true}
                     isMulti={true}
-                    filterOption={(option, inputValue) => {
-                      // Always show selected options, even if they don't match search
-                      const formValue =
-                        form && name ? form.getValues(name) : null
-                      if (formValue) {
-                        const values = Array.isArray(formValue)
-                          ? formValue
-                          : [formValue]
-                        if (
-                          values.some((val) => option.value === val.toString())
-                        ) {
-                          return true
-                        }
-                      }
-                      // For other options, use default filtering
-                      return option.label
-                        .toLowerCase()
-                        .includes(inputValue.toLowerCase())
-                    }}
+                    filterOption={filterOption}
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
@@ -646,6 +669,8 @@ export default function ChartOfAccountMultiSelect<
         <Select
           options={options}
           onChange={handleChange}
+          inputValue={filterInput}
+          onInputChange={handleInputChange}
           onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}
           placeholder="Select Chart of Account..."
@@ -653,18 +678,7 @@ export default function ChartOfAccountMultiSelect<
           isClearable={true}
           isSearchable={true}
           isMulti={true}
-          filterOption={(option, inputValue) => {
-            // Always show selected options, even if they don't match search
-            const formValue = form && name ? form.getValues(name) : null
-            if (formValue) {
-              const values = Array.isArray(formValue) ? formValue : [formValue]
-              if (values.some((val) => option.value === val.toString())) {
-                return true
-              }
-            }
-            // For other options, use default filtering
-            return option.label.toLowerCase().includes(inputValue.toLowerCase())
-          }}
+          filterOption={filterOption}
           styles={customStyles}
           classNames={selectClassNames}
           components={{

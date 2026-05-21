@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { VariantProps, cva } from "class-variance-authority"
+import { cva, VariantProps } from "class-variance-authority"
 import { PanelLeftIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -266,10 +266,7 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn(
-        "size-9 min-h-9 max-h-9 shrink-0",
-        className
-      )}
+      className={cn("size-9 max-h-9 min-h-9 shrink-0", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
@@ -476,8 +473,14 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
   )
 }
 
+const sidebarMenuLabelClass =
+  "[&_span]:min-w-0 [&_span]:flex-1 [&_span]:wrap-break-word [&_span]:whitespace-normal [&_span]:leading-snug"
+
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-xs outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  cn(
+    "peer/menu-button flex h-auto min-h-8 w-full items-start gap-2 rounded-md p-2 text-left text-xs outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>svg]:mt-0.5 [&>svg]:size-4 [&>svg]:shrink-0",
+    sidebarMenuLabelClass
+  ),
   {
     variants: {
       variant: {
@@ -665,7 +668,7 @@ function SidebarMenuSubItem({
       data-sidebar="menu-sub-item"
       className={cn(
         "group/menu-sub-item relative",
-        "before:absolute before:left-0 before:top-1/2 before:-translate-x-2.5 before:-translate-y-1/2 before:h-px before:w-2.5 before:bg-border/50",
+        "before:bg-border/50 before:absolute before:top-1/2 before:left-0 before:h-px before:w-2.5 before:-translate-x-2.5 before:-translate-y-1/2",
         className
       )}
       {...props}
@@ -693,7 +696,10 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-accent/50 hover:text-foreground active:bg-accent active:text-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        cn(
+          "text-sidebar-foreground ring-sidebar-ring hover:bg-accent/50 hover:text-foreground active:bg-accent active:text-foreground flex h-auto min-h-7 min-w-0 -translate-x-px items-start gap-2 rounded-md px-2 py-1 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>svg]:mt-0.5 [&>svg]:size-4 [&>svg]:shrink-0",
+          sidebarMenuLabelClass
+        ),
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
         size === "sm" && "text-xs",
         size === "md" && "text-sm",

@@ -21,6 +21,7 @@ import {
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { JobTable } from "@/components/table/table-job"
+import { TableCellLink } from "@/components/ui/table-cell-link"
 
 interface ChecklistTableProps {
   data: IJobOrderHd[]
@@ -111,7 +112,7 @@ export function ChecklistTable({
           const jobNo = row.getValue("jobOrderNo") as string
           const jobOrderId = row.original.jobOrderId
           return (
-            <button
+            <TableCellLink
               onClick={() => {
                 console.log("🚀 STEP 1: Job Order Click Initiated")
                 console.log("📋 Job Order Details:", {
@@ -156,10 +157,9 @@ export function ChecklistTable({
                   "🎯 Navigation completed - user can now work in new tab"
                 )
               }}
-              className="text-muted-foreground hover:text-primary hover:underline"
             >
               {jobNo}
-            </button>
+            </TableCellLink>
           )
         },
         size: 160,
@@ -304,21 +304,6 @@ export function ChecklistTable({
         header: "Next Port",
         size: 100,
         minSize: 80,
-      },
-      {
-        accessorKey: "istaxable",
-        header: "Tax",
-        cell: ({ row }) => (
-          <div className="flex justify-center overflow-hidden">
-            {row.getValue("istaxable") ? (
-              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
-            ) : (
-              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
-            )}
-          </div>
-        ),
-        size: 80,
-        minSize: 50,
       },
       {
         accessorKey: "isPost",

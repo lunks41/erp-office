@@ -13,8 +13,10 @@ import {
   Clock3,
   FileText,
   Layers,
+  Ship,
   TrendingUp,
   Users,
+  type LucideIcon,
 } from "lucide-react"
 
 import { getData } from "@/lib/api-client"
@@ -46,8 +48,17 @@ const asArray = <T,>(v: unknown): T[] => {
   }
   return []
 }
+const isApiSuccess = (payload: unknown): boolean => {
+  if (!isRecord(payload)) return payload != null
+  if ("result" in payload || "Result" in payload) {
+    return Number(payload.result ?? payload.Result) === 1
+  }
+  return true
+}
+
 const unwrapData = (payload: unknown): unknown => {
   if (!isRecord(payload)) return payload
+  if (!isApiSuccess(payload)) return null
   if ("data" in payload && payload.data != null) return payload.data
   if ("Data" in payload && (payload as AnyRecord).Data != null)
     return (payload as AnyRecord).Data
@@ -98,6 +109,23 @@ type JobOrderRow = {
   vesselName: string
   status: string
   createdDate: string
+}
+
+type TallyKpi = {
+  totalTallyServices: number
+  openTallyServices: number
+  completedToday: number
+  pendingApproval: number
+  createdThisWeek: number
+  invoicedThisMonth: number
+}
+type TallyCustomerRow = { customerName: string; tallyCount: number }
+type TallyRow = {
+  tallyRef: string
+  customerName: string
+  vesselName: string
+  status: string
+  serviceDate: string
 }
 
 // ─── Normalizers ──────────────────────────────────────────────────────────────
@@ -174,6 +202,93 @@ const normalizeJobOrders = (payload: unknown): JobOrderRow[] =>
     ),
   }))
 
+const normalizeTallyKpi = (payload: unknown): TallyKpi => {
+  const d = firstRowOrRecord(payload)
+  return {
+    totalTallyServices: pickNumber(d, [
+      "totalTallyServices",
+      "TotalTallyServices",
+      "total",
+    ]),
+    openTallyServices: pickNumber(d, [
+      "openTallyServices",
+      "OpenTallyServices",
+      "open",
+    ]),
+    completedToday: pickNumber(d, [
+      "completedToday",
+      "CompletedToday",
+      "closedToday",
+    ]),
+    pendingApproval: pickNumber(d, [
+      "pendingApproval",
+      "PendingApproval",
+      "pending",
+    ]),
+    createdThisWeek: pickNumber(d, [
+      "createdThisWeek",
+      "CreatedThisWeek",
+      "thisWeek",
+    ]),
+    invoicedThisMonth: pickNumber(d, [
+      "invoicedThisMonth",
+      "InvoicedThisMonth",
+      "monthInvoiced",
+    ]),
+  }
+}
+
+const normalizeTallyTopCustomers = (payload: unknown): TallyCustomerRow[] =>
+  asArray<AnyRecord>(unwrapData(payload)).map((e) => ({
+    customerName: pickString(
+      e, ["customerName", "CustomerName", "customer", "name"], "Unknown"
+    ),
+    tallyCount: pickNumber(e, [
+      "tallyCount",
+      "TallyCount",
+      "count",
+      "jobOrderCount",
+      "total",
+    ]),
+  }))
+
+const normalizeTallyRows = (payload: unknown): TallyRow[] =>
+  asArray<AnyRecord>(unwrapData(payload)).map((e) => ({
+    tallyRef: pickString(
+      e, ["tallyRef", "TallyRef", "tallyServiceId", "TallyServiceId"], ""
+    ),
+    customerName: pickString(
+      e, ["customerName", "CustomerName", "customer"], "Unknown"
+    ),
+    vesselName: pickString(
+      e, ["vesselName", "VesselName", "vessel", "shipName"], "-"
+    ),
+    status: pickString(e, ["status", "Status", "jobStatus"], "Open"),
+    serviceDate: formatDate(
+      pickString(e, ["serviceDate", "ServiceDate", "createdDate", "trnDate"], "")
+    ),
+  }))
+
+function SectionHeading({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon
+  title: string
+  description: string
+}) {
+  return (
+    <div className="border-border/60 flex flex-col gap-1 border-b pb-3">
+      <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+        <Icon className="text-primary size-5" />
+        {title}
+      </h2>
+      <p className="text-muted-foreground text-sm">{description}</p>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ChecklistOverviewPage() {
@@ -216,6 +331,49 @@ export default function ChecklistOverviewPage() {
     enabled: !!companyId,
   })
 
+  const tallyKpiQuery = useQuery({
+    queryKey: ["ops-overview-tally-kpi", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.operations.tallyKpi, { companyId }),
+    enabled: !!companyId,
+  })
+  const tallyStatusQuery = useQuery({
+    queryKey: ["ops-overview-tally-status", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.operations.tallyStatusBreakdown, {
+        companyId,
+      }),
+    enabled: !!companyId,
+  })
+  const tallyCustomersQuery = useQuery({
+    queryKey: ["ops-overview-tally-customers", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.operations.tallyTopCustomers, {
+        companyId,
+      }),
+    enabled: !!companyId,
+  })
+  const tallyServiceTypeQuery = useQuery({
+    queryKey: ["ops-overview-tally-service-type", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.operations.tallyServiceTypeDistribution, {
+        companyId,
+      }),
+    enabled: !!companyId,
+  })
+  const tallyRecentQuery = useQuery({
+    queryKey: ["ops-overview-tally-recent", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.operations.tallyRecent, { companyId }),
+    enabled: !!companyId,
+  })
+  const tallyTodayQuery = useQuery({
+    queryKey: ["ops-overview-tally-today", companyId],
+    queryFn: () =>
+      getData(OverviewDashboardRoutes.operations.tallyToday, { companyId }),
+    enabled: !!companyId,
+  })
+
   const kpi = normalizeKpi(kpiQuery.data)
   const statusRows = normalizeStatusBreakdown(statusQuery.data)
   const customerRows = normalizeTopCustomers(customersQuery.data)
@@ -223,6 +381,15 @@ export default function ChecklistOverviewPage() {
   const trendRows = normalizeMonthlyTrend(trendQuery.data)
   const recentRows = normalizeJobOrders(recentQuery.data)
   const todayRows = normalizeJobOrders(todayQuery.data)
+
+  const tallyKpi = normalizeTallyKpi(tallyKpiQuery.data)
+  const tallyStatusRows = normalizeStatusBreakdown(tallyStatusQuery.data)
+  const tallyCustomerRows = normalizeTallyTopCustomers(tallyCustomersQuery.data)
+  const tallyServiceTypeRows = normalizeServiceTypeDistribution(
+    tallyServiceTypeQuery.data
+  )
+  const tallyRecentRows = normalizeTallyRows(tallyRecentQuery.data)
+  const tallyTodayRows = normalizeTallyRows(tallyTodayQuery.data)
 
   const statusChartBase = useMemo(
     () => Math.max(...statusRows.map((r) => r.count), 1),
@@ -235,6 +402,18 @@ export default function ChecklistOverviewPage() {
   const serviceTypeChartBase = useMemo(
     () => Math.max(...serviceTypeRows.map((r) => r.usageCount), 1),
     [serviceTypeRows]
+  )
+  const tallyStatusChartBase = useMemo(
+    () => Math.max(...tallyStatusRows.map((r) => r.count), 1),
+    [tallyStatusRows]
+  )
+  const tallyCustomerChartBase = useMemo(
+    () => Math.max(...tallyCustomerRows.map((r) => r.tallyCount), 1),
+    [tallyCustomerRows]
+  )
+  const tallyServiceTypeChartBase = useMemo(
+    () => Math.max(...tallyServiceTypeRows.map((r) => r.usageCount), 1),
+    [tallyServiceTypeRows]
   )
 
   const jobOrderColumns: ColumnDef<JobOrderRow>[] = [
@@ -268,6 +447,37 @@ export default function ChecklistOverviewPage() {
     },
   ]
 
+  const tallyColumns: ColumnDef<TallyRow>[] = [
+    {
+      accessorKey: "tallyRef",
+      header: "Tally Ref",
+      cell: ({ row }) => row.original.tallyRef || "-",
+    },
+    { accessorKey: "customerName", header: "Customer" },
+    { accessorKey: "vesselName", header: "Vessel" },
+    { accessorKey: "serviceDate", header: "Service Date" },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const s = row.original.status
+        const variant =
+          s === "Completed" || s === "Closed" || s === "Confirmed"
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : s === "Pending" || s === "Draft"
+              ? "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+              : "bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300"
+        return (
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variant}`}
+          >
+            {s}
+          </span>
+        )
+      },
+    },
+  ]
+
   const hasError =
     kpiQuery.isError ||
     statusQuery.isError ||
@@ -275,26 +485,39 @@ export default function ChecklistOverviewPage() {
     serviceTypeQuery.isError ||
     trendQuery.isError ||
     recentQuery.isError ||
-    todayQuery.isError
+    todayQuery.isError ||
+    tallyKpiQuery.isError ||
+    tallyStatusQuery.isError ||
+    tallyCustomersQuery.isError ||
+    tallyServiceTypeQuery.isError ||
+    tallyRecentQuery.isError ||
+    tallyTodayQuery.isError
 
   return (
     <OverviewPageShell
       module="operations"
       title="Operations Overview"
-      description="Job order activity, service distribution, customer volume, and operational throughput across operations at a glance."
+      description="Checklist job orders and Tally Services activity — status, customers, service lines, and recent work at a glance."
     >
       {hasError ? (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Some operations data failed to load</AlertTitle>
           <AlertDescription>
-            The page is showing available data only. Please refresh or check API
-            availability.
+            The page is showing available data only. Deploy Operations overview
+            stored procedures on the database, restart the API, and ensure your
+            user has Checklist or Tally Services view rights.
           </AlertDescription>
         </Alert>
       ) : null}
 
-      {/* ── KPI Metrics ── */}
+      <SectionHeading
+        icon={ClipboardList}
+        title="Checklist"
+        description="Job order headers — open work, completions, approvals, and invoicing."
+      />
+
+      {/* ── Checklist KPI Metrics ── */}
       <OverviewMetricGrid>
         <OverviewMetricCard
           module="operations"
@@ -610,6 +833,235 @@ export default function ChecklistOverviewPage() {
             }
           />
         </OverviewSectionCard>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        <SectionHeading
+          icon={Ship}
+          title="Tally Services"
+          description="Tally service records — freshwater and launch lines, status, and billing progress."
+        />
+
+        <OverviewMetricGrid>
+          <OverviewMetricCard
+            module="operations"
+            title="Total tally services"
+            value={
+              tallyKpiQuery.isPending ? (
+                <Skeleton className="h-8 w-20" />
+              ) : (
+                formatOverviewCompactNumber(tallyKpi.totalTallyServices)
+              )
+            }
+            subtitle="All tally service records for this company."
+            meta={
+              <OverviewStatChip module="operations">
+                Open {formatOverviewCompactNumber(tallyKpi.openTallyServices)}
+              </OverviewStatChip>
+            }
+            icon={Ship}
+          />
+          <OverviewMetricCard
+            module="operations"
+            title="Open tally services"
+            value={
+              tallyKpiQuery.isPending ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                formatOverviewCompactNumber(tallyKpi.openTallyServices)
+              )
+            }
+            subtitle="Tally records not yet closed."
+            meta={
+              <OverviewStatChip module="operations">
+                This week {formatOverviewCompactNumber(tallyKpi.createdThisWeek)}
+              </OverviewStatChip>
+            }
+            icon={FileText}
+            tone={tallyKpi.openTallyServices > 0 ? "warning" : "positive"}
+          />
+          <OverviewMetricCard
+            module="operations"
+            title="Completed today"
+            value={
+              tallyKpiQuery.isPending ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                formatOverviewCompactNumber(tallyKpi.completedToday)
+              )
+            }
+            subtitle="Tally services closed as of today."
+            meta={
+              <OverviewStatChip module="operations">
+                Invoiced {formatOverviewCompactNumber(tallyKpi.invoicedThisMonth)}
+              </OverviewStatChip>
+            }
+            icon={CheckCircle2}
+            tone={tallyKpi.completedToday > 0 ? "positive" : "neutral"}
+          />
+          <OverviewMetricCard
+            module="operations"
+            title="Pending approval"
+            value={
+              tallyKpiQuery.isPending ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                formatOverviewCompactNumber(tallyKpi.pendingApproval)
+              )
+            }
+            subtitle="Posted tally services awaiting close."
+            meta={
+              <OverviewStatChip module="operations">
+                Statuses {formatOverviewCompactNumber(tallyStatusRows.length)}
+              </OverviewStatChip>
+            }
+            icon={ClipboardCheck}
+            tone={tallyKpi.pendingApproval > 0 ? "warning" : "positive"}
+          />
+          <OverviewMetricCard
+            module="operations"
+            title="Created this week"
+            value={
+              tallyKpiQuery.isPending ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                formatOverviewCompactNumber(tallyKpi.createdThisWeek)
+              )
+            }
+            subtitle="New tally services in the current week."
+            meta={
+              <OverviewStatChip module="operations">
+                Customers {formatOverviewCompactNumber(tallyCustomerRows.length)}
+              </OverviewStatChip>
+            }
+            icon={TrendingUp}
+          />
+          <OverviewMetricCard
+            module="operations"
+            title="Invoiced this month"
+            value={
+              tallyKpiQuery.isPending ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                formatOverviewCompactNumber(tallyKpi.invoicedThisMonth)
+              )
+            }
+            subtitle="Tally services with invoices generated this month."
+            meta={
+              <OverviewStatChip module="operations">
+                Line types {formatOverviewCompactNumber(tallyServiceTypeRows.length)}
+              </OverviewStatChip>
+            }
+            icon={Layers}
+            tone="positive"
+          />
+        </OverviewMetricGrid>
+
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <OverviewSectionCard
+            module="operations"
+            title="Tally status breakdown"
+            description="Count of tally services per workflow status."
+            icon={ClipboardCheck}
+          >
+            <OverviewBarList
+              module="operations"
+              items={tallyStatusRows.map((row, idx) => ({
+                key: `tally-status-${idx}`,
+                label: row.statusName,
+                value: String(row.count),
+                progress: (row.count / tallyStatusChartBase) * 100,
+              }))}
+              emptyMessage={
+                tallyStatusQuery.isPending
+                  ? "Loading tally status..."
+                  : "No tally status data found."
+              }
+            />
+          </OverviewSectionCard>
+
+          <OverviewSectionCard
+            module="operations"
+            title="Top tally customers"
+            description="Customers with the most tally service records."
+            icon={Users}
+          >
+            <OverviewBarList
+              module="operations"
+              items={tallyCustomerRows.slice(0, 10).map((row, idx) => ({
+                key: `tally-customer-${idx}`,
+                label: row.customerName,
+                value: String(row.tallyCount),
+                progress: (row.tallyCount / tallyCustomerChartBase) * 100,
+              }))}
+              emptyMessage={
+                tallyCustomersQuery.isPending
+                  ? "Loading tally customers..."
+                  : "No tally customer data found."
+              }
+            />
+          </OverviewSectionCard>
+        </div>
+
+        <OverviewSectionCard
+          module="operations"
+          title="Tally line type distribution"
+          description="Fresh water vs launch service usage across tally records."
+          icon={Layers}
+        >
+          <OverviewBarList
+            module="operations"
+            items={tallyServiceTypeRows.map((row, idx) => ({
+              key: `tally-svc-${idx}`,
+              label: row.serviceTypeName,
+              value: String(row.usageCount),
+              progress: (row.usageCount / tallyServiceTypeChartBase) * 100,
+            }))}
+            emptyMessage={
+              tallyServiceTypeQuery.isPending
+                ? "Loading tally line types..."
+                : "No tally line data found."
+            }
+          />
+        </OverviewSectionCard>
+
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <OverviewSectionCard
+            module="operations"
+            title="Recent tally services"
+            description="Latest tally service records."
+            icon={BarChart3}
+            contentClassName="pt-0"
+          >
+            <OverviewDataTable
+              data={tallyRecentRows}
+              columns={tallyColumns}
+              emptyMessage={
+                tallyRecentQuery.isPending
+                  ? "Loading recent tally services..."
+                  : "No recent tally services found."
+              }
+            />
+          </OverviewSectionCard>
+
+          <OverviewSectionCard
+            module="operations"
+            title="Today's tally services"
+            description="Tally services dated today."
+            icon={Clock3}
+            contentClassName="pt-0"
+          >
+            <OverviewDataTable
+              data={tallyTodayRows}
+              columns={tallyColumns}
+              emptyMessage={
+                tallyTodayQuery.isPending
+                  ? "Loading today's tally services..."
+                  : "No tally services found for today."
+              }
+            />
+          </OverviewSectionCard>
+        </div>
       </div>
     </OverviewPageShell>
   )

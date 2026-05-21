@@ -269,7 +269,7 @@ export default function RefundDetailsTable({
             type="button"
             onDoubleClick={handleActivate}
             onKeyDown={handleKeyDown}
-            className="text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid"
+            className="table-cell-link"
           >
             {docNo}
           </button>

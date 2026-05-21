@@ -294,7 +294,7 @@ export function InvalidTransactionTable({
               type="button"
               onClick={handleActivate}
               onKeyDown={handleKeyDown}
-              className="text-primary cursor-pointer text-left truncate underline decoration-dotted underline-offset-2 hover:decoration-solid"
+              className="table-cell-link truncate"
             >
               {docNo}
             </button>

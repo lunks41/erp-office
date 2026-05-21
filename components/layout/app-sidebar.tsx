@@ -1154,7 +1154,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" className={props.className} {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="shrink-0 overflow-visible border-b px-3 py-3">
         <CompanySwitcher />
       </SidebarHeader>
       <SidebarContent

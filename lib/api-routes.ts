@@ -1264,9 +1264,9 @@ export const GLYearEndProcess = {
 }
 
 export const Company = {
-  get: "/company",
-  add: "/company",
-  delete: "/company",
+  get: "/admin/getadmcompanies",
+  add: "/admin/SaveCompany",
+  delete: "/admin/DeleteCompany",
 }
 
 // Checklist Endpoints

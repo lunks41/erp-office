@@ -62,11 +62,9 @@ export function createEmptyTallyService(companyId: number): ITallyService {
     portId: 0,
     addressId: 0,
     contactId: 0,
-    isTaxable: false,
-    gstId: 0,
+    gstId: 1,
     gstPercentage: 0,
     isActive: true,
-    isClose: false,
     isPost: false,
     isCancel: false,
     cancelRemarks: "",
@@ -112,11 +110,9 @@ export type TallyServiceSavePayload = {
   portId?: number | null
   addressId?: number | null
   contactId?: number | null
-  isTaxable?: boolean
   gstId?: number | null
   gstPercentage?: number | null
   isActive?: boolean
-  isClose?: boolean
   isPost?: boolean
   isCancel?: boolean
   cancelRemarks?: string | null
@@ -248,12 +244,10 @@ export function mapFormToTallyService(
     portId: data.portId,
     addressId: data.addressId || 0,
     contactId: data.contactId || 0,
-    isTaxable: data.isTaxable,
     gstId: data.gstId,
     gstPercentage: data.gstPercentage,
     isActive: data.isActive,
-    isClose: data.isClose,
-    isPost: data.isPost,
+    isPost: data.isPost ?? false,
     isCancel: data.isCancel,
     cancelRemarks: data.cancelRemarks || "",
     billName: data.billName || "",
@@ -330,11 +324,9 @@ export function mapTallyServiceForSave(
     portId: data.portId,
     addressId: data.addressId || 0,
     contactId: data.contactId || 0,
-    isTaxable: data.isTaxable ?? false,
     gstId: data.gstId,
     gstPercentage: data.gstPercentage,
     isActive: data.isActive ?? true,
-    isClose: data.isClose ?? false,
     isPost: data.isPost ?? false,
     isCancel: data.isCancel ?? false,
     cancelRemarks: data.cancelRemarks || "",
@@ -395,11 +387,9 @@ export function normalizeTallyService(
     portId: item.portId ?? base.portId,
     addressId: item.addressId ?? base.addressId,
     contactId: item.contactId ?? base.contactId,
-    isTaxable: item.isTaxable ?? base.isTaxable,
-    gstId: item.gstId ?? base.gstId,
+    gstId: Number(item.gstId) || base.gstId,
     gstPercentage: item.gstPercentage ?? base.gstPercentage,
     isActive: item.isActive ?? base.isActive,
-    isClose: item.isClose ?? base.isClose,
     isPost: item.isPost ?? base.isPost,
     isCancel: item.isCancel ?? base.isCancel,
     cancelRemarks: item.cancelRemarks ?? base.cancelRemarks,

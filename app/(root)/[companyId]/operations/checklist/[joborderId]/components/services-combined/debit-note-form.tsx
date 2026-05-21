@@ -109,8 +109,7 @@ export default function DebitNoteForm({
     (itemNo: number): DebitNoteDtSchemaType => ({
       // If job order is taxable and has valid GST values, default debit note GST from job order.
       // Otherwise keep existing fallback behavior.
-      ...(jobData?.isTaxable &&
-      (Number(jobData?.gstId) || 0) > 0 &&
+      ...(Number(jobData?.gstId) > 1 &&
       (Number(jobData?.gstPercentage) || 0) > 0
         ? {
             gstId: Number(jobData.gstId),
@@ -141,7 +140,6 @@ export default function DebitNoteForm({
       debitNoteHd?.debitNoteId,
       debitNoteHd?.debitNoteNo,
       taskId,
-      jobData?.isTaxable,
       jobData?.gstId,
       jobData?.gstPercentage,
     ]
