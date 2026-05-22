@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react"
 
 import {
@@ -32,18 +31,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ReminderRuleDto } from "@/interfaces/document-expiry"
 import {
   useDeleteReminderRule,
-  useDocumentExpiryMasters,
   useReminderRules,
   useSaveReminderRule,
 } from "@/hooks/use-document-expiry"
-import { EXPIRY_PRIORITY_LABELS } from "@/lib/document-expiry-routes"
+import { useParams } from "next/navigation"
+import { EXPIRY_PRIORITY_LABELS } from "@/lib/api-routes"
 
 export default function ReminderRulesPage() {
-  const params = useParams()
-  const companyId = String(params.companyId ?? "")
-
+  const companyId = useParams().companyId as string
   const { data: rulesRes, isLoading, refetch } = useReminderRules()
-  const { data: masters } = useDocumentExpiryMasters()
   const saveMutation = useSaveReminderRule()
   const deleteMutation = useDeleteReminderRule()
 
@@ -52,7 +48,6 @@ export default function ReminderRulesPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
   const rules = rulesRes?.data ?? []
-  const types = masters?.types ?? []
 
   const handleSave = async (values: ReminderRuleFormValues) => {
     await saveMutation.mutateAsync(values)
@@ -177,7 +172,6 @@ export default function ReminderRulesPage() {
           </DialogHeader>
           <ReminderRuleForm
             rule={editRule}
-            types={types}
             onSubmit={handleSave}
             isSubmitting={saveMutation.isPending}
             onCancel={() => setDialogOpen(false)}

@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
 import { format, parseISO } from "date-fns"
 import { Loader2, Trash2 } from "lucide-react"
+import { useForm } from "react-hook-form"
 
 import type { DocumentCommentDto } from "@/interfaces/document-expiry"
+import CustomTextarea from "@/components/custom/custom-textarea"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { Form } from "@/components/ui/form"
 import {
   useAddDocumentComment,
   useDeleteDocumentComment,
@@ -21,42 +22,46 @@ function fmtDate(value: string) {
   }
 }
 
+type CommentFormValues = { commentText: string }
+
 export function DocumentComments({ documentId }: { documentId: string }) {
-  const [text, setText] = useState("")
+  const form = useForm<CommentFormValues>({ defaultValues: { commentText: "" } })
   const { data, isLoading } = useDocumentComments(documentId)
   const addMutation = useAddDocumentComment()
   const deleteMutation = useDeleteDocumentComment()
 
   const comments: DocumentCommentDto[] = data?.data ?? []
 
-  const handleAdd = async () => {
-    const trimmed = text.trim()
+  const handleAdd = form.handleSubmit(async (values) => {
+    const trimmed = values.commentText.trim()
     if (!trimmed) return
     await addMutation.mutateAsync({ documentId, commentText: trimmed })
-    setText("")
-  }
+    form.reset({ commentText: "" })
+  })
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Add an internal note…"
-          rows={3}
-          maxLength={2000}
-        />
-        <Button
-          size="sm"
-          onClick={() => void handleAdd()}
-          disabled={!text.trim() || addMutation.isPending}
-        >
-          {addMutation.isPending && (
-            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-          )}
-          Add comment
-        </Button>
-      </div>
+      <Form {...form}>
+        <form onSubmit={handleAdd} className="space-y-2">
+          <CustomTextarea
+            form={form}
+            name="commentText"
+            placeholder="Add an internal note…"
+            minRows={3}
+            maxLength={2000}
+          />
+          <Button
+            type="submit"
+            size="sm"
+            disabled={!form.watch("commentText").trim() || addMutation.isPending}
+          >
+            {addMutation.isPending && (
+              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+            )}
+            Add comment
+          </Button>
+        </form>
+      </Form>
 
       {isLoading ? (
         <p className="text-muted-foreground text-sm">Loading comments…</p>

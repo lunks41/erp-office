@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 
 import { format } from "date-fns"
@@ -21,6 +21,8 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Skeleton } from "@/components/ui/skeleton"
+
+import { DocExpiryReferenceEntityField } from "./doc-expiry-reference-entity"
 
 function toFormDate(value?: string | null) {
   if (!value) return ""
@@ -73,6 +75,19 @@ export function DocumentForm({
       })
     }
   }, [document, form])
+
+  const referenceTypeId = form.watch("referenceTypeId")
+  const prevReferenceTypeId = useRef(referenceTypeId)
+
+  useEffect(() => {
+    if (
+      prevReferenceTypeId.current !== referenceTypeId &&
+      prevReferenceTypeId.current !== 0
+    ) {
+      form.setValue("referenceId", 0)
+    }
+    prevReferenceTypeId.current = referenceTypeId
+  }, [referenceTypeId, form])
 
   const handleDocumentTypeChange = (type: IDocExpiryDocumentTypeLookup | null) => {
     if (document || !type) return
@@ -128,13 +143,7 @@ export function DocumentForm({
             isRequired
           />
 
-          <CustomNumberInput
-            form={form}
-            name="referenceId"
-            label="Reference ID"
-            isRequired
-            round={0}
-          />
+          <DocExpiryReferenceEntityField form={form} />
 
           <CustomInput form={form} name="documentNo" label="Document number" />
 

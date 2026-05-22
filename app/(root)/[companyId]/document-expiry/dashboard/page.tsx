@@ -31,10 +31,9 @@ import {
   useDocumentsList,
   useExpiringDocuments,
 } from "@/hooks/use-document-expiry"
-
 export default function DocumentExpiryDashboardPage() {
-  const params = useParams()
-  const companyId = String(params.companyId ?? "")
+  const companyId = useParams().companyId as string
+  const base = `/${companyId}/document-expiry`
 
   const {
     data: summaryRes,
@@ -112,13 +111,13 @@ export default function DocumentExpiryDashboardPage() {
             Refresh
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/list`}>
+            <Link href={`${base}/list`}>
               <List className="mr-2 h-4 w-4" />
               All documents
             </Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/new`}>
+            <Link href={`${base}/new`}>
               <FileText className="mr-2 h-4 w-4" />
               New document
             </Link>
@@ -127,7 +126,6 @@ export default function DocumentExpiryDashboardPage() {
       </div>
 
       <DashboardCards
-        companyId={companyId}
         summary={summary}
         isLoading={summaryLoading}
       />
@@ -154,12 +152,11 @@ export default function DocumentExpiryDashboardPage() {
               </p>
             </div>
             <Button variant="link" size="sm" asChild>
-              <Link href={`/${companyId}/document-expiry/list`}>View all</Link>
+              <Link href={`${base}/list`}>View all</Link>
             </Button>
           </CardHeader>
           <CardContent>
             <DocumentTable
-              companyId={companyId}
               rows={expiring}
               isLoading={expiringLoading}
             />
@@ -175,14 +172,13 @@ export default function DocumentExpiryDashboardPage() {
               </p>
             </div>
             <Button variant="link" size="sm" asChild>
-              <Link href={`/${companyId}/document-expiry/list?filter=critical`}>
+              <Link href={`${base}/list?filter=critical`}>
                 View all
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
             <DocumentTable
-              companyId={companyId}
               rows={critical}
               isLoading={criticalLoading}
             />
@@ -199,19 +195,19 @@ export default function DocumentExpiryDashboardPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/reports`}>
+            <Link href={`${base}/reports`}>
               <FileText className="mr-2 h-4 w-4" />
               Reports
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/settings/reminders`}>
+            <Link href={`${base}/settings/reminders`}>
               <Settings className="mr-2 h-4 w-4" />
               Reminder rules
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/settings`}>
+            <Link href={`${base}/settings`}>
               <SlidersHorizontal className="mr-2 h-4 w-4" />
               Module settings
             </Link>

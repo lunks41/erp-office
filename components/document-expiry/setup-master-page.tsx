@@ -66,8 +66,8 @@ export function SetupMasterPage<TFormValues>({
   isDeleting: boolean
   refetch: () => void
 }) {
-  const params = useParams()
-  const companyId = String(params.companyId ?? "")
+  const companyId = useParams().companyId as string
+  const base = `/${companyId}/document-expiry`
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editRow, setEditRow] = useState<SetupRow | null>(null)
@@ -87,8 +87,7 @@ export function SetupMasterPage<TFormValues>({
     refetch()
   }
 
-  const backHref =
-    settingsHref ?? `/${companyId}/document-expiry/settings`
+  const backHref = settingsHref ?? `${base}/settings`
 
   return (
     <div className="@container mx-auto space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">

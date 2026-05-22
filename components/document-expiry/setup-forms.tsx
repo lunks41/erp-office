@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { Path, useForm } from "react-hook-form"
 
 import {
   SaveDocumentCategoryDto,
@@ -9,12 +9,18 @@ import {
   SaveDocumentTypeDto,
   SaveReferenceTypeDto,
 } from "@/interfaces/document-expiry"
+import CustomInput from "@/components/custom/custom-input"
+import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomSwitch from "@/components/custom/custom-switch"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Form } from "@/components/ui/form"
 
 import { SetupRow } from "./setup-master-page"
+
+type CodeNameValues = {
+  isActive: boolean
+  [key: string]: string | number | boolean
+}
 
 function CodeNameForm({
   row,
@@ -35,7 +41,7 @@ function CodeNameForm({
   nameField: string
   extra?: React.ReactNode
 }) {
-  const { register, handleSubmit, reset, setValue, watch } = useForm({
+  const form = useForm<CodeNameValues>({
     defaultValues: {
       [idField]: 0,
       [codeField]: "",
@@ -46,50 +52,55 @@ function CodeNameForm({
 
   useEffect(() => {
     if (row) {
-      reset({
+      form.reset({
         [idField]: row.id,
         [codeField]: row.code,
         [nameField]: row.name,
         isActive: row.isActive,
       })
     } else {
-      reset({
+      form.reset({
         [idField]: 0,
         [codeField]: "",
         [nameField]: "",
         isActive: true,
       })
     }
-  }, [row, reset, idField, codeField, nameField])
-
-  const isActive = watch("isActive")
+  }, [row, form, idField, codeField, nameField])
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label>Code</Label>
-        <Input {...register(codeField, { required: true })} className="uppercase" />
-      </div>
-      <div className="space-y-2">
-        <Label>Name</Label>
-        <Input {...register(nameField, { required: true })} />
-      </div>
-      {extra}
-      <div className="flex items-center justify-between">
-        <Label>Active</Label>
-        <Switch checked={isActive} onCheckedChange={(v) => setValue("isActive", v)} />
-      </div>
-      <div className="flex justify-end gap-2">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit((values) => onSubmit(values))}
+        className="space-y-4"
+      >
+        <CustomInput
+          form={form}
+          name={codeField as Path<CodeNameValues>}
+          label="Code"
+          isRequired
+          className="uppercase"
+        />
+        <CustomInput
+          form={form}
+          name={nameField as Path<CodeNameValues>}
+          label="Name"
+          isRequired
+        />
+        {extra}
+        <CustomSwitch form={form} name="isActive" label="Active" />
+        <div className="flex justify-end gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" disabled={isSubmitting}>
+            Save
           </Button>
-        )}
-        <Button type="submit" disabled={isSubmitting}>
-          Save
-        </Button>
-      </div>
-    </form>
+        </div>
+      </form>
+    </Form>
   )
 }
 
@@ -99,7 +110,7 @@ export function DocumentTypeSetupForm(props: {
   isSubmitting?: boolean
   onCancel?: () => void
 }) {
-  const { register, handleSubmit, reset, setValue, watch } = useForm<SaveDocumentTypeDto>({
+  const form = useForm<SaveDocumentTypeDto>({
     defaultValues: {
       documentTypeId: 0,
       documentTypeCode: "",
@@ -114,7 +125,7 @@ export function DocumentTypeSetupForm(props: {
   useEffect(() => {
     if (props.row) {
       const meta = props.row.meta ?? {}
-      reset({
+      form.reset({
         documentTypeId: props.row.id,
         documentTypeCode: props.row.code,
         documentTypeName: props.row.name,
@@ -124,7 +135,7 @@ export function DocumentTypeSetupForm(props: {
         isActive: props.row.isActive,
       })
     } else {
-      reset({
+      form.reset({
         documentTypeId: 0,
         documentTypeCode: "",
         documentTypeName: "",
@@ -134,59 +145,52 @@ export function DocumentTypeSetupForm(props: {
         isActive: true,
       })
     }
-  }, [props.row, reset])
+  }, [props.row, form])
 
   return (
-    <form onSubmit={handleSubmit(props.onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label>Code</Label>
-        <Input {...register("documentTypeCode", { required: true })} className="uppercase" />
-      </div>
-      <div className="space-y-2">
-        <Label>Name</Label>
-        <Input {...register("documentTypeName", { required: true })} />
-      </div>
-      <div className="space-y-2">
-        <Label>Default reminder days</Label>
-        <Input
-          type="number"
-          min={1}
-          max={365}
-          {...register("defaultReminderDays", { valueAsNumber: true })}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(props.onSubmit)}
+        className="space-y-4"
+      >
+        <CustomInput
+          form={form}
+          name="documentTypeCode"
+          label="Code"
+          isRequired
+          className="uppercase"
         />
-      </div>
-      <div className="flex items-center justify-between">
-        <Label>Expiry required</Label>
-        <Switch
-          checked={watch("isExpiryRequired")}
-          onCheckedChange={(v) => setValue("isExpiryRequired", v)}
+        <CustomInput
+          form={form}
+          name="documentTypeName"
+          label="Name"
+          isRequired
         />
-      </div>
-      <div className="flex items-center justify-between">
-        <Label>Mandatory</Label>
-        <Switch
-          checked={watch("isMandatory")}
-          onCheckedChange={(v) => setValue("isMandatory", v)}
+        <CustomNumberInput
+          form={form}
+          name="defaultReminderDays"
+          label="Default reminder days"
+          round={0}
         />
-      </div>
-      <div className="flex items-center justify-between">
-        <Label>Active</Label>
-        <Switch
-          checked={watch("isActive")}
-          onCheckedChange={(v) => setValue("isActive", v)}
+        <CustomSwitch
+          form={form}
+          name="isExpiryRequired"
+          label="Expiry required"
         />
-      </div>
-      <div className="flex justify-end gap-2">
-        {props.onCancel && (
-          <Button type="button" variant="outline" onClick={props.onCancel}>
-            Cancel
+        <CustomSwitch form={form} name="isMandatory" label="Mandatory" />
+        <CustomSwitch form={form} name="isActive" label="Active" />
+        <div className="flex justify-end gap-2">
+          {props.onCancel && (
+            <Button type="button" variant="outline" onClick={props.onCancel}>
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" disabled={props.isSubmitting}>
+            Save
           </Button>
-        )}
-        <Button type="submit" disabled={props.isSubmitting}>
-          Save
-        </Button>
-      </div>
-    </form>
+        </div>
+      </form>
+    </Form>
   )
 }
 

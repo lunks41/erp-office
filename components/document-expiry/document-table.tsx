@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { format, parseISO } from "date-fns"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 
@@ -28,16 +29,17 @@ function fmtDate(value?: string | null) {
 }
 
 export function DocumentTable({
-  companyId,
   rows,
   isLoading,
   onDelete,
 }: {
-  companyId: string
   rows: DocumentDto[]
   isLoading?: boolean
   onDelete?: (doc: DocumentDto) => void
 }) {
+  const companyId = useParams().companyId as string
+  const base = `/${companyId}/document-expiry`
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -103,14 +105,14 @@ export function DocumentTable({
                 <div className="flex justify-end gap-1">
                   <Button variant="ghost" size="icon" asChild>
                     <Link
-                      href={`/${companyId}/document-expiry/details/${doc.documentId}`}
+                      href={`${base}/details/${doc.documentId}`}
                     >
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="ghost" size="icon" asChild>
                     <Link
-                      href={`/${companyId}/document-expiry/edit/${doc.documentId}`}
+                      href={`${base}/edit/${doc.documentId}`}
                     >
                       <Pencil className="h-4 w-4" />
                     </Link>

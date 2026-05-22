@@ -140,6 +140,7 @@ const getModuleIcon = (moduleCode: string) => {
     document: FileText,
     dashboard: LayoutDashboard,
     einvoicing: FileCheck,
+    "document-expiry": CalendarCheck,
   }
   return moduleIconMap[moduleCode.toLowerCase()] || FolderKanban
 }
@@ -996,38 +997,6 @@ export const menuData: { mainNav: MainNavItem[] } = {
       title: "Notifications",
       url: "/notifications",
       icon: Bell,
-    },
-    {
-      title: "Document Expiry",
-      url: "/document-expiry/dashboard",
-      icon: CalendarCheck,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/document-expiry/dashboard",
-          icon: LayoutDashboard,
-        },
-        {
-          title: "All documents",
-          url: "/document-expiry/list",
-          icon: FileText,
-        },
-        {
-          title: "New document",
-          url: "/document-expiry/new",
-          icon: FilePlus,
-        },
-        {
-          title: "Reports",
-          url: "/document-expiry/reports",
-          icon: BarChart,
-        },
-        {
-          title: "Settings",
-          url: "/document-expiry/settings",
-          icon: Settings,
-        },
-      ],
     },
     {
       title: "Approvals",

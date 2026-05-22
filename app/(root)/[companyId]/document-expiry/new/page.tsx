@@ -30,8 +30,8 @@ function validateCreate(values: SaveDocumentDto): string | null {
 export default function NewDocumentPage() {
   const params = useParams()
   const router = useRouter()
-  const companyId = String(params.companyId ?? "")
-
+  const companyId = params.companyId as string
+  const base = `/${companyId}/document-expiry`
   const saveMutation = useSaveDocument()
 
   const handleSubmit = async (values: SaveDocumentDto) => {
@@ -53,16 +53,14 @@ export default function NewDocumentPage() {
     })
 
     if (res.result === 1 && res.data?.documentId) {
-      router.push(
-        `/${companyId}/document-expiry/details/${res.data.documentId}`
-      )
+      router.push(`${base}/details/${res.data.documentId}`)
     }
   }
 
   return (
     <div className="@container mx-auto max-w-3xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <Button variant="ghost" size="sm" asChild>
-        <Link href={`/${companyId}/document-expiry/list`}>
+        <Link href={`${base}/list`}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to list
         </Link>

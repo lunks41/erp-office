@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useParams } from "next/navigation"
 import { format, parseISO } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useExpiryReport } from "@/hooks/use-document-expiry"
+import { useParams } from "next/navigation"
 
 function fmtDate(value?: string | null) {
   if (!value) return "—"
@@ -35,15 +35,15 @@ function priorityFromDays(days: number): 1 | 2 | 3 {
 }
 
 export default function DocumentExpiryReportsPage() {
-  const params = useParams()
-  const companyId = String(params.companyId ?? "")
+  const companyId = useParams().companyId as string
+  const base = `/${companyId}/document-expiry`
   const { data, isLoading } = useExpiryReport({ pageSize: 500 })
   const rows = data?.data ?? []
 
   return (
     <div className="@container mx-auto space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <Button variant="ghost" size="sm" asChild>
-        <Link href={`/${companyId}/document-expiry/dashboard`}>
+        <Link href={`${base}/dashboard`}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Dashboard
         </Link>
@@ -86,7 +86,7 @@ export default function DocumentExpiryReportsPage() {
                     <TableRow key={r.documentId}>
                       <TableCell>
                         <Link
-                          href={`/${companyId}/document-expiry/details/${r.documentId}`}
+                          href={`${base}/details/${r.documentId}`}
                           className="font-medium hover:underline"
                         >
                           {r.documentTitle}

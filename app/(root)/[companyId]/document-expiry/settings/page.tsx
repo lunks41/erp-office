@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useParams } from "next/navigation"
 import {
   ArrowLeft,
   Bell,
@@ -13,6 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useParams } from "next/navigation"
 
 const links = [
   {
@@ -48,8 +48,7 @@ const links = [
 ]
 
 export default function DocumentExpirySettingsPage() {
-  const params = useParams()
-  const companyId = String(params.companyId ?? "")
+  const companyId = useParams().companyId as string
   const base = `/${companyId}/document-expiry/settings`
 
   return (

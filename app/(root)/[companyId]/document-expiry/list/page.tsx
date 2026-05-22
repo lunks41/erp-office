@@ -1,21 +1,19 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
+import { useForm } from "react-hook-form"
 import { Download, Plus, Search } from "lucide-react"
 import { toast } from "sonner"
 
 import { DocumentTable } from "@/components/document-expiry/document-table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  DocExpiryLookupFilterSelect,
+} from "@/components/autocomplete"
+import CustomInput from "@/components/custom/custom-input"
+import { Button } from "@/components/ui/button"
+import { Form } from "@/components/ui/form"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,12 +27,9 @@ import {
 import { useDocumentExpiryStore } from "@/stores/document-expiry-store"
 import {
   useDeleteDocument,
-  useDocumentExpiryMasters,
   useDocumentsList,
 } from "@/hooks/use-document-expiry"
 import { DocumentDto } from "@/interfaces/document-expiry"
-import { useState } from "react"
-
 function exportCsv(rows: DocumentDto[]) {
   const headers = [
     "Title",
@@ -68,15 +63,19 @@ function exportCsv(rows: DocumentDto[]) {
 }
 
 export default function DocumentExpiryListPage() {
-  const params = useParams()
+  const companyId = useParams().companyId as string
+  const base = `/${companyId}/document-expiry`
   const searchParams = useSearchParams()
-  const companyId = String(params.companyId ?? "")
   const filter = searchParams.get("filter")
 
   const { filters, setSearch, setCategoryId, setTypeId, setPage, resetFilters } =
     useDocumentExpiryStore()
-  const { data: masters } = useDocumentExpiryMasters()
   const deleteMutation = useDeleteDocument()
+  const searchForm = useForm({ defaultValues: { search: filters.search } })
+
+  useEffect(() => {
+    searchForm.setValue("search", filters.search)
+  }, [filters.search, searchForm])
   const [deleteTarget, setDeleteTarget] = useState<DocumentDto | null>(null)
 
   const queryParams = useMemo(
@@ -127,7 +126,7 @@ export default function DocumentExpiryListPage() {
             Export CSV
           </Button>
           <Button size="sm" asChild>
-            <Link href={`/${companyId}/document-expiry/new`}>
+            <Link href={`${base}/new`}>
               <Plus className="mr-2 h-4 w-4" />
               New
             </Link>
@@ -135,62 +134,35 @@ export default function DocumentExpiryListPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <div className="relative min-w-[200px] flex-1">
-          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-          <Input
-            placeholder="Search title…"
-            className="pl-8"
-            value={filters.search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <Select
-          value={filters.typeId ? String(filters.typeId) : "all"}
-          onValueChange={(v) =>
-            setTypeId(v === "all" ? null : Number(v))
-          }
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            {masters?.types.map((t) => (
-              <SelectItem key={t.documentTypeId} value={String(t.documentTypeId)}>
-                {t.documentTypeName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.categoryId ? String(filters.categoryId) : "all"}
-          onValueChange={(v) =>
-            setCategoryId(v === "all" ? null : Number(v))
-          }
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {masters?.categories.map((c) => (
-              <SelectItem
-                key={c.documentCategoryId}
-                value={String(c.documentCategoryId)}
-              >
-                {c.documentCategoryName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+        <Form {...searchForm}>
+          <div className="relative min-w-[200px] flex-1">
+            <Search className="text-muted-foreground pointer-events-none absolute top-2.5 left-2.5 z-10 h-4 w-4" />
+            <CustomInput
+              form={searchForm}
+              name="search"
+              placeholder="Search title…"
+              className="pl-8"
+              onChangeEvent={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </Form>
+        <DocExpiryLookupFilterSelect
+          kind="documentType"
+          value={filters.typeId}
+          onChange={setTypeId}
+        />
+        <DocExpiryLookupFilterSelect
+          kind="documentCategory"
+          value={filters.categoryId}
+          onChange={setCategoryId}
+        />
         <Button variant="ghost" size="sm" onClick={resetFilters}>
           Reset
         </Button>
       </div>
 
       <DocumentTable
-        companyId={companyId}
         rows={rows}
         isLoading={isLoading}
         onDelete={setDeleteTarget}

@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
 import {
   AlertTriangle,
@@ -117,14 +118,14 @@ function cardSubtitle(
 }
 
 export function DashboardCards({
-  companyId,
   summary,
   isLoading,
 }: {
-  companyId: string
   summary?: DashboardSummaryDto
   isLoading?: boolean
 }) {
+  const companyId = useParams().companyId as string
+  const base = `/${companyId}/document-expiry`
   const reduceMotion = useReducedMotion()
 
   const rowClass =
@@ -148,10 +149,7 @@ export function DashboardCards({
       {cards.map((cfg, index) => {
         const Icon = cfg.icon
         const value = summary ? Number(summary[cfg.key] ?? 0) : 0
-        const subtitle =
-          summary && cfg.key !== "companyId"
-            ? cardSubtitle(cfg.key, summary)
-            : ""
+        const subtitle = summary ? cardSubtitle(cfg.key, summary) : ""
 
         const isAlert =
           (cfg.key === "critical7DaysCount" || cfg.key === "expiredCount") &&
@@ -212,7 +210,7 @@ export function DashboardCards({
         return (
           <Link
             key={cfg.key}
-            href={`/${companyId}/document-expiry/${cfg.href}`}
+            href={`${base}/${cfg.href}`}
             className="min-w-22 flex-1 shrink-0 basis-0 sm:min-w-0"
           >
             {wrapper}

@@ -14,7 +14,7 @@ import {
   SaveReminderRuleDto,
   DocumentCommentDto,
 } from "@/interfaces/document-expiry"
-import { DocumentExpiryRoutes } from "@/lib/document-expiry-routes"
+import { DocumentExpiryRoutes } from "@/lib/api-routes"
 import {
   deleteData,
   getData,

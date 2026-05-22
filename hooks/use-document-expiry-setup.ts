@@ -9,7 +9,7 @@ import {
   SaveDocumentTypeDto,
   SaveReferenceTypeDto,
 } from "@/interfaces/document-expiry"
-import { DocumentExpiryRoutes } from "@/lib/document-expiry-routes"
+import { DocumentExpiryRoutes } from "@/lib/api-routes"
 import { deleteData, getData, saveData } from "@/lib/api-client"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"

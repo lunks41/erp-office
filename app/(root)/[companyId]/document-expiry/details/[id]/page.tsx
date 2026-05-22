@@ -9,7 +9,9 @@ import { ArrowLeft, Pencil, RefreshCw } from "lucide-react"
 import { DocumentComments } from "@/components/document-expiry/document-comments"
 import { DocumentHistoryTimeline } from "@/components/document-expiry/document-history-timeline"
 import { ExpiryBadge } from "@/components/document-expiry/expiry-badge"
+import { RenewDocumentForm } from "@/components/document-expiry/renew-document-form"
 import { UploadDropzone } from "@/components/document-expiry/upload-dropzone"
+import { parseDate } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -18,9 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   useDocumentAttachments,
@@ -41,7 +40,8 @@ function fmtDate(value?: string | null) {
 
 export default function DocumentDetailsPage() {
   const params = useParams()
-  const companyId = String(params.companyId ?? "")
+  const companyId = params.companyId as string
+  const base = `/${companyId}/document-expiry`
   const id = String(params.id ?? "")
 
   const { data: docRes, isLoading } = useDocumentById(id)
@@ -53,8 +53,6 @@ export default function DocumentDetailsPage() {
   const uploadMutation = useUploadDocumentAttachment()
 
   const [renewOpen, setRenewOpen] = useState(false)
-  const [newExpiry, setNewExpiry] = useState("")
-  const [renewRemarks, setRenewRemarks] = useState("")
 
   const doc = docRes?.data
   const attachments = attachmentsRes?.data ?? []
@@ -64,19 +62,21 @@ export default function DocumentDetailsPage() {
     return all.filter((h) => h.documentId === Number(id))
   }, [historyRes?.data, id])
 
-  const handleRenew = async () => {
-    if (!newExpiry) return
+  const handleRenew = async (values: {
+    newExpiryDate: string
+    remarks?: string
+  }) => {
+    const parsed = parseDate(values.newExpiryDate)
+    if (!parsed) return
     await renewMutation.mutateAsync({
       id,
       dto: {
         documentId: Number(id),
-        newExpiryDate: new Date(newExpiry).toISOString(),
-        remarks: renewRemarks || undefined,
+        newExpiryDate: parsed.toISOString(),
+        remarks: values.remarks,
       },
     })
     setRenewOpen(false)
-    setNewExpiry("")
-    setRenewRemarks("")
   }
 
   if (isLoading) {
@@ -98,13 +98,13 @@ export default function DocumentDetailsPage() {
     <div className="@container mx-auto space-y-6 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/${companyId}/document-expiry/list`}>
+          <Link href={`${base}/list`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Link>
         </Button>
         <Button variant="outline" size="sm" asChild>
-          <Link href={`/${companyId}/document-expiry/edit/${id}`}>
+          <Link href={`${base}/edit/${id}`}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit
           </Link>
@@ -226,32 +226,10 @@ export default function DocumentDetailsPage() {
           <DialogHeader>
             <DialogTitle>Renew document</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="newExpiry">New expiry date</Label>
-              <Input
-                id="newExpiry"
-                type="date"
-                value={newExpiry}
-                onChange={(e) => setNewExpiry(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="renewRemarks">Remarks</Label>
-              <Textarea
-                id="renewRemarks"
-                value={renewRemarks}
-                onChange={(e) => setRenewRemarks(e.target.value)}
-              />
-            </div>
-            <Button
-              className="w-full"
-              disabled={!newExpiry || renewMutation.isPending}
-              onClick={handleRenew}
-            >
-              Confirm renewal
-            </Button>
-          </div>
+          <RenewDocumentForm
+            onSubmit={handleRenew}
+            isSubmitting={renewMutation.isPending}
+          />
         </DialogContent>
       </Dialog>
     </div>

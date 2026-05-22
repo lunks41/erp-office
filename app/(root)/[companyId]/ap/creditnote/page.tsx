@@ -1410,8 +1410,8 @@ export default function CreditNotePage() {
               <span
                 className={`relative inline-flex rounded-full p-[2px] transition-all ${
                   isEdit
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500"
-                    : "animate-pulse bg-gradient-to-r from-purple-500 to-blue-500"
+                    ? "bg-linear-to-r from-purple-500 to-blue-500"
+                    : "animate-pulse bg-linear-to-r from-purple-500 to-blue-500"
                 } `}
               >
                 <span
@@ -1584,7 +1584,7 @@ export default function CreditNotePage() {
         }}
       >
         <DialogContent
-          className="@container flex h-auto w-[90vw] !max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0"
+          className="@container flex h-auto w-[90vw] max-w-none! flex-col gap-0 overflow-hidden rounded-lg p-0"
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Header */}

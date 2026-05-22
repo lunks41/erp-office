@@ -2,7 +2,6 @@
 
 export interface DocumentDto {
   documentId: number
-  companyId: number
   branchId?: number | null
   documentTypeId: number
   documentTypeCode?: string | null
@@ -138,7 +137,6 @@ export interface SaveDocumentStatusDto {
 
 export interface ReminderRuleDto {
   reminderRuleId: number
-  companyId: number
   documentTypeId?: number | null
   documentTypeName?: string | null
   daysBeforeExpiry: number
@@ -196,7 +194,6 @@ export interface SaveDocumentCommentDto {
 }
 
 export interface DashboardSummaryDto {
-  companyId: number
   totalDocuments: number
   activeCount: number
   expiringCount: number

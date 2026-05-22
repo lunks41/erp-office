@@ -49,6 +49,14 @@ const PLACEHOLDERS: Record<DocExpiryLookupKind, string> = {
   referenceType: "Select reference type...",
 }
 
+const EMPTY_OPTION_VALUE = "__empty__"
+
+const ALL_LABELS: Record<DocExpiryLookupKind, string> = {
+  documentType: "All types",
+  documentCategory: "All categories",
+  referenceType: "All reference types",
+}
+
 interface DocExpiryLookupAutocompleteProps<T extends Record<string, unknown>> {
   form: UseFormReturn<T>
   kind: DocExpiryLookupKind
@@ -57,6 +65,8 @@ interface DocExpiryLookupAutocompleteProps<T extends Record<string, unknown>> {
   className?: string
   isDisabled?: boolean
   isRequired?: boolean
+  optional?: boolean
+  optionalLabel?: string
   onDocumentTypeChange?: (item: IDocExpiryDocumentTypeLookup | null) => void
 }
 
@@ -95,20 +105,7 @@ function useLookupOptions(kind: DocExpiryLookupKind) {
   return { options, isLoading: query.isLoading, types: types.data ?? [] }
 }
 
-export function DocExpiryLookupAutocomplete<T extends Record<string, unknown>>({
-  form,
-  kind,
-  name,
-  label,
-  className,
-  isDisabled = false,
-  isRequired = false,
-  onDocumentTypeChange,
-}: DocExpiryLookupAutocompleteProps<T>) {
-  const fieldName = (name ?? FIELD_NAMES[kind]) as Path<T>
-  const { options, isLoading, types } = useLookupOptions(kind)
-  const watchedValue = form.watch(fieldName)
-
+function useDocExpirySelectUi(isRequired: boolean) {
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => (
       <components.DropdownIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
@@ -182,12 +179,62 @@ export function DocExpiryLookupAutocomplete<T extends Record<string, unknown>>({
     []
   )
 
+  return {
+    DropdownIndicator,
+    ClearIndicator,
+    Option,
+    selectClassNames,
+    customStyles,
+  }
+}
+
+export function DocExpiryLookupAutocomplete<T extends Record<string, unknown>>({
+  form,
+  kind,
+  name,
+  label,
+  className,
+  isDisabled = false,
+  isRequired = false,
+  optional = false,
+  optionalLabel,
+  onDocumentTypeChange,
+}: DocExpiryLookupAutocompleteProps<T>) {
+  const fieldName = (name ?? FIELD_NAMES[kind]) as Path<T>
+  const { options: baseOptions, isLoading, types } = useLookupOptions(kind)
+  const watchedValue = form.watch(fieldName)
+  const options = React.useMemo(() => {
+    if (!optional) return baseOptions
+    return [
+      {
+        value: EMPTY_OPTION_VALUE,
+        label: optionalLabel ?? "All document types",
+      },
+      ...baseOptions,
+    ]
+  }, [baseOptions, optional, optionalLabel])
+
+  const { DropdownIndicator, ClearIndicator, Option, selectClassNames, customStyles } =
+    useDocExpirySelectUi(isRequired)
+
   const getValue = React.useCallback(() => {
+    if (optional && (watchedValue == null || watchedValue === 0)) {
+      return (
+        options.find((o) => o.value === EMPTY_OPTION_VALUE) ?? null
+      )
+    }
     return options.find((o) => o.value === watchedValue?.toString()) ?? null
-  }, [options, watchedValue])
+  }, [options, watchedValue, optional])
 
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption>) => {
+      if (optional && (!option || option.value === EMPTY_OPTION_VALUE)) {
+        form.setValue(fieldName, null as PathValue<T, Path<T>>)
+        if (kind === "documentType" && onDocumentTypeChange) {
+          onDocumentTypeChange(null)
+        }
+        return
+      }
       const value = option ? Number(option.value) : 0
       form.setValue(fieldName, value as PathValue<T, Path<T>>)
       if (kind === "documentType" && onDocumentTypeChange) {
@@ -197,7 +244,7 @@ export function DocExpiryLookupAutocomplete<T extends Record<string, unknown>>({
         onDocumentTypeChange(selected)
       }
     },
-    [form, fieldName, kind, onDocumentTypeChange, types]
+    [form, fieldName, kind, onDocumentTypeChange, types, optional]
   )
 
   return (
@@ -263,4 +310,70 @@ export function DocExpiryReferenceTypeAutocomplete<T extends Record<string, unkn
   props: Omit<DocExpiryLookupAutocompleteProps<T>, "kind">
 ) {
   return <DocExpiryLookupAutocomplete {...props} kind="referenceType" />
+}
+
+export function DocExpiryLookupFilterSelect({
+  kind,
+  value,
+  onChange,
+  allowAll = true,
+  allLabel,
+  className,
+  isDisabled = false,
+  placeholder,
+}: {
+  kind: DocExpiryLookupKind
+  value: number | null
+  onChange: (id: number | null) => void
+  allowAll?: boolean
+  allLabel?: string
+  className?: string
+  isDisabled?: boolean
+  placeholder?: string
+}) {
+  const { options: baseOptions, isLoading } = useLookupOptions(kind)
+  const { DropdownIndicator, ClearIndicator, Option, selectClassNames, customStyles } =
+    useDocExpirySelectUi(false)
+
+  const options = React.useMemo(() => {
+    if (!allowAll) return baseOptions
+    return [
+      { value: EMPTY_OPTION_VALUE, label: allLabel ?? ALL_LABELS[kind] },
+      ...baseOptions,
+    ]
+  }, [allowAll, allLabel, baseOptions, kind])
+
+  const selected = React.useMemo(() => {
+    if (allowAll && value == null) {
+      return options.find((o) => o.value === EMPTY_OPTION_VALUE) ?? null
+    }
+    return options.find((o) => o.value === String(value)) ?? null
+  }, [allowAll, options, value])
+
+  return (
+    <div className={cn("min-w-[180px]", className)}>
+      <Select
+        options={options}
+        value={selected}
+        onChange={(option: SingleValue<FieldOption>) => {
+          if (!option || option.value === EMPTY_OPTION_VALUE) {
+            onChange(null)
+            return
+          }
+          onChange(Number(option.value))
+        }}
+        placeholder={placeholder ?? PLACEHOLDERS[kind]}
+        isDisabled={isDisabled || isLoading}
+        isClearable={!allowAll}
+        isSearchable
+        styles={customStyles}
+        classNames={selectClassNames}
+        components={{ DropdownIndicator, ClearIndicator, Option }}
+        menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+        menuPosition="fixed"
+        isLoading={isLoading}
+        instanceId={`doc-expiry-filter-${kind}`}
+      />
+    </div>
+  )
 }

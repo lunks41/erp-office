@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import {
   EXPIRY_PRIORITY_LABELS,
   type DocumentExpiryPriority,
-} from "@/lib/document-expiry-routes"
+} from "@/lib/api-routes"
 
 const priorityStyles: Record<DocumentExpiryPriority, string> = {
   1: "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200",
