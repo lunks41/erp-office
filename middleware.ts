@@ -11,6 +11,9 @@ const publicRoutes = [
   "/reports",
 ]
 
+// Auth pages that should redirect to company-select when user is already logged in
+const authPageRoutes = ["/login", "/register", "/forgot-password"]
+
 // Define auth routes that require authentication but not company selection
 const authRoutes = ["/company-select"]
 
@@ -106,6 +109,11 @@ export function middleware(request: NextRequest) {
       )
       return NextResponse.redirect(new URL("/company-select", request.url))
     }
+  }
+
+  // If authenticated user visits login/register, redirect to company-select
+  if (authPageRoutes.includes(pathname) && token && !isTokenExpired(token)) {
+    return NextResponse.redirect(new URL("/company-select", request.url))
   }
 
   // For public routes, allow access

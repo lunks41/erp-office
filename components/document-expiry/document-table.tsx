@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { format, parseISO } from "date-fns"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 
-import { DocumentDto } from "@/interfaces/document-expiry"
+import { DocumentViewModel } from "@/interfaces/document-expiry-view-model"
 import { ExpiryBadge } from "@/components/document-expiry/expiry-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,9 +33,9 @@ export function DocumentTable({
   isLoading,
   onDelete,
 }: {
-  rows: DocumentDto[]
+  rows: DocumentViewModel[]
   isLoading?: boolean
-  onDelete?: (doc: DocumentDto) => void
+  onDelete?: (doc: DocumentViewModel) => void
 }) {
   const companyId = useParams().companyId as string
   const base = `/${companyId}/document-expiry`
@@ -64,6 +64,7 @@ export function DocumentTable({
         <TableHeader>
           <TableRow>
             <TableHead>Title</TableHead>
+            <TableHead>Company</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Expiry</TableHead>
@@ -73,7 +74,7 @@ export function DocumentTable({
         </TableHeader>
         <TableBody>
           {rows.map((doc) => (
-            <TableRow key={doc.documentId}>
+            <TableRow key={`${doc.documentId}-${doc.itemNo}`}>
               <TableCell>
                 <div className="font-medium">{doc.documentTitle}</div>
                 {doc.documentNo && (
@@ -81,6 +82,9 @@ export function DocumentTable({
                     {doc.documentNo}
                   </span>
                 )}
+              </TableCell>
+              <TableCell className="text-muted-foreground text-sm">
+                {doc.companyName ?? "—"}
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {doc.documentTypeName ?? "—"}

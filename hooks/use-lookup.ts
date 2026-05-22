@@ -26,7 +26,6 @@ import {
   IDocumentTypeLookup,
   IDocExpiryDocumentCategoryLookup,
   IDocExpiryDocumentTypeLookup,
-  IDocExpiryReferenceTypeLookup,
   IDynamicLookup,
   IEmployeeLookup,
   IEmployerLookup,
@@ -1976,21 +1975,6 @@ export const useDocExpiryDocumentCategoryLookup = () => {
     queryFn: async () => {
       try {
         const data = await getData(Lookup.getDocExpiryDocumentCategory)
-        return data?.data || []
-      } catch (error) {
-        handleApiError(error)
-      }
-    },
-  })
-}
-
-export const useDocExpiryReferenceTypeLookup = () => {
-  return useQuery<IDocExpiryReferenceTypeLookup[]>({
-    queryKey: ["doc-expiry-reference-type-lookup"],
-    ...defaultQueryConfig,
-    queryFn: async () => {
-      try {
-        const data = await getData(Lookup.getDocExpiryReferenceType)
         return data?.data || []
       } catch (error) {
         handleApiError(error)

@@ -1,17 +1,9 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { useAuthStore } from "@/stores/auth-store"
-import { usePermissions } from "@/hooks/use-permissions"
-import {
-  normalizeReportFilePath,
-  reportPathMatchKey,
-  useViewableReportFiles,
-} from "@/hooks/use-viewable-report-files"
-import { ARTransactionId, ModuleId } from "@/lib/utils"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   endOfMonth,
   format,
@@ -24,6 +16,13 @@ import {
 import { FormProvider, useForm } from "react-hook-form"
 
 import { formatDateForApi } from "@/lib/date-utils"
+import { ARTransactionId, ModuleId } from "@/lib/utils"
+import { usePermissions } from "@/hooks/use-permissions"
+import {
+  normalizeReportFilePath,
+  reportPathMatchKey,
+  useViewableReportFiles,
+} from "@/hooks/use-viewable-report-files"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -104,6 +103,7 @@ const AS_DATE_REPORTS = [
   "ar-aging-summary",
   "ar-outstanding-details",
   "ar-outstanding-summary",
+  "ar-subsequent-receipt",
   "statement-of-account",
   "statement-of-account-new",
 ]
@@ -427,7 +427,10 @@ export default function ReportsPage() {
       const selectedReportId = selectedReports[0]
       const usesTrsDate = TRS_DATE_REPORTS.includes(selectedReportId)
       const usesAsDate = AS_DATE_REPORTS.includes(selectedReportId)
-      const allReports = (visibleReportsFlat ?? []).map((report) => ({ ...report, category: "" }))
+      const allReports = (visibleReportsFlat ?? []).map((report) => ({
+        ...report,
+        category: "",
+      }))
       const selectedReport = allReports.find((r) => r.id === selectedReportId)
 
       if (usesTrsDate) {

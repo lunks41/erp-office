@@ -1,6 +1,6 @@
 "use client"
 
-import { DocumentCategoryDto } from "@/interfaces/document-expiry"
+import { DocumentCategoryViewModel } from "@/interfaces/document-expiry-view-model"
 import {
   useDeleteDocExpiryCategory,
   useDocExpiryCategoriesSetup,
@@ -12,7 +12,7 @@ import {
   SetupRow,
 } from "@/components/document-expiry/setup-master-page"
 
-function toRows(items: DocumentCategoryDto[]): SetupRow[] {
+function toRows(items: DocumentCategoryViewModel[]): SetupRow[] {
   return items.map((c) => ({
     id: c.documentCategoryId,
     code: c.documentCategoryCode,

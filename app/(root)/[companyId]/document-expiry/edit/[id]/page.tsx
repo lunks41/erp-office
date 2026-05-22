@@ -3,12 +3,13 @@
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
+import { toast } from "sonner"
 
-import { DocumentForm } from "@/components/document-expiry/document-form"
+import { DocumentBundleForm } from "@/components/document-expiry/document-bundle-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useDocumentById, useSaveDocument } from "@/hooks/use-document-expiry"
-import { SaveDocumentDto } from "@/interfaces/document-expiry"
+import { SaveDocumentWithDetailsViewModel } from "@/interfaces/document-expiry-view-model"
 import { formatDateForApi } from "@/lib/date-utils"
 
 export default function EditDocumentPage() {
@@ -21,23 +22,28 @@ export default function EditDocumentPage() {
   const { data: docRes, isLoading: docLoading } = useDocumentById(id)
   const saveMutation = useSaveDocument()
 
-  const handleSubmit = async (values: SaveDocumentDto) => {
+  const handleSubmit = async (values: SaveDocumentWithDetailsViewModel) => {
     const res = await saveMutation.mutateAsync({
       ...values,
       documentId: Number(id),
       documentTitle: values.documentTitle.trim(),
-      expiryDate: formatDateForApi(values.expiryDate) ?? "",
-      issueDate: formatDateForApi(values.issueDate) ?? undefined,
+      details: values.details.map((d) => ({
+        ...d,
+        issueDate: formatDateForApi(d.issueDate) ?? undefined,
+        expiryDate: formatDateForApi(d.expiryDate) ?? "",
+      })),
     })
     if (res.result === 1) {
       router.push(`${base}/details/${id}`)
+    } else if (res.message) {
+      toast.error(res.message)
     }
   }
 
-  const doc = docRes?.data
+  const header = docRes?.data
 
   return (
-    <div className="@container mx-auto max-w-3xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
+    <div className="@container mx-auto max-w-5xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <Button variant="ghost" size="sm" asChild>
         <Link href={`${base}/details/${id}`}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -47,11 +53,11 @@ export default function EditDocumentPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit document</CardTitle>
+          <CardTitle>Edit document record</CardTitle>
         </CardHeader>
         <CardContent>
-          <DocumentForm
-            document={doc}
+          <DocumentBundleForm
+            header={header}
             onSubmit={handleSubmit}
             isSubmitting={saveMutation.isPending}
             isLoading={docLoading}

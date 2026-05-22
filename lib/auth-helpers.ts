@@ -35,8 +35,7 @@ export function jwtDecode(token: string): JwtPayload | null {
   } catch (error) {
     logError(
       error instanceof Error ? error : new Error("JWT decode failed"),
-      "jwtDecode",
-      { token: token.substring(0, 20) + "..." }
+      "jwtDecode"
     )
     return null
   }

@@ -1,14 +1,12 @@
 import {
-  DocumentCategoryDto,
+  DocumentCategoryViewModel,
   DocumentExpiryApiResponse,
-  DocumentStatusDto,
-  DocumentTypeDto,
-  ReferenceTypeDto,
-  SaveDocumentCategoryDto,
-  SaveDocumentStatusDto,
-  SaveDocumentTypeDto,
-  SaveReferenceTypeDto,
-} from "@/interfaces/document-expiry"
+  DocumentStatusViewModel,
+  DocumentTypeViewModel,
+  SaveDocumentCategoryViewModel,
+  SaveDocumentStatusViewModel,
+  SaveDocumentTypeViewModel,
+} from "@/interfaces/document-expiry-view-model"
 import { DocumentExpiryRoutes } from "@/lib/api-routes"
 import { deleteData, getData, saveData } from "@/lib/api-client"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -19,7 +17,6 @@ const noCache = { staleTime: 0, gcTime: 0 } as const
 export const docExpirySetupKeys = {
   types: ["doc-expiry-setup-types"] as const,
   categories: ["doc-expiry-setup-categories"] as const,
-  referenceTypes: ["doc-expiry-setup-reference-types"] as const,
   statuses: ["doc-expiry-setup-statuses"] as const,
 }
 
@@ -35,28 +32,21 @@ function useSetupList<T>(key: readonly string[], url: string) {
 }
 
 export function useDocExpiryTypesSetup() {
-  return useSetupList<DocumentTypeDto>(
+  return useSetupList<DocumentTypeViewModel>(
     docExpirySetupKeys.types,
     DocumentExpiryRoutes.setup.types
   )
 }
 
 export function useDocExpiryCategoriesSetup() {
-  return useSetupList<DocumentCategoryDto>(
+  return useSetupList<DocumentCategoryViewModel>(
     docExpirySetupKeys.categories,
     DocumentExpiryRoutes.setup.categories
   )
 }
 
-export function useDocExpiryReferenceTypesSetup() {
-  return useSetupList<ReferenceTypeDto>(
-    docExpirySetupKeys.referenceTypes,
-    DocumentExpiryRoutes.setup.referenceTypes
-  )
-}
-
 export function useDocExpiryStatusesSetup() {
-  return useSetupList<DocumentStatusDto>(
+  return useSetupList<DocumentStatusViewModel>(
     docExpirySetupKeys.statuses,
     DocumentExpiryRoutes.setup.statuses
   )
@@ -100,7 +90,7 @@ function useSetupDelete(urlFn: (id: string) => string, keys: readonly (readonly 
 }
 
 export function useSaveDocExpiryType() {
-  return useSetupSave<SaveDocumentTypeDto>(
+  return useSetupSave<SaveDocumentTypeViewModel>(
     DocumentExpiryRoutes.setup.types,
     [docExpirySetupKeys.types]
   )
@@ -113,7 +103,7 @@ export function useDeleteDocExpiryType() {
 }
 
 export function useSaveDocExpiryCategory() {
-  return useSetupSave<SaveDocumentCategoryDto>(
+  return useSetupSave<SaveDocumentCategoryViewModel>(
     DocumentExpiryRoutes.setup.categories,
     [docExpirySetupKeys.categories]
   )
@@ -125,21 +115,8 @@ export function useDeleteDocExpiryCategory() {
   ])
 }
 
-export function useSaveDocExpiryReferenceType() {
-  return useSetupSave<SaveReferenceTypeDto>(
-    DocumentExpiryRoutes.setup.referenceTypes,
-    [docExpirySetupKeys.referenceTypes]
-  )
-}
-
-export function useDeleteDocExpiryReferenceType() {
-  return useSetupDelete(DocumentExpiryRoutes.setup.deleteReferenceType, [
-    docExpirySetupKeys.referenceTypes,
-  ])
-}
-
 export function useSaveDocExpiryStatus() {
-  return useSetupSave<SaveDocumentStatusDto>(
+  return useSetupSave<SaveDocumentStatusViewModel>(
     DocumentExpiryRoutes.setup.statuses,
     [docExpirySetupKeys.statuses]
   )

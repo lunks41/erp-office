@@ -445,25 +445,30 @@ export const useAuthStore = create<AuthState>()(
         logInStatusCheck: async () => {
           set({ isLoading: true })
           try {
-            const token = get().token
+            let token = get().token
+            // token is not persisted in localStorage, so after a page reload it will
+            // be null even though the auth-token cookie is still valid. Fall back to
+            // reading the cookie so the session survives page refreshes.
             if (!token) {
-              // No token found - this is normal for new users, don't show error
+              token = Cookies.get(AUTH_TOKEN_COOKIE_NAME) || null
+              if (token) set({ token })
+            }
+
+            if (!token) {
               get().logInStatusFailed(false)
               return
             }
 
-            // If we have a token, validate it
             const isValid = get().validateTokenExpiration(token)
             if (!isValid) {
-              // Token exists but is expired - show error
               get().logInStatusFailed(true)
               return
             }
 
-            // Token is valid, user is authenticated
-            set({ isLoading: false })
+            // Token is valid — make sure isAuthenticated is true in case the store
+            // lost it (e.g., was never persisted or was cleared by a previous bug).
+            set({ isAuthenticated: true, isLoading: false })
           } catch (_error) {
-            // Other errors - show error
             get().logInStatusFailed(true)
           }
         },
@@ -769,7 +774,17 @@ export const useAuthStore = create<AuthState>()(
          * Initializes authentication state on app start
          */
         initializeAuth: () => {
-          const { token, isAuthenticated } = get()
+          let { token, isAuthenticated } = get()
+
+          // token is now persisted, but guard against old localStorage entries
+          // that pre-date the persistence change by falling back to the cookie.
+          if (!token && typeof window !== "undefined") {
+            const cookieToken = Cookies.get(AUTH_TOKEN_COOKIE_NAME) || null
+            if (cookieToken) {
+              token = cookieToken
+              set({ token })
+            }
+          }
 
           if (isAuthenticated && token) {
             const isValid = get().validateTokenExpiration(token)
@@ -806,6 +821,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: state.isAuthenticated,
           isAppLocked: state.isAppLocked,
           user: state.user,
+          token: state.token,
+          refreshToken: state.refreshToken,
           companies: state.companies,
           tokenExpiresAt: state.tokenExpiresAt,
           tokenStoredAt: state.tokenStoredAt,

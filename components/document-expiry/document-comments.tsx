@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns"
 import { Loader2, Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 
-import type { DocumentCommentDto } from "@/interfaces/document-expiry"
+import type { DocumentCommentViewModel } from "@/interfaces/document-expiry-view-model"
 import CustomTextarea from "@/components/custom/custom-textarea"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -30,7 +30,7 @@ export function DocumentComments({ documentId }: { documentId: string }) {
   const addMutation = useAddDocumentComment()
   const deleteMutation = useDeleteDocumentComment()
 
-  const comments: DocumentCommentDto[] = data?.data ?? []
+  const comments: DocumentCommentViewModel[] = data?.data ?? []
 
   const handleAdd = form.handleSubmit(async (values) => {
     const trimmed = values.commentText.trim()

@@ -4,11 +4,10 @@ import { useEffect } from "react"
 import { Path, useForm } from "react-hook-form"
 
 import {
-  SaveDocumentCategoryDto,
-  SaveDocumentStatusDto,
-  SaveDocumentTypeDto,
-  SaveReferenceTypeDto,
-} from "@/interfaces/document-expiry"
+  SaveDocumentCategoryViewModel,
+  SaveDocumentStatusViewModel,
+  SaveDocumentTypeViewModel,
+} from "@/interfaces/document-expiry-view-model"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSwitch from "@/components/custom/custom-switch"
@@ -106,11 +105,11 @@ function CodeNameForm({
 
 export function DocumentTypeSetupForm(props: {
   row?: SetupRow | null
-  onSubmit: (values: SaveDocumentTypeDto) => void | Promise<void>
+  onSubmit: (values: SaveDocumentTypeViewModel) => void | Promise<void>
   isSubmitting?: boolean
   onCancel?: () => void
 }) {
-  const form = useForm<SaveDocumentTypeDto>({
+  const form = useForm<SaveDocumentTypeViewModel>({
     defaultValues: {
       documentTypeId: 0,
       documentTypeCode: "",
@@ -196,7 +195,7 @@ export function DocumentTypeSetupForm(props: {
 
 export function DocumentCategorySetupForm(props: {
   row?: SetupRow | null
-  onSubmit: (values: SaveDocumentCategoryDto) => void | Promise<void>
+  onSubmit: (values: SaveDocumentCategoryViewModel) => void | Promise<void>
   isSubmitting?: boolean
   onCancel?: () => void
 }) {
@@ -207,32 +206,15 @@ export function DocumentCategorySetupForm(props: {
       codeField="documentCategoryCode"
       nameField="documentCategoryName"
       onSubmit={(v) =>
-        props.onSubmit(v as unknown as SaveDocumentCategoryDto)
+        props.onSubmit(v as unknown as SaveDocumentCategoryViewModel)
       }
-    />
-  )
-}
-
-export function ReferenceTypeSetupForm(props: {
-  row?: SetupRow | null
-  onSubmit: (values: SaveReferenceTypeDto) => void | Promise<void>
-  isSubmitting?: boolean
-  onCancel?: () => void
-}) {
-  return (
-    <CodeNameForm
-      {...props}
-      idField="referenceTypeId"
-      codeField="referenceTypeCode"
-      nameField="referenceTypeName"
-      onSubmit={(v) => props.onSubmit(v as unknown as SaveReferenceTypeDto)}
     />
   )
 }
 
 export function DocumentStatusSetupForm(props: {
   row?: SetupRow | null
-  onSubmit: (values: SaveDocumentStatusDto) => void | Promise<void>
+  onSubmit: (values: SaveDocumentStatusViewModel) => void | Promise<void>
   isSubmitting?: boolean
   onCancel?: () => void
 }) {
@@ -248,7 +230,7 @@ export function DocumentStatusSetupForm(props: {
           etc.). Change codes only if you understand the impact.
         </p>
       }
-      onSubmit={(v) => props.onSubmit(v as unknown as SaveDocumentStatusDto)}
+      onSubmit={(v) => props.onSubmit(v as unknown as SaveDocumentStatusViewModel)}
     />
   )
 }

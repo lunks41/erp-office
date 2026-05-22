@@ -5,8 +5,6 @@ export const saveDocumentSchema = z.object({
   branchId: z.number().nullable().optional(),
   documentTypeId: z.number().min(1, "Document type is required"),
   documentCategoryId: z.number().min(1, "Category is required"),
-  referenceTypeId: z.number().min(1, "Reference type is required"),
-  referenceId: z.number().min(1, "Reference is required"),
   documentNo: z.string().nullable().optional(),
   documentTitle: z.string().min(1, "Title is required").max(200),
   description: z.string().nullable().optional(),

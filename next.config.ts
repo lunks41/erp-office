@@ -33,7 +33,28 @@ const nextConfig: NextConfig = {
 
   // Configure static file serving
   async headers() {
+    const securityHeaders = [
+      // Prevent the app from being embedded in iframes (clickjacking)
+      { key: "X-Frame-Options", value: "DENY" },
+      // Stop browsers guessing MIME types from content (drive-by download risk)
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      // Only send the origin (no path/query) in the Referer header to third parties
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      // Disable browser features the app does not use
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=(), payment=()",
+      },
+      // Legacy XSS filter for older browsers
+      { key: "X-XSS-Protection", value: "1; mode=block" },
+    ]
+
     return [
+      {
+        // Apply security headers to every route
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
       {
         source: "/uploads/:path*",
         headers: [
@@ -50,14 +71,8 @@ const nextConfig: NextConfig = {
             key: "Cache-Control",
             value: "no-cache, no-store, must-revalidate",
           },
-          {
-            key: "Pragma",
-            value: "no-cache",
-          },
-          {
-            key: "Expires",
-            value: "0",
-          },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
         ],
       },
     ]

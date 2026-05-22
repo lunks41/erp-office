@@ -4,7 +4,6 @@ import React from "react"
 import {
   IDocExpiryDocumentCategoryLookup,
   IDocExpiryDocumentTypeLookup,
-  IDocExpiryReferenceTypeLookup,
 } from "@/interfaces/lookup"
 import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
@@ -21,7 +20,6 @@ import { cn } from "@/lib/utils"
 import {
   useDocExpiryDocumentCategoryLookup,
   useDocExpiryDocumentTypeLookup,
-  useDocExpiryReferenceTypeLookup,
 } from "@/hooks/use-lookup"
 
 import { FormField, FormItem } from "../ui/form"
@@ -32,21 +30,19 @@ interface FieldOption {
   label: string
 }
 
-type DocExpiryLookupKind = "documentType" | "documentCategory" | "referenceType"
+type DocExpiryLookupKind = "documentType" | "documentCategory"
 
 const FIELD_NAMES: Record<
   DocExpiryLookupKind,
-  "documentTypeId" | "documentCategoryId" | "referenceTypeId"
+  "documentTypeId" | "documentCategoryId"
 > = {
   documentType: "documentTypeId",
   documentCategory: "documentCategoryId",
-  referenceType: "referenceTypeId",
 }
 
 const PLACEHOLDERS: Record<DocExpiryLookupKind, string> = {
   documentType: "Select document type...",
   documentCategory: "Select category...",
-  referenceType: "Select reference type...",
 }
 
 const EMPTY_OPTION_VALUE = "__empty__"
@@ -54,7 +50,6 @@ const EMPTY_OPTION_VALUE = "__empty__"
 const ALL_LABELS: Record<DocExpiryLookupKind, string> = {
   documentType: "All types",
   documentCategory: "All categories",
-  referenceType: "All reference types",
 }
 
 interface DocExpiryLookupAutocompleteProps<T extends Record<string, unknown>> {
@@ -73,14 +68,8 @@ interface DocExpiryLookupAutocompleteProps<T extends Record<string, unknown>> {
 function useLookupOptions(kind: DocExpiryLookupKind) {
   const types = useDocExpiryDocumentTypeLookup()
   const categories = useDocExpiryDocumentCategoryLookup()
-  const refs = useDocExpiryReferenceTypeLookup()
 
-  const query =
-    kind === "documentType"
-      ? types
-      : kind === "documentCategory"
-        ? categories
-        : refs
+  const query = kind === "documentType" ? types : categories
 
   const options: FieldOption[] = React.useMemo(() => {
     const rows = query.data ?? []
@@ -90,15 +79,9 @@ function useLookupOptions(kind: DocExpiryLookupKind) {
         label: `${r.documentTypeCode} - ${r.documentTypeName}`,
       }))
     }
-    if (kind === "documentCategory") {
-      return (rows as IDocExpiryDocumentCategoryLookup[]).map((r) => ({
-        value: String(r.documentCategoryId),
-        label: `${r.documentCategoryCode} - ${r.documentCategoryName}`,
-      }))
-    }
-    return (rows as IDocExpiryReferenceTypeLookup[]).map((r) => ({
-      value: String(r.referenceTypeId),
-      label: `${r.referenceTypeCode} - ${r.referenceTypeName}`,
+    return (rows as IDocExpiryDocumentCategoryLookup[]).map((r) => ({
+      value: String(r.documentCategoryId),
+      label: `${r.documentCategoryCode} - ${r.documentCategoryName}`,
     }))
   }, [kind, query.data])
 
@@ -304,12 +287,6 @@ export function DocExpiryDocumentCategoryAutocomplete<T extends Record<string, u
   props: Omit<DocExpiryLookupAutocompleteProps<T>, "kind">
 ) {
   return <DocExpiryLookupAutocomplete {...props} kind="documentCategory" />
-}
-
-export function DocExpiryReferenceTypeAutocomplete<T extends Record<string, unknown>>(
-  props: Omit<DocExpiryLookupAutocompleteProps<T>, "kind">
-) {
-  return <DocExpiryLookupAutocomplete {...props} kind="referenceType" />
 }
 
 export function DocExpiryLookupFilterSelect({

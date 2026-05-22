@@ -6,7 +6,6 @@ import {
   Bell,
   FileStack,
   FolderTree,
-  Link2,
   Tags,
 } from "lucide-react"
 
@@ -23,15 +22,9 @@ const links = [
   },
   {
     title: "Categories",
-    description: "Group documents by area (employee, vessel, transport, etc.).",
+    description: "Group documents by area (employee, transport, company, etc.).",
     href: "categories",
     icon: FolderTree,
-  },
-  {
-    title: "Reference types",
-    description: "What the document is linked to (employee, vessel, customer, …).",
-    href: "reference-types",
-    icon: Link2,
   },
   {
     title: "Statuses",

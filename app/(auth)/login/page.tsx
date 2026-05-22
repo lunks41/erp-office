@@ -19,7 +19,10 @@ export default function LoginPage() {
     const checkAuthStatus = async () => {
       try {
         await logInStatusCheck()
-        if (isAuthenticated) {
+        // Read live store state instead of the stale closure value so the
+        // redirect fires correctly even when isAuthenticated changed during the
+        // async check above.
+        if (useAuthStore.getState().isAuthenticated) {
           router.push("/company-select")
         }
       } catch {

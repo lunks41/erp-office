@@ -351,7 +351,6 @@ export const Lookup = {
   getDocumentType: "/master/getdocumenttypelookup",
   getDocExpiryDocumentType: "/master/getdocexpirydocumenttypelookup",
   getDocExpiryDocumentCategory: "/master/getdocexpirydocumentcategorylookup",
-  getDocExpiryReferenceType: "/master/getdocexpiryreferencetypelookup",
   getEntityType: "/master/getentitytypelookup",
   getEmployer: "/master/getemployerlookup",
 
@@ -1678,11 +1677,18 @@ export const DocumentExpiryRoutes = {
     create: "/documentexpiry/documents",
     update: (id: number | string) => `/documentexpiry/documents/${id}`,
     delete: (id: number | string) => `/documentexpiry/documents/${id}`,
-    renew: (id: number | string) => `/documentexpiry/documents/${id}/renew`,
-    attachments: (id: number | string) =>
-      `/documentexpiry/documents/${id}/attachments`,
-    attachment: (id: number | string, attachmentId: number | string) =>
-      `/documentexpiry/documents/${id}/attachments/${attachmentId}`,
+    detailRenew: (docId: number | string, itemNo: number | string) =>
+      `/documentexpiry/documents/${docId}/details/${itemNo}/renew`,
+    detailCancel: (docId: number | string, itemNo: number | string) =>
+      `/documentexpiry/documents/${docId}/details/${itemNo}/cancel`,
+    detailAttachments: (docId: number | string, itemNo: number | string) =>
+      `/documentexpiry/documents/${docId}/details/${itemNo}/attachments`,
+    detailAttachment: (
+      docId: number | string,
+      itemNo: number | string,
+      attachmentId: number | string
+    ) =>
+      `/documentexpiry/documents/${docId}/details/${itemNo}/attachments/${attachmentId}`,
     comments: (id: number | string) => `/documentexpiry/documents/${id}/comments`,
     comment: (id: number | string, commentId: number | string) =>
       `/documentexpiry/documents/${id}/comments/${commentId}`,
@@ -1690,7 +1696,6 @@ export const DocumentExpiryRoutes = {
   documentTypes: {
     types: "/documentexpiry/documenttypes/types",
     categories: "/documentexpiry/documenttypes/categories",
-    referenceTypes: "/documentexpiry/documenttypes/referencetypes",
   },
   reminderRules: {
     list: "/documentexpiry/reminderrules",
@@ -1711,13 +1716,10 @@ export const DocumentExpiryRoutes = {
   setup: {
     types: "/documentexpiry/setup/types",
     categories: "/documentexpiry/setup/categories",
-    referenceTypes: "/documentexpiry/setup/referencetypes",
     statuses: "/documentexpiry/setup/statuses",
     deleteType: (id: number | string) => `/documentexpiry/setup/types/${id}`,
     deleteCategory: (id: number | string) =>
       `/documentexpiry/setup/categories/${id}`,
-    deleteReferenceType: (id: number | string) =>
-      `/documentexpiry/setup/referencetypes/${id}`,
     deleteStatus: (id: number | string) => `/documentexpiry/setup/statuses/${id}`,
   },
 } as const

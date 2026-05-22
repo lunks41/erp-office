@@ -1,6 +1,6 @@
 "use client"
 
-import { DocumentStatusDto } from "@/interfaces/document-expiry"
+import { DocumentStatusViewModel } from "@/interfaces/document-expiry-view-model"
 import {
   useDeleteDocExpiryStatus,
   useDocExpiryStatusesSetup,
@@ -12,7 +12,7 @@ import {
   SetupRow,
 } from "@/components/document-expiry/setup-master-page"
 
-function toRows(items: DocumentStatusDto[]): SetupRow[] {
+function toRows(items: DocumentStatusViewModel[]): SetupRow[] {
   return items.map((s) => ({
     id: s.statusId,
     code: s.statusCode,

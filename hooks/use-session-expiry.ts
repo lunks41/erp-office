@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth-store"
 import { jwtDecode, refreshToken } from "@/lib/auth-helpers"
 import { toast } from "sonner"
 
-const WARNING_SECONDS = 5 * 60       // show warning 5 minutes before expiry
+const WARNING_SECONDS = 15 * 60      // show warning 15 minutes before expiry
 const CHECK_INTERVAL_MS = 10 * 1000  // check every 10 seconds
 const ACTIVITY_IDLE_THRESHOLD = 5 * 60 * 1000  // treat user as idle after 5 min no input
 const CHANNEL_NAME = "erp_session_expiry"

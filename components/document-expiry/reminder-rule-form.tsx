@@ -4,9 +4,9 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 
 import {
-  ReminderRuleDto,
-  SaveReminderRuleDto,
-} from "@/interfaces/document-expiry"
+  ReminderRuleViewModel,
+  SaveReminderRuleViewModel,
+} from "@/interfaces/document-expiry-view-model"
 import { DocExpiryDocumentTypeAutocomplete } from "@/components/autocomplete"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomSelect from "@/components/custom/custom-select"
@@ -14,7 +14,7 @@ import CustomSwitch from "@/components/custom/custom-switch"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 
-export type ReminderRuleFormValues = SaveReminderRuleDto
+export type ReminderRuleFormValues = SaveReminderRuleViewModel
 
 const PRIORITY_OPTIONS = [
   { value: 1, label: "Info" },
@@ -28,7 +28,7 @@ export function ReminderRuleForm({
   isSubmitting,
   onCancel,
 }: {
-  rule?: ReminderRuleDto | null
+  rule?: ReminderRuleViewModel | null
   onSubmit: (values: ReminderRuleFormValues) => void
   isSubmitting?: boolean
   onCancel?: () => void

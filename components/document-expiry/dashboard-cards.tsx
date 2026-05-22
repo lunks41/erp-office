@@ -12,13 +12,13 @@ import {
   RefreshCw,
 } from "lucide-react"
 
-import { DashboardSummaryDto } from "@/interfaces/document-expiry"
+import { DashboardSummaryViewModel } from "@/interfaces/document-expiry-view-model"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
 type CardConfig = {
-  key: keyof DashboardSummaryDto
+  key: keyof DashboardSummaryViewModel
   title: string
   icon: LucideIcon
   href?: string
@@ -93,8 +93,8 @@ const cards: CardConfig[] = [
 ]
 
 function cardSubtitle(
-  key: keyof DashboardSummaryDto,
-  summary: DashboardSummaryDto
+  key: keyof DashboardSummaryViewModel,
+  summary: DashboardSummaryViewModel
 ): string {
   const total = Math.max(summary.totalDocuments, 1)
   switch (key) {
@@ -121,7 +121,7 @@ export function DashboardCards({
   summary,
   isLoading,
 }: {
-  summary?: DashboardSummaryDto
+  summary?: DashboardSummaryViewModel
   isLoading?: boolean
 }) {
   const companyId = useParams().companyId as string

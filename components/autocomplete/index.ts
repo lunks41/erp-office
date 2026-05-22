@@ -39,7 +39,6 @@ export {
   DocExpiryDocumentCategoryAutocomplete,
   DocExpiryDocumentTypeAutocomplete,
   DocExpiryLookupFilterSelect,
-  DocExpiryReferenceTypeAutocomplete,
 } from "./autocomplete-doc-expiry-lookup"
 export { default as DynamicCustomerAutocomplete } from "./autocomplete-dynamic-customer"
 export { default as DynamicJobOrderAutocomplete } from "./autocomplete-dynamic-joborder"

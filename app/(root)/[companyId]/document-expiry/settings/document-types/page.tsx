@@ -1,6 +1,6 @@
 "use client"
 
-import { DocumentTypeDto } from "@/interfaces/document-expiry"
+import { DocumentTypeViewModel } from "@/interfaces/document-expiry-view-model"
 import {
   useDeleteDocExpiryType,
   useDocExpiryTypesSetup,
@@ -12,7 +12,7 @@ import {
   SetupRow,
 } from "@/components/document-expiry/setup-master-page"
 
-function toRows(items: DocumentTypeDto[]): SetupRow[] {
+function toRows(items: DocumentTypeViewModel[]): SetupRow[] {
   return items.map((t) => ({
     id: t.documentTypeId,
     code: t.documentTypeCode,

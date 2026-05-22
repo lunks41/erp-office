@@ -424,12 +424,6 @@ export interface IDocExpiryDocumentCategoryLookup {
   documentCategoryName: string
 }
 
-export interface IDocExpiryReferenceTypeLookup {
-  referenceTypeId: number
-  referenceTypeCode: string
-  referenceTypeName: string
-}
-
 export interface IEntityTypeLookup {
   entityTypeId: number
   entityTypeCode: string

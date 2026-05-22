@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ReminderRuleDto } from "@/interfaces/document-expiry"
+import { ReminderRuleViewModel } from "@/interfaces/document-expiry-view-model"
 import {
   useDeleteReminderRule,
   useReminderRules,
@@ -44,7 +44,7 @@ export default function ReminderRulesPage() {
   const deleteMutation = useDeleteReminderRule()
 
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editRule, setEditRule] = useState<ReminderRuleDto | null>(null)
+  const [editRule, setEditRule] = useState<ReminderRuleViewModel | null>(null)
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
   const rules = rulesRes?.data ?? []

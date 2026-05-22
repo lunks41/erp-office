@@ -3,13 +3,13 @@
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react"
 
 import { getDashboardInsight } from "@/lib/document-expiry-analytics"
-import { DashboardSummaryDto } from "@/interfaces/document-expiry"
+import { DashboardSummaryViewModel } from "@/interfaces/document-expiry-view-model"
 import { cn } from "@/lib/utils"
 
 export function DashboardInsight({
   summary,
 }: {
-  summary?: DashboardSummaryDto
+  summary?: DashboardSummaryViewModel
 }) {
   const insight = getDashboardInsight(summary)
 

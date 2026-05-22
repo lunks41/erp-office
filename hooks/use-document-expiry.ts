@@ -1,20 +1,27 @@
 import {
-  DashboardSummaryDto,
-  DocumentAttachmentDto,
-  DocumentDto,
+  DashboardSummaryViewModel,
+  DocumentAttachmentViewModel,
+  DocumentCommentViewModel,
+  DocumentViewModel,
   DocumentExpiryApiResponse,
   DocumentExpiryMasters,
+  DocumentHeaderViewModel,
   DocumentQueryParams,
-  ExpiryReportRowDto,
-  ReminderRuleDto,
-  RenewalHistoryReportRowDto,
-  RenewDocumentDto,
-  SaveDocumentDto,
-  SaveDocumentCommentDto,
-  SaveReminderRuleDto,
-  DocumentCommentDto,
-} from "@/interfaces/document-expiry"
-import { DocumentExpiryRoutes } from "@/lib/api-routes"
+  ExpiryReportRowViewModel,
+  ReminderRuleViewModel,
+  RenewalHistoryReportRowViewModel,
+  RenewDocumentViewModel,
+  SaveDocumentWithDetailsViewModel,
+} from "@/interfaces/document-expiry-view-model"
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query"
+import { AxiosError } from "axios"
+import { toast } from "sonner"
+
 import {
   deleteData,
   getData,
@@ -22,21 +29,12 @@ import {
   updateData,
   uploadFile,
 } from "@/lib/api-client"
+import { DocumentExpiryRoutes } from "@/lib/api-routes"
 import { useDelete, usePersist } from "@/hooks/use-common"
-import {
-  UseQueryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
-import { AxiosError } from "axios"
-import { toast } from "sonner"
 
 const noCache = { staleTime: 0, gcTime: 0 } as const
 
-function toQueryRecord(
-  params: DocumentQueryParams
-): Record<string, string> {
+function toQueryRecord(params: DocumentQueryParams): Record<string, string> {
   const out: Record<string, string> = {}
   if (params.pageNumber != null) out.PageNumber = String(params.pageNumber)
   if (params.pageSize != null) out.PageSize = String(params.pageSize)
@@ -46,12 +44,10 @@ function toQueryRecord(
   if (params.documentCategoryId != null)
     out.DocumentCategoryId = String(params.documentCategoryId)
   if (params.statusId != null) out.StatusId = String(params.statusId)
-  if (params.referenceTypeId != null)
-    out.ReferenceTypeId = String(params.referenceTypeId)
-  if (params.referenceId != null) out.ReferenceId = String(params.referenceId)
   if (params.daysAhead != null) out.DaysAhead = String(params.daysAhead)
   if (params.expiredOnly) out.ExpiredOnly = "true"
   if (params.criticalOnly) out.CriticalOnly = "true"
+  if (params.includeCancelled) out.IncludeCancelled = "true"
   return out
 }
 
@@ -67,7 +63,8 @@ export const documentExpiryKeys = {
     ["doc-expiry-expired", params] as const,
   critical: ["doc-expiry-critical"] as const,
   reminderRules: ["doc-expiry-reminder-rules"] as const,
-  attachments: (id: string) => ["doc-expiry-attachments", id] as const,
+  attachments: (docId: string, itemNo: string) =>
+    ["doc-expiry-attachments", docId, itemNo] as const,
   comments: (id: string) => ["doc-expiry-comments", id] as const,
   expiryReport: (params: DocumentQueryParams) =>
     ["doc-expiry-report-expiry", params] as const,
@@ -79,10 +76,9 @@ export function useDocumentExpiryMasters() {
   return useQuery({
     queryKey: documentExpiryKeys.masters,
     queryFn: async (): Promise<DocumentExpiryMasters> => {
-      const [typesRes, categoriesRes, refRes] = await Promise.all([
+      const [typesRes, categoriesRes] = await Promise.all([
         getData(DocumentExpiryRoutes.documentTypes.types),
         getData(DocumentExpiryRoutes.documentTypes.categories),
-        getData(DocumentExpiryRoutes.documentTypes.referenceTypes),
       ])
       const types =
         (typesRes as DocumentExpiryApiResponse<DocumentExpiryMasters["types"]>)
@@ -93,13 +89,7 @@ export function useDocumentExpiryMasters() {
             DocumentExpiryMasters["categories"]
           >
         ).data ?? []
-      const referenceTypes =
-        (
-          refRes as DocumentExpiryApiResponse<
-            DocumentExpiryMasters["referenceTypes"]
-          >
-        ).data ?? []
-      return { types, categories, referenceTypes }
+      return { types, categories }
     },
     ...noCache,
   })
@@ -107,7 +97,7 @@ export function useDocumentExpiryMasters() {
 
 export function useDocumentsList(
   params: DocumentQueryParams,
-  options?: Partial<UseQueryOptions<DocumentExpiryApiResponse<DocumentDto[]>>>
+  options?: Partial<UseQueryOptions<DocumentExpiryApiResponse<DocumentViewModel[]>>>
 ) {
   return useQuery({
     queryKey: documentExpiryKeys.documents(params),
@@ -115,7 +105,7 @@ export function useDocumentsList(
       (await getData(
         DocumentExpiryRoutes.documents.list,
         toQueryRecord(params)
-      )) as DocumentExpiryApiResponse<DocumentDto[]>,
+      )) as DocumentExpiryApiResponse<DocumentViewModel[]>,
     ...noCache,
     ...options,
   })
@@ -127,7 +117,7 @@ export function useDocumentById(id: string) {
     queryFn: async () =>
       (await getData(
         DocumentExpiryRoutes.documents.byId(id)
-      )) as DocumentExpiryApiResponse<DocumentDto>,
+      )) as DocumentExpiryApiResponse<DocumentHeaderViewModel>,
     enabled: !!id?.trim(),
     ...noCache,
   })
@@ -137,7 +127,9 @@ export function useDashboardSummary() {
   return useQuery({
     queryKey: documentExpiryKeys.dashboardSummary,
     queryFn: async () =>
-      (await getData(DocumentExpiryRoutes.dashboard.summary)) as DocumentExpiryApiResponse<DashboardSummaryDto>,
+      (await getData(
+        DocumentExpiryRoutes.dashboard.summary
+      )) as DocumentExpiryApiResponse<DashboardSummaryViewModel>,
     ...noCache,
   })
 }
@@ -151,7 +143,7 @@ export function useExpiringDocuments(
       (await getData(
         DocumentExpiryRoutes.dashboard.expiring,
         toQueryRecord(params)
-      )) as DocumentExpiryApiResponse<DocumentDto[]>,
+      )) as DocumentExpiryApiResponse<DocumentViewModel[]>,
     ...noCache,
   })
 }
@@ -165,7 +157,7 @@ export function useExpiredDocuments(
       (await getData(
         DocumentExpiryRoutes.dashboard.expired,
         toQueryRecord(params)
-      )) as DocumentExpiryApiResponse<DocumentDto[]>,
+      )) as DocumentExpiryApiResponse<DocumentViewModel[]>,
     ...noCache,
   })
 }
@@ -174,7 +166,9 @@ export function useCriticalDocuments() {
   return useQuery({
     queryKey: documentExpiryKeys.critical,
     queryFn: async () =>
-      (await getData(DocumentExpiryRoutes.dashboard.critical)) as DocumentExpiryApiResponse<DocumentDto[]>,
+      (await getData(
+        DocumentExpiryRoutes.dashboard.critical
+      )) as DocumentExpiryApiResponse<DocumentViewModel[]>,
     ...noCache,
   })
 }
@@ -183,19 +177,27 @@ export function useReminderRules() {
   return useQuery({
     queryKey: documentExpiryKeys.reminderRules,
     queryFn: async () =>
-      (await getData(DocumentExpiryRoutes.reminderRules.list)) as DocumentExpiryApiResponse<ReminderRuleDto[]>,
+      (await getData(
+        DocumentExpiryRoutes.reminderRules.list
+      )) as DocumentExpiryApiResponse<ReminderRuleViewModel[]>,
     ...noCache,
   })
 }
 
-export function useDocumentAttachments(documentId: string) {
+export function useDocumentAttachments(
+  documentId: string,
+  itemNo: string
+) {
   return useQuery({
-    queryKey: documentExpiryKeys.attachments(documentId),
+    queryKey: documentExpiryKeys.attachments(documentId, itemNo),
     queryFn: async () =>
       (await getData(
-        DocumentExpiryRoutes.documents.attachments(documentId)
-      )) as DocumentExpiryApiResponse<DocumentAttachmentDto[]>,
-    enabled: !!documentId?.trim(),
+        DocumentExpiryRoutes.documents.detailAttachments(
+          documentId,
+          itemNo
+        )
+      )) as DocumentExpiryApiResponse<DocumentAttachmentViewModel[]>,
+    enabled: !!documentId?.trim() && !!itemNo?.trim(),
     ...noCache,
   })
 }
@@ -207,7 +209,7 @@ export function useExpiryReport(params: DocumentQueryParams = {}) {
       (await getData(
         DocumentExpiryRoutes.reports.expiry,
         toQueryRecord(params)
-      )) as DocumentExpiryApiResponse<ExpiryReportRowDto[]>,
+      )) as DocumentExpiryApiResponse<ExpiryReportRowViewModel[]>,
     ...noCache,
   })
 }
@@ -222,7 +224,7 @@ export function useRenewalHistoryReport(fromDate?: string, toDate?: string) {
       (await getData(
         DocumentExpiryRoutes.reports.renewalHistory,
         params
-      )) as DocumentExpiryApiResponse<RenewalHistoryReportRowDto[]>,
+      )) as DocumentExpiryApiResponse<RenewalHistoryReportRowViewModel[]>,
     ...noCache,
   })
 }
@@ -230,23 +232,24 @@ export function useRenewalHistoryReport(fromDate?: string, toDate?: string) {
 export function useSaveDocument() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (dto: SaveDocumentDto) => {
+    mutationFn: async (dto: SaveDocumentWithDetailsViewModel) => {
       if (dto.documentId && dto.documentId > 0) {
         return (await updateData(
           DocumentExpiryRoutes.documents.update(dto.documentId),
           dto
-        )) as DocumentExpiryApiResponse<DocumentDto>
+        )) as DocumentExpiryApiResponse<DocumentHeaderViewModel>
       }
       return (await saveData(
         DocumentExpiryRoutes.documents.create,
         dto
-      )) as DocumentExpiryApiResponse<DocumentDto>
+      )) as DocumentExpiryApiResponse<DocumentHeaderViewModel>
     },
     onSuccess: (res) => {
       if (res.result === 1) {
         toast.success("Document saved")
-        void queryClient.invalidateQueries({ predicate: (q) =>
-          String(q.queryKey[0] ?? "").startsWith("doc-expiry")
+        void queryClient.invalidateQueries({
+          predicate: (q) =>
+            String(q.queryKey[0] ?? "").startsWith("doc-expiry"),
         })
       } else {
         toast.error(res.message || "Failed to save document")
@@ -262,25 +265,57 @@ export function useDeleteDocument() {
   return useDelete(DocumentExpiryRoutes.documents.list)
 }
 
+export function useCancelDocumentDetail() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      itemNo,
+    }: {
+      documentId: number | string
+      itemNo: number | string
+    }) =>
+      saveData(
+        DocumentExpiryRoutes.documents.detailCancel(documentId, itemNo),
+        {}
+      ),
+    onSuccess: (res: { result?: number; message?: string }) => {
+      if (res?.result === 1) {
+        toast.success("Document line cancelled")
+        void queryClient.invalidateQueries({
+          predicate: (q) =>
+            String(q.queryKey[0] ?? "").startsWith("doc-expiry"),
+        })
+      } else {
+        toast.error(res?.message || "Cancel failed")
+      }
+    },
+    onError: () => toast.error("Cancel failed"),
+  })
+}
+
 export function useRenewDocument() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({
-      id,
+      documentId,
+      itemNo,
       dto,
     }: {
-      id: number | string
-      dto: RenewDocumentDto
+      documentId: number | string
+      itemNo: number | string
+      dto: RenewDocumentViewModel
     }) =>
       (await saveData(
-        DocumentExpiryRoutes.documents.renew(id),
+        DocumentExpiryRoutes.documents.detailRenew(documentId, itemNo),
         dto
-      )) as DocumentExpiryApiResponse<DocumentDto>,
+      )) as DocumentExpiryApiResponse<unknown>,
     onSuccess: (res) => {
       if (res.result === 1) {
         toast.success("Document renewed")
-        void queryClient.invalidateQueries({ predicate: (q) =>
-          String(q.queryKey[0] ?? "").startsWith("doc-expiry")
+        void queryClient.invalidateQueries({
+          predicate: (q) =>
+            String(q.queryKey[0] ?? "").startsWith("doc-expiry"),
         })
       } else {
         toast.error(res.message || "Renewal failed")
@@ -297,13 +332,18 @@ export function useUploadDocumentAttachment() {
   return useMutation({
     mutationFn: async ({
       documentId,
+      itemNo,
       file,
     }: {
       documentId: number | string
+      itemNo: number | string
       file: File
     }) =>
       uploadFile(
-        DocumentExpiryRoutes.documents.attachments(documentId),
+        DocumentExpiryRoutes.documents.detailAttachments(
+          documentId,
+          itemNo
+        ),
         file
       ),
     onSuccess: (res: { result?: number; message?: string }) => {
@@ -324,7 +364,7 @@ export function useDocumentComments(documentId: string) {
     queryFn: async () =>
       (await getData(
         DocumentExpiryRoutes.documents.comments(documentId)
-      )) as DocumentExpiryApiResponse<DocumentCommentDto[]>,
+      )) as DocumentExpiryApiResponse<DocumentCommentViewModel[]>,
     enabled: !!documentId?.trim(),
     ...noCache,
   })
@@ -343,7 +383,7 @@ export function useAddDocumentComment() {
       (await saveData(DocumentExpiryRoutes.documents.comments(documentId), {
         documentId: Number(documentId),
         commentText,
-      })) as DocumentExpiryApiResponse<DocumentCommentDto>,
+      })) as DocumentExpiryApiResponse<DocumentCommentViewModel>,
     onSuccess: (res, vars) => {
       if (res.result === 1) {
         toast.success("Comment added")
@@ -368,9 +408,7 @@ export function useDeleteDocumentComment() {
       documentId: number | string
       commentId: number | string
     }) =>
-      deleteData(
-        DocumentExpiryRoutes.documents.comment(documentId, commentId)
-      ),
+      deleteData(DocumentExpiryRoutes.documents.comment(documentId, commentId)),
     onSuccess: (_, vars) => {
       toast.success("Comment removed")
       void queryClient.invalidateQueries({
@@ -382,7 +420,7 @@ export function useDeleteDocumentComment() {
 }
 
 export function useSaveReminderRule() {
-  return usePersist<ReminderRuleDto>(DocumentExpiryRoutes.reminderRules.save)
+  return usePersist<ReminderRuleViewModel>(DocumentExpiryRoutes.reminderRules.save)
 }
 
 export function useDeleteReminderRule() {

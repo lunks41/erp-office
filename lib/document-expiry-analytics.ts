@@ -1,8 +1,8 @@
 import type { ChartConfig } from "@/components/ui/chart"
 import {
-  DashboardSummaryDto,
-  DocumentDto,
-} from "@/interfaces/document-expiry"
+  DashboardSummaryViewModel,
+  DocumentViewModel,
+} from "@/interfaces/document-expiry-view-model"
 
 export type DocumentExpiryBarItem = {
   label: string
@@ -85,8 +85,8 @@ export { toChartRows }
 const UNCATEGORIZED = "Uncategorized"
 
 function countByLabel(
-  docs: DocumentDto[],
-  pickLabel: (doc: DocumentDto) => string | null | undefined
+  docs: DocumentViewModel[],
+  pickLabel: (doc: DocumentViewModel) => string | null | undefined
 ): DocumentExpiryBarItem[] {
   const map = new Map<string, number>()
   for (const doc of docs) {
@@ -104,7 +104,7 @@ function countByLabel(
 }
 
 export function buildStatusBarsFromSummary(
-  summary: DashboardSummaryDto
+  summary: DashboardSummaryViewModel
 ): DocumentExpiryBarItem[] {
   const total = Math.max(summary.totalDocuments, 1)
   return [
@@ -153,7 +153,7 @@ export function buildStatusBarsFromSummary(
   ].filter((item) => item.value > 0 || summary.totalDocuments === 0)
 }
 
-export function buildCategoryBars(docs: DocumentDto[]): DocumentExpiryBarItem[] {
+export function buildCategoryBars(docs: DocumentViewModel[]): DocumentExpiryBarItem[] {
   const colors = [
     "bg-violet-500",
     "bg-indigo-500",
@@ -169,7 +169,7 @@ export function buildCategoryBars(docs: DocumentDto[]): DocumentExpiryBarItem[] 
   }))
 }
 
-export function buildTypeBars(docs: DocumentDto[]): DocumentExpiryBarItem[] {
+export function buildTypeBars(docs: DocumentViewModel[]): DocumentExpiryBarItem[] {
   const colors = [
     "bg-rose-500",
     "bg-fuchsia-500",
@@ -185,16 +185,7 @@ export function buildTypeBars(docs: DocumentDto[]): DocumentExpiryBarItem[] {
   }))
 }
 
-export function buildReferenceTypeBars(
-  docs: DocumentDto[]
-): DocumentExpiryBarItem[] {
-  return countByLabel(docs, (d) => d.referenceTypeName).map((item) => ({
-    ...item,
-    colorClass: "bg-slate-500",
-  }))
-}
-
-export function buildMandatoryBars(docs: DocumentDto[]): DocumentExpiryBarItem[] {
+export function buildMandatoryBars(docs: DocumentViewModel[]): DocumentExpiryBarItem[] {
   const mandatory = docs.filter((d) => d.isMandatory).length
   const optional = docs.length - mandatory
   return [
@@ -222,7 +213,7 @@ export interface ExpiryTimelineItem {
   monthKey: string
 }
 
-export function buildExpiryTimeline(docs: DocumentDto[]): ExpiryTimelineItem[] {
+export function buildExpiryTimeline(docs: DocumentViewModel[]): ExpiryTimelineItem[] {
   const now = new Date()
   const items: ExpiryTimelineItem[] = []
   for (let i = 0; i < 6; i++) {
@@ -253,7 +244,7 @@ export function buildExpiryTimeline(docs: DocumentDto[]): ExpiryTimelineItem[] {
   return items
 }
 
-export function getDashboardInsight(summary?: DashboardSummaryDto): {
+export function getDashboardInsight(summary?: DashboardSummaryViewModel): {
   tone: "ok" | "warning" | "critical"
   title: string
   description: string

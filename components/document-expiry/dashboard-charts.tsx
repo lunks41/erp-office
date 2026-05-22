@@ -425,7 +425,6 @@ export function DashboardCharts({
   statusBars,
   categoryBars,
   typeBars,
-  referenceBars,
   mandatoryBars,
   timelineItems,
   isLoading,
@@ -433,7 +432,6 @@ export function DashboardCharts({
   statusBars: DocumentExpiryBarItem[]
   categoryBars: DocumentExpiryBarItem[]
   typeBars: DocumentExpiryBarItem[]
-  referenceBars: DocumentExpiryBarItem[]
   mandatoryBars: DocumentExpiryBarItem[]
   timelineItems: ExpiryTimelineItem[]
   isLoading?: boolean
@@ -447,28 +445,21 @@ export function DashboardCharts({
         <MandatoryPieChart items={mandatoryBars} isLoading={isLoading} />
       </div>
 
-      {/* Row 2: Category + Type + Reference */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* Row 2: Category + Type */}
+      <div className="grid gap-6 lg:grid-cols-2">
         <HorizontalBarChartCard
           title="By category"
-          description="Licenses, contracts, insurance, and more."
+          description="Employee, company, transport, and more."
           items={categoryBars}
           isLoading={isLoading}
           emptyMessage="No category data yet."
         />
         <HorizontalBarChartCard
           title="By document type"
-          description="Trade license, supplier contract, and more."
+          description="Passport, trade license, vehicle registration, and more."
           items={typeBars}
           isLoading={isLoading}
           emptyMessage="No type data yet."
-        />
-        <HorizontalBarChartCard
-          title="By reference"
-          description="Company, vessel, employee, and other links."
-          items={referenceBars}
-          isLoading={isLoading}
-          emptyMessage="No reference data yet."
         />
       </div>
     </div>

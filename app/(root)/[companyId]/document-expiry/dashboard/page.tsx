@@ -15,7 +15,6 @@ import {
   buildCategoryBars,
   buildExpiryTimeline,
   buildMandatoryBars,
-  buildReferenceTypeBars,
   buildStatusBarsFromSummary,
   buildTypeBars,
 } from "@/lib/document-expiry-analytics"
@@ -67,10 +66,6 @@ export default function DocumentExpiryDashboardPage() {
     [allDocuments]
   )
   const typeBars = useMemo(() => buildTypeBars(allDocuments), [allDocuments])
-  const referenceBars = useMemo(
-    () => buildReferenceTypeBars(allDocuments),
-    [allDocuments]
-  )
   const mandatoryBars = useMemo(
     () => buildMandatoryBars(allDocuments),
     [allDocuments]
@@ -136,7 +131,6 @@ export default function DocumentExpiryDashboardPage() {
         statusBars={statusBars}
         categoryBars={categoryBars}
         typeBars={typeBars}
-        referenceBars={referenceBars}
         mandatoryBars={mandatoryBars}
         timelineItems={timelineItems}
         isLoading={chartsLoading}

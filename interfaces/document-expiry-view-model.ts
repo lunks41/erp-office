@@ -1,16 +1,16 @@
-/** Document Expiry types aligned with api-core Models/DocumentExpiry. */
+/** Document Expiry types aligned with api-core Models/DocumentExpiry (ViewModel). */
 
-export interface DocumentDto {
+export interface DocumentViewModel {
+  itemNo: number
   documentId: number
+  companyId: number
+  companyName?: string | null
   branchId?: number | null
   documentTypeId: number
   documentTypeCode?: string | null
   documentTypeName?: string | null
   documentCategoryId: number
   documentCategoryName?: string | null
-  referenceTypeId: number
-  referenceTypeName?: string | null
-  referenceId: number
   documentNo?: string | null
   documentTitle: string
   description?: string | null
@@ -23,7 +23,7 @@ export interface DocumentDto {
   priorityLevel: number
   isMandatory: boolean
   isRenewed: boolean
-  previousDocumentId?: number | null
+  previousItemNo?: number | null
   attachmentCount: number
   lastReminderSentOn?: string | null
   remarks?: string | null
@@ -34,16 +34,50 @@ export interface DocumentDto {
   editDate?: string | null
 }
 
-export interface SaveDocumentDto {
-  documentId?: number
-  branchId?: number | null
+export interface DocumentDetailViewModel {
+  itemNo: number
+  documentId: number
   documentTypeId: number
-  documentCategoryId: number
-  referenceTypeId: number
-  referenceId: number
+  documentTypeCode?: string | null
+  documentTypeName?: string | null
   documentNo?: string | null
+  issueDate?: string | null
+  expiryDate: string
+  reminderDays: number
+  statusId: number
+  statusCode?: string | null
+  statusName?: string | null
+  priorityLevel: number
+  isMandatory: boolean
+  isRenewed: boolean
+  previousItemNo?: number | null
+  attachmentCount: number
+  lastReminderSentOn?: string | null
+  remarks?: string | null
+  daysUntilExpiry: number
+}
+
+export interface DocumentHeaderViewModel {
+  documentId: number
+  companyId: number
+  companyName?: string | null
+  branchId?: number | null
+  documentCategoryId: number
+  documentCategoryName?: string | null
   documentTitle: string
   description?: string | null
+  remarks?: string | null
+  createdById: number
+  createdDate: string
+  editById?: number | null
+  editDate?: string | null
+  details: DocumentDetailViewModel[]
+}
+
+export interface SaveDocumentDetailViewModel {
+  itemNo?: number
+  documentTypeId: number
+  documentNo?: string | null
   issueDate?: string | null
   expiryDate: string
   reminderDays?: number | null
@@ -51,8 +85,19 @@ export interface SaveDocumentDto {
   remarks?: string | null
 }
 
-export interface RenewDocumentDto {
+export interface SaveDocumentWithDetailsViewModel {
   documentId?: number
+  companyId: number
+  branchId?: number | null
+  documentCategoryId: number
+  documentTitle: string
+  description?: string | null
+  remarks?: string | null
+  details: SaveDocumentDetailViewModel[]
+}
+
+export interface RenewDocumentViewModel {
+  itemNo?: number
   newExpiryDate: string
   newIssueDate?: string | null
   documentNo?: string | null
@@ -66,14 +111,13 @@ export interface DocumentQueryParams {
   documentTypeId?: number
   documentCategoryId?: number
   statusId?: number
-  referenceTypeId?: number
-  referenceId?: number
   daysAhead?: number
   expiredOnly?: boolean
   criticalOnly?: boolean
+  includeCancelled?: boolean
 }
 
-export interface DocumentTypeDto {
+export interface DocumentTypeViewModel {
   documentTypeId: number
   documentTypeCode: string
   documentTypeName: string
@@ -83,28 +127,21 @@ export interface DocumentTypeDto {
   isActive: boolean
 }
 
-export interface DocumentCategoryDto {
+export interface DocumentCategoryViewModel {
   documentCategoryId: number
   documentCategoryCode: string
   documentCategoryName: string
   isActive: boolean
 }
 
-export interface ReferenceTypeDto {
-  referenceTypeId: number
-  referenceTypeCode: string
-  referenceTypeName: string
-  isActive: boolean
-}
-
-export interface DocumentStatusDto {
+export interface DocumentStatusViewModel {
   statusId: number
   statusCode: string
   statusName: string
   isActive: boolean
 }
 
-export interface SaveDocumentTypeDto {
+export interface SaveDocumentTypeViewModel {
   documentTypeId: number
   documentTypeCode: string
   documentTypeName: string
@@ -114,28 +151,21 @@ export interface SaveDocumentTypeDto {
   isActive: boolean
 }
 
-export interface SaveDocumentCategoryDto {
+export interface SaveDocumentCategoryViewModel {
   documentCategoryId: number
   documentCategoryCode: string
   documentCategoryName: string
   isActive: boolean
 }
 
-export interface SaveReferenceTypeDto {
-  referenceTypeId: number
-  referenceTypeCode: string
-  referenceTypeName: string
-  isActive: boolean
-}
-
-export interface SaveDocumentStatusDto {
+export interface SaveDocumentStatusViewModel {
   statusId: number
   statusCode: string
   statusName: string
   isActive: boolean
 }
 
-export interface ReminderRuleDto {
+export interface ReminderRuleViewModel {
   reminderRuleId: number
   documentTypeId?: number | null
   documentTypeName?: string | null
@@ -147,7 +177,7 @@ export interface ReminderRuleDto {
   isActive: boolean
 }
 
-export interface SaveReminderRuleDto {
+export interface SaveReminderRuleViewModel {
   reminderRuleId: number
   documentTypeId?: number | null
   daysBeforeExpiry: number
@@ -157,9 +187,9 @@ export interface SaveReminderRuleDto {
   isActive: boolean
 }
 
-export interface DocumentAttachmentDto {
+export interface DocumentAttachmentViewModel {
   attachmentId: number
-  documentId: number
+  itemNo: number
   fileName: string
   filePath: string
   fileExtension: string
@@ -169,8 +199,9 @@ export interface DocumentAttachmentDto {
   uploadedDate: string
 }
 
-export interface DocumentHistoryDto {
+export interface DocumentHistoryViewModel {
   historyId: number
+  itemNo: number
   documentId: number
   oldExpiryDate?: string | null
   newExpiryDate?: string | null
@@ -179,7 +210,7 @@ export interface DocumentHistoryDto {
   changedDate: string
 }
 
-export interface DocumentCommentDto {
+export interface DocumentCommentViewModel {
   commentId: number
   documentId: number
   commentText: string
@@ -188,12 +219,12 @@ export interface DocumentCommentDto {
   createdDate: string
 }
 
-export interface SaveDocumentCommentDto {
+export interface SaveDocumentCommentViewModel {
   documentId: number
   commentText: string
 }
 
-export interface DashboardSummaryDto {
+export interface DashboardSummaryViewModel {
   totalDocuments: number
   activeCount: number
   expiringCount: number
@@ -203,19 +234,19 @@ export interface DashboardSummaryDto {
   expiring30DaysCount: number
 }
 
-export interface ExpiryReportRowDto {
+export interface ExpiryReportRowViewModel {
+  itemNo: number
   documentId: number
   documentTitle: string
   documentTypeName?: string | null
   documentCategoryName?: string | null
-  referenceTypeName?: string | null
-  referenceId: number
   expiryDate: string
   statusName?: string | null
   daysUntilExpiry: number
 }
 
-export interface RenewalHistoryReportRowDto {
+export interface RenewalHistoryReportRowViewModel {
+  itemNo: number
   documentId: number
   documentTitle: string
   oldExpiryDate?: string | null
@@ -233,7 +264,6 @@ export interface DocumentExpiryApiResponse<T> {
 }
 
 export interface DocumentExpiryMasters {
-  types: DocumentTypeDto[]
-  categories: DocumentCategoryDto[]
-  referenceTypes: ReferenceTypeDto[]
+  types: DocumentTypeViewModel[]
+  categories: DocumentCategoryViewModel[]
 }

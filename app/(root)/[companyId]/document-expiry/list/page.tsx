@@ -29,8 +29,8 @@ import {
   useDeleteDocument,
   useDocumentsList,
 } from "@/hooks/use-document-expiry"
-import { DocumentDto } from "@/interfaces/document-expiry"
-function exportCsv(rows: DocumentDto[]) {
+import { DocumentViewModel } from "@/interfaces/document-expiry-view-model"
+function exportCsv(rows: DocumentViewModel[]) {
   const headers = [
     "Title",
     "Type",
@@ -76,7 +76,7 @@ export default function DocumentExpiryListPage() {
   useEffect(() => {
     searchForm.setValue("search", filters.search)
   }, [filters.search, searchForm])
-  const [deleteTarget, setDeleteTarget] = useState<DocumentDto | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<DocumentViewModel | null>(null)
 
   const queryParams = useMemo(
     () => ({

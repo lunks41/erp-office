@@ -4,13 +4,13 @@ import { format, parseISO } from "date-fns"
 import { History } from "lucide-react"
 
 import {
-  DocumentHistoryDto,
-  RenewalHistoryReportRowDto,
-} from "@/interfaces/document-expiry"
+  DocumentHistoryViewModel,
+  RenewalHistoryReportRowViewModel,
+} from "@/interfaces/document-expiry-view-model"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
-type TimelineItem = DocumentHistoryDto | RenewalHistoryReportRowDto
+type TimelineItem = DocumentHistoryViewModel | RenewalHistoryReportRowViewModel
 
 function fmtDate(value?: string | null) {
   if (!value) return "—"
@@ -21,7 +21,7 @@ function fmtDate(value?: string | null) {
   }
 }
 
-function isHistoryDto(item: TimelineItem): item is DocumentHistoryDto {
+function isHistoryDto(item: TimelineItem): item is DocumentHistoryViewModel {
   return "historyId" in item
 }
 

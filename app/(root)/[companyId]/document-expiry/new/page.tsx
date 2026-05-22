@@ -5,25 +5,27 @@ import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 
-import { DocumentForm } from "@/components/document-expiry/document-form"
+import { DocumentBundleForm } from "@/components/document-expiry/document-bundle-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSaveDocument } from "@/hooks/use-document-expiry"
-import { SaveDocumentDto } from "@/interfaces/document-expiry"
+import { SaveDocumentWithDetailsViewModel } from "@/interfaces/document-expiry-view-model"
 import { formatDateForApi } from "@/lib/date-utils"
 
-function validateCreate(values: SaveDocumentDto): string | null {
+function validateCreate(values: SaveDocumentWithDetailsViewModel): string | null {
+  if (!values.companyId || values.companyId <= 0) return "Company is required."
   if (!values.documentTitle?.trim()) return "Document title is required."
-  if (!values.documentTypeId || values.documentTypeId <= 0)
-    return "Document type is required."
   if (!values.documentCategoryId || values.documentCategoryId <= 0)
     return "Category is required."
-  if (!values.referenceTypeId || values.referenceTypeId <= 0)
-    return "Reference type is required."
-  if (!values.referenceId || values.referenceId <= 0)
-    return "Reference ID must be greater than zero."
-  const expiry = formatDateForApi(values.expiryDate)
-  if (!expiry) return "Expiry date is required."
+  if (!values.details?.length) return "Add at least one document line."
+
+  for (let i = 0; i < values.details.length; i++) {
+    const line = values.details[i]
+    if (!line.documentTypeId || line.documentTypeId <= 0)
+      return `Line ${i + 1}: document type is required.`
+    if (!formatDateForApi(line.expiryDate))
+      return `Line ${i + 1}: expiry date is required.`
+  }
   return null
 }
 
@@ -34,23 +36,26 @@ export default function NewDocumentPage() {
   const base = `/${companyId}/document-expiry`
   const saveMutation = useSaveDocument()
 
-  const handleSubmit = async (values: SaveDocumentDto) => {
+  const handleSubmit = async (values: SaveDocumentWithDetailsViewModel) => {
     const validationError = validateCreate(values)
     if (validationError) {
       toast.error(validationError)
       return
     }
 
-    const expiryDate = formatDateForApi(values.expiryDate)
-    const issueDate = formatDateForApi(values.issueDate)
-
-    const res = await saveMutation.mutateAsync({
+    const payload: SaveDocumentWithDetailsViewModel = {
       ...values,
       documentId: 0,
+      companyId: values.companyId,
       documentTitle: values.documentTitle.trim(),
-      expiryDate: expiryDate ?? "",
-      issueDate: issueDate ?? undefined,
-    })
+      details: values.details.map((d) => ({
+        ...d,
+        issueDate: formatDateForApi(d.issueDate) ?? undefined,
+        expiryDate: formatDateForApi(d.expiryDate) ?? "",
+      })),
+    }
+
+    const res = await saveMutation.mutateAsync(payload)
 
     if (res.result === 1 && res.data?.documentId) {
       router.push(`${base}/details/${res.data.documentId}`)
@@ -58,7 +63,7 @@ export default function NewDocumentPage() {
   }
 
   return (
-    <div className="@container mx-auto max-w-3xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
+    <div className="@container mx-auto max-w-5xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <Button variant="ghost" size="sm" asChild>
         <Link href={`${base}/list`}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -68,10 +73,10 @@ export default function NewDocumentPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>New document</CardTitle>
+          <CardTitle>New document record</CardTitle>
         </CardHeader>
         <CardContent>
-          <DocumentForm
+          <DocumentBundleForm
             onSubmit={handleSubmit}
             isSubmitting={saveMutation.isPending}
           />
