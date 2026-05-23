@@ -2,13 +2,13 @@
 
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { DocumentViewModel } from "@/interfaces/document-expiry-view-model"
 import { format, parseISO } from "date-fns"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 
-import { DocumentViewModel } from "@/interfaces/document-expiry-view-model"
-import { ExpiryBadge } from "@/components/document-expiry/expiry-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
+import { ExpiryBadge } from "@/app/(root)/[companyId]/document-expiry/components/expiry-badge"
 
 function fmtDate(value?: string | null) {
   if (!value) return "—"
@@ -108,16 +108,12 @@ export function DocumentTable({
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
                   <Button variant="ghost" size="icon" asChild>
-                    <Link
-                      href={`${base}/details/${doc.documentId}`}
-                    >
+                    <Link href={`${base}/details/${doc.documentId}`}>
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="ghost" size="icon" asChild>
-                    <Link
-                      href={`${base}/edit/${doc.documentId}`}
-                    >
+                    <Link href={`${base}/edit/${doc.documentId}`}>
                       <Pencil className="h-4 w-4" />
                     </Link>
                   </Button>

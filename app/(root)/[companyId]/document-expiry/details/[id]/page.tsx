@@ -5,16 +5,16 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { ArrowLeft, Pencil } from "lucide-react"
 
-import { DocumentComments } from "@/components/document-expiry/document-comments"
-import { DocumentDetailLines } from "@/components/document-expiry/document-detail-lines"
-import { DocumentHistoryTimeline } from "@/components/document-expiry/document-history-timeline"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
   useDocumentById,
   useRenewalHistoryReport,
 } from "@/hooks/use-document-expiry"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { DocumentComments } from "@/app/(root)/[companyId]/document-expiry/components/document-comments"
+import { DocumentDetailLines } from "@/app/(root)/[companyId]/document-expiry/components/document-detail-lines"
+import { DocumentHistoryTimeline } from "@/app/(root)/[companyId]/document-expiry/components/document-history-timeline"
 
 export default function DocumentDetailsPage() {
   const params = useParams()
@@ -69,7 +69,9 @@ export default function DocumentDetailsPage() {
         <CardHeader>
           <CardTitle>{header.documentTitle}</CardTitle>
           {header.companyName && (
-            <p className="text-muted-foreground text-sm">{header.companyName}</p>
+            <p className="text-muted-foreground text-sm">
+              {header.companyName}
+            </p>
           )}
         </CardHeader>
         <CardContent className="grid gap-3 text-sm sm:grid-cols-2">

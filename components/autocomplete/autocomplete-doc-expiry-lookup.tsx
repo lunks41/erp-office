@@ -6,7 +6,7 @@ import {
   IDocExpiryDocumentTypeLookup,
 } from "@/interfaces/lookup"
 import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
-import { Path, PathValue, UseFormReturn } from "react-hook-form"
+import { FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
@@ -52,7 +52,7 @@ const ALL_LABELS: Record<DocExpiryLookupKind, string> = {
   documentCategory: "All categories",
 }
 
-interface DocExpiryLookupAutocompleteProps<T extends Record<string, unknown>> {
+interface DocExpiryLookupAutocompleteProps<T extends FieldValues> {
   form: UseFormReturn<T>
   kind: DocExpiryLookupKind
   name?: Path<T>
@@ -171,7 +171,7 @@ function useDocExpirySelectUi(isRequired: boolean) {
   }
 }
 
-export function DocExpiryLookupAutocomplete<T extends Record<string, unknown>>({
+export function DocExpiryLookupAutocomplete<T extends FieldValues>({
   form,
   kind,
   name,
@@ -269,7 +269,7 @@ export function DocExpiryLookupAutocomplete<T extends Record<string, unknown>>({
   )
 }
 
-export function DocExpiryDocumentTypeAutocomplete<T extends Record<string, unknown>>(
+export function DocExpiryDocumentTypeAutocomplete<T extends FieldValues>(
   props: Omit<DocExpiryLookupAutocompleteProps<T>, "kind"> & {
     onChangeEvent?: (item: IDocExpiryDocumentTypeLookup | null) => void
   }
@@ -283,7 +283,7 @@ export function DocExpiryDocumentTypeAutocomplete<T extends Record<string, unkno
   )
 }
 
-export function DocExpiryDocumentCategoryAutocomplete<T extends Record<string, unknown>>(
+export function DocExpiryDocumentCategoryAutocomplete<T extends FieldValues>(
   props: Omit<DocExpiryLookupAutocompleteProps<T>, "kind">
 ) {
   return <DocExpiryLookupAutocomplete {...props} kind="documentCategory" />

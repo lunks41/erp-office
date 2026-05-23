@@ -2,20 +2,16 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
+import { ReminderRuleViewModel } from "@/interfaces/document-expiry-view-model"
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react"
 
+import { EXPIRY_PRIORITY_LABELS } from "@/lib/api-routes"
 import {
-  ReminderRuleForm,
-  ReminderRuleFormValues,
-} from "@/components/document-expiry/reminder-rule-form"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  useDeleteReminderRule,
+  useReminderRules,
+  useSaveReminderRule,
+} from "@/hooks/use-document-expiry"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,15 +23,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ReminderRuleViewModel } from "@/interfaces/document-expiry-view-model"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  useDeleteReminderRule,
-  useReminderRules,
-  useSaveReminderRule,
-} from "@/hooks/use-document-expiry"
-import { useParams } from "next/navigation"
-import { EXPIRY_PRIORITY_LABELS } from "@/lib/api-routes"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  ReminderRuleForm,
+  ReminderRuleFormValues,
+} from "@/app/(root)/[companyId]/document-expiry/components/reminder-rule-form"
 
 export default function ReminderRulesPage() {
   const companyId = useParams().companyId as string

@@ -3,13 +3,10 @@
 import { Fragment, useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { DocumentDetailViewModel } from "@/interfaces/document-expiry-view-model"
 import { format, parseISO } from "date-fns"
 import { Ban, RefreshCw, Upload } from "lucide-react"
 
-import { DocumentDetailViewModel } from "@/interfaces/document-expiry-view-model"
-import { ExpiryBadge } from "@/components/document-expiry/expiry-badge"
-import { RenewDocumentForm } from "@/components/document-expiry/renew-document-form"
-import { UploadDropzone } from "@/components/document-expiry/upload-dropzone"
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
 import {
   useCancelDocumentDetail,
@@ -32,6 +29,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ExpiryBadge } from "@/app/(root)/[companyId]/document-expiry/components/expiry-badge"
+import { RenewDocumentForm } from "@/app/(root)/[companyId]/document-expiry/components/renew-document-form"
+import { UploadDropzone } from "@/app/(root)/[companyId]/document-expiry/components/upload-dropzone"
 
 function fmtDate(value?: string | null) {
   if (!value) return "—"
@@ -58,7 +58,7 @@ function LineAttachments({
   const attachments = attachmentsRes?.data ?? []
 
   return (
-    <div className="mt-2 space-y-2 rounded-md border bg-muted/30 p-3">
+    <div className="bg-muted/30 mt-2 space-y-2 rounded-md border p-3">
       <UploadDropzone
         disabled={uploadMutation.isPending || line.statusCode === "CANCELLED"}
         onFileSelect={async (file) => {
@@ -99,7 +99,9 @@ export function DocumentDetailLines({
 
   const renewMutation = useRenewDocument()
   const cancelMutation = useCancelDocumentDetail()
-  const [renewLine, setRenewLine] = useState<DocumentDetailViewModel | null>(null)
+  const [renewLine, setRenewLine] = useState<DocumentDetailViewModel | null>(
+    null
+  )
   const [expandedItemNo, setExpandedDtId] = useState<number | null>(null)
 
   const handleRenew = async (values: {
@@ -123,7 +125,9 @@ export function DocumentDetailLines({
 
   if (!lines.length) {
     return (
-      <p className="text-muted-foreground text-sm">No document lines on this record.</p>
+      <p className="text-muted-foreground text-sm">
+        No document lines on this record.
+      </p>
     )
   }
 
@@ -168,9 +172,7 @@ export function DocumentDetailLines({
                         size="sm"
                         onClick={() =>
                           setExpandedDtId(
-                            expandedItemNo === line.itemNo
-                              ? null
-                              : line.itemNo
+                            expandedItemNo === line.itemNo ? null : line.itemNo
                           )
                         }
                       >

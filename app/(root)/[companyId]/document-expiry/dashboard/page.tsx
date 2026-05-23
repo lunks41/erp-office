@@ -18,18 +18,19 @@ import {
   buildStatusBarsFromSummary,
   buildTypeBars,
 } from "@/lib/document-expiry-analytics"
-import { DashboardCards } from "@/components/document-expiry/dashboard-cards"
-import { DashboardCharts } from "@/components/document-expiry/dashboard-charts"
-import { DashboardInsight } from "@/components/document-expiry/dashboard-insight"
-import { DocumentTable } from "@/components/document-expiry/document-table"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   useCriticalDocuments,
   useDashboardSummary,
   useDocumentsList,
   useExpiringDocuments,
 } from "@/hooks/use-document-expiry"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DashboardCards } from "@/app/(root)/[companyId]/document-expiry/components/dashboard-cards"
+import { DashboardCharts } from "@/app/(root)/[companyId]/document-expiry/components/dashboard-charts"
+import { DashboardInsight } from "@/app/(root)/[companyId]/document-expiry/components/dashboard-insight"
+import { DocumentTable } from "@/app/(root)/[companyId]/document-expiry/components/document-table"
+
 export default function DocumentExpiryDashboardPage() {
   const companyId = useParams().companyId as string
   const base = `/${companyId}/document-expiry`
@@ -40,10 +41,12 @@ export default function DocumentExpiryDashboardPage() {
     refetch: refetchSummary,
     isFetching: summaryFetching,
   } = useDashboardSummary()
-  const { data: expiringRes, isLoading: expiringLoading } = useExpiringDocuments({
-    pageSize: 5,
-  })
-  const { data: criticalRes, isLoading: criticalLoading } = useCriticalDocuments()
+  const { data: expiringRes, isLoading: expiringLoading } =
+    useExpiringDocuments({
+      pageSize: 5,
+    })
+  const { data: criticalRes, isLoading: criticalLoading } =
+    useCriticalDocuments()
   const { data: allDocsRes, isLoading: docsLoading } = useDocumentsList({
     pageSize: 500,
     pageNumber: 1,
@@ -52,10 +55,7 @@ export default function DocumentExpiryDashboardPage() {
   const summary = summaryRes?.data
   const expiring = expiringRes?.data ?? []
   const critical = criticalRes?.data ?? []
-  const allDocuments = useMemo(
-    () => allDocsRes?.data ?? [],
-    [allDocsRes?.data]
-  )
+  const allDocuments = useMemo(() => allDocsRes?.data ?? [], [allDocsRes?.data])
 
   const statusBars = useMemo(
     () => (summary ? buildStatusBarsFromSummary(summary) : []),
@@ -120,10 +120,7 @@ export default function DocumentExpiryDashboardPage() {
         </div>
       </div>
 
-      <DashboardCards
-        summary={summary}
-        isLoading={summaryLoading}
-      />
+      <DashboardCards summary={summary} isLoading={summaryLoading} />
 
       {!summaryLoading && <DashboardInsight summary={summary} />}
 
@@ -150,10 +147,7 @@ export default function DocumentExpiryDashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            <DocumentTable
-              rows={expiring}
-              isLoading={expiringLoading}
-            />
+            <DocumentTable rows={expiring} isLoading={expiringLoading} />
           </CardContent>
         </Card>
 
@@ -166,16 +160,11 @@ export default function DocumentExpiryDashboardPage() {
               </p>
             </div>
             <Button variant="link" size="sm" asChild>
-              <Link href={`${base}/list?filter=critical`}>
-                View all
-              </Link>
+              <Link href={`${base}/list?filter=critical`}>View all</Link>
             </Button>
           </CardHeader>
           <CardContent>
-            <DocumentTable
-              rows={critical}
-              isLoading={criticalLoading}
-            />
+            <DocumentTable rows={critical} isLoading={criticalLoading} />
           </CardContent>
         </Card>
       </div>

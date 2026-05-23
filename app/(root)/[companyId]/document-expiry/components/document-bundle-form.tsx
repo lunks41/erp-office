@@ -1,28 +1,23 @@
 "use client"
 
 import { useEffect } from "react"
-import { useFieldArray, useForm, UseFormReturn } from "react-hook-form"
 import { useParams } from "next/navigation"
-import { format } from "date-fns"
-import { Plus, Trash2 } from "lucide-react"
-
 import {
   DocumentHeaderViewModel,
   SaveDocumentDetailViewModel,
   SaveDocumentWithDetailsViewModel,
 } from "@/interfaces/document-expiry-view-model"
 import { IDocExpiryDocumentTypeLookup } from "@/interfaces/lookup"
+import { format } from "date-fns"
+import { Plus, Trash2 } from "lucide-react"
+import { useFieldArray, useForm, UseFormReturn } from "react-hook-form"
+import { toast } from "sonner"
+
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
-import CompanyAutocomplete from "@/components/autocomplete/autocomplete-company"
 import {
-  DocExpiryDocumentCategoryAutocomplete,
-  DocExpiryDocumentTypeAutocomplete,
-} from "@/components/autocomplete"
-import CustomCheckbox from "@/components/custom/custom-checkbox"
-import { CustomDateNew } from "@/components/custom/custom-date-new"
-import CustomInput from "@/components/custom/custom-input"
-import CustomNumberInput from "@/components/custom/custom-number-input"
-import CustomTextarea from "@/components/custom/custom-textarea"
+  buildDocumentBundlePayload,
+  validateDocumentBundleSave,
+} from "@/lib/document-expiry-validation"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -34,6 +29,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  DocExpiryDocumentCategoryAutocomplete,
+  DocExpiryDocumentTypeAutocomplete,
+} from "@/components/autocomplete"
+import CompanyAutocomplete from "@/components/autocomplete/autocomplete-company"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
+import { CustomDateNew } from "@/components/custom/custom-date-new"
+import CustomInput from "@/components/custom/custom-input"
+import CustomNumberInput from "@/components/custom/custom-number-input"
+import CustomTextarea from "@/components/custom/custom-textarea"
 
 function toFormDate(value?: string | null) {
   if (!value) return ""
@@ -42,18 +47,21 @@ function toFormDate(value?: string | null) {
   return format(parsed, clientDateFormat)
 }
 
+function nextLineItemNo(details: SaveDocumentDetailViewModel[]): number {
+  const max = details.reduce((m, d) => Math.max(m, d.itemNo ?? 0), 0)
+  return max + 1
+}
+
 function displayLineItemNo(
   details: SaveDocumentDetailViewModel[],
   index: number
 ): string {
   const itemNo = details[index]?.itemNo ?? 0
-  if (itemNo > 0) return String(itemNo)
-  const max = details.reduce((m, d) => Math.max(m, d.itemNo ?? 0), 0)
-  return String(max + 1)
+  return String(itemNo > 0 ? itemNo : index + 1)
 }
 
-const emptyLine = (): SaveDocumentDetailViewModel => ({
-  itemNo: 0,
+const createEmptyLine = (itemNo: number): SaveDocumentDetailViewModel => ({
+  itemNo,
   documentTypeId: 0,
   documentNo: "",
   issueDate: "",
@@ -86,7 +94,7 @@ function headerToFormValues(
             isMandatory: d.isMandatory,
             remarks: d.remarks ?? "",
           }))
-        : [emptyLine()],
+        : [createEmptyLine(1)],
   }
 }
 
@@ -112,7 +120,7 @@ export function DocumentBundleForm({
       documentTitle: "",
       description: "",
       remarks: "",
-      details: [emptyLine()],
+      details: [createEmptyLine(1)],
     },
   })
 
@@ -131,7 +139,16 @@ export function DocumentBundleForm({
 
   const details = form.watch("details")
 
-  const formCompat = form as UseFormReturn<Record<string, unknown>>
+  const formCompat = form as unknown as UseFormReturn<Record<string, unknown>>
+
+  const handleFormSubmit = (values: SaveDocumentWithDetailsViewModel) => {
+    const validationError = validateDocumentBundleSave(values)
+    if (validationError) {
+      toast.error(validationError)
+      return
+    }
+    onSubmit(buildDocumentBundlePayload(values))
+  }
 
   if (isLoading) {
     return (
@@ -145,14 +162,20 @@ export function DocumentBundleForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="space-y-4">
           <h3 className="text-sm font-semibold">Header</h3>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <CompanyAutocomplete
               form={formCompat}
               name="companyId"
               label="Company"
+              isRequired
+            />
+            <DocExpiryDocumentCategoryAutocomplete
+              form={formCompat}
+              name="documentCategoryId"
+              label="Category"
               isRequired
             />
 
@@ -161,30 +184,26 @@ export function DocumentBundleForm({
               name="documentTitle"
               label="Document title"
               isRequired
-              className="md:col-span-2"
-            />
-
-            <DocExpiryDocumentCategoryAutocomplete
-              form={formCompat}
-              name="documentCategoryId"
-              label="Category"
-              isRequired
             />
           </div>
 
-          <CustomTextarea
-            form={formCompat}
-            name="description"
-            label="Description"
-            minRows={2}
-          />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
+            <CustomTextarea
+              form={formCompat}
+              name="description"
+              label="Description"
+              minRows={2}
+              className="w-full min-w-0"
+            />
 
-          <CustomTextarea
-            form={formCompat}
-            name="remarks"
-            label="Header remarks"
-            minRows={2}
-          />
+            <CustomTextarea
+              form={formCompat}
+              name="remarks"
+              label="Header remarks"
+              minRows={2}
+              className="w-full min-w-0"
+            />
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -194,7 +213,10 @@ export function DocumentBundleForm({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append(emptyLine())}
+              onClick={() => {
+                const current = form.getValues("details") ?? []
+                append(createEmptyLine(nextLineItemNo(current)))
+              }}
             >
               <Plus className="mr-1 h-4 w-4" />
               Add line
@@ -205,7 +227,7 @@ export function DocumentBundleForm({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-14">Line</TableHead>
+                  <TableHead className="w-14">Item no.</TableHead>
                   <TableHead className="min-w-[160px]">Type</TableHead>
                   <TableHead>Doc no.</TableHead>
                   <TableHead>Issue</TableHead>
@@ -218,7 +240,7 @@ export function DocumentBundleForm({
               <TableBody>
                 {fields.map((field, index) => (
                   <TableRow key={field.id}>
-                    <TableCell className="text-muted-foreground align-top pt-3 text-center text-sm tabular-nums">
+                    <TableCell className="text-muted-foreground pt-3 text-center align-top text-sm tabular-nums">
                       <input
                         type="hidden"
                         {...form.register(`details.${index}.itemNo`, {
@@ -233,7 +255,9 @@ export function DocumentBundleForm({
                         name={`details.${index}.documentTypeId`}
                         label=""
                         isRequired
-                        onChangeEvent={(type: IDocExpiryDocumentTypeLookup | null) => {
+                        onChangeEvent={(
+                          type: IDocExpiryDocumentTypeLookup | null
+                        ) => {
                           if (!type) return
                           if (type.defaultReminderDays) {
                             form.setValue(
@@ -279,7 +303,7 @@ export function DocumentBundleForm({
                         round={0}
                       />
                     </TableCell>
-                    <TableCell className="align-top pt-2">
+                    <TableCell className="pt-2 align-top">
                       <CustomCheckbox
                         form={formCompat}
                         name={`details.${index}.isMandatory`}

@@ -1,14 +1,14 @@
 import { useState } from "react"
 import { IconAlertCircle } from "@tabler/icons-react"
 import { motion } from "framer-motion"
-import { Path, UseFormReturn } from "react-hook-form"
+import { FieldValues, Path, UseFormReturn } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 
 import { FormControl, FormField, FormItem, FormLabel } from "../ui/form"
 import { Switch } from "../ui/switch"
 
-interface CustomSwitchProps<T extends Record<string, unknown>> {
+interface CustomSwitchProps<T extends FieldValues> {
   form: UseFormReturn<T>
   label?: string
   name: Path<T>
@@ -20,7 +20,7 @@ interface CustomSwitchProps<T extends Record<string, unknown>> {
   activeColor?: "primary" | "success" | "danger" | "warning" | "info"
 }
 
-export default function CustomSwitch<T extends Record<string, unknown>>({
+export default function CustomSwitch<T extends FieldValues>({
   form,
   label,
   name,

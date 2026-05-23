@@ -2,15 +2,14 @@
 
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
+import { SaveDocumentWithDetailsViewModel } from "@/interfaces/document-expiry-view-model"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 
-import { DocumentBundleForm } from "@/components/document-expiry/document-bundle-form"
+import { useDocumentById, useSaveDocument } from "@/hooks/use-document-expiry"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useDocumentById, useSaveDocument } from "@/hooks/use-document-expiry"
-import { SaveDocumentWithDetailsViewModel } from "@/interfaces/document-expiry-view-model"
-import { formatDateForApi } from "@/lib/date-utils"
+import { DocumentBundleForm } from "@/app/(root)/[companyId]/document-expiry/components/document-bundle-form"
 
 export default function EditDocumentPage() {
   const params = useParams()
@@ -26,12 +25,6 @@ export default function EditDocumentPage() {
     const res = await saveMutation.mutateAsync({
       ...values,
       documentId: Number(id),
-      documentTitle: values.documentTitle.trim(),
-      details: values.details.map((d) => ({
-        ...d,
-        issueDate: formatDateForApi(d.issueDate) ?? undefined,
-        expiryDate: formatDateForApi(d.expiryDate) ?? "",
-      })),
     })
     if (res.result === 1) {
       router.push(`${base}/details/${id}`)

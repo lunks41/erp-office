@@ -1,12 +1,14 @@
 "use client"
 
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { format, parseISO } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 
-import { ExpiryBadge } from "@/components/document-expiry/expiry-badge"
+import { useExpiryReport } from "@/hooks/use-document-expiry"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -15,9 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useExpiryReport } from "@/hooks/use-document-expiry"
-import { useParams } from "next/navigation"
+import { ExpiryBadge } from "@/app/(root)/[companyId]/document-expiry/components/expiry-badge"
 
 function fmtDate(value?: string | null) {
   if (!value) return "—"

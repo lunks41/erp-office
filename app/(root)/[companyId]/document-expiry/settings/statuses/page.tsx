@@ -1,16 +1,17 @@
 "use client"
 
 import { DocumentStatusViewModel } from "@/interfaces/document-expiry-view-model"
+
 import {
   useDeleteDocExpiryStatus,
   useDocExpiryStatusesSetup,
   useSaveDocExpiryStatus,
 } from "@/hooks/use-document-expiry-setup"
-import { DocumentStatusSetupForm } from "@/components/document-expiry/setup-forms"
+import { DocumentStatusSetupForm } from "@/app/(root)/[companyId]/document-expiry/components/setup-forms"
 import {
   SetupMasterPage,
   SetupRow,
-} from "@/components/document-expiry/setup-master-page"
+} from "@/app/(root)/[companyId]/document-expiry/components/setup-master-page"
 
 function toRows(items: DocumentStatusViewModel[]): SetupRow[] {
   return items.map((s) => ({
@@ -33,9 +34,13 @@ export default function DocumentStatusesSetupPage() {
       rows={toRows(data?.data ?? [])}
       isLoading={isLoading}
       FormComponent={DocumentStatusSetupForm}
-      onSave={(v) => saveMutation.mutateAsync(v)}
+      onSave={async (v) => {
+        await saveMutation.mutateAsync(v)
+      }}
       isSaving={saveMutation.isPending}
-      onDelete={(id) => deleteMutation.mutateAsync(id)}
+      onDelete={async (id) => {
+        await deleteMutation.mutateAsync(id)
+      }}
       isDeleting={deleteMutation.isPending}
       refetch={() => refetch()}
     />

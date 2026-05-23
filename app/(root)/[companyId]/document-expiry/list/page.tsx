@@ -3,17 +3,16 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { DocumentViewModel } from "@/interfaces/document-expiry-view-model"
+import { useDocumentExpiryStore } from "@/stores/document-expiry-store"
 import { Download, Plus, Search } from "lucide-react"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { DocumentTable } from "@/components/document-expiry/document-table"
 import {
-  DocExpiryLookupFilterSelect,
-} from "@/components/autocomplete"
-import CustomInput from "@/components/custom/custom-input"
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
+  useDeleteDocument,
+  useDocumentsList,
+} from "@/hooks/use-document-expiry"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,12 +23,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useDocumentExpiryStore } from "@/stores/document-expiry-store"
-import {
-  useDeleteDocument,
-  useDocumentsList,
-} from "@/hooks/use-document-expiry"
-import { DocumentViewModel } from "@/interfaces/document-expiry-view-model"
+import { Button } from "@/components/ui/button"
+import { Form } from "@/components/ui/form"
+import { DocExpiryLookupFilterSelect } from "@/components/autocomplete"
+import CustomInput from "@/components/custom/custom-input"
+import { DocumentTable } from "@/app/(root)/[companyId]/document-expiry/components/document-table"
+
 function exportCsv(rows: DocumentViewModel[]) {
   const headers = [
     "Title",
@@ -68,15 +67,23 @@ export default function DocumentExpiryListPage() {
   const searchParams = useSearchParams()
   const filter = searchParams.get("filter")
 
-  const { filters, setSearch, setCategoryId, setTypeId, setPage, resetFilters } =
-    useDocumentExpiryStore()
+  const {
+    filters,
+    setSearch,
+    setCategoryId,
+    setTypeId,
+    setPage,
+    resetFilters,
+  } = useDocumentExpiryStore()
   const deleteMutation = useDeleteDocument()
   const searchForm = useForm({ defaultValues: { search: filters.search } })
 
   useEffect(() => {
     searchForm.setValue("search", filters.search)
   }, [filters.search, searchForm])
-  const [deleteTarget, setDeleteTarget] = useState<DocumentViewModel | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<DocumentViewModel | null>(
+    null
+  )
 
   const queryParams = useMemo(
     () => ({
@@ -92,8 +99,17 @@ export default function DocumentExpiryListPage() {
     [filters, filter]
   )
 
-  const { data, isLoading, refetch } = useDocumentsList(queryParams)
+  const { data, isLoading, isError, error, refetch } =
+    useDocumentsList(queryParams)
   const rows = data?.data ?? []
+
+  useEffect(() => {
+    if (!isError) return
+    const message =
+      (error as { response?: { data?: string } })?.response?.data ??
+      "Failed to load documents"
+    toast.error(message)
+  }, [isError, error])
   const total = data?.totalRecords ?? rows.length
   const totalPages = Math.max(1, Math.ceil(total / filters.pageSize))
 
@@ -198,8 +214,8 @@ export default function DocumentExpiryListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete document?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will deactivate &quot;{deleteTarget?.documentTitle}&quot;. This
-              action cannot be undone.
+              This will deactivate &quot;{deleteTarget?.documentTitle}&quot;.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

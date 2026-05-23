@@ -1,6 +1,6 @@
 "use client"
 
-import { Path, UseFormReturn } from "react-hook-form"
+import { FieldValues, Path, UseFormReturn } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import {
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 
 import { Label } from "../ui/label"
 
-interface CustomInputProps<T extends Record<string, unknown>> {
+interface CustomInputProps<T extends FieldValues> {
   form: UseFormReturn<T>
   name: Path<T>
   label?: string
@@ -26,7 +26,7 @@ interface CustomInputProps<T extends Record<string, unknown>> {
   isDisabled?: boolean
 }
 
-export default function CustomInput<T extends Record<string, unknown>>({
+export default function CustomInput<T extends FieldValues>({
   form,
   name,
   label,
