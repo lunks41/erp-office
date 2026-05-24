@@ -108,14 +108,14 @@ export default function JobOrderServiceItemNoMultiSelect<
         ref={innerRef}
         {...innerProps}
         className={cn(
-          "hover:bg-accent flex cursor-pointer items-center gap-2 px-3 py-2 text-sm transition-colors",
+          "hover:bg-accent flex cursor-pointer items-start gap-2 px-3 py-2 text-sm transition-colors",
           isFocused && "bg-accent",
           isSelected && "bg-accent/50"
         )}
       >
         <div
           className={cn(
-            "flex h-4 w-4 items-center justify-center rounded border",
+            "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
             isSelected
               ? "border-primary bg-primary text-primary-foreground"
               : "border-input"
@@ -123,7 +123,9 @@ export default function JobOrderServiceItemNoMultiSelect<
         >
           {isSelected && <IconCheck size={12} />}
         </div>
-        <span className="flex-1">{data.label}</span>
+        <span className="min-w-0 flex-1 leading-snug break-words whitespace-normal">
+          {data.label}
+        </span>
       </div>
     )
   })
@@ -140,18 +142,24 @@ export default function JobOrderServiceItemNoMultiSelect<
         ),
       menu: () =>
         cn(
-          "relative z-50 max-h-[300px] min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+          "relative z-50 max-h-[300px] min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
         ),
+      menuList: () => cn("max-h-[300px] overflow-auto p-1"),
       option: () =>
-        cn("relative cursor-pointer select-none rounded-sm px-2 py-1.5"),
+        cn(
+          "relative cursor-pointer select-none rounded-sm px-2 py-1.5 whitespace-normal break-words"
+        ),
+      valueContainer: () =>
+        cn("flex min-w-0 flex-1 flex-wrap items-start gap-1 py-1"),
       multiValue: () =>
         cn(
-          "bg-muted text-muted-foreground mr-1 mt-1 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs"
+          "bg-muted text-muted-foreground mr-1 mt-1 inline-flex max-w-full items-start gap-1 rounded px-2 py-0.5 text-xs"
         ),
-      multiValueLabel: () => cn("text-xs"),
+      multiValueLabel: () =>
+        cn("text-xs leading-snug break-words whitespace-normal"),
       multiValueRemove: () =>
         cn(
-          "ml-1 rounded-sm hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+          "ml-1 shrink-0 rounded-sm hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
         ),
       placeholder: () => cn("text-muted-foreground"),
       input: () => cn("text-foreground"),
@@ -169,7 +177,10 @@ export default function JobOrderServiceItemNoMultiSelect<
       }),
       valueContainer: (provided) => ({
         ...provided,
-        padding: undefined, // Use className padding
+        padding: undefined,
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "flex-start",
       }),
       input: (provided) => ({
         ...provided,
@@ -179,6 +190,27 @@ export default function JobOrderServiceItemNoMultiSelect<
       }),
       multiValue: (provided) => ({
         ...provided,
+        maxWidth: "100%",
+      }),
+      multiValueLabel: (provided) => ({
+        ...provided,
+        whiteSpace: "normal",
+        wordBreak: "break-word",
+      }),
+      menu: (provided, state) => {
+        const controlWidth = state.selectProps.controlWidth as
+          | number
+          | undefined
+        return {
+          ...provided,
+          ...(controlWidth
+            ? { width: controlWidth, maxWidth: controlWidth }
+            : {}),
+        }
+      },
+      option: (provided) => ({
+        ...provided,
+        whiteSpace: "normal",
         wordBreak: "break-word",
       }),
       menuPortal: (base) => ({
@@ -269,8 +301,15 @@ export default function JobOrderServiceItemNoMultiSelect<
 
   // Handle menu close to maintain focus on the control
   const selectControlRef = React.useRef<HTMLDivElement>(null)
+  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
+
+  const handleMenuOpen = React.useCallback(() => {
+    if (selectControlRef.current) {
+      setMenuWidth(selectControlRef.current.getBoundingClientRect().width)
+    }
+  }, [])
 
   const handleMenuClose = React.useCallback(() => {
     resetSearchFilter()
@@ -394,7 +433,9 @@ export default function JobOrderServiceItemNoMultiSelect<
                     isMulti
                     options={options}
                     onChange={handleChange}
+                    onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
+                    controlWidth={menuWidth}
                     value={getValue()}
                     inputValue={filterInput}
                     onInputChange={handleInputChange}
@@ -475,7 +516,9 @@ export default function JobOrderServiceItemNoMultiSelect<
           isMulti
           options={options}
           onChange={handleChange}
+          onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}
+          controlWidth={menuWidth}
           value={getValue()}
           inputValue={filterInput}
           onInputChange={handleInputChange}

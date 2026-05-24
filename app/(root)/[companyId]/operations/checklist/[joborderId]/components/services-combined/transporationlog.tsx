@@ -300,7 +300,7 @@ export function TransportationLogTab({
   }, [refetch])
 
   return (
-    <div className="max-h-[80vh] !max-w-full overflow-x-hidden">
+    <div className="!max-w-full overflow-x-hidden">
       <div className="space-y-4">
         <div className="overflow-hidden rounded-lg border p-4">
           <div className="mb-3 flex items-center justify-between gap-3">

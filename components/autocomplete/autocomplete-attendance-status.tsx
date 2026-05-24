@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React from "react"
 import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
@@ -10,8 +10,8 @@ import Select, {
   SingleValueProps,
   components,
 } from "react-select"
-
 import { cn } from "@/lib/utils"
+import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
 
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
@@ -178,6 +178,9 @@ export default function AttendanceStatusAutocomplete<
     [className, isRequired]
   )
 
+  const { selectControlRef, handleMenuClose, handleKeyDown, markOptionSelected } =
+    useReactSelectTabNavigation()
+
   return (
     <FormField
       control={form.control}
@@ -190,34 +193,42 @@ export default function AttendanceStatusAutocomplete<
               {isRequired && <span className="text-destructive ml-1">*</span>}
             </Label>
           )}
-          <Select<AttendanceStatusOption>
-            value={
-              attendanceStatusOptions.find(
-                (option) => option.value === field.value
-              ) || null
-            }
-            onChange={(selectedOption) => {
-              field.onChange(selectedOption?.value || "")
-              onChangeEvent?.(selectedOption)
-            }}
-            options={attendanceStatusOptions}
-            isDisabled={isDisabled}
-            isClearable={!isRequired}
-            placeholder="Select attendance status..."
-            components={{
-              DropdownIndicator,
-              ClearIndicator,
-              Option,
-              SingleValue,
-            }}
-            classNames={selectClassNames}
-            styles={{
-              control: (base) => ({
-                ...base,
-                minHeight: "40px",
-              }),
-            }}
-          />
+          <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+            <Select<AttendanceStatusOption>
+              value={
+                attendanceStatusOptions.find(
+                  (option) => option.value === field.value
+                ) || null
+              }
+              onChange={(selectedOption) => {
+                markOptionSelected(!!selectedOption)
+                field.onChange(selectedOption?.value || "")
+                onChangeEvent?.(selectedOption)
+              }}
+              onMenuClose={handleMenuClose}
+              onKeyDown={handleKeyDown}
+              options={attendanceStatusOptions}
+              isDisabled={isDisabled}
+              isClearable={!isRequired}
+              isSearchable
+              tabSelectsValue={false}
+              blurInputOnSelect
+              placeholder="Select attendance status..."
+              components={{
+                DropdownIndicator,
+                ClearIndicator,
+                Option,
+                SingleValue,
+              }}
+              classNames={selectClassNames}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: "40px",
+                }),
+              }}
+            />
+          </div>
         </FormItem>
       )}
     />

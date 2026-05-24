@@ -18,6 +18,7 @@ import Select, {
   StylesConfig,
   components,
 } from "react-select"
+import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
 
 import { cn } from "@/lib/utils"
 import { useJobOrderChargeLookup } from "@/hooks/use-lookup"
@@ -110,8 +111,10 @@ export default function JobOrderServiceAutocomplete<
   const Option = React.memo((props: OptionProps<FieldOption>) => {
     return (
       <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
+        <div className="flex items-start gap-2">
+          <span className="min-w-0 leading-snug break-words whitespace-normal">
+            {props.data.label}
+          </span>
         </div>
         {props.isSelected && (
           <span className="absolute right-2 flex size-3.5 items-center justify-center">
@@ -128,7 +131,7 @@ export default function JobOrderServiceAutocomplete<
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
         cn(
           "border-gray-400 dark:border-gray-500 data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50",
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-0.5 text-xs whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
+          "flex w-full items-start justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-0.5 text-xs shadow-xs transition-[color,box-shadow] outline-none",
           "focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
           state.isFocused
             ? "border-ring ring-[3px] ring-ring/50"
@@ -137,7 +140,7 @@ export default function JobOrderServiceAutocomplete<
           isRequired &&
             !state.isDisabled &&
             "bg-yellow-50 border-gray-400 dark:bg-yellow-950/20 dark:border-gray-500",
-          "h-7.5 min-h-7.5"
+          "min-h-7.5 h-auto"
         ),
       menu: () =>
         cn(
@@ -148,14 +151,15 @@ export default function JobOrderServiceAutocomplete<
       menuList: () => cn("p-1 overflow-auto"),
       option: (state: { isFocused: boolean; isSelected: boolean }) =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
+          "relative flex w-full cursor-default select-none items-start rounded-sm py-1 pl-2 pr-8 text-xs outline-none whitespace-normal break-words",
           state.isFocused && "bg-accent text-accent-foreground",
           state.isSelected && "bg-accent text-accent-foreground"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
-      singleValue: () => cn("text-foreground"), // Fixed to match menu list
-      valueContainer: () => cn("px-0 py-0.5 gap-1"),
+      singleValue: () =>
+        cn("text-foreground leading-snug break-words whitespace-normal"),
+      valueContainer: () => cn("min-w-0 px-0 py-0.5 gap-1"),
       input: () =>
         cn("text-foreground placeholder:text-muted-foreground m-0 p-0"),
       indicatorsContainer: () => cn(""), // Gap removed
@@ -196,7 +200,13 @@ export default function JobOrderServiceAutocomplete<
         ...provided,
         color: "var(--foreground)",
         fontSize: "12px",
-        height: "20px",
+        whiteSpace: "normal",
+        wordBreak: "break-word",
+      }),
+      option: (provided) => ({
+        ...provided,
+        whiteSpace: "normal",
+        wordBreak: "break-word",
       }),
       // Fix for dropdown appearing behind dialog
       menuPortal: (base) => ({
@@ -208,12 +218,20 @@ export default function JobOrderServiceAutocomplete<
     []
   )
 
+
   // Memoize handleChange to prevent unnecessary recreations
+
+  const {
+    selectControlRef,
+    handleMenuClose,
+    handleKeyDown,
+    markOptionSelected,
+  } = useReactSelectTabNavigation()
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
-      isOptionSelectedRef.current = !!selectedOption
+      markOptionSelected(!!selectedOption)
 
       if (form && name) {
         // Set the value as a number
@@ -230,7 +248,7 @@ export default function JobOrderServiceAutocomplete<
         onChangeEvent(selectedCharge)
       }
     },
-    [form, name, onChangeEvent, services]
+    [form, name, onChangeEvent, services, markOptionSelected]
   )
 
   // Memoize getValue to prevent unnecessary recalculations
@@ -245,61 +263,6 @@ export default function JobOrderServiceAutocomplete<
     return null
   }, [form, name, options])
 
-  // Handle menu close to maintain focus on the control
-  const selectControlRef = React.useRef<HTMLDivElement>(null)
-  const isTabPressedRef = React.useRef(false)
-  const isOptionSelectedRef = React.useRef(false)
-
-  const handleMenuClose = React.useCallback(() => {
-    // Only refocus if:
-    // 1. Tab was NOT pressed (to allow Tab navigation)
-    // 2. An option was actually selected (to distinguish from clicking outside)
-    if (!isTabPressedRef.current && isOptionSelectedRef.current) {
-      // Use requestAnimationFrame for smoother timing and less flicker
-      requestAnimationFrame(() => {
-        if (selectControlRef.current) {
-          const input = selectControlRef.current.querySelector(
-            "input"
-          ) as HTMLElement
-          if (input) {
-            const activeElement = document.activeElement as HTMLElement
-            const form = selectControlRef.current.closest("form")
-
-            // Only refocus if:
-            // 1. Focus is not already on the input
-            // 2. Focus is on the form, body, or outside the form
-            // 3. Focus is not on another form field
-            if (
-              activeElement !== input &&
-              form &&
-              (activeElement === form ||
-                activeElement === document.body ||
-                !form.contains(activeElement) ||
-                activeElement.tagName === "BODY")
-            ) {
-              input.focus()
-            }
-          }
-        }
-      })
-    }
-
-    // Reset flags after menu closes
-    requestAnimationFrame(() => {
-      isTabPressedRef.current = false
-      isOptionSelectedRef.current = false
-    })
-  }, [])
-
-  // Handle Tab key to allow normal tab navigation
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Tab") {
-        isTabPressedRef.current = true
-      }
-    },
-    []
-  )
 
   if (form && name) {
     return (
@@ -348,6 +311,7 @@ export default function JobOrderServiceAutocomplete<
                     value={getValue()}
                     onChange={handleChange}
                     onMenuClose={handleMenuClose}
+                    onKeyDown={handleKeyDown}
                     placeholder="Select Charge..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
@@ -424,6 +388,7 @@ export default function JobOrderServiceAutocomplete<
           options={options}
           onChange={handleChange}
           onMenuClose={handleMenuClose}
+          onKeyDown={handleKeyDown}
           placeholder="Select Charge..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}

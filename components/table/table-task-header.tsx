@@ -4,7 +4,6 @@ import { IGridSetting } from "@/interfaces/setting"
 import { Column } from "@tanstack/react-table"
 import {
   Building2,
-  ClipboardList,
   Forward,
   Layout,
   Plus,
@@ -17,7 +16,6 @@ import {
 } from "lucide-react"
 
 import { useDelete, usePersist } from "@/hooks/use-common"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -34,12 +32,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { DebitNoteConfirmation } from "@/components/confirmation/debitnote-confirmation"
 import { ServicelistDocuments } from "@/app/(root)/[companyId]/operations/checklist/[joborderId]/components/services-combined/service-documents"
 
@@ -67,8 +59,6 @@ type TaskTableHeaderProps<TData> = {
   // Props for column visibility control
   hideColumnsOnDebitNote?: string[] // Array of column IDs to hide when debit note exists
   hasDebitNoteInSelection?: boolean // Whether any selected row has debit note
-  // Props for job order info display
-  data?: TData[] // Table data to display charges summary
   onResetLayout?: () => void // Callback to reset layout in parent component
   // Props for document upload
   jobData?: IJobOrderHd | null // Job order data for document upload
@@ -97,7 +87,6 @@ export function TaskTableHeader<TData>({
   selectedRowIds = [],
   hideColumnsOnDebitNote = [],
   hasDebitNoteInSelection = false,
-  data = [],
   onResetLayout,
   jobData,
   transactionIdForDocuments,
@@ -111,33 +100,6 @@ export function TaskTableHeader<TData>({
     useState(false)
   // State for document upload dialog
   const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
-
-  // Extract and aggregate charges with quantities from data
-  const chargesData = useMemo(() => {
-    if (!data || data.length === 0) return []
-
-    // Group data by chargeName and sum quantities
-    const chargeMap = new Map<
-      string,
-      { chargeName: string; qty: number; count: number }
-    >()
-
-    data.forEach((item) => {
-      const itemData = item as Record<string, unknown>
-      const chargeName = (itemData.chargeName as string) || "N/A"
-      const qty = Number(itemData.quantity || itemData.qty || 0)
-
-      if (chargeMap.has(chargeName)) {
-        const existing = chargeMap.get(chargeName)!
-        existing.qty += qty
-        existing.count += 1
-      } else {
-        chargeMap.set(chargeName, { chargeName, qty, count: 1 })
-      }
-    })
-
-    return Array.from(chargeMap.values())
-  }, [data])
 
   // Filter columns based on search and debit note status - memoized to prevent re-renders
   const filteredColumns = useMemo(() => {
@@ -417,37 +379,6 @@ export function TaskTableHeader<TData>({
             >
               <UploadIcon className="h-4 w-4" />
             </Button>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge
-                    className="flex h-8 items-center px-4"
-                    variant="outline"
-                  >
-                    <ClipboardList className="mr-1 h-4 w-4" />
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-2xl">
-                  <div className="space-y-3">
-                    <h4 className="mb-3 font-semibold">{"Charges Summary"}</h4>
-
-                    {chargesData.length > 0 ? (
-                      <ul className="mb-4 list-disc space-y-1 pl-5">
-                        {chargesData.map((charge) => (
-                          <li key={charge.chargeName} className="font-semibold">
-                            {charge.chargeName}: {charge.qty}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">
-                        No charges available
-                      </p>
-                    )}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
 
             {/* Search Input */}
             <Input

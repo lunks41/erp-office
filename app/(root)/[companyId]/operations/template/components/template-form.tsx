@@ -86,9 +86,6 @@ export const TemplateForm = forwardRef<TemplateFormRef, TemplateFormProps>(
     const watchedTaskId = form.watch("taskId")
     const watchedDetails = form.watch("data_details")
 
-    // Check if details exist - if so, Task and Charge should be read-only
-    const hasDetails = watchedDetails && watchedDetails.length > 0
-
     // Get form errors for display
     const formErrors = form.formState.errors
 
@@ -181,7 +178,7 @@ export const TemplateForm = forwardRef<TemplateFormRef, TemplateFormProps>(
                   name="taskId"
                   label="Task"
                   isRequired
-                  isDisabled={mode === "view" || hasDetails}
+                  isDisabled={mode === "view"}
                 />
               </div>
               <div className="md:col-span-4">
@@ -190,7 +187,7 @@ export const TemplateForm = forwardRef<TemplateFormRef, TemplateFormProps>(
                   name="chargeId"
                   label="Charge"
                   isRequired
-                  isDisabled={mode === "view" || hasDetails}
+                  isDisabled={mode === "view"}
                 />
               </div>
               <div className="md:col-span-1">

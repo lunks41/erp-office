@@ -245,6 +245,7 @@ export function DebitNoteTableHeader<TData>({
           <div className="flex min-w-0 items-center gap-2 overflow-hidden">
             {!hideCreate && (
               <Button
+                type="button"
                 onClick={onCreateAction}
                 disabled={isConfirmed}
                 title={
@@ -258,6 +259,7 @@ export function DebitNoteTableHeader<TData>({
               </Button>
             )}
             <Button
+              type="button"
               variant="outline"
               size="icon"
               onClick={onRefreshAction}
@@ -271,6 +273,7 @@ export function DebitNoteTableHeader<TData>({
             {/* Bulk Delete Button - only show when items are selected */}
             {hasSelectedRows && selectedRowsCount > 0 && (
               <Button
+                type="button"
                 variant="destructive"
                 onClick={onBulkDeleteAction}
                 disabled={isConfirmed}
@@ -286,6 +289,7 @@ export function DebitNoteTableHeader<TData>({
             )}
             {/* Excel Export Button */}
             <Button
+              type="button"
               variant="outline"
               className="ml-4"
               title="Export to Excel"
@@ -296,6 +300,7 @@ export function DebitNoteTableHeader<TData>({
             </Button>
             {/* PDF Export Button */}
             <Button
+              type="button"
               variant="outline"
               title="Export to PDF"
               onClick={() => handleExportPdf(data)}
@@ -305,6 +310,7 @@ export function DebitNoteTableHeader<TData>({
             </Button>
             {/* Layout Change */}
             <Button
+              type="button"
               variant="outline"
               title="Save Layout"
               onClick={handleSaveLayout}
@@ -315,6 +321,7 @@ export function DebitNoteTableHeader<TData>({
 
             {/* Reset Default Layout Change */}
             <Button
+              type="button"
               variant="outline"
               title="Reset Layout"
               onClick={handleResetDefaultLayout}
@@ -335,6 +342,7 @@ export function DebitNoteTableHeader<TData>({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
+                  type="button"
                   variant="outline"
                   size="icon"
                   title="Column visibility settings"

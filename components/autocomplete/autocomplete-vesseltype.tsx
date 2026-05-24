@@ -18,6 +18,7 @@ import Select, {
   StylesConfig,
   components,
 } from "react-select"
+import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
 
 import { cn } from "@/lib/utils"
 import { useVesselTypeLookup } from "@/hooks/use-lookup"
@@ -197,10 +198,17 @@ export default function VesselTypeAutocomplete<
     []
   )
 
+
+  const {
+    selectControlRef,
+    handleMenuClose,
+    handleKeyDown,
+    markOptionSelected,
+  } = useReactSelectTabNavigation()
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
-      isOptionSelectedRef.current = !!selectedOption
+      markOptionSelected(!!selectedOption)
 
       if (form && name) {
         const value = selectedOption ? Number(selectedOption.value) : 0
@@ -216,7 +224,7 @@ export default function VesselTypeAutocomplete<
         onChangeEvent(selectedVesselType)
       }
     },
-    [form, name, onChangeEvent, vesselTypes]
+    [form, name, onChangeEvent, vesselTypes, markOptionSelected]
   )
 
   const getValue = React.useCallback(() => {
@@ -229,102 +237,6 @@ export default function VesselTypeAutocomplete<
     return null
   }, [form, name, options])
 
-  const selectControlRef = React.useRef<HTMLDivElement>(null)
-  const isTabPressedRef = React.useRef(false)
-  const isOptionSelectedRef = React.useRef(false)
-
-  const handleMenuClose = React.useCallback(() => {
-    if (!isTabPressedRef.current && isOptionSelectedRef.current) {
-      requestAnimationFrame(() => {
-        if (selectControlRef.current) {
-          const input = selectControlRef.current.querySelector(
-            "input"
-          ) as HTMLElement
-          if (input) {
-            const activeElement = document.activeElement as HTMLElement
-            const form = selectControlRef.current.closest("form")
-
-            if (
-              activeElement !== input &&
-              form &&
-              (activeElement === form ||
-                activeElement === document.body ||
-                !form.contains(activeElement) ||
-                activeElement.tagName === "BODY")
-            ) {
-              input.focus()
-            }
-          }
-        }
-      })
-    }
-
-    requestAnimationFrame(() => {
-      isTabPressedRef.current = false
-      isOptionSelectedRef.current = false
-    })
-  }, [])
-
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Tab") {
-        isTabPressedRef.current = true
-        const target = event.currentTarget
-        if (target) {
-          const input = target.querySelector("input") as HTMLElement
-          if (input && document.activeElement === input) {
-            event.preventDefault()
-            const form = target.closest("form")
-            let targetElement: HTMLElement | null = null
-            if (form) {
-              const allFocusable = Array.from(
-                form.querySelectorAll<HTMLElement>(
-                  "button:not([disabled]):not([tabindex='-1']), input:not([disabled]):not([tabindex='-1']), select:not([disabled]):not([tabindex='-1']), textarea:not([disabled]):not([tabindex='-1']), [tabindex]:not([disabled]):not([tabindex='-1'])"
-                )
-              )
-              const inputIndex = allFocusable.findIndex(
-                (el) => el === input || el.contains(input)
-              )
-
-              if (event.shiftKey) {
-                if (inputIndex !== -1 && inputIndex > 0) {
-                  targetElement = allFocusable[inputIndex - 1]
-                } else {
-                  const wrapperIndex = allFocusable.findIndex(
-                    (el) => target.contains(el) || el.contains(target)
-                  )
-                  if (wrapperIndex !== -1 && wrapperIndex > 0) {
-                    targetElement = allFocusable[wrapperIndex - 1]
-                  }
-                }
-              } else {
-                if (inputIndex !== -1 && inputIndex < allFocusable.length - 1) {
-                  targetElement = allFocusable[inputIndex + 1]
-                } else {
-                  const wrapperIndex = allFocusable.findIndex(
-                    (el) => target.contains(el) || el.contains(target)
-                  )
-                  if (
-                    wrapperIndex !== -1 &&
-                    wrapperIndex < allFocusable.length - 1
-                  ) {
-                    targetElement = allFocusable[wrapperIndex + 1]
-                  }
-                }
-              }
-            }
-            if (targetElement) {
-              targetElement.focus()
-              input.blur()
-            } else {
-              input.blur()
-            }
-          }
-        }
-      }
-    },
-    []
-  )
 
   if (form && name) {
     return (
@@ -373,6 +285,7 @@ export default function VesselTypeAutocomplete<
                     value={getValue()}
                     onChange={handleChange}
                     onMenuClose={handleMenuClose}
+                    onKeyDown={handleKeyDown}
                     placeholder="Select Vessel Type..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
@@ -448,6 +361,7 @@ export default function VesselTypeAutocomplete<
           options={options}
           onChange={handleChange}
           onMenuClose={handleMenuClose}
+          onKeyDown={handleKeyDown}
           placeholder="Select Vessel Type..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}

@@ -36,7 +36,7 @@ export default function EditDocumentPage() {
   const header = docRes?.data
 
   return (
-    <div className="@container mx-auto max-w-5xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
+    <div className="@container mx-auto w-full max-w-7xl space-y-4 px-4 pt-2 pb-6 sm:px-6 sm:pt-3">
       <Button variant="ghost" size="sm" asChild>
         <Link href={`${base}/details/${id}`}>
           <ArrowLeft className="mr-2 h-4 w-4" />

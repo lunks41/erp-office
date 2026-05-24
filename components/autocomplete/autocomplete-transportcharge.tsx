@@ -18,6 +18,7 @@ import Select, {
   StylesConfig,
   components,
 } from "react-select"
+import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
 
 import { cn } from "@/lib/utils"
 import { useTransportChargeLookup } from "@/hooks/use-lookup"
@@ -229,12 +230,21 @@ export default function TransportChargeAutocomplete<
     []
   )
 
+
   // Memoize handleChange to prevent unnecessary recreations
+
+  const {
+    selectControlRef,
+    handleMenuClose,
+    handleKeyDown,
+    resetOnMenuOpen,
+    markOptionSelected,
+  } = useReactSelectTabNavigation()
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
-      isOptionSelectedRef.current = !!selectedOption
+      markOptionSelected(!!selectedOption)
 
       if (form && name) {
         // Set the value as a number
@@ -251,7 +261,7 @@ export default function TransportChargeAutocomplete<
         onChangeEvent(selectedCharge)
       }
     },
-    [form, name, onChangeEvent, allTransportCharges]
+    [form, name, onChangeEvent, allTransportCharges, markOptionSelected]
   )
 
   // Memoize getValue to prevent unnecessary recalculations
@@ -266,66 +276,11 @@ export default function TransportChargeAutocomplete<
     return null
   }, [form, name, options])
 
-  // Handle menu close to maintain focus on the control
-  const selectControlRef = React.useRef<HTMLDivElement>(null)
-  const isTabPressedRef = React.useRef(false)
-  const isOptionSelectedRef = React.useRef(false)
-
-  const handleMenuClose = React.useCallback(() => {
-    // Only refocus if:
-    // 1. Tab was NOT pressed (to allow Tab navigation)
-    // 2. An option was actually selected (to distinguish from clicking outside)
-    if (!isTabPressedRef.current && isOptionSelectedRef.current) {
-      // Use requestAnimationFrame for smoother timing and less flicker
-      requestAnimationFrame(() => {
-        if (selectControlRef.current) {
-          const input = selectControlRef.current.querySelector(
-            "input"
-          ) as HTMLElement
-          if (input) {
-            const activeElement = document.activeElement as HTMLElement
-            const form = selectControlRef.current.closest("form")
-
-            // Only refocus if:
-            // 1. Focus is not already on the input
-            // 2. Focus is on the form, body, or outside the form
-            // 3. Focus is not on another form field
-            if (
-              activeElement !== input &&
-              form &&
-              (activeElement === form ||
-                activeElement === document.body ||
-                !form.contains(activeElement) ||
-                activeElement.tagName === "BODY")
-            ) {
-              input.focus()
-            }
-          }
-        }
-      })
-    }
-
-    // Reset flags after menu closes
-    requestAnimationFrame(() => {
-      isTabPressedRef.current = false
-      isOptionSelectedRef.current = false
-    })
-  }, [])
-
-  // Handle Tab key to allow normal tab navigation
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Tab") {
-        isTabPressedRef.current = true
-      }
-    },
-    []
-  )
 
   // Handle menu open to scroll to selected option
   const handleMenuOpen = React.useCallback(() => {
     // Reset the option selected flag when menu opens
-    isOptionSelectedRef.current = false
+    resetOnMenuOpen()
 
     // Use setTimeout to ensure the menu is fully rendered
     setTimeout(() => {
@@ -355,7 +310,7 @@ export default function TransportChargeAutocomplete<
         }
       }
     }, 150)
-  }, [form, name])
+  }, [form, name, resetOnMenuOpen])
 
   if (form && name) {
     return (
@@ -405,6 +360,7 @@ export default function TransportChargeAutocomplete<
                     onChange={handleChange}
                     onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
+                    onKeyDown={handleKeyDown}
                     placeholder="Select Charge..."
                     isDisabled={isDisabled || isLoadingAll}
                     isClearable={true}
@@ -499,6 +455,7 @@ export default function TransportChargeAutocomplete<
           onChange={handleChange}
           onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}
+          onKeyDown={handleKeyDown}
           placeholder="Select Charge..."
           isDisabled={isDisabled || isLoadingAll}
           isClearable={true}

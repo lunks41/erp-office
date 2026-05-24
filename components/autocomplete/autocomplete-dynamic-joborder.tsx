@@ -18,6 +18,7 @@ import Select, {
   StylesConfig,
   components,
 } from "react-select"
+import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
 
 import { cn } from "@/lib/utils"
 import { useJobOrderDynamicLookup } from "@/hooks/use-lookup"
@@ -248,12 +249,20 @@ export default function DynamicJobOrderAutocomplete<
     []
   )
 
+
   // Memoize handleChange to prevent unnecessary recreations
+
+  const {
+    selectControlRef,
+    handleMenuClose,
+    handleKeyDown,
+    markOptionSelected,
+  } = useReactSelectTabNavigation()
   const handleChange = React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
-      isOptionSelectedRef.current = !!selectedOption
+      markOptionSelected(!!selectedOption)
 
       // Don't clear query on selection - keep it for better UX
       // Query will be cleared when user starts typing again
@@ -304,7 +313,7 @@ export default function DynamicJobOrderAutocomplete<
         setSelectedJobOrder(null)
       }
     },
-    [form, name, onChangeEvent, displayJobOrders, jobOrderNoField]
+    [form, name, onChangeEvent, displayJobOrders, jobOrderNoField, markOptionSelected]
   )
 
   // Handle input change for search
@@ -338,61 +347,6 @@ export default function DynamicJobOrderAutocomplete<
     return null
   }, [form, name, mergedOptions])
 
-  // Handle menu close to maintain focus on the control
-  const selectControlRef = React.useRef<HTMLDivElement>(null)
-  const isTabPressedRef = React.useRef(false)
-  const isOptionSelectedRef = React.useRef(false)
-
-  const handleMenuClose = React.useCallback(() => {
-    // Only refocus if:
-    // 1. Tab was NOT pressed (to allow Tab navigation)
-    // 2. An option was actually selected (to distinguish from clicking outside)
-    if (!isTabPressedRef.current && isOptionSelectedRef.current) {
-      // Use requestAnimationFrame for smoother timing and less flicker
-      requestAnimationFrame(() => {
-        if (selectControlRef.current) {
-          const input = selectControlRef.current.querySelector(
-            "input"
-          ) as HTMLElement
-          if (input) {
-            const activeElement = document.activeElement as HTMLElement
-            const form = selectControlRef.current.closest("form")
-
-            // Only refocus if:
-            // 1. Focus is not already on the input
-            // 2. Focus is on the form, body, or outside the form
-            // 3. Focus is not on another form field
-            if (
-              activeElement !== input &&
-              form &&
-              (activeElement === form ||
-                activeElement === document.body ||
-                !form.contains(activeElement) ||
-                activeElement.tagName === "BODY")
-            ) {
-              input.focus()
-            }
-          }
-        }
-      })
-    }
-
-    // Reset flags after menu closes
-    requestAnimationFrame(() => {
-      isTabPressedRef.current = false
-      isOptionSelectedRef.current = false
-    })
-  }, [])
-
-  // Handle Tab key to allow normal tab navigation
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Tab") {
-        isTabPressedRef.current = true
-      }
-    },
-    []
-  )
 
   if (form && name) {
     return (
@@ -442,6 +396,7 @@ export default function DynamicJobOrderAutocomplete<
                     onChange={handleChange}
                     onInputChange={handleInputChange}
                     onMenuClose={handleMenuClose}
+                    onKeyDown={handleKeyDown}
                     placeholder="Select JobOrder..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
@@ -519,6 +474,7 @@ export default function DynamicJobOrderAutocomplete<
           onChange={handleChange}
           onInputChange={handleInputChange}
           onMenuClose={handleMenuClose}
+          onKeyDown={handleKeyDown}
           placeholder="Select JobOrder..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}

@@ -466,7 +466,6 @@ export function TaskTable<T>({
           selectedRowIds={selectedRowIds}
           hideColumnsOnDebitNote={["edit", "delete", "purchase"]} // Example: hide these columns when debit note exists
           hasDebitNoteInSelection={hasValidDebitNoteIds}
-          data={data}
           onResetLayout={handleResetLayout}
           jobData={jobData}
           transactionIdForDocuments={transactionIdForDocuments}

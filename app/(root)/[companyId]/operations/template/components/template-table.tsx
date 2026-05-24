@@ -1,8 +1,7 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { ITemplateFilter, ITemplateHd } from "@/interfaces/template"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -71,19 +70,19 @@ export function TemplateTable({
       accessorKey: "templateName",
       header: "Template Name",
       cell: ({ row }) => <div>{row.getValue("templateName")}</div>,
-      size: 200,
+      size: 300,
     },
     {
       accessorKey: "taskName",
       header: "Task",
       cell: ({ row }) => <div>{row.getValue("taskName") || "-"}</div>,
-      size: 150,
+      size: 200,
     },
     {
       accessorKey: "chargeName",
       header: "Charge",
       cell: ({ row }) => <div>{row.getValue("chargeName") || "-"}</div>,
-      size: 200,
+      size: 400,
     },
     {
       accessorKey: "isActive",

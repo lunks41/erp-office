@@ -227,12 +227,12 @@ export function DocumentBundleForm({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-14">Item no.</TableHead>
-                  <TableHead className="min-w-[160px]">Type</TableHead>
-                  <TableHead>Doc no.</TableHead>
-                  <TableHead>Issue</TableHead>
-                  <TableHead>Expiry</TableHead>
-                  <TableHead>Reminder</TableHead>
+                  <TableHead className="w-16">Item no.</TableHead>
+                  <TableHead className="min-w-[220px]">Type</TableHead>
+                  <TableHead className="min-w-[120px]">Doc no.</TableHead>
+                  <TableHead className="min-w-[150px]">Issue</TableHead>
+                  <TableHead className="min-w-[150px]">Expiry</TableHead>
+                  <TableHead className="min-w-[90px]">Reminder</TableHead>
                   <TableHead>Mandatory</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>

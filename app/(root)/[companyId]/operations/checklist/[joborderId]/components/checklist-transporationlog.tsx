@@ -249,7 +249,12 @@ export function TransportationLogTab({
         ...jobDataProps,
         data_details: (
           (processedData.data_details as
-            | Array<Partial<ISerTransportationDt> & { itemNo: number; serviceItemNo: number }>
+            | Array<
+                Partial<ISerTransportationDt> & {
+                  itemNo: number
+                  serviceItemNo: number
+                }
+              >
             | undefined) ?? []
         ).map((detail) => ({
           itemNo: detail.itemNo,
@@ -340,7 +345,7 @@ export function TransportationLogTab({
                     ? "border-green-200 bg-green-100 text-green-800"
                     : modalMode === "edit"
                       ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-border bg-blue-100 text-primary"
+                      : "border-border text-primary bg-blue-100"
                 }
               >
                 {modalMode === "create"
@@ -392,7 +397,7 @@ export function TransportationLogTab({
         >
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <DialogTitle>Transportation | Forklift Log</DialogTitle>
+              <DialogTitle>Transportation | Forklift </DialogTitle>
               <Badge
                 variant={
                   modalMode === "create"
@@ -406,7 +411,7 @@ export function TransportationLogTab({
                     ? "border-green-200 bg-green-100 text-green-800"
                     : modalMode === "edit"
                       ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-border bg-blue-100 text-primary"
+                      : "border-border text-primary bg-blue-100"
                 }
               >
                 {modalMode === "create"
@@ -420,7 +425,7 @@ export function TransportationLogTab({
               {modalMode === "create"
                 ? "Add a new transportation log entry to this job order."
                 : modalMode === "edit"
-                  ? "Update the transportation | forklift log details."
+                  ? "Update the transportation | forklift details."
                   : "View transportation log details (read-only)."}
             </DialogDescription>
           </DialogHeader>

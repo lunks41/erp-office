@@ -719,7 +719,7 @@ export function CrewSignOffTab({
       />
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[85vh] w-[95vw] !max-w-[1400px] overflow-x-hidden overflow-y-auto"
+          className="max-h-[85vh] w-[90vw] max-w-none! overflow-x-hidden overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}

@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { ChargeAutocomplete } from "@/components/autocomplete"
 
 import { TemplateDetailsTable } from "./template-details-table"
@@ -217,8 +217,8 @@ export function TemplateDetailsForm({
         <div className="mb-3 space-y-3">
           <Form {...detailsForm}>
             <div className="space-y-3">
-              <div className="bg-card grid grid-cols-1 gap-2 rounded-lg border p-2 shadow-sm md:grid-cols-3">
-                <div className="md:col-span-1">
+              <div className="bg-card flex flex-col gap-2 rounded-lg border p-2 shadow-sm sm:flex-row sm:items-end">
+                <div className="min-w-0 shrink-0 sm:w-[220px]">
                   <ChargeAutocomplete
                     form={detailsForm}
                     name="chargeId"
@@ -234,7 +234,7 @@ export function TemplateDetailsForm({
                     }}
                   />
                 </div>
-                <div className="md:col-span-2">
+                <div className="min-w-0 flex-1">
                   <FormField
                     control={detailsForm.control}
                     name="remarks"
@@ -242,11 +242,10 @@ export function TemplateDetailsForm({
                       <FormItem>
                         <FormLabel>Remarks</FormLabel>
                         <FormControl>
-                          <Textarea
+                          <Input
                             {...field}
                             value={field.value || ""}
-                            rows={4}
-                            className="resize-y"
+                            placeholder="Remarks for this charge line"
                           />
                         </FormControl>
                         <FormMessage />
@@ -254,28 +253,29 @@ export function TemplateDetailsForm({
                     )}
                   />
                 </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCloseDialog}
-                  className="flex items-center gap-2"
-                >
-                  <XIcon className="h-4 w-4" />
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    detailsForm.handleSubmit((data) =>
-                      handleSaveDetail(data, e)
-                    )()
-                  }}
-                >
-                  {editingDetail ? "Edit" : "Add"}
-                </Button>
+                <div className="flex shrink-0 gap-2 pb-0.5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCloseDialog}
+                    className="flex items-center gap-2"
+                  >
+                    <XIcon className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      detailsForm.handleSubmit((data) =>
+                        handleSaveDetail(data, e)
+                      )()
+                    }}
+                  >
+                    {editingDetail ? "Edit" : "Add"}
+                  </Button>
+                </div>
               </div>
             </div>
           </Form>
