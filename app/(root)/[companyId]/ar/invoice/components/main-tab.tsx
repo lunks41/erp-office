@@ -26,6 +26,7 @@ interface MainProps {
   required: IMandatoryFields
   companyId: number
   isCancelled?: boolean
+  detailsFormRef?: React.RefObject<InvoiceDetailsFormRef | null>
 }
 
 export default function Main({
@@ -36,6 +37,7 @@ export default function Main({
   required,
   companyId,
   isCancelled = false,
+  detailsFormRef: externalDetailsFormRef,
 }: MainProps) {
   const { decimals } = useCompanyStore()
 
@@ -54,6 +56,13 @@ export default function Main({
   const [itemToDelete, setItemToDelete] = useState<number | null>(null)
   const previousInvoiceKeyRef = useRef<string>("")
   const detailsFormRef = useRef<InvoiceDetailsFormRef>(null)
+
+  const handleDetailsFormRef = (instance: InvoiceDetailsFormRef | null) => {
+    detailsFormRef.current = instance
+    if (externalDetailsFormRef) {
+      externalDetailsFormRef.current = instance
+    }
+  }
 
   // Watch data_details for reactive updates
   const watchedDataDetails = form.watch("data_details")
@@ -283,7 +292,7 @@ export default function Main({
 
       <div className="w-full min-w-0">
         <InvoiceDetailsForm
-          ref={detailsFormRef}
+          ref={handleDetailsFormRef}
           Hdform={form}
           onAddRowAction={handleAddRow}
           onCancelEdit={editingDetail ? handleCancelEdit : undefined}

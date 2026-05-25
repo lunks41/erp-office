@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IJobOrderHd,
   IOtherService,
   IOtherServiceFilter,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -178,6 +177,17 @@ export function OtherServiceTable({
         size: 120,
         minSize: 100,
       },
+
+      {
+        accessorKey: "supplierName",
+        header: "Supplier Name",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("supplierName") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
       {
         accessorKey: "serviceProvider",
         header: "Service Provider",
@@ -205,7 +215,11 @@ export function OtherServiceTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,
@@ -215,7 +229,11 @@ export function OtherServiceTable({
         header: "Amount",
         cell: ({ row }) => {
           const value = row.getValue("amount") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 120,
         minSize: 100,

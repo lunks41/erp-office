@@ -79,6 +79,7 @@ import {
   SaveConfirmation,
 } from "@/components/confirmation"
 
+import type { AdjustmentDetailsFormRef } from "./components/adjustment-details-form"
 import { getDefaultValues } from "./components/adjustment-defaultvalues"
 import AdjustmentTable from "./components/adjustment-table"
 import History from "./components/history"
@@ -301,6 +302,7 @@ export default function AdjustmentPage() {
   })
 
   const previousDateFormatRef = useRef<string>(dateFormat)
+  const detailsFormRef = useRef<AdjustmentDetailsFormRef | null>(null)
   const { isDirty } = form.formState
 
   // Watch isDebit value for badge display
@@ -787,6 +789,7 @@ export default function AdjustmentPage() {
           ...defaultAdjustmentValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `Adjustment ${adjustment.adjustmentNo} deleted successfully`
         )
@@ -817,6 +820,7 @@ export default function AdjustmentPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("Ready for new Adjustment")
   }
 
@@ -1587,6 +1591,7 @@ export default function AdjustmentPage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

@@ -73,6 +73,7 @@ import {
 } from "@/components/confirmation"
 
 import { getDefaultValues } from "./components/glJournal-defaultvalues"
+import type { GLJournalDetailsFormRef } from "./components/glJournal-details-form"
 import GLJournalTable from "./components/glJournal-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -143,6 +144,7 @@ export default function GLJournalPage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<GLJournalDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -767,6 +769,7 @@ export default function GLJournalPage() {
           ...defaultGLJournalValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(`GLJournal ${glJournal.journalNo} deleted successfully`)
         // Data refresh handled by GLJournalTable component
       } else {
@@ -795,6 +798,9 @@ export default function GLJournalPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+
+    detailsFormRef.current?.resetForm()
+
     toast.success("GLJournal reset successfully")
   }
 
@@ -1457,6 +1463,7 @@ export default function GLJournalPage() {
           required={required}
           companyId={Number(companyId)}
           isCancelled={isCancelled}
+          detailsFormRef={detailsFormRef}
         />
       </TabsContent>
 

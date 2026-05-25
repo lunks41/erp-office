@@ -90,6 +90,17 @@ export function OtherServiceHistoryDialog({
       minSize: 100,
     },
     {
+      accessorKey: "supplierName",
+      header: "Supplier Name",
+      cell: ({ row }) => (
+        <div className="max-w-xs truncate font-medium">
+          {row.getValue("supplierName") || "-"}
+        </div>
+      ),
+      size: 150,
+      minSize: 120,
+    },
+    {
       accessorKey: "serviceProvider",
       header: "Service Provider",
       cell: ({ row }) => (

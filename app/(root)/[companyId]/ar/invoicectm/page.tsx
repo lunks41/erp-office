@@ -79,6 +79,7 @@ import {
 } from "@/components/confirmation"
 
 import History from "./components/history"
+import type { InvoiceCtmDetailsFormRef } from "./components/invoicectm-details-form"
 import { getDefaultValues } from "./components/invoicectm-defaultvalues"
 import InvoiceTable from "./components/invoicectm-table"
 import Main from "./components/main-tab"
@@ -314,6 +315,7 @@ export default function InvoiceCtmPage() {
   })
 
   const previousDateFormatRef = useRef<string>(dateFormat)
+  const detailsFormRef = useRef<InvoiceCtmDetailsFormRef | null>(null)
   const { isDirty } = form.formState
 
   useEffect(() => {
@@ -784,6 +786,7 @@ export default function InvoiceCtmPage() {
           ...defaultInvoiceValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(`Invoice ${invoice.invoiceNo} deleted successfully`)
         // Data refresh handled by InvoiceTable component
       } else {
@@ -812,6 +815,7 @@ export default function InvoiceCtmPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("Invoice reset successfully")
   }
 
@@ -1587,6 +1591,7 @@ export default function InvoiceCtmPage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

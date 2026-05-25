@@ -80,6 +80,7 @@ import {
 } from "@/components/confirmation"
 
 import { getDefaultValues } from "./components/adjustment-defaultvalues"
+import type { AdjustmentDetailsFormRef } from "./components/adjustment-details-form"
 import AdjustmentTable from "./components/adjustment-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -145,6 +146,7 @@ export default function AdjustmentPage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<AdjustmentDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -786,6 +788,7 @@ export default function AdjustmentPage() {
           ...defaultAdjustmentValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `Adjustment ${adjustment.adjustmentNo} deleted successfully`
         )
@@ -816,6 +819,7 @@ export default function AdjustmentPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("Adjustment reset successfully")
   }
 
@@ -1584,6 +1588,7 @@ export default function AdjustmentPage() {
           required={required}
           companyId={Number(companyId)}
           isCancelled={isCancelled}
+          detailsFormRef={detailsFormRef}
         />
       </TabsContent>
 

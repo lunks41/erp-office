@@ -77,6 +77,7 @@ import {
 
 import History from "./components/history"
 import { getDefaultValues } from "./components/invoice-defaultvalues"
+import type { InvoiceDetailsFormRef } from "./components/invoice-details-form"
 import InvoiceTable from "./components/invoice-table"
 import Main from "./components/main-tab"
 import Other from "./components/other"
@@ -139,6 +140,7 @@ export default function InvoicePage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<InvoiceDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -790,6 +792,7 @@ export default function InvoicePage() {
           ...defaultInvoiceValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(`Invoice ${invoice.invoiceNo} deleted successfully`)
         // Data refresh handled by InvoiceTable component
       } else {
@@ -818,6 +821,7 @@ export default function InvoicePage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("Invoice reset successfully")
   }
 
@@ -1525,6 +1529,7 @@ export default function InvoicePage() {
           required={required}
           companyId={Number(companyId)}
           isCancelled={isCancelled}
+          detailsFormRef={detailsFormRef}
         />
       </TabsContent>
 

@@ -79,6 +79,7 @@ import {
 } from "@/components/confirmation"
 
 import { getDefaultValues } from "./components/cbpettycash-defaultvalues"
+import type { CbPettyCashDetailsFormRef } from "./components/cbpettycash-details-form"
 import CbPettyCashTable from "./components/cbpettycash-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -143,6 +144,7 @@ export default function CbPettyCashPage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<CbPettyCashDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -806,6 +808,7 @@ export default function CbPettyCashPage() {
           ...defaultCbPettyCashValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `CbPettyCash ${cbPettyCash.paymentNo} deleted successfully`
         )
@@ -839,6 +842,9 @@ export default function CbPettyCashPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+
+    detailsFormRef.current?.resetForm()
+
     toast.success("CbPettyCash reset successfully")
   }
 
@@ -1522,6 +1528,7 @@ export default function CbPettyCashPage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

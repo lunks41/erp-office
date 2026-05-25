@@ -74,6 +74,7 @@ export interface AdjustmentDetailsFormRef {
     exchangeRate?: number,
     countryExchangeRate?: number
   ) => void
+  resetForm: () => void
 }
 
 interface AdjustmentDetailsFormProps {
@@ -330,9 +331,26 @@ const AdjustmentDetailsForm = React.forwardRef<
       )
     }
 
+    const resetFormToDefaults = () => {
+      const nextItemNo = getNextItemNo()
+      const defaultValues = createDefaultValues(nextItemNo)
+      const populatedValues = populateCodeNameFields(defaultValues)
+      form.reset(populatedValues)
+      setSubmitAttempted(false)
+      originalTotAmtRef.current = 0
+      originalQtyRef.current = 0
+      originalBillQtyRef.current = 0
+      originalUnitPriceRef.current = 0
+      originalGstPercentageRef.current = 0
+      exchangeRateWhenLoadedRef.current = Hdform.getValues("exhRate") || 0
+      countryExchangeRateWhenLoadedRef.current =
+        Hdform.getValues("ctyExhRate") || 0
+    }
+
     // Expose recalculation function via ref so it can be called from parent
     useImperativeHandle(ref, () => ({
       recalculateAmounts: recalculateAmountsOnExchangeRateChange,
+      resetForm: resetFormToDefaults,
     }))
 
     // Apply default IDs when they become available (only for new records)

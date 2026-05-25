@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useMemo } from "react"
 import { IConsignmentExport, IJobOrderHd } from "@/interfaces/checklist"
 import {
   ConsignmentExportSchema,
   ConsignmentExportSchemaType,
 } from "@/schemas/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -321,33 +320,20 @@ export function ConsignmentExportForm({
                 isDisabled={isConfirmed}
               />
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              <CustomTextarea
-                form={form}
-                name="description"
-                label="Description"
-                isDisabled={isConfirmed}
-              />
-              <CustomTextarea
-                form={form}
-                name="remarks"
-                label="Remarks"
-                isDisabled={isConfirmed}
-              />
-              <CustomTextarea
+            <div className="grid grid-cols-5 gap-2">
+              <CustomInput
                 form={form}
                 name="pickupLocation"
                 label="Pickup Location"
                 isDisabled={isConfirmed}
               />
-              <CustomTextarea
+              <CustomInput
                 form={form}
                 name="deliveryLocation"
                 label="Delivery Location"
                 isDisabled={isConfirmed}
               />
-            </div>
-            <div className="grid grid-cols-5 gap-2">
+
               <CustomDateNew
                 form={form}
                 name="deliverDate"
@@ -388,17 +374,32 @@ export function ConsignmentExportForm({
                 label="Refund Instrument No"
                 isDisabled={isConfirmed}
               />
-           <CustomInput
+              <CustomInput
                 form={form}
                 name="existPortCustom"
                 label="Exist Port Custom"
                 isDisabled={isConfirmed}
               />
-            
+
               <CustomSwitch
                 form={form}
                 name="isCleared"
                 label="Is Cleared"
+                isDisabled={isConfirmed}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <CustomTextarea
+                form={form}
+                name="description"
+                label="Description"
+                isDisabled={isConfirmed}
+              />
+              <CustomTextarea
+                form={form}
+                name="remarks"
+                label="Remarks"
                 isDisabled={isConfirmed}
               />
             </div>

@@ -108,6 +108,16 @@ export function OtherServiceTable({
         minSize: 100,
       },
       {
+        accessorKey: "supplierName",
+        header: "Supplier Name",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("supplierName") || "-"}</div>
+        ),
+        size: 200,
+        minSize: 150,
+        enableColumnFilter: true,
+      },
+      {
         accessorKey: "serviceProvider",
         header: "Service Provider",
         cell: ({ row }) => (

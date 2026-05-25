@@ -44,6 +44,7 @@ import { defaultCbBankTransferCtmDt } from "./cbbanktransferctm-defaultvalues"
 
 export interface CbBankTransferCtmDetailsFormRef {
   recalculateAmounts: (exchangeRate?: number) => void
+  resetForm: () => void
 }
 
 interface CbBankTransferCtmDetailsFormProps {
@@ -222,9 +223,17 @@ const CbBankTransferCtmDetailsForm = React.forwardRef<
       }
     }
 
+    const resetFormToDefaults = () => {
+      const nextItemNo = getNextItemNo()
+      const defaultValues = createDefaultValues(nextItemNo)
+      const populatedValues = populateCodeNameFields(defaultValues)
+      form.reset(populatedValues)
+    }
+
     // Expose recalculation function via ref so it can be called from parent
     useImperativeHandle(ref, () => ({
       recalculateAmounts: recalculateAmountsOnExchangeRateChange,
+      resetForm: resetFormToDefaults,
     }))
 
     useEffect(() => {

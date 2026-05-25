@@ -98,6 +98,7 @@ export interface CbPettyCashDetailsFormRef {
     exchangeRate?: number,
     countryExchangeRate?: number
   ) => void
+  resetForm: () => void
 }
 
 interface CbPettyCashDetailsFormProps {
@@ -501,9 +502,26 @@ const CbPettyCashDetailsForm = React.forwardRef<
       )
     }
 
-    // Expose recalculation function via ref so it can be called from parent
+    const resetFormToDefaults = () => {
+      const nextItemNo = getNextItemNo()
+      const defaultValues = createDefaultValues(nextItemNo)
+      const populatedValues = populateCodeNameFields(defaultValues)
+      form.reset(populatedValues)
+      setSubmitAttempted(false)
+      setShowDuplicateConfirmation(false)
+      setPendingSubmitData(null)
+      setShowApiDuplicateConfirmation(false)
+      setApiDuplicateMessage("")
+      setShouldCheckDuplicate(false)
+      setDuplicateCheckData(null)
+      exchangeRateWhenLoadedRef.current = Hdform.getValues("exhRate") || 0
+      countryExchangeRateWhenLoadedRef.current =
+        Hdform.getValues("ctyExhRate") || 0
+    }
+
     useImperativeHandle(ref, () => ({
       recalculateAmounts: recalculateAmountsOnExchangeRateChange,
+      resetForm: resetFormToDefaults,
     }))
 
     // Apply default IDs when they become available (only for new records)

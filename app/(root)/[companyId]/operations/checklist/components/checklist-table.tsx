@@ -2,7 +2,7 @@
 
 import { useCompanyStore } from "@/stores/company-store"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IJobOrderHd } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
@@ -20,8 +20,108 @@ import {
 } from "@/helpers/project"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { JobTable } from "@/components/table/table-job"
 import { TableCellLink } from "@/components/ui/table-cell-link"
+
+const TASK_PILL_DEFS: Array<{ label: string; key: keyof IJobOrderHd }> = [
+  { label: "Port Expenses", key: "portExpensesCount" },
+  { label: "Launch Service", key: "launchServiceCount" },
+  { label: "Equipment Used", key: "equipmentUsedCount" },
+  { label: "Crew SignOn", key: "crewSignOnCount" },
+  { label: "Crew SignOff", key: "crewSignOffCount" },
+  { label: "Crew Miscellaneous", key: "crewMiscellaneousCount" },
+  { label: "Medical Assistance", key: "medicalAssistanceCount" },
+  { label: "Consignment Import", key: "consignmentImportCount" },
+  { label: "Consignment Export", key: "consignmentExportCount" },
+  { label: "Third Party", key: "thirdPartyCount" },
+  { label: "Fresh Water", key: "freshWaterCount" },
+  { label: "Technician Surveyor", key: "technicianSurveyorCount" },
+  { label: "Landing Items", key: "landingItemsCount" },
+  { label: "Other Service", key: "otherServiceCount" },
+  { label: "Agency Remuneration", key: "agencyRemunerationCount" },
+]
+
+function TaskCountHoverCell({ row }: { row: IJobOrderHd }) {
+  const [open, setOpen] = useState(false)
+  const total = row.totalTaskCount ?? 0
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          className="focus-visible:ring-ring inline-flex items-center justify-center rounded-md focus-visible:ring-2 focus-visible:outline-none"
+          aria-label={`Show task breakdown (${total})`}
+        >
+          <Badge
+            variant={total > 0 ? "default" : "secondary"}
+            className={`px-2 py-0.5 text-xs font-semibold ${
+              total > 0
+                ? "bg-primary/10 text-primary hover:bg-primary/15"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {total}
+          </Badge>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="right"
+        align="start"
+        sideOffset={8}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        className="w-80 p-3"
+      >
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-semibold">Task Breakdown</span>
+          <Badge variant="secondary" className="px-2 py-0.5 text-xs">
+            Total {total}
+          </Badge>
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          {TASK_PILL_DEFS.map((def) => {
+            const count = (row[def.key] as number | undefined) ?? 0
+            const hasData = count > 0
+            return (
+              <div
+                key={def.key as string}
+                className={`flex items-center justify-between rounded-md border px-2 py-1 text-xs ${
+                  hasData
+                    ? "border-primary/30 bg-primary/5"
+                    : "border-transparent bg-muted/40 text-muted-foreground"
+                }`}
+              >
+                <span className="truncate" title={def.label}>
+                  {def.label}
+                </span>
+                <Badge
+                  variant={hasData ? "default" : "secondary"}
+                  className={`ml-2 h-5 min-w-[1.5rem] justify-center px-1.5 text-[10px] font-semibold ${
+                    hasData
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {count}
+                </Badge>
+              </div>
+            )
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 interface ChecklistTableProps {
   data: IJobOrderHd[]
@@ -229,6 +329,15 @@ export function ChecklistTable({
         },
         size: 90,
         minSize: 70,
+      },
+      {
+        id: "totalTaskCount",
+        accessorKey: "totalTaskCount",
+        header: "Tasks",
+        cell: ({ row }) => <TaskCountHoverCell row={row.original} />,
+        size: 70,
+        minSize: 60,
+        maxSize: 80,
       },
       {
         accessorKey: "etaDate",

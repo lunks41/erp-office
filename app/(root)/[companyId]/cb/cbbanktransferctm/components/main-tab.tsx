@@ -30,6 +30,7 @@ interface MainProps {
   required: IMandatoryFields
   companyId: number
   isCancelled?: boolean
+  detailsFormRef?: React.RefObject<CbBankTransferCtmDetailsFormRef | null>
 }
 
 export default function Main({
@@ -40,6 +41,7 @@ export default function Main({
   required,
   companyId,
   isCancelled = false,
+  detailsFormRef: externalDetailsFormRef,
 }: MainProps) {
   const { decimals } = useCompanyStore()
 
@@ -58,6 +60,15 @@ export default function Main({
   const [itemToDelete, setItemToDelete] = useState<number | null>(null)
   const previousBankTransferCtmKeyRef = useRef<string>("")
   const detailsFormRef = useRef<CbBankTransferCtmDetailsFormRef>(null)
+
+  const handleDetailsFormRef = (
+    instance: CbBankTransferCtmDetailsFormRef | null
+  ) => {
+    detailsFormRef.current = instance
+    if (externalDetailsFormRef) {
+      externalDetailsFormRef.current = instance
+    }
+  }
 
   // Watch data_details for reactive updates
   const watchedDataDetails = form.watch("data_details")
@@ -340,7 +351,7 @@ export default function Main({
       />
 
       <CbBankTransferCtmDetailsForm
-        ref={detailsFormRef}
+        ref={handleDetailsFormRef}
         Hdform={form}
         onAddRowAction={handleAddRow}
         onCancelEdit={editingDetail ? handleCancelEdit : undefined}

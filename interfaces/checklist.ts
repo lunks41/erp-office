@@ -71,6 +71,23 @@ export interface IJobOrderHd {
   contactName?: string
   mobileNo?: string
   emailAdd?: string
+  // Task line counts (mirrors E_Task 1..15 on the server).
+  portExpensesCount?: number
+  launchServiceCount?: number
+  equipmentUsedCount?: number
+  crewSignOnCount?: number
+  crewSignOffCount?: number
+  crewMiscellaneousCount?: number
+  medicalAssistanceCount?: number
+  consignmentImportCount?: number
+  consignmentExportCount?: number
+  thirdPartyCount?: number
+  freshWaterCount?: number
+  technicianSurveyorCount?: number
+  landingItemsCount?: number
+  otherServiceCount?: number
+  agencyRemunerationCount?: number
+  totalTaskCount?: number
 }
 
 export interface IJobOrderDt {
@@ -631,7 +648,8 @@ export interface IOtherService {
   taskId: number
   chargeId: number
   chargeName?: string
-
+  supplierId: number
+  supplierName?: string
   serviceProvider: string
   quantity: number
   amount: number

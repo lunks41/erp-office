@@ -1,14 +1,14 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useMemo } from "react"
 import { IJobOrderHd, IOtherService } from "@/interfaces/checklist"
 import { IChargeLookup } from "@/interfaces/lookup"
 import { OtherServiceSchema, OtherServiceSchemaType } from "@/schemas/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
+
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Task } from "@/lib/operations-utils"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import {
   ChargeAutocomplete,
+  SupplierAutocomplete,
   TaskStatusAutocomplete,
   UomAutocomplete,
 } from "@/components/autocomplete"
@@ -96,6 +97,7 @@ export function OtherServiceForm({
       debitNoteId: initialData?.debitNoteId ?? 0,
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
+      supplierId: initialData?.supplierId ?? 0,
       serviceProvider: initialData?.serviceProvider ?? "",
       quantity: initialData?.quantity ?? 1,
       amount: initialData?.amount ?? 0,
@@ -142,6 +144,7 @@ export function OtherServiceForm({
       debitNoteId: initialData?.debitNoteId ?? 0,
       debitNoteNo: initialData?.debitNoteNo ?? "",
       poNo: initialData?.poNo ?? "",
+      supplierId: initialData?.supplierId ?? 0,
       serviceProvider: initialData?.serviceProvider ?? "",
       quantity: initialData?.quantity ?? 1,
       amount: initialData?.amount ?? 0,
@@ -169,6 +172,13 @@ export function OtherServiceForm({
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-2">
             <div className="grid grid-cols-3 gap-2">
+              <SupplierAutocomplete
+                form={form}
+                name="supplierId"
+                label="Supplier"
+                isRequired
+                isDisabled={isConfirmed}
+              />
               <CustomInput
                 form={form}
                 name="serviceProvider"
@@ -192,14 +202,6 @@ export function OtherServiceForm({
                 isRequired={true}
                 isDisabled={isConfirmed}
               />
-              <CustomDateNew
-                form={form}
-                name="date"
-                label="Service Date"
-                isRequired={true}
-                isDisabled={isConfirmed}
-                isFutureShow={true}
-              />
 
               <CustomNumberInput
                 form={form}
@@ -215,6 +217,14 @@ export function OtherServiceForm({
                 round={amtDec}
                 isRequired
                 isDisabled={isConfirmed}
+              />
+              <CustomDateNew
+                form={form}
+                name="date"
+                label="Service Date"
+                isRequired={true}
+                isDisabled={isConfirmed}
+                isFutureShow={true}
               />
               <CustomInput
                 form={form}

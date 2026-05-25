@@ -78,6 +78,7 @@ import {
 } from "@/components/layout/transaction-workspace-layout"
 
 import { getDefaultValues } from "./components/creditnote-defaultvalues"
+import type { CreditNoteDetailsFormRef } from "./components/creditnote-details-form"
 import CreditNoteTable from "./components/creditnote-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -143,6 +144,7 @@ export default function CreditNotePage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<CreditNoteDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -813,6 +815,7 @@ export default function CreditNotePage() {
           ...defaultCreditNoteValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `CreditNote ${creditNote.creditNoteNo} deleted successfully`
         )
@@ -843,6 +846,7 @@ export default function CreditNotePage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("CreditNote reset successfully")
   }
 
@@ -1564,6 +1568,7 @@ export default function CreditNotePage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

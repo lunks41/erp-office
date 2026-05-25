@@ -79,6 +79,7 @@ import {
 } from "@/components/confirmation"
 
 import { getDefaultValues } from "./components/cbgenpayment-defaultvalues"
+import type { CbGenPaymentDetailsFormRef } from "./components/cbgenpayment-details-form"
 import CbGenPaymentTable from "./components/cbgenpayment-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -143,6 +144,7 @@ export default function CbGenPaymentPage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<CbGenPaymentDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -802,6 +804,7 @@ export default function CbGenPaymentPage() {
           ...defaultCbGenPaymentValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `CbGenPayment ${cbGenPayment.paymentNo} deleted successfully`
         )
@@ -832,6 +835,9 @@ export default function CbGenPaymentPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+
+    detailsFormRef.current?.resetForm()
+
     toast.success("CbGenPayment reset successfully")
   }
 
@@ -1508,6 +1514,7 @@ export default function CbGenPaymentPage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

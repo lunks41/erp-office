@@ -78,6 +78,7 @@ import {
   transactionTabPanelClass,
 } from "@/components/layout/transaction-workspace-layout"
 
+import type { CreditNoteDetailsFormRef } from "./components/creditnote-details-form"
 import { getDefaultValues } from "./components/creditnote-defaultvalues"
 import CreditNoteTable from "./components/creditnote-table"
 import History from "./components/history"
@@ -318,6 +319,7 @@ export default function CreditNotePage() {
   })
 
   const previousDateFormatRef = useRef<string>(dateFormat)
+  const detailsFormRef = useRef<CreditNoteDetailsFormRef | null>(null)
   const { isDirty } = form.formState
 
   useEffect(() => {
@@ -798,6 +800,7 @@ export default function CreditNotePage() {
           ...defaultCreditNoteValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `CreditNote ${creditNote.creditNoteNo} deleted successfully`
         )
@@ -828,6 +831,7 @@ export default function CreditNotePage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("Ready for new CreditNote")
   }
 
@@ -1611,6 +1615,7 @@ export default function CreditNotePage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

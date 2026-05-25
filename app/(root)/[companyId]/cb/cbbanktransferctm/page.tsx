@@ -67,6 +67,7 @@ import {
 } from "@/components/confirmation"
 
 import { getDefaultValues } from "./components/cbbanktransferctm-defaultvalues"
+import type { CbBankTransferCtmDetailsFormRef } from "./components/cbbanktransferctm-details-form"
 import CbBankTransferCtmTable from "./components/cbbanktransferctm-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -132,6 +133,7 @@ export default function CbBankTransferCtmPage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<CbBankTransferCtmDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -689,6 +691,7 @@ export default function CbBankTransferCtmPage() {
           ...defaultCbBankTransferCtmValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `Bank Transfer CTM ${cbBankTransferCtm.transferNo} deleted successfully`
         )
@@ -719,6 +722,9 @@ export default function CbBankTransferCtmPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+
+    detailsFormRef.current?.resetForm()
+
     toast.success("Bank Transfer CTM reset successfully")
   }
 
@@ -1373,6 +1379,7 @@ export default function CbBankTransferCtmPage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

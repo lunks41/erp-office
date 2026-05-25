@@ -1,103 +1,102 @@
 import { z } from "zod"
 
-export const JobOrderHdSchema = z
-  .object({
-    jobOrderId: z.number(),
-    jobOrderNo: z
-      .string()
-      .max(20, "Job Order No must be less than 20 characters")
-      .optional(),
-    jobOrderDate: z.union([z.date(), z.string()]),
-    customerId: z.number().min(1, "Customer is required"),
-    currencyId: z.number().min(1, "Currency is required"),
-    exhRate: z.number().min(0, "Exchange rate must be 0 or greater"),
-    vesselId: z.number().min(1, "Vessel is required"),
-    imoCode: z
-      .string()
-      .max(10, "IMO Code must be less than 10 characters")
-      .optional(),
-    vesselDistance: z.number().min(0, "Vessel Distance must be 0 or greater"),
-    portId: z.number().min(1, "Port is required"),
-    lastPortId: z.number().optional(),
-    nextPortId: z.number().optional(),
-    voyageId: z.number().optional(),
-    geoLocationId: z.number().optional(),
-    latitude: z
-      .string()
-      .max(100, "Latitude cannot exceed 50 characters")
-      .optional(),
-    longitude: z
-      .string()
-      .max(100, "Longitude cannot exceed 50 characters")
-      .optional(),
-    natureOfCall: z
-      .string()
-      .max(200, "Nature of Call must be less than 200 characters")
-      .optional(),
-    isps: z
-      .string()
-      .max(200, "ISPS must be less than 200 characters")
-      .optional(),
-    etaDate: z.union([z.date(), z.string(), z.null()]).optional(),
-    etdDate: z.union([z.date(), z.string(), z.null()]).optional(),
-    etbDate: z.union([z.date(), z.string(), z.null()]).optional(),
-    ownerName: z
-      .string()
-      .max(200, "Owner Name must be less than 200 characters")
-      .optional(),
-    ownerAgent: z
-      .string()
-      .max(200, "Owner Agent must be less than 200 characters")
-      .optional(),
-    masterName: z
-      .string()
-      .max(200, "Master Name must be less than 200 characters")
-      .optional(),
-    charters: z
-      .string()
-      .max(200, "Charters must be less than 200 characters")
-      .optional(),
-    chartersAgent: z
-      .string()
-      .max(200, "Charters Agent must be less than 200 characters")
-      .optional(),
-    invoiceId: z.string().optional(),
-    invoiceNo: z.string().optional(),
-    accountDate: z.union([z.date(), z.string()]).optional(),
-    seriesDate: z.union([z.date(), z.string()]).optional(),
-    advanceAmt: z.number().min(0, "Advance amount must be 0 or greater").optional(),
-    addressId: z.number().optional(),
-    contactId: z.number().optional(),
-    remarks: z
-      .string()
-      .max(255, "Remarks must be less than 250 characters")
-      .optional(),
-    jobStatusId: z.number().min(1, "Job Status is required"),
-    gstId: z.number().optional(),
-    gstPercentage: z.number().optional(),
+export const JobOrderHdSchema = z.object({
+  jobOrderId: z.number(),
+  jobOrderNo: z
+    .string()
+    .max(20, "Job Order No must be less than 20 characters")
+    .optional(),
+  jobOrderDate: z.union([z.date(), z.string()]),
+  customerId: z.number().min(1, "Customer is required"),
+  currencyId: z.number().min(1, "Currency is required"),
+  exhRate: z.number().min(0, "Exchange rate must be 0 or greater"),
+  vesselId: z.number().min(1, "Vessel is required"),
+  imoCode: z
+    .string()
+    .max(10, "IMO Code must be less than 10 characters")
+    .optional(),
+  vesselDistance: z.number().min(0, "Vessel Distance must be 0 or greater"),
+  portId: z.number().min(1, "Port is required"),
+  lastPortId: z.number().optional(),
+  nextPortId: z.number().optional(),
+  voyageId: z.number().optional(),
+  geoLocationId: z.number().optional(),
+  latitude: z
+    .string()
+    .max(100, "Latitude cannot exceed 50 characters")
+    .optional(),
+  longitude: z
+    .string()
+    .max(100, "Longitude cannot exceed 50 characters")
+    .optional(),
+  natureOfCall: z
+    .string()
+    .max(200, "Nature of Call must be less than 200 characters")
+    .optional(),
+  isps: z.string().max(200, "ISPS must be less than 200 characters").optional(),
+  etaDate: z.union([z.date(), z.string(), z.null()]).optional(),
+  etdDate: z.union([z.date(), z.string(), z.null()]).optional(),
+  etbDate: z.union([z.date(), z.string(), z.null()]).optional(),
+  ownerName: z
+    .string()
+    .max(200, "Owner Name must be less than 200 characters")
+    .optional(),
+  ownerAgent: z
+    .string()
+    .max(200, "Owner Agent must be less than 200 characters")
+    .optional(),
+  masterName: z
+    .string()
+    .max(200, "Master Name must be less than 200 characters")
+    .optional(),
+  charters: z
+    .string()
+    .max(200, "Charters must be less than 200 characters")
+    .optional(),
+  chartersAgent: z
+    .string()
+    .max(200, "Charters Agent must be less than 200 characters")
+    .optional(),
+  invoiceId: z.string().optional(),
+  invoiceNo: z.string().optional(),
+  accountDate: z.union([z.date(), z.string()]).optional(),
+  seriesDate: z.union([z.date(), z.string()]).optional(),
+  advanceAmt: z
+    .number()
+    .min(0, "Advance amount must be 0 or greater")
+    .optional(),
+  addressId: z.number().optional(),
+  contactId: z.number().optional(),
+  remarks: z
+    .string()
+    .max(255, "Remarks must be less than 250 characters")
+    .optional(),
+  jobStatusId: z.number().min(1, "Job Status is required"),
+  gstId: z.number().optional(),
+  gstPercentage: z.number().optional(),
 
-    //add
-    billName: z.string().optional(),
-    address1: z.string().optional(),
-    address2: z.string().optional(),
-    address3: z.string().optional(),
-    address4: z.string().optional(),
-    pinCode: z.string().optional(),
-    countryId: z.number().optional(),
-    phoneNo: z.string().optional(),
-    faxNo: z.string().optional(),
-    contactName: z.string().optional(),
-    mobileNo: z.string().optional(),
-    emailAdd: z.string().optional(),
+  //add
+  billName: z.string().optional(),
+  address1: z.string().optional(),
+  address2: z.string().optional(),
+  address3: z.string().optional(),
+  address4: z.string().optional(),
+  pinCode: z.string().optional(),
+  countryId: z.number().optional(),
+  phoneNo: z.string().optional(),
+  faxNo: z.string().optional(),
+  contactName: z.string().optional(),
+  mobileNo: z.string().optional(),
+  emailAdd: z.string().optional(),
 
-    isActive: z.boolean().optional(),
-    isPost: z.boolean().optional(),
-    editVersion: z.number().optional(),
-    createdBy: z.string().optional(),
-    createdDate: z.union([z.date(), z.string()]).optional(),
-    editedBy: z.string().optional(),
-    editedDate: z.union([z.date(), z.string()]).optional(),
-  })
+  isActive: z.boolean().optional(),
+  isPost: z.boolean().optional(),
+  editVersion: z.number().optional(),
+  createdBy: z.string().optional(),
+  createdDate: z.union([z.date(), z.string()]).optional(),
+  editedBy: z.string().optional(),
+  editedDate: z.union([z.date(), z.string()]).optional(),
+})
 
 export type JobOrderHdSchemaType = z.infer<typeof JobOrderHdSchema>
 
@@ -495,6 +494,7 @@ export const OtherServiceSchema = z.object({
   taskId: z.number().min(1, "Task ID is required"),
   chargeId: z.number().min(1, "Charge is required"),
 
+  supplierId: z.number().optional(),
   serviceProvider: z.string().min(1, "Service Provider is required"),
   quantity: z.number().min(0, "Quantity must be 0 or greater"),
   amount: z.number().min(0, "Amount must be 0 or greater"),

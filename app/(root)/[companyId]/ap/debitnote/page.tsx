@@ -78,6 +78,7 @@ import {
 } from "@/components/layout/transaction-workspace-layout"
 
 import { getDefaultValues } from "./components/debitnote-defaultvalues"
+import type { DebitNoteDetailsFormRef } from "./components/debitNote-details-form"
 import DebitNoteTable from "./components/debitnote-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -143,6 +144,7 @@ export default function DebitNotePage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<DebitNoteDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -793,6 +795,7 @@ export default function DebitNotePage() {
           ...defaultDebitNoteValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(`DebitNote ${debitNote.debitNoteNo} deleted successfully`)
         // Data refresh handled by DebitNoteTable component
       } else {
@@ -821,6 +824,7 @@ export default function DebitNotePage() {
       createDate: currentDateTime,
       data_details: [],
     })
+    detailsFormRef.current?.resetForm()
     toast.success("DebitNote reset successfully")
   }
 
@@ -1539,6 +1543,7 @@ export default function DebitNotePage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 

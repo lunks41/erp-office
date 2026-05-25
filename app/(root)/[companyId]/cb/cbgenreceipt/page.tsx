@@ -79,6 +79,7 @@ import {
 } from "@/components/confirmation"
 
 import { getDefaultValues } from "./components/cbgenreceipt-defaultvalues"
+import type { CbGenReceiptDetailsFormRef } from "./components/cbgenreceipt-details-form"
 import CbGenReceiptTable from "./components/cbgenreceipt-table"
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -143,6 +144,7 @@ export default function CbGenReceiptPage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const detailsFormRef = useRef<CbGenReceiptDetailsFormRef | null>(null)
 
   const documentIdFromQuery = useMemo(() => {
     const value =
@@ -789,6 +791,7 @@ export default function CbGenReceiptPage() {
           ...defaultCbGenReceiptValues,
           data_details: [],
         })
+        detailsFormRef.current?.resetForm()
         toast.success(
           `CbGenReceipt ${cbGenReceipt.receiptNo} deleted successfully`
         )
@@ -819,6 +822,9 @@ export default function CbGenReceiptPage() {
       createDate: currentDateTime,
       data_details: [],
     })
+
+    detailsFormRef.current?.resetForm()
+
     toast.success("CbGenReceipt reset successfully")
   }
 
@@ -1492,6 +1498,7 @@ export default function CbGenReceiptPage() {
             required={required}
             companyId={Number(companyId)}
             isCancelled={isCancelled}
+            detailsFormRef={detailsFormRef}
           />
         </TabsContent>
 
