@@ -1,7 +1,5 @@
 ﻿"use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import React, {
   useEffect,
   useImperativeHandle,
@@ -39,11 +37,14 @@ import {
   ArInvoiceDtSchemaType,
   ArInvoiceHdSchemaType,
 } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
+import { FormProvider, useForm, UseFormReturn } from "react-hook-form"
+import { NumericFormat } from "react-number-format"
 import { toast } from "sonner"
 
 import { clientDateFormat } from "@/lib/date-utils"
+import { cn } from "@/lib/utils"
 import {
   useChartOfAccountLookup,
   useGstLookup,
@@ -51,6 +52,7 @@ import {
 } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import {
   BargeAutocomplete,
   ChartOfAccountAutocomplete,
@@ -137,6 +139,11 @@ const InvoiceDetailsForm = React.forwardRef<
     const originalBillQtyRef = useRef<number>(0)
     const originalUnitPriceRef = useRef<number>(0)
     const originalGstPercentageRef = useRef<number>(0)
+    const originalGrossAmountRef = useRef<number>(0)
+
+    // Helper field: VAT-inclusive gross amount. Typing here back-calculates
+    // unitPrice + totAmt (net) and gstAmt so totAmt + gstAmt === gross.
+    const [grossAmount, setGrossAmount] = useState<number>(0)
 
     // Store exchange rates when detail is loaded for editing
     // This allows us to check if exchange rate changed and only recalculate if needed
@@ -342,6 +349,8 @@ const InvoiceDetailsForm = React.forwardRef<
       originalBillQtyRef.current = 0
       originalUnitPriceRef.current = 0
       originalGstPercentageRef.current = 0
+      originalGrossAmountRef.current = 0
+      setGrossAmount(0)
       exchangeRateWhenLoadedRef.current = Hdform.getValues("exhRate") || 0
       countryExchangeRateWhenLoadedRef.current =
         Hdform.getValues("ctyExhRate") || 0
@@ -1012,6 +1021,49 @@ const InvoiceDetailsForm = React.forwardRef<
       applyQtyBasedCalculation()
     }
 
+    // ============================================================================
+    // GROSS AMOUNT HELPER (Inc. VAT)
+    // - User types the VAT-inclusive amount; the form back-calculates:
+    //     net (totAmt + unitPrice) = gross / (1 + gstPct/100)
+    //     gstAmt                   = gross - net  (so totAmt + gstAmt === gross)
+    // - When totAmt or gstAmt changes elsewhere, gross stays in sync via useEffect.
+    // ============================================================================
+    const watchedTotAmt = form.watch("totAmt")
+    const watchedGstAmt = form.watch("gstAmt")
+    useEffect(() => {
+      const t = watchedTotAmt ?? 0
+      const g = watchedGstAmt ?? 0
+      setGrossAmount(Number((t + g).toFixed(amtDec)))
+    }, [watchedTotAmt, watchedGstAmt, amtDec])
+
+    const handleGrossAmountFocus = () => {
+      originalGrossAmountRef.current = grossAmount
+    }
+
+    const handleGrossAmountBlur = () => {
+      if (grossAmount === originalGrossAmountRef.current) return
+      if (grossAmount < 0) return
+
+      const gstPct = form.getValues("gstPercentage") ?? 0
+      const qty = form.getValues("qty") ?? 0
+      const safeQty = qty > 0 ? qty : 1
+
+      const netAmt =
+        gstPct > 0
+          ? Number((grossAmount / (1 + gstPct / 100)).toFixed(amtDec))
+          : Number(grossAmount.toFixed(amtDec))
+      const exactGstAmt = Number((grossAmount - netAmt).toFixed(amtDec))
+      const derivedUnitPrice = Number((netAmt / safeQty).toFixed(priceDec))
+
+      form.setValue("unitPrice", derivedUnitPrice)
+      form.setValue("totAmt", netAmt)
+      // Recompute totLocal/totCty (also overwrites gstAmt from pct, fixed next).
+      triggerTotalAmountCalculation()
+      // Honour exact gross-net split for gstAmt (avoids rounding drift) and
+      // recompute gstLocal/gstCty from this exact value.
+      handleGstAmountChange(exactGstAmt)
+    }
+
     const handleUnitPriceFocus = () => {
       originalUnitPriceRef.current = form.getValues("unitPrice") ?? 0
     }
@@ -1044,7 +1096,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`mb-0 grid w-full grid-cols-8 gap-1 rounded-md border border-border/60 bg-card p-2 shadow-sm ${
+            className={`border-border/60 bg-card mb-0 grid w-full grid-cols-8 gap-1 rounded-md border p-2 shadow-sm ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
@@ -1078,7 +1130,7 @@ const InvoiceDetailsForm = React.forwardRef<
                       ? "bg-red-100 text-red-800 hover:bg-red-200"
                       : editingDetail
                         ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                        : "bg-blue-100 text-primary hover:bg-blue-200"
+                        : "text-primary bg-blue-100 hover:bg-blue-200"
                   }`}
                 >
                   {isCancelled
@@ -1345,6 +1397,40 @@ const InvoiceDetailsForm = React.forwardRef<
                 isDisabled={true}
               />
             )}
+
+            {/* Gross Amount (Inc. VAT) - typing here back-calculates totAmt + gstAmt */}
+            <div className="flex flex-col gap-0.5">
+              <Label htmlFor="grossAmount" className="text-xs font-medium">
+                Gross Amt (Inc. VAT)
+              </Label>
+              <NumericFormat
+                id="grossAmount"
+                value={grossAmount}
+                onFocus={(e) => {
+                  e.target.select()
+                  handleGrossAmountFocus()
+                }}
+                onValueChange={(values) => {
+                  const { floatValue } = values
+                  setGrossAmount(
+                    floatValue !== null && floatValue !== undefined
+                      ? Number(floatValue.toFixed(amtDec))
+                      : 0
+                  )
+                }}
+                onBlur={handleGrossAmountBlur}
+                decimalScale={amtDec}
+                fixedDecimalScale={true}
+                thousandSeparator={true}
+                allowNegative={false}
+                className={cn(
+                  "ring-offset-background flex h-7.5 min-h-7.5 w-full rounded-md border px-2 py-0.5 text-right text-xs",
+                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+                  "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/20",
+                  "hide-number-spinners"
+                )}
+              />
+            </div>
 
             {/* Remarks */}
             {visible?.m_Remarks && (

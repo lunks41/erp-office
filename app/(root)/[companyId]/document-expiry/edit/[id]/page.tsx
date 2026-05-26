@@ -4,7 +4,6 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { SaveDocumentWithDetailsViewModel } from "@/interfaces/document-expiry-view-model"
 import { ArrowLeft } from "lucide-react"
-import { toast } from "sonner"
 
 import { useDocumentById, useSaveDocument } from "@/hooks/use-document-expiry"
 import { Button } from "@/components/ui/button"
@@ -22,14 +21,17 @@ export default function EditDocumentPage() {
   const saveMutation = useSaveDocument()
 
   const handleSubmit = async (values: SaveDocumentWithDetailsViewModel) => {
-    const res = await saveMutation.mutateAsync({
-      ...values,
-      documentId: Number(id),
-    })
-    if (res.result === 1) {
-      router.push(`${base}/details/${id}`)
-    } else if (res.message) {
-      toast.error(res.message)
+    try {
+      const res = await saveMutation.mutateAsync({
+        ...values,
+        documentId: Number(id),
+      })
+      // Success/error toasts are owned by the mutation hook; only navigate here.
+      if (res.result === 1) {
+        router.push(`${base}/details/${id}`)
+      }
+    } catch {
+      // mutation onError already surfaced a toast — swallow to avoid duplicates.
     }
   }
 

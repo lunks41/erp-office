@@ -62,6 +62,19 @@ function handleError(error: unknown) {
   )
 }
 
+// Best-effort JSON parse of an upstream error body so we can forward its
+// `message` field instead of swallowing it as "Server error: 500".
+function safeJsonParseProxy(
+  text: string
+): { result?: unknown; message?: string; Message?: string; data?: unknown } | null {
+  if (!text) return null
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
 // GET handler
 export async function GET(request: NextRequest) {
   try {
@@ -145,8 +158,13 @@ export async function POST(request: NextRequest) {
         response.status,
         text.substring(0, 200)
       )
+      // Preserve the upstream error body so the UI can surface the real cause
+      // (e.g. validation/FK violation messages) instead of a generic 500.
+      const parsed = safeJsonParseProxy(text)
+      const message =
+        parsed?.message || parsed?.Message || text || `Server error: ${response.status}`
       return NextResponse.json(
-        { result: 0, message: `Server error: ${response.status}` },
+        { result: 0, message, data: parsed?.data ?? null },
         { status: response.status }
       )
     }
@@ -200,8 +218,11 @@ export async function PUT(request: NextRequest) {
         response.status,
         text.substring(0, 200)
       )
+      const parsed = safeJsonParseProxy(text)
+      const message =
+        parsed?.message || parsed?.Message || text || `Server error: ${response.status}`
       return NextResponse.json(
-        { result: 0, message: `Server error: ${response.status}` },
+        { result: 0, message, data: parsed?.data ?? null },
         { status: response.status }
       )
     }
