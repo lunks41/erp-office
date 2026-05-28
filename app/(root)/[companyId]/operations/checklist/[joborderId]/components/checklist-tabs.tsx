@@ -71,7 +71,7 @@ import { ChecklistDetailsForm } from "./checklist-details-form"
 import { ChecklistHistory } from "./checklist-history"
 import { ChecklistMain } from "./checklist-main"
 import { ChecklistLog } from "./checklist-timeline"
-import { TransportationLogTab } from "./checklist-transporationlog"
+import { TransportationTab } from "./checklist-transporation"
 import { CloneChecklistSelectDialog } from "./clone-checklist-select-dialog"
 import { DebitNoteItemsTable } from "./debit-note-items-table"
 
@@ -895,7 +895,7 @@ export function ChecklistTabs({
           value="transportation"
           className="mt-0 flex min-h-0 flex-col"
         >
-          <TransportationLogTab
+          <TransportationTab
             jobData={currentJobData}
             moduleId={1}
             transactionId={1}

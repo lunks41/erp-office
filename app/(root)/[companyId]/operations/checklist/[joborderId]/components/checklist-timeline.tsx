@@ -179,6 +179,7 @@ export function ChecklistLog({
       portexpenses: "portexpense",
       // Handle typo in DB: TransporationLog
       transporationlog: "transportation",
+        transporation: "transportation",
       transportationlog: "transportation",
       // Handle singular/plural variations
       techniciansurveyor: "technicianssurveyors",
@@ -427,7 +428,7 @@ export function ChecklistLog({
                 className="relative flex gap-4"
               >
                 {/* Icon */}
-                <div className="relative z-10 flex-shrink-0">
+                <div className="relative z-10 shrink-0">
                   {getTableIcon(log.normalizedTableName)}
                 </div>
 

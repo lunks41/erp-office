@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCallback, useMemo, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
@@ -22,10 +22,10 @@ import { Button } from "@/components/ui/button"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
-import { TransportationLogForm } from "./transporationlog-form"
-import { TransportationLogTable } from "./transporationlog-table"
+import { TransportationForm } from "./transporation-form"
+import { TransportationTable } from "./transporation-table"
 
-interface TransportationLogTabProps {
+interface TransportationTabProps {
   jobData: IJobOrderHd
   taskId: number
   serviceItemNo: number
@@ -35,13 +35,13 @@ interface TransportationLogTabProps {
   isConfirmed: boolean
 }
 
-export function TransportationLogTab({
+export function TransportationTab({
   jobData,
   taskId,
   serviceItemNo,
   onTaskAdded,
   isConfirmed,
-}: TransportationLogTabProps) {
+}: TransportationTabProps) {
   const jobOrderId = jobData.jobOrderId
   const queryClient = useQueryClient()
 
@@ -94,25 +94,45 @@ export function TransportationLogTab({
 
   const jobDataProps = useMemo(
     () => ({
+      companyId: jobData?.companyId,
       jobOrderId: jobData?.jobOrderId,
-      jobOrderNo: jobData?.jobOrderNo,
-      createById: jobData?.createById,
+      jobOrderNo: jobData?.jobOrderNo ?? "",
     }),
     [jobData]
   )
 
   // Data fetching
   const { data: response, refetch } = useGetById<ISerTransportationHd>(
-    `${Transportation.getByTask}`,
-    "transportationLogByTask",
-    `${jobOrderId || ""}/${taskId || ""}/${serviceItemNo || ""}`
+    `${Transportation.get}`,
+    "transportationLogByJob",
+    `${jobOrderId || ""}`
   )
 
-  const { data } = (response as ApiResponse<ISerTransportationHd>) ?? {
-    result: 0,
-    message: "",
-    data: [],
-  }
+  const allData = useMemo(
+    () => (response as ApiResponse<ISerTransportationHd>)?.data ?? [],
+    [response]
+  )
+
+  // API returns all transportation logs for a JobOrder.
+  // Filter by current tab context: taskId (+ serviceItemNo when provided).
+  const data = useMemo(() => {
+    const taskFiltered = allData.filter(
+      (x) => Number(x.taskId ?? 0) === Number(taskId ?? 0)
+    )
+
+    if (!serviceItemNo || Number(serviceItemNo) === 0) return taskFiltered
+
+    const serviceId = String(serviceItemNo)
+    return taskFiltered.filter((x) => {
+      const ids = String(
+        (x as unknown as { serviceItemNo?: string }).serviceItemNo ?? ""
+      )
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+      return ids.includes(serviceId)
+    })
+  }, [allData, serviceItemNo, taskId])
 
   // Mutations
   const saveMutation = usePersist<SerTransportationHdSchemaType>(
@@ -172,7 +192,8 @@ export function TransportationLogTab({
         await deleteMutation.mutateAsync(
           `${deleteConfirmation.jobOrderId}/${deleteConfirmation.transportationId}`
         )
-        queryClient.invalidateQueries({ queryKey: ["transportationLog"] })
+        queryClient.invalidateQueries({ queryKey: ["transportationLogByJob"] })
+        refetch()
         onTaskAdded?.()
       } catch (error) {
         console.error("Failed to delete transportation log:", error)
@@ -232,11 +253,27 @@ export function TransportationLogTab({
           formatDateForApi(saveConfirmation.formData.transportDate) ||
           undefined,
       }
+
+      const formDetails =
+        (processedData.data_details as ISerTransportationDt[] | undefined) ?? []
+
+      const data_details: ISerTransportationDt[] =
+        formDetails.length > 0
+          ? formDetails.map((detail, index) => ({
+              itemNo: detail.itemNo ?? index + 1,
+              serviceItemNo: detail.serviceItemNo,
+              serviceItemNoName: detail.serviceItemNoName ?? "",
+            }))
+          : serviceItemNo > 0
+            ? [{ itemNo: 1, serviceItemNo, serviceItemNoName: "" }]
+            : []
+
       const submitData = {
         ...processedData,
         ...jobDataProps,
         taskId,
-        data_details: [{ itemNo: 1, serviceItemNo }] as ISerTransportationDt[],
+        editVersion: processedData.editVersion ?? 0,
+        data_details,
       }
 
       let response
@@ -251,7 +288,6 @@ export function TransportationLogTab({
         response = await saveMutation.mutateAsync(submitData)
       }
 
-      // Check if API response indicates success (result=1)
       if (response && response.result === 1) {
         setSelectedItem(undefined)
         setModalMode("create")
@@ -290,17 +326,17 @@ export function TransportationLogTab({
     serviceItemNo,
   ])
 
-  const handleCreateTransportationLog = useCallback(() => {
+  const handleCreateTransportation = useCallback(() => {
     setSelectedItem(undefined)
     setModalMode("create")
   }, [])
 
-  const handleRefreshTransportationLog = useCallback(() => {
+  const handleRefreshTransportation = useCallback(() => {
     refetch()
   }, [refetch])
 
   return (
-    <div className="!max-w-full overflow-x-hidden">
+    <div className="max-w-full! overflow-x-hidden">
       <div className="space-y-4">
         <div className="overflow-hidden rounded-lg border p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -319,7 +355,7 @@ export function TransportationLogTab({
                     ? "border-green-200 bg-green-100 text-green-800"
                     : modalMode === "edit"
                       ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-border bg-blue-100 text-primary"
+                      : "border-border text-primary bg-blue-100"
                 }
               >
                 {modalMode === "create"
@@ -354,7 +390,7 @@ export function TransportationLogTab({
               </div>
             )}
           </div>
-          <TransportationLogForm
+          <TransportationForm
             key={`transportation-form-${formResetKey}`}
             jobData={jobData}
             taskId={taskId}
@@ -379,13 +415,13 @@ export function TransportationLogTab({
         </div>
 
         <div className="w-full max-w-full overflow-x-hidden">
-          <TransportationLogTable
+          <TransportationTable
             data={data || []}
-            onTransportationLogSelect={handleSelect}
-            onDeleteTransportationLog={handleDelete}
-            onEditActionTransportationLog={handleEdit}
-            onCreateActionTransportationLog={handleCreateTransportationLog}
-            onRefreshAction={handleRefreshTransportationLog}
+            onTransportationSelect={handleSelect}
+            onDeleteTransportation={handleDelete}
+            onEditActionTransportation={handleEdit}
+            onCreateActionTransportation={handleCreateTransportation}
+            onRefreshAction={handleRefreshTransportation}
             moduleId={moduleId}
             transactionId={transactionId}
             isConfirmed={isConfirmed}

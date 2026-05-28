@@ -176,7 +176,6 @@ export function OtherServiceForm({
                 form={form}
                 name="supplierId"
                 label="Supplier"
-                isRequired
                 isDisabled={isConfirmed}
               />
               <CustomInput

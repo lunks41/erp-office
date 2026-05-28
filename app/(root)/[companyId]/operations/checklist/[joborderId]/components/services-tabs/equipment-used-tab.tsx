@@ -53,7 +53,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
 import { PurchaseDialog } from "../services-combined/purchase-dialog"
-import { TransportationLogTab } from "../services-combined/transporationlog"
+import { TransportationTab } from "../services-combined/transporation"
 import { EquipmentUsedForm } from "../services-forms/equipment-used-form"
 import { EquipmentUsedTable } from "../services-tables/equipment-used-table"
 
@@ -796,7 +796,7 @@ export function EquipmentUsedTab({
                 value="transportation"
                 className="w-full max-w-full overflow-x-hidden overflow-y-auto"
               >
-                <TransportationLogTab
+                <TransportationTab
                   jobData={jobData}
                   taskId={Task.EquipmentUsed}
                   serviceItemNo={selectedItem?.equipmentUsedId ?? 0}

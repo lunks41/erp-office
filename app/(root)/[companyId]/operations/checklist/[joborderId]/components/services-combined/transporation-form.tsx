@@ -6,23 +6,20 @@ import {
   ISerTransportationDt,
   ISerTransportationHd,
 } from "@/interfaces/checklist"
-import { IServiceItemNoLookup, ITaskLookup } from "@/interfaces/lookup"
 import {
-  SerTransportationHdFormSchema,
-  SerTransportationHdFormSchemaType,
+  SerTransportationHdSchema,
   SerTransportationHdSchemaType,
 } from "@/schemas/checklist"
-import { toast } from "sonner"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
-import { JobOrderTaskAutocomplete } from "@/components/autocomplete"
 import CargoTypeAutocomplete from "@/components/autocomplete/autocomplete-cargotype"
 import TransportChargeAutocomplete from "@/components/autocomplete/autocomplete-transportcharge"
 import TransportLocationAutocomplete from "@/components/autocomplete/autocomplete-transportlocation"
@@ -31,52 +28,38 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
-import JobOrderServiceItemNoMultiSelect from "@/components/multiselection-joborderserviceitemno"
 
-interface TransportationLogFormProps {
+interface TransportationFormProps {
   jobData: IJobOrderHd
   initialData?: ISerTransportationHd
+  taskId: number
+  serviceItemNo: number
+  formId?: string
   taskDefaults?: Record<string, number>
   submitAction: (data: SerTransportationHdSchemaType) => void
   onCancelAction?: () => void
   isSubmitting?: boolean
   isConfirmed?: boolean
+  compactMode?: boolean
+  showFooterActions?: boolean
 }
 
-type TransportationFormValues = SerTransportationHdFormSchemaType
-
-export function TransportationLogForm({
+export function TransportationForm({
   jobData,
   initialData,
+  taskId,
+  serviceItemNo,
+  formId,
   taskDefaults = {},
   submitAction,
   onCancelAction,
   isSubmitting = false,
   isConfirmed,
-}: TransportationLogFormProps) {
+  compactMode = false,
+  showFooterActions = true,
+}: TransportationFormProps) {
   const { user } = useAuthStore()
   const { decimals } = useCompanyStore()
-
-  const getServiceItemNoString = useCallback((data?: ISerTransportationHd) => {
-    if (!data) return ""
-    const withLegacy = data as ISerTransportationHd & { serviceItemNo?: string }
-    if (withLegacy.serviceItemNo) return withLegacy.serviceItemNo
-    if (data.data_details && data.data_details.length > 0) {
-      return data.data_details.map((detail) => detail.serviceItemNo).join(",")
-    }
-    return ""
-  }, [])
-
-  const getServiceItemNoNameString = useCallback(
-    (data?: ISerTransportationHd) => {
-      if (!data) return ""
-      const withLegacy = data as ISerTransportationHd & {
-        serviceItemNoName?: string
-      }
-      return withLegacy.serviceItemNoName ?? ""
-    },
-    []
-  )
 
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
@@ -102,22 +85,20 @@ export function TransportationLogForm({
     [dateFormat]
   )
 
-  const form = useForm<TransportationFormValues>({
-    resolver: zodResolver(SerTransportationHdFormSchema),
+  const form = useForm<SerTransportationHdSchemaType>({
+    resolver: zodResolver(SerTransportationHdSchema),
     defaultValues: {
       transportationId: initialData?.transportationId ?? 0,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
-      taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: getServiceItemNoString(initialData),
-      serviceItemNoName: getServiceItemNoNameString(initialData),
+      taskId: initialData?.taskId ?? taskId ?? taskDefaults.taskId ?? 0,
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
               new Date(),
             dateFormat
           )
-        : undefined,
+        : format(new Date(), dateFormat),
       fromLocationId: initialData?.fromLocationId ?? 0,
       toLocationId: initialData?.toLocationId ?? 0,
       transportModeId: initialData?.transportModeId ?? 0,
@@ -130,9 +111,16 @@ export function TransportationLogForm({
       remarks: initialData?.remarks ?? null,
       refNo: initialData?.refNo ?? null,
       vendor: initialData?.vendor ?? null,
-      createById: initialData?.createById ?? (Number(user?.userId) || 1),
+      createById:
+        initialData?.createById ??
+        (user?.userId && Number(user.userId) > 0 ? Number(user.userId) : 1),
       editVersion: initialData?.editVersion,
-      data_details: [],
+      data_details:
+        initialData?.data_details && initialData.data_details.length > 0
+          ? initialData.data_details
+          : ([
+              { itemNo: 1, serviceItemNo, serviceItemNoName: "" },
+            ] as ISerTransportationDt[]),
     },
   })
 
@@ -141,16 +129,14 @@ export function TransportationLogForm({
       transportationId: initialData?.transportationId ?? 0,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
-      taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: getServiceItemNoString(initialData),
-      serviceItemNoName: getServiceItemNoNameString(initialData),
+      taskId: initialData?.taskId ?? taskId ?? taskDefaults.taskId ?? 0,
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
               new Date(),
             dateFormat
           )
-        : undefined,
+        : format(new Date(), dateFormat),
       fromLocationId: initialData?.fromLocationId ?? 0,
       toLocationId: initialData?.toLocationId ?? 0,
       transportModeId: initialData?.transportModeId ?? 0,
@@ -163,9 +149,16 @@ export function TransportationLogForm({
       remarks: initialData?.remarks ?? null,
       refNo: initialData?.refNo ?? null,
       vendor: initialData?.vendor ?? null,
-      createById: initialData?.createById ?? (Number(user?.userId) || 1),
+      createById:
+        initialData?.createById ??
+        (user?.userId && Number(user.userId) > 0 ? Number(user.userId) : 1),
       editVersion: initialData?.editVersion,
-      data_details: [],
+      data_details:
+        initialData?.data_details && initialData.data_details.length > 0
+          ? initialData.data_details
+          : ([
+              { itemNo: 1, serviceItemNo, serviceItemNoName: "" },
+            ] as ISerTransportationDt[]),
     })
   }, [
     dateFormat,
@@ -174,157 +167,60 @@ export function TransportationLogForm({
     jobData.companyId,
     jobData.jobOrderId,
     parseWithFallback,
-    getServiceItemNoString,
-    getServiceItemNoNameString,
+    taskId,
+    serviceItemNo,
     taskDefaults,
     user?.userId,
   ])
 
-  // Watch form values to trigger re-renders when they change
-  const watchedJobOrderId = Number(form.watch("jobOrderId") ?? 0)
-  const watchedTaskId = Number(form.watch("taskId") ?? 0)
+  const onSubmit = (data: SerTransportationHdSchemaType) => {
+    const userId = Number(user?.userId ?? 0)
+    const resolvedCreateById =
+      data.createById && data.createById > 0 ? data.createById : userId > 0 ? userId : 1
 
-  // ============================================================================
-  // HANDLERS
-  // ============================================================================
-
-  // Handle task selection
-  const handleTaskChange = (selectedOption: ITaskLookup | null) => {
-    if (selectedOption) {
-      form.setValue("taskId", selectedOption.taskId, {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-      // Reset service when task changes
-      form.setValue("serviceItemNo", "", { shouldValidate: true })
-      form.setValue("serviceItemNoName", "", { shouldValidate: false })
-    } else {
-      form.setValue("taskId", 0, { shouldValidate: true })
-      form.setValue("serviceItemNo", "", { shouldValidate: true })
-      form.setValue("serviceItemNoName", "", { shouldValidate: false })
-    }
-  }
-
-  // Handle service selection (multiple)
-  const handleServiceItemNoChange = (
-    selectedOptions: IServiceItemNoLookup[]
-  ) => {
-    // Convert array of selected options to comma-separated string
-    const serviceItemNos = selectedOptions
-      .map((option) => option.serviceItemNo.toString())
-      .join(",")
-
-    // Also create comma-separated names for serviceItemNoName
-    const serviceItemNoNames = selectedOptions
-      .map((option) => option.serviceItemNoName)
-      .join(",")
-
-    form.setValue("serviceItemNo", serviceItemNos || "", {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
-
-    // Set serviceItemNoName if schema requires it
-    if (serviceItemNoNames) {
-      form.setValue("serviceItemNoName", serviceItemNoNames, {
-        shouldValidate: false,
-        shouldDirty: true,
-      })
-    }
-  }
-
-  const onSubmit = (data: TransportationFormValues) => {
-    const rawServiceItemNo = form.getValues("serviceItemNo" as never) as unknown
-    const rawServiceItemNoName = form.getValues(
-      "serviceItemNoName" as never
-    ) as unknown
-
-    // Ensure serviceItemNo is a comma-separated string
-    let serviceItemNoString = ""
-    const serviceItemNo = rawServiceItemNo ?? data.serviceItemNo
-    if (typeof serviceItemNo === "string") {
-      serviceItemNoString = serviceItemNo.trim()
-    } else if (serviceItemNo) {
-      serviceItemNoString = String(serviceItemNo).trim()
-    }
-
-    // Ensure serviceItemNoName is a comma-separated string
-    let serviceItemNoNameString = ""
-    const serviceItemNoName = rawServiceItemNoName ?? data.serviceItemNoName
-    if (typeof serviceItemNoName === "string") {
-      serviceItemNoNameString = serviceItemNoName.trim()
-    } else if (serviceItemNoName) {
-      serviceItemNoNameString = String(serviceItemNoName).trim()
-    }
-
-    const detailRows: ISerTransportationDt[] = serviceItemNoString
-      .split(",")
-      .map((s) => Number(s.trim()))
-      .filter((n) => Number.isFinite(n) && n > 0)
-      .map((serviceNo, index) => ({
-        itemNo: index + 1,
-        serviceItemNo: serviceNo,
-        serviceItemNoName:
-          serviceItemNoNameString.split(",").map((name) => name.trim())[
-            index
-          ] ?? "",
-      }))
-
-    if (detailRows.length === 0) {
-      form.setError("serviceItemNo", {
-        type: "manual",
-        message: "Service Item No is required",
-      })
-      toast.error("Service Item No is required")
-      return
-    }
+    const resolvedDetails: ISerTransportationDt[] | undefined =
+      data.data_details && data.data_details.length > 0
+        ? data.data_details.map((detail, index) => ({
+            itemNo: detail.itemNo ?? index + 1,
+            serviceItemNo: detail.serviceItemNo,
+            serviceItemNoName: detail.serviceItemNoName ?? "",
+          }))
+        : serviceItemNo > 0
+          ? [{ itemNo: 1, serviceItemNo, serviceItemNoName: "" }]
+          : undefined
 
     const formattedData: SerTransportationHdSchemaType = {
-      ...(data as SerTransportationHdSchemaType),
-      passengerCount: data.passengerCount ?? 0,
-      cargoWeight: data.cargoWeight ?? 0,
-      data_details: detailRows,
-      createById:
-        (data.createById as number | undefined) ?? (Number(user?.userId) || 1),
+      ...data,
+      companyId: data.companyId ?? jobData.companyId,
+      jobOrderId: data.jobOrderId ?? jobData.jobOrderId,
+      taskId: data.taskId ?? taskId,
+      createById: resolvedCreateById,
+      data_details: resolvedDetails,
     }
-    void serviceItemNoNameString
     submitAction(formattedData)
   }
 
   return (
-    <div className="max-w flex flex-col gap-2">
+    <div className="w-full max-w-full">
       <Form {...form}>
         <form
+          id={formId}
           onSubmit={form.handleSubmit(onSubmit, (errors) => {
             console.error("Form validation errors:", errors)
+            const firstError = Object.values(errors)[0]
+            if (firstError?.message) {
+              toast.error(String(firstError.message))
+            }
           })}
         >
           <div className="grid gap-2">
-            <div className="grid grid-cols-4 gap-2">
-              <JobOrderTaskAutocomplete
-                key={`task-${watchedJobOrderId}`}
-                form={form}
-                name="taskId"
-                jobOrderId={watchedJobOrderId}
-                label="Task"
-                isRequired
-                isDisabled={isConfirmed}
-                onChangeEvent={handleTaskChange}
-              />
-              <div className="col-span-3">
-                <JobOrderServiceItemNoMultiSelect
-                  key={`service-${watchedJobOrderId}-${watchedTaskId}`}
-                  form={form}
-                  name={"serviceItemNo" as never}
-                  jobOrderId={watchedJobOrderId}
-                  taskId={watchedTaskId}
-                  label="Service Item No"
-                  isRequired
-                  isDisabled={isConfirmed}
-                  onChangeEvent={handleServiceItemNoChange}
-                  className="min-h-[80px] w-full"
-                />
-              </div>
+            <div
+              className={
+                compactMode
+                  ? "grid grid-cols-1 gap-2 md:grid-cols-5"
+                  : "grid grid-cols-1 gap-2 md:grid-cols-5 xl:grid-cols-4"
+              }
+            >
               <TransportChargeAutocomplete
                 form={form}
                 name="chargeId"
@@ -404,15 +300,16 @@ export function TransportationLogForm({
                 label="Vehicle Type"
                 isDisabled={isConfirmed}
               />
+              <CustomTextarea
+                form={form}
+                name="remarks"
+                label="Remarks"
+                className="col-span-2"
+                isDisabled={isConfirmed}
+              />
             </div>
-            <CustomTextarea
-              form={form}
-              name="remarks"
-              label="Remarks"
-              isDisabled={isConfirmed}
-            />
           </div>
-          {!isConfirmed && (
+          {!isConfirmed && showFooterActions && (
             <div className="mt-4 flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={onCancelAction}>
                 Cancel

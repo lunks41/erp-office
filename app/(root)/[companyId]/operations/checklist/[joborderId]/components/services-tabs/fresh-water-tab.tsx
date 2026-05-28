@@ -48,7 +48,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
 import { PurchaseDialog } from "../services-combined/purchase-dialog"
-import { TransportationLogTab } from "../services-combined/transporationlog"
+import { TransportationTab } from "../services-combined/transporation"
 import { FreshWaterForm } from "../services-forms/fresh-water-form"
 import { FreshWaterTable } from "../services-tables/fresh-water-table"
 
@@ -255,36 +255,43 @@ export function FreshWaterTab({
     }
   }
 
-  const handleBulkDelete = useCallback((selectedIds: string[]) => {
-    if (selectedIds.length === 0) {
-      toast.error("Please select at least one fresh water to delete")
-      return
-    }
+  const handleBulkDelete = useCallback(
+    (selectedIds: string[]) => {
+      if (selectedIds.length === 0) {
+        toast.error("Please select at least one fresh water to delete")
+        return
+      }
 
-    // Check if any selected items have a debitNoteId
-    const itemsWithDebitNote = data?.filter((item) =>
-      selectedIds.includes(item.freshWaterId.toString()) &&
-      item.debitNoteId &&
-      item.debitNoteId > 0
-    )
-
-    if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
-      toast.error(
-        `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+      // Check if any selected items have a debitNoteId
+      const itemsWithDebitNote = data?.filter(
+        (item) =>
+          selectedIds.includes(item.freshWaterId.toString()) &&
+          item.debitNoteId &&
+          item.debitNoteId > 0
       )
-      return
-    }
 
-    setBulkDeleteConfirmation({
-      isOpen: true,
-      freshWaterIds: selectedIds,
-      jobOrderId: jobData.jobOrderId,
-      count: selectedIds.length,
-    })
-  }, [jobData.jobOrderId, data])
+      if (itemsWithDebitNote && itemsWithDebitNote.length > 0) {
+        toast.error(
+          `Cannot delete: ${itemsWithDebitNote.length} selected item(s) have a Debit Note. Please remove the Debit Note first.`
+        )
+        return
+      }
+
+      setBulkDeleteConfirmation({
+        isOpen: true,
+        freshWaterIds: selectedIds,
+        jobOrderId: jobData.jobOrderId,
+        count: selectedIds.length,
+      })
+    },
+    [jobData.jobOrderId, data]
+  )
 
   const handleConfirmBulkDelete = async () => {
-    if (bulkDeleteConfirmation.freshWaterIds.length === 0 || !bulkDeleteConfirmation.jobOrderId) {
+    if (
+      bulkDeleteConfirmation.freshWaterIds.length === 0 ||
+      !bulkDeleteConfirmation.jobOrderId
+    ) {
       return
     }
 
@@ -717,7 +724,7 @@ export function FreshWaterTab({
                     ? "border-green-200 bg-green-100 text-green-800"
                     : modalMode === "edit"
                       ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-border bg-blue-100 text-primary"
+                      : "border-border text-primary bg-blue-100"
                 }
               >
                 {modalMode === "create"
@@ -767,7 +774,7 @@ export function FreshWaterTab({
                 value="transportation"
                 className="w-full max-w-full overflow-x-hidden overflow-y-auto"
               >
-                <TransportationLogTab
+                <TransportationTab
                   jobData={jobData}
                   taskId={Task.FreshWater}
                   serviceItemNo={selectedItem?.freshWaterId ?? 0}

@@ -769,6 +769,7 @@ export type DebitNoteHdSchemaType = z.infer<typeof debitNoteHdSchema>
 export const SerTransportationDtSchema = z.object({
   itemNo: z.number().min(1, "Item No is required"),
   serviceItemNo: z.number().min(1, "Service Item No is required"),
+  serviceItemNoName: z.string().optional(),
 })
 
 export type SerTransportationDtSchemaType = z.infer<

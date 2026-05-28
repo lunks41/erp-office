@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCallback, useMemo } from "react"
 import { ISerTransportationHd } from "@/interfaces/checklist"
@@ -6,44 +6,40 @@ import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
+import { CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT } from "@/lib/checklist-table-layout"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { getTransportationServiceItemLabels } from "@/lib/transportation-service-items"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { MainTable } from "@/components/table/table-main"
 
-interface TransportationLogTableProps {
+interface TransportationTableProps {
   data: ISerTransportationHd[]
   isLoading?: boolean
-  onTransportationLogSelect?: (
+  onTransportationSelect?: (
     transportationLog: ISerTransportationHd | null
   ) => void
-  onDeleteTransportationLog?: (transportationId: string) => void
-  onEditActionTransportationLog?: (
-    transportationLog: ISerTransportationHd
-  ) => void
-  onCreateActionTransportationLog?: () => void
+  onDeleteTransportation?: (transportationId: string) => void
+  onEditActionTransportation?: (transportationLog: ISerTransportationHd) => void
+  onCreateActionTransportation?: () => void
   onRefreshAction?: () => void
   moduleId?: number
   transactionId?: number
   isConfirmed?: boolean
-  hideCreateButton?: boolean
-  compactView?: boolean
 }
 
-export function TransportationLogTable({
+export function TransportationTable({
   data,
   isLoading = false,
-  onTransportationLogSelect,
-  onDeleteTransportationLog,
-  onEditActionTransportationLog,
-  onCreateActionTransportationLog,
+  onTransportationSelect,
+  onDeleteTransportation,
+  onEditActionTransportation,
+  onCreateActionTransportation,
   onRefreshAction,
   moduleId,
   transactionId,
   isConfirmed,
-  hideCreateButton = false,
-  compactView = false,
-}: TransportationLogTableProps) {
+}: TransportationTableProps) {
   const { decimals } = useCompanyStore()
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
@@ -73,8 +69,8 @@ export function TransportationLogTable({
   )
 
   // Memoize columns to prevent infinite re-renders
-  const columns: ColumnDef<ISerTransportationHd>[] = useMemo(() => {
-    const allColumns: ColumnDef<ISerTransportationHd>[] = [
+  const columns: ColumnDef<ISerTransportationHd>[] = useMemo(
+    () => [
       {
         accessorKey: "serviceItemNo",
         header: "Services",
@@ -90,53 +86,28 @@ export function TransportationLogTable({
                   .map((detail) => detail.serviceItemNo)
                   .join(",")
               : "")
-          const serviceItemNoName = record.serviceItemNoName ?? ""
 
-          const serviceItemNoNames = serviceItemNoName
-            ? serviceItemNoName.split(",").map((name) => name.trim())
-            : []
-
-          if (
-            (!serviceItemNo || serviceItemNo.trim() === "") &&
-            serviceItemNoNames.length === 0
-          ) {
-            return <span className="text-muted-foreground text-[10px]">-</span>
-          }
-
-          // Split comma-separated strings
-          const serviceItemNos = serviceItemNo
-            .split(",")
-            .map((item) => item.trim())
-            .filter((item) => item)
-
-          if (serviceItemNos.length === 0 && serviceItemNoNames.length === 0) {
-            return <span className="text-muted-foreground text-[10px]">-</span>
-          }
-          const rowsCount = Math.max(
-            serviceItemNos.length,
-            serviceItemNoNames.length
+          const labels = getTransportationServiceItemLabels(
+            serviceItemNo,
+            record.serviceItemNoName,
+            record.data_details
           )
+
+          if (labels.length === 0) {
+            return <span className="text-muted-foreground text-[10px]">-</span>
+          }
 
           return (
             <div className="flex flex-wrap gap-0.5">
-              {Array.from({ length: rowsCount }).map((_, index) => {
-                const itemNo = serviceItemNos[index] || ""
-                // Use name if available and matches index, otherwise use ID
-                const displayText =
-                  serviceItemNoNames[index] && serviceItemNoNames[index] !== ""
-                    ? serviceItemNoNames[index]
-                    : itemNo
-
-                return (
-                  <Badge
-                    key={`${itemNo}-${index}`}
-                    variant="default"
-                    className="border-border text-primary bg-blue-100 px-1.5 py-0.5 text-[10px] leading-tight hover:bg-blue-200"
-                  >
-                    {displayText}
-                  </Badge>
-                )
-              })}
+              {labels.map((label, index) => (
+                <Badge
+                  key={`${label}-${index}`}
+                  variant="default"
+                  className="border-border text-primary max-w-full bg-blue-100 px-1.5 py-0.5 text-[10px] leading-tight whitespace-normal hover:bg-blue-200"
+                >
+                  {label}
+                </Badge>
+              ))}
             </div>
           )
         },
@@ -339,29 +310,9 @@ export function TransportationLogTable({
         size: 180,
         minSize: 150,
       },
-    ]
-
-    if (!compactView) return allColumns
-
-    const hiddenColumnKeys = new Set([
-      "transportationId",
-      "taskName",
-      "cargoTypeName",
-      "vehicleNo",
-      "driverName",
-      "remarks",
-      "vendor",
-      "createBy",
-      "createDate",
-      "editBy",
-      "editDate",
-    ])
-
-    return allColumns.filter((column) => {
-      const accessorKey = (column as { accessorKey?: string }).accessorKey
-      return !accessorKey || !hiddenColumnKeys.has(String(accessorKey))
-    })
-  }, [compactView, formatDateValue, datetimeFormat])
+    ],
+    [formatDateValue, datetimeFormat]
+  )
 
   return (
     <MainTable<ISerTransportationHd>
@@ -369,11 +320,12 @@ export function TransportationLogTable({
       columns={columns}
       isLoading={isLoading}
       tableName={TableName.checklist}
+      tableHeight={CHECKLIST_JOB_DETAIL_TABLE_MAX_HEIGHT}
       accessorId="transportationId"
-      onSelect={onTransportationLogSelect}
-      onEditAction={onEditActionTransportationLog}
-      onDeleteAction={onDeleteTransportationLog}
-      onCreateAction={onCreateActionTransportationLog}
+      onSelect={onTransportationSelect}
+      onEditAction={onEditActionTransportation}
+      onDeleteAction={onDeleteTransportation}
+      onCreateAction={onCreateActionTransportation}
       onRefreshAction={onRefreshAction}
       onFilterChange={undefined}
       moduleId={moduleId}
@@ -385,7 +337,7 @@ export function TransportationLogTable({
       canEdit={!isConfirmed}
       canDelete={!isConfirmed}
       canView={true}
-      canCreate={!isConfirmed && !hideCreateButton}
+      canCreate={!isConfirmed}
       isConfirmed={isConfirmed}
     />
   )

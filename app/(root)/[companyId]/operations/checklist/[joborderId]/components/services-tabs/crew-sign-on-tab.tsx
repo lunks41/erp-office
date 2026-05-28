@@ -47,7 +47,7 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { CombinedFormsDialog } from "../services-combined/combined-forms-dialog"
 import DebitNoteDialog from "../services-combined/debit-note-dialog"
 import { PurchaseDialog } from "../services-combined/purchase-dialog"
-import { TransportationLogTab } from "../services-combined/transporationlog"
+import { TransportationTab } from "../services-combined/transporation"
 import { CrewSignOnForm } from "../services-forms/crew-sign-on-form"
 import { CrewSignOnTable } from "../services-tables/crew-sign-on-table"
 
@@ -711,7 +711,7 @@ export function CrewSignOnTab({
                     ? "border-green-200 bg-green-100 text-green-800"
                     : modalMode === "edit"
                       ? "border-orange-200 bg-orange-100 text-orange-800"
-                      : "border-border bg-blue-100 text-primary"
+                      : "border-border text-primary bg-blue-100"
                 }
               >
                 {modalMode === "create"
@@ -761,7 +761,7 @@ export function CrewSignOnTab({
                 value="transportation"
                 className="w-full max-w-full overflow-x-hidden overflow-y-auto"
               >
-                <TransportationLogTab
+                <TransportationTab
                   jobData={jobData}
                   taskId={Task.CrewSignOn}
                   serviceItemNo={selectedItem?.crewSignOnId ?? 0}

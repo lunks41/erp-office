@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCallback, useMemo, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
@@ -29,10 +29,10 @@ import { Separator } from "@/components/ui/separator"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
-import { TransportationLogForm } from "./checklist-transporationlog-form"
-import { TransportationLogTable } from "./checklist-transporationlog-table"
+import { TransportationForm } from "./checklist-transporation-form"
+import { TransportationTable } from "./checklist-transporation-table"
 
-interface TransportationLogTabProps {
+interface TransportationTabProps {
   jobData: IJobOrderHd
   moduleId: number
   transactionId: number
@@ -41,12 +41,12 @@ interface TransportationLogTabProps {
   inlineMode?: boolean
 }
 
-export function TransportationLogTab({
+export function TransportationTab({
   jobData,
   onTaskAdded,
   isConfirmed,
   inlineMode = false,
-}: TransportationLogTabProps) {
+}: TransportationTabProps) {
   const jobOrderId = jobData.jobOrderId
   const queryClient = useQueryClient()
 
@@ -313,7 +313,7 @@ export function TransportationLogTab({
     onTaskAdded,
   ])
 
-  const handleCreateTransportationLog = useCallback(() => {
+  const handleCreateTransportation = useCallback(() => {
     setSelectedItem(undefined)
     setModalMode("create")
     if (!inlineMode) {
@@ -321,7 +321,7 @@ export function TransportationLogTab({
     }
   }, [inlineMode])
 
-  const handleRefreshTransportationLog = useCallback(() => {
+  const handleRefreshTransportation = useCallback(() => {
     refetch()
   }, [refetch])
 
@@ -355,7 +355,7 @@ export function TransportationLogTab({
                     : "View"}
               </Badge>
             </div>
-            <TransportationLogForm
+            <TransportationForm
               jobData={jobData}
               initialData={
                 modalMode === "edit" || modalMode === "view"
@@ -375,13 +375,13 @@ export function TransportationLogTab({
         )}
 
         <div className="min-h-0 flex-1">
-          <TransportationLogTable
+          <TransportationTable
             data={data || []}
-            onTransportationLogSelect={handleSelect}
-            onDeleteTransportationLog={handleDelete}
-            onEditActionTransportationLog={handleEdit}
-            onCreateActionTransportationLog={handleCreateTransportationLog}
-            onRefreshAction={handleRefreshTransportationLog}
+            onTransportationSelect={handleSelect}
+            onDeleteTransportation={handleDelete}
+            onEditActionTransportation={handleEdit}
+            onCreateActionTransportation={handleCreateTransportation}
+            onRefreshAction={handleRefreshTransportation}
             moduleId={moduleId}
             transactionId={transactionId}
             isConfirmed={isConfirmed}
@@ -430,7 +430,7 @@ export function TransportationLogTab({
             </DialogDescription>
           </DialogHeader>
           <Separator />
-          <TransportationLogForm
+          <TransportationForm
             jobData={jobData}
             initialData={
               modalMode === "edit" || modalMode === "view"
