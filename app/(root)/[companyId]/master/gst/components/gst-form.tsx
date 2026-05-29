@@ -98,7 +98,7 @@ export function GstForm({
               <GstCategoryAutocomplete
                 form={form}
                 name="gstCategoryId"
-                label="Gst Category"
+                label="VAT Category"
                 isDisabled={isReadOnly || _isSubmitting}
                 isRequired={true}
               />
@@ -106,7 +106,7 @@ export function GstForm({
               <CustomInput
                 form={form}
                 name="gstCode"
-                label="Gst Code"
+                label="VAT Code"
                 isRequired
                 isDisabled={isReadOnly || Boolean(initialData)}
                 onBlurEvent={handleCodeBlur}
@@ -115,7 +115,7 @@ export function GstForm({
               <CustomInput
                 form={form}
                 name="gstName"
-                label="Gst Name"
+                label="VAT Name"
                 isRequired
                 isDisabled={isReadOnly || _isSubmitting}
               />

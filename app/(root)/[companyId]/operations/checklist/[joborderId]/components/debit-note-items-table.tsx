@@ -3,8 +3,10 @@
 import { useCallback, useMemo } from "react"
 import { IDebitNoteItem } from "@/interfaces/checklist"
 import { ColumnDef } from "@tanstack/react-table"
+import { Printer } from "lucide-react"
 
 import { TableName } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { DebitNoteBaseTable } from "@/components/table/table-debitnote"
 
 interface DebitNoteItemsTableProps {
@@ -17,6 +19,7 @@ interface DebitNoteItemsTableProps {
   onEditAction?: (item: IDebitNoteItem) => void
   onDeleteAction?: (item: IDebitNoteItem) => void
   onBulkDeleteAction?: (items: IDebitNoteItem[]) => void
+  onPrintAction?: (item: IDebitNoteItem) => void
   onDataReorder?: (newData: IDebitNoteItem[]) => void
   moduleId?: number
   transactionId?: number
@@ -33,6 +36,7 @@ export function DebitNoteItemsTable({
   onEditAction,
   onDeleteAction,
   onBulkDeleteAction,
+  onPrintAction,
   onDataReorder,
   moduleId,
   transactionId,
@@ -105,7 +109,7 @@ export function DebitNoteItemsTable({
       },
       {
         accessorKey: "gstAmt",
-        header: "GST Amount",
+        header: "VAT Amount",
         cell: ({ row }) => (
           <div className="text-center">{row.getValue("gstAmt") || "-"}</div>
         ),
@@ -114,7 +118,7 @@ export function DebitNoteItemsTable({
       },
       {
         accessorKey: "totAmtAftGst",
-        header: "Total Amount After GST",
+        header: "Total Amount After VAT",
         cell: ({ row }) => (
           <div className="text-center">
             {row.getValue("totAmtAftGst") || "-"}
@@ -123,8 +127,41 @@ export function DebitNoteItemsTable({
         size: 100,
         minSize: 80,
       },
+      {
+        id: "print",
+        header: "Print",
+        enableSorting: false,
+        cell: ({ row }) => {
+          const item = row.original
+          const canPrint = item.debitNoteId > 0 && Boolean(item.debitNoteNo)
+          return (
+            <div className="flex justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 px-2"
+                disabled={!canPrint}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onPrintAction?.(item)
+                }}
+                title={
+                  canPrint
+                    ? `Print ${item.debitNoteNo}`
+                    : "Debit note not available"
+                }
+              >
+                <Printer className="h-4 w-4" />
+              </Button>
+            </div>
+          )
+        },
+        size: 72,
+        minSize: 64,
+      },
     ],
-    []
+    [onPrintAction]
   )
 
   // Callback handlers for the table

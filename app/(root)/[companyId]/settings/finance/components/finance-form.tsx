@@ -254,14 +254,14 @@ export function FinanceForm() {
           <ChartOfAccountAutocomplete
             form={form}
             name="saleGst_GlId"
-            label="Sales GST Account"
+            label="Sales VAT Account"
             isRequired={true}
             companyId={Number(companyId)}
           />
           <ChartOfAccountAutocomplete
             form={form}
             name="purGst_GlId"
-            label="Purchase GST Account"
+            label="Purchase VAT Account"
             isRequired={true}
             companyId={Number(companyId)}
           />

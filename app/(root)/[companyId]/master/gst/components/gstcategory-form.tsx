@@ -92,7 +92,7 @@ export function GstCategoryForm({
               <CustomInput
                 form={form}
                 name="gstCategoryCode"
-                label="Gst Category Code"
+                label="VAT Category Code"
                 isRequired
                 isDisabled={isReadOnly || Boolean(initialData)}
                 onBlurEvent={handleCodeBlur}
@@ -101,7 +101,7 @@ export function GstCategoryForm({
               <CustomInput
                 form={form}
                 name="gstCategoryName"
-                label="Gst Category Name"
+                label="VAT Category Name"
                 isRequired
                 isDisabled={isReadOnly || _isSubmitting}
               />

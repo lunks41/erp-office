@@ -166,8 +166,8 @@ export const financeSettingSchema = z
     adjCharge_GlId: z.number().min(0, "Adj Charges Account is required"),
     profitLoss_GlId: z.number().min(0, "Profit & Loss Account is required"),
     retEarning_GlId: z.number().min(0, "Retained Earnings Account is required"),
-    saleGst_GlId: z.number().min(0, "Sales GST Account is required"),
-    purGst_GlId: z.number().min(0, "Purchase GST Account is required"),
+    saleGst_GlId: z.number().min(0, "Sales VAT Account is required"),
+    purGst_GlId: z.number().min(0, "Purchase VAT Account is required"),
     saleDef_GlId: z.number().min(0, "Sales Deferred Account is required"),
     purDef_GlId: z.number().min(0, "Purchase Deferred Account is required"),
   })

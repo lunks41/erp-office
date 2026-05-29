@@ -213,7 +213,7 @@ export default function InvoiceDetailsTable({
       ? [
           {
             accessorKey: "gstName",
-            header: "Gst",
+            header: "VAT",
             size: 100,
           },
         ]
@@ -236,7 +236,7 @@ export default function InvoiceDetailsTable({
       ? [
           {
             accessorKey: "gstCtyAmt",
-            header: "GST Country Amount",
+            header: "VAT Country Amount",
             size: 100,
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
               <div className="truncate text-right">

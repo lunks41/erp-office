@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -252,10 +252,10 @@ export function EditVersionDetailsForm({
                         Amount
                       </TableCell>
                       <TableCell className="text-right font-semibold">
-                        GST
+                        VAT
                       </TableCell>
                       <TableCell className="text-right font-semibold">
-                        GST Amount
+                        VAT Amount
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         Local Amount

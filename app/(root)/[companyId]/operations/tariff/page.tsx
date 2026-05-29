@@ -321,7 +321,6 @@ export default function TariffPage() {
         toLocationId: tariff.toLocationId ?? null,
         isPrepayment: tariff.isPrepayment || false,
         prepaymentPercentage: tariff.prepaymentPercentage || 0,
-        isViceVersa: tariff.isViceVersa || false,
         itemNo: null,
         remarks: tariff.remarks || null,
         isActive: tariff.isActive ?? true,

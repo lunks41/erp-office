@@ -234,7 +234,7 @@ export default function CreditNoteDetailsTable({
       ? [
           {
             accessorKey: "gstName",
-            header: "Gst",
+            header: "VAT",
             size: 100,
           },
         ]
@@ -257,7 +257,7 @@ export default function CreditNoteDetailsTable({
       ? [
           {
             accessorKey: "gstCtyAmt",
-            header: "GST Country Amount",
+            header: "VAT Country Amount",
             size: 100,
             cell: ({ row }: { row: Row<IApCreditNoteDt> }) => (
               <div className="truncate text-right">

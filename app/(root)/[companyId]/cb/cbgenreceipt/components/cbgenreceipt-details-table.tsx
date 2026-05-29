@@ -180,7 +180,7 @@ export default function CbGenReceiptDetailsTable({
       ? [
           {
             accessorKey: "gstName",
-            header: "Gst",
+            header: "VAT",
             size: 100,
           },
         ]
@@ -203,7 +203,7 @@ export default function CbGenReceiptDetailsTable({
       ? [
           {
             accessorKey: "gstCtyAmt",
-            header: "GST Country Amount",
+            header: "VAT Country Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbGenReceiptDt, unknown>) => (
               <div className="truncate text-right">

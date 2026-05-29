@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -762,11 +762,11 @@ export default function InvoiceForm({
 
           {visible?.m_CtyCurr && visible?.m_GstId && (
             <>
-              {/* GST Country Amount */}
+              {/* VAT Country Amount */}
               <CustomNumberInput
                 form={form}
                 name="gstCtyAmt"
-                label="GST Country Amount"
+                label="VAT Country Amount"
                 isDisabled={true}
                 round={ctyAmtDec}
                 className="text-right"
@@ -776,7 +776,7 @@ export default function InvoiceForm({
 
           {visible?.m_CtyCurr && (
             <>
-              {/* Total Country Amount After GST */}
+              {/* Total Country Amount After VAT */}
               <CustomNumberInput
                 form={form}
                 name="totCtyAmtAftGst"
@@ -971,12 +971,12 @@ export default function InvoiceForm({
                     <div className="grid grid-cols-2 gap-1 text-amber-900">
                       <div>
                         <div>Total Amt: {inv.totAmt}</div>
-                        <div>GST Amt: {inv.gstAmt}</div>
-                        <div>Total After GST: {inv.totAftGstAmt}</div>
+                        <div>VAT Amt: {inv.gstAmt}</div>
+                        <div>Total After VAT: {inv.totAftGstAmt}</div>
                       </div>
                       <div>
                         <div>Total Local: {inv.totLocalAmt}</div>
-                        <div>GST Local: {inv.gstLocalAmt}</div>
+                        <div>VAT Local: {inv.gstLocalAmt}</div>
                         <div>
                           Total Local After GST: {inv.totLocalAmtAftGst}
                         </div>

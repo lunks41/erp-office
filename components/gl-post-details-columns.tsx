@@ -176,7 +176,7 @@ export function getGlPostDetailsColumns(
     },
     {
       accessorKey: "gstCtyAmt",
-      header: "GST Country Amount",
+      header: "VAT Country Amount",
       cell: ({ row }) => (
         <div className="text-right">
           {row.original.gstCtyAmt

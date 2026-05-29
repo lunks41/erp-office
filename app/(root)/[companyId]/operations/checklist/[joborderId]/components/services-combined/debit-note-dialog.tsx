@@ -7,6 +7,7 @@ import {
   calculatePercentagecAmount,
 } from "@/helpers/account"
 import { calculateDebitNoteSummary } from "@/helpers/debit-note-calculations"
+import { openDebitNoteReportWindow } from "@/helpers/debit-note-report"
 import {
   IBulkChargeData,
   IDebitNoteDt,
@@ -1004,54 +1005,17 @@ export default function DebitNoteDialog({
       return
     }
 
-    const debitNoteId = debitNoteHdState.debitNoteId?.toString() || "0"
-    const debitNoteNo = debitNoteHdState.debitNoteNo || ""
-    const jobOrderId = debitNoteHdState.jobOrderId?.toString() || "0"
-
-    // Determine report file by taskId: import, export, equipment used, or default
-    let reportFile = ""
-    if (taskId === 8) {
-      reportFile = "debitnote/DebitNote_Import.trdp"
-    } else if (taskId === 9) {
-      reportFile = "debitnote/DebitNote_Export.trdp"
-    } else if (taskId === 3) {
-      reportFile = "debitnote/DebitNote_Used.trdp"
-    } else {
-      reportFile = "debitnote/DebitNote.trdp"
-    }
-
-    console.log("reportFile", reportFile)
-    console.log("taskId", taskId)
-    const reportParams: Record<string, string | number> = {
-      companyId: companyId,
-      debitNoteId: debitNoteId,
-      debitNoteNo: debitNoteNo,
-      jobOrderId: jobOrderId,
-      taskId: taskId,
-      amtDec: amtDec,
-      locAmtDec: locAmtDec,
-      userName: user?.userName || "",
-    }
-
-    console.log("reportParams", reportParams)
-
-    // Store report data in sessionStorage
-    const reportData = {
-      reportFile: reportFile,
-      parameters: reportParams,
-    }
-
     try {
-      localStorage.setItem(
-        `report_window_${companyId}`,
-        JSON.stringify(reportData)
-      )
-
-      // Open in a new window (not tab) with specific features
-      const windowFeatures =
-        "width=1200,height=800,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes"
-      const viewerUrl = `/${companyId}/reports/window`
-      window.open(viewerUrl, "_blank", windowFeatures)
+      openDebitNoteReportWindow({
+        companyId,
+        debitNoteId: debitNoteHdState.debitNoteId,
+        debitNoteNo: debitNoteHdState.debitNoteNo || "",
+        jobOrderId: debitNoteHdState.jobOrderId?.toString() || "0",
+        taskId,
+        amtDec,
+        locAmtDec,
+        userName: user?.userName || "",
+      })
     } catch (error) {
       console.error("Error opening report:", error)
       toast.error("Failed to open report")

@@ -368,7 +368,7 @@ export default function CbPettyCashDetailsTable({
       ? [
           {
             accessorKey: "gstName",
-            header: "Gst",
+            header: "VAT",
             size: 100,
           },
         ]
@@ -391,7 +391,7 @@ export default function CbPettyCashDetailsTable({
       ? [
           {
             accessorKey: "gstCtyAmt",
-            header: "GST Country Amount",
+            header: "VAT Country Amount",
             size: 100,
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
               <div className="truncate text-right">

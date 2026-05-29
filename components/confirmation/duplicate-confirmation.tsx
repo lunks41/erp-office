@@ -177,7 +177,7 @@ export function DuplicateConfirmation({
                       {duplicateInfo.gstPercentage !== undefined && (
                         <div className="flex justify-between gap-4">
                           <span className="font-semibold text-gray-700 dark:text-gray-300">
-                            GST %:
+                            VAT %:
                           </span>
                           <span className="text-right font-mono">
                             {duplicateInfo.gstPercentage}%
@@ -187,7 +187,7 @@ export function DuplicateConfirmation({
                       {duplicateInfo.gstAmt !== undefined && (
                         <div className="flex justify-between gap-4">
                           <span className="font-semibold text-gray-700 dark:text-gray-300">
-                            GST Amount:
+                            VAT Amount:
                           </span>
                           <span className="text-right font-mono">
                             {typeof duplicateInfo.gstAmt === "number"

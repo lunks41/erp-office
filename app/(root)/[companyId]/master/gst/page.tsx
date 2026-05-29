@@ -451,7 +451,7 @@ export default function GstPage() {
         }
       }
     } catch (error) {
-      console.error("Gst Category form submission error:", error)
+      console.error("VAT Category form submission error:", error)
     }
   }
 
@@ -665,10 +665,10 @@ export default function GstPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
-            VAT | GST
+            VAT
           </h1>
           <p className="text-muted-foreground text-sm">
-            Manage VAT | GST information and settings
+            Manage VAT information and settings
           </p>
         </div>
               <div className="flex w-full max-w-xl items-center gap-2 sm:w-auto">
@@ -676,7 +676,7 @@ export default function GstPage() {
             <>
               <div className="relative w-full">
                 <Input
-                  placeholder="Search VAT | GST..."
+                  placeholder="Search VAT..."
                   value={gstSearchInput}
                   onChange={(evt) => setGstSearchInput(evt.target.value)}
                   onKeyDown={(evt) => {
@@ -725,7 +725,7 @@ export default function GstPage() {
             <>
               <div className="relative w-full">
                 <Input
-                  placeholder="Search VAT | GST details..."
+                  placeholder="Search VAT details..."
                   value={gstDtSearchInput}
                   onChange={(evt) => setGstDtSearchInput(evt.target.value)}
                   onKeyDown={(evt) => {
@@ -774,7 +774,7 @@ export default function GstPage() {
             <>
               <div className="relative w-full">
                 <Input
-                  placeholder="Search VAT | GST categories..."
+                  placeholder="Search VAT categories..."
                   value={gstCategorySearchInput}
                   onChange={(evt) => setGstCategorySearchInput(evt.target.value)}
                   onKeyDown={(evt) => {
@@ -829,9 +829,9 @@ export default function GstPage() {
         className="space-y-4"
       >
         <TabsList>
-          <TabsTrigger value="gsts">VAT | GST</TabsTrigger>
-          <TabsTrigger value="gstsdt">VAT | GST Details</TabsTrigger>
-          <TabsTrigger value="gstscategory">VAT | GST Category</TabsTrigger>
+          <TabsTrigger value="gsts">VAT</TabsTrigger>
+          <TabsTrigger value="gstsdt">VAT Details</TabsTrigger>
+          <TabsTrigger value="gstscategory">VAT Category</TabsTrigger>
         </TabsList>
 
         <TabsContent value="gsts" className="space-y-4">
@@ -1061,16 +1061,16 @@ export default function GstPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {modalMode === "create" && "Create VAT | GST"}
-              {modalMode === "edit" && "Update VAT | GST"}
-              {modalMode === "view" && "View VAT | GST"}
+              {modalMode === "create" && "Create VAT"}
+              {modalMode === "edit" && "Update VAT"}
+              {modalMode === "view" && "View VAT"}
             </DialogTitle>
             <DialogDescription>
               {modalMode === "create"
-                ? "Add a new VAT | GST to the system database."
+                ? "Add a new VAT to the system database."
                 : modalMode === "edit"
-                  ? "Update VAT | GST information in the system database."
-                  : "View VAT | GST details."}
+                  ? "Update VAT information in the system database."
+                  : "View VAT details."}
             </DialogDescription>
           </DialogHeader>
           <Separator />
@@ -1093,16 +1093,16 @@ export default function GstPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {modalMode === "create" && "Create VAT | GST Details"}
-              {modalMode === "edit" && "Update VAT | GST Details"}
-              {modalMode === "view" && "View VAT | GST Details"}
+              {modalMode === "create" && "Create VAT Details"}
+              {modalMode === "edit" && "Update VAT Details"}
+              {modalMode === "view" && "View VAT Details"}
             </DialogTitle>
             <DialogDescription>
               {modalMode === "create"
-                ? "Add new VAT | GST details to the system database."
+                ? "Add new VAT details to the system database."
                 : modalMode === "edit"
-                  ? "Update VAT | GST details information."
-                  : "View VAT | GST details."}
+                  ? "Update VAT details information."
+                  : "View VAT details."}
             </DialogDescription>
           </DialogHeader>
           <Separator />
@@ -1118,7 +1118,7 @@ export default function GstPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Gst Category Form Dialog */}
+      {/* VAT Category Form Dialog */}
       <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
         <DialogContent
           className="sm:max-w-2xl"
@@ -1126,16 +1126,16 @@ export default function GstPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {modalMode === "create" && "Create VAT | GST Category"}
-              {modalMode === "edit" && "Update VAT | GST Category"}
-              {modalMode === "view" && "View VAT | GST Category"}
+              {modalMode === "create" && "Create VAT Category"}
+              {modalMode === "edit" && "Update VAT Category"}
+              {modalMode === "view" && "View VAT Category"}
             </DialogTitle>
             <DialogDescription>
               {modalMode === "create"
-                ? "Add a new VAT | GST category to the system database."
+                ? "Add a new VAT category to the system database."
                 : modalMode === "edit"
-                  ? "Update VAT | GST category information."
-                  : "View VAT | GST category details."}
+                  ? "Update VAT category information."
+                  : "View VAT category details."}
             </DialogDescription>
           </DialogHeader>
           <Separator />
@@ -1162,7 +1162,7 @@ export default function GstPage() {
         onCancelAction={() => setExistingGst(null)}
         code={existingGst?.gstCode}
         name={existingGst?.gstName}
-        typeLabel="VAT | GST"
+        typeLabel="VAT"
         isLoading={saveMutation.isPending || updateMutation.isPending}
       />
 
@@ -1173,7 +1173,7 @@ export default function GstPage() {
         onCancelAction={() => setExistingGstCategory(null)}
         code={existingGstCategory?.gstCategoryCode}
         name={existingGstCategory?.gstCategoryName}
-        typeLabel="VAT | GST Category"
+        typeLabel="VAT Category"
         isLoading={
           saveCategoryMutation.isPending || updateCategoryMutation.isPending
         }

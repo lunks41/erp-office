@@ -33,6 +33,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { openDebitNoteReportWindow } from "@/helpers/debit-note-report"
 import { apiClient } from "@/lib/api-client"
 import { JobOrder } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
@@ -660,6 +661,38 @@ export function ChecklistTabs({
     []
   )
 
+  const debitNoteReportBase = useCallback(
+    () => ({
+      companyId,
+      jobOrderId: currentJobData?.jobOrderId?.toString() || jobOrderId || "0",
+      amtDec: decimals[0]?.amtDec ?? 2,
+      locAmtDec: decimals[0]?.locAmtDec ?? 2,
+      userName: user?.userName || "",
+    }),
+    [companyId, currentJobData?.jobOrderId, jobOrderId, decimals, user?.userName]
+  )
+
+  const handleDebitNotePrint = useCallback(
+    (item: IDebitNoteItem) => {
+      if (!item.debitNoteId || !item.debitNoteNo) {
+        toast.error("Debit note is not available to print")
+        return
+      }
+      try {
+        openDebitNoteReportWindow({
+          ...debitNoteReportBase(),
+          debitNoteId: item.debitNoteId,
+          debitNoteNo: item.debitNoteNo,
+          taskId: item.taskId,
+        })
+      } catch (error) {
+        console.error("Error opening debit note report:", error)
+        toast.error("Failed to open report")
+      }
+    },
+    [debitNoteReportBase]
+  )
+
   return (
     <div className="w-full">
       <div className="mb-2 flex items-center justify-between">
@@ -1110,6 +1143,7 @@ export function ChecklistTabs({
               onEditAction={handleDebitNoteEdit}
               onDeleteAction={handleDebitNoteDelete}
               onBulkDeleteAction={handleDebitNoteBulkDelete}
+              onPrintAction={handleDebitNotePrint}
               onDataReorder={handleDebitNoteDataReorder}
               moduleId={parseInt(jobOrderId) || 0}
               transactionId={parseInt(jobOrderId) || 0}
@@ -1124,16 +1158,18 @@ export function ChecklistTabs({
               >
                 Close
               </Button>
-              <Button
-                onClick={saveDebitNoteData}
-                disabled={
-                  debitNoteSaving ||
-                  debitNoteLoading ||
-                  debitNoteData.length === 0
-                }
-              >
-                {debitNoteSaving ? "Saving..." : "Save Changes"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={saveDebitNoteData}
+                  disabled={
+                    debitNoteSaving ||
+                    debitNoteLoading ||
+                    debitNoteData.length === 0
+                  }
+                >
+                  {debitNoteSaving ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

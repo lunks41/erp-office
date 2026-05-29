@@ -106,7 +106,7 @@ export function TransactionRecoveryTable({
     },
     {
       accessorKey: "gstAmt",
-      header: "GstAmt",
+      header: "VAT Amt",
       size: 120,
       minSize: 80,
       cell: ({ row }) => {
@@ -118,7 +118,7 @@ export function TransactionRecoveryTable({
     },
     {
       accessorKey: "totAmtAftGst",
-      header: "TotAmtGst",
+      header: "Tot Amt VAT",
       size: 120,
       minSize: 80,
       cell: ({ row }) => {

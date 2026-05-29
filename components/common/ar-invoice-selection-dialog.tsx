@@ -161,7 +161,7 @@ export default function InvoiceSelectionDialog({
       },
       {
         accessorKey: "gstCtyAmt",
-        header: "GST Country Amount",
+        header: "VAT Country Amount",
         cell: ({ row }) => (
           <div className="text-right">
             {formatNumber(row.original.gstCtyAmt ?? 0, amtDec)}
@@ -170,7 +170,7 @@ export default function InvoiceSelectionDialog({
       },
       {
         accessorKey: "totAmtAftGst",
-        header: "Total Amount After GST",
+        header: "Total Amount After VAT",
         cell: ({ row }) => (
           <div className="text-right">
             {formatNumber(row.original.totAmtAftGst ?? 0, amtDec)}
@@ -179,7 +179,7 @@ export default function InvoiceSelectionDialog({
       },
       {
         accessorKey: "totLocalAmtAftGst",
-        header: "Total Local Amount After GST",
+        header: "Total Local Amount After VAT",
         cell: ({ row }) => (
           <div className="text-right">
             {formatNumber(row.original.totLocalAmtAftGst ?? 0, locAmtDec)}
@@ -188,7 +188,7 @@ export default function InvoiceSelectionDialog({
       },
       {
         accessorKey: "totCtyAmtAftGst",
-        header: "Total Country Amount After GST",
+        header: "Total Country Amount After VAT",
         cell: ({ row }) => (
           <div className="text-right">
             {formatNumber(row.original.totCtyAmtAftGst ?? 0, amtDec)}

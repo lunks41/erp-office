@@ -273,7 +273,7 @@ export const CbPettyCashDtSchema = (
         return true
       },
       {
-        message: "TRN No is required when GST percentage is above 0%",
+        message: "TRN No is required when VAT percentage is above 0%",
         path: ["supplierRegNo"],
       }
     )

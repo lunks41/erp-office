@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -1312,7 +1312,7 @@ const GLJournalDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Amount */}
+            {/* VAT Amount */}
             {visible?.m_GstId && (
               <CustomNumberInput
                 form={form}
@@ -1337,12 +1337,12 @@ const GLJournalDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Country Amount */}
+            {/* VAT Country Amount */}
             {visible?.m_CtyCurr && visible?.m_GstId && (
               <CustomNumberInput
                 form={form}
                 name="gstCtyAmt"
-                label="GST Country Amount"
+                label="VAT Country Amount"
                 round={ctyAmtDec}
                 className="text-right"
                 isDisabled={true}

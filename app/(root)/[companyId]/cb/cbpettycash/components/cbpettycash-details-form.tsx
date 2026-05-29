@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -1822,7 +1822,7 @@ const CbPettyCashDetailsForm = React.forwardRef<
                 )}
               </div>
               <div className="flex-1">
-                {/* GST Amount */}
+                {/* VAT Amount */}
                 {visible?.m_GstId && (
                   <CustomNumberInput
                     form={form}
@@ -1877,12 +1877,12 @@ const CbPettyCashDetailsForm = React.forwardRef<
               />
             )}
 
-            {/* GST Country Amount */}
+            {/* VAT Country Amount */}
             {visible?.m_CtyCurr && visible?.m_GstId && (
               <CustomNumberInput
                 form={form}
                 name="gstCtyAmt"
-                label="GST Cty Amt"
+                label="VAT Cty Amt"
                 round={ctyAmtDec}
                 className="text-right"
                 isDisabled={true}

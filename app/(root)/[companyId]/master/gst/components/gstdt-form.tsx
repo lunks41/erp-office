@@ -101,7 +101,7 @@ export function GstDtForm({
               <GSTAutocomplete
                 form={form}
                 name="gstId"
-                label="Gst"
+                label="VAT"
                 isRequired={true}
                 isDisabled={isReadOnly || _isSubmitting}
               />
@@ -109,7 +109,7 @@ export function GstDtForm({
               <CustomNumberInput
                 form={form}
                 name="gstPercentage"
-                label="Gst Percentage"
+                label="VAT Percentage"
                 isRequired
                 isDisabled={isReadOnly || _isSubmitting}
                 round={priceDec}

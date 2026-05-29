@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -627,11 +627,11 @@ export default function CbPettyCashForm({
 
           {visible?.m_CtyCurr && visible?.m_GstId && (
             <>
-              {/* GST Country Amount */}
+              {/* VAT Country Amount */}
               <CustomNumberInput
                 form={form}
                 name="gstCtyAmt"
-                label="GST Country Amount"
+                label="VAT Country Amount"
                 isDisabled={true}
                 round={ctyAmtDec}
                 className="text-right"
@@ -641,7 +641,7 @@ export default function CbPettyCashForm({
 
           {visible?.m_CtyCurr && (
             <>
-              {/* Total Country Amount After GST */}
+              {/* Total Country Amount After VAT */}
               <CustomNumberInput
                 form={form}
                 name="totCtyAmtAftGst"

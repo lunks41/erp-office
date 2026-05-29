@@ -754,7 +754,7 @@ export const debitNoteHdSchema = z.object({
   glId: z.number().min(1, "Chart of Account is required"),
   totAmt: z.number().min(0, "Total amount must be 0 or greater"),
   gstAmt: z.number().min(0, "VAT amount must be 0 or greater"),
-  totAmtAftGst: z.number().min(0, "Total after GST must be 0 or greater"),
+  totAmtAftGst: z.number().min(0, "Total after VAT must be 0 or greater"),
 
   taxableAmt: z.number().min(0, "Taxable amount must be 0 or greater"),
   nonTaxableAmt: z.number().min(0, "Non-taxable amount must be 0 or greater"),

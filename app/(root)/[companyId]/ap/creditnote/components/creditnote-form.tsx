@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCompanyStore } from "@/stores/company-store"
 
@@ -893,11 +893,11 @@ export default function CreditNoteForm({
 
           {visible?.m_CtyCurr && visible?.m_GstId && (
             <>
-              {/* GST Country Amount */}
+              {/* VAT Country Amount */}
               <CustomNumberInput
                 form={form}
                 name="gstCtyAmt"
-                label="GST Country Amount"
+                label="VAT Country Amount"
                 isDisabled={true}
                 round={ctyAmtDec}
                 className="text-right"
@@ -907,7 +907,7 @@ export default function CreditNoteForm({
 
           {visible?.m_CtyCurr && (
             <>
-              {/* Total Country Amount After GST */}
+              {/* Total Country Amount After VAT */}
               <CustomNumberInput
                 form={form}
                 name="totCtyAmtAftGst"
@@ -1094,12 +1094,12 @@ export default function CreditNoteForm({
                     <div className="grid grid-cols-2 gap-1 text-amber-900">
                       <div>
                         <div>Total Amt: {cn.totAmt}</div>
-                        <div>GST Amt: {cn.gstAmt}</div>
-                        <div>Total After GST: {cn.totAftGstAmt}</div>
+                        <div>VAT Amt: {cn.gstAmt}</div>
+                        <div>Total After VAT: {cn.totAftGstAmt}</div>
                       </div>
                       <div>
                         <div>Total Local: {cn.totLocalAmt}</div>
-                        <div>GST Local: {cn.gstLocalAmt}</div>
+                        <div>VAT Local: {cn.gstLocalAmt}</div>
                         <div>Total Local After GST: {cn.totLocalAmtAftGst}</div>
                       </div>
                     </div>

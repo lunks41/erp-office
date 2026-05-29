@@ -405,7 +405,7 @@ export default function DebitNoteTable({
       ? [
           {
             accessorKey: "gstCtyAmt",
-            header: "GST Country Amount",
+            header: "VAT Country Amount",
             cell: ({ row }) => (
               <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}

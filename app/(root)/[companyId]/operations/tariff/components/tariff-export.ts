@@ -15,7 +15,6 @@ const TARIFF_EXPORT_COLUMNS: {
   { key: "toTransportLocationName", label: "To Location" },
   { key: "isPrepayment", label: "Is Prepayment" },
   { key: "prepaymentPercentage", label: "Prepayment %" },
-  { key: "isViceVersa", label: "Vice Versa" },
   { key: "displayRate", label: "Display Rate" },
   { key: "basicRate", label: "Basic Rate" },
   { key: "minUnit", label: "Min Unit" },
