@@ -56,3 +56,56 @@ export function getTransportationServiceItemLabels(
 
   return ids.map((id, index) => nameParts[index] || id)
 }
+
+/** Parse API/header service item ids into detail rows for save + validation. */
+export function buildTransportationDetailsFromServiceItemNos(
+  serviceItemNo: string,
+  serviceItemNoName?: string,
+  existingDetails?: TransportationDetailLike[]
+): Array<{
+  itemNo: number
+  serviceItemNo: number
+  serviceItemNoName: string
+}> {
+  if (existingDetails && existingDetails.length > 0) {
+    return existingDetails
+      .map((detail, index) => {
+        const id = Number(detail.serviceItemNo)
+        if (!Number.isFinite(id) || id <= 0) return null
+        return {
+          itemNo: Number(detail.itemNo) > 0 ? Number(detail.itemNo) : index + 1,
+          serviceItemNo: id,
+          serviceItemNoName: detail.serviceItemNoName?.trim() ?? "",
+        }
+      })
+      .filter(
+        (
+          row
+        ): row is {
+          itemNo: number
+          serviceItemNo: number
+          serviceItemNoName: string
+        } => row !== null
+      )
+  }
+
+  const ids = serviceItemNo
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+    .map((item) => Number(item))
+    .filter((n) => Number.isFinite(n) && n > 0)
+
+  if (ids.length === 0) return []
+
+  const labels = getTransportationServiceItemLabels(
+    serviceItemNo,
+    serviceItemNoName
+  )
+
+  return ids.map((id, index) => ({
+    itemNo: index + 1,
+    serviceItemNo: id,
+    serviceItemNoName: labels[index] ?? "",
+  }))
+}

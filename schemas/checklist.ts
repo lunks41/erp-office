@@ -829,12 +829,16 @@ export const SerTransportationHdFormSchema = SerTransportationHdSchema.extend({
   serviceItemNo: z.string().optional(),
   serviceItemNoName: z.string().optional(),
 }).superRefine((data, ctx) => {
-  const serviceItemNos = (data.serviceItemNo ?? "")
+  const fromString = (data.serviceItemNo ?? "")
     .split(",")
     .map((s) => Number(s.trim()))
     .filter((n) => Number.isFinite(n) && n > 0)
 
-  if (serviceItemNos.length === 0) {
+  const fromDetails = (data.data_details ?? [])
+    .map((d) => Number(d.serviceItemNo))
+    .filter((n) => Number.isFinite(n) && n > 0)
+
+  if (fromString.length === 0 && fromDetails.length === 0) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Service Item No is required",

@@ -404,6 +404,7 @@ export default function BankReconTable({
                   isRequired={!isAllTime}
                   size="sm"
                   isDisabled={isAllTime}
+                  isFutureShow={true}
                 />
               </div>
               <div className="flex min-w-0 items-center gap-2 overflow-hidden">
@@ -416,6 +417,7 @@ export default function BankReconTable({
                   isRequired={!isAllTime}
                   size="sm"
                   isDisabled={isAllTime}
+                  isFutureShow={true}
                 />
               </div>
             </div>

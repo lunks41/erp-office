@@ -277,9 +277,9 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
   }, [isFutureShow, maxDate])
 
   const calendarClassName = React.useMemo(() => {
-    if (size === "lg") return "p-3 [--cell-size:2rem]"
-    if (size === "default") return "p-2 [--cell-size:1.625rem]"
-    return "p-1 [--cell-size:1.25rem]"
+    if (size === "lg") return "[--cell-size:2.25rem]"
+    if (size === "default") return "[--cell-size:2rem]"
+    return "[--cell-size:2rem]"
   }, [size])
 
   return (
@@ -470,12 +470,11 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="z-100 w-auto max-w-none p-0"
-                      align="end"
-                      alignOffset={-8}
+                      className="z-100 w-auto overflow-hidden p-0 shadow-md"
+                      align="start"
                       side="bottom"
-                      sideOffset={10}
-                      collisionPadding={16}
+                      sideOffset={6}
+                      collisionPadding={12}
                     >
                       <Calendar
                         mode="single"
@@ -505,19 +504,14 @@ export const CustomDateNew = <T extends FieldValues = FieldValues>({
                         initialFocus
                       />
                       {/* Footer with Today button */}
-                      <div
-                        className={cn(
-                          "border-t",
-                          size === "sm" ? "p-1" : "p-3"
-                        )}
-                      >
+                      <div className="border-t border-border/60 bg-muted/30 p-2">
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           className={cn(
-                            "w-full",
-                            size === "sm" && "h-6 text-xs"
+                            "h-8 w-full text-xs",
+                            size === "lg" && "h-9 text-sm"
                           )}
                           onClick={handleTodayClick}
                           disabled={!validateDateConstraints(startOfToday())}

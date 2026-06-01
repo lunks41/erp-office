@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react"
 import { IApInvoiceFilter, IApInvoiceHd } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { X } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
+
 import { ApInvoice } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
@@ -17,7 +19,6 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
-import { useCompanyStore } from "@/stores/company-store"
 export interface InvoiceTableProps {
   onInvoiceSelect: (selectedInvoice: IApInvoiceHd | undefined) => void
   onFilterChange: (filters: IApInvoiceFilter) => void
@@ -629,6 +630,7 @@ export default function InvoiceTable({
                   isRequired={!isAllTime}
                   size="sm"
                   isDisabled={isAllTime}
+                  isFutureShow={true}
                 />
               </div>
               <div className="flex min-w-0 items-center gap-2 overflow-hidden">
@@ -641,6 +643,7 @@ export default function InvoiceTable({
                   isRequired={!isAllTime}
                   size="sm"
                   isDisabled={isAllTime}
+                  isFutureShow={true}
                 />
               </div>
             </div>

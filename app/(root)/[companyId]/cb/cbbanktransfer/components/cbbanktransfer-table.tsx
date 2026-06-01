@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { ICbBankTransfer, ICbBankTransferFilter } from "@/interfaces"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, lastDayOfMonth, startOfMonth, subMonths } from "date-fns"
 import { FormProvider, useForm } from "react-hook-form"
+
 import { CbBankTransfer } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
@@ -15,7 +17,6 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import { DialogDataTable } from "@/components/table/table-dialog"
 
-import { useCompanyStore } from "@/stores/company-store"
 export interface BankTransferTableProps {
   onBankTransferSelect: (
     selectedBankTransfer: ICbBankTransfer | undefined
@@ -172,6 +173,10 @@ export default function BankTransferTable({
       },
     },
     {
+      accessorKey: "remarks",
+      header: "Remarks",
+    },
+    {
       accessorKey: "fromBankName",
       header: "From Bank Name",
     },
@@ -239,10 +244,6 @@ export default function BankTransferTable({
     {
       accessorKey: "fromCurrencyName",
       header: "From Currency Name",
-    },
-    {
-      accessorKey: "remarks",
-      header: "Remarks",
     },
 
     {
@@ -569,6 +570,7 @@ export default function BankTransferTable({
                   isRequired={!isAllTime}
                   size="sm"
                   isDisabled={isAllTime}
+                  isFutureShow={true}
                 />
               </div>
               <div className="flex min-w-0 items-center gap-2 overflow-hidden">
@@ -581,6 +583,7 @@ export default function BankTransferTable({
                   isRequired={!isAllTime}
                   size="sm"
                   isDisabled={isAllTime}
+                  isFutureShow={true}
                 />
               </div>
             </div>

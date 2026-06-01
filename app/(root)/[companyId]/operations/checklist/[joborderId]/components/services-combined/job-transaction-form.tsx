@@ -1,7 +1,6 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
-import { IJobTransaction } from "@/interfaces"
+import { useCallback, useEffect, useRef } from "react"
 import { IPurchaseData } from "@/interfaces/checklist"
 import {
   IJobOrderLookup,
@@ -19,7 +18,7 @@ import * as z from "zod"
 import { ApJobTransaction } from "@/lib/api-routes"
 import { formatDateForDisplay } from "@/lib/date-utils"
 import { useGetJobOrderByIdNo } from "@/hooks/use-checklist"
-import { useGet, usePersist } from "@/hooks/use-common"
+import { usePersist } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -88,17 +87,15 @@ export function JobTransactionForm({
     ApJobTransaction.update
   )
 
-  const { data: transactionResponse } = useGet<IJobTransaction>(
-    ApJobTransaction.getList,
-    `job-transaction-${row?.documentNo ?? ""}-${row?.itemNo}`,
-    row?.documentNo ? String(row.documentNo) : "",
-    {
-      enabled: open && !!row?.documentNo,
-      staleTime: 0,
-      gcTime: 0,
-      refetchOnMount: "always",
-    }
-  )
+  /** Immutable keys from the purchase line — never replace from a documentNo search. */
+  const lockedLineKeysRef = useRef<{
+    moduleId: number
+    transactionId: number
+    invoiceId: string
+    itemNo: number
+    seqNo: number
+  } | null>(null)
+
   const { data: jobOrderResponse } = useGetJobOrderByIdNo(
     row?.jobOrderId ? String(row.jobOrderId) : ""
   )
@@ -126,15 +123,6 @@ export function JobTransactionForm({
 
   const watchedJobOrderId = form.watch("jobOrderId")
   const watchedTaskId = form.watch("taskId")
-  const transactionData =
-    transactionResponse?.result === 1 && Array.isArray(transactionResponse.data)
-      ? (transactionResponse.data.find(
-          (item) =>
-            item.itemNo === row?.itemNo &&
-            (item.invoiceId === row?.documentId ||
-              item.invoiceNo === row?.documentNo)
-        ) ?? null)
-      : null
 
   const handleJobOrderChange = useCallback(
     (selectedOption: IJobOrderLookup | null) => {
@@ -201,40 +189,40 @@ export function JobTransactionForm({
 
   useEffect(() => {
     if (open && row) {
-      const sourceRow = transactionData ?? row
-      const accountDateDisplay = sourceRow.accountDate
-        ? formatDateForDisplay(sourceRow.accountDate)
+      const invoiceIdStr = String(row.documentId ?? "").trim()
+      lockedLineKeysRef.current = {
+        moduleId: row.moduleId,
+        transactionId: row.transactionId,
+        invoiceId: invoiceIdStr,
+        itemNo: row.itemNo,
+        seqNo: row.seqNo,
+      }
+
+      const accountDateDisplay = row.accountDate
+        ? formatDateForDisplay(row.accountDate)
         : ""
 
-      const invoiceIdStr = String(
-        "documentId" in sourceRow
-          ? sourceRow.documentId
-          : (sourceRow.invoiceId ?? "")
-      )
-      const documentNoStr =
-        "documentNo" in sourceRow
-          ? sourceRow.documentNo || ""
-          : sourceRow.invoiceNo || ""
-
       form.reset({
-        moduleId: sourceRow.moduleId,
-        transactionId: sourceRow.transactionId,
+        moduleId: row.moduleId,
+        transactionId: row.transactionId,
         invoiceId: invoiceIdStr,
-        itemNo: sourceRow.itemNo,
-        seqNo: sourceRow.seqNo,
-        jobOrderId: sourceRow.jobOrderId,
-        jobOrderNo: sourceRow.jobOrderNo || "",
-        taskId: sourceRow.taskId ?? 0,
-        taskName: sourceRow.taskName || "",
-        serviceItemNo: sourceRow.serviceItemNo ?? 0,
-        serviceItemNoName: sourceRow.serviceName || "",
-        remarks: sourceRow.remarks || "",
-        documentNo: documentNoStr,
-        suppInvoiceNo: sourceRow.suppInvoiceNo || "",
+        itemNo: row.itemNo,
+        seqNo: row.seqNo,
+        jobOrderId: row.jobOrderId,
+        jobOrderNo: row.jobOrderNo || "",
+        taskId: row.taskId ?? 0,
+        taskName: row.taskName || "",
+        serviceItemNo: row.serviceItemNo ?? 0,
+        serviceItemNoName: row.serviceName || "",
+        remarks: row.remarks || "",
+        documentNo: row.documentNo || "",
+        suppInvoiceNo: row.suppInvoiceNo || "",
         accountDate: accountDateDisplay,
       })
+    } else if (!open) {
+      lockedLineKeysRef.current = null
     }
-  }, [open, row, transactionData, form])
+  }, [open, row, form])
 
   useEffect(() => {
     if (!open) return
@@ -252,12 +240,17 @@ export function JobTransactionForm({
 
   const onSubmit = useCallback(
     async (values: FormValues) => {
+      const locked = lockedLineKeysRef.current
+      if (!locked?.invoiceId) {
+        return
+      }
+
       const payload: JobTransactionUpdateSchemaType = {
-        moduleId: values.moduleId,
-        transactionId: values.transactionId,
-        invoiceId: values.invoiceId,
-        itemNo: values.itemNo,
-        seqNo: values.seqNo,
+        moduleId: locked.moduleId,
+        transactionId: locked.transactionId,
+        invoiceId: locked.invoiceId,
+        itemNo: locked.itemNo,
+        seqNo: locked.seqNo,
         jobOrderId: values.jobOrderId,
         taskId: values.taskId,
         serviceItemNo: values.serviceItemNo,

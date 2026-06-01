@@ -973,6 +973,9 @@ export interface ISerTransportationHd {
   companyId: number
   jobOrderId: number
   taskId: number
+  /** Comma-separated service item ids from list/getById API */
+  serviceItemNo?: string
+  serviceItemNoName?: string
   transportDate: Date | string
   fromLocationId: number
   toLocationId: number

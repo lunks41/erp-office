@@ -254,6 +254,7 @@ export default function BankReconSelectionDialog({
                   name="startDate"
                   isRequired={true}
                   size="sm"
+                  isFutureShow={true}
                 />
               </div>
 
@@ -265,6 +266,7 @@ export default function BankReconSelectionDialog({
                   name="endDate"
                   isRequired={true}
                   size="sm"
+                  isFutureShow={true}
                 />
               </div>
 

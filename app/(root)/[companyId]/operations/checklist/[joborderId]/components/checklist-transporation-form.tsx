@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import {
   IJobOrderHd,
   ISerTransportationDt,
@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
-import { getTransportationServiceItemLabels } from "@/lib/transportation-service-items"
+import { buildTransportationDetailsFromServiceItemNos } from "@/lib/transportation-service-items"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { JobOrderTaskAutocomplete } from "@/components/autocomplete"
@@ -60,23 +60,32 @@ export function TransportationForm({
 
   const getServiceItemNoString = useCallback((data?: ISerTransportationHd) => {
     if (!data) return ""
-    const withLegacy = data as ISerTransportationHd & { serviceItemNo?: string }
-    if (withLegacy.serviceItemNo) return withLegacy.serviceItemNo
+    if (data.serviceItemNo?.trim()) return data.serviceItemNo.trim()
     if (data.data_details && data.data_details.length > 0) {
-      return data.data_details.map((detail) => detail.serviceItemNo).join(",")
+      return data.data_details
+        .map((detail) => String(detail.serviceItemNo))
+        .filter((id) => id && id !== "0")
+        .join(",")
     }
     return ""
   }, [])
 
   const getServiceItemNoNameString = useCallback(
-    (data?: ISerTransportationHd) => {
-      if (!data) return ""
-      const withLegacy = data as ISerTransportationHd & {
-        serviceItemNoName?: string
-      }
-      return withLegacy.serviceItemNoName ?? ""
-    },
+    (data?: ISerTransportationHd) => data?.serviceItemNoName?.trim() ?? "",
     []
+  )
+
+  const buildDetailsForForm = useCallback(
+    (data?: ISerTransportationHd): ISerTransportationDt[] => {
+      const serviceItemNo = getServiceItemNoString(data)
+      if (!serviceItemNo) return []
+      return buildTransportationDetailsFromServiceItemNos(
+        serviceItemNo,
+        getServiceItemNoNameString(data),
+        data?.data_details
+      )
+    },
+    [getServiceItemNoString, getServiceItemNoNameString]
   )
 
   const dateFormat = useMemo(
@@ -103,6 +112,10 @@ export function TransportationForm({
     [dateFormat]
   )
 
+  const initialServiceItemNo = getServiceItemNoString(initialData)
+  const initialServiceItemNoName = getServiceItemNoNameString(initialData)
+  const initialDataDetails = buildDetailsForForm(initialData)
+
   const form = useForm<TransportationFormValues>({
     resolver: zodResolver(SerTransportationHdFormSchema),
     defaultValues: {
@@ -110,8 +123,8 @@ export function TransportationForm({
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
       taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: getServiceItemNoString(initialData),
-      serviceItemNoName: getServiceItemNoNameString(initialData),
+      serviceItemNo: initialServiceItemNo,
+      serviceItemNoName: initialServiceItemNoName,
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
@@ -133,18 +146,31 @@ export function TransportationForm({
       vendor: initialData?.vendor ?? null,
       createById: initialData?.createById ?? (Number(user?.userId) || 1),
       editVersion: initialData?.editVersion,
-      data_details: [],
+      data_details: initialDataDetails,
     },
   })
 
+  const lastJobOrderIdRef = useRef<number>(jobData.jobOrderId)
+  const lastTaskIdRef = useRef<number>(
+    initialData?.taskId ?? taskDefaults.taskId ?? 0
+  )
+
   useEffect(() => {
+    const serviceItemNo = getServiceItemNoString(initialData)
+    const serviceItemNoName = getServiceItemNoNameString(initialData)
+    const data_details = buildDetailsForForm(initialData)
+    const taskId = initialData?.taskId ?? taskDefaults.taskId ?? 0
+
+    lastJobOrderIdRef.current = jobData.jobOrderId
+    lastTaskIdRef.current = taskId
+
     form.reset({
       transportationId: initialData?.transportationId ?? 0,
       companyId: jobData.companyId,
       jobOrderId: jobData.jobOrderId,
-      taskId: initialData?.taskId ?? taskDefaults.taskId ?? 0,
-      serviceItemNo: getServiceItemNoString(initialData),
-      serviceItemNoName: getServiceItemNoNameString(initialData),
+      taskId,
+      serviceItemNo,
+      serviceItemNoName,
       transportDate: initialData?.transportDate
         ? format(
             parseWithFallback(initialData.transportDate as string) ||
@@ -166,7 +192,7 @@ export function TransportationForm({
       vendor: initialData?.vendor ?? null,
       createById: initialData?.createById ?? (Number(user?.userId) || 1),
       editVersion: initialData?.editVersion,
-      data_details: [],
+      data_details,
     })
   }, [
     dateFormat,
@@ -177,6 +203,7 @@ export function TransportationForm({
     parseWithFallback,
     getServiceItemNoString,
     getServiceItemNoNameString,
+    buildDetailsForForm,
     taskDefaults,
     user?.userId,
   ])
@@ -189,24 +216,49 @@ export function TransportationForm({
   // HANDLERS
   // ============================================================================
 
-  // Handle task selection
+  const clearServiceItems = useCallback(() => {
+    form.setValue("serviceItemNo", "", { shouldValidate: true })
+    form.setValue("serviceItemNoName", "", { shouldValidate: false })
+    form.setValue("data_details", [], { shouldValidate: false })
+  }, [form])
+
+  // Handle task selection — only clear services when the task actually changes
+  // (autocomplete can fire onChange on mount with the same task and was wiping edit data).
   const handleTaskChange = (selectedOption: ITaskLookup | null) => {
+    const nextTaskId = selectedOption?.taskId ?? 0
+    const taskChanged = nextTaskId !== lastTaskIdRef.current
+    lastTaskIdRef.current = nextTaskId
+
     if (selectedOption) {
-      form.setValue("taskId", selectedOption.taskId, {
+      form.setValue("taskId", nextTaskId, {
         shouldValidate: true,
         shouldDirty: true,
       })
-      // Reset service when task changes
-      form.setValue("serviceItemNo", "", { shouldValidate: true })
-      form.setValue("serviceItemNoName", "", { shouldValidate: false })
-      form.setValue("data_details", [], { shouldValidate: false })
+      if (taskChanged) {
+        clearServiceItems()
+      }
     } else {
       form.setValue("taskId", 0, { shouldValidate: true })
-      form.setValue("serviceItemNo", "", { shouldValidate: true })
-      form.setValue("serviceItemNoName", "", { shouldValidate: false })
-      form.setValue("data_details", [], { shouldValidate: false })
+      if (taskChanged) {
+        clearServiceItems()
+      }
     }
   }
+
+  // Keep data_details in sync when serviceItemNo is set but details were cleared (e.g. after edit load).
+  useEffect(() => {
+    const serviceItemNo = String(form.getValues("serviceItemNo") ?? "").trim()
+    const details = form.getValues("data_details") ?? []
+    if (!serviceItemNo || details.length > 0) return
+
+    const rebuilt = buildTransportationDetailsFromServiceItemNos(
+      serviceItemNo,
+      String(form.getValues("serviceItemNoName") ?? "").trim()
+    )
+    if (rebuilt.length > 0) {
+      form.setValue("data_details", rebuilt, { shouldValidate: true })
+    }
+  }, [form, watchedTaskId, watchedJobOrderId, initialData])
 
   // Handle service selection (multiple)
   const handleServiceItemNoChange = (
@@ -267,30 +319,23 @@ export function TransportationForm({
       serviceItemNoNameString = String(serviceItemNoName).trim()
     }
 
-    const detailRows: ISerTransportationDt[] =
-      (data.data_details && data.data_details.length > 0
+    const fromFormDetails = (
+      data.data_details?.length
         ? data.data_details
         : form.getValues("data_details")
-      )?.map((detail, index) => ({
-        itemNo: detail.itemNo ?? index + 1,
-        serviceItemNo: detail.serviceItemNo,
-        serviceItemNoName: detail.serviceItemNoName ?? "",
-      })) ??
-      serviceItemNoString
-        .split(",")
-        .map((s) => Number(s.trim()))
-        .filter((n) => Number.isFinite(n) && n > 0)
-        .map((serviceNo, index) => {
-          const labels = getTransportationServiceItemLabels(
+    ) as ISerTransportationDt[] | undefined
+
+    const detailRows: ISerTransportationDt[] =
+      fromFormDetails && fromFormDetails.length > 0
+        ? fromFormDetails.map((detail, index) => ({
+            itemNo: detail.itemNo ?? index + 1,
+            serviceItemNo: detail.serviceItemNo,
+            serviceItemNoName: detail.serviceItemNoName ?? "",
+          }))
+        : buildTransportationDetailsFromServiceItemNos(
             serviceItemNoString,
             serviceItemNoNameString
           )
-          return {
-            itemNo: index + 1,
-            serviceItemNo: serviceNo,
-            serviceItemNoName: labels[index] ?? "",
-          }
-        })
 
     if (detailRows.length === 0) {
       form.setError("serviceItemNo", {
