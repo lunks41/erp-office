@@ -18,7 +18,7 @@ import {
 import { useForm as useBulkUpdateForm, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { formatDateForApi } from "@/lib/date-utils"
+import { formatDateForApi, formatDateForDisplay } from "@/lib/date-utils"
 import { usePersist } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -749,9 +749,9 @@ export function CombinedFormsDialog({
                               {" "}
                               to{" "}
                               <strong>
-                                {new Date(
+                                {formatDateForDisplay(
                                   bulkUpdateForm.watch("date") || ""
-                                ).toLocaleDateString()}
+                                )}
                               </strong>
                             </>
                           )}

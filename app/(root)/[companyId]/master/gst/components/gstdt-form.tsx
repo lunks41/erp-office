@@ -13,6 +13,7 @@ import {
   parseDate,
 } from "@/lib/date-utils"
 import { Form } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { GSTAutocomplete } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
@@ -35,8 +36,8 @@ interface GstDtFormProps {
 export function GstDtForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
 }: GstDtFormProps) {
   const { decimals } = useCompanyStore()
@@ -103,7 +104,7 @@ export function GstDtForm({
                 name="gstId"
                 label="VAT"
                 isRequired={true}
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
               />
 
               <CustomNumberInput
@@ -111,7 +112,7 @@ export function GstDtForm({
                 name="gstPercentage"
                 label="VAT Percentage"
                 isRequired
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
                 round={priceDec}
               />
 
@@ -119,12 +120,28 @@ export function GstDtForm({
                 form={form}
                 name="validFrom"
                 label="Valid From"
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
                 isRequired
               />
             </div>
             {/* Audit Information Section */}
             <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancelAction}
+                disabled={isSubmitting}
+              >
+                {isReadOnly ? "Close" : "Cancel"}
+              </Button>
+              {!isReadOnly && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : initialData ? "Save" : "Add"}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

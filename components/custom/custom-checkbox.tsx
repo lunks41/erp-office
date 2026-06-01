@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils"
 
 import { Checkbox } from "../ui/checkbox"
 import { FormControl, FormField, FormItem, FormLabel } from "../ui/form"
+import { Label } from "../ui/label"
+
+export type CustomCheckboxLabelPosition = "side" | "top"
 
 export default function CustomCheckbox({
   form,
@@ -15,6 +18,7 @@ export default function CustomCheckbox({
   onBlurEvent,
   className,
   size = "default", // "sm", "default", "lg"
+  labelPosition = "side",
   isRequired = false,
   isDisabled = false,
 }: {
@@ -25,10 +29,13 @@ export default function CustomCheckbox({
   onBlurEvent?: () => void
   className?: string
   size?: "sm" | "default" | "lg"
+  labelPosition?: CustomCheckboxLabelPosition
   isRequired?: boolean
   isDisabled?: boolean
 }) {
   const [isHovered, setIsHovered] = useState(false)
+  const isTopLabel = labelPosition === "top"
+
   return (
     <FormField
       control={form.control}
@@ -36,82 +43,88 @@ export default function CustomCheckbox({
       render={({ field, fieldState: { error, isDirty, isTouched } }) => {
         const showError = error && (isTouched || isDirty)
 
+        const labelClasses = cn(
+          "cursor-pointer text-xs font-medium",
+          isRequired && "text-red-500 dark:text-red-400",
+          isDisabled && "text-muted-foreground opacity-70",
+          showError && "text-destructive"
+        )
+
+        const checkboxControl = (
+          <FormControl>
+            <div
+              className="flex h-6 min-h-6 items-center"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                animate={isDisabled ? {} : { scale: isHovered ? 1.02 : 1 }}
+                transition={{ duration: 0.15 }}
+              >
+                <Checkbox
+                  id={isTopLabel ? name : undefined}
+                  checked={field.value}
+                  onCheckedChange={(value) => {
+                    field.onChange(value)
+                    if (onBlurEvent) onBlurEvent()
+                  }}
+                  disabled={isDisabled}
+                  className={cn(
+                    size === "sm",
+                    size === "default",
+                    size === "lg",
+                    isDisabled && "cursor-not-allowed opacity-70",
+                    "data-[state=checked]:bg-primary data-[state=checked]:border-primary",
+                    "focus-visible:ring-primary border-2 focus-visible:ring-2 focus-visible:ring-offset-2"
+                  )}
+                />
+              </motion.div>
+            </div>
+          </FormControl>
+        )
+
         return (
           <div className={cn("flex flex-col gap-0.5", className)}>
-            <FormItem className="flex flex-row items-center gap-3">
-              <FormControl>
-                <div
-                  className="flex h-6 min-h-6 items-center gap-1.5"
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                >
-                  <motion.div
-                    whileTap={{ scale: 0.95 }}
-                    animate={isDisabled ? {} : { scale: isHovered ? 1.02 : 1 }}
-                    transition={{ duration: 0.15 }}
+            {isTopLabel ? (
+              <FormItem className="flex flex-col gap-1 space-y-0">
+                {label && (
+                  <Label
+                    htmlFor={name}
+                    className={labelClasses}
+                    onClick={() => !isDisabled && field.onChange(!field.value)}
                   >
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={(value) => {
-                        field.onChange(value)
-                        if (onBlurEvent) onBlurEvent()
-                      }}
-                      disabled={isDisabled}
-                      className={cn(
-                        // Size variations - larger sizes to match form elements
-                        size === "sm",
-                        size === "default",
-                        size === "lg",
-                        isDisabled && "cursor-not-allowed opacity-70",
-                        "data-[state=checked]:bg-primary data-[state=checked]:border-primary",
-                        "focus-visible:ring-primary border-2 focus-visible:ring-2 focus-visible:ring-offset-2"
-                      )}
-                    />
-                  </motion.div>
-
-                  {field.value && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -5 }}
-                      className="text-primary-foreground bg-primary inline-flex h-4 items-center rounded px-1 text-[10px] leading-none"
-                    >
-                      On
-                    </motion.span>
-                  )}
-
-                  {!field.value && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -5 }}
-                      className="text-muted-foreground bg-muted inline-flex h-4 items-center rounded px-1 text-[10px] leading-none"
-                    >
-                      Off
-                    </motion.span>
-                  )}
-                </div>
-              </FormControl>
-
-              {label && (
-                <FormLabel
-                  className={cn(
-                    "cursor-pointer text-xs font-medium",
-                    isRequired && "text-red-500",
-                    isDisabled && "text-muted-foreground opacity-70",
-                    showError && "text-destructive"
-                  )}
-                  onClick={() => !isDisabled && field.onChange(!field.value)}
-                >
-                  {label}
-                  {isRequired && (
-                    <span className="text-destructive ml-1" aria-hidden="true">
-                      *
-                    </span>
-                  )}
-                </FormLabel>
-              )}
-            </FormItem>
+                    {label}
+                    {isRequired && (
+                      <span className="ml-1" aria-hidden="true">
+                        *
+                      </span>
+                    )}
+                  </Label>
+                )}
+                {checkboxControl}
+              </FormItem>
+            ) : (
+              <FormItem className="flex flex-row items-center gap-3 space-y-0">
+                {checkboxControl}
+                {label && (
+                  <FormLabel
+                    className={labelClasses}
+                    onClick={() => !isDisabled && field.onChange(!field.value)}
+                  >
+                    {label}
+                    {isRequired && (
+                      <span
+                        className="text-destructive ml-1"
+                        aria-hidden="true"
+                      >
+                        *
+                      </span>
+                    )}
+                  </FormLabel>
+                )}
+              </FormItem>
+            )}
 
             {showError && (
               <motion.div

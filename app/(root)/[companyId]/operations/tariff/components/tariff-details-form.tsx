@@ -1,17 +1,16 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import React, { useState } from "react"
 import { ITariffDt } from "@/interfaces/tariff"
 import {
+  tariffDtSchema,
   TariffDtSchemaType,
   TariffHdSchemaType,
-  tariffDtSchema,
 } from "@/schemas/tariff"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HelpCircle, XIcon } from "lucide-react"
-import { UseFormReturn, useForm } from "react-hook-form"
+import { useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -22,8 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { CustomInput } from "@/components/custom"
-import CustomCheckbox from "@/components/custom/custom-checkbox"
+import { CustomCheckbox, CustomInput } from "@/components/custom"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 
 import { TariffDetailsTable } from "./tariff-details-table"
@@ -45,6 +43,7 @@ export function TariffDetailsForm({
 }: TariffDetailsFormProps) {
   const { decimals } = useCompanyStore()
   const amtDec = decimals[0]?.amtDec || 2
+  const compactNumberClass = "w-28 shrink-0"
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingDetail, setEditingDetail] = useState<ITariffDt | null>(null)
@@ -186,7 +185,7 @@ export function TariffDetailsForm({
   }, [exhRate, detailsForm, amtDec])
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Badge
@@ -275,55 +274,48 @@ export function TariffDetailsForm({
           <Form {...detailsForm}>
             <div className="space-y-3">
               <div className="bg-card space-y-2 rounded-lg border p-2 shadow-sm">
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-7">
-                  <div className="flex flex-col gap-1">
-                    <CustomNumberInput
-                      form={detailsForm}
-                      name="displayRate"
-                      label="Rate (Local)"
-                      isRequired={false}
-                      round={amtDec}
-                      onBlurEvent={handleDisplayRateBlur}
-                    />
-                  </div>
+                <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
+                  <CustomNumberInput
+                    form={detailsForm}
+                    name="displayRate"
+                    label="Rate (Local)"
+                    isRequired={false}
+                    round={amtDec}
+                    className={compactNumberClass}
+                    onBlurEvent={handleDisplayRateBlur}
+                  />
                   <CustomNumberInput
                     form={detailsForm}
                     name="basicRate"
                     label="Rate (Base)"
                     isRequired
                     round={amtDec}
+                    className={compactNumberClass}
                   />
-                  <div className="flex flex-col gap-1">
-                    <CustomNumberInput
-                      form={detailsForm}
-                      name="minUnit"
-                      label="Min Range"
-                      isRequired
-                      round={amtDec}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <CustomNumberInput
-                      form={detailsForm}
-                      name="maxUnit"
-                      label="Max Range"
-                      isRequired
-                      round={amtDec}
-                    />
-                  </div>
+                  <CustomNumberInput
+                    form={detailsForm}
+                    name="minUnit"
+                    label="Min Range"
+                    isRequired
+                    round={amtDec}
+                    className={compactNumberClass}
+                  />
+                  <CustomNumberInput
+                    form={detailsForm}
+                    name="maxUnit"
+                    label="Max Range"
+                    isRequired
+                    round={amtDec}
+                    className={compactNumberClass}
+                  />
 
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1">
-                      <label className="text-sm font-medium">
-                        Enable Over-Limit?
-                      </label>
-                    </div>
-                    <CustomCheckbox
-                      form={detailsForm}
-                      name="isAdditional"
-                      label=""
-                    />
-                  </div>
+                  <CustomCheckbox
+                    form={detailsForm}
+                    name="isAdditional"
+                    label="Over-Limit?"
+                    labelPosition="top"
+                    className="shrink-0"
+                  />
                   <CustomNumberInput
                     form={detailsForm}
                     name="additionalUnit"
@@ -331,6 +323,7 @@ export function TariffDetailsForm({
                     isRequired={isAdditional}
                     isDisabled={!isAdditional}
                     round={amtDec}
+                    className={compactNumberClass}
                   />
                   <CustomNumberInput
                     form={detailsForm}
@@ -339,44 +332,33 @@ export function TariffDetailsForm({
                     isRequired={isAdditional}
                     isDisabled={!isAdditional}
                     round={amtDec}
+                    className={compactNumberClass}
                   />
-                </div>
 
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-12 xl:items-end">
-                  <div className="flex flex-col gap-1 xl:col-span-2">
-                    <div className="flex items-center gap-1">
-                      <label className="text-sm font-medium">
-                        Custom Description?
-                      </label>
-                    </div>
-                    <CustomCheckbox
-                      form={detailsForm}
-                      name="isCustomDescription"
-                      label=""
-                    />
-                  </div>
+                  <CustomCheckbox
+                    form={detailsForm}
+                    name="isCustomDescription"
+                    label="Custom Description?"
+                    labelPosition="top"
+                    className="shrink-0"
+                  />
                   <CustomInput
                     form={detailsForm}
                     name="lineDescription"
                     label="Line Description"
                     isRequired={false}
                     isDisabled={!isCustomDescription}
-                    className="md:col-span-2 xl:col-span-5"
+                    className="min-w-80 flex-1 basis-96"
                   />
 
-                  <div className="flex flex-col gap-1 xl:col-span-2">
-                    <div className="flex items-center gap-1">
-                      <label className="text-sm font-medium">
-                        Calculate by Qty?
-                      </label>
-                    </div>
-                    <CustomCheckbox
-                      form={detailsForm}
-                      name="isMultiply"
-                      label=""
-                    />
-                  </div>
-                  <div className="flex items-end justify-end gap-2 xl:col-span-3">
+                  <CustomCheckbox
+                    form={detailsForm}
+                    name="isMultiply"
+                    label="Calculate by Qty?"
+                    labelPosition="top"
+                    className="shrink-0"
+                  />
+                  <div className="ml-auto flex shrink-0 items-end justify-end gap-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -406,27 +388,29 @@ export function TariffDetailsForm({
         </div>
       )}
 
-      <TariffDetailsTable
-        data={details}
-        onEditAction={(detail) => {
-          const index = details.findIndex((d) => d.itemNo === detail.itemNo)
-          if (index !== -1) {
-            handleEdit(detail, index)
-          }
-        }}
-        onDeleteAction={(detail) => {
-          const index = details.findIndex((d) => d.itemNo === detail.itemNo)
-          if (index !== -1) {
-            handleDelete(index)
-          }
-        }}
-        onCreateAction={handleAdd}
-        canEdit={true}
-        canDelete={true}
-        canView={true}
-        canCreate={true}
-        createButtonText="Add Detail"
-      />
+      <div className="w-full min-w-0 overflow-x-auto">
+        <TariffDetailsTable
+          data={details}
+          onEditAction={(detail) => {
+            const index = details.findIndex((d) => d.itemNo === detail.itemNo)
+            if (index !== -1) {
+              handleEdit(detail, index)
+            }
+          }}
+          onDeleteAction={(detail) => {
+            const index = details.findIndex((d) => d.itemNo === detail.itemNo)
+            if (index !== -1) {
+              handleDelete(index)
+            }
+          }}
+          onCreateAction={handleAdd}
+          canEdit={true}
+          canDelete={true}
+          canView={true}
+          canCreate={true}
+          createButtonText="Add Detail"
+        />
+      </div>
     </div>
   )
 }

@@ -1,7 +1,5 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import * as React from "react"
 import {
   calculateMultiplierAmount,
@@ -16,7 +14,7 @@ import {
   calculateDiffCurrency,
   calculateSameCurrency,
   calculateUnallocated,
-} from "@/helpers/ar-receipt-calculationsv1"
+} from "@/helpers/ar-receiptmulticurrency-calculations"
 import { IArReceiptDt } from "@/interfaces"
 import {
   IBankLookup,
@@ -27,6 +25,7 @@ import {
 } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { format } from "date-fns"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
 
@@ -222,6 +221,8 @@ export default function ReceiptForm({
         const arr = updatedDetails as unknown as IArReceiptDt[]
         const exhRateForDetails = form.getValues("exhRate") || 0
         const recExhRateForDetails = form.getValues("recExhRate") || 0
+        const recCurrencyIdForDetails =
+          Number(form.getValues("recCurrencyId")) || 0
         const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
 
         // Clear all allocations only when clearAllocations flag is true
@@ -238,7 +239,8 @@ export default function ReceiptForm({
             i,
             exhRateForDetails,
             recExhRateForDetails,
-            dec
+            dec,
+            recCurrencyIdForDetails
           )
         }
 

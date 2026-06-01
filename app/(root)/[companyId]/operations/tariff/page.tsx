@@ -276,6 +276,7 @@ export default function TariffPage() {
   const transformToTariffHd = useCallback((apiTariff: ITariffHd): ITariffHd => {
     return {
       ...apiTariff,
+      seqNo: apiTariff.seqNo ?? 0,
       // Ensure data_details is properly formatted array
       data_details:
         apiTariff.data_details?.map((detail) => ({
@@ -321,7 +322,7 @@ export default function TariffPage() {
         toLocationId: tariff.toLocationId ?? null,
         isPrepayment: tariff.isPrepayment || false,
         prepaymentPercentage: tariff.prepaymentPercentage || 0,
-        itemNo: null,
+        seqNo: tariff.seqNo ?? 0,
         remarks: tariff.remarks || null,
         isActive: tariff.isActive ?? true,
         createBy: tariff.createBy || "",
@@ -333,7 +334,7 @@ export default function TariffPage() {
           ? [
               {
                 tariffId: tariff.tariffId || 0,
-                itemNo: tariff.seqNo && tariff.seqNo > 0 ? tariff.seqNo : 1,
+                itemNo: 1,
                 displayRate: tariff.displayRate ?? 0,
                 basicRate: tariff.basicRate ?? 0,
                 minUnit: tariff.minUnit ?? 0,
@@ -878,7 +879,7 @@ export default function TariffPage() {
         const raw = response.data
         const rows: ITariffRPT[] = Array.isArray(raw)
           ? raw.length > 0 && Array.isArray(raw[0])
-            ? (raw as ITariffRPT[][]).flat()
+            ? (raw as unknown as ITariffRPT[][]).flat()
             : (raw as ITariffRPT[])
           : [raw as ITariffRPT]
 
@@ -1307,7 +1308,7 @@ export default function TariffPage() {
         }}
       >
         <DialogContent
-          className="max-h-[90vh] w-[96vw] max-w-none! overflow-x-hidden overflow-y-auto sm:w-[92vw] lg:w-[80vw] xl:w-[75vw]"
+          className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-none! overflow-y-auto overflow-x-hidden p-4 sm:max-w-none! sm:w-[calc(100vw-2rem)] sm:p-6 md:w-[96vw] lg:w-[94vw] xl:w-[92vw] 2xl:w-[min(1800px,95vw)]"
           onPointerDownOutside={(e) => {
             if (hasFormErrors) {
               e.preventDefault()

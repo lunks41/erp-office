@@ -276,7 +276,6 @@ export function EquipmentUsedForm({
                   form={form}
                   name="bargeId"
                   label="Barge"
-                  isRequired={true}
                   isDisabled={isConfirmed}
                 />
 
@@ -425,35 +424,35 @@ export function EquipmentUsedForm({
                               name={`details.${index}.crane`}
                               label="Crane"
                               isDisabled={isConfirmed}
-                              className="min-w-0 max-w-22"
+                              className="max-w-22 min-w-0"
                             />
                             <CustomNumberInput
                               form={form}
                               name={`details.${index}.forklift`}
                               label="ForkLift"
                               isDisabled={isConfirmed}
-                              className="min-w-0 max-w-22"
+                              className="max-w-22 min-w-0"
                             />
                             <CustomNumberInput
                               form={form}
                               name={`details.${index}.stevedore`}
                               label="Stevedore"
                               isDisabled={isConfirmed}
-                              className="min-w-0 max-w-22"
+                              className="max-w-22 min-w-0"
                             />
                             <CustomInput
                               form={form}
                               name={`details.${index}.mafi`}
                               label="MAFI"
                               isDisabled={isConfirmed}
-                              className="min-w-0 max-w-22"
+                              className="max-w-22 min-w-0"
                             />
                             <CustomNumberInput
                               form={form}
                               name={`details.${index}.gear`}
                               label="Gear"
                               isDisabled={isConfirmed}
-                              className="min-w-0 max-w-22"
+                              className="max-w-22 min-w-0"
                             />
                           </div>
 

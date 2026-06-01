@@ -14,6 +14,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 
 import { OperationsStatus } from "@/lib/operations-utils"
+import { formatDateForDisplay, parseDate } from "@/lib/date-utils"
 import {
   getChecklistJobDisplayStatus,
   isChecklistPostedJob,
@@ -154,7 +155,7 @@ export function ChecklistTable({
   const params = useParams()
   const companyId = params.companyId as string
   const { decimals } = useCompanyStore()
-  const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
+  const dateFormat = decimals[0]?.dateFormat || "dd-MMM-yyyy"
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
 
   // Filter data based on selected status
@@ -270,10 +271,14 @@ export function ChecklistTable({
         accessorKey: "jobOrderDate",
         header: "Date",
         cell: ({ row }) => {
-          const date = row.original.jobOrderDate
-            ? new Date(row.original.jobOrderDate)
-            : null
-          return date ? format(date, dateFormat) : "-"
+          const raw = row.original.jobOrderDate
+          if (!raw) return "-"
+          const parsed =
+            typeof raw === "string" ? parseDate(raw) : new Date(raw)
+          if (parsed && isValid(parsed)) {
+            return formatDateForDisplay(parsed, dateFormat)
+          }
+          return formatDateForDisplay(raw)
         },
         size: 100,
         minSize: 70,

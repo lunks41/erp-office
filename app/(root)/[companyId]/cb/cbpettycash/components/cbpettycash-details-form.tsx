@@ -167,6 +167,8 @@ const CbPettyCashDetailsForm = React.forwardRef<
       InvoiceDate: string
       InvoiceNo: string
       SupplierName: string
+      ExcludePaymentId?: string
+      ExcludeItemNo?: string
     } | null>(null)
     const [shouldCheckDuplicate, setShouldCheckDuplicate] = useState(false)
 
@@ -1093,11 +1095,22 @@ const CbPettyCashDetailsForm = React.forwardRef<
           return // Skip if date cannot be formatted
         }
 
+        const paymentId = Number(currentData.paymentId)
+        const itemNo = Number(currentData.itemNo)
+        const isEditingExistingLine =
+          editingDetail != null && paymentId > 0 && itemNo > 0
+
         // Set query data and enable the query
         setDuplicateCheckData({
-          InvoiceDate: formattedInvoiceDate,
-          InvoiceNo: currentData.invoiceNo || "",
-          SupplierName: currentData.supplierName || "",
+          invoiceDate: formattedInvoiceDate,
+          invoiceNo: currentData.invoiceNo || "",
+          supplierName: currentData.supplierName || "",
+          ...(isEditingExistingLine
+            ? {
+                excludePaymentId: String(paymentId),
+                excludeItemNo: String(itemNo),
+              }
+            : {}),
         })
         setShouldCheckDuplicate(true)
       }

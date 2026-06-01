@@ -8,6 +8,7 @@ import { ServiceTypeSchemaType, serviceTypeSchema } from "@/schemas/servicetype"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Form } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { ServiceTypeCategoryAutocomplete } from "@/components/autocomplete"
 import CustomInput from "@/components/custom/custom-input"
@@ -34,8 +35,8 @@ interface ServiceTypeFormProps {
 export function ServiceTypeForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: ServiceTypeFormProps) {
@@ -136,6 +137,22 @@ export function ServiceTypeForm({
 
             {/* Audit Information Section */}
             <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancelAction}
+                disabled={isSubmitting}
+              >
+                {isReadOnly ? "Close" : "Cancel"}
+              </Button>
+              {!isReadOnly && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : initialData ? "Save" : "Add"}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

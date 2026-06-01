@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 
 import { getData } from "@/lib/api-client"
+import { formatDateForDisplay } from "@/lib/date-utils"
 import { OverviewDashboardRoutes } from "@/lib/overview-dashboard-routes"
 import { pickNumber, pickString } from "@/lib/overview-row-pickers"
 import {
@@ -75,11 +76,10 @@ const firstRowOrRecord = (payload: unknown): AnyRecord => {
 }
 const asString = (v: unknown): string =>
   typeof v === "string" ? v : String(v ?? "")
-const formatDate = (v: unknown): string => {
+const formatOverviewDate = (v: unknown): string => {
   const raw = asString(v)
   if (!raw) return "-"
-  const d = new Date(raw)
-  return Number.isNaN(d.getTime()) ? raw : d.toLocaleDateString("en-GB")
+  return formatDateForDisplay(raw) || raw
 }
 const formatPeriodLabel = (v: unknown): string => {
   const raw = asString(v)
@@ -197,7 +197,7 @@ const normalizeJobOrders = (payload: unknown): JobOrderRow[] =>
       e, ["vesselName", "VesselName", "vessel", "shipName"], "-"
     ),
     status: pickString(e, ["status", "Status", "jobStatus"], "Open"),
-    createdDate: formatDate(
+    createdDate: formatOverviewDate(
       pickString(e, ["createdDate", "CreatedDate", "createDate", "trnDate"], "")
     ),
   }))
@@ -264,7 +264,7 @@ const normalizeTallyRows = (payload: unknown): TallyRow[] =>
       e, ["vesselName", "VesselName", "vessel", "shipName"], "-"
     ),
     status: pickString(e, ["status", "Status", "jobStatus"], "Open"),
-    serviceDate: formatDate(
+    serviceDate: formatOverviewDate(
       pickString(e, ["serviceDate", "ServiceDate", "createdDate", "trnDate"], "")
     ),
   }))

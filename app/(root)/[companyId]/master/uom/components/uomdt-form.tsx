@@ -35,8 +35,8 @@ interface UomDtFormProps {
 export function UomDtForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
 }: UomDtFormProps) {
   console.log("initialData", initialData)
@@ -85,7 +85,7 @@ export function UomDtForm({
               name="uomId"
               label="UOM"
               isRequired={true}
-              isDisabled={isReadOnly || _isSubmitting}
+              isDisabled={isReadOnly || isSubmitting}
             />
 
             <UomAutocomplete
@@ -170,13 +170,13 @@ export function UomDtForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={_onCancelAction}
-                disabled={_isSubmitting}
+                onClick={onCancelAction}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={_isSubmitting}>
-                {_isSubmitting ? "Saving..." : "Save"}
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save"}
               </Button>
             </div>
           )}

@@ -1,7 +1,5 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import React, {
   forwardRef,
   useEffect,
@@ -11,7 +9,8 @@ import React, {
 } from "react"
 import { IChargeLookup, ICustomerLookup } from "@/interfaces/lookup"
 import { ITariffDt, ITariffHd } from "@/interfaces/tariff"
-import { TariffHdSchemaType, tariffHdSchema } from "@/schemas/tariff"
+import { tariffHdSchema, TariffHdSchemaType } from "@/schemas/tariff"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
@@ -32,13 +31,13 @@ import {
   VisaAutocomplete,
 } from "@/components/autocomplete"
 import TransportLocationAutocomplete from "@/components/autocomplete/autocomplete-transportlocation"
+import { CustomCheckbox } from "@/components/custom"
 import CustomAccordion, {
   CustomAccordionContent,
   CustomAccordionItem,
   CustomAccordionTrigger,
 } from "@/components/custom/custom-accordion"
 import CustomNumberInput from "@/components/custom/custom-number-input"
-import CustomSwitch from "@/components/custom/custom-switch"
 
 import { TariffDetailsForm } from "./tariff-details-form"
 
@@ -110,7 +109,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         toLocationId: initialData?.toLocationId || null,
         prepaymentPercentage: initialData?.prepaymentPercentage || 0,
         isPrepayment: initialData?.isPrepayment || false,
-        itemNo: initialData?.itemNo || null,
+        seqNo: initialData?.seqNo ?? 0,
         remarks: initialData?.remarks || null,
         isActive: initialData?.isActive ?? true,
         editVersion: initialData?.editVersion || 0,
@@ -184,7 +183,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           toLocationId: initialData.toLocationId || null,
           prepaymentPercentage: initialData.prepaymentPercentage || 0,
           isPrepayment: initialData.isPrepayment || false,
-          itemNo: initialData.itemNo || null,
+          seqNo: initialData.seqNo ?? 0,
           remarks: initialData.remarks || null,
           isActive: initialData.isActive ?? true,
           editVersion: initialData.editVersion || 0,
@@ -220,7 +219,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           toLocationId: null,
           prepaymentPercentage: 0,
           isPrepayment: false,
-          itemNo: null,
+          seqNo: 0,
           remarks: null,
           isActive: true,
           editVersion: 0,
@@ -306,7 +305,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         isPrepayment: formValues.isPrepayment ?? data.isPrepayment,
         prepaymentPercentage:
           formValues.prepaymentPercentage ?? data.prepaymentPercentage,
-        itemNo: formValues.itemNo ?? data.itemNo ?? null,
+        seqNo: formValues.seqNo ?? data.seqNo ?? 0,
         remarks: formValues.remarks ?? data.remarks ?? null,
         isActive: formValues.isActive ?? data.isActive,
         editVersion: formValues.editVersion ?? data.editVersion,
@@ -349,7 +348,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
     )
 
     return (
-      <div className="max-w-full flex flex-col gap-2 overflow-x-hidden">
+      <div className="flex w-full min-w-0 flex-col gap-2">
         {/* Validation Status */}
         {Object.keys(formErrors).length > 0 && (
           <div className="bg-destructive/10 border-destructive/20 mb-4 rounded-md border p-3">
@@ -402,7 +401,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
             )}
             className="space-y-3"
           >
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
               <CustomerAutocomplete
                 key={`customer-autocomplete-${mode}-${customerId}`}
                 form={form}
@@ -438,10 +437,11 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 isDisabled={mode === "view" || hasDetails}
               />
               <div className="col-span-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <CustomSwitch
+                <CustomCheckbox
                   form={form}
                   name="isPrepayment"
                   label="Is Prepay"
+                  labelPosition="top"
                   isDisabled={mode === "view"}
                 />
                 <CustomNumberInput
@@ -451,11 +451,21 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                   isRequired={isPrepayment}
                   isDisabled={mode === "view" || !isPrepayment}
                   round={amtDec}
+                  className="w-28 shrink-0"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-6">
-              <div className="col-span-2">
+
+              <div className="col-span-1 w-28 shrink-0">
+                <CustomNumberInput
+                  form={form}
+                  name="seqNo"
+                  label="Seq No"
+                  isDisabled={mode === "view"}
+                  round={0}
+                />
+              </div>
+
+              <div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2">
                 <ChargeAutocomplete
                   form={form}
                   name="chargeId"
@@ -474,6 +484,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                   isDisabled={mode === "view"}
                 />
               </div>
+
               <div className="col-span-1">
                 <VisaAutocomplete
                   form={form}
@@ -500,21 +511,6 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 />
               </div>
             </div>
-
-            {/* <div className="grid grid-cols-5 gap-2">
-              <CustomTextarea
-                form={form}
-                name="remarks"
-                label="Remarks"
-                isDisabled={mode === "view"}
-              />
-              <CustomCheckbox
-                form={form}
-                name="isActive"
-                label="Active"
-                isDisabled={mode === "view"}
-              />
-            </div> */}
 
             {/* Details Section */}
             {mode !== "view" && (

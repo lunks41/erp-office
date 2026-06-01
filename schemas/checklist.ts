@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { isStatusCancelled } from "@/helpers/project"
+
 export const JobOrderHdSchema = z.object({
   jobOrderId: z.number(),
   jobOrderNo: z
@@ -71,6 +73,10 @@ export const JobOrderHdSchema = z.object({
     .string()
     .max(255, "Remarks must be less than 250 characters")
     .optional(),
+  cancelRemarks: z
+    .string()
+    .max(255, "Cancel remarks must be less than 250 characters")
+    .optional(),
   jobStatusId: z.number().min(1, "Job Status is required"),
   gstId: z.number().optional(),
   gstPercentage: z.number().optional(),
@@ -96,6 +102,15 @@ export const JobOrderHdSchema = z.object({
   createdDate: z.union([z.date(), z.string()]).optional(),
   editedBy: z.string().optional(),
   editedDate: z.union([z.date(), z.string()]).optional(),
+}).superRefine((data, ctx) => {
+  if (!isStatusCancelled({ jobStatusId: data.jobStatusId })) return
+  if (!String(data.cancelRemarks ?? "").trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Cancel remarks is required when job status is Cancelled",
+      path: ["cancelRemarks"],
+    })
+  }
 })
 
 export type JobOrderHdSchemaType = z.infer<typeof JobOrderHdSchema>

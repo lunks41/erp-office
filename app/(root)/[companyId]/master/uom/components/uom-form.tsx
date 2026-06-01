@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Form } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomInput from "@/components/custom/custom-input"
 import CustomSwitch from "@/components/custom/custom-switch"
@@ -33,8 +34,8 @@ interface UomFormProps {
 export function UomForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: UomFormProps) {
@@ -126,7 +127,29 @@ export function UomForm({
             />
 
             {/* Audit Information Section */}
-            <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+            <AuditTrailAccordion
+              createBy={initialData?.createBy}
+              createDate={initialData?.createDate}
+              editBy={initialData?.editBy}
+              editDate={initialData?.editDate}
+              datetimeFormat={datetimeFormat}
+            />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancelAction}
+                disabled={isSubmitting}
+              >
+                {isReadOnly ? "Close" : "Cancel"}
+              </Button>
+              {!isReadOnly && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : initialData ? "Save" : "Add"}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

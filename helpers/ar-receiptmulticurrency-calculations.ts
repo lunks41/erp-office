@@ -1,3 +1,8 @@
+/**
+ * AR Receipt Multi-Currency allocation math.
+ * Used by `app/(root)/[companyId]/ar/receiptmulticurrency` only.
+ * Standard single-currency receipt uses `@/helpers/ar-receipt-calculations`.
+ */
 import {
   calculateAdditionAmount,
   calculateDivisionAmount,
@@ -30,6 +35,16 @@ function getDecimals(decimals?: IDecimal): IDecimal {
   return decimals && typeof decimals.amtDec === "number"
     ? decimals
     : DEFAULT_DECIMALS
+}
+
+/** Document line currency matches receipt (payment) currency — no FX between alloc and pay. */
+function isSameDocAndReceiptCurrency(
+  docCurrencyId: number,
+  recCurrencyId?: number
+): boolean {
+  const doc = Number(docCurrencyId) || 0
+  const rec = Number(recCurrencyId) || 0
+  return doc > 0 && rec > 0 && doc === rec
 }
 
 // ============================================================================
@@ -103,10 +118,21 @@ function allocPayAmtFromAlloc(
   allocAmt: number,
   docExhRate: number,
   recExhRate: number,
-  amtDec: number
+  amtDec: number,
+  docCurrencyId?: number,
+  recCurrencyId?: number,
+  locAmtDec?: number
 ): number {
+  if (isSameDocAndReceiptCurrency(Number(docCurrencyId) || 0, recCurrencyId)) {
+    return mathRound(allocAmt, amtDec)
+  }
   if (recExhRate === 0) return 0
-  const allocLocalAmt = calculateMultiplierAmount(allocAmt, docExhRate, amtDec)
+  const localDec = locAmtDec ?? amtDec
+  const allocLocalAmt = calculateMultiplierAmount(
+    allocAmt,
+    docExhRate,
+    localDec
+  )
   return calculateDivisionAmount(allocLocalAmt, recExhRate, amtDec)
 }
 
@@ -359,13 +385,22 @@ export const autoAllocateAmounts = (
       amtDec
     )
 
+    const docCurrencyId = Number(row.docCurrencyId) || 0
+    const sameCurrency = isSameDocAndReceiptCurrency(
+      docCurrencyId,
+      recCurrencyId
+    )
+
     if (docBal < 0) {
       row.allocAmt = mathRound(docBal, amtDec)
       const pay = allocPayAmtFromAlloc(
         row.allocAmt,
         docExhRate,
         recRate,
-        amtDec
+        amtDec,
+        docCurrencyId,
+        recCurrencyId,
+        locAmtDec
       )
       runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
       return
@@ -380,8 +415,11 @@ export const autoAllocateAmounts = (
       docExhRate !== 0
         ? calculateMultiplierAmount(docBal, docExhRate, locAmtDec)
         : docBalLocalAmt
-    const maxPayForRow =
-      recRate !== 0 ? calculateDivisionAmount(docBalLocal, recRate, amtDec) : 0
+    const maxPayForRow = sameCurrency
+      ? mathRound(Math.abs(docBal), amtDec)
+      : recRate !== 0
+        ? calculateDivisionAmount(docBalLocal, recRate, amtDec)
+        : 0
 
     const payToUse = maxPayForRow > 0 ? Math.min(remainingRec, maxPayForRow) : 0
 
@@ -396,14 +434,16 @@ export const autoAllocateAmounts = (
         row.allocAmt,
         docExhRate,
         recRate,
-        amtDec
+        amtDec,
+        docCurrencyId,
+        recCurrencyId,
+        locAmtDec
       )
       runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
-      console.log("if pay", pay)
-      console.log("if allocAmt", row.allocAmt)
     } else {
-      const allocAmtFromRemaining =
-        docExhRate !== 0 && recRate !== 0
+      const allocAmtFromRemaining = sameCurrency
+        ? payToUse
+        : docExhRate !== 0 && recRate !== 0
           ? calculateDivisionAmount(payToUse * recRate, docExhRate, amtDec)
           : payToUse
       const clamp = Math.min(Math.abs(docBal), Math.abs(allocAmtFromRemaining))
@@ -412,15 +452,15 @@ export const autoAllocateAmounts = (
         row.allocAmt,
         docExhRate,
         recRate,
-        amtDec
+        amtDec,
+        docCurrencyId,
+        recCurrencyId,
+        locAmtDec
       )
 
       runningSumPay = calculateAdditionAmount(runningSumPay, pay, amtDec)
       lastPartialIndex = idx
-      console.log("else pay", pay)
-      console.log("else allocAmt", row.allocAmt)
     }
-    console.log("runningSumPay", runningSumPay)
   })
 
   sorted.forEach((r) => {
@@ -436,7 +476,10 @@ export const autoAllocateAmounts = (
           Number(row.allocAmt) || 0,
           Number(row.docExhRate) || 0,
           recRate,
-          amtDec
+          amtDec,
+          Number(row.docCurrencyId) || 0,
+          recCurrencyId,
+          locAmtDec
         ),
         amtDec
       ),
@@ -464,7 +507,8 @@ export const calauteLocalAmtandGainLoss = (
   rowNumber: number,
   exhRate: number,
   recExhRate: number,
-  decimals: IDecimal
+  decimals: IDecimal,
+  recCurrencyId?: number
 ) => {
   if (!details || rowNumber < 0 || rowNumber >= details.length) {
     return details?.[rowNumber]
@@ -487,9 +531,11 @@ export const calauteLocalAmtandGainLoss = (
   const isFullBalanceAllocation =
     calculateSubtractionAmount(docBalAmt, allocAmt, decimals.amtDec) === 0
 
-  console.log("isFullBalanceAllocation", isFullBalanceAllocation)
-  console.log("docBalAmt", docBalAmt)
-  console.log("allocAmt", allocAmt)
+  const docCurrencyId = Number(details[rowNumber].docCurrencyId) || 0
+  const sameCurrency = isSameDocAndReceiptCurrency(
+    docCurrencyId,
+    recCurrencyId
+  )
 
   const allocLocalAmt = isFullBalanceAllocation
     ? docBalLocalAmt
@@ -499,13 +545,9 @@ export const calauteLocalAmtandGainLoss = (
         decimals.locAmtDec
       )
 
-  console.log("allocLocalAmt", allocLocalAmt)
-
-  const allocPayAmt = calculateDivisionAmount(
-    allocLocalAmt,
-    recExhRate,
-    decimals.amtDec
-  )
+  const allocPayAmt = sameCurrency
+    ? mathRound(allocAmt, decimals.amtDec)
+    : calculateDivisionAmount(allocLocalAmt, recExhRate, decimals.amtDec)
 
   const docAllocAmt = allocAmt
 
@@ -546,7 +588,8 @@ export const calculateManualAllocation = (
   allocAmt: number,
   recTotAmt?: number,
   recExhRate?: number,
-  decimals?: IDecimal
+  decimals?: IDecimal,
+  recCurrencyId?: number
 ): { result: IArReceiptDt; wasAutoSetToZero: boolean } => {
   if (!details || rowNumber < 0 || rowNumber >= details.length) {
     return { result: details[rowNumber], wasAutoSetToZero: false }
@@ -556,6 +599,8 @@ export const calculateManualAllocation = (
   const amtDec = dec.amtDec
   const docBalAmt = Number(details[rowNumber].docBalAmt) || 0
   const docExhRate = Number(details[rowNumber].docExhRate) || 0
+  const docCurrencyId = Number(details[rowNumber].docCurrencyId) || 0
+  const locAmtDec = dec.locAmtDec
   let finalAlloc = mathRound(Number(allocAmt) || 0, amtDec)
   const originalRequested = finalAlloc
   let wasAutoSetToZero = false
@@ -576,7 +621,16 @@ export const calculateManualAllocation = (
       if (idx === rowNumber) return
       const rowAlloc = Number(row.allocAmt) || 0
       const rowDocExh = Number(row.docExhRate) || 0
-      const pay = allocPayAmtFromAlloc(rowAlloc, rowDocExh, recRate, amtDec)
+      const rowDocCurrencyId = Number(row.docCurrencyId) || 0
+      const pay = allocPayAmtFromAlloc(
+        rowAlloc,
+        rowDocExh,
+        recRate,
+        amtDec,
+        rowDocCurrencyId,
+        recCurrencyId,
+        locAmtDec
+      )
       sumOtherPay = calculateAdditionAmount(sumOtherPay, pay, amtDec)
     })
     const remainingRec = calculateSubtractionAmount(
@@ -597,14 +651,22 @@ export const calculateManualAllocation = (
         finalAlloc,
         docExhRate,
         recRate,
-        amtDec
+        amtDec,
+        docCurrencyId,
+        recCurrencyId,
+        locAmtDec
       )
       if (remainingRec <= 0) {
         if (originalRequested > 0) wasAutoSetToZero = true
         finalAlloc = 0
       } else if (payForRequested > remainingRec) {
-        const maxAllocFromRemaining =
-          docExhRate !== 0
+        const sameCurrency = isSameDocAndReceiptCurrency(
+          docCurrencyId,
+          recCurrencyId
+        )
+        const maxAllocFromRemaining = sameCurrency
+          ? remainingRec
+          : docExhRate !== 0
             ? calculateDivisionAmount(
                 remainingRec * recRate,
                 docExhRate,

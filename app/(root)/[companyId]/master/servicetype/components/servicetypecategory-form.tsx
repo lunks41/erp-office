@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
 import { Form } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomInput from "@/components/custom/custom-input"
 import CustomSwitch from "@/components/custom/custom-switch"
@@ -29,8 +30,8 @@ interface ServiceTypeCategoryFormProps {
 export function ServiceTypeCategoryForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: ServiceTypeCategoryFormProps) {
@@ -110,7 +111,7 @@ export function ServiceTypeCategoryForm({
                 name="serviceTypeCategoryName"
                 label="ServiceType Category Name"
                 isRequired
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
               />
             </div>
 
@@ -118,7 +119,7 @@ export function ServiceTypeCategoryForm({
               form={form}
               name="remarks"
               label="Remarks"
-              isDisabled={isReadOnly || _isSubmitting}
+              isDisabled={isReadOnly || isSubmitting}
             />
 
             <CustomSwitch
@@ -126,11 +127,27 @@ export function ServiceTypeCategoryForm({
               name="isActive"
               label="Active Status"
               activeColor="success"
-              isDisabled={isReadOnly || _isSubmitting}
+              isDisabled={isReadOnly || isSubmitting}
             />
 
             {/* Audit Information Section */}
             <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancelAction}
+                disabled={isSubmitting}
+              >
+                {isReadOnly ? "Close" : "Cancel"}
+              </Button>
+              {!isReadOnly && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : initialData ? "Save" : "Add"}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

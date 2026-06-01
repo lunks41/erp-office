@@ -20,7 +20,7 @@ export interface ITariffHd {
   toLocationId?: number | null
   isPrepayment: boolean
   prepaymentPercentage: number
-  itemNo?: number | null
+  seqNo?: number
   remarks?: string | null
   isActive: boolean
   createBy: string

@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
 import { Form } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { TaxAutocomplete } from "@/components/autocomplete"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
@@ -26,8 +27,8 @@ interface TaxDtFormProps {
 export function TaxDtForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
 }: TaxDtFormProps) {
   const { decimals } = useCompanyStore()
@@ -103,7 +104,7 @@ export function TaxDtForm({
                 name="taxId"
                 label="Tax"
                 isRequired={true}
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
               />
 
               <CustomNumberInput
@@ -111,7 +112,7 @@ export function TaxDtForm({
                 name="taxPercentage"
                 label="Tax Percentage"
                 isRequired
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
                 round={priceDec}
               />
 
@@ -119,12 +120,28 @@ export function TaxDtForm({
                 form={form}
                 name="validFrom"
                 label="Valid From"
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
                 isRequired
               />
             </div>
             {/* Audit Information Section */}
             <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancelAction}
+                disabled={isSubmitting}
+              >
+                {isReadOnly ? "Close" : "Cancel"}
+              </Button>
+              {!isReadOnly && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : initialData ? "Save" : "Add"}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

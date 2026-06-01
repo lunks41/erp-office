@@ -1,17 +1,19 @@
-"use client"
+"use client";
 
-import { useCompanyStore } from "@/stores/company-store"
+import { ICharge } from "@/interfaces/charge";
+import { useCompanyStore } from "@/stores/company-store";
+import { IconCircleCheckFilled, IconSquareRoundedXFilled } from "@tabler/icons-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { format, isValid } from "date-fns";
 
-import { ICharge } from "@/interfaces/charge"
-import {
-  IconCircleCheckFilled,
-  IconSquareRoundedXFilled,
-} from "@tabler/icons-react"
-import { ColumnDef } from "@tanstack/react-table"
-import { format, isValid } from "date-fns"
 
-import { TableName } from "@/lib/utils"
-import { MainTable } from "@/components/table/table-main"
+
+import { TableName } from "@/lib/utils";
+import { MainTable } from "@/components/table/table-main";
+
+
+
+
 
 interface ChargeTableProps {
   data: ICharge[]
@@ -89,6 +91,13 @@ export function ChargeTable({
     {
       accessorKey: "uomName",
       header: "UOM",
+      cell: ({ row }) => (
+        <div className="truncate">
+          {row.original.uomName ||
+            row.original.uomCode ||
+            (row.original.uomId ? String(row.original.uomId) : "-")}
+        </div>
+      ),
       size: 120,
       minSize: 50,
     },
@@ -113,12 +122,7 @@ export function ChargeTable({
       size: 120,
       minSize: 50,
     },
-    {
-      accessorKey: "remarks",
-      header: "Remarks",
-      size: 250,
-      minSize: 50,
-    },
+
     {
       accessorKey: "isActive",
       header: "Status",
@@ -134,7 +138,12 @@ export function ChargeTable({
       size: 120,
       minSize: 50,
     },
-
+    {
+      accessorKey: "remarks",
+      header: "Remarks",
+      size: 250,
+      minSize: 50,
+    },
     {
       accessorKey: "createBy",
       header: "Create By",

@@ -46,6 +46,7 @@ export interface IJobOrderHd {
   addressId?: number
   contactId?: number
   remarks?: string
+  cancelRemarks?: string
   jobStatusId?: number
   jobStatusName?: string
   gstId?: number

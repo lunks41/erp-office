@@ -8,6 +8,7 @@ import { TaxSchemaType, taxSchema } from "@/schemas/tax"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Form } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import { TaxCategoryAutocomplete } from "@/components/autocomplete"
 import CustomInput from "@/components/custom/custom-input"
@@ -34,8 +35,8 @@ interface TaxFormProps {
 export function TaxForm({
   initialData,
   submitAction,
-  onCancelAction: _onCancelAction,
-  isSubmitting: _isSubmitting = false,
+  onCancelAction,
+  isSubmitting = false,
   isReadOnly = false,
   onCodeBlur,
 }: TaxFormProps) {
@@ -99,7 +100,7 @@ export function TaxForm({
                 form={form}
                 name="taxCategoryId"
                 label="Tax Category"
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
                 isRequired={true}
               />
 
@@ -117,7 +118,7 @@ export function TaxForm({
                 name="taxName"
                 label="Tax Name"
                 isRequired
-                isDisabled={isReadOnly || _isSubmitting}
+                isDisabled={isReadOnly || isSubmitting}
               />
             </div>
 
@@ -125,17 +126,33 @@ export function TaxForm({
               form={form}
               name="remarks"
               label="Remarks"
-              isDisabled={isReadOnly || _isSubmitting}
+              isDisabled={isReadOnly || isSubmitting}
             />
             <CustomSwitch
               form={form}
               name="isActive"
               label="Active Status"
               activeColor="success"
-              isDisabled={isReadOnly || _isSubmitting}
+              isDisabled={isReadOnly || isSubmitting}
             />
             {/* Audit Information Section */}
             <AuditTrailAccordion createBy={initialData?.createBy} createDate={initialData?.createDate} editBy={initialData?.editBy} editDate={initialData?.editDate} datetimeFormat={datetimeFormat} />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancelAction}
+                disabled={isSubmitting}
+              >
+                {isReadOnly ? "Close" : "Cancel"}
+              </Button>
+              {!isReadOnly && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : initialData ? "Save" : "Add"}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

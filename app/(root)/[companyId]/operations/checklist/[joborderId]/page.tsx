@@ -1,10 +1,10 @@
 ﻿"use client"
 
-import { IJobOrderHd } from "@/interfaces/checklist"
 import { useParams, useRouter } from "next/navigation"
+import { IJobOrderHd } from "@/interfaces/checklist"
 
-import { JobOrderNotFound } from "@/components/errors"
-import { JobOrderDetailsSkeleton } from "@/components/skeleton/job-order-details-skeleton"
+import { formatDateForApi, formatDateForDisplay } from "@/lib/date-utils"
+import { useGetJobOrderByIdNo } from "@/hooks/use-checklist"
 import { Badge } from "@/components/ui/badge"
 import {
   Tooltip,
@@ -12,8 +12,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useGetJobOrderByIdNo } from "@/hooks/use-checklist"
-import { formatDateForApi } from "@/lib/date-utils"
+import { JobOrderNotFound } from "@/components/errors"
+import { JobOrderDetailsSkeleton } from "@/components/skeleton/job-order-details-skeleton"
 
 import { ChecklistTabs } from "./components/checklist-tabs"
 
@@ -111,7 +111,7 @@ export default function JobOrderDetailsPage() {
   }
 
   return (
-   <div className="@container mx-auto space-y-2 px-2 pt-2 pb-4 sm:space-y-2 sm:px-4 sm:pt-2 sm:pb-4 lg:px-6">
+    <div className="@container mx-auto space-y-2 px-2 pt-2 pb-4 sm:space-y-2 sm:px-4 sm:pt-2 sm:pb-4 lg:px-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
@@ -133,16 +133,16 @@ export default function JobOrderDetailsPage() {
                 <TooltipTrigger asChild>
                   <Badge
                     variant="outline"
-                    className="flex h-8 items-center border-2 border-border bg-linear-to-r from-blue-50 to-blue-100 px-4 text-sm font-semibold text-primary shadow-sm transition-all duration-300 hover:scale-105 hover:border-border hover:bg-linear-to-r hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700"
+                    className="border-border text-primary hover:border-border flex h-8 items-center border-2 bg-linear-to-r from-blue-50 to-blue-100 px-4 text-sm font-semibold shadow-sm transition-all duration-300 hover:scale-105 hover:bg-linear-to-r hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700"
                   >
-                    <span className="mr-1 text-muted-foreground">📋</span>
+                    <span className="text-muted-foreground mr-1">📋</span>
                     {`${jobOrderResponse?.data?.jobOrderNo} : v[${jobOrderResponse?.data?.editVersion}]`}
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-3xl border-2 border-blue-100 bg-linear-to-br from-white to-blue-50/30 p-6 shadow-xl">
                   <div className="space-y-4">
-                    <div className="border-b-2 border-border pb-3">
-                      <h4 className="text-lg font-bold text-foreground">
+                    <div className="border-border border-b-2 pb-3">
+                      <h4 className="text-foreground text-lg font-bold">
                         Checklist Details
                       </h4>
                     </div>
@@ -159,7 +159,7 @@ export default function JobOrderDetailsPage() {
                         <span className="min-w-[100px] font-semibold text-gray-700">
                           Customer:
                         </span>
-                        <span className="font-medium text-gray-900 wrap-break-word">
+                        <span className="font-medium wrap-break-word text-gray-900">
                           {jobOrderResponse?.data?.customerName || "N/A"}
                         </span>
                       </div>
@@ -185,9 +185,9 @@ export default function JobOrderDetailsPage() {
                         </span>
                         <span className="font-medium text-gray-900">
                           {jobOrderResponse?.data?.jobOrderDate
-                            ? new Date(
+                            ? formatDateForDisplay(
                                 jobOrderResponse.data.jobOrderDate
-                              ).toLocaleDateString()
+                              ) || "N/A"
                             : "N/A"}
                         </span>
                       </div>

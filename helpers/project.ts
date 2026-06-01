@@ -4,6 +4,9 @@ export const JOB_STATUS_ID_CONFIRMED = 2
 /** M_JobStatus.JobStatusId — Posted (post to accounting) */
 export const JOB_STATUS_ID_POSTED = 6
 
+/** M_JobStatus.JobStatusId — Cancelled */
+export const JOB_STATUS_ID_CANCELLED = 203
+
 export type JobStatusInput =
   | string
   | {
@@ -36,6 +39,12 @@ export const isStatusPosted = (status?: JobStatusInput) => {
   const { jobStatusId, jobStatusName } = resolveStatus(status)
   if (jobStatusId === JOB_STATUS_ID_POSTED) return true
   return jobStatusName?.toLowerCase() === "posted"
+}
+
+export const isStatusCancelled = (status?: JobStatusInput) => {
+  const { jobStatusId, jobStatusName } = resolveStatus(status)
+  if (jobStatusId === JOB_STATUS_ID_CANCELLED) return true
+  return jobStatusName?.trim().toLowerCase() === "cancelled"
 }
 
 /** Ser_JobOrderHd / Ser_TallyService IsPost — invoice posted to AR */

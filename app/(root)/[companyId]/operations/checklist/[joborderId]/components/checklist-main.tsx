@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { isStatusCancelled } from "@/helpers/project"
 import { getData } from "@/lib/api-client"
 import { BasicSetting } from "@/lib/api-routes"
 import {
@@ -29,6 +30,7 @@ import {
   parseDate,
 } from "@/lib/date-utils"
 import { updateJobOrderDirect } from "@/hooks/use-checklist"
+import { useJobStatusLookup } from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Form } from "@/components/ui/form"
 import {
@@ -211,6 +213,7 @@ export function ChecklistMain({
       isActive: jobData?.isActive ?? true,
       isPost: jobData?.isPost ?? false,
       remarks: jobData?.remarks ?? "",
+      cancelRemarks: jobData?.cancelRemarks ?? "",
       jobStatusId: jobData?.jobStatusId ?? 1,
       gstId: Number(jobData?.gstId) || 1,
       gstPercentage: jobData?.gstPercentage ?? 0,
@@ -218,8 +221,25 @@ export function ChecklistMain({
     },
   })
 
+  const { data: jobStatuses = [] } = useJobStatusLookup()
+
   // Watch customerId to reset address and contact when customer changes
   const customerId = form.watch("customerId")
+  const jobStatusId = form.watch("jobStatusId")
+
+  const isCancelledStatus = useMemo(
+    () =>
+      isStatusCancelled({
+        jobStatusId,
+        jobStatusName: jobStatuses.find((s) => s.jobStatusId === jobStatusId)
+          ?.jobStatusName,
+      }),
+    [jobStatusId, jobStatuses]
+  )
+
+  useEffect(() => {
+    void form.trigger("cancelRemarks")
+  }, [jobStatusId, form])
 
   // Watch accountDate to update exchange rate
   const accountDate = form.watch("accountDate")
@@ -594,6 +614,7 @@ export function ChecklistMain({
       isActive: apiJobOrder.isActive ?? true,
       isPost: apiJobOrder.isPost ?? false,
       remarks: apiJobOrder.remarks ?? "",
+      cancelRemarks: apiJobOrder.cancelRemarks ?? "",
       jobStatusId: apiJobOrder.jobStatusId ?? 1,
       gstId: Number(apiJobOrder.gstId) || 1,
       gstPercentage: apiJobOrder.gstPercentage ?? 0,
@@ -1136,6 +1157,9 @@ export function ChecklistMain({
                   label="Job Status"
                   isRequired={true}
                   isDisabled={isPosted ?? false}
+                  onChangeEvent={() => {
+                    void form.trigger("cancelRemarks")
+                  }}
                 />
                 <div className="col-span-2">
                   <CustomTextarea
@@ -1143,6 +1167,15 @@ export function ChecklistMain({
                     name="remarks"
                     label="Remarks"
                     isRequired={false}
+                    isDisabled={isConfirmed}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <CustomTextarea
+                    form={form}
+                    name="cancelRemarks"
+                    label="Cancel Remarks"
+                    isRequired={isCancelledStatus}
                     isDisabled={isConfirmed}
                   />
                 </div>

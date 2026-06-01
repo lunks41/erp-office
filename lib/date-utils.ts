@@ -1,5 +1,41 @@
 import { format, isValid, parse } from "date-fns"
 
+/** Project standard for read-only date display (e.g. 22-Jan-2026). */
+export const displayDateFormat = "dd-MMM-yyyy"
+
+/**
+ * Format a date for UI display using project standard (dd-MMM-yyyy) by default.
+ * Parses API / form strings via parseDate before formatting.
+ */
+export function formatDateForDisplay(
+  date: Date | string | number | null | undefined,
+  pattern: string = displayDateFormat
+): string {
+  if (date === null || date === undefined || date === "") return ""
+
+  try {
+    let dateObj: Date | null = null
+
+    if (date instanceof Date) {
+      dateObj = isValid(date) ? date : null
+    } else if (typeof date === "string") {
+      dateObj = parseDate(date)
+      if (!dateObj) {
+        const native = new Date(date)
+        dateObj = isValid(native) && !isNaN(native.getTime()) ? native : null
+      }
+    } else {
+      const native = new Date(date)
+      dateObj = isValid(native) && !isNaN(native.getTime()) ? native : null
+    }
+
+    if (!dateObj) return ""
+    return format(dateObj, pattern)
+  } catch {
+    return ""
+  }
+}
+
 export function formatDate(
   date: Date | string | number | undefined,
   opts: Intl.DateTimeFormatOptions = {}

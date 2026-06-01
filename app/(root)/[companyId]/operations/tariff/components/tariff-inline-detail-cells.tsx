@@ -71,6 +71,36 @@ export function TariffInlineBooleanCell({
   )
 }
 
+export function TariffInlineAdditionalCell({
+  lines,
+  decimals = 2,
+}: {
+  lines: ITariffDetailLine[]
+  decimals?: number
+}) {
+  return (
+    <LineStack lines={lines}>
+      {(line) => {
+        if (!line.isAdditional) {
+          return (
+            <div className="flex justify-center">
+              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+            </div>
+          )
+        }
+        return (
+          <div className="flex items-center justify-center gap-1 text-xs tabular-nums">
+            <IconCircleCheckFilled className="h-4 w-4 shrink-0 text-green-500" />
+            <span>{formatNumber(line.additionalUnit ?? 0, decimals)}</span>
+            <span className="text-muted-foreground">@</span>
+            <span>{formatNumber(line.additionalRate ?? 0, decimals)}</span>
+          </div>
+        )
+      }}
+    </LineStack>
+  )
+}
+
 export function TariffInlineTextCell({
   lines,
   format,

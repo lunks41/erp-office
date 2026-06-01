@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { ApJobTransaction } from "@/lib/api-routes"
+import { formatDateForDisplay } from "@/lib/date-utils"
 import { useGetJobOrderByIdNo } from "@/hooks/use-checklist"
 import { useGet, usePersist } from "@/hooks/use-common"
 import { Button } from "@/components/ui/button"
@@ -202,7 +203,7 @@ export function JobTransactionForm({
     if (open && row) {
       const sourceRow = transactionData ?? row
       const accountDateDisplay = sourceRow.accountDate
-        ? new Date(sourceRow.accountDate).toLocaleDateString()
+        ? formatDateForDisplay(sourceRow.accountDate)
         : ""
 
       const invoiceIdStr = String(

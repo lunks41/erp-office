@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import { openDebitNoteReportWindow } from "@/helpers/debit-note-report"
 import {
   canShowInvoicePost,
   canShowInvoicePreview,
@@ -33,7 +34,6 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { openDebitNoteReportWindow } from "@/helpers/debit-note-report"
 import { apiClient } from "@/lib/api-client"
 import { JobOrder } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
@@ -669,7 +669,13 @@ export function ChecklistTabs({
       locAmtDec: decimals[0]?.locAmtDec ?? 2,
       userName: user?.userName || "",
     }),
-    [companyId, currentJobData?.jobOrderId, jobOrderId, decimals, user?.userName]
+    [
+      companyId,
+      currentJobData?.jobOrderId,
+      jobOrderId,
+      decimals,
+      user?.userName,
+    ]
   )
 
   const handleDebitNotePrint = useCallback(

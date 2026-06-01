@@ -52,11 +52,6 @@ import {
   usePaymentTypeLookup,
 } from "@/hooks/use-lookup"
 import { useUserSettingDefaults } from "@/hooks/use-settings"
-import {
-  MainOtherHistoryTabList,
-  TransactionWorkspaceRoot,
-  transactionTabPanelClass,
-} from "@/components/layout/transaction-workspace-layout"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -70,6 +65,11 @@ import {
   ResetConfirmation,
   SaveConfirmation,
 } from "@/components/confirmation"
+import {
+  MainOtherHistoryTabList,
+  transactionTabPanelClass,
+  TransactionWorkspaceRoot,
+} from "@/components/layout/transaction-workspace-layout"
 
 import History from "./components/history"
 import Main from "./components/main-tab"
@@ -1255,7 +1255,7 @@ export default function ReceiptPage() {
           <>
             <div
               onDoubleClick={handleCopySearchNo}
-              className="min-w-[120px] w-full max-w-xs sm:w-64"
+              className="w-full max-w-xs min-w-[120px] sm:w-64"
               title="Double-click to copy to clipboard"
             >
               <Input
@@ -1295,7 +1295,9 @@ export default function ReceiptPage() {
               }
               className={isEdit ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
-              {isSaving || saveMutation.isPending || updateMutation.isPending ? (
+              {isSaving ||
+              saveMutation.isPending ||
+              updateMutation.isPending ? (
                 <Spinner size="sm" className="mr-1" />
               ) : (
                 <Save className="mr-1 h-4 w-4" />

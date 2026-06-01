@@ -1,7 +1,5 @@
 ﻿"use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { mathRound } from "@/helpers/account"
 import {
@@ -11,10 +9,11 @@ import {
   calculateManualAllocation,
   calculateUnallocated,
   validateAllocation as validateAllocationHelper,
-} from "@/helpers/ar-receipt-calculationsv1"
+} from "@/helpers/ar-receiptmulticurrency-calculations"
 import { IArOutTransaction, IArReceiptDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ArReceiptDtSchemaType, ArReceiptHdSchemaType } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { Plus, RotateCcw, Zap } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
@@ -149,8 +148,16 @@ export default function Main({
       const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
       const exhRate = Number(form.getValues("exhRate")) || 1
       const recExhRate = Number(form.getValues("recExhRate")) || 1
+      const recCurrencyId = Number(form.getValues("recCurrencyId")) || 0
       for (let i = 0; i < resetArr.length; i++) {
-        calauteLocalAmtandGainLoss(resetArr, i, exhRate, recExhRate, dec)
+        calauteLocalAmtandGainLoss(
+          resetArr,
+          i,
+          exhRate,
+          recExhRate,
+          dec,
+          recCurrencyId
+        )
       }
 
       const finalResetData: ArReceiptDtSchemaType[] = resetData.map(
@@ -280,6 +287,7 @@ export default function Main({
 
       const exhRate = Number(form.getValues("exhRate"))
       const recExhRate = Number(form.getValues("recExhRate")) || 1
+      const recCurrencyId = Number(form.getValues("recCurrencyId")) || 0
       const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
       const _totAmt = Number(form.getValues("totAmt")) || 0
       const recTotAmt = Number(form.getValues("recTotAmt")) || 0
@@ -291,7 +299,8 @@ export default function Main({
         allocValue,
         recTotAmt,
         recExhRate,
-        dec
+        dec,
+        recCurrencyId
       )
 
       // Show toast if allocation was auto-set to zero due to remaining amount <= 0
@@ -320,7 +329,14 @@ export default function Main({
         }
       }
 
-      calauteLocalAmtandGainLoss(arr, rowIndex, exhRate, recExhRate, dec)
+      calauteLocalAmtandGainLoss(
+        arr,
+        rowIndex,
+        exhRate,
+        recExhRate,
+        dec,
+        recCurrencyId
+      )
 
       const sumAllocAmt = arr.reduce((s, r) => s + (Number(r.allocAmt) || 0), 0)
       let sumAllocLocalAmt = arr.reduce(
@@ -475,7 +491,14 @@ export default function Main({
     const arr = updatedData as unknown as IArReceiptDt[]
 
     for (let i = 0; i < arr.length; i++) {
-      calauteLocalAmtandGainLoss(arr, i, exhRate, recExhRate, dec)
+      calauteLocalAmtandGainLoss(
+        arr,
+        i,
+        exhRate,
+        recExhRate,
+        dec,
+        recCurrencyId
+      )
     }
     const recTotLocalAmt = Number(form.getValues("recTotLocalAmt")) || 0
     console.log("recTotLocalAmt", recTotLocalAmt)
@@ -603,9 +626,17 @@ export default function Main({
     const arr = updatedData as unknown as IArReceiptDt[]
     const exhRate = Number(form.getValues("exhRate")) || 1
     const recExhRate = Number(form.getValues("recExhRate")) || 1
+    const recCurrencyId = Number(form.getValues("recCurrencyId")) || 0
     const dec = decimals[0] || { amtDec: 2, locAmtDec: 2 }
     for (let i = 0; i < arr.length; i++) {
-      calauteLocalAmtandGainLoss(arr, i, exhRate, recExhRate, dec)
+      calauteLocalAmtandGainLoss(
+        arr,
+        i,
+        exhRate,
+        recExhRate,
+        dec,
+        recCurrencyId
+      )
     }
     const sumAllocAmt = 0
     const sumAllocLocalAmt = 0
@@ -767,7 +798,7 @@ export default function Main({
 
           <Badge
             variant="secondary"
-            className="border-border bg-blue-100 px-3 py-1 text-sm font-medium text-primary"
+            className="border-border text-primary bg-blue-100 px-3 py-1 text-sm font-medium"
           >
             Total Alloc: {(form.getValues("allocTotAmt") || 0).toFixed(amtDec)}
           </Badge>

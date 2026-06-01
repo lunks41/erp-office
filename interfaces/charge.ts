@@ -4,6 +4,7 @@ export interface ICharge {
   chargeCode: string
   chargeName: string
   uomId?: number
+  uomCode?: string
   uomName?: string
   chargeOrder: number
   seqNo: number

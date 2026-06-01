@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { MainTable } from "@/components/table/table-main"
 
 import {
-  TariffInlineBooleanCell,
+  TariffInlineAdditionalCell,
   TariffInlineNumberCell,
   TariffInlineTextCell,
 } from "./tariff-inline-detail-cells"
@@ -104,15 +104,6 @@ export function TariffTable({
         minSize: 160,
       },
       {
-        accessorKey: "visaName",
-        header: "Visa Type",
-        cell: ({ row }) => (
-          <div className="truncate">{row.getValue("visaName") || "-"}</div>
-        ),
-        size: 140,
-        minSize: 110,
-      },
-      {
         accessorKey: "uomName",
         header: "UOM",
         cell: ({ row }) => (
@@ -120,6 +111,15 @@ export function TariffTable({
         ),
         size: 90,
         minSize: 70,
+      },
+      {
+        accessorKey: "visaName",
+        header: "Visa Type",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("visaName") || "-"}</div>
+        ),
+        size: 140,
+        minSize: 110,
       },
       {
         accessorKey: "fromLocationName",
@@ -196,42 +196,16 @@ export function TariffTable({
         minSize: 75,
       },
       {
-        id: "lineIsAdditional",
-        header: "Add.?",
+        id: "lineOverLimit",
+        header: "Over-Limit",
         cell: ({ row }) => (
-          <TariffInlineBooleanCell
+          <TariffInlineAdditionalCell
             lines={row.original.detailLines}
-            getValue={(line) => line.isAdditional}
-          />
-        ),
-        size: 70,
-        minSize: 60,
-      },
-      {
-        id: "lineAdditionalUnit",
-        header: "Add. Unit",
-        cell: ({ row }) => (
-          <TariffInlineNumberCell
-            lines={row.original.detailLines}
-            getValue={(line) => line.additionalUnit}
             decimals={amtDec}
           />
         ),
-        size: 85,
-        minSize: 75,
-      },
-      {
-        id: "lineAdditionalRate",
-        header: "Add. Rate",
-        cell: ({ row }) => (
-          <TariffInlineNumberCell
-            lines={row.original.detailLines}
-            getValue={(line) => line.additionalRate}
-            decimals={amtDec}
-          />
-        ),
-        size: 90,
-        minSize: 80,
+        size: 120,
+        minSize: 100,
       },
       {
         id: "lineDescription",
@@ -246,30 +220,27 @@ export function TariffTable({
         minSize: 120,
       },
       {
-        accessorKey: "isPrepayment",
-        header: "Prepay?",
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            {row.getValue("isPrepayment") ? (
-              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
-            ) : (
-              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
-            )}
-          </div>
-        ),
-        size: 80,
-        minSize: 70,
-      },
-      {
-        accessorKey: "prepaymentPercentage",
-        header: "Prepayment %",
-        cell: ({ row }) => (
-          <div className="truncate text-right tabular-nums">
-            {row.original.prepaymentPercentage ?? 0}
-          </div>
-        ),
-        size: 90,
-        minSize: 80,
+        id: "prepayment",
+        header: "Prepay",
+        cell: ({ row }) => {
+          const isPrepayment = row.original.isPrepayment
+          const rate = row.original.prepaymentPercentage ?? 0
+          if (!isPrepayment) {
+            return (
+              <div className="flex justify-center">
+                <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+              </div>
+            )
+          }
+          return (
+            <div className="flex items-center justify-center gap-1 tabular-nums">
+              <IconCircleCheckFilled className="h-4 w-4 shrink-0 text-green-500" />
+              <span className="text-xs">{rate}%</span>
+            </div>
+          )
+        },
+        size: 95,
+        minSize: 85,
       },
       {
         accessorKey: "createBy",

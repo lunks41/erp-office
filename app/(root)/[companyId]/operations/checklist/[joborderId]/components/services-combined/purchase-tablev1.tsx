@@ -5,6 +5,7 @@ import { IPurchaseData } from "@/interfaces"
 import { ColumnDef } from "@tanstack/react-table"
 
 import { TableName } from "@/lib/utils"
+import { formatDateForDisplay } from "@/lib/date-utils"
 import { PurchaseBaseTable } from "@/components/table/table-purchase"
 
 interface PurchaseTableProps {
@@ -99,7 +100,7 @@ export function PurchaseTable({
         header: "Account Date",
         cell: ({ row }) => {
           const date = row.getValue("accountDate") as Date | string
-          return date ? new Date(date).toLocaleDateString() : "-"
+          return date ? formatDateForDisplay(date) : "-"
         },
         size: 120,
         minSize: 100,

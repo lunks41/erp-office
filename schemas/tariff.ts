@@ -109,7 +109,7 @@ export const tariffHdSchema = z
     prepaymentPercentage: z
       .number()
       .min(0, "Prepayment Percentage must be 0 or greater"),
-    itemNo: z.number().nullable().optional(),
+    seqNo: z.number().min(0, "Seq No must be 0 or greater"),
     remarks: z
       .string()
       .max(255, "Remarks must be less than 255 characters")
