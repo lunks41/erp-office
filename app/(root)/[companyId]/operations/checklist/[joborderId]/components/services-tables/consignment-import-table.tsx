@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IConsignmentImport,
   IConsignmentImportFilter,
   IJobOrderHd,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import {
   IconCircleCheckFilled,
   IconSquareRoundedXFilled,
@@ -150,7 +149,7 @@ export function ConsignmentImportTable({
             {
               accessorKey: "debitNoteNo",
               header: "Debit Note No",
-              size: 180,
+              size: 200,
               minSize: 130,
             },
           ]
@@ -215,7 +214,11 @@ export function ConsignmentImportTable({
         header: "Weight",
         cell: ({ row }) => {
           const value = row.getValue("weight") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,
@@ -315,9 +318,7 @@ export function ConsignmentImportTable({
         accessorKey: "declarationNo",
         header: "Declaration No",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("declarationNo") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("declarationNo") || "-"}</div>
         ),
         size: 120,
         minSize: 100,
@@ -327,7 +328,9 @@ export function ConsignmentImportTable({
         header: "Amount Deposited",
         cell: ({ row }) => {
           const v = row.getValue("amountDeposited") as number | null | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
+          return (
+            <div className="truncate text-right">{v != null ? v : "-"}</div>
+          )
         },
         size: 120,
         minSize: 100,
@@ -348,7 +351,9 @@ export function ConsignmentImportTable({
         header: "No Of Pcs",
         cell: ({ row }) => {
           const v = row.getValue("noOfPcs") as number | null | undefined
-          return <div className="truncate text-right">{v != null ? v : "-"}</div>
+          return (
+            <div className="truncate text-right">{v != null ? v : "-"}</div>
+          )
         },
         size: 90,
         minSize: 80,

@@ -129,7 +129,22 @@ export function DialogDataTable<T>({
         return {}
       }
     }
-    return {}
+    const initialVisibility: VisibilityState = {}
+    columns.forEach((col) => {
+      const colDef = col as {
+        id?: string
+        accessorKey?: string
+        hidden?: boolean
+        meta?: { hidden?: boolean }
+      }
+      const key = colDef.id || colDef.accessorKey
+      const isHidden =
+        colDef.hidden === true || colDef.meta?.hidden === true
+      if (key && isHidden) {
+        initialVisibility[key] = false
+      }
+    })
+    return initialVisibility
   }
 
   const getInitialColumnSizing = () => {

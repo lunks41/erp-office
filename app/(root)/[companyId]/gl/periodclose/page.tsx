@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { ApiResponse } from "@/interfaces/auth"
 import {
-  IGLPeriodClose,
   IGeneratePeriodRequest,
+  IGLPeriodClose,
 } from "@/interfaces/gl-periodclose"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -259,6 +259,21 @@ export default function GLPeriodClosePage() {
         </div>
         <div className="flex gap-2">
           <Button
+            onClick={handleSave}
+            disabled={saving || !selectedYear}
+            size="sm"
+          >
+            {saving ? (
+              <>
+                <Spinner size="sm" className="mr-2" />
+                Saving...
+              </>
+            ) : (
+              "Save"
+            )}
+          </Button>
+          <span className="text-muted-foreground text-sm">|</span>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setShowGenerateDialog(true)}
@@ -278,20 +293,6 @@ export default function GLPeriodClosePage() {
               </>
             ) : (
               "Delete"
-            )}
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving || !selectedYear}
-            size="sm"
-          >
-            {saving ? (
-              <>
-                <Spinner size="sm" className="mr-2" />
-                Saving...
-              </>
-            ) : (
-              "Save"
             )}
           </Button>
         </div>

@@ -1,17 +1,16 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
+import { getDisplayDetailLines } from "@/helpers/equipment-used-details"
 import {
   IEquipmentUsed,
   IEquipmentUsedFilter,
   IJobOrderHd,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
-import { getDisplayDetailLines } from "@/helpers/equipment-used-details"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { OperationsTransactionId, TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -152,7 +151,7 @@ export function EquipmentUsedTable({
             {
               accessorKey: "debitNoteNo",
               header: "Debit Note No",
-              size: 180,
+              size: 200,
               minSize: 130,
             },
           ]

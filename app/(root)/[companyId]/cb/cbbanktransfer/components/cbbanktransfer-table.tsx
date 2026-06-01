@@ -214,6 +214,7 @@ export default function BankTransferTable({
     {
       accessorKey: "fromTotLocalAmt",
       header: "From Total Local Amount",
+      meta: { hidden: true },
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
@@ -293,6 +294,7 @@ export default function BankTransferTable({
     {
       accessorKey: "fromBankChgLocalAmt",
       header: "From Bank Charge Local Amount",
+      meta: { hidden: true },
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("fromBankChgLocalAmt"), locAmtDec)}
@@ -300,17 +302,12 @@ export default function BankTransferTable({
       ),
     },
     {
-      accessorKey: "fromTotAmt",
-      header: "From Total Amount",
-      cell: ({ row }) => (
-        <div className="truncate text-right">
-          {formatNumber(row.getValue("fromTotAmt"), amtDec)}
-        </div>
-      ),
-    },
-    {
       accessorKey: "toBankCode",
       header: "To Bank Code",
+    },
+    {
+      accessorKey: "toCurrencyCode",
+      header: "To Currency Code",
     },
     {
       accessorKey: "toCurrencyName",
@@ -345,6 +342,7 @@ export default function BankTransferTable({
     {
       accessorKey: "toBankChgLocalAmt",
       header: "To Bank Charge Local Amount",
+      meta: { hidden: true },
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("toBankChgLocalAmt"), locAmtDec)}
@@ -363,6 +361,7 @@ export default function BankTransferTable({
     {
       accessorKey: "toTotLocalAmt",
       header: "To Total Local Amount",
+      meta: { hidden: true },
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("toTotLocalAmt"), locAmtDec)}
@@ -390,6 +389,7 @@ export default function BankTransferTable({
     {
       accessorKey: "bankTotLocalAmt",
       header: "Bank Total Local Amount",
+      meta: { hidden: true },
       cell: ({ row }) => (
         <div className="truncate text-right">
           {formatNumber(row.getValue("bankTotLocalAmt"), locAmtDec)}

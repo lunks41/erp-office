@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IJobOrderHd,
   ILandingItems,
   ILandingItemsFilter,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -151,7 +150,7 @@ export function LandingItemsTable({
             {
               accessorKey: "debitNoteNo",
               header: "Debit Note No",
-              size: 180,
+              size: 200,
               minSize: 130,
             },
           ]
@@ -203,7 +202,11 @@ export function LandingItemsTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,
@@ -213,7 +216,11 @@ export function LandingItemsTable({
         header: "Weight",
         cell: ({ row }) => {
           const value = row.getValue("weight") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,

@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   ICrewSignOff,
   ICrewSignOffFilter,
   IJobOrderHd,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -133,7 +132,7 @@ export function CrewSignOffTable({
             {
               accessorKey: "debitNoteNo",
               header: "Debit Note No",
-              size: 180,
+              size: 200,
               minSize: 130,
             },
           ]
@@ -199,9 +198,7 @@ export function CrewSignOffTable({
         accessorKey: "flightDetails",
         header: "Flight Details",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("flightDetails") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("flightDetails") || "-"}</div>
         ),
       },
       {
@@ -234,9 +231,7 @@ export function CrewSignOffTable({
         accessorKey: "transportName",
         header: "Transport Name",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("transportName") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("transportName") || "-"}</div>
         ),
       },
       {

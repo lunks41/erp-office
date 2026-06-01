@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   ICrewMiscellaneous,
   ICrewMiscellaneousFilter,
   IJobOrderHd,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -145,7 +144,7 @@ export function CrewMiscellaneousTable({
             {
               accessorKey: "debitNoteNo",
               header: "Debit Note No",
-              size: 180,
+              size: 200,
               minSize: 130,
             },
           ]
@@ -178,7 +177,11 @@ export function CrewMiscellaneousTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,

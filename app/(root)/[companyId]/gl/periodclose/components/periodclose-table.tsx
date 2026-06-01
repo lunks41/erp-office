@@ -1,11 +1,11 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useMemo } from "react"
 import { IGLPeriodClose } from "@/interfaces/gl-periodclose"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+
 import { Checkbox } from "@/components/ui/checkbox"
 import { SettingTable } from "@/components/table/table-setting"
 
@@ -29,16 +29,12 @@ export function PeriodCloseTable({
       {
         accessorKey: "finYear",
         header: "Year",
-        size: 80,
-        minSize: 70,
-        maxSize: 100,
+        size: 56,
       },
       {
         accessorKey: "finMonth",
         header: "Month",
-        size: 80,
-        minSize: 70,
-        maxSize: 100,
+        size: 56,
       },
       {
         accessorKey: "startDate",
@@ -47,9 +43,7 @@ export function PeriodCloseTable({
           const date = row.getValue("startDate") as string
           return date ? format(new Date(date), dateFormat) : ""
         },
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
+        size: 96,
       },
       {
         accessorKey: "endDate",
@@ -58,15 +52,13 @@ export function PeriodCloseTable({
           const date = row.getValue("endDate") as string
           return date ? format(new Date(date), dateFormat) : ""
         },
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
+        size: 96,
       },
       {
         accessorKey: "isArClose",
         header: "AR Close",
         cell: ({ row }) => (
-          <div className="text-center">
+          <div className="flex justify-center">
             <Checkbox
               checked={row.getValue("isArClose")}
               onCheckedChange={(checked) =>
@@ -75,16 +67,12 @@ export function PeriodCloseTable({
             />
           </div>
         ),
-        size: 90,
-        minSize: 80,
-        maxSize: 100,
+        size: 72,
       },
       {
         accessorKey: "arCloseBy",
         header: "AR Close By",
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
+        size: 100,
       },
       {
         accessorKey: "arCloseDate",
@@ -93,15 +81,13 @@ export function PeriodCloseTable({
           const date = row.getValue("arCloseDate") as string
           return date ? format(new Date(date), datetimeFormat) : ""
         },
-        size: 180,
-        minSize: 160,
-        maxSize: 220,
+        size: 158,
       },
       {
         accessorKey: "isApClose",
         header: "AP Close",
         cell: ({ row }) => (
-          <div className="text-center">
+          <div className="flex justify-center">
             <Checkbox
               checked={row.getValue("isApClose")}
               onCheckedChange={(checked) =>
@@ -110,16 +96,12 @@ export function PeriodCloseTable({
             />
           </div>
         ),
-        size: 90,
-        minSize: 80,
-        maxSize: 100,
+        size: 72,
       },
       {
         accessorKey: "apCloseBy",
         header: "AP Close By",
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
+        size: 100,
       },
       {
         accessorKey: "apCloseDate",
@@ -128,15 +110,13 @@ export function PeriodCloseTable({
           const date = row.getValue("apCloseDate") as string
           return date ? format(new Date(date), datetimeFormat) : ""
         },
-        size: 180,
-        minSize: 160,
-        maxSize: 220,
+        size: 158,
       },
       {
         accessorKey: "isCbClose",
         header: "CB Close",
         cell: ({ row }) => (
-          <div className="text-center">
+          <div className="flex justify-center">
             <Checkbox
               checked={row.getValue("isCbClose")}
               onCheckedChange={(checked) =>
@@ -145,16 +125,12 @@ export function PeriodCloseTable({
             />
           </div>
         ),
-        size: 90,
-        minSize: 80,
-        maxSize: 100,
+        size: 72,
       },
       {
         accessorKey: "cbCloseBy",
         header: "CB Close By",
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
+        size: 100,
       },
       {
         accessorKey: "cbCloseDate",
@@ -163,15 +139,13 @@ export function PeriodCloseTable({
           const date = row.getValue("cbCloseDate") as string
           return date ? format(new Date(date), datetimeFormat) : ""
         },
-        size: 180,
-        minSize: 160,
-        maxSize: 220,
+        size: 158,
       },
       {
         accessorKey: "isGlClose",
         header: "GL Close",
         cell: ({ row }) => (
-          <div className="text-center">
+          <div className="flex justify-center">
             <Checkbox
               checked={row.getValue("isGlClose")}
               onCheckedChange={(checked) =>
@@ -180,16 +154,12 @@ export function PeriodCloseTable({
             />
           </div>
         ),
-        size: 90,
-        minSize: 80,
-        maxSize: 100,
+        size: 72,
       },
       {
         accessorKey: "glCloseBy",
         header: "GL Close By",
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
+        size: 100,
       },
       {
         accessorKey: "glCloseDate",
@@ -198,9 +168,7 @@ export function PeriodCloseTable({
           const date = row.getValue("glCloseDate") as string
           return date ? format(new Date(date), datetimeFormat) : ""
         },
-        size: 180,
-        minSize: 160,
-        maxSize: 220,
+        size: 158,
       },
     ],
     [dateFormat, datetimeFormat, onFieldChange]

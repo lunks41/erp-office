@@ -78,6 +78,8 @@ export const JobOrderHdSchema = z.object({
     .max(255, "Cancel remarks must be less than 250 characters")
     .optional(),
   jobStatusId: z.number().min(1, "Job Status is required"),
+  /** Used for cancelled-status validation; not sent to API */
+  jobStatusName: z.string().optional(),
   gstId: z.number().optional(),
   gstPercentage: z.number().optional(),
 
@@ -103,7 +105,14 @@ export const JobOrderHdSchema = z.object({
   editedBy: z.string().optional(),
   editedDate: z.union([z.date(), z.string()]).optional(),
 }).superRefine((data, ctx) => {
-  if (!isStatusCancelled({ jobStatusId: data.jobStatusId })) return
+  if (
+    !isStatusCancelled({
+      jobStatusId: data.jobStatusId,
+      jobStatusName: data.jobStatusName,
+    })
+  ) {
+    return
+  }
   if (!String(data.cancelRemarks ?? "").trim()) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

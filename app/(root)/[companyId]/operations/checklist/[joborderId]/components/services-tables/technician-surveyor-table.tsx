@@ -1,13 +1,12 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useMemo, useState } from "react"
 import {
   IJobOrderHd,
   ITechnicianSurveyor,
   ITechnicianSurveyorFilter,
 } from "@/interfaces/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
@@ -163,7 +162,7 @@ export function TechnicianSurveyorTable({
             {
               accessorKey: "debitNoteNo",
               header: "Debit Note No",
-              size: 180,
+              size: 200,
               minSize: 130,
             },
           ]
@@ -244,7 +243,11 @@ export function TechnicianSurveyorTable({
         header: "Quantity",
         cell: ({ row }) => {
           const value = row.getValue("quantity") as number | null | undefined
-          return <div className="truncate text-right">{value != null ? value : "-"}</div>
+          return (
+            <div className="truncate text-right">
+              {value != null ? value : "-"}
+            </div>
+          )
         },
         size: 100,
         minSize: 80,
@@ -310,9 +313,7 @@ export function TechnicianSurveyorTable({
         accessorKey: "portRequestNo",
         header: "Port Request No",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("portRequestNo") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("portRequestNo") || "-"}</div>
         ),
         size: 150,
         minSize: 120,

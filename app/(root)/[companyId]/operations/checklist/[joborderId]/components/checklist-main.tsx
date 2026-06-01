@@ -16,7 +16,7 @@ import { JobOrderHdSchema, JobOrderHdSchemaType } from "@/schemas/checklist"
 import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, isValid, parse } from "date-fns"
-import { useForm } from "react-hook-form"
+import { FieldErrors, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -62,6 +62,63 @@ const SECTION_CARD_CLASS = "rounded-lg border px-4 pb-4 pt-3"
 const SECTION_HEADER_ROW_CLASS = "mb-3 flex flex-wrap items-center gap-2"
 const SECTION_HEADER_BADGE_CLASS =
   "px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition-colors duration-200"
+
+const JOB_ORDER_FIELD_LABELS: Record<string, string> = {
+  jobOrderDate: "Job Order Date",
+  customerId: "Customer",
+  currencyId: "Currency",
+  exhRate: "Exchange Rate",
+  vesselId: "Vessel",
+  vesselDistance: "Vessel Distance",
+  portId: "Port",
+  accountDate: "Account Date",
+  seriesDate: "Series Date",
+  jobStatusId: "Job Status",
+  cancelRemarks: "Cancel Remarks",
+}
+
+function formatJobOrderFormErrors(
+  errors: FieldErrors<JobOrderHdSchemaType>
+): string {
+  const messages: string[] = []
+
+  const collect = (errs: FieldErrors<JobOrderHdSchemaType>, prefix = "") => {
+    Object.entries(errs).forEach(([key, error]) => {
+      if (!error) return
+      const label =
+        JOB_ORDER_FIELD_LABELS[prefix ? `${prefix}.${key}` : key] ??
+        JOB_ORDER_FIELD_LABELS[key] ??
+        key
+
+      if (
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+      ) {
+        messages.push(
+          error.message.includes(label)
+            ? error.message
+            : `${label}: ${error.message}`
+        )
+        return
+      }
+
+      if (typeof error === "object" && !Array.isArray(error)) {
+        collect(error as FieldErrors<JobOrderHdSchemaType>, key)
+      }
+    })
+  }
+
+  collect(errors)
+
+  if (messages.length === 0) {
+    return "Please fill in all required fields"
+  }
+  if (messages.length === 1) {
+    return messages[0]
+  }
+  return `Please fix the following:\n${messages.map((msg) => `• ${msg}`).join("\n")}`
+}
 
 interface ChecklistMainProps {
   jobData?: IJobOrderHd | null
@@ -215,6 +272,7 @@ export function ChecklistMain({
       remarks: jobData?.remarks ?? "",
       cancelRemarks: jobData?.cancelRemarks ?? "",
       jobStatusId: jobData?.jobStatusId ?? 1,
+      jobStatusName: jobData?.jobStatusName ?? "",
       gstId: Number(jobData?.gstId) || 1,
       gstPercentage: jobData?.gstPercentage ?? 0,
       editVersion: jobData?.editVersion ?? 0,
@@ -238,8 +296,13 @@ export function ChecklistMain({
   )
 
   useEffect(() => {
+    const statusName =
+      jobStatuses.find((s) => s.jobStatusId === jobStatusId)?.jobStatusName ??
+      jobData?.jobStatusName ??
+      ""
+    form.setValue("jobStatusName", statusName, { shouldValidate: false })
     void form.trigger("cancelRemarks")
-  }, [jobStatusId, form])
+  }, [jobStatusId, jobStatuses, jobData?.jobStatusName, form])
 
   // Watch accountDate to update exchange rate
   const accountDate = form.watch("accountDate")
@@ -380,7 +443,9 @@ export function ChecklistMain({
       isActive: jobData?.isActive ?? true,
       isPost: jobData?.isPost ?? false,
       remarks: jobData?.remarks ?? "",
+      cancelRemarks: jobData?.cancelRemarks ?? "",
       jobStatusId: jobData?.jobStatusId ?? 1,
+      jobStatusName: jobData?.jobStatusName ?? "",
       gstId: Number(jobData?.gstId) || 1,
       gstPercentage: jobData?.gstPercentage ?? 0,
       editVersion: jobData?.editVersion ?? 0,
@@ -616,6 +681,7 @@ export function ChecklistMain({
       remarks: apiJobOrder.remarks ?? "",
       cancelRemarks: apiJobOrder.cancelRemarks ?? "",
       jobStatusId: apiJobOrder.jobStatusId ?? 1,
+      jobStatusName: apiJobOrder.jobStatusName ?? "",
       gstId: Number(apiJobOrder.gstId) || 1,
       gstPercentage: apiJobOrder.gstPercentage ?? 0,
       editVersion: apiJobOrder.editVersion ?? 0,
@@ -906,50 +972,9 @@ export function ChecklistMain({
                 onSubmit(data)
               },
               (errors) => {
-                // console.error("Form validation failed:", errors)
-                // console.error("Form values:", form.getValues())
-                // console.error(
-                //   "Form errors details:",
-                //   JSON.stringify(errors, null, 2)
-                // )
-
-                // Extract error messages from react-hook-form error structure
-                const errorMessages: string[] = []
-
-                // Handle react-hook-form error structure: { fieldName: { message: string, type: string } }
-                Object.entries(errors).forEach(([fieldName, error]) => {
-                  if (error) {
-                    // Handle FieldError object with message property
-                    if (error.message && typeof error.message === "string") {
-                      errorMessages.push(`${fieldName}: ${error.message}`)
-                    }
-                    // Handle nested errors (for array fields)
-                    else if (error.root?.message) {
-                      errorMessages.push(`${fieldName}: ${error.root.message}`)
-                    }
-                    // Fallback for unknown error structure
-                    else {
-                      errorMessages.push(`${fieldName}: Invalid value`)
-                    }
-                  }
+                toast.error(formatJobOrderFormErrors(errors), {
+                  duration: 6000,
                 })
-
-                if (errorMessages.length > 0) {
-                  const errorText =
-                    errorMessages.length === 1
-                      ? errorMessages[0]
-                      : `Validation errors:\n${errorMessages.map((msg) => `• ${msg}`).join("\n")}`
-
-                  // console.log("Showing toast with errors:", errorText)
-                  toast.error(errorText, {
-                    duration: 5000, // Show for 5 seconds
-                  })
-                } else {
-                  // console.log(
-                  //   "No error messages extracted, showing generic error"
-                  // )
-                  toast.error("Please fill in all required fields")
-                }
               }
             )(e)
           }}
@@ -1157,7 +1182,10 @@ export function ChecklistMain({
                   label="Job Status"
                   isRequired={true}
                   isDisabled={isPosted ?? false}
-                  onChangeEvent={() => {
+                  onChangeEvent={(status) => {
+                    form.setValue("jobStatusName", status?.jobStatusName ?? "", {
+                      shouldValidate: true,
+                    })
                     void form.trigger("cancelRemarks")
                   }}
                 />

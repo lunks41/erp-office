@@ -58,6 +58,11 @@ export function SettingTable<T>({
     Math.min(stickyColumnCount, leafColumns.length)
   )
 
+  const tableWidth = leafColumns.reduce(
+    (sum, col) => sum + (col.getSize() ?? 0),
+    0
+  )
+
   // Pre-compute left offsets for each sticky column based on configured sizes.
   const leftOffsets: number[] = []
   let acc = 0
@@ -74,7 +79,10 @@ export function SettingTable<T>({
       )}
       style={!className ? { height: maxHeight, maxHeight } : undefined}
     >
-        <table className="w-full table-fixed border-collapse">
+        <table
+          className="table-fixed border-collapse text-xs"
+          style={{ width: tableWidth > 0 ? `${tableWidth}px` : undefined }}
+        >
         {/* Column group for consistent sizing */}
         <colgroup>
           {table.getAllLeafColumns().map((col) => (
@@ -94,11 +102,12 @@ export function SettingTable<T>({
                 return (
                 <TableHead
                   key={header.id}
-                  className={
+                  className={cn(
+                    "h-8 px-2 py-1",
                     isSticky
                       ? `bg-muted ${isStickyBoundary ? "border-r border-border/80 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.22)]" : ""}`
                       : undefined
-                  }
+                  )}
                   style={
                     isSticky
                       ? {
@@ -135,11 +144,12 @@ export function SettingTable<T>({
                       return (
                       <TableCell
                         key={cell.id}
-                        className={`py-1 ${
+                        className={cn(
+                          "px-2 py-1",
                           isSticky
                             ? `bg-background ${isStickyBoundary ? "border-r border-border/80 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.18)]" : ""}`
                             : ""
-                        }`}
+                        )}
                         style={
                           isSticky
                             ? {
@@ -176,11 +186,12 @@ export function SettingTable<T>({
                     return (
                       <TableCell
                         key={`empty-${index}-${column.id}`}
-                        className={`py-1 ${
+                        className={cn(
+                          "px-2 py-1",
                           isSticky
                             ? `bg-background ${isStickyBoundary ? "border-r border-border/80 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.18)]" : ""}`
                             : ""
-                        }`}
+                        )}
                         style={{
                           width: `${column.getSize()}px`,
                           minWidth: `${column.getSize()}px`,

@@ -439,13 +439,13 @@ export function ChecklistTabs({
   }
 
   const handleFormSubmit = () => {
-    // console.log("handleFormSubmit called, formRef:", formRef)
     if (formRef) {
-      // console.log("Calling formRef.requestSubmit()")
       formRef.requestSubmit()
-    } else {
-      // console.error("formRef is null, cannot submit form")
+      return
     }
+    toast.error(
+      "Unable to save. Open the Summary tab and try Update again."
+    )
   }
 
   // Debit Note Functions
@@ -998,8 +998,6 @@ export function ChecklistTabs({
                       break
                     case "update":
                       handleFormSubmit()
-                      // Always refetch after update button is clicked
-                      refetch()
                       break
                     case "cloneCompany":
                       setShowCloneCompanyConfirmDialog(true)
