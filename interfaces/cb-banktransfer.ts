@@ -6,6 +6,8 @@ export interface ICbBankTransfer {
   trnDate: Date | string
   accountDate: Date | string
   paymentTypeId: number
+  paymentTypeCode: string
+  paymentTypeName: string
   chequeNo: string | null
   chequeDate: Date | string
   jobOrderId: number

@@ -163,6 +163,10 @@ export default function BankTransferTable({
       header: "Transfer No",
     },
     {
+      accessorKey: "referenceNo",
+      header: "Reference No",
+    },
+    {
       accessorKey: "accountDate",
       header: "Account Date",
       cell: ({ row }) => {
@@ -171,6 +175,20 @@ export default function BankTransferTable({
           : null
         return date ? format(date, dateFormat) : "-"
       },
+    },
+    {
+      accessorKey: "trnDate",
+      header: "Transaction Date",
+      cell: ({ row }) => {
+        const date = row.original.trnDate
+          ? new Date(row.original.trnDate)
+          : null
+        return date ? format(date, dateFormat) : "-"
+      },
+    },
+    {
+      accessorKey: "paymentTypeName",
+      header: "Payment Type",
     },
     {
       accessorKey: "remarks",
@@ -291,19 +309,9 @@ export default function BankTransferTable({
       ),
     },
     {
-      accessorKey: "fromTotLocalAmt",
-      header: "From Total Local Amount",
-      cell: ({ row }) => (
-        <div className="truncate text-right">
-          {formatNumber(row.getValue("fromTotLocalAmt"), locAmtDec)}
-        </div>
-      ),
-    },
-    {
       accessorKey: "toBankCode",
       header: "To Bank Code",
     },
-
     {
       accessorKey: "toCurrencyName",
       header: "To Currency Name",
@@ -396,10 +404,6 @@ export default function BankTransferTable({
           {formatNumber(row.getValue("exhGainLoss"), amtDec)}
         </div>
       ),
-    },
-    {
-      accessorKey: "referenceNo",
-      header: "Reference No",
     },
     {
       accessorKey: "payeeTo",
