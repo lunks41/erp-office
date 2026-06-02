@@ -15,7 +15,7 @@ export interface ITariffDetailLine {
   isMultiply?: boolean
 }
 
-/** Grouped tariff row: one header with stacked detail lines (equipment-used table pattern). */
+/** Grouped tariff row: one header with stacked detail lines (equipment-used table pattern). Header flags (e.g. isPrepayment, isViceVersa) come from ITariff. */
 export interface ITariffTableRow extends Omit<
   ITariff,
   | "displayRate"

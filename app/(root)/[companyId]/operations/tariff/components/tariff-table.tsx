@@ -243,6 +243,21 @@ export function TariffTable({
         minSize: 85,
       },
       {
+        id: "isViceVersa",
+        header: "Vice Versa",
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            {row.original.isViceVersa ? (
+              <IconCircleCheckFilled className="h-4 w-4 text-green-500" />
+            ) : (
+              <IconSquareRoundedXFilled className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        ),
+        size: 90,
+        minSize: 80,
+      },
+      {
         accessorKey: "createBy",
         header: "Created By",
         cell: ({ row }) => (

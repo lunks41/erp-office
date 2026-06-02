@@ -109,6 +109,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
         toLocationId: initialData?.toLocationId || null,
         prepaymentPercentage: initialData?.prepaymentPercentage || 0,
         isPrepayment: initialData?.isPrepayment || false,
+        isViceVersa: initialData?.isViceVersa || false,
         seqNo: initialData?.seqNo ?? 0,
         remarks: initialData?.remarks || null,
         isActive: initialData?.isActive ?? true,
@@ -183,6 +184,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           toLocationId: initialData.toLocationId || null,
           prepaymentPercentage: initialData.prepaymentPercentage || 0,
           isPrepayment: initialData.isPrepayment || false,
+          isViceVersa: initialData.isViceVersa || false,
           seqNo: initialData.seqNo ?? 0,
           remarks: initialData.remarks || null,
           isActive: initialData.isActive ?? true,
@@ -219,6 +221,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           toLocationId: null,
           prepaymentPercentage: 0,
           isPrepayment: false,
+          isViceVersa: false,
           seqNo: 0,
           remarks: null,
           isActive: true,
@@ -303,6 +306,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
           formValues.fromLocationId ?? data.fromLocationId ?? null,
         toLocationId: formValues.toLocationId ?? data.toLocationId ?? null,
         isPrepayment: formValues.isPrepayment ?? data.isPrepayment,
+        isViceVersa: formValues.isViceVersa ?? data.isViceVersa,
         prepaymentPercentage:
           formValues.prepaymentPercentage ?? data.prepaymentPercentage,
         seqNo: formValues.seqNo ?? data.seqNo ?? 0,
@@ -462,6 +466,13 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                   label="Seq No"
                   isDisabled={mode === "view"}
                   round={0}
+                />
+                <CustomCheckbox
+                  form={form}
+                  name="isViceVersa"
+                  label="Vice Versa"
+                  labelPosition="top"
+                  isDisabled={mode === "view"}
                 />
               </div>
 

@@ -106,6 +106,7 @@ export const tariffHdSchema = z
     fromLocationId: z.number().nullable().optional(),
     toLocationId: z.number().nullable().optional(),
     isPrepayment: z.boolean(),
+    isViceVersa: z.boolean(),
     prepaymentPercentage: z
       .number()
       .min(0, "Prepayment Percentage must be 0 or greater"),

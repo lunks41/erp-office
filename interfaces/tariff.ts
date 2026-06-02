@@ -19,6 +19,7 @@ export interface ITariffHd {
   fromLocationId?: number | null
   toLocationId?: number | null
   isPrepayment: boolean
+  isViceVersa: boolean
   prepaymentPercentage: number
   seqNo?: number
   remarks?: string | null
@@ -86,6 +87,7 @@ export interface ITariff {
   additionalRate?: number
   prepaymentPercentage?: number
   isPrepayment: boolean
+  isViceVersa?: boolean
   seqNo?: number
   isDefault: boolean
   remarks?: string
@@ -153,6 +155,7 @@ export interface ITariffRPT {
   fromTransportLocationName: string
   toTransportLocationName: string
   isPrepayment: boolean
+  isViceVersa: boolean
   prepaymentPercentage: number
   displayRate: number
   basicRate: number
