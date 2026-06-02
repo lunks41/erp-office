@@ -459,13 +459,14 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                 />
               </div>
 
-              <div className="col-span-1 w-28 shrink-0">
+              <div className="col-span-1 grid grid-cols-2 items-end gap-2">
                 <CustomNumberInput
                   form={form}
                   name="seqNo"
                   label="Seq No"
                   isDisabled={mode === "view"}
                   round={0}
+                  className="min-w-0"
                 />
                 <CustomCheckbox
                   form={form}
@@ -473,6 +474,7 @@ export const TariffForm = forwardRef<TariffFormRef, TariffFormProps>(
                   label="Vice Versa"
                   labelPosition="top"
                   isDisabled={mode === "view"}
+                  className="min-w-0"
                 />
               </div>
 

@@ -248,7 +248,7 @@ export function PurchaseDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent
-        className="max-h-[95vh] w-[95vw] !max-w-none overflow-y-auto"
+        className="max-h-[95vh] w-[95vw] max-w-none! overflow-y-auto"
         onPointerDownOutside={(e) => {
           e.preventDefault()
         }}
