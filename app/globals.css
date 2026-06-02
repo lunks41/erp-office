@@ -961,3 +961,26 @@ main[id="main-content"] {
     .print-break-after  { page-break-after: always;  }
     .print-no-break     { page-break-inside: avoid;  }
 }
+
+/* react-select (multiselect + autocomplete) — theme-safe menu portal (light + .dark) */
+.react-select__menu,
+.react-select__menu-list {
+    background-color: var(--popover) !important;
+    color: var(--popover-foreground) !important;
+}
+
+.react-select__multi-value {
+    background-color: var(--muted) !important;
+}
+
+.react-select__multi-value__label {
+    color: var(--muted-foreground) !important;
+}
+
+.react-select__placeholder {
+    color: var(--muted-foreground) !important;
+}
+
+.react-select__input-container {
+    color: var(--foreground) !important;
+}

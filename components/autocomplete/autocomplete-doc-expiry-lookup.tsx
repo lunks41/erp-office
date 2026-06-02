@@ -5,12 +5,12 @@ import {
   IDocExpiryDocumentCategoryLookup,
   IDocExpiryDocumentTypeLookup,
 } from "@/interfaces/lookup"
-import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
+import { IconChevronDown, IconX } from "@tabler/icons-react"
 import { FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
-  OptionProps,
+  MultiValue,
   SingleValue,
   StylesConfig,
   components,
@@ -20,14 +20,13 @@ import {
   useDocExpiryDocumentCategoryLookup,
   useDocExpiryDocumentTypeLookup,
 } from "@/hooks/use-lookup"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 type DocExpiryLookupKind = "documentType" | "documentCategory"
 
@@ -70,7 +69,7 @@ function useLookupOptions(kind: DocExpiryLookupKind) {
 
   const query = kind === "documentType" ? types : categories
 
-  const options: FieldOption[] = React.useMemo(() => {
+  const baseOptions: FieldOption[] = React.useMemo(() => {
     const rows = query.data ?? []
     if (kind === "documentType") {
       return (rows as IDocExpiryDocumentTypeLookup[]).map((r) => ({
@@ -84,13 +83,16 @@ function useLookupOptions(kind: DocExpiryLookupKind) {
     }))
   }, [kind, query.data])
 
-  return { options, isLoading: query.isLoading, types: types.data ?? [] }
+  return { baseOptions, isLoading: query.isLoading, types: types.data ?? [] }
 }
 
 function useDocExpirySelectUi(isRequired: boolean) {
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => (
-      <components.DropdownIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
+      <components.DropdownIndicator
+        {...props}
+        innerProps={{ ...props.innerProps, tabIndex: -1 }}
+      >
         <IconChevronDown size={12} className="size-4 shrink-0 opacity-50" />
       </components.DropdownIndicator>
     )
@@ -98,25 +100,14 @@ function useDocExpirySelectUi(isRequired: boolean) {
   DropdownIndicator.displayName = "DropdownIndicator"
 
   const ClearIndicator = React.memo((props: ClearIndicatorProps<FieldOption>) => (
-    <components.ClearIndicator {...props} innerProps={{ ...props.innerProps, tabIndex: -1 }}>
+    <components.ClearIndicator
+      {...props}
+      innerProps={{ ...props.innerProps, tabIndex: -1 }}
+    >
       <IconX size={10} className="size-3 shrink-0" />
     </components.ClearIndicator>
   ))
   ClearIndicator.displayName = "ClearIndicator"
-
-  const Option = React.memo((props: OptionProps<FieldOption>) => (
-    <components.Option {...props}>
-      <div className="flex items-center gap-2">
-        <span>{props.data.label}</span>
-      </div>
-      {props.isSelected && (
-        <span className="absolute right-2 flex size-3.5 items-center justify-center">
-          <IconCheck className="size-4" />
-        </span>
-      )}
-    </components.Option>
-  ))
-  Option.displayName = "Option"
 
   const selectClassNames = React.useMemo(
     () => ({
@@ -134,17 +125,16 @@ function useDocExpirySelectUi(isRequired: boolean) {
           "bg-popover text-popover-foreground relative z-[9999] min-w-[8rem] overflow-hidden rounded-md border shadow-md mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       placeholder: () => cn("text-muted-foreground"),
       singleValue: () => cn("text-foreground"),
       valueContainer: () => cn("px-0 py-0.5 gap-1"),
       input: () => cn("text-foreground m-0 p-0"),
-      clearIndicator: () => cn("text-muted-foreground hover:text-foreground p-1 rounded-sm"),
+      clearIndicator: () =>
+        cn("text-muted-foreground hover:text-foreground p-1 rounded-sm"),
       dropdownIndicator: () => cn("text-muted-foreground p-1 rounded-sm"),
     }),
     [isRequired]
@@ -164,7 +154,6 @@ function useDocExpirySelectUi(isRequired: boolean) {
   return {
     DropdownIndicator,
     ClearIndicator,
-    Option,
     selectClassNames,
     customStyles,
   }
@@ -183,51 +172,92 @@ export function DocExpiryLookupAutocomplete<T extends FieldValues>({
   onDocumentTypeChange,
 }: DocExpiryLookupAutocompleteProps<T>) {
   const fieldName = (name ?? FIELD_NAMES[kind]) as Path<T>
-  const { options: baseOptions, isLoading, types } = useLookupOptions(kind)
+  const { baseOptions: lookupOptions, isLoading, types } = useLookupOptions(kind)
   const watchedValue = form.watch(fieldName)
-  const options = React.useMemo(() => {
-    if (!optional) return baseOptions
+
+  const baseOptions = React.useMemo(() => {
+    if (!optional) return lookupOptions
     return [
       {
         value: EMPTY_OPTION_VALUE,
-        label: optionalLabel ?? "All document types",
+        label: optionalLabel ?? ALL_LABELS[kind],
       },
-      ...baseOptions,
+      ...lookupOptions,
     ]
-  }, [baseOptions, optional, optionalLabel])
+  }, [lookupOptions, optional, optionalLabel, kind])
 
-  const { DropdownIndicator, ClearIndicator, Option, selectClassNames, customStyles } =
+  const selectedOptionId =
+    optional && (watchedValue == null || watchedValue === 0)
+      ? EMPTY_OPTION_VALUE
+      : watchedValue != null && watchedValue !== 0
+        ? watchedValue.toString()
+        : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
+  const { DropdownIndicator, ClearIndicator, selectClassNames, customStyles } =
     useDocExpirySelectUi(isRequired)
 
   const getValue = React.useCallback(() => {
     if (optional && (watchedValue == null || watchedValue === 0)) {
-      return (
-        options.find((o) => o.value === EMPTY_OPTION_VALUE) ?? null
-      )
+      return options.find((o) => o.value === EMPTY_OPTION_VALUE) ?? null
     }
     return options.find((o) => o.value === watchedValue?.toString()) ?? null
   }, [options, watchedValue, optional])
 
-  const handleChange = React.useCallback(
-    (option: SingleValue<FieldOption>) => {
-      if (optional && (!option || option.value === EMPTY_OPTION_VALUE)) {
-        form.setValue(fieldName, null as PathValue<T, Path<T>>)
-        if (kind === "documentType" && onDocumentTypeChange) {
-          onDocumentTypeChange(null)
+  const handleChange = wrapOnChange(
+    React.useCallback(
+      (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
+        const selected = Array.isArray(option) ? option[0] : option
+        markOptionSelected(!!selected)
+
+        if (optional && (!selected || selected.value === EMPTY_OPTION_VALUE)) {
+          form.setValue(fieldName, null as PathValue<T, Path<T>>)
+          if (kind === "documentType" && onDocumentTypeChange) {
+            onDocumentTypeChange(null)
+          }
+          return
         }
-        return
-      }
-      const value = option ? Number(option.value) : 0
-      form.setValue(fieldName, value as PathValue<T, Path<T>>)
-      if (kind === "documentType" && onDocumentTypeChange) {
-        const selected = option
-          ? types.find((t) => t.documentTypeId === Number(option.value)) ?? null
-          : null
-        onDocumentTypeChange(selected)
-      }
-    },
-    [form, fieldName, kind, onDocumentTypeChange, types, optional]
+        const value = selected ? Number(selected.value) : 0
+        form.setValue(fieldName, value as PathValue<T, Path<T>>)
+        if (kind === "documentType" && onDocumentTypeChange) {
+          const match = selected
+            ? types.find((t) => t.documentTypeId === Number(selected.value)) ??
+              null
+            : null
+          onDocumentTypeChange(match)
+        }
+      },
+      [
+        form,
+        fieldName,
+        kind,
+        onDocumentTypeChange,
+        types,
+        optional,
+        markOptionSelected,
+      ]
+    )
   )
+
+  handleChangeRef.current = handleChange
 
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
@@ -242,24 +272,36 @@ export function DocExpiryLookupAutocomplete<T extends FieldValues>({
         name={fieldName}
         render={({ fieldState }) => (
           <FormItem className="flex flex-col">
-            <Select
-              options={options}
-              value={getValue()}
-              onChange={handleChange}
-              placeholder={PLACEHOLDERS[kind]}
-              isDisabled={isDisabled || isLoading}
-              isClearable
-              isSearchable
-              styles={customStyles}
-              classNames={selectClassNames}
-              components={{ DropdownIndicator, ClearIndicator, Option }}
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-              menuPosition="fixed"
-              isLoading={isLoading}
-              instanceId={String(fieldName)}
-            />
+            <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
+              <Select
+                    {...searchableSelectProps}
+                                    value={getValue()}
+                onChange={handleChange}
+                onKeyDown={handleSearchableKeyDown}
+                placeholder={PLACEHOLDERS[kind]}
+                isDisabled={isDisabled || isLoading}
+                isClearable
+                isSearchable
+                styles={customStyles}
+                classNames={selectClassNames}
+                components={{
+                  DropdownIndicator,
+                  ClearIndicator,
+                  Option: SearchableOption,
+                }}
+                menuPortalTarget={
+                  typeof document !== "undefined" ? document.body : null
+                }
+                menuPosition="fixed"
+                isLoading={isLoading}
+                instanceId={String(fieldName)}
+                blurInputOnSelect
+              />
+            </div>
             {fieldState.error && (
-              <p className="text-destructive mt-1 text-xs">{fieldState.error.message}</p>
+              <p className="text-destructive mt-1 text-xs">
+                {fieldState.error.message}
+              </p>
             )}
           </FormItem>
         )}
@@ -307,17 +349,61 @@ export function DocExpiryLookupFilterSelect({
   isDisabled?: boolean
   placeholder?: string
 }) {
-  const { options: baseOptions, isLoading } = useLookupOptions(kind)
-  const { DropdownIndicator, ClearIndicator, Option, selectClassNames, customStyles } =
+  const { baseOptions: lookupOptions, isLoading } = useLookupOptions(kind)
+  const { DropdownIndicator, ClearIndicator, selectClassNames, customStyles } =
     useDocExpirySelectUi(false)
 
-  const options = React.useMemo(() => {
-    if (!allowAll) return baseOptions
+  const baseOptions = React.useMemo(() => {
+    if (!allowAll) return lookupOptions
     return [
       { value: EMPTY_OPTION_VALUE, label: allLabel ?? ALL_LABELS[kind] },
-      ...baseOptions,
+      ...lookupOptions,
     ]
-  }, [allowAll, allLabel, baseOptions, kind])
+  }, [allowAll, allLabel, lookupOptions, kind])
+
+  const selectedOptionId =
+    allowAll && value == null
+      ? EMPTY_OPTION_VALUE
+      : value != null
+        ? String(value)
+        : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
+  const handleChange = wrapOnChange(
+    React.useCallback(
+      (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
+        const selected = Array.isArray(option) ? option[0] : option
+        markOptionSelected(!!selected)
+
+        if (!selected || selected.value === EMPTY_OPTION_VALUE) {
+          onChange(null)
+          return
+        }
+        onChange(Number(selected.value))
+      },
+      [onChange, markOptionSelected]
+    )
+  )
+
+  handleChangeRef.current = handleChange
 
   const selected = React.useMemo(() => {
     if (allowAll && value == null) {
@@ -328,28 +414,32 @@ export function DocExpiryLookupFilterSelect({
 
   return (
     <div className={cn("min-w-[180px]", className)}>
-      <Select
-        options={options}
-        value={selected}
-        onChange={(option: SingleValue<FieldOption>) => {
-          if (!option || option.value === EMPTY_OPTION_VALUE) {
-            onChange(null)
-            return
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
+        <Select
+                    {...searchableSelectProps}
+                              value={selected}
+          onChange={handleChange}
+          onKeyDown={handleSearchableKeyDown}
+          placeholder={placeholder ?? PLACEHOLDERS[kind]}
+          isDisabled={isDisabled || isLoading}
+          isClearable={!allowAll}
+          isSearchable
+          styles={customStyles}
+          classNames={selectClassNames}
+          components={{
+            DropdownIndicator,
+            ClearIndicator,
+            Option: SearchableOption,
+          }}
+          menuPortalTarget={
+            typeof document !== "undefined" ? document.body : null
           }
-          onChange(Number(option.value))
-        }}
-        placeholder={placeholder ?? PLACEHOLDERS[kind]}
-        isDisabled={isDisabled || isLoading}
-        isClearable={!allowAll}
-        isSearchable
-        styles={customStyles}
-        classNames={selectClassNames}
-        components={{ DropdownIndicator, ClearIndicator, Option }}
-        menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-        menuPosition="fixed"
-        isLoading={isLoading}
-        instanceId={`doc-expiry-filter-${kind}`}
-      />
+          menuPosition="fixed"
+          isLoading={isLoading}
+          instanceId={`doc-expiry-filter-${kind}`}
+          blurInputOnSelect
+        />
+      </div>
     </div>
   )
 }

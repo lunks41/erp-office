@@ -2,17 +2,19 @@
 
 import React from "react"
 import { ICategoryLookup } from "@/interfaces/lookup"
-import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
+import { IconChevronDown, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
   components,
 } from "react-select"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { findOptionByTypedCode } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { cn } from "@/lib/utils"
 import { useCategoryLookup } from "@/hooks/use-lookup"
@@ -20,10 +22,7 @@ import { useCategoryLookup } from "@/hooks/use-lookup"
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 interface CategoryAutocompleteProps<T extends Record<string, unknown>> {
   form: UseFormReturn<T>
@@ -33,7 +32,7 @@ interface CategoryAutocompleteProps<T extends Record<string, unknown>> {
   isDisabled?: boolean
   isRequired?: boolean
   onChangeEvent?: (selectedOption: ICategoryLookup | null) => void
-  nextFieldName?: Path<T> // Added to specify the next field to focus
+  nextFieldName?: Path<T>
 }
 
 export default function CategoryAutocomplete<
@@ -46,12 +45,11 @@ export default function CategoryAutocomplete<
   className,
   isRequired = false,
   onChangeEvent,
-  nextFieldName, // Destructured from props
+  nextFieldName,
 }: CategoryAutocompleteProps<T>) {
   const { data: categorys = [], isLoading } = useCategoryLookup()
 
-  // Memoize options to prevent unnecessary recalculations
-  const options: FieldOption[] = React.useMemo(
+  const baseOptions: FieldOption[] = React.useMemo(
     () =>
       categorys.map((category: ICategoryLookup) => ({
         value: category.categoryId.toString(),
@@ -60,15 +58,65 @@ export default function CategoryAutocomplete<
     [categorys]
   )
 
-  // Handle Tab key press to focus the next field
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key === "Tab" && nextFieldName) {
-      event.preventDefault() // Prevent default Tab behavior
-      form.setFocus(nextFieldName) // Focus the next field using react-hook-form
-    }
-  }
+  const watchedValue = form && name ? form.watch(name) : null
 
-  // Custom components with display names
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
+  const handleCategoryKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
+      if (event.key === "Tab" && nextFieldName && !event.shiftKey) {
+        const container =
+          selectControlRef.current ?? (event.currentTarget as HTMLElement)
+        const input = container?.querySelector("input") as HTMLInputElement | null
+        const typed = input?.value?.trim() ?? ""
+
+        if (typed) {
+          const matched = findOptionByTypedCode(baseOptions, typed)
+          if (matched && matched.value !== selectedOptionId) {
+            handleChangeRef.current(matched as SingleValue<FieldOption>)
+            return
+          }
+        }
+
+        event.preventDefault()
+        form.setFocus(nextFieldName)
+        return
+      }
+
+      handleSearchableKeyDown(event)
+    },
+    [
+      nextFieldName,
+      form,
+      baseOptions,
+      selectedOptionId,
+      handleSearchableKeyDown,
+      selectControlRef,
+    ]
+  )
+
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
       return (
@@ -97,23 +145,6 @@ export default function CategoryAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option"
-
-  // Custom classNames for React Select (aligned with shadcn select.tsx)
   const selectClassNames = React.useMemo(
     () => ({
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
@@ -137,11 +168,9 @@ export default function CategoryAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -163,7 +192,6 @@ export default function CategoryAutocomplete<
     [isRequired]
   )
 
-  // Custom styles for React Select
   const customStyles: StylesConfig<FieldOption, boolean> = React.useMemo(
     () => ({
       control: () => ({}),
@@ -197,38 +225,72 @@ export default function CategoryAutocomplete<
     []
   )
 
-  // Handle selection change
-  const handleChange = React.useCallback(
-    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
-      const selectedOption = Array.isArray(option) ? option[0] : option
-      if (form && name) {
-        // Set the value as a number
-        const value = selectedOption ? Number(selectedOption.value) : 0
-        form.setValue(name, value as PathValue<T, Path<T>>)
-      }
-      if (onChangeEvent) {
-        const selectedCategory = selectedOption
-          ? categorys.find(
-              (u: ICategoryLookup) =>
-                u.categoryId.toString() === selectedOption.value
-            ) || null
-          : null
-        onChangeEvent(selectedCategory)
-      }
-    },
-    [form, name, onChangeEvent, categorys]
+  const handleChange = wrapOnChange(
+    React.useCallback(
+      (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
+        const selectedOption = Array.isArray(option) ? option[0] : option
+        markOptionSelected(!!selectedOption)
+
+        if (form && name) {
+          const value = selectedOption ? Number(selectedOption.value) : 0
+          form.setValue(name, value as PathValue<T, Path<T>>)
+        }
+        if (onChangeEvent) {
+          const selectedCategory = selectedOption
+            ? categorys.find(
+                (u: ICategoryLookup) =>
+                  u.categoryId.toString() === selectedOption.value
+              ) || null
+            : null
+          onChangeEvent(selectedCategory)
+        }
+      },
+      [form, name, onChangeEvent, categorys, markOptionSelected]
+    )
   )
 
-  // Get current value from form
+  handleChangeRef.current = handleChange
+
   const getValue = React.useCallback(() => {
     if (form && name) {
       const formValue = form.getValues(name)
-      return options.find((option) => option.value === formValue) || null
+      return (
+        options.find((option) => option.value === formValue?.toString()) || null
+      )
     }
     return null
   }, [form, name, options])
 
-  // Form-integrated version
+  const selectProps = {
+    ref: selectRef,
+    options,
+    onChange: handleChange,
+    onMenuClose: handleSearchableMenuClose,
+    onInputChange: handleInputChange,
+    placeholder: "Select Category...",
+    isDisabled: isDisabled || isLoading,
+    isClearable: true,
+    isSearchable: true,
+    tabSelectsValue: false,
+    isOptionDisabled: isPinnedPreviousOption,
+    filterOption: filterSearchableOption,
+    styles: customStyles,
+    classNames: selectClassNames,
+    components: {
+      DropdownIndicator,
+      ClearIndicator,
+      Option: SearchableOption,
+    },
+    className: "react-select-container",
+    classNamePrefix: "react-select__",
+    menuPortalTarget:
+      typeof document !== "undefined" ? document.body : null,
+    menuPosition: "fixed" as const,
+    isLoading,
+    loadingMessage: () => "Loading categories...",
+    blurInputOnSelect: true,
+  }
+
   if (form && name) {
     return (
       <div className={cn("flex flex-col gap-0.5", className)}>
@@ -250,33 +312,15 @@ export default function CategoryAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <Select
-                  options={options}
-                  value={getValue()}
-                  onChange={handleChange}
-                  placeholder="Select Category..."
-                  isDisabled={isDisabled || isLoading}
-                  isClearable={true}
-                  isSearchable={true}
-                    tabSelectsValue={false}
-                  styles={customStyles}
-                  classNames={selectClassNames}
-                  components={{
-                    DropdownIndicator,
-                    ClearIndicator,
-                    Option,
-                  }}
-                  className="react-select-container"
-                  classNamePrefix="react-select__"
-                  menuPortalTarget={
-                    typeof document !== "undefined" ? document.body : null
-                  }
-                  menuPosition="fixed"
-                  isLoading={isLoading}
-                  loadingMessage={() => "Loading categories..."}
-                  onKeyDown={handleKeyDown} // Attach the keydown handler
-                  tabIndex={0}
-                />
+                <div ref={selectControlRef} onKeyDown={handleCategoryKeyDown}>
+                  <Select
+                    {...searchableSelectProps}
+                    {...selectProps}
+                    instanceId={name || "category-select"}
+                    value={getValue()}
+                    onKeyDown={handleCategoryKeyDown}
+                  />
+                </div>
                 {showError && (
                   <p className="text-destructive mt-1 text-xs">
                     {error.message}
@@ -290,7 +334,6 @@ export default function CategoryAutocomplete<
     )
   }
 
-  // Standalone version (no form)
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
       {label && (
@@ -308,32 +351,14 @@ export default function CategoryAutocomplete<
           )}
         </div>
       )}
-      <Select
-        options={options}
-        onChange={handleChange}
-        placeholder="Select Category..."
-        isDisabled={isDisabled || isLoading}
-        isClearable={true}
-        isSearchable={true}
-                    tabSelectsValue={false}
-        styles={customStyles}
-        classNames={selectClassNames}
-        components={{
-          DropdownIndicator,
-          ClearIndicator,
-          Option,
-        }}
-        className="react-select-container"
-        classNamePrefix="react-select__"
-        menuPortalTarget={
-          typeof document !== "undefined" ? document.body : null
-        }
-        menuPosition="fixed"
-        isLoading={isLoading}
-        loadingMessage={() => "Loading categories..."}
-        onKeyDown={handleKeyDown} // Attach the keydown handler
-        tabIndex={0}
-      />
+      <div ref={selectControlRef} onKeyDown={handleCategoryKeyDown}>
+        <Select
+          {...searchableSelectProps}
+          {...selectProps}
+          instanceId={name || "category-select"}
+          onKeyDown={handleCategoryKeyDown}
+        />
+      </div>
     </div>
   )
 }

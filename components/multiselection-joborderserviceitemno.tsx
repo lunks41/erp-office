@@ -2,33 +2,31 @@
 
 import React from "react"
 import { IServiceItemNoLookup } from "@/interfaces/lookup"
-import {
-  IconCheck,
-  IconChevronDown,
-  IconRefresh,
-  IconX,
-} from "@tabler/icons-react"
+import { IconChevronDown, IconRefresh, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
-  StylesConfig,
   components,
 } from "react-select"
 
 import { cn } from "@/lib/utils"
+import {
+  createMultiSelectStyles,
+  getMultiSelectClassNames,
+  MultiSelectCheckboxOption,
+  type MultiSelectFieldOption,
+} from "@/components/react-select-multiselect-theme"
 import { useJobOrderChargeLookup } from "@/hooks/use-lookup"
 import { useMultiSelectSearchFilter } from "@/hooks/use-multi-select-search-filter"
 import { FormField, FormItem } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = MultiSelectFieldOption
+
+const selectClassNames = getMultiSelectClassNames()
 
 export default function JobOrderServiceItemNoMultiSelect<
   T extends Record<string, unknown>,
@@ -101,125 +99,12 @@ export default function JobOrderServiceItemNoMultiSelect<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    const { isSelected, isFocused, innerRef, innerProps, data } = props
-    return (
-      <div
-        ref={innerRef}
-        {...innerProps}
-        className={cn(
-          "hover:bg-accent flex cursor-pointer items-start gap-2 px-3 py-2 text-sm transition-colors",
-          isFocused && "bg-accent",
-          isSelected && "bg-accent/50"
-        )}
-      >
-        <div
-          className={cn(
-            "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
-            isSelected
-              ? "border-primary bg-primary text-primary-foreground"
-              : "border-input"
-          )}
-        >
-          {isSelected && <IconCheck size={12} />}
-        </div>
-        <span className="min-w-0 flex-1 leading-snug break-words whitespace-normal">
-          {data.label}
-        </span>
-      </div>
-    )
-  })
-  Option.displayName = "Option"
+  const selectControlRef = React.useRef<HTMLDivElement>(null)
+  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined)
 
-  const selectClassNames = React.useMemo(
-    () => ({
-      control: () =>
-        cn(
-          "flex min-h-[80px] w-full items-start justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors",
-          "hover:border-accent-foreground/50",
-          "focus-within:border-ring focus-within:ring-1 focus-within:ring-ring",
-          "disabled:cursor-not-allowed disabled:opacity-50"
-        ),
-      menu: () =>
-        cn(
-          "relative z-50 max-h-[300px] min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-        ),
-      menuList: () => cn("max-h-[300px] overflow-auto p-1"),
-      option: () =>
-        cn(
-          "relative cursor-pointer select-none rounded-sm px-2 py-1.5 whitespace-normal break-words"
-        ),
-      valueContainer: () =>
-        cn("flex min-w-0 flex-1 flex-wrap items-start gap-1 py-1"),
-      multiValue: () =>
-        cn(
-          "bg-muted text-muted-foreground mr-1 mt-1 inline-flex max-w-full items-start gap-1 rounded px-2 py-0.5 text-xs"
-        ),
-      multiValueLabel: () =>
-        cn("text-xs leading-snug break-words whitespace-normal"),
-      multiValueRemove: () =>
-        cn(
-          "ml-1 shrink-0 rounded-sm hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
-        ),
-      placeholder: () => cn("text-muted-foreground"),
-      input: () => cn("text-foreground"),
-    }),
-    []
-  )
-
-  const customStyles: StylesConfig<FieldOption, true> = React.useMemo(
-    () => ({
-      control: () => ({}), // Handled by classNames
-      menu: () => ({}), // Handled by classNames
-      option: () => ({}), // Handled by classNames
-      indicatorSeparator: () => ({
-        display: "none", // Hide the indicator separator
-      }),
-      valueContainer: (provided) => ({
-        ...provided,
-        padding: undefined,
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-      }),
-      input: (provided) => ({
-        ...provided,
-        margin: 0,
-        padding: 0,
-        color: "var(--foreground)",
-      }),
-      multiValue: (provided) => ({
-        ...provided,
-        maxWidth: "100%",
-      }),
-      multiValueLabel: (provided) => ({
-        ...provided,
-        whiteSpace: "normal",
-        wordBreak: "break-word",
-      }),
-      menu: (provided, state) => {
-        const controlWidth = state.selectProps.controlWidth as
-          | number
-          | undefined
-        return {
-          ...provided,
-          ...(controlWidth
-            ? { width: controlWidth, maxWidth: controlWidth }
-            : {}),
-        }
-      },
-      option: (provided) => ({
-        ...provided,
-        whiteSpace: "normal",
-        wordBreak: "break-word",
-      }),
-      menuPortal: (base) => ({
-        ...base,
-        zIndex: 9999,
-        pointerEvents: "auto",
-      }),
-    }),
-    []
+  const customStyles = React.useMemo(
+    () => createMultiSelectStyles(menuWidth),
+    [menuWidth]
   )
 
   const {
@@ -299,9 +184,6 @@ export default function JobOrderServiceItemNoMultiSelect<
     return null
   }, [form, name, options])
 
-  // Handle menu close to maintain focus on the control
-  const selectControlRef = React.useRef<HTMLDivElement>(null)
-  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
 
@@ -435,7 +317,6 @@ export default function JobOrderServiceItemNoMultiSelect<
                     onChange={handleChange}
                     onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
-                    controlWidth={menuWidth}
                     value={getValue()}
                     inputValue={filterInput}
                     onInputChange={handleInputChange}
@@ -449,7 +330,7 @@ export default function JobOrderServiceItemNoMultiSelect<
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
+                      Option: MultiSelectCheckboxOption,
                     }}
                     className="react-select-container"
                     classNamePrefix="react-select__"
@@ -518,7 +399,6 @@ export default function JobOrderServiceItemNoMultiSelect<
           onChange={handleChange}
           onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}
-          controlWidth={menuWidth}
           value={getValue()}
           inputValue={filterInput}
           onInputChange={handleInputChange}
@@ -532,7 +412,7 @@ export default function JobOrderServiceItemNoMultiSelect<
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
+            Option: MultiSelectCheckboxOption,
           }}
           className="react-select-container"
           classNamePrefix="react-select__"

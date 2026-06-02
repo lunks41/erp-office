@@ -2,17 +2,18 @@
 
 import React from "react"
 import { IAccountSetupCategoryLookup } from "@/interfaces/lookup"
-import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
+import { IconChevronDown, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
   components,
 } from "react-select"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { cn } from "@/lib/utils"
 import { useAccountSetupCategoryLookup } from "@/hooks/use-lookup"
@@ -20,10 +21,7 @@ import { useAccountSetupCategoryLookup } from "@/hooks/use-lookup"
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 interface AccountSetupCategoryAutocompleteProps<
   T extends Record<string, unknown>,
@@ -51,7 +49,7 @@ export default function AccountSetupCategoryAutocomplete<
   const { data: accountSetups = [], isLoading } =
     useAccountSetupCategoryLookup()
 
-  const options: FieldOption[] = React.useMemo(
+  const baseOptions: FieldOption[] = React.useMemo(
     () =>
       accountSetups.map((accountSetup: IAccountSetupCategoryLookup) => ({
         value: accountSetup.accSetupCategoryId.toString(),
@@ -60,33 +58,31 @@ export default function AccountSetupCategoryAutocomplete<
     [accountSetups]
   )
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key === "Tab" && !event.shiftKey) {
-      event.preventDefault()
-      const form = event.currentTarget.closest("form")
-      if (form) {
-        const focusableElements = form.querySelectorAll<HTMLElement>(
-          "button:not([disabled]), [href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([disabled]):not([tabindex='-1'])"
-        )
+  const watchedValue = form && name ? form.watch(name) : null
 
-        const currentElement = event.currentTarget
-        let currentIndex = -1
-        for (let i = 0; i < focusableElements.length; i++) {
-          if (focusableElements[i] === currentElement) {
-            currentIndex = i
-            break
-          }
-        }
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
 
-        if (currentIndex !== -1) {
-          const nextIndex = currentIndex + 1
-          if (nextIndex < focusableElements.length) {
-            focusableElements[nextIndex].focus()
-          }
-        }
-      }
-    }
-  }
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
 
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
@@ -116,22 +112,6 @@ export default function AccountSetupCategoryAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option"
-
   const selectClassNames = React.useMemo(
     () => ({
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
@@ -155,11 +135,9 @@ export default function AccountSetupCategoryAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -214,25 +192,31 @@ export default function AccountSetupCategoryAutocomplete<
     []
   )
 
-  const handleChange = React.useCallback(
-    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
-      const selectedOption = Array.isArray(option) ? option[0] : option
-      if (form && name) {
-        const value = selectedOption ? Number(selectedOption.value) : 0
-        form.setValue(name, value as PathValue<T, Path<T>>)
-      }
-      if (onChangeEvent) {
-        const selectedAccountSetupCategory = selectedOption
-          ? accountSetups.find(
-              (u: IAccountSetupCategoryLookup) =>
-                u.accSetupCategoryId.toString() === selectedOption.value
-            ) || null
-          : null
-        onChangeEvent(selectedAccountSetupCategory)
-      }
-    },
-    [form, name, onChangeEvent, accountSetups]
+  const handleChange = wrapOnChange(
+    React.useCallback(
+      (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
+        const selectedOption = Array.isArray(option) ? option[0] : option
+        markOptionSelected(!!selectedOption)
+
+        if (form && name) {
+          const value = selectedOption ? Number(selectedOption.value) : 0
+          form.setValue(name, value as PathValue<T, Path<T>>)
+        }
+        if (onChangeEvent) {
+          const selectedAccountSetupCategory = selectedOption
+            ? accountSetups.find(
+                (u: IAccountSetupCategoryLookup) =>
+                  u.accSetupCategoryId.toString() === selectedOption.value
+              ) || null
+            : null
+          onChangeEvent(selectedAccountSetupCategory)
+        }
+      },
+      [form, name, onChangeEvent, accountSetups, markOptionSelected]
+    )
   )
+
+  handleChangeRef.current = handleChange
 
   const getValue = React.useCallback(() => {
     if (form && name) {
@@ -243,6 +227,36 @@ export default function AccountSetupCategoryAutocomplete<
     }
     return null
   }, [form, name, options])
+
+  const selectProps = {
+    ref: selectRef,
+    options,
+    onChange: handleChange,
+    onMenuClose: handleSearchableMenuClose,
+    onInputChange: handleInputChange,
+    placeholder: "Select AccountSetupCategory...",
+    isDisabled: isDisabled || isLoading,
+    isClearable: true,
+    isSearchable: true,
+    tabSelectsValue: false,
+    isOptionDisabled: isPinnedPreviousOption,
+    filterOption: filterSearchableOption,
+    styles: customStyles,
+    classNames: selectClassNames,
+    components: {
+      DropdownIndicator,
+      ClearIndicator,
+      Option: SearchableOption,
+    },
+    className: "react-select-container",
+    classNamePrefix: "react-select__",
+    menuPortalTarget:
+      typeof document !== "undefined" ? document.body : null,
+    menuPosition: "fixed" as const,
+    isLoading,
+    loadingMessage: () => "Loading account setup categories...",
+    blurInputOnSelect: true,
+  }
 
   if (form && name) {
     return (
@@ -265,33 +279,17 @@ export default function AccountSetupCategoryAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <Select
-                  options={options}
-                  value={getValue()}
-                  onChange={handleChange}
-                  placeholder="Select AccountSetupCategory..."
-                  isDisabled={isDisabled || isLoading}
-                  isClearable={true}
-                  isSearchable={true}
-                    tabSelectsValue={false}
-                  styles={customStyles}
-                  classNames={selectClassNames}
-                  components={{
-                    DropdownIndicator,
-                    ClearIndicator,
-                    Option,
-                  }}
-                  className="react-select-container"
-                  classNamePrefix="react-select__"
-                  menuPortalTarget={
-                    typeof document !== "undefined" ? document.body : null
-                  }
-                  menuPosition="fixed"
-                  isLoading={isLoading}
-                  loadingMessage={() => "Loading account setup categories..."}
-                  onKeyDown={handleKeyDown}
-                  tabIndex={0}
-                />
+                <div
+                  ref={selectControlRef}
+                  onKeyDown={handleSearchableKeyDown}
+                >
+                  <Select
+                    {...searchableSelectProps}
+                    {...selectProps}
+                    instanceId={name || "accountsetupcategory-select"}
+                    value={getValue()}
+                  />
+                </div>
                 {showError && (
                   <p className="text-destructive mt-1 text-xs">
                     {error.message}
@@ -322,32 +320,13 @@ export default function AccountSetupCategoryAutocomplete<
           )}
         </div>
       )}
-      <Select
-        options={options}
-        onChange={handleChange}
-        placeholder="Select AccountSetupCategory..."
-        isDisabled={isDisabled || isLoading}
-        isClearable={true}
-        isSearchable={true}
-                    tabSelectsValue={false}
-        styles={customStyles}
-        classNames={selectClassNames}
-        components={{
-          DropdownIndicator,
-          ClearIndicator,
-          Option,
-        }}
-        className="react-select-container"
-        classNamePrefix="react-select__"
-        menuPortalTarget={
-          typeof document !== "undefined" ? document.body : null
-        }
-        menuPosition="fixed"
-        isLoading={isLoading}
-        loadingMessage={() => "Loading account setup categories..."}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-      />
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
+        <Select
+          {...searchableSelectProps}
+          {...selectProps}
+          instanceId={name || "accountsetupcategory-select"}
+        />
+      </div>
     </div>
   )
 }

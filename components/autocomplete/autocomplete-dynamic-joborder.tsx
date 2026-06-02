@@ -2,9 +2,7 @@
 
 import React, { useCallback, useState } from "react"
 import { IJobOrderLookup } from "@/interfaces/lookup"
-import {
-  IconCheck,
-  IconChevronDown,
+import { IconChevronDown,
   IconRefresh,
   IconX,
 } from "@tabler/icons-react"
@@ -13,12 +11,12 @@ import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
   components,
 } from "react-select"
-import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { cn } from "@/lib/utils"
 import { useJobOrderDynamicLookup } from "@/hooks/use-lookup"
@@ -26,10 +24,7 @@ import { useJobOrderDynamicLookup } from "@/hooks/use-lookup"
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 export default function DynamicJobOrderAutocomplete<
   T extends Record<string, unknown>,
@@ -91,7 +86,7 @@ export default function DynamicJobOrderAutocomplete<
   }, [refetch])
 
   // Memoize options to prevent unnecessary recalculations
-  const options: FieldOption[] = React.useMemo(
+  const baseOptions: FieldOption[] = React.useMemo(
     () =>
       displayJobOrders.map((jobOrder: IJobOrderLookup) => ({
         value: jobOrder.jobOrderId.toString(),
@@ -100,10 +95,37 @@ export default function DynamicJobOrderAutocomplete<
     [displayJobOrders]
   )
 
+  const watchedValue = form && name ? form.watch(name) : null
+
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options: searchableOptions,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    handleInputChange: handleSearchInputChange,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
   // Ensure the currently selected job order is present in options
   const mergedOptions: FieldOption[] = React.useMemo(() => {
     if (selectedJobOrder) {
-      const exists = options.some(
+      const exists = searchableOptions.some(
         (o) => o.value === selectedJobOrder.jobOrderId.toString()
       )
       if (!exists) {
@@ -112,12 +134,12 @@ export default function DynamicJobOrderAutocomplete<
             value: selectedJobOrder.jobOrderId.toString(),
             label: selectedJobOrder.jobOrderNo,
           },
-          ...options,
+          ...searchableOptions,
         ]
       }
     }
-    return options
-  }, [options, selectedJobOrder])
+    return searchableOptions
+  }, [searchableOptions, selectedJobOrder])
 
   // Custom components with display names
   const DropdownIndicator = React.memo(
@@ -148,21 +170,6 @@ export default function DynamicJobOrderAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option" // Custom classNames for React Select (aligned with shadcn select.tsx)
 
   const selectClassNames = React.useMemo(
     () => ({
@@ -187,11 +194,9 @@ export default function DynamicJobOrderAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -252,13 +257,8 @@ export default function DynamicJobOrderAutocomplete<
 
   // Memoize handleChange to prevent unnecessary recreations
 
-  const {
-    selectControlRef,
-    handleMenuClose,
-    handleKeyDown,
-    markOptionSelected,
-  } = useReactSelectTabNavigation()
-  const handleChange = React.useCallback(
+const handleChange = wrapOnChange(
+    React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
@@ -314,11 +314,13 @@ export default function DynamicJobOrderAutocomplete<
       }
     },
     [form, name, onChangeEvent, displayJobOrders, jobOrderNoField, markOptionSelected]
+    )
   )
 
+  handleChangeRef.current = handleChange
   // Handle input change for search
   const handleInputChange = useCallback(
-    (inputValue: string) => {
+    (inputValue: string, actionMeta: { action: string }) => {
       // If user just selected and input is being cleared, don't clear the query
       if (justSelected && inputValue === "") {
         return // Don't clear query, don't reset justSelected yet
@@ -330,8 +332,9 @@ export default function DynamicJobOrderAutocomplete<
       }
 
       setQuery(inputValue)
+      handleSearchInputChange(inputValue, actionMeta)
     },
-    [justSelected]
+    [justSelected, handleSearchInputChange]
   )
 
   // Memoize getValue to prevent unnecessary recalculations
@@ -389,25 +392,24 @@ export default function DynamicJobOrderAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+                <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
                   <Select
+                    {...searchableSelectProps}
+                    onInputChange={handleInputChange}
                     options={mergedOptions}
                     value={getValue()}
-                    onChange={handleChange}
-                    onInputChange={handleInputChange}
-                    onMenuClose={handleMenuClose}
-                    onKeyDown={handleKeyDown}
+                    onChange={handleChange}
+                    onKeyDown={handleSearchableKeyDown}
                     placeholder="Select JobOrder..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
                     isSearchable={true}
-                    tabSelectsValue={false}
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
+                      Option: SearchableOption,
                     }}
                     className="react-select-container"
                     classNamePrefix="react-select__"
@@ -468,24 +470,23 @@ export default function DynamicJobOrderAutocomplete<
           )}
         </div>
       )}
-      <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
+          {...searchableSelectProps}
+                    onInputChange={handleInputChange}
           options={mergedOptions}
-          onChange={handleChange}
-          onInputChange={handleInputChange}
-          onMenuClose={handleMenuClose}
-          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+          onKeyDown={handleSearchableKeyDown}
           placeholder="Select JobOrder..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}
           isSearchable={true}
-                    tabSelectsValue={false}
           styles={customStyles}
           classNames={selectClassNames}
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
+            Option: SearchableOption,
           }}
           className="react-select-container"
           classNamePrefix="react-select__"

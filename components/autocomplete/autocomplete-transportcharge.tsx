@@ -2,9 +2,7 @@
 
 import React from "react"
 import { IChargeLookup } from "@/interfaces/lookup"
-import {
-  IconCheck,
-  IconChevronDown,
+import { IconChevronDown,
   IconRefresh,
   IconX,
 } from "@tabler/icons-react"
@@ -13,12 +11,12 @@ import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
   components,
 } from "react-select"
-import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { cn } from "@/lib/utils"
 import { useTransportChargeLookup } from "@/hooks/use-lookup"
@@ -26,10 +24,7 @@ import { useTransportChargeLookup } from "@/hooks/use-lookup"
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 export default function TransportChargeAutocomplete<
   T extends Record<string, unknown>,
@@ -78,27 +73,33 @@ export default function TransportChargeAutocomplete<
   // Watch form value to make it reactive
   const watchedValue = form && name ? form.watch(name) : null
 
-  // Create options with selected charge at top
-  const options: FieldOption[] = React.useMemo(() => {
-    if (!form || !name || !watchedValue || watchedValue === 0) {
-      return baseOptions
-    }
 
-    const selectedValue = watchedValue.toString()
-    const selectedOption = baseOptions.find(
-      (opt) => opt.value === selectedValue
-    )
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
 
-    if (!selectedOption) {
-      return baseOptions
-    }
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
 
-    // Remove selected option from base options and put it at the top
-    const otherOptions = baseOptions.filter(
-      (opt) => opt.value !== selectedValue
-    )
-    return [selectedOption, ...otherOptions]
-  }, [form, name, baseOptions, watchedValue])
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    resetOnMenuOpen,
+    shouldSkipMenuOpenScroll,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
 
   // Custom components with display names
   const DropdownIndicator = React.memo(
@@ -129,21 +130,6 @@ export default function TransportChargeAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option" // Custom classNames for React Select (aligned with shadcn select.tsx)
 
   const selectClassNames = React.useMemo(
     () => ({
@@ -168,11 +154,9 @@ export default function TransportChargeAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -233,14 +217,8 @@ export default function TransportChargeAutocomplete<
 
   // Memoize handleChange to prevent unnecessary recreations
 
-  const {
-    selectControlRef,
-    handleMenuClose,
-    handleKeyDown,
-    resetOnMenuOpen,
-    markOptionSelected,
-  } = useReactSelectTabNavigation()
-  const handleChange = React.useCallback(
+const handleChange = wrapOnChange(
+    React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
@@ -262,8 +240,10 @@ export default function TransportChargeAutocomplete<
       }
     },
     [form, name, onChangeEvent, allTransportCharges, markOptionSelected]
+    )
   )
 
+  handleChangeRef.current = handleChange
   // Memoize getValue to prevent unnecessary recalculations
   const getValue = React.useCallback(() => {
     if (form && name) {
@@ -281,6 +261,10 @@ export default function TransportChargeAutocomplete<
   const handleMenuOpen = React.useCallback(() => {
     // Reset the option selected flag when menu opens
     resetOnMenuOpen()
+
+    if (shouldSkipMenuOpenScroll) {
+      return
+    }
 
     // Use setTimeout to ensure the menu is fully rendered
     setTimeout(() => {
@@ -310,7 +294,7 @@ export default function TransportChargeAutocomplete<
         }
       }
     }, 150)
-  }, [form, name, resetOnMenuOpen])
+  }, [form, name, resetOnMenuOpen, shouldSkipMenuOpenScroll])
 
   if (form && name) {
     return (
@@ -353,40 +337,24 @@ export default function TransportChargeAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+                <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
                   <Select
-                    options={options}
-                    value={getValue()}
+                    {...searchableSelectProps}
+                                        value={getValue()}
                     onChange={handleChange}
-                    onMenuOpen={handleMenuOpen}
-                    onMenuClose={handleMenuClose}
-                    onKeyDown={handleKeyDown}
+                    onMenuOpen={handleMenuOpen}
+                    onKeyDown={handleSearchableKeyDown}
                     placeholder="Select Charge..."
                     isDisabled={isDisabled || isLoadingAll}
                     isClearable={true}
-                    isSearchable={true}
-                    tabSelectsValue={false}
-                    filterOption={(option, inputValue) => {
-                      // Always show selected option, even if it doesn't match search
-                      const selectedValue =
-                        form && name ? form.getValues(name) : null
-                      if (
-                        selectedValue &&
-                        option.value === selectedValue.toString()
-                      ) {
-                        return true
-                      }
-                      // For other options, use default filtering
-                      return option.label
-                        .toLowerCase()
-                        .includes(inputValue.toLowerCase())
-                    }}
+                    isSearchable={true}
+
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
+                      Option: SearchableOption,
                     }}
                     className="react-select-container"
                     classNamePrefix="react-select__"
@@ -449,33 +417,23 @@ export default function TransportChargeAutocomplete<
           )}
         </div>
       )}
-      <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
-          options={options}
-          onChange={handleChange}
-          onMenuOpen={handleMenuOpen}
-          onMenuClose={handleMenuClose}
-          onKeyDown={handleKeyDown}
+                    {...searchableSelectProps}
+                              onChange={handleChange}
+          onMenuOpen={handleMenuOpen}
+          onKeyDown={handleSearchableKeyDown}
           placeholder="Select Charge..."
           isDisabled={isDisabled || isLoadingAll}
           isClearable={true}
-          isSearchable={true}
-                    tabSelectsValue={false}
-          filterOption={(option, inputValue) => {
-            // Always show selected option, even if it doesn't match search
-            const selectedValue = form && name ? form.getValues(name) : null
-            if (selectedValue && option.value === selectedValue.toString()) {
-              return true
-            }
-            // For other options, use default filtering
-            return option.label.toLowerCase().includes(inputValue.toLowerCase())
-          }}
+          isSearchable={true}
+
           styles={customStyles}
           classNames={selectClassNames}
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
+            Option: SearchableOption,
           }}
           className="react-select-container"
           classNamePrefix="react-select__"

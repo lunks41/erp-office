@@ -2,33 +2,65 @@
 
 import React from "react"
 import { IChartOfAccountLookup } from "@/interfaces/lookup"
-import {
-  IconCheck,
-  IconChevronDown,
-  IconRefresh,
-  IconX,
-} from "@tabler/icons-react"
+import { IconChevronDown, IconRefresh, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MenuListProps,
   MultiValue,
-  OptionProps,
   SingleValue,
-  StylesConfig,
   components,
 } from "react-select"
 
 import { cn } from "@/lib/utils"
+import {
+  createMultiSelectStyles,
+  getMultiSelectClassNames,
+  MultiSelectCheckboxOption,
+  type MultiSelectFieldOption,
+} from "@/components/react-select-multiselect-theme"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
 import { useMultiSelectSearchFilter } from "@/hooks/use-multi-select-search-filter"
 import { FormField, FormItem } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
+type FieldOption = MultiSelectFieldOption
+
+const selectClassNames = getMultiSelectClassNames()
+
+type ScrollAwareSelectProps = {
+  scrollToValueAfterSelect?: string | null
+  clearScrollToValue?: () => void
+}
+
+function ScrollAwareMenuList(props: MenuListProps<FieldOption, true>) {
+  const { innerRef, children, selectProps } = props
+  const { scrollToValueAfterSelect, clearScrollToValue } =
+    selectProps as typeof selectProps & ScrollAwareSelectProps
+  const optsRef = React.useRef<FieldOption[]>([])
+  optsRef.current = Array.isArray(selectProps.options)
+    ? [...selectProps.options]
+    : []
+
+  React.useEffect(() => {
+    if (!scrollToValueAfterSelect || !innerRef || typeof innerRef === "function")
+      return
+    const el = (innerRef as React.RefObject<HTMLDivElement>)?.current
+    if (!el?.children?.length) return
+
+    const index = optsRef.current.findIndex(
+      (o) => o.value === scrollToValueAfterSelect
+    )
+    if (index < 0) return
+
+    const nextIndex = Math.min(index + 1, el.children.length - 1)
+    const child = el.children[nextIndex] as HTMLElement
+    child?.scrollIntoView?.({ block: "nearest", behavior: "smooth" })
+    clearScrollToValue?.()
+  }, [scrollToValueAfterSelect, innerRef, clearScrollToValue])
+
+  return <components.MenuList {...props}>{children}</components.MenuList>
 }
 
 export default function ChartOfAccountMultiSelect<
@@ -100,134 +132,19 @@ export default function ChartOfAccountMultiSelect<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    const { isSelected, isFocused, innerRef, innerProps, data } = props
-    return (
-      <div
-        ref={innerRef}
-        {...innerProps}
-        className={cn(
-          "hover:bg-accent flex cursor-pointer items-center gap-2 px-3 py-2 text-sm transition-colors",
-          isFocused && "bg-accent",
-          isSelected && "bg-accent/50"
-        )}
-      >
-        <div
-          className={cn(
-            "flex h-4 w-4 items-center justify-center rounded border",
-            isSelected
-              ? "border-primary bg-primary text-primary-foreground"
-              : "border-input"
-          )}
-        >
-          {isSelected && <IconCheck size={12} />}
-        </div>
-        <span className="flex-1">{data.label}</span>
-      </div>
-    )
-  })
-  Option.displayName = "Option"
+  const selectControlRef = React.useRef<HTMLDivElement>(null)
+  const [menuWidth, setMenuWidth] = React.useState<number | undefined>(undefined)
 
-  const MenuList = React.useCallback(
-    function ScrollAwareMenuList(
-      props: MenuListProps<FieldOption, true>
-    ) {
-      const { innerRef, children, selectProps } = props
-      const scrollToValue = (selectProps as {
-        scrollToValueAfterSelect?: string | null
-        clearScrollToValue?: () => void
-      }).scrollToValueAfterSelect
-      const clearScroll = (selectProps as { clearScrollToValue?: () => void })
-        .clearScrollToValue
-      const optsRef = React.useRef<FieldOption[]>([])
-      optsRef.current = Array.isArray(selectProps.options)
-        ? [...selectProps.options]
-        : []
-
-      React.useEffect(() => {
-        if (!scrollToValue || !innerRef || typeof innerRef === "function")
-          return
-        const el = (innerRef as React.RefObject<HTMLDivElement>)?.current
-        if (!el?.children?.length) return
-
-        const opts = optsRef.current
-        const index = opts.findIndex((o) => o.value === scrollToValue)
-        if (index < 0) return
-
-        // Scroll to show the next option (so user sees codes after the one they selected)
-        const nextIndex = Math.min(index + 1, el.children.length - 1)
-        const child = el.children[nextIndex] as HTMLElement
-        if (child?.scrollIntoView) {
-          child.scrollIntoView({ block: "nearest", behavior: "smooth" })
-        }
-        clearScroll?.()
-      }, [scrollToValue, innerRef, clearScroll])
-
-      return <components.MenuList {...props}>{children}</components.MenuList>
-    },
-    []
+  const customStyles = React.useMemo(
+    () => createMultiSelectStyles(menuWidth),
+    [menuWidth]
   )
 
-  const selectClassNames = React.useMemo(
-    () => ({
-      control: () =>
-        cn(
-          "flex min-h-[80px] w-full items-start justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors",
-          "hover:border-accent-foreground/50",
-          "focus-within:border-ring focus-within:ring-1 focus-within:ring-ring",
-          "disabled:cursor-not-allowed disabled:opacity-50"
-        ),
-      menu: () =>
-        cn(
-          "relative z-50 max-h-[300px] min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-        ),
-      option: () =>
-        cn("relative cursor-pointer select-none rounded-sm px-2 py-1.5"),
-      multiValue: () =>
-        cn(
-          "bg-muted text-muted-foreground mr-1 mt-1 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs"
-        ),
-      multiValueLabel: () => cn("text-xs"),
-      multiValueRemove: () =>
-        cn(
-          "ml-1 rounded-sm hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
-        ),
-      placeholder: () => cn("text-muted-foreground"),
-      input: () => cn("text-foreground"),
-    }),
-    []
-  )
-
-  const customStyles: StylesConfig<FieldOption, true> = React.useMemo(
-    () => ({
-      control: () => ({}), // Handled by classNames
-      menu: () => ({}), // Handled by classNames
-      option: () => ({}), // Handled by classNames
-      indicatorSeparator: () => ({
-        display: "none", // Hide the indicator separator
-      }),
-      valueContainer: (provided) => ({
-        ...provided,
-        padding: undefined, // Use className padding
-      }),
-      input: (provided) => ({
-        ...provided,
-        margin: 0,
-        padding: 0,
-        color: "var(--foreground)",
-      }),
-      multiValue: (provided) => ({
-        ...provided,
-        wordBreak: "break-word",
-      }),
-      menuPortal: (base) => ({
-        ...base,
-        zIndex: 9999,
-        pointerEvents: "auto",
-      }),
-    }),
-    []
-  )
+  const handleMenuOpen = React.useCallback(() => {
+    if (selectControlRef.current) {
+      setMenuWidth(selectControlRef.current.getBoundingClientRect().width)
+    }
+  }, [])
 
   const [scrollToValueAfterSelect, setScrollToValueAfterSelect] =
     React.useState<string | null>(null)
@@ -321,8 +238,6 @@ export default function ChartOfAccountMultiSelect<
     return null
   }, [form, name, options])
 
-  // Handle menu close to maintain focus on the control
-  const selectControlRef = React.useRef<HTMLDivElement>(null)
   const isTabPressedRef = React.useRef(false)
   const isOptionSelectedRef = React.useRef(false)
 
@@ -448,6 +363,7 @@ export default function ChartOfAccountMultiSelect<
                     isMulti
                     options={options}
                     onChange={handleChange}
+                    onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
                     value={getValue()}
                     inputValue={filterInput}
@@ -462,8 +378,8 @@ export default function ChartOfAccountMultiSelect<
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
-                      MenuList,
+                      Option: MultiSelectCheckboxOption,
+                      MenuList: ScrollAwareMenuList,
                     }}
                     {...({
                       scrollToValueAfterSelect,
@@ -535,6 +451,7 @@ export default function ChartOfAccountMultiSelect<
           isMulti
           options={options}
           onChange={handleChange}
+          onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}
           value={getValue()}
           inputValue={filterInput}
@@ -549,8 +466,8 @@ export default function ChartOfAccountMultiSelect<
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
-            MenuList,
+            Option: MultiSelectCheckboxOption,
+            MenuList: ScrollAwareMenuList,
           }}
           {...({
             scrollToValueAfterSelect,

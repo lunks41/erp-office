@@ -1,28 +1,25 @@
 "use client"
 
 import React from "react"
-import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
+import { IconChevronDown, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
   components,
 } from "react-select"
-import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { cn } from "@/lib/utils"
 
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 // Employment type options
 const employmentTypeOptions: FieldOption[] = [
@@ -53,6 +50,34 @@ export default function EmploymentTypeAutocomplete<
   isRequired?: boolean
   onChangeEvent?: (selectedOption: string | null) => void
 }) {
+  const baseOptions = employmentTypeOptions
+
+  const watchedValue = form && name ? form.watch(name) : null
+
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
+
   // Custom components with display names
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
@@ -82,21 +107,6 @@ export default function EmploymentTypeAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option"
 
   // Custom classNames for React Select (aligned with shadcn select.tsx)
   const selectClassNames = React.useMemo(
@@ -122,11 +132,9 @@ export default function EmploymentTypeAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -187,13 +195,8 @@ export default function EmploymentTypeAutocomplete<
 
   // Memoize handleChange to prevent unnecessary recreations
 
-  const {
-    selectControlRef,
-    handleMenuClose,
-    handleKeyDown,
-    markOptionSelected,
-  } = useReactSelectTabNavigation()
-  const handleChange = React.useCallback(
+const handleChange = wrapOnChange(
+    React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
@@ -209,8 +212,10 @@ export default function EmploymentTypeAutocomplete<
       }
     },
     [form, name, onChangeEvent, markOptionSelected]
+    )
   )
 
+  handleChangeRef.current = handleChange
   // Memoize getValue to prevent unnecessary recalculations
   const getValue = React.useCallback(() => {
     if (form && name) {
@@ -245,24 +250,23 @@ export default function EmploymentTypeAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+                <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
                   <Select
+                    {...searchableSelectProps}
                     options={employmentTypeOptions}
                     value={getValue()}
                     onChange={handleChange}
-                    onMenuClose={handleMenuClose}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={handleSearchableKeyDown}
                     placeholder="Select Employment Type..."
                     isDisabled={isDisabled}
                     isClearable={true}
                     isSearchable={true}
-                    tabSelectsValue={false}
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
+                      Option: SearchableOption,
                     }}
                     className="react-select-container"
                     classNamePrefix="react-select__"
@@ -304,23 +308,22 @@ export default function EmploymentTypeAutocomplete<
           )}
         </div>
       )}
-      <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
+          {...searchableSelectProps}
           options={employmentTypeOptions}
           onChange={handleChange}
-          onMenuClose={handleMenuClose}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleSearchableKeyDown}
           placeholder="Select Employment Type..."
           isDisabled={isDisabled}
           isClearable={true}
           isSearchable={true}
-                    tabSelectsValue={false}
           styles={customStyles}
           classNames={selectClassNames}
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
+            Option: SearchableOption,
           }}
           className="react-select-container"
           classNamePrefix="react-select__"

@@ -2,9 +2,7 @@
 
 import React from "react"
 import { IChartOfAccountLookup } from "@/interfaces/lookup"
-import {
-  IconCheck,
-  IconChevronDown,
+import { IconChevronDown,
   IconRefresh,
   IconX,
 } from "@tabler/icons-react"
@@ -13,12 +11,12 @@ import Select, {
   ClearIndicatorProps,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
   components,
 } from "react-select"
-import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
 import { cn } from "@/lib/utils"
 import { useBankChartOfAccountLookup } from "@/hooks/use-lookup"
@@ -26,10 +24,7 @@ import { useBankChartOfAccountLookup } from "@/hooks/use-lookup"
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 interface BankChartOfAccountAutocompleteProps<
   T extends Record<string, unknown>,
@@ -90,7 +85,7 @@ export default function BankChartOfAccountAutocomplete<
     }
   }, [companyId, chartOfAccounts, form, name, onChangeEvent])
 
-  const options: FieldOption[] = React.useMemo(
+  const baseOptions: FieldOption[] = React.useMemo(
     () =>
       chartOfAccounts.map((chartOfAccount: IChartOfAccountLookup) => ({
         value: chartOfAccount.glId.toString(),
@@ -98,6 +93,33 @@ export default function BankChartOfAccountAutocomplete<
       })),
     [chartOfAccounts]
   )
+
+  const watchedValue = form && name ? form.watch(name) : null
+
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
+
 
   const DropdownIndicator = React.memo(
     (props: DropdownIndicatorProps<FieldOption>) => {
@@ -127,21 +149,6 @@ export default function BankChartOfAccountAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option"
 
   const selectClassNames = React.useMemo(
     () => ({
@@ -166,11 +173,9 @@ export default function BankChartOfAccountAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -226,13 +231,8 @@ export default function BankChartOfAccountAutocomplete<
   )
 
 
-  const {
-    selectControlRef,
-    handleMenuClose,
-    handleKeyDown,
-    markOptionSelected,
-  } = useReactSelectTabNavigation()
-  const handleChange = React.useCallback(
+const handleChange = wrapOnChange(
+    React.useCallback(
     (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
       const selectedOption = Array.isArray(option) ? option[0] : option
       // Mark that an option was selected (not just cleared)
@@ -253,8 +253,10 @@ export default function BankChartOfAccountAutocomplete<
       }
     },
     [form, name, onChangeEvent, chartOfAccounts, markOptionSelected]
+    )
   )
 
+  handleChangeRef.current = handleChange
   const getValue = React.useCallback(() => {
     if (form && name) {
       const formValue = form.getValues(name)
@@ -311,24 +313,22 @@ export default function BankChartOfAccountAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+                <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
                   <Select
-                    options={options}
-                    value={getValue()}
-                    onChange={handleChange}
-                    onMenuClose={handleMenuClose}
-                    onKeyDown={handleKeyDown}
+                    {...searchableSelectProps}
+                                        value={getValue()}
+                    onChange={handleChange}
+                    onKeyDown={handleSearchableKeyDown}
                     placeholder="Select Chart of Account..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
-                    isSearchable={true}
-                    tabSelectsValue={false}
+                    isSearchable={true}
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
+                      Option: SearchableOption,
                     }}
                     className="react-select-container"
                     classNamePrefix="react-select__"
@@ -390,23 +390,21 @@ export default function BankChartOfAccountAutocomplete<
           )}
         </div>
       )}
-      <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
-          options={options}
-          onChange={handleChange}
-          onMenuClose={handleMenuClose}
-          onKeyDown={handleKeyDown}
+                    {...searchableSelectProps}
+                              onChange={handleChange}
+          onKeyDown={handleSearchableKeyDown}
           placeholder="Select Chart of Account..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}
-          isSearchable={true}
-                    tabSelectsValue={false}
+          isSearchable={true}
           styles={customStyles}
           classNames={selectClassNames}
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
+            Option: SearchableOption,
           }}
           className="react-select-container"
           classNamePrefix="react-select__"

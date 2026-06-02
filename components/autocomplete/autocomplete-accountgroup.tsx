@@ -2,29 +2,26 @@
 
 import React from "react"
 import { IAccountGroupLookup } from "@/interfaces/lookup"
-import { IconCheck, IconChevronDown, IconX } from "@tabler/icons-react"
+import { IconChevronDown, IconX } from "@tabler/icons-react"
 import { Path, PathValue, UseFormReturn } from "react-hook-form"
 import Select, {
   ClearIndicatorProps,
+  components,
   DropdownIndicatorProps,
   MultiValue,
-  OptionProps,
   SingleValue,
   StylesConfig,
-  components,
 } from "react-select"
-import { useReactSelectTabNavigation } from "./use-react-select-tab-navigation"
 
 import { cn } from "@/lib/utils"
 import { useAccountGroupLookup } from "@/hooks/use-lookup"
 
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
+import type { SearchableFieldOption } from "./searchable-field-option"
+import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
 
-interface FieldOption {
-  value: string
-  label: string
-}
+type FieldOption = SearchableFieldOption
 
 export default function AccountGroupAutocomplete<
   T extends Record<string, unknown>,
@@ -47,7 +44,7 @@ export default function AccountGroupAutocomplete<
 }) {
   const { data: accountgroups = [], isLoading } = useAccountGroupLookup()
   // Memoize options to prevent unnecessary recalculations
-  const options: FieldOption[] = React.useMemo(
+  const baseOptions: FieldOption[] = React.useMemo(
     () =>
       accountgroups.map((accountgroup: IAccountGroupLookup) => ({
         value: accountgroup.accGroupId.toString(),
@@ -55,6 +52,32 @@ export default function AccountGroupAutocomplete<
       })),
     [accountgroups]
   )
+
+  const watchedValue = form && name ? form.watch(name) : null
+
+  const selectedOptionId =
+    form && name && watchedValue && watchedValue !== 0
+      ? watchedValue.toString()
+      : null
+
+  const handleChangeRef = React.useRef<
+    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => void
+  >(() => {})
+
+  const {
+    options,
+    SearchableOption,
+    selectControlRef,
+    handleSearchableKeyDown,
+    wrapOnChange,
+    markOptionSelected,
+    searchableSelectProps,
+  } = useReactSelectSearchableField({
+    baseOptions,
+    selectedOptionId,
+    onTabSelectOption: (option) =>
+      handleChangeRef.current(option as SingleValue<FieldOption>),
+  })
 
   // Custom components with display names
   const DropdownIndicator = React.memo(
@@ -85,22 +108,6 @@ export default function AccountGroupAutocomplete<
   )
   ClearIndicator.displayName = "ClearIndicator"
 
-  const Option = React.memo((props: OptionProps<FieldOption>) => {
-    return (
-      <components.Option {...props}>
-        <div className="flex items-center gap-2">
-          <span>{props.data.label}</span>
-        </div>
-        {props.isSelected && (
-          <span className="absolute right-2 flex size-3.5 items-center justify-center">
-            <IconCheck className="size-4" />
-          </span>
-        )}
-      </components.Option>
-    )
-  })
-  Option.displayName = "Option" // Custom classNames for React Select (aligned with shadcn select.tsx)
-
   const selectClassNames = React.useMemo(
     () => ({
       control: (state: { isFocused: boolean; isDisabled: boolean }) =>
@@ -124,11 +131,9 @@ export default function AccountGroupAutocomplete<
           "mt-1"
         ),
       menuList: () => cn("p-1 overflow-auto"),
-      option: (state: { isFocused: boolean; isSelected: boolean }) =>
+      option: () =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none",
-          state.isFocused && "bg-accent text-accent-foreground",
-          state.isSelected && "bg-accent text-accent-foreground"
+          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
         ),
       noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
       placeholder: () => cn("text-muted-foreground"),
@@ -186,39 +191,35 @@ export default function AccountGroupAutocomplete<
     []
   )
 
-
   // Memoize handleChange to prevent unnecessary recreations
 
-  const {
-    selectControlRef,
-    handleMenuClose,
-    handleKeyDown,
-    markOptionSelected,
-  } = useReactSelectTabNavigation()
-  const handleChange = React.useCallback(
-    (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
-      const selectedOption = Array.isArray(option) ? option[0] : option
-      // Mark that an option was selected (not just cleared)
-      markOptionSelected(!!selectedOption)
+  const handleChange = wrapOnChange(
+    React.useCallback(
+      (option: SingleValue<FieldOption> | MultiValue<FieldOption>) => {
+        const selectedOption = Array.isArray(option) ? option[0] : option
+        // Mark that an option was selected (not just cleared)
+        markOptionSelected(!!selectedOption)
 
-      if (form && name) {
-        // Set the value as a number
-        const value = selectedOption ? Number(selectedOption.value) : 0
-        form.setValue(name, value as PathValue<T, Path<T>>)
-      }
-      if (onChangeEvent) {
-        const selectedAccountGroup = selectedOption
-          ? accountgroups.find(
-              (u: IAccountGroupLookup) =>
-                u.accGroupId.toString() === selectedOption.value
-            ) || null
-          : null
-        onChangeEvent(selectedAccountGroup)
-      }
-    },
-    [form, name, onChangeEvent, accountgroups, markOptionSelected]
+        if (form && name) {
+          // Set the value as a number
+          const value = selectedOption ? Number(selectedOption.value) : 0
+          form.setValue(name, value as PathValue<T, Path<T>>)
+        }
+        if (onChangeEvent) {
+          const selectedAccountGroup = selectedOption
+            ? accountgroups.find(
+                (u: IAccountGroupLookup) =>
+                  u.accGroupId.toString() === selectedOption.value
+              ) || null
+            : null
+          onChangeEvent(selectedAccountGroup)
+        }
+      },
+      [form, name, onChangeEvent, accountgroups, markOptionSelected]
+    )
   )
 
+  handleChangeRef.current = handleChange
   // Memoize getValue to prevent unnecessary recalculations
   const getValue = React.useCallback(() => {
     if (form && name) {
@@ -229,7 +230,6 @@ export default function AccountGroupAutocomplete<
     }
     return null
   }, [form, name, options])
-
 
   if (form && name) {
     return (
@@ -252,24 +252,23 @@ export default function AccountGroupAutocomplete<
 
             return (
               <FormItem className={cn("flex flex-col", className)}>
-                <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+                <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
                   <Select
-                    options={options}
+                    {...searchableSelectProps}
                     value={getValue()}
                     onChange={handleChange}
-                    onMenuClose={handleMenuClose}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={handleSearchableKeyDown}
                     placeholder="Select AccountGroup..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
                     isSearchable={true}
-                    tabSelectsValue={false}
+
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
                       DropdownIndicator,
                       ClearIndicator,
-                      Option,
+                      Option: SearchableOption,
                     }}
                     className="react-select-container"
                     classNamePrefix="react-select__"
@@ -313,23 +312,23 @@ export default function AccountGroupAutocomplete<
           )}
         </div>
       )}
-      <div ref={selectControlRef} onKeyDown={handleKeyDown}>
+      <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
-          options={options}
+          {...searchableSelectProps}
+          value={getValue()}
           onChange={handleChange}
-          onMenuClose={handleMenuClose}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleSearchableKeyDown}
           placeholder="Select AccountGroup..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}
           isSearchable={true}
-                    tabSelectsValue={false}
+
           styles={customStyles}
           classNames={selectClassNames}
           components={{
             DropdownIndicator,
             ClearIndicator,
-            Option,
+            Option: SearchableOption,
           }}
           className="react-select-container"
           classNamePrefix="react-select__"
