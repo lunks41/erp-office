@@ -15,10 +15,8 @@ import {
   CreditTermAutocomplete,
   CurrencyAutocomplete,
 } from "@/components/autocomplete"
-import {
-  default as CustomerAutocomplete,
-  default as SupplierAutocomplete,
-} from "@/components/autocomplete/autocomplete-supplier"
+import CustomerAutocomplete from "@/components/autocomplete/autocomplete-customer"
+import SupplierAutocomplete from "@/components/autocomplete/autocomplete-supplier"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomInput from "@/components/custom/custom-input"
 import CustomSwitch from "@/components/custom/custom-switch"

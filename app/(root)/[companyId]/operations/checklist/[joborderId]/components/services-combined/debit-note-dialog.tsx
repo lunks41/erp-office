@@ -1052,7 +1052,7 @@ export default function DebitNoteDialog({
                   </Badge>
                   <Badge
                     variant="secondary"
-                    className="bg-blue-100 px-2 py-0.5 text-xs whitespace-nowrap text-primary hover:bg-blue-200"
+                    className="text-primary bg-blue-100 px-2 py-0.5 text-xs whitespace-nowrap hover:bg-blue-200"
                   >
                     {debitNoteHdState?.debitNoteDate
                       ? (() => {

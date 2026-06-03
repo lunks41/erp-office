@@ -15,10 +15,8 @@ import {
   CreditTermAutocomplete,
   CurrencyAutocomplete,
 } from "@/components/autocomplete"
-import {
-  default as CustomerAutocomplete,
-  default as SupplierAutocomplete,
-} from "@/components/autocomplete/autocomplete-customer"
+import CustomerAutocomplete from "@/components/autocomplete/autocomplete-customer"
+import SupplierAutocomplete from "@/components/autocomplete/autocomplete-supplier"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomCheckbox from "@/components/custom/custom-checkbox"
 import CustomInput from "@/components/custom/custom-input"
@@ -189,7 +187,7 @@ export default function CustomerForm({
 
               <SupplierAutocomplete
                 form={form}
-                name="customerId"
+                name="supplierId"
                 label="Supplier"
               />
               <CustomInput

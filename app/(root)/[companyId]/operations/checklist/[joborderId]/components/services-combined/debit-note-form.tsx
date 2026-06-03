@@ -1,15 +1,15 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useRef } from "react"
 import { calculateMultiplierAmount } from "@/helpers/account"
 import { IDebitNoteDt, IDebitNoteHd, IJobOrderHd } from "@/interfaces/checklist"
 import { IChargeLookup, IGstLookup } from "@/interfaces/lookup"
-import { DebitNoteDtSchemaType, debitNoteDtSchema } from "@/schemas/checklist"
+import { debitNoteDtSchema, DebitNoteDtSchemaType } from "@/schemas/checklist"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
+
 import { getData } from "@/lib/api-client"
 import { BasicSetting } from "@/lib/api-routes"
 import { parseDate } from "@/lib/date-utils"
@@ -112,8 +112,8 @@ export default function DebitNoteForm({
       ...(Number(jobData?.gstId) > 1 &&
       (Number(jobData?.gstPercentage) || 0) > 0
         ? {
-            gstId: Number(jobData.gstId),
-            gstPercentage: Number(jobData.gstPercentage),
+            gstId: Number(jobData?.gstId),
+            gstPercentage: Number(jobData?.gstPercentage ?? 0),
           }
         : {
             gstId: 1,
@@ -229,8 +229,7 @@ export default function DebitNoteForm({
     if (isConfirmed) return
     const gstId = Number(form.getValues("gstId")) || 0
     const current = editingDetailRef.current
-    const effectiveGstId =
-      gstId > 0 ? gstId : Number(current?.gstId) || 0
+    const effectiveGstId = gstId > 0 ? gstId : Number(current?.gstId) || 0
     const totAmt = form.getValues("totAmt") || 0
     const gstPct = Number(form.getValues("gstPercentage")) || 0
     if (effectiveGstId > 0) {
@@ -447,7 +446,16 @@ export default function DebitNoteForm({
         : `- ${currCode} ${formattedAmt}`
       form.setValue("remarks", newRemarks, { shouldDirty: true })
     }
-  }, [form, exhRate, priceDec, calculateTotAmt, calculateGstAmt, baseCurrencyCode, currencyCode, locAmtDec])
+  }, [
+    form,
+    exhRate,
+    priceDec,
+    calculateTotAmt,
+    calculateGstAmt,
+    baseCurrencyCode,
+    currencyCode,
+    locAmtDec,
+  ])
 
   // Handler for gstAmt change (when manually entered)
   const handleGstAmtChange = useCallback(() => {

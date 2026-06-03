@@ -348,17 +348,16 @@ export function ConsignmentImportForm({
               />
               <CustomInput
                 form={form}
-                name="billEntryNo"
-                label="Bill Entry No"
-                isDisabled={isConfirmed}
-              />
-              <CustomInput
-                form={form}
                 name="declarationNo"
                 label="Declaration No"
                 isDisabled={isConfirmed}
               />
-
+              <CustomInput
+                form={form}
+                name="billEntryNo"
+                label="Bill Entry No"
+                isDisabled={isConfirmed}
+              />
               <CustomNumberInput
                 form={form}
                 name="amountDeposited"

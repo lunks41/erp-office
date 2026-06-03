@@ -228,36 +228,6 @@ export default function AccountSetupCategoryAutocomplete<
     return null
   }, [form, name, options])
 
-  const selectProps = {
-    ref: selectRef,
-    options,
-    onChange: handleChange,
-    onMenuClose: handleSearchableMenuClose,
-    onInputChange: handleInputChange,
-    placeholder: "Select AccountSetupCategory...",
-    isDisabled: isDisabled || isLoading,
-    isClearable: true,
-    isSearchable: true,
-    tabSelectsValue: false,
-    isOptionDisabled: isPinnedPreviousOption,
-    filterOption: filterSearchableOption,
-    styles: customStyles,
-    classNames: selectClassNames,
-    components: {
-      DropdownIndicator,
-      ClearIndicator,
-      Option: SearchableOption,
-    },
-    className: "react-select-container",
-    classNamePrefix: "react-select__",
-    menuPortalTarget:
-      typeof document !== "undefined" ? document.body : null,
-    menuPosition: "fixed" as const,
-    isLoading,
-    loadingMessage: () => "Loading account setup categories...",
-    blurInputOnSelect: true,
-  }
-
   if (form && name) {
     return (
       <div className={cn("flex flex-col gap-0.5", className)}>
@@ -285,9 +255,33 @@ export default function AccountSetupCategoryAutocomplete<
                 >
                   <Select
                     {...searchableSelectProps}
-                    {...selectProps}
-                    instanceId={name || "accountsetupcategory-select"}
                     value={getValue()}
+                    onChange={handleChange}
+                    onKeyDown={handleSearchableKeyDown}
+                    placeholder="Select AccountSetupCategory..."
+                    isDisabled={isDisabled || isLoading}
+                    isClearable={true}
+                    isSearchable={true}
+                    styles={customStyles}
+                    classNames={selectClassNames}
+                    components={{
+                      DropdownIndicator,
+                      ClearIndicator,
+                      Option: SearchableOption,
+                    }}
+                    className="react-select-container"
+                    classNamePrefix="react-select__"
+                    menuPortalTarget={
+                      typeof document !== "undefined" ? document.body : null
+                    }
+                    menuPosition="fixed"
+                    isLoading={isLoading}
+                    loadingMessage={() =>
+                      "Loading account setup categories..."
+                    }
+                    tabIndex={0}
+                    blurInputOnSelect={true}
+                    instanceId={name || "accountsetupcategory-select"}
                   />
                 </div>
                 {showError && (
@@ -323,7 +317,29 @@ export default function AccountSetupCategoryAutocomplete<
       <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
           {...searchableSelectProps}
-          {...selectProps}
+          onChange={handleChange}
+          onKeyDown={handleSearchableKeyDown}
+          placeholder="Select AccountSetupCategory..."
+          isDisabled={isDisabled || isLoading}
+          isClearable={true}
+          isSearchable={true}
+          styles={customStyles}
+          classNames={selectClassNames}
+          components={{
+            DropdownIndicator,
+            ClearIndicator,
+            Option: SearchableOption,
+          }}
+          className="react-select-container"
+          classNamePrefix="react-select__"
+          menuPortalTarget={
+            typeof document !== "undefined" ? document.body : null
+          }
+          menuPosition="fixed"
+          isLoading={isLoading}
+          loadingMessage={() => "Loading account setup categories..."}
+          tabIndex={0}
+          blurInputOnSelect={true}
           instanceId={name || "accountsetupcategory-select"}
         />
       </div>
