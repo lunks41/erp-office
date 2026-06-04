@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useRef } from "react"
 import { calculateMultiplierAmount } from "@/helpers/account"
+import {
+  calculateTotalAfterVat,
+  normalizeDebitNoteLineTotals,
+} from "@/helpers/debit-note-calculations"
 import { IDebitNoteDt, IDebitNoteHd, IJobOrderHd } from "@/interfaces/checklist"
 import { IChargeLookup, IGstLookup } from "@/interfaces/lookup"
 import { debitNoteDtSchema, DebitNoteDtSchemaType } from "@/schemas/checklist"
@@ -214,15 +218,9 @@ export default function DebitNoteForm({
   const calculateTotAmtAftGst = useCallback(() => {
     const totAmt = form.getValues("totAmt") || 0
     const gstAmt = form.getValues("gstAmt") || 0
-    const calculatedTotAmtAftGst = totAmt + gstAmt
-    requestAnimationFrame(() => {
-      form.setValue("totAmtAftGst", calculatedTotAmtAftGst, {
-        shouldDirty: false,
-      })
-      // Service charge row updates only on form submit (Update button), not here
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, taskId])
+    const calculatedTotAmtAftGst = calculateTotalAfterVat(totAmt, gstAmt, amtDec)
+    form.setValue("totAmtAftGst", calculatedTotAmtAftGst, { shouldDirty: false })
+  }, [form, amtDec])
 
   // Helper function to calculate gstAmt and update related fields (uses ref so no editingDetail in deps = stable callback)
   const calculateGstAmt = useCallback(() => {
@@ -556,7 +554,7 @@ export default function DebitNoteForm({
   )
 
   const onSubmit = (data: DebitNoteDtSchemaType) => {
-    submitAction(data)
+    submitAction(normalizeDebitNoteLineTotals(data, { amtDec }))
   }
 
   // Cancel edit / clear form (aligned with invoice-details-form handleCancelEdit)

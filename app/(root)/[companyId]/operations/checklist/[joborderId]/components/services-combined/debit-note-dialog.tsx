@@ -6,7 +6,17 @@ import {
   calculateMultiplierAmount,
   calculatePercentagecAmount,
 } from "@/helpers/account"
-import { calculateDebitNoteSummary } from "@/helpers/debit-note-calculations"
+import {
+  calculateDebitNoteSummary,
+  debitNoteDetailsDifferFromSnapshot,
+  findDebitNoteHeaderInternalMismatch,
+  findDebitNoteHeaderTotalMismatches,
+  findDebitNoteLineTotalMismatches,
+  normalizeDebitNoteDetails,
+  normalizeDebitNoteLineTotals,
+  readDebitNoteDetailsFromHd,
+  readDebitNoteHeaderAmounts,
+} from "@/helpers/debit-note-calculations"
 import { openDebitNoteReportWindow } from "@/helpers/debit-note-report"
 import {
   IBulkChargeData,
@@ -22,14 +32,16 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { ListChecks, Printer, Save, Trash } from "lucide-react"
+import { AlertTriangle, ListChecks, Printer, Save, Trash } from "lucide-react"
 import { toast } from "sonner"
 
 import { getData } from "@/lib/api-client"
 import { JobOrder_DebitNote } from "@/lib/api-routes"
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
+import { formatNumber } from "@/lib/format-utils"
 import { TaskIdToName } from "@/lib/operations-utils"
 import { usePersist } from "@/hooks/use-common"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -45,6 +57,8 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { BulkDebitNoteTable } from "./debit-note-bulk-table"
 import DebitNoteForm from "./debit-note-form"
 import DebitNoteTable from "./debit-note-table"
+
+const MISMATCH_LIST_LIMIT = 8
 
 interface DebitNoteDialogProps {
   open: boolean
@@ -87,8 +101,20 @@ export default function DebitNoteDialog({
     debitNoteHd ?? ({} as IDebitNoteHd)
   )
 
-  const [details, setDetails] = useState<IDebitNoteDt[]>(
-    debitNoteHd?.data_details ?? []
+  const [details, setDetails] = useState<IDebitNoteDt[]>(() =>
+    normalizeDebitNoteDetails(readDebitNoteDetailsFromHd(debitNoteHd), {
+      amtDec,
+    })
+  )
+
+  /** Last saved snapshot from server (used to detect stale totals vs local edits). */
+  const [savedSnapshot, setSavedSnapshot] = useState<IDebitNoteDt[]>(() =>
+    readDebitNoteDetailsFromHd(debitNoteHd).map((row) => ({ ...row }))
+  )
+
+  /** Header amounts as returned from the server (before any local header updates). */
+  const [savedHeaderSnapshot, setSavedHeaderSnapshot] = useState(() =>
+    readDebitNoteHeaderAmounts(debitNoteHd)
   )
 
   const detailsRef = useRef(details)
@@ -102,10 +128,65 @@ export default function DebitNoteDialog({
   )
   const queryClient = useQueryClient()
 
-  // Update details when debitNoteHd changes
+  // Sync from server when debitNoteHd changes; normalize display lines only
   useEffect(() => {
-    setDetails(debitNoteHd?.data_details ?? [])
-  }, [debitNoteHd])
+    if (!debitNoteHd) return
+
+    setDebitNoteHdState(debitNoteHd)
+
+    const raw = readDebitNoteDetailsFromHd(debitNoteHd)
+    const headerAmounts = readDebitNoteHeaderAmounts(debitNoteHd)
+    setSavedSnapshot(raw.map((row) => ({ ...row })))
+    setSavedHeaderSnapshot(headerAmounts)
+    setDetails(normalizeDebitNoteDetails(raw, { amtDec }))
+  }, [debitNoteHd, amtDec])
+
+  const lineTotalMismatches = useMemo(
+    () => findDebitNoteLineTotalMismatches(savedSnapshot, { amtDec }),
+    [savedSnapshot, amtDec]
+  )
+
+  const headerInternalMismatch = useMemo(
+    () => findDebitNoteHeaderInternalMismatch(savedHeaderSnapshot, { amtDec }),
+    [savedHeaderSnapshot, amtDec]
+  )
+
+  const headerTotalMismatches = useMemo(
+    () =>
+      findDebitNoteHeaderTotalMismatches(
+        savedHeaderSnapshot,
+        savedSnapshot,
+        { amtDec }
+      ),
+    [savedHeaderSnapshot, savedSnapshot, amtDec]
+  )
+
+  const hasUnsavedLocalChanges = useMemo(
+    () => debitNoteDetailsDifferFromSnapshot(details, savedSnapshot, { amtDec }),
+    [details, savedSnapshot, amtDec]
+  )
+
+  const hasPersistedTotalsIssue = useMemo(
+    () =>
+      lineTotalMismatches.length > 0 ||
+      headerInternalMismatch !== null ||
+      headerTotalMismatches.length > 0,
+    [
+      lineTotalMismatches.length,
+      headerInternalMismatch,
+      headerTotalMismatches.length,
+    ]
+  )
+
+  const showTotalsCorrectionWarning = useMemo(
+    () =>
+      hasPersistedTotalsIssue ||
+      (!isConfirmed && hasUnsavedLocalChanges),
+    [hasPersistedTotalsIssue, isConfirmed, hasUnsavedLocalChanges]
+  )
+
+  const highlightSaveAction =
+    showTotalsCorrectionWarning && !isConfirmed
 
   // Update ref when details change
   useEffect(() => {
@@ -390,7 +471,7 @@ export default function DebitNoteDialog({
         createOrUpdateServiceChargeEntry(
           nextItemNo,
           clonedDetail.chargeId ?? 0,
-          clonedDetail.totAmt ?? 0,
+          clonedDetail.totAmtAftGst ?? 0,
           clonedDetail.serviceCharge,
           clonedDetail.taskId ?? 0,
           clonedDetail.gstId,
@@ -473,30 +554,32 @@ export default function DebitNoteDialog({
   // Handler for form submission (create or edit) - add to table directly
   const handleFormSubmit = useCallback(
     (data: DebitNoteDtSchemaType) => {
+      const normalized = normalizeDebitNoteLineTotals(data, { amtDec })
+
       if (modalMode === "edit" && selectedDebitNoteDetail) {
         // Update existing item
         const updatedItemNo = selectedDebitNoteDetail.itemNo
         const wasServiceCharge = selectedDebitNoteDetail.isServiceCharge
-        const isNowServiceCharge = data.isServiceCharge ?? false
+        const isNowServiceCharge = normalized.isServiceCharge ?? false
 
         setDetails((prev) =>
           prev.map((item) =>
             item.itemNo === selectedDebitNoteDetail.itemNo
               ? {
                   ...item,
-                  chargeId: data.chargeId ?? 0,
-                  qty: data.qty ?? 0,
-                  unitPrice: data.unitPrice ?? 0,
-                  totLocalAmt: data.totLocalAmt ?? 0,
-                  totAmt: data.totAmt ?? 0,
-                  gstId: data.gstId ?? 1,
-                  gstPercentage: data.gstPercentage ?? 0,
-                  gstAmt: data.gstAmt ?? 0,
-                  totAmtAftGst: data.totAmtAftGst ?? 0,
-                  remarks: data.remarks ?? "",
-                  editVersion: data.editVersion ?? 0,
+                  chargeId: normalized.chargeId ?? 0,
+                  qty: normalized.qty ?? 0,
+                  unitPrice: normalized.unitPrice ?? 0,
+                  totLocalAmt: normalized.totLocalAmt ?? 0,
+                  totAmt: normalized.totAmt ?? 0,
+                  gstId: normalized.gstId ?? 1,
+                  gstPercentage: normalized.gstPercentage ?? 0,
+                  gstAmt: normalized.gstAmt ?? 0,
+                  totAmtAftGst: normalized.totAmtAftGst ?? 0,
+                  remarks: normalized.remarks ?? "",
+                  editVersion: normalized.editVersion ?? 0,
                   isServiceCharge: isNowServiceCharge,
-                  serviceCharge: data.serviceCharge ?? 0,
+                  serviceCharge: normalized.serviceCharge ?? 0,
                 }
               : item
           )
@@ -505,36 +588,33 @@ export default function DebitNoteDialog({
         // Handle service charge entry creation/update/removal
         if (
           isNowServiceCharge &&
-          data.serviceCharge > 0 &&
-          data.totAmtAftGst > 0
+          normalized.serviceCharge > 0 &&
+          normalized.totAmtAftGst > 0
         ) {
-          // Create or update service charge entry (use totAmtAftGst for % calculation)
           createOrUpdateServiceChargeEntry(
             updatedItemNo,
-            data.chargeId ?? 0,
-            data.totAmt ?? 0,
-            data.serviceCharge,
-            data.taskId ?? 0,
-            data.gstId,
-            data.gstPercentage
+            normalized.chargeId ?? 0,
+            normalized.totAmtAftGst ?? 0,
+            normalized.serviceCharge,
+            normalized.taskId ?? 0,
+            normalized.gstId,
+            normalized.gstPercentage
           )
         } else if (wasServiceCharge && !isNowServiceCharge) {
-          // Remove service charge entry if unchecked
           removeServiceChargeEntry(updatedItemNo)
         } else if (
           wasServiceCharge &&
           isNowServiceCharge &&
-          data.totAmtAftGst > 0
+          normalized.totAmtAftGst > 0
         ) {
-          // Update existing service charge entry if totAmtAftGst changed
           createOrUpdateServiceChargeEntry(
             updatedItemNo,
-            data.chargeId ?? 0,
-            data.totAmt ?? 0,
-            data.serviceCharge ?? 0,
-            data.taskId ?? 0,
-            data.gstId,
-            data.gstPercentage
+            normalized.chargeId ?? 0,
+            normalized.totAmtAftGst ?? 0,
+            normalized.serviceCharge ?? 0,
+            normalized.taskId ?? 0,
+            normalized.gstId,
+            normalized.gstPercentage
           )
         }
 
@@ -552,38 +632,37 @@ export default function DebitNoteDialog({
           debitNoteNo: debitNoteHd?.debitNoteNo ?? "",
           itemNo: newItemNo,
           refItemNo: 0, // New items don't have refItemNo initially
-          taskId: data.taskId ?? 0,
-          chargeId: data.chargeId ?? 0,
-          qty: data.qty ?? 0,
-          unitPrice: data.unitPrice ?? 0,
-          totLocalAmt: data.totLocalAmt ?? 0,
-          totAmt: data.totAmt ?? 0,
-          gstId: data.gstId ?? 1,
-          gstPercentage: data.gstPercentage ?? 0,
-          gstAmt: data.gstAmt ?? 0,
-          totAmtAftGst: data.totAmtAftGst ?? 0,
-          remarks: data.remarks ?? "",
-          editVersion: data.editVersion ?? 0,
-          isServiceCharge: data.isServiceCharge ?? false,
-          serviceCharge: data.serviceCharge ?? 0,
+          taskId: normalized.taskId ?? 0,
+          chargeId: normalized.chargeId ?? 0,
+          qty: normalized.qty ?? 0,
+          unitPrice: normalized.unitPrice ?? 0,
+          totLocalAmt: normalized.totLocalAmt ?? 0,
+          totAmt: normalized.totAmt ?? 0,
+          gstId: normalized.gstId ?? 1,
+          gstPercentage: normalized.gstPercentage ?? 0,
+          gstAmt: normalized.gstAmt ?? 0,
+          totAmtAftGst: normalized.totAmtAftGst ?? 0,
+          remarks: normalized.remarks ?? "",
+          editVersion: normalized.editVersion ?? 0,
+          isServiceCharge: normalized.isServiceCharge ?? false,
+          serviceCharge: normalized.serviceCharge ?? 0,
         }
 
         setDetails((prev) => [...prev, newItem])
 
-        // Create service charge entry if needed (use totAmtAftGst for % calculation)
         if (
-          data.isServiceCharge &&
-          data.serviceCharge > 0 &&
-          data.totAmtAftGst > 0
+          normalized.isServiceCharge &&
+          normalized.serviceCharge > 0 &&
+          normalized.totAmtAftGst > 0
         ) {
           createOrUpdateServiceChargeEntry(
             newItemNo,
-            data.chargeId ?? 0,
-            data.totAmt ?? 0,
-            data.serviceCharge,
-            data.taskId ?? 0,
-            data.gstId,
-            data.gstPercentage
+            normalized.chargeId ?? 0,
+            normalized.totAmtAftGst ?? 0,
+            normalized.serviceCharge,
+            normalized.taskId ?? 0,
+            normalized.gstId,
+            normalized.gstPercentage
           )
         }
 
@@ -599,6 +678,7 @@ export default function DebitNoteDialog({
       selectedDebitNoteDetail,
       createOrUpdateServiceChargeEntry,
       removeServiceChargeEntry,
+      amtDec,
     ]
   )
 
@@ -661,24 +741,26 @@ export default function DebitNoteDialog({
         return
       }
 
-      // Calculate totals from details with null safety
-      const totalAmount = details.reduce(
-        (sum, detail) => sum + (detail?.totAmt ?? 0),
-        0
-      )
-      const totalGstAmount = details.reduce(
-        (sum, detail) => sum + (detail?.gstAmt ?? 0),
-        0
-      )
-      const totalAfterGst = details.reduce(
-        (sum, detail) => sum + (detail?.totAmtAftGst ?? 0),
-        0
+      const normalizedDetails = normalizeDebitNoteDetails(details ?? [], {
+        amtDec,
+      })
+      const { totalAmount, vatAmount, totalAfterVat } = calculateDebitNoteSummary(
+        normalizedDetails,
+        { amtDec }
       )
 
       // Create the complete debit note header with details (null-safe)
       // Format debitNoteDate for API submission
       const debitNoteDateValue = debitNoteHdState?.debitNoteDate ?? new Date()
       const formattedDebitNoteDate = formatDateForApi(debitNoteDateValue) || ""
+
+      setDetails(normalizedDetails)
+      setDebitNoteHdState((prev) => ({
+        ...prev,
+        totAmt: totalAmount,
+        gstAmt: vatAmount,
+        totAmtAftGst: totalAfterVat,
+      }))
 
       const newDebitNoteHd: DebitNoteHdSchemaType = {
         debitNoteId: debitNoteHdState?.debitNoteId ?? 0,
@@ -695,10 +777,10 @@ export default function DebitNoteDialog({
         nonTaxableAmt: debitNoteHdState?.nonTaxableAmt ?? 0,
         editVersion: debitNoteHdState?.editVersion ?? 0,
         totAmt: totalAmount,
-        gstAmt: totalGstAmount,
-        totAmtAftGst: totalAfterGst,
+        gstAmt: vatAmount,
+        totAmtAftGst: totalAfterVat,
         isLocked: debitNoteHdState?.isLocked ?? false,
-        data_details: details ?? [], // Include all details with null safety
+        data_details: normalizedDetails,
       }
 
       // Save the complete debit note (header + details) using the new API
@@ -723,15 +805,27 @@ export default function DebitNoteDialog({
 
           console.log("debit note response data", responseData)
 
-          setDebitNoteHdState(responseData as unknown as IDebitNoteHd)
+          const persistedDetails = normalizeDebitNoteDetails(
+            (responseData.data_details as unknown as IDebitNoteDt[]) ?? [],
+            { amtDec }
+          )
 
-          // Update details
-          setDetails(responseData.data_details as unknown as IDebitNoteDt[])
+          setDebitNoteHdState(responseData as unknown as IDebitNoteHd)
+          setDetails(persistedDetails)
+          setSavedSnapshot(persistedDetails.map((row) => ({ ...row })))
+          setSavedHeaderSnapshot(readDebitNoteHeaderAmounts(responseData))
 
           // Update header if callback is provided
           if (onUpdateHeader) {
             onUpdateHeader(responseData)
           }
+        } else {
+          setSavedSnapshot(normalizedDetails.map((row) => ({ ...row })))
+          setSavedHeaderSnapshot({
+            totAmt: totalAmount,
+            gstAmt: vatAmount,
+            totAmtAftGst: totalAfterVat,
+          })
         }
 
         // Invalidate queries with a small delay to allow clear selection to complete
@@ -759,6 +853,7 @@ export default function DebitNoteDialog({
   }, [
     debitNoteHdState,
     details,
+    amtDec,
     saveMutation,
     queryClient,
     taskId,
@@ -990,8 +1085,8 @@ export default function DebitNoteDialog({
 
   // Calculate summary totals (memoized so DebitNoteForm doesn't re-render on every dialog render)
   const summaryTotals = useMemo(
-    () => calculateDebitNoteSummary(details ?? [], { amtDec: 2 }),
-    [details]
+    () => calculateDebitNoteSummary(details ?? [], { amtDec }),
+    [details, amtDec]
   )
 
   // Handle Print Debit Note Report
@@ -1025,7 +1120,7 @@ export default function DebitNoteDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[95vh] w-[90vw] max-w-none! overflow-hidden"
+        className="flex max-h-[95vh] w-[90vw] max-w-none! flex-col overflow-y-auto"
         onPointerDownOutside={(e) => {
           e.preventDefault()
         }}
@@ -1093,7 +1188,9 @@ export default function DebitNoteDialog({
                 variant="default"
                 disabled={isConfirmed || !debitNoteHdState?.debitNoteId}
                 onClick={() => setSaveConfirmation({ isOpen: true })}
-                className="h-8 px-2"
+                className={`h-8 px-2${
+                  highlightSaveAction ? " ring-2 ring-amber-400 ring-offset-2" : ""
+                }`}
                 tabIndex={100}
               >
                 <Save className="mr-2 h-4 w-4" />
@@ -1135,6 +1232,88 @@ export default function DebitNoteDialog({
             </div>
           </div>
         </DialogHeader>
+
+        {showTotalsCorrectionWarning && (
+          <Alert
+            variant="default"
+            className="sticky top-0 z-10 shrink-0 border-2 border-amber-500 bg-amber-50 text-amber-950 shadow-md ring-2 ring-amber-400/70 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50 dark:ring-amber-500/50"
+          >
+            <AlertTriangle className="text-amber-600 dark:text-amber-400" />
+            <AlertTitle className="text-amber-900 dark:text-amber-100">
+              {isConfirmed
+                ? "Totals out of sync (read-only)"
+                : "Save required — totals out of sync"}
+            </AlertTitle>
+            <AlertDescription className="space-y-1.5 text-amber-900/90 dark:text-amber-100/90">
+              <p className="text-xs">
+                {isConfirmed ? (
+                  <>
+                    Stored totals differ from Amount + VAT. This job is
+                    confirmed — unconfirm to edit and save, or correct via admin.
+                    Reports may show old values.
+                  </>
+                ) : (
+                  <>
+                    Stored totals differ from Amount + VAT. Click{" "}
+                    <span className="font-semibold">Save</span> to update the
+                    server. Until then, reports may show old values.
+                  </>
+                )}
+              </p>
+
+              {lineTotalMismatches.length > 0 && (
+                <ul className="list-inside list-disc space-y-0.5 text-xs">
+                  {lineTotalMismatches
+                    .slice(0, MISMATCH_LIST_LIMIT)
+                    .map((row) => (
+                      <li key={row.itemNo}>
+                        Row {row.itemNo}
+                        {row.remarks ? ` — ${row.remarks}` : ""}:{" "}
+                        {formatNumber(row.storedTotAmtAftGst, amtDec)} →{" "}
+                        {formatNumber(row.correctedTotAmtAftGst, amtDec)}
+                      </li>
+                    ))}
+                  {lineTotalMismatches.length > MISMATCH_LIST_LIMIT && (
+                    <li className="list-none pl-0 italic">
+                      +{lineTotalMismatches.length - MISMATCH_LIST_LIMIT} more
+                      line(s)
+                    </li>
+                  )}
+                </ul>
+              )}
+
+              {(headerInternalMismatch || headerTotalMismatches.length > 0) &&
+                (() => {
+                  const headerTotalRow = headerTotalMismatches.find(
+                    (r) => r.field === "totAmtAftGst"
+                  )
+                  const stored =
+                    headerTotalRow?.storedValue ??
+                    headerInternalMismatch?.storedValue ??
+                    0
+                  const corrected =
+                    headerTotalRow?.correctedValue ??
+                    headerInternalMismatch?.correctedValue ??
+                    0
+                  return (
+                    <p className="text-xs">
+                      Header: {formatNumber(stored, amtDec)} →{" "}
+                      {formatNumber(corrected, amtDec)}
+                      {corrected !== stored &&
+                        ` (diff ${formatNumber(corrected - stored, amtDec)})`}
+                    </p>
+                  )
+                })()}
+
+              {hasUnsavedLocalChanges &&
+                lineTotalMismatches.length === 0 &&
+                !headerInternalMismatch &&
+                headerTotalMismatches.length === 0 && (
+                  <p className="text-xs">Unsaved line changes — Save to keep them.</p>
+                )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="@container">
           {/* Form Section */}

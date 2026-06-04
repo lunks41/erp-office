@@ -1,5 +1,5 @@
 import { IDecimal } from "@/interfaces/auth"
-import { IDebitNoteDt } from "@/interfaces/checklist"
+import { IDebitNoteDt, IDebitNoteHd } from "@/interfaces/checklist"
 
 import {
   calculateAdditionAmount,
@@ -141,6 +141,269 @@ export const calculateDebitNoteSummary = (
     vatAmount,
     totalAfterVat,
   }
+}
+
+/**
+ * Ensure line totAmtAftGst matches totAmt + gstAmt (fixes stale totals on edit/save).
+ */
+export const normalizeDebitNoteLineTotals = <
+  T extends { totAmt?: number; gstAmt?: number; totAmtAftGst?: number },
+>(
+  detail: T,
+  decimals?: Partial<IDecimal>
+): T => {
+  const totAmt = detail.totAmt ?? 0
+  const gstAmt = detail.gstAmt ?? 0
+  const totAmtAftGst = calculateTotalAfterVat(
+    totAmt,
+    gstAmt,
+    decimals?.amtDec ?? 2
+  )
+  return { ...detail, totAmt, gstAmt, totAmtAftGst }
+}
+
+/**
+ * Normalize all detail lines before persisting or displaying summary totals.
+ */
+export const normalizeDebitNoteDetails = (
+  details: IDebitNoteDt[],
+  decimals?: Partial<IDecimal>
+): IDebitNoteDt[] =>
+  details.map((detail) => normalizeDebitNoteLineTotals(detail, decimals))
+
+/** One line where stored Total (totAmtAftGst) does not equal Amount + VAT. */
+export interface DebitNoteLineTotalMismatch {
+  itemNo: number
+  remarks: string
+  totAmt: number
+  gstAmt: number
+  storedTotAmtAftGst: number
+  correctedTotAmtAftGst: number
+}
+
+/** Header fields that do not match the sum of detail lines. */
+export interface DebitNoteHeaderTotalMismatch {
+  field: "totAmt" | "gstAmt" | "totAmtAftGst"
+  label: string
+  storedValue: number
+  correctedValue: number
+}
+
+const amountEquals = (a: number, b: number, precision: number) =>
+  mathRound(a, precision) === mathRound(b, precision)
+
+/**
+ * Find lines where totAmtAftGst on record ≠ totAmt + gstAmt (before normalize).
+ */
+export const findDebitNoteLineTotalMismatches = (
+  details: IDebitNoteDt[],
+  decimals?: Partial<IDecimal>
+): DebitNoteLineTotalMismatch[] => {
+  const precision = decimals?.amtDec ?? 2
+  const mismatches: DebitNoteLineTotalMismatch[] = []
+
+  for (const detail of details) {
+    const totAmt = detail.totAmt ?? 0
+    const gstAmt = detail.gstAmt ?? 0
+    const storedTotAmtAftGst = detail.totAmtAftGst ?? 0
+    const correctedTotAmtAftGst = calculateTotalAfterVat(
+      totAmt,
+      gstAmt,
+      precision
+    )
+
+    if (amountEquals(storedTotAmtAftGst, correctedTotAmtAftGst, precision)) {
+      continue
+    }
+
+    mismatches.push({
+      itemNo: detail.itemNo ?? 0,
+      remarks: (detail.remarks ?? "").trim(),
+      totAmt,
+      gstAmt,
+      storedTotAmtAftGst,
+      correctedTotAmtAftGst,
+    })
+  }
+
+  return mismatches.sort((a, b) => a.itemNo - b.itemNo)
+}
+
+/**
+ * Header where TotAmtAftGst ≠ TotAmt + GstAmt (DB header row inconsistent).
+ */
+export const findDebitNoteHeaderInternalMismatch = (
+  header: {
+    totAmt?: number
+    gstAmt?: number
+    totAmtAftGst?: number
+  },
+  decimals?: Partial<IDecimal>
+): DebitNoteHeaderTotalMismatch | null => {
+  const precision = decimals?.amtDec ?? 2
+  const totAmt = header.totAmt ?? 0
+  const gstAmt = header.gstAmt ?? 0
+  const storedTotAmtAftGst = header.totAmtAftGst ?? 0
+  const correctedTotAmtAftGst = calculateTotalAfterVat(
+    totAmt,
+    gstAmt,
+    precision
+  )
+
+  if (amountEquals(storedTotAmtAftGst, correctedTotAmtAftGst, precision)) {
+    return null
+  }
+
+  return {
+    field: "totAmtAftGst",
+    label: "Total (header Amount + VAT)",
+    storedValue: storedTotAmtAftGst,
+    correctedValue: correctedTotAmtAftGst,
+  }
+}
+
+/**
+ * Compare current working lines to last-saved snapshot (add/update/delete/reorder).
+ * Uses raw stored values — do not normalize before compare or DB mismatches are hidden.
+ */
+export const debitNoteDetailsDifferFromSnapshot = (
+  current: IDebitNoteDt[],
+  snapshot: IDebitNoteDt[],
+  decimals?: Partial<IDecimal>
+): boolean => {
+  const precision = decimals?.amtDec ?? 2
+
+  if (current.length !== snapshot.length) return true
+
+  const snapshotByItem = new Map(snapshot.map((row) => [row.itemNo ?? 0, row]))
+
+  for (const row of current) {
+    const saved = snapshotByItem.get(row.itemNo ?? 0)
+    if (!saved) return true
+
+    const fields: (keyof IDebitNoteDt)[] = [
+      "chargeId",
+      "qty",
+      "unitPrice",
+      "totAmt",
+      "gstId",
+      "gstPercentage",
+      "gstAmt",
+      "totAmtAftGst",
+      "remarks",
+      "refItemNo",
+      "isServiceCharge",
+      "serviceCharge",
+    ]
+
+    for (const field of fields) {
+      const a = row[field]
+      const b = saved[field]
+      if (field === "remarks") {
+        if (String(a ?? "") !== String(b ?? "")) return true
+      } else if (typeof a === "boolean" || typeof b === "boolean") {
+        if (Boolean(a) !== Boolean(b)) return true
+      } else if (!amountEquals(Number(a) || 0, Number(b) || 0, precision)) {
+        return true
+      }
+    }
+  }
+
+  return false
+}
+
+/** Read header amounts from API payload (camelCase or PascalCase). */
+export const readDebitNoteHeaderAmounts = (
+  header?: IDebitNoteHd | null
+): { totAmt: number; gstAmt: number; totAmtAftGst: number } => {
+  const raw = header as Record<string, unknown> | null | undefined
+  return {
+    totAmt: Number(raw?.totAmt ?? raw?.TotAmt ?? 0) || 0,
+    gstAmt: Number(raw?.gstAmt ?? raw?.GstAmt ?? 0) || 0,
+    totAmtAftGst: Number(raw?.totAmtAftGst ?? raw?.TotAmtAftGst ?? 0) || 0,
+  }
+}
+
+/** Read detail lines from API payload (data_details or DataDetails). */
+export const readDebitNoteDetailsFromHd = (
+  header?: IDebitNoteHd | null
+): IDebitNoteDt[] => {
+  const raw = header as Record<string, unknown> | null | undefined
+  const list = raw?.data_details ?? raw?.DataDetails
+  return Array.isArray(list) ? (list as IDebitNoteDt[]) : []
+}
+
+/** Any stored total issue on lines or header (from server snapshot). */
+export const hasDebitNoteStoredTotalIssues = (
+  header: { totAmt?: number; gstAmt?: number; totAmtAftGst?: number },
+  details: IDebitNoteDt[],
+  decimals?: Partial<IDecimal>
+): boolean => {
+  if (findDebitNoteLineTotalMismatches(details, decimals).length > 0) {
+    return true
+  }
+  if (findDebitNoteHeaderInternalMismatch(header, decimals)) {
+    return true
+  }
+  if (
+    findDebitNoteHeaderTotalMismatches(header, details, decimals).length > 0
+  ) {
+    return true
+  }
+  return false
+}
+
+/**
+ * Header totals that do not match rolled-up detail lines.
+ */
+export const findDebitNoteHeaderTotalMismatches = (
+  header: {
+    totAmt?: number
+    gstAmt?: number
+    totAmtAftGst?: number
+  },
+  details: IDebitNoteDt[],
+  decimals?: Partial<IDecimal>
+): DebitNoteHeaderTotalMismatch[] => {
+  const precision = decimals?.amtDec ?? 2
+  const summary = calculateDebitNoteSummary(
+    normalizeDebitNoteDetails(details, decimals),
+    decimals
+  )
+  const checks: {
+    field: DebitNoteHeaderTotalMismatch["field"]
+    label: string
+    stored: number
+    corrected: number
+  }[] = [
+    {
+      field: "totAmt",
+      label: "Amount",
+      stored: header.totAmt ?? 0,
+      corrected: summary.totalAmount,
+    },
+    {
+      field: "gstAmt",
+      label: "VAT",
+      stored: header.gstAmt ?? 0,
+      corrected: summary.vatAmount,
+    },
+    {
+      field: "totAmtAftGst",
+      label: "Total",
+      stored: header.totAmtAftGst ?? 0,
+      corrected: summary.totalAfterVat,
+    },
+  ]
+
+  return checks
+    .filter((c) => !amountEquals(c.stored, c.corrected, precision))
+    .map((c) => ({
+      field: c.field,
+      label: c.label,
+      storedValue: c.stored,
+      correctedValue: c.corrected,
+    }))
 }
 
 /**
