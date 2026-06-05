@@ -218,8 +218,14 @@ export default function DebitNoteForm({
   const calculateTotAmtAftGst = useCallback(() => {
     const totAmt = form.getValues("totAmt") || 0
     const gstAmt = form.getValues("gstAmt") || 0
-    const calculatedTotAmtAftGst = calculateTotalAfterVat(totAmt, gstAmt, amtDec)
-    form.setValue("totAmtAftGst", calculatedTotAmtAftGst, { shouldDirty: false })
+    const calculatedTotAmtAftGst = calculateTotalAfterVat(
+      totAmt,
+      gstAmt,
+      amtDec
+    )
+    form.setValue("totAmtAftGst", calculatedTotAmtAftGst, {
+      shouldDirty: false,
+    })
   }, [form, amtDec])
 
   // Helper function to calculate gstAmt and update related fields (uses ref so no editingDetail in deps = stable callback)

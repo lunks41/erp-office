@@ -9,6 +9,7 @@ import {
 import {
   calculateDebitNoteSummary,
   debitNoteDetailsDifferFromSnapshot,
+  findDebitNoteGstMismatches,
   findDebitNoteHeaderInternalMismatch,
   findDebitNoteHeaderTotalMismatches,
   findDebitNoteLineTotalMismatches,
@@ -38,10 +39,9 @@ import { toast } from "sonner"
 import { getData } from "@/lib/api-client"
 import { JobOrder_DebitNote } from "@/lib/api-routes"
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
-import { formatNumber } from "@/lib/format-utils"
 import { TaskIdToName } from "@/lib/operations-utils"
 import { usePersist } from "@/hooks/use-common"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -57,8 +57,6 @@ import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 import { BulkDebitNoteTable } from "./debit-note-bulk-table"
 import DebitNoteForm from "./debit-note-form"
 import DebitNoteTable from "./debit-note-table"
-
-const MISMATCH_LIST_LIMIT = 8
 
 interface DebitNoteDialogProps {
   open: boolean
@@ -166,13 +164,20 @@ export default function DebitNoteDialog({
     [details, savedSnapshot, amtDec]
   )
 
+  const gstMismatches = useMemo(
+    () => findDebitNoteGstMismatches(details ?? [], { amtDec }),
+    [details, amtDec]
+  )
+
   const hasPersistedTotalsIssue = useMemo(
     () =>
       lineTotalMismatches.length > 0 ||
+      gstMismatches.length > 0 ||
       headerInternalMismatch !== null ||
       headerTotalMismatches.length > 0,
     [
       lineTotalMismatches.length,
+      gstMismatches.length,
       headerInternalMismatch,
       headerTotalMismatches.length,
     ]
@@ -1189,7 +1194,7 @@ export default function DebitNoteDialog({
                 disabled={isConfirmed || !debitNoteHdState?.debitNoteId}
                 onClick={() => setSaveConfirmation({ isOpen: true })}
                 className={`h-8 px-2${
-                  highlightSaveAction ? " ring-2 ring-amber-400 ring-offset-2" : ""
+                  highlightSaveAction ? " ring-2 ring-red-500 ring-offset-2" : ""
                 }`}
                 tabIndex={100}
               >
@@ -1235,82 +1240,15 @@ export default function DebitNoteDialog({
 
         {showTotalsCorrectionWarning && (
           <Alert
-            variant="default"
-            className="sticky top-0 z-10 shrink-0 border-2 border-amber-500 bg-amber-50 text-amber-950 shadow-md ring-2 ring-amber-400/70 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50 dark:ring-amber-500/50"
+            variant="destructive"
+            className="sticky top-0 z-10 shrink-0 border-2 border-red-500 bg-red-50 text-red-950 shadow-md dark:border-red-600 dark:bg-red-950/50 dark:text-red-50"
           >
-            <AlertTriangle className="text-amber-600 dark:text-amber-400" />
-            <AlertTitle className="text-amber-900 dark:text-amber-100">
+            <AlertTriangle className="text-red-600 dark:text-red-400" />
+            <AlertDescription className="col-start-2 text-sm font-medium text-red-900 dark:text-red-100">
+              <span className="font-semibold">Save Required:</span>{" "}
               {isConfirmed
-                ? "Totals out of sync (read-only)"
-                : "Save required — totals out of sync"}
-            </AlertTitle>
-            <AlertDescription className="space-y-1.5 text-amber-900/90 dark:text-amber-100/90">
-              <p className="text-xs">
-                {isConfirmed ? (
-                  <>
-                    Stored totals differ from Amount + VAT. This job is
-                    confirmed — unconfirm to edit and save, or correct via admin.
-                    Reports may show old values.
-                  </>
-                ) : (
-                  <>
-                    Stored totals differ from Amount + VAT. Click{" "}
-                    <span className="font-semibold">Save</span> to update the
-                    server. Until then, reports may show old values.
-                  </>
-                )}
-              </p>
-
-              {lineTotalMismatches.length > 0 && (
-                <ul className="list-inside list-disc space-y-0.5 text-xs">
-                  {lineTotalMismatches
-                    .slice(0, MISMATCH_LIST_LIMIT)
-                    .map((row) => (
-                      <li key={row.itemNo}>
-                        Row {row.itemNo}
-                        {row.remarks ? ` — ${row.remarks}` : ""}:{" "}
-                        {formatNumber(row.storedTotAmtAftGst, amtDec)} →{" "}
-                        {formatNumber(row.correctedTotAmtAftGst, amtDec)}
-                      </li>
-                    ))}
-                  {lineTotalMismatches.length > MISMATCH_LIST_LIMIT && (
-                    <li className="list-none pl-0 italic">
-                      +{lineTotalMismatches.length - MISMATCH_LIST_LIMIT} more
-                      line(s)
-                    </li>
-                  )}
-                </ul>
-              )}
-
-              {(headerInternalMismatch || headerTotalMismatches.length > 0) &&
-                (() => {
-                  const headerTotalRow = headerTotalMismatches.find(
-                    (r) => r.field === "totAmtAftGst"
-                  )
-                  const stored =
-                    headerTotalRow?.storedValue ??
-                    headerInternalMismatch?.storedValue ??
-                    0
-                  const corrected =
-                    headerTotalRow?.correctedValue ??
-                    headerInternalMismatch?.correctedValue ??
-                    0
-                  return (
-                    <p className="text-xs">
-                      Header: {formatNumber(stored, amtDec)} →{" "}
-                      {formatNumber(corrected, amtDec)}
-                      {corrected !== stored &&
-                        ` (diff ${formatNumber(corrected - stored, amtDec)})`}
-                    </p>
-                  )
-                })()}
-
-              {hasUnsavedLocalChanges &&
-                lineTotalMismatches.length === 0 &&
-                !headerInternalMismatch &&
-                headerTotalMismatches.length === 0 && (
-                  <p className="text-xs">Unsaved line changes — Save to keep them.</p>
-                )}
+                ? "Totals or VAT are out of sync. This job is confirmed — unconfirm to edit or correct via admin."
+                : "Totals or VAT are out of sync. Review each row and click Save."}
             </AlertDescription>
           </Alert>
         )}

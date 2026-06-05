@@ -40,6 +40,7 @@ import {
   CompanyCustomerAutocomplete,
   CurrencyAutocomplete,
 } from "@/components/autocomplete"
+import { CustomCheckbox } from "@/components/custom"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { CustomDateWithPresets } from "@/components/custom/custom-date-with-presets"
 
@@ -49,6 +50,7 @@ interface IReportFormData extends Record<string, unknown> {
   asOfDate: string
   customerId: string
   customerName: string
+  isOversease: boolean
   currencyId: string
   dateRangeMode: "preset" | "custom"
   dateRangePreset: string
@@ -65,6 +67,7 @@ interface IReportParameters {
   asOfDate: string | null
   customerId: number | null
   customerName: string | null
+  isOversease: boolean
   currencyId: number
   reportType: number
   amtDec: number
@@ -270,6 +273,7 @@ export default function ReportsPage() {
       asOfDate: getCurrentDate(),
       customerId: "",
       customerName: "",
+      isOversease: false,
       currencyId: "0",
       dateRangeMode: "preset",
       dateRangePreset: "current-day",
@@ -484,6 +488,7 @@ export default function ReportsPage() {
         custId > 0 && data.customerName
           ? String(data.customerName).trim()
           : null,
+      isOversease: Boolean(data.isOversease),
       currencyId: data.currencyId ? Number(data.currencyId) : 0,
       fromDate: formattedFromDate,
       toDate: formattedToDate,
@@ -517,6 +522,7 @@ export default function ReportsPage() {
       asOfDate: parameters.asOfDate,
       customerId: parameters.customerId,
       customerName: parameters.customerName ?? "",
+      isOversease: parameters.isOversease,
       currencyId: parameters.currencyId,
       reportType: parameters.reportType,
       amtDec: parameters.amtDec,
@@ -571,6 +577,7 @@ export default function ReportsPage() {
     form.reset({
       customerId: "",
       customerName: "",
+      isOversease: false,
       fromDate: getDefaultFromDate(),
       toDate: currentDate,
       asOfDate: currentDate,
@@ -675,16 +682,23 @@ export default function ReportsPage() {
                 onSubmit={form.handleSubmit(handleViewReport)}
                 className="space-y-4"
               >
-                {/* Customer & Currency side by side */}
+                {/* Customer (+ Is Oversease) & Currency side by side */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <CompanyCustomerAutocomplete
-                    form={form}
-                    name="customerId"
-                    label="Customer"
-                    companyId={companyId}
-                    isRequired={false}
-                    onChangeEvent={handleCustomerChange}
-                  />
+                  <div className="space-y-2">
+                    <CompanyCustomerAutocomplete
+                      form={form}
+                      name="customerId"
+                      label="Customer"
+                      companyId={companyId}
+                      isRequired={false}
+                      onChangeEvent={handleCustomerChange}
+                    />
+                    <CustomCheckbox
+                      form={form}
+                      name="isOversease"
+                      label="Is Oversease"
+                    />
+                  </div>
                   <CurrencyAutocomplete
                     form={form}
                     name="currencyId"

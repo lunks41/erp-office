@@ -145,6 +145,7 @@ export const calculateDebitNoteSummary = (
 
 /**
  * Ensure line totAmtAftGst matches totAmt + gstAmt (fixes stale totals on edit/save).
+ * Does not change gstAmt — VAT must be corrected manually when warned.
  */
 export const normalizeDebitNoteLineTotals = <
   T extends { totAmt?: number; gstAmt?: number; totAmtAftGst?: number },
@@ -189,6 +190,55 @@ export interface DebitNoteHeaderTotalMismatch {
   correctedValue: number
 }
 
+/** gstId 1 = zero / exempt VAT in debit note defaults. */
+export const DEBIT_NOTE_EXEMPT_GST_ID = 1
+
+export type DebitNoteGstIssueKind =
+  | "should_be_zero"
+  | "missing_percentage"
+  | "amount_wrong"
+
+/** Line where VAT amount or % does not match gstId and totAmt. */
+export interface DebitNoteGstMismatch {
+  itemNo: number
+  remarks: string
+  gstId: number
+  gstPercentage: number
+  totAmt: number
+  storedGstAmt: number
+  expectedGstAmt: number
+  issue: DebitNoteGstIssueKind
+  /** Human-readable reason for the warning banner. */
+  reason: string
+}
+
+const formatAmt = (value: number, precision: number) =>
+  mathRound(value, precision).toFixed(precision)
+
+const buildGstMismatchReason = (
+  issue: DebitNoteGstIssueKind,
+  row: {
+    gstId: number
+    gstPercentage: number
+    totAmt: number
+    storedGstAmt: number
+    expectedGstAmt: number
+  },
+  precision: number
+): string => {
+  switch (issue) {
+    case "missing_percentage":
+      return `VAT code ${row.gstId} is taxable but VAT % is 0 (Amount ${formatAmt(row.totAmt, precision)}) — change VAT code or enter VAT Amt manually`
+    case "should_be_zero":
+      if (row.gstId <= DEBIT_NOTE_EXEMPT_GST_ID) {
+        return `Exempt VAT (code ${row.gstId}): VAT amount must be 0 — stored ${formatAmt(row.storedGstAmt, precision)}. Set VAT Amt to 0 and Update`
+      }
+      return `Amount is 0: VAT amount must be 0 — stored ${formatAmt(row.storedGstAmt, precision)}`
+    case "amount_wrong":
+      return `VAT should be ${formatAmt(row.expectedGstAmt, precision)} (${row.gstPercentage}% of Amount ${formatAmt(row.totAmt, precision)}) — stored ${formatAmt(row.storedGstAmt, precision)}. Edit VAT Amt on the row and Update`
+  }
+}
+
 const amountEquals = (a: number, b: number, precision: number) =>
   mathRound(a, precision) === mathRound(b, precision)
 
@@ -224,6 +274,109 @@ export const findDebitNoteLineTotalMismatches = (
       storedTotAmtAftGst,
       correctedTotAmtAftGst,
     })
+  }
+
+  return mismatches.sort((a, b) => a.itemNo - b.itemNo)
+}
+
+/**
+ * Find lines where gstAmt / gstPercentage do not match gstId and totAmt.
+ * Uses current line values (table + new rows before Save).
+ */
+export const findDebitNoteGstMismatches = (
+  details: IDebitNoteDt[],
+  decimals?: Partial<IDecimal>
+): DebitNoteGstMismatch[] => {
+  const precision = decimals?.amtDec ?? 2
+  const mismatches: DebitNoteGstMismatch[] = []
+
+  for (const detail of details) {
+    const itemNo = detail.itemNo ?? 0
+    const remarks = (detail.remarks ?? "").trim()
+    const gstId = Number(detail.gstId) || 0
+    const gstPercentage = Number(detail.gstPercentage) || 0
+    const totAmt = detail.totAmt ?? 0
+    const gstAmt = detail.gstAmt ?? 0
+
+    if (gstId <= DEBIT_NOTE_EXEMPT_GST_ID) {
+      if (!amountEquals(gstAmt, 0, precision) || gstPercentage !== 0) {
+        const issue = "should_be_zero" as const
+        const row = {
+          gstId,
+          gstPercentage,
+          totAmt,
+          storedGstAmt: gstAmt,
+          expectedGstAmt: 0,
+        }
+        mismatches.push({
+          itemNo,
+          remarks,
+          ...row,
+          issue,
+          reason: buildGstMismatchReason(issue, row, precision),
+        })
+      }
+      continue
+    }
+
+    if (totAmt <= 0) {
+      if (!amountEquals(gstAmt, 0, precision)) {
+        const issue = "should_be_zero" as const
+        const row = {
+          gstId,
+          gstPercentage,
+          totAmt,
+          storedGstAmt: gstAmt,
+          expectedGstAmt: 0,
+        }
+        mismatches.push({
+          itemNo,
+          remarks,
+          ...row,
+          issue,
+          reason: buildGstMismatchReason(issue, row, precision),
+        })
+      }
+      continue
+    }
+
+    if (gstPercentage <= 0) {
+      const issue = "missing_percentage" as const
+      const row = {
+        gstId,
+        gstPercentage,
+        totAmt,
+        storedGstAmt: gstAmt,
+        expectedGstAmt: 0,
+      }
+      mismatches.push({
+        itemNo,
+        remarks,
+        ...row,
+        issue,
+        reason: buildGstMismatchReason(issue, row, precision),
+      })
+      continue
+    }
+
+    const expectedGstAmt = calculateVatAmount(totAmt, gstPercentage, precision)
+    if (!amountEquals(gstAmt, expectedGstAmt, precision)) {
+      const issue = "amount_wrong" as const
+      const row = {
+        gstId,
+        gstPercentage,
+        totAmt,
+        storedGstAmt: gstAmt,
+        expectedGstAmt,
+      }
+      mismatches.push({
+        itemNo,
+        remarks,
+        ...row,
+        issue,
+        reason: buildGstMismatchReason(issue, row, precision),
+      })
+    }
   }
 
   return mismatches.sort((a, b) => a.itemNo - b.itemNo)
@@ -348,6 +501,9 @@ export const hasDebitNoteStoredTotalIssues = (
   if (
     findDebitNoteHeaderTotalMismatches(header, details, decimals).length > 0
   ) {
+    return true
+  }
+  if (findDebitNoteGstMismatches(details, decimals).length > 0) {
     return true
   }
   return false
