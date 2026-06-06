@@ -33,7 +33,7 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { AlertTriangle, ListChecks, Printer, Save, Trash } from "lucide-react"
+import { ListChecks, Printer, Save, Trash } from "lucide-react"
 import { toast } from "sonner"
 
 import { getData } from "@/lib/api-client"
@@ -41,7 +41,6 @@ import { JobOrder_DebitNote } from "@/lib/api-routes"
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
 import { TaskIdToName } from "@/lib/operations-utils"
 import { usePersist } from "@/hooks/use-common"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -151,16 +150,15 @@ export default function DebitNoteDialog({
 
   const headerTotalMismatches = useMemo(
     () =>
-      findDebitNoteHeaderTotalMismatches(
-        savedHeaderSnapshot,
-        savedSnapshot,
-        { amtDec }
-      ),
+      findDebitNoteHeaderTotalMismatches(savedHeaderSnapshot, savedSnapshot, {
+        amtDec,
+      }),
     [savedHeaderSnapshot, savedSnapshot, amtDec]
   )
 
   const hasUnsavedLocalChanges = useMemo(
-    () => debitNoteDetailsDifferFromSnapshot(details, savedSnapshot, { amtDec }),
+    () =>
+      debitNoteDetailsDifferFromSnapshot(details, savedSnapshot, { amtDec }),
     [details, savedSnapshot, amtDec]
   )
 
@@ -184,14 +182,18 @@ export default function DebitNoteDialog({
   )
 
   const showTotalsCorrectionWarning = useMemo(
-    () =>
-      hasPersistedTotalsIssue ||
-      (!isConfirmed && hasUnsavedLocalChanges),
+    () => hasPersistedTotalsIssue || (!isConfirmed && hasUnsavedLocalChanges),
     [hasPersistedTotalsIssue, isConfirmed, hasUnsavedLocalChanges]
   )
 
-  const highlightSaveAction =
-    showTotalsCorrectionWarning && !isConfirmed
+  const highlightSaveAction = showTotalsCorrectionWarning && !isConfirmed
+
+  const saveRequiredMessage = useMemo(() => {
+    if (isConfirmed) {
+      return "You have changed some items but this job is confirmed. Unconfirm to save; otherwise updated data will be lost."
+    }
+    return "You have changed some items. Please make sure to save; otherwise updated data will be lost."
+  }, [isConfirmed])
 
   // Update ref when details change
   useEffect(() => {
@@ -749,10 +751,8 @@ export default function DebitNoteDialog({
       const normalizedDetails = normalizeDebitNoteDetails(details ?? [], {
         amtDec,
       })
-      const { totalAmount, vatAmount, totalAfterVat } = calculateDebitNoteSummary(
-        normalizedDetails,
-        { amtDec }
-      )
+      const { totalAmount, vatAmount, totalAfterVat } =
+        calculateDebitNoteSummary(normalizedDetails, { amtDec })
 
       // Create the complete debit note header with details (null-safe)
       // Format debitNoteDate for API submission
@@ -1194,7 +1194,7 @@ export default function DebitNoteDialog({
                 disabled={isConfirmed || !debitNoteHdState?.debitNoteId}
                 onClick={() => setSaveConfirmation({ isOpen: true })}
                 className={`h-8 px-2${
-                  highlightSaveAction ? " ring-2 ring-red-500 ring-offset-2" : ""
+                  highlightSaveAction ? "ring-2 ring-red-500 ring-offset-2" : ""
                 }`}
                 tabIndex={100}
               >
@@ -1239,18 +1239,13 @@ export default function DebitNoteDialog({
         </DialogHeader>
 
         {showTotalsCorrectionWarning && (
-          <Alert
-            variant="destructive"
-            className="sticky top-0 z-10 shrink-0 border-2 border-red-500 bg-red-50 text-red-950 shadow-md dark:border-red-600 dark:bg-red-950/50 dark:text-red-50"
+          <div
+            role="alert"
+            className="sticky top-0 z-10 flex shrink-0 items-center rounded-md border border-red-500 bg-red-100 px-3 py-2 text-sm text-red-900 dark:border-red-600 dark:bg-red-950/90 dark:text-red-50"
           >
-            <AlertTriangle className="text-red-600 dark:text-red-400" />
-            <AlertDescription className="col-start-2 text-sm font-medium text-red-900 dark:text-red-100">
-              <span className="font-semibold">Save Required:</span>{" "}
-              {isConfirmed
-                ? "Totals or VAT are out of sync. This job is confirmed — unconfirm to edit or correct via admin."
-                : "Totals or VAT are out of sync. Review each row and click Save."}
-            </AlertDescription>
-          </Alert>
+            <span className="font-semibold">Save Required:</span>
+            <span className="ml-1">{saveRequiredMessage}</span>
+          </div>
         )}
 
         <div className="@container">

@@ -159,11 +159,12 @@ export function DownloadTariffForm({
               isRequired={!isAllPorts}
               isDisabled={isAllPorts}
             />
-            <div className="flex items-end pb-2">
+            <div>
               <CustomCheckbox
                 form={downloadForm}
                 name="isAllPorts"
                 label="All Ports"
+                labelPosition="side"
               />
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ChangeEvent } from "react"
 import { useParams } from "next/navigation"
+import { isChecklistPostedJob } from "@/helpers/project"
 import type { IJobOrderHd } from "@/interfaces/checklist"
 import { usePermissionStore } from "@/stores/permission-store"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -13,19 +14,17 @@ import { z } from "zod"
 import { JobOrder } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { OperationsStatus } from "@/lib/operations-utils"
-import { ModuleId, OperationsTransactionId, cn } from "@/lib/utils"
+import { cn, ModuleId, OperationsTransactionId } from "@/lib/utils"
 import { searchJobOrdersDirect } from "@/hooks/use-checklist"
 import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import CustomCheckbox from "@/components/custom/custom-checkbox"
 import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
-
-import { isChecklistPostedJob } from "@/helpers/project"
 
 import { ChecklistTable } from "./components/checklist-table"
 
@@ -33,6 +32,7 @@ import { ChecklistTable } from "./components/checklist-table"
 const dateFilterSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  isAllTime: z.boolean().optional(),
 })
 
 type DateFilterFormType = z.infer<typeof dateFilterSchema>
@@ -107,7 +107,6 @@ export default function ChecklistPage() {
   const [searchInput, setSearchInput] = useState("") // This is for the input field only
   const [selectedStatus, setSelectedStatus] = useState("Pending")
   const [isLoading, setIsLoading] = useState(true)
-  const [isAllTime, setIsAllTime] = useState(false)
   // When user types in search box → true (fetch all data); when empty → false
   const isAllTimeCommitted = (searchQuery ?? "").trim().length > 0
 
@@ -133,8 +132,11 @@ export default function ChecklistPage() {
     defaultValues: {
       startDate: format(defaultStartDate, "dd/MM/yyyy"),
       endDate: format(today, "dd/MM/yyyy"),
+      isAllTime: false,
     },
   })
+
+  const isAllTime = dateFilterForm.watch("isAllTime") ?? false
 
   // API hooks for job order using useGetWithDatesAndPagination
   const {
@@ -202,12 +204,12 @@ export default function ChecklistPage() {
     setSearchQuery("") // Clear the search query → isAllTimeCommitted becomes false
     setSearchInput("") // Clear the input field
     setSelectedStatus("All")
-    setIsAllTime(false) // Uncheck "All data" when Clear is clicked
     setCurrentPage(1)
     // Reset form values
     dateFilterForm.reset({
       startDate: format(defaultStartDate, "dd/MM/yyyy"),
       endDate: format(today, "dd/MM/yyyy"),
+      isAllTime: false,
     })
     // Refetch with cleared search
     refetchJobOrder()
@@ -284,8 +286,7 @@ export default function ChecklistPage() {
           job.isActive === true
       ).length,
       Posted: apiData.filter(
-        (job: IJobOrderHd) =>
-          job.isActive === true && isChecklistPostedJob(job)
+        (job: IJobOrderHd) => job.isActive === true && isChecklistPostedJob(job)
       ).length,
       InActive: apiData.filter((job: IJobOrderHd) => job.isActive === false)
         .length,
@@ -332,45 +333,43 @@ export default function ChecklistPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
             <Form {...dateFilterForm}>
-              <div className="flex items-center gap-1">
-                <span className="text-muted-foreground text-xs whitespace-nowrap">
-                  From
-                </span>
-                <CustomDateNew
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-2">
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground text-xs whitespace-nowrap">
+                    From
+                  </span>
+                  <CustomDateNew
+                    form={dateFilterForm}
+                    name="startDate"
+                    onChangeEvent={handleStartDateChange}
+                    className="w-full sm:w-[150px]"
+                    isFutureShow={true}
+                    isRequired={!isAllTime}
+                    isDisabled={isAllTime}
+                  />
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground text-xs whitespace-nowrap">
+                    To
+                  </span>
+                  <CustomDateNew
+                    form={dateFilterForm}
+                    name="endDate"
+                    onChangeEvent={handleEndDateChange}
+                    isFutureShow={true}
+                    className="w-full sm:w-[150px]"
+                    isRequired={!isAllTime}
+                    isDisabled={isAllTime}
+                  />
+                </div>
+                <CustomCheckbox
                   form={dateFilterForm}
-                  name="startDate"
-                  onChangeEvent={handleStartDateChange}
-                  className="w-full sm:w-[150px]"
-                  isFutureShow={true}
-                  isRequired={!isAllTime}
-                  isDisabled={isAllTime}
-                />
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-muted-foreground text-xs whitespace-nowrap">
-                  To
-                </span>
-                <CustomDateNew
-                  form={dateFilterForm}
-                  name="endDate"
-                  onChangeEvent={handleEndDateChange}
-                  isFutureShow={true}
-                  className="w-full sm:w-[150px]"
-                  isRequired={!isAllTime}
-                  isDisabled={isAllTime}
+                  name="isAllTime"
+                  label="All data"
+                  labelPosition="side"
                 />
               </div>
             </Form>
-            {/* All data checkbox */}
-            <label className="flex cursor-pointer items-center gap-2 text-sm">
-              <Checkbox
-                checked={isAllTime}
-                onCheckedChange={(checked) => setIsAllTime(checked === true)}
-              />
-              <span className="text-muted-foreground whitespace-nowrap">
-                All data
-              </span>
-            </label>
             <div className="flex items-center gap-1">
               <Input
                 type="text"

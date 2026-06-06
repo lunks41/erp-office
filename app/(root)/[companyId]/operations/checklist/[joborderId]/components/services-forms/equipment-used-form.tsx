@@ -503,6 +503,7 @@ export function EquipmentUsedForm({
                     form={form}
                     name="isNotes"
                     label="Is Notes"
+                    labelPosition="top"
                     isDisabled={isConfirmed}
                   />
                 </div>

@@ -104,9 +104,11 @@ export default function AttendanceStatusAutocomplete<
           >
             {props.data.value}
           </div>
-          <div className="flex flex-col">
-            <span className="font-medium">{props.data.label}</span>
-            <span className="text-muted-foreground text-xs">
+          <div className="flex min-w-0 flex-col">
+            <span className="wrap-break-word font-medium whitespace-normal">
+              {props.data.label}
+            </span>
+            <span className="text-muted-foreground wrap-break-word text-xs whitespace-normal">
               {props.data.description}
             </span>
           </div>
@@ -164,7 +166,7 @@ export default function AttendanceStatusAutocomplete<
       menuList: () => "max-h-[300px] overflow-y-auto",
       option: (state: { isSelected: boolean; isFocused: boolean }) =>
         cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1 text-xs outline-none transition-colors",
+          "relative flex w-full cursor-default select-none items-start rounded-sm px-2 py-1.5 text-xs outline-none transition-colors",
           state.isFocused && "bg-accent text-accent-foreground",
           state.isSelected && "bg-accent text-accent-foreground"
         ),

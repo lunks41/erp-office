@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { calculateAdditionAmount } from "@/helpers/account"
 import { IApDebitNoteDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
 import { ColumnDef, Row } from "@tanstack/react-table"
@@ -169,19 +170,17 @@ export default function DebitNoteDetailsTable({
         </div>
       ),
     },
-
     ...(visible?.m_GstId
       ? [
           {
-            accessorKey: "gstPercentage",
-            header: "VAT %",
-            size: 50,
-            cell: ({ row }: { row: { original: IApDebitNoteDt } }) => (
-              <div className="truncate text-right">
-                {formatNumber(row.original.gstPercentage, 2)}
-              </div>
-            ),
+            accessorKey: "gstName",
+            header: "VAT",
+            size: 100,
           },
+        ]
+      : []),
+    ...(visible?.m_GstId
+      ? [
           {
             accessorKey: "gstAmt",
             header: "VAT Amount",
@@ -194,6 +193,23 @@ export default function DebitNoteDetailsTable({
           },
         ]
       : []),
+    {
+      id: "totAmtAftGst",
+      header: "Total After VAT",
+      size: 100,
+      cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
+        <div className="truncate text-right">
+          {formatNumber(
+            calculateAdditionAmount(
+              Number(row.original.totAmt) || 0,
+              Number(row.original.gstAmt) || 0,
+              amtDec
+            ),
+            amtDec
+          )}
+        </div>
+      ),
+    },
     ...(visible?.m_BillQTY
       ? [
           {
@@ -216,29 +232,6 @@ export default function DebitNoteDetailsTable({
         </div>
       ),
     },
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "totCtyAmt",
-            header: "Country Amount",
-            size: 100,
-            cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
-              <div className="truncate text-right">
-                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
-              </div>
-            ),
-          } as ColumnDef<IApDebitNoteDt>,
-        ]
-      : []),
-    ...(visible?.m_GstId
-      ? [
-          {
-            accessorKey: "gstName",
-            header: "VAT",
-            size: 100,
-          },
-        ]
-      : []),
     ...(visible?.m_GstId
       ? [
           {
@@ -253,6 +246,37 @@ export default function DebitNoteDetailsTable({
           },
         ]
       : []),
+    {
+      id: "totLocalAmtAftGst",
+      header: "Total Local After VAT",
+      size: 100,
+      cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
+        <div className="truncate text-right">
+          {formatNumber(
+            calculateAdditionAmount(
+              Number(row.original.totLocalAmt) || 0,
+              Number(row.original.gstLocalAmt) || 0,
+              locAmtDec
+            ),
+            locAmtDec
+          )}
+        </div>
+      ),
+    },
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "totCtyAmt",
+            header: "Country Amount",
+            size: 100,
+            cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
+              <div className="truncate text-right">
+                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IApDebitNoteDt>,
+        ]
+      : []),
     ...(visible?.m_CtyCurr && visible?.m_GstId
       ? [
           {
@@ -262,6 +286,27 @@ export default function DebitNoteDetailsTable({
             cell: ({ row }: { row: { original: IApDebitNoteDt } }) => (
               <div className="truncate text-right">
                 {formatNumber(row.original.gstCtyAmt, locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IApDebitNoteDt>,
+        ]
+      : []),
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            id: "totCtyAmtAftGst",
+            header: "Total Country After VAT",
+            size: 100,
+            cell: ({ row }: { row: Row<IApDebitNoteDt> }) => (
+              <div className="truncate text-right">
+                {formatNumber(
+                  calculateAdditionAmount(
+                    Number(row.original.totCtyAmt) || 0,
+                    Number(row.original.gstCtyAmt) || 0,
+                    locAmtDec
+                  ),
+                  locAmtDec
+                )}
               </div>
             ),
           } as ColumnDef<IApDebitNoteDt>,

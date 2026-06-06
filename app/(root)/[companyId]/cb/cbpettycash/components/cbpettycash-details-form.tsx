@@ -164,11 +164,11 @@ const CbPettyCashDetailsForm = React.forwardRef<
 
     // State for duplicate check query data
     const [duplicateCheckData, setDuplicateCheckData] = useState<{
-      InvoiceDate: string
-      InvoiceNo: string
-      SupplierName: string
-      ExcludePaymentId?: string
-      ExcludeItemNo?: string
+      invoiceDate: string
+      invoiceNo: string
+      supplierName: string
+      excludePaymentId?: string
+      excludeItemNo?: string
     } | null>(null)
     const [shouldCheckDuplicate, setShouldCheckDuplicate] = useState(false)
 
@@ -183,16 +183,26 @@ const CbPettyCashDetailsForm = React.forwardRef<
 
     // Handle query response
     useEffect(() => {
-      if (checkDuplicateSupplierInvoiceQuery.data && shouldCheckDuplicate) {
-        const response = checkDuplicateSupplierInvoiceQuery.data
-        // Check if result > 0 (duplicates found)
-        if (response?.result > 0 && response?.message) {
-          setApiDuplicateMessage(response.message)
-          setShowApiDuplicateConfirmation(true)
-        }
-        setShouldCheckDuplicate(false)
+      if (
+        !shouldCheckDuplicate ||
+        checkDuplicateSupplierInvoiceQuery.isFetching ||
+        !checkDuplicateSupplierInvoiceQuery.isSuccess
+      ) {
+        return
       }
-    }, [checkDuplicateSupplierInvoiceQuery.data, shouldCheckDuplicate])
+
+      const response = checkDuplicateSupplierInvoiceQuery.data
+      if (response?.result > 0 && response?.message) {
+        setApiDuplicateMessage(response.message)
+        setShowApiDuplicateConfirmation(true)
+      }
+      setShouldCheckDuplicate(false)
+    }, [
+      checkDuplicateSupplierInvoiceQuery.data,
+      checkDuplicateSupplierInvoiceQuery.isFetching,
+      checkDuplicateSupplierInvoiceQuery.isSuccess,
+      shouldCheckDuplicate,
+    ])
 
     // Handle query error
     useEffect(() => {
@@ -306,8 +316,12 @@ const CbPettyCashDetailsForm = React.forwardRef<
       reValidateMode: "onChange",
       defaultValues: editingDetail
         ? {
-            paymentId: editingDetail.paymentId ?? "0",
-            paymentNo: editingDetail.paymentNo ?? "",
+            paymentId:
+              editingDetail.paymentId && editingDetail.paymentId !== "0"
+                ? editingDetail.paymentId
+                : (Hdform.getValues("paymentId") ?? "0"),
+            paymentNo:
+              editingDetail.paymentNo || Hdform.getValues("paymentNo") || "",
             itemNo: editingDetail.itemNo ?? getNextItemNo(),
             seqNo: editingDetail.seqNo ?? getNextItemNo(),
             invoiceDate: (() => {
@@ -723,8 +737,12 @@ const CbPettyCashDetailsForm = React.forwardRef<
 
         // Determine if editing detail is job-specific or department-specific
         form.reset({
-          paymentId: editingDetail.paymentId ?? "0",
-          paymentNo: editingDetail.paymentNo ?? "",
+          paymentId:
+            editingDetail.paymentId && editingDetail.paymentId !== "0"
+              ? editingDetail.paymentId
+              : (Hdform.getValues("paymentId") ?? "0"),
+          paymentNo:
+            editingDetail.paymentNo || Hdform.getValues("paymentNo") || "",
           itemNo: editingDetail.itemNo ?? nextItemNo,
           seqNo: editingDetail.seqNo ?? nextItemNo,
           invoiceDate: (() => {
@@ -920,8 +938,12 @@ const CbPettyCashDetailsForm = React.forwardRef<
         const populatedData = populateCodeNameFields(updatedData)
 
         const rowData: ICbPettyCashDt = {
-          paymentId: updatedData.paymentId ?? "0",
-          paymentNo: updatedData.paymentNo ?? "",
+          paymentId:
+            updatedData.paymentId && updatedData.paymentId !== "0"
+              ? updatedData.paymentId
+              : (Hdform.getValues("paymentId") ?? "0"),
+          paymentNo:
+            updatedData.paymentNo || Hdform.getValues("paymentNo") || "",
           itemNo: updatedData.itemNo ?? currentItemNo,
           seqNo: updatedData.seqNo ?? currentItemNo,
           glId: populatedData.glId ?? defaultGlId,
@@ -1095,17 +1117,19 @@ const CbPettyCashDetailsForm = React.forwardRef<
           return // Skip if date cannot be formatted
         }
 
-        const paymentId = Number(currentData.paymentId)
-        const itemNo = Number(currentData.itemNo)
-        const isEditingExistingLine =
-          editingDetail != null && paymentId > 0 && itemNo > 0
+        const detailPaymentId = Number(currentData.paymentId) || 0
+        const headerPaymentId = Number(Hdform.getValues("paymentId")) || 0
+        const paymentId =
+          detailPaymentId > 0 ? detailPaymentId : headerPaymentId
+        const itemNo = Number(currentData.itemNo) || 0
+        const shouldExcludeCurrentLine = paymentId > 0 && itemNo > 0
 
         // Set query data and enable the query
         setDuplicateCheckData({
           invoiceDate: formattedInvoiceDate,
           invoiceNo: currentData.invoiceNo || "",
           supplierName: currentData.supplierName || "",
-          ...(isEditingExistingLine
+          ...(shouldExcludeCurrentLine
             ? {
                 excludePaymentId: String(paymentId),
                 excludeItemNo: String(itemNo),

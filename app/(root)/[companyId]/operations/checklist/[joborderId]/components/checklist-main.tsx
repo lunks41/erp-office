@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
+import { isStatusCancelled } from "@/helpers/project"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
 import { IJobOrderHd } from "@/interfaces/checklist"
 import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
@@ -20,7 +21,6 @@ import { FieldErrors, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { isStatusCancelled } from "@/helpers/project"
 import { getData } from "@/lib/api-client"
 import { BasicSetting } from "@/lib/api-routes"
 import {
@@ -1000,6 +1000,17 @@ export function ChecklistMain({
               </div>
               <div className="mb-4 border-b border-gray-200"></div>
               <div className="grid grid-cols-4 gap-2 pt-2">
+                {isCancelledStatus && !isConfirmed && (
+                  <div className="col-span-4 rounded-md border-2 border-red-300 bg-linear-to-r from-red-50 to-rose-100 p-3 dark:border-red-800 dark:from-red-950/40 dark:to-rose-950/30">
+                    <CustomTextarea
+                      form={form}
+                      name="cancelRemarks"
+                      label="Cancel Remarks"
+                      isRequired={isCancelledStatus}
+                      isDisabled={isConfirmed}
+                    />
+                  </div>
+                )}
                 <CustomDateNew
                   form={form}
                   name="jobOrderDate"
@@ -1183,9 +1194,13 @@ export function ChecklistMain({
                   isRequired={true}
                   isDisabled={isPosted ?? false}
                   onChangeEvent={(status) => {
-                    form.setValue("jobStatusName", status?.jobStatusName ?? "", {
-                      shouldValidate: true,
-                    })
+                    form.setValue(
+                      "jobStatusName",
+                      status?.jobStatusName ?? "",
+                      {
+                        shouldValidate: true,
+                      }
+                    )
                     void form.trigger("cancelRemarks")
                   }}
                 />
@@ -1195,15 +1210,6 @@ export function ChecklistMain({
                     name="remarks"
                     label="Remarks"
                     isRequired={false}
-                    isDisabled={isConfirmed}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <CustomTextarea
-                    form={form}
-                    name="cancelRemarks"
-                    label="Cancel Remarks"
-                    isRequired={isCancelledStatus}
                     isDisabled={isConfirmed}
                   />
                 </div>
@@ -1325,6 +1331,7 @@ export function ChecklistMain({
                     form={form}
                     name="isActive"
                     label="Active"
+                    labelPosition="side"
                     isRequired={false}
                     isDisabled={isConfirmed}
                   />
@@ -1332,6 +1339,7 @@ export function ChecklistMain({
                     form={form}
                     name="isPost"
                     label="Posted"
+                    labelPosition="side"
                     isRequired={false}
                     isDisabled
                   />

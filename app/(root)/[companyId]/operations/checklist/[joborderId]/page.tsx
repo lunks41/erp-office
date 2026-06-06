@@ -245,6 +245,17 @@ export default function JobOrderDetailsPage() {
               {jobOrderResponse.data.jobStatusName}
             </Badge>
           )}
+          {jobOrderResponse?.data?.cancelRemarks?.trim() && (
+            <div
+              className="flex h-8 max-w-md min-w-0 items-center gap-2 rounded-md border-2 border-red-300 bg-linear-to-r from-red-50 to-rose-100 px-3 text-sm font-medium text-red-800 shadow-sm dark:border-red-800 dark:from-red-950/40 dark:to-rose-950/30 dark:text-red-200"
+              title={jobOrderResponse.data.cancelRemarks}
+            >
+              <span className="shrink-0 font-semibold">Cancel Remarks:</span>
+              <span className="truncate">
+                {jobOrderResponse.data.cancelRemarks}
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Badge

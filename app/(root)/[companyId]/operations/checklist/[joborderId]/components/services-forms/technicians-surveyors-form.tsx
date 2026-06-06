@@ -266,12 +266,14 @@ export function TechniciansSurveyorsForm({
                 form={form}
                 name="isTransport"
                 label="Is Transport"
+                labelPosition="top"
                 isDisabled={isConfirmed}
               />
               <CustomCheckbox
                 form={form}
                 name="isHotel"
                 label="Is Hotel"
+                labelPosition="top"
                 isDisabled={isConfirmed}
               />
             </div>

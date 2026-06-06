@@ -12,7 +12,6 @@ import Select, {
   DropdownIndicatorProps,
   MultiValue,
   SingleValue,
-  StylesConfig,
   components,
 } from "react-select"
 import { cn } from "@/lib/utils"
@@ -22,6 +21,10 @@ import {
 } from "@/hooks/use-lookup"
 import type { SearchableFieldOption } from "./searchable-field-option"
 import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
+import {
+  createSearchableSelectClassNames,
+  searchableSelectWrapStyles,
+} from "./react-select-searchable-styles"
 
 import { FormField, FormItem } from "../ui/form"
 import { Label } from "../ui/label"
@@ -110,46 +113,11 @@ function useDocExpirySelectUi(isRequired: boolean) {
   ClearIndicator.displayName = "ClearIndicator"
 
   const selectClassNames = React.useMemo(
-    () => ({
-      control: (state: { isFocused: boolean; isDisabled: boolean }) =>
-        cn(
-          "border-gray-400 dark:border-gray-500 flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-0.5 text-xs shadow-xs transition-[color,box-shadow] outline-none",
-          "focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-          state.isFocused ? "border-ring ring-ring/50 ring-[3px]" : "",
-          state.isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-          isRequired && !state.isDisabled && "bg-yellow-50 dark:bg-yellow-950/20",
-          "h-7.5 min-h-7.5"
-        ),
-      menu: () =>
-        cn(
-          "bg-popover text-popover-foreground relative z-[9999] min-w-[8rem] overflow-hidden rounded-md border shadow-md mt-1"
-        ),
-      menuList: () => cn("p-1 overflow-auto"),
-      option: () =>
-        cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
-        ),
-      placeholder: () => cn("text-muted-foreground"),
-      singleValue: () => cn("text-foreground"),
-      valueContainer: () => cn("px-0 py-0.5 gap-1"),
-      input: () => cn("text-foreground m-0 p-0"),
-      clearIndicator: () =>
-        cn("text-muted-foreground hover:text-foreground p-1 rounded-sm"),
-      dropdownIndicator: () => cn("text-muted-foreground p-1 rounded-sm"),
-    }),
+    () => createSearchableSelectClassNames(isRequired),
     [isRequired]
   )
 
-  const customStyles: StylesConfig<FieldOption, false> = React.useMemo(
-    () => ({
-      control: () => ({}),
-      menu: () => ({}),
-      option: () => ({}),
-      indicatorSeparator: () => ({ display: "none" }),
-      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-    }),
-    []
-  )
+  const customStyles = searchableSelectWrapStyles
 
   return {
     DropdownIndicator,
@@ -276,12 +244,17 @@ export function DocExpiryLookupAutocomplete<T extends FieldValues>({
               <Select
                     {...searchableSelectProps}
                                     value={getValue()}
-                onChange={handleChange}
+                onChange={handleChange}
+
+
                 onKeyDown={handleSearchableKeyDown}
                 placeholder={PLACEHOLDERS[kind]}
                 isDisabled={isDisabled || isLoading}
                 isClearable
-                isSearchable
+                isSearchable
+
+
+
                 styles={customStyles}
                 classNames={selectClassNames}
                 components={{
@@ -418,12 +391,17 @@ export function DocExpiryLookupFilterSelect({
         <Select
                     {...searchableSelectProps}
                               value={selected}
-          onChange={handleChange}
+          onChange={handleChange}
+
+
           onKeyDown={handleSearchableKeyDown}
           placeholder={placeholder ?? PLACEHOLDERS[kind]}
           isDisabled={isDisabled || isLoading}
           isClearable={!allowAll}
-          isSearchable
+          isSearchable
+
+
+
           styles={customStyles}
           classNames={selectClassNames}
           components={{

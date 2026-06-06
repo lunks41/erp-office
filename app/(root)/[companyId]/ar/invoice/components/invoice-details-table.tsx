@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react"
+import { calculateAdditionAmount } from "@/helpers/account"
 import { IArInvoiceDt } from "@/interfaces"
 import { IVisibleFields } from "@/interfaces/setting"
+// Use flexible data type that can work with form data
+import { useCompanyStore } from "@/stores/company-store"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
+
 import { formatNumber } from "@/lib/format-utils"
 import { ARTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { AccountBaseTable } from "@/components/table/table-account"
 
-// Use flexible data type that can work with form data
-import { useCompanyStore } from "@/stores/company-store"
 interface InvoiceDetailsTableProps {
   data: IArInvoiceDt[]
   onDeleteAction?: (itemNo: number) => void
@@ -148,19 +150,18 @@ export default function InvoiceDetailsTable({
         </div>
       ),
     },
-
     ...(visible?.m_GstId
       ? [
           {
-            accessorKey: "gstPercentage",
-            header: "VAT %",
-            size: 50,
-            cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="truncate text-right">
-                {formatNumber(row.getValue("gstPercentage"), 2)}
-              </div>
-            ),
+            accessorKey: "gstName",
+            header: "VAT",
+            size: 100,
           },
+        ]
+      : []),
+
+    ...(visible?.m_GstId
+      ? [
           {
             accessorKey: "gstAmt",
             header: "VAT Amount",
@@ -173,6 +174,25 @@ export default function InvoiceDetailsTable({
           },
         ]
       : []),
+
+    {
+      id: "totAmtAftGst",
+      header: "Total After VAT",
+      size: 100,
+      cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
+        <div className="truncate text-right">
+          {formatNumber(
+            calculateAdditionAmount(
+              Number(row.original.totAmt) || 0,
+              Number(row.original.gstAmt) || 0,
+              amtDec
+            ),
+            amtDec
+          )}
+        </div>
+      ),
+    },
+
     ...(visible?.m_BillQTY
       ? [
           {
@@ -195,29 +215,6 @@ export default function InvoiceDetailsTable({
         </div>
       ),
     },
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "totCtyAmt",
-            header: "Country Amount",
-            size: 100,
-            cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
-              <div className="truncate text-right">
-                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
-              </div>
-            ),
-          } as ColumnDef<IArInvoiceDt>,
-        ]
-      : []),
-    ...(visible?.m_GstId
-      ? [
-          {
-            accessorKey: "gstName",
-            header: "VAT",
-            size: 100,
-          },
-        ]
-      : []),
     ...(visible?.m_GstId
       ? [
           {
@@ -232,6 +229,37 @@ export default function InvoiceDetailsTable({
           },
         ]
       : []),
+    {
+      id: "totLocalAmtAftGst",
+      header: "Total Local After VAT",
+      size: 100,
+      cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
+        <div className="truncate text-right">
+          {formatNumber(
+            calculateAdditionAmount(
+              Number(row.original.totLocalAmt) || 0,
+              Number(row.original.gstLocalAmt) || 0,
+              locAmtDec
+            ),
+            locAmtDec
+          )}
+        </div>
+      ),
+    },
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "totCtyAmt",
+            header: "Country Amount",
+            size: 100,
+            cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
+              <div className="truncate text-right">
+                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IArInvoiceDt>,
+        ]
+      : []),
     ...(visible?.m_CtyCurr && visible?.m_GstId
       ? [
           {
@@ -241,6 +269,27 @@ export default function InvoiceDetailsTable({
             cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
               <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<IArInvoiceDt>,
+        ]
+      : []),
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            id: "totCtyAmtAftGst",
+            header: "Total Country After VAT",
+            size: 100,
+            cell: ({ row }: CellContext<IArInvoiceDt, unknown>) => (
+              <div className="truncate text-right">
+                {formatNumber(
+                  calculateAdditionAmount(
+                    Number(row.original.totCtyAmt) || 0,
+                    Number(row.original.gstCtyAmt) || 0,
+                    locAmtDec
+                  ),
+                  locAmtDec
+                )}
               </div>
             ),
           } as ColumnDef<IArInvoiceDt>,

@@ -21,8 +21,8 @@ import { useChartOfAccountLookup, useGstLookup } from "@/hooks/use-lookup"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { ChargeAutocomplete, GSTAutocomplete } from "@/components/autocomplete"
+import { CustomCheckbox } from "@/components/custom"
 import CustomNumberInput from "@/components/custom/custom-number-input"
-import CustomSwitch from "@/components/custom/custom-switch"
 import CustomTextArea from "@/components/custom/custom-textarea"
 
 interface DebitNoteFormProps {
@@ -689,11 +689,12 @@ export default function DebitNoteForm({
             {/* Row 2: Vat, Vat %, Vat Amt, Tot Aft Vat, Is Prepayment/Is Sr Chg?, Prepayment/Service Chg, Remarks, Action Buttons */}
             <div className="grid grid-cols-12 gap-2">
               <div className="col-span-1">
-                <CustomSwitch
+                <CustomCheckbox
                   form={form}
                   name="isServiceCharge"
                   label={isChargeLabel}
                   isDisabled={isConfirmed}
+                  labelPosition="top"
                   onBlurEvent={handleIsServiceChargeChange}
                 />
               </div>

@@ -1,28 +1,22 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { calculateAdditionAmount } from "@/helpers/account"
 import { ICbPettyCashDt } from "@/interfaces"
 import { IDocType } from "@/interfaces/lookup"
 import { IVisibleFields } from "@/interfaces/setting"
+import { useCompanyStore } from "@/stores/company-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { format, isValid } from "date-fns"
 import { Circle, Paperclip } from "lucide-react"
 import { toast } from "sonner"
+
 import { Admin } from "@/lib/api-routes"
 import { parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
-import {
-  CBTransactionId,
-  ModuleId,
-  TableName,
-  cn,
-} from "@/lib/utils"
+import { CBTransactionId, cn, ModuleId, TableName } from "@/lib/utils"
 import { useGet } from "@/hooks/use-common"
-import DocumentManager from "@/components/document-manager"
-import { AccountBaseTablev1 } from "@/components/table/table-account-v1"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -30,6 +24,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import DocumentManager from "@/components/document-manager"
+import { AccountBaseTablev1 } from "@/components/table/table-account-v1"
 
 // Use flexible data type that can work with form data
 interface CbPettyCashDetailsTableProps {
@@ -77,17 +73,17 @@ export default function CbPettyCashDetailsTable({
   const { decimals } = useCompanyStore()
   const queryClient = useQueryClient()
   const amtDec = decimals?.[0]?.amtDec || 2
-  const priceDec = decimals?.[0]?.priceDec || 2
   const locAmtDec = decimals?.[0]?.locAmtDec || 2
   const dateFormat = decimals?.[0]?.dateFormat || "dd/MM/yyyy"
 
   const isSavedPayment = Boolean(paymentId && paymentId !== "0")
-  const { data: documentsResponse, refetch: refetchDocuments } = useGet<IDocType>(
-    `${Admin.getDocumentById}/${ModuleId.cb}/${CBTransactionId.cbpettycash}/${paymentId}`,
-    DOC_QUERY_PREFIX(paymentId),
-    undefined,
-    { enabled: isSavedPayment }
-  )
+  const { data: documentsResponse, refetch: refetchDocuments } =
+    useGet<IDocType>(
+      `${Admin.getDocumentById}/${ModuleId.cb}/${CBTransactionId.cbpettycash}/${paymentId}`,
+      DOC_QUERY_PREFIX(paymentId),
+      undefined,
+      { enabled: isSavedPayment }
+    )
 
   const docCountByItemNo = useMemo(() => {
     const m = new Map<number, number>()
@@ -169,20 +165,11 @@ export default function CbPettyCashDetailsTable({
             <Paperclip
               className={cn(
                 "size-3.5 shrink-0",
-                hasDocs
-                  ? "text-green-600"
-                  : "text-muted-foreground"
+                hasDocs ? "text-green-600" : "text-muted-foreground"
               )}
             />
             {hasDocs && (
-              <span
-                className={cn(
-                  "text-xs",
-                  "text-green-600"
-                )}
-              >
-                ({count})
-              </span>
+              <span className={cn("text-xs", "text-green-600")}>({count})</span>
             )}
           </Button>
         </div>
@@ -274,19 +261,18 @@ export default function CbPettyCashDetailsTable({
         </div>
       ),
     },
-
     ...(visible?.m_GstId
       ? [
           {
-            accessorKey: "gstPercentage",
-            header: "VAT %",
-            size: 50,
-            cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="truncate text-right">
-                {formatNumber(row.getValue("gstPercentage"), priceDec)}
-              </div>
-            ),
+            accessorKey: "gstName",
+            header: "VAT",
+            size: 100,
           },
+        ]
+      : []),
+
+    ...(visible?.m_GstId
+      ? [
           {
             accessorKey: "gstAmt",
             header: "VAT Amount",
@@ -299,6 +285,24 @@ export default function CbPettyCashDetailsTable({
           },
         ]
       : []),
+
+    {
+      id: "totAmtAftGst",
+      header: "Total After VAT",
+      size: 100,
+      cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
+        <div className="truncate text-right">
+          {formatNumber(
+            calculateAdditionAmount(
+              Number(row.original.totAmt) || 0,
+              Number(row.original.gstAmt) || 0,
+              amtDec
+            ),
+            amtDec
+          )}
+        </div>
+      ),
+    },
 
     ...(visible?.m_DepartmentId
       ? [
@@ -349,30 +353,6 @@ export default function CbPettyCashDetailsTable({
         </div>
       ),
     },
-
-    ...(visible?.m_CtyCurr
-      ? [
-          {
-            accessorKey: "totCtyAmt",
-            header: "Country Amount",
-            size: 100,
-            cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
-              <div className="truncate text-right">
-                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
-              </div>
-            ),
-          } as ColumnDef<ICbPettyCashDt>,
-        ]
-      : []),
-    ...(visible?.m_GstId
-      ? [
-          {
-            accessorKey: "gstName",
-            header: "VAT",
-            size: 100,
-          },
-        ]
-      : []),
     ...(visible?.m_GstId
       ? [
           {
@@ -387,6 +367,37 @@ export default function CbPettyCashDetailsTable({
           },
         ]
       : []),
+    {
+      id: "totLocalAmtAftGst",
+      header: "Total Local After VAT",
+      size: 100,
+      cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
+        <div className="truncate text-right">
+          {formatNumber(
+            calculateAdditionAmount(
+              Number(row.original.totLocalAmt) || 0,
+              Number(row.original.gstLocalAmt) || 0,
+              locAmtDec
+            ),
+            locAmtDec
+          )}
+        </div>
+      ),
+    },
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            accessorKey: "totCtyAmt",
+            header: "Country Amount",
+            size: 100,
+            cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
+              <div className="truncate text-right">
+                {formatNumber(row.getValue("totCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<ICbPettyCashDt>,
+        ]
+      : []),
     ...(visible?.m_CtyCurr && visible?.m_GstId
       ? [
           {
@@ -396,6 +407,27 @@ export default function CbPettyCashDetailsTable({
             cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
               <div className="truncate text-right">
                 {formatNumber(row.getValue("gstCtyAmt"), locAmtDec)}
+              </div>
+            ),
+          } as ColumnDef<ICbPettyCashDt>,
+        ]
+      : []),
+    ...(visible?.m_CtyCurr
+      ? [
+          {
+            id: "totCtyAmtAftGst",
+            header: "Total Country After VAT",
+            size: 100,
+            cell: ({ row }: CellContext<ICbPettyCashDt, unknown>) => (
+              <div className="truncate text-right">
+                {formatNumber(
+                  calculateAdditionAmount(
+                    Number(row.original.totCtyAmt) || 0,
+                    Number(row.original.gstCtyAmt) || 0,
+                    locAmtDec
+                  ),
+                  locAmtDec
+                )}
               </div>
             ),
           } as ColumnDef<ICbPettyCashDt>,
@@ -501,7 +533,7 @@ export default function CbPettyCashDetailsTable({
         freezeSecondColumn={true}
       />
       <div
-        className="mt-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border border-t-0 border-border/80 bg-muted/30 px-2 py-2 text-xs"
+        className="border-border/80 bg-muted/30 mt-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border border-t-0 px-2 py-2 text-xs"
         data-testid="cbpettycash-details-table-footer"
       >
         <span className="shrink-0">Total Lines: {data.length}</span>
@@ -544,16 +576,14 @@ export default function CbPettyCashDetailsTable({
         }}
       >
         <DialogContent
-          className="flex h-[min(90vh,880px)] w-[min(100vw-1rem,72rem)] max-w-none sm:max-w-none flex-col gap-0 overflow-hidden p-0"
+          className="flex h-[min(90vh,880px)] w-[min(100vw-1rem,72rem)] max-w-none flex-col gap-0 overflow-hidden p-0 sm:max-w-none"
           showCloseButton
         >
           <DialogHeader className="shrink-0 border-b px-4 py-4 pr-14 sm:pr-12">
             <DialogTitle>
               Document manager
               {paymentNo ? ` — ${paymentNo}` : ""}
-              {docContextItemNo != null
-                ? ` (line ${docContextItemNo})`
-                : ""}
+              {docContextItemNo != null ? ` (line ${docContextItemNo})` : ""}
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 min-w-0 flex-1 overflow-y-auto p-3 sm:p-4">

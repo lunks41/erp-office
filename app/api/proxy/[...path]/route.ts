@@ -43,9 +43,9 @@ function buildQueryString(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const queryParams = new URLSearchParams()
 
-  // Add all query parameters to the backend request
+  // Add all query parameters to the backend request (keep "0" — falsy check dropped YearId/CarrierId filters)
   searchParams.forEach((value, key) => {
-    if (value) {
+    if (value !== undefined && value !== null) {
       queryParams.append(key, value)
     }
   })

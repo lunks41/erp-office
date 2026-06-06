@@ -52,6 +52,9 @@ import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { InvoiceDetailsFormRef } from "./invoice-details-form"
 
+const invoiceFormControlsClassName =
+  "[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-11 [&_textarea]:text-sm"
+
 interface InvoiceFormProps {
   form: UseFormReturn<ArInvoiceHdSchemaType>
   onSuccessAction: (action: string) => Promise<void>
@@ -561,7 +564,7 @@ export default function InvoiceForm({
         className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
         <div className="border-border/60 bg-card col-span-10 rounded-md border p-3 shadow-sm">
-          <div className="[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-[2.75rem] [&_textarea]:text-sm">
+          <div className={invoiceFormControlsClassName}>
             <div className="grid grid-cols-6 gap-x-2 gap-y-1">
               {/* Transaction Date */}
               {visible?.m_TrnDate && (

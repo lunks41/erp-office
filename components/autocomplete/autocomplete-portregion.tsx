@@ -9,11 +9,14 @@ import Select, {
   DropdownIndicatorProps,
   MultiValue,
   SingleValue,
-  StylesConfig,
   components,
 } from "react-select"
 import type { SearchableFieldOption } from "./searchable-field-option"
 import { useReactSelectSearchableField } from "./use-react-select-searchable-field"
+import {
+  createSearchableSelectClassNames,
+  searchableSelectWrapStyles,
+} from "./react-select-searchable-styles"
 
 import { cn } from "@/lib/utils"
 import { usePortRegionLookup } from "@/hooks/use-lookup"
@@ -111,134 +114,12 @@ export default function PortRegionAutocomplete<
 
 
   const selectClassNames = React.useMemo(
-    () => ({
-      control: (state: { isFocused: boolean; isDisabled: boolean }) =>
-        cn(
-          "border-gray-400 dark:border-gray-500 data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50",
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-transparent pl-2 pr-0 py-0.5 text-xs whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none",
-          "focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-          state.isFocused
-            ? "border-ring ring-[3px] ring-ring/50"
-            : "border-gray-400 dark:border-gray-500",
-          state.isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-          isRequired &&
-            !state.isDisabled &&
-            "bg-yellow-50 border-gray-400 dark:bg-yellow-950/20 dark:border-gray-500",
-          "h-7.5 min-h-7.5"
-        ),
-      menu: () =>
-        cn(
-          "bg-popover text-popover-foreground",
-          "relative z-[9999] min-w-[8rem] overflow-hidden rounded-md border shadow-md animate-in fade-in-80",
-          "mt-1"
-        ),
-      menuList: () =>
-        cn(
-          "p-1 overflow-auto max-h-[200px]" // SCROLLBAR ISSUE FIX: Added max-height and overflow-auto for scrollable dropdown
-        ),
-      option: () =>
-        cn(
-          "relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-2 pr-8 text-xs outline-none"
-        ),
-      noOptionsMessage: () => cn("text-muted-foreground py-1.5 px-2 text-xs"),
-      placeholder: () => cn("text-muted-foreground"),
-      singleValue: () => cn("text-foreground"), // Fixed to match menu list
-      valueContainer: () => cn("px-0 py-0.5 gap-1"),
-      input: () =>
-        cn("text-foreground placeholder:text-muted-foreground m-0 p-0"),
-      indicatorsContainer: () => cn(""), // Gap removed
-      clearIndicator: () =>
-        cn("text-muted-foreground hover:text-foreground p-1 rounded-sm"),
-      dropdownIndicator: () => cn("text-muted-foreground p-1 rounded-sm"),
-      multiValue: () => cn("bg-accent rounded-sm m-1 overflow-hidden"),
-      multiValueLabel: () => cn("py-0.5 pl-2 pr-1 text-xs"),
-      multiValueRemove: () =>
-        cn(
-          "hover:bg-destructive/90 hover:text-destructive-foreground px-1 rounded-sm"
-        ),
-    }),
+    () => createSearchableSelectClassNames(isRequired),
     [isRequired]
   )
 
   // We still need some styles for things that can't be controlled via className
-  const customStyles: StylesConfig<FieldOption, boolean> = React.useMemo(
-    () => ({
-      control: () => ({}), // Handled by classNames
-      menu: (base) => ({
-        ...base,
-        zIndex: 9999,
-        pointerEvents: "auto", // SCROLLBAR ISSUE FIX: Ensures mouse wheel events are captured
-        // backgroundColor: "black", // SCROLLBAR ISSUE FIX: Added black background as requested
-        // Ensure mouse wheel events work
-        "&:hover": {
-          pointerEvents: "auto",
-        },
-      }), // Handled by classNames
-      option: () => ({}), // Handled by classNames
-      indicatorSeparator: () => ({
-        display: "none", // Hide the indicator separator
-      }),
-      // These minimal styles ensure proper layout
-      valueContainer: (provided) => ({
-        ...provided,
-        padding: undefined, // Use className padding
-      }),
-      input: (provided) => ({
-        ...provided,
-        margin: 0,
-        padding: 0,
-        color: "var(--foreground)",
-      }),
-      singleValue: (provided) => ({
-        ...provided,
-        color: "var(--foreground)",
-        fontSize: "12px",
-        height: "20px",
-      }),
-      // Enhanced menuList styles for better scrolling
-      menuList: (base) => ({
-        ...base,
-        maxHeight: "200px", // SCROLLBAR ISSUE FIX: Sets explicit height for scrollable area
-        overflowY: "auto", // SCROLLBAR ISSUE FIX: Enables vertical scrolling
-        overflowX: "hidden", // SCROLLBAR ISSUE FIX: Prevents horizontal scrolling
-        scrollbarWidth: "thin", // SCROLLBAR ISSUE FIX: Thin scrollbar for better UX
-        scrollbarColor: "var(--border) transparent", // SCROLLBAR ISSUE FIX: Custom scrollbar colors
-        // Ensure mouse wheel events work
-        pointerEvents: "auto", // SCROLLBAR ISSUE FIX: Critical for mouse wheel event capture
-        // Additional properties for better cross-browser support
-        WebkitOverflowScrolling: "touch", // SCROLLBAR ISSUE FIX: Better scrolling on WebKit browsers
-        "&::-webkit-scrollbar": {
-          width: "6px", // SCROLLBAR ISSUE FIX: Custom scrollbar width
-        },
-        "&::-webkit-scrollbar-track": {
-          background: "transparent", // SCROLLBAR ISSUE FIX: Transparent track
-        },
-        "&::-webkit-scrollbar-thumb": {
-          background: "var(--border)", // SCROLLBAR ISSUE FIX: Custom thumb color
-          borderRadius: "3px", // SCROLLBAR ISSUE FIX: Rounded scrollbar
-        },
-        "&::-webkit-scrollbar-thumb:hover": {
-          background: "var(--muted-foreground)", // SCROLLBAR ISSUE FIX: Hover effect
-        },
-        // Ensure mouse wheel events are captured
-        "&:hover": {
-          overflowY: "auto", // SCROLLBAR ISSUE FIX: Maintains scroll on hover
-        },
-      }),
-      // Container style to ensure mouse wheel events work
-      container: (base) => ({
-        ...base,
-        pointerEvents: "auto", // SCROLLBAR ISSUE FIX: Ensures container captures mouse events
-      }),
-      // Fix for dropdown appearing behind dialog
-      menuPortal: (base) => ({
-        ...base,
-        zIndex: 9999,
-        pointerEvents: "auto",
-      }),
-    }),
-    []
-  )
+  const customStyles = searchableSelectWrapStyles
 
 
   // Memoize handleChange to prevent unnecessary recreations
@@ -308,12 +189,14 @@ const handleChange = wrapOnChange(
                   <Select
                     {...searchableSelectProps}
                                         value={getValue()}
-                    onChange={handleChange}
+                    onChange={handleChange}
+
                     onKeyDown={handleSearchableKeyDown}
                     placeholder="Select PortRegion..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
-                    isSearchable={true}
+                    isSearchable={true}
+
                     styles={customStyles}
                     classNames={selectClassNames}
                     components={{
@@ -368,12 +251,14 @@ const handleChange = wrapOnChange(
       <div ref={selectControlRef} onKeyDown={handleSearchableKeyDown}>
         <Select
                     {...searchableSelectProps}
-                              onChange={handleChange}
+                              onChange={handleChange}
+
           onKeyDown={handleSearchableKeyDown}
           placeholder="Select PortRegion..."
           isDisabled={isDisabled || isLoading}
           isClearable={true}
-          isSearchable={true}
+          isSearchable={true}
+
           styles={customStyles}
           classNames={selectClassNames}
           components={{

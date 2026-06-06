@@ -8,6 +8,7 @@ import {
   Banknote,
   BookOpenText,
   ChevronRight,
+  ChevronDown,
   ClipboardList,
   CreditCard,
   FileCheck,
@@ -23,14 +24,9 @@ import {
 
 import { cn } from "@/lib/utils"
 import { useUserTransactions } from "@/hooks/use-user-transactions"
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
+
+const navItemLinkClass =
+  "block rounded-sm px-2.5 py-1.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#3355CC]/30"
 
 const MODULE_LABEL: Record<string, string> = {
   ar: "AR",
@@ -99,9 +95,11 @@ interface ModuleEntry {
 function MasterDropdown({
   categories,
   pathname,
+  onNavigate,
 }: {
   categories: SubCategory[]
   pathname: string
+  onNavigate?: () => void
 }) {
   const [hoveredCatId, setHoveredCatId] = React.useState<number>(
     categories[0]?.id ?? 0
@@ -134,19 +132,19 @@ function MasterDropdown({
       {/* Right: transactions for hovered category */}
       <div className="min-w-[160px] overflow-y-auto p-1">
         {activeCat?.items.map((item) => (
-          <NavigationMenuLink key={item.url} asChild>
-            <Link
-              href={item.url}
-              className={cn(
-                "block rounded-sm px-2.5 py-1.5 text-xs font-medium transition-colors",
-                pathname === item.url
-                  ? "bg-accent text-foreground font-semibold"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-            >
-              {item.title}
-            </Link>
-          </NavigationMenuLink>
+          <Link
+            key={item.url}
+            href={item.url}
+            onClick={onNavigate}
+            className={cn(
+              navItemLinkClass,
+              pathname === item.url
+                ? "bg-accent text-foreground font-semibold"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            )}
+          >
+            {item.title}
+          </Link>
         ))}
       </div>
     </div>
@@ -155,11 +153,16 @@ function MasterDropdown({
 
 export function HorizontalModuleNav() {
   const [isMounted, setIsMounted] = React.useState(false)
+  const [openCode, setOpenCode] = React.useState<string | null>(null)
   const pathname = usePathname()
   const currentCompany = useCompanyStore((s) => s.currentCompany)
   const { transactions } = useUserTransactions()
 
   React.useEffect(() => setIsMounted(true), [])
+
+  React.useEffect(() => {
+    setOpenCode(null)
+  }, [pathname])
 
   const companyIdFromPath = pathname.split("/")[1]
   const companyId = currentCompany?.companyId ?? companyIdFromPath
@@ -265,75 +268,95 @@ export function HorizontalModuleNav() {
 
   return (
     <div className="bg-background border-border sticky top-[44px] z-50 h-[33px] shrink-0 border-b shadow-[0_1px_0_0_var(--border)]">
-      <NavigationMenu
-        viewport={false}
-        className="h-full max-w-none [&>div]:h-full"
+      <nav
+        className="flex h-full max-w-none items-stretch px-3"
+        aria-label="Module navigation"
       >
-        <NavigationMenuList className="h-full flex-nowrap gap-0 px-3">
+        <ul className="flex h-full list-none flex-nowrap gap-0">
           {modules.map(({ code, label, Icon, items, categories }) => {
             const isActive = activeModule === code
+            const isOpen = openCode === code
             const hasContent =
               (categories && categories.length > 0) || items.length > 0
 
             return (
-              <NavigationMenuItem
+              <li
                 key={code}
                 className="relative flex h-full items-stretch"
+                onMouseLeave={() => {
+                  if (isOpen) setOpenCode(null)
+                }}
               >
-                {/* Emerald active underline */}
                 {isActive && (
                   <span className="pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-[2px] rounded-t-full bg-emerald-500" />
                 )}
 
-                <NavigationMenuTrigger
+                <button
+                  type="button"
+                  aria-expanded={hasContent ? isOpen : undefined}
+                  aria-haspopup={hasContent ? "menu" : undefined}
+                  onClick={() => {
+                    if (!hasContent) return
+                    setOpenCode((prev) => (prev === code ? null : code))
+                  }}
                   className={cn(
-                    "h-full rounded-none border-0 bg-transparent px-3 text-xs font-medium shadow-none",
-                    "hover:bg-accent/60 data-[state=open]:bg-accent/60",
-                    "[&_svg.lucide-chevron-down]:h-2.5 [&_svg.lucide-chevron-down]:w-2.5",
+                    "inline-flex h-full items-center gap-1 rounded-none border-0 bg-transparent px-3 text-xs font-medium shadow-none outline-none",
+                    "hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-[#3355CC]/30",
+                    isOpen && "bg-accent/60",
                     isActive
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <Icon className="mr-1.5 h-3 w-3 shrink-0" />
+                  <Icon className="h-3 w-3 shrink-0" />
                   {label}
-                </NavigationMenuTrigger>
+                  {hasContent && (
+                    <ChevronDown
+                      className={cn(
+                        "h-2.5 w-2.5 shrink-0 opacity-60 transition-transform duration-200",
+                        isOpen && "rotate-180"
+                      )}
+                      aria-hidden
+                    />
+                  )}
+                </button>
 
-                {hasContent && (
-                  <NavigationMenuContent className="bg-popover absolute! top-full left-0 z-50 mt-0 rounded-md border shadow-md">
-                    {/* Master: flyout — category list on left, transactions on right */}
+                {hasContent && isOpen && (
+                  <div className="absolute top-full left-0 z-50 pt-px">
+                    <div className="bg-popover rounded-md border shadow-md">
                     {categories ? (
                       <MasterDropdown
                         categories={categories}
                         pathname={pathname}
+                        onNavigate={() => setOpenCode(null)}
                       />
                     ) : (
-                      /* Other modules: flat list with max-height scroll */
                       <div className="flex max-h-[60vh] min-w-[160px] flex-col gap-0 overflow-y-auto p-1">
                         {items.map((item) => (
-                          <NavigationMenuLink key={item.url} asChild>
-                            <Link
-                              href={item.url}
-                              className={cn(
-                                "block rounded-sm px-2.5 py-1.5 text-xs font-medium transition-colors",
-                                pathname === item.url
-                                  ? "bg-accent text-foreground font-semibold"
-                                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                              )}
-                            >
-                              {item.title}
-                            </Link>
-                          </NavigationMenuLink>
+                          <Link
+                            key={item.url}
+                            href={item.url}
+                            onClick={() => setOpenCode(null)}
+                            className={cn(
+                              navItemLinkClass,
+                              pathname === item.url
+                                ? "bg-accent text-foreground font-semibold"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            )}
+                          >
+                            {item.title}
+                          </Link>
                         ))}
                       </div>
                     )}
-                  </NavigationMenuContent>
+                    </div>
+                  </div>
                 )}
-              </NavigationMenuItem>
+              </li>
             )
           })}
-        </NavigationMenuList>
-      </NavigationMenu>
+        </ul>
+      </nav>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 ﻿"use client"
 
 //copy-rate-form.tsx
-
 import { useCallback, useEffect, useState } from "react"
 import { ICustomerLookup, IPortLookup } from "@/interfaces/lookup"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,7 +11,6 @@ import { z } from "zod"
 
 import { copyRateDirect } from "@/hooks/use-tariff"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
 import {
   CustomerAutocomplete,
@@ -270,7 +268,7 @@ export function CopyRateForm({
             {/* From Section */}
             <div className="bg-card space-y-3 rounded-lg border p-4">
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-card0"></div>
+                <div className="bg-card0 h-2 w-2 rounded-full"></div>
                 <h3 className="text-lg font-semibold text-blue-700">From</h3>
               </div>
               <div className="space-y-3">
@@ -290,11 +288,12 @@ export function CopyRateForm({
                     isDisabled={isAllPorts}
                     onChangeEvent={handlePortChange("fromPortId")}
                   />
-                  <div className="flex items-end pb-2">
+                  <div>
                     <CustomCheckbox
                       form={form}
                       name="isAllPorts"
                       label="All Ports"
+                      labelPosition="side"
                     />
                   </div>
                 </div>
@@ -306,11 +305,12 @@ export function CopyRateForm({
                     isRequired={!isAllTasks}
                     isDisabled={isAllTasks}
                   />
-                  <div className="flex items-end pb-2">
+                  <div>
                     <CustomCheckbox
                       form={form}
                       name="isAllTasks"
                       label="All Tasks"
+                      labelPosition="side"
                     />
                   </div>
                 </div>
@@ -347,40 +347,28 @@ export function CopyRateForm({
           <div className="bg-muted/30 w-full space-y-3 rounded-lg border p-3">
             <h3 className="text-lg font-semibold">Copy Options</h3>
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isOverwrite"
-                  checked={form.watch("isOverwrite")}
-                  onCheckedChange={(c) => {
-                    const isChecked = c as boolean
-                    form.setValue("isOverwrite", isChecked)
-                    // If overwrite is checked, uncheck delete
-                    if (isChecked) {
-                      form.setValue("isDelete", false)
-                    }
-                  }}
-                />
-                <label htmlFor="isOverwrite" className="text-sm font-medium">
-                  Overwrite existing rates
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isDelete"
-                  checked={form.watch("isDelete")}
-                  onCheckedChange={(c) => {
-                    const isChecked = c as boolean
-                    form.setValue("isDelete", isChecked)
-                    // If delete is checked, uncheck overwrite
-                    if (isChecked) {
-                      form.setValue("isOverwrite", false)
-                    }
-                  }}
-                />
-                <label htmlFor="isDelete" className="text-sm font-medium">
-                  Clear destination before copy
-                </label>
-              </div>
+              <CustomCheckbox
+                form={form}
+                name="isOverwrite"
+                label="Overwrite existing rates"
+                labelPosition="side"
+                onBlurEvent={() => {
+                  if (form.getValues("isOverwrite")) {
+                    form.setValue("isDelete", false)
+                  }
+                }}
+              />
+              <CustomCheckbox
+                form={form}
+                name="isDelete"
+                label="Clear destination before copy"
+                labelPosition="side"
+                onBlurEvent={() => {
+                  if (form.getValues("isDelete")) {
+                    form.setValue("isOverwrite", false)
+                  }
+                }}
+              />
             </div>
           </div>
 
@@ -396,16 +384,18 @@ export function CopyRateForm({
                 </p>
                 <p className="text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
                   You can copy between different customers or the same customer
-                  with different ports. From and To must differ by customer and/or
-                  port (e.g. same customer, different port).
+                  with different ports. From and To must differ by customer
+                  and/or port (e.g. same customer, different port).
                 </p>
                 <p className="text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
-                  <strong>Overwrite existing rates:</strong> updates matching tariffs at
-                  To and inserts any that do not exist yet (destination is not cleared first).
+                  <strong>Overwrite existing rates:</strong> updates matching
+                  tariffs at To and inserts any that do not exist yet
+                  (destination is not cleared first).
                 </p>
                 <p className="text-xs leading-relaxed text-amber-800/80 dark:text-amber-200/70">
                   <strong>Clear destination before copy:</strong> removes all To
-                  customer/port/task tariffs first, then copies from From. Source rates are kept.
+                  customer/port/task tariffs first, then copies from From.
+                  Source rates are kept.
                 </p>
               </div>
             </div>

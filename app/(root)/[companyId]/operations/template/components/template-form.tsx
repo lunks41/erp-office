@@ -191,12 +191,11 @@ export const TemplateForm = forwardRef<TemplateFormRef, TemplateFormProps>(
                 />
               </div>
               <div className="md:col-span-1">
-                <div className="mb-1 text-sm font-medium">Active</div>
                 <CustomCheckbox
                   form={form}
                   name="isActive"
-                  label=""
-                  className="-mt-1"
+                  label="Active"
+                  labelPosition="top"
                   isDisabled={mode === "view"}
                 />
               </div>

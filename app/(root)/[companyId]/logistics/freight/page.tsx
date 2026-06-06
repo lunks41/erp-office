@@ -9,11 +9,12 @@ import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { Eraser, Search } from "lucide-react"
+import { useForm } from "react-hook-form"
 
 import { Freight } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { LogisticsTransactionId, ModuleId } from "@/lib/utils"
-import { useGet, useGetById, usePersist } from "@/hooks/use-common"
+import { useGetByBody, useGetById, usePersist } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,12 +24,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Form } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import {
+  CarrierAutocomplete,
+  ConsignmentTypeAutocomplete,
+  CurrentYearAutocomplete,
+} from "@/components/autocomplete"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
 import { FreightForm } from "./components/freight-form"
 import { FreightTable } from "./components/freight-table"
+
+interface FreightFilterForm extends Record<string, unknown> {
+  yearId: number
+  carrierId: number
+  consignmentTypeId: number
+}
 
 export default function FreightManagementPage() {
   const params = useParams()
@@ -57,6 +70,24 @@ export default function FreightManagementPage() {
   // Local search state
   const [searchInput, setSearchInput] = useState("")
   const [committedSearch, setCommittedSearch] = useState("")
+  const [committedYearId, setCommittedYearId] = useState(0)
+  const [committedCarrierId, setCommittedCarrierId] = useState(0)
+  const [committedConsignmentTypeId, setCommittedConsignmentTypeId] =
+    useState(0)
+  const [searchTrigger, setSearchTrigger] = useState(0)
+  const [hasSearched, setHasSearched] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(50)
+  const [committedPageNumber, setCommittedPageNumber] = useState(1)
+  const [committedPageSize, setCommittedPageSize] = useState(50)
+
+  const filterForm = useForm<FreightFilterForm>({
+    defaultValues: {
+      yearId: 0,
+      carrierId: 0,
+      consignmentTypeId: 0,
+    },
+  })
 
   // State for save confirmation
   const [saveConfirmation, setSaveConfirmation] = useState<{
@@ -69,21 +100,35 @@ export default function FreightManagementPage() {
     operationType: "create",
   })
 
-  // Data fetching: pass committedSearch so Search button triggers API call with searchString
+  // Data fetching: committed filters are applied when Search is clicked
+  const freightQueryParams = {
+    PageNumber: String(committedPageNumber),
+    PageSize: String(committedPageSize),
+    YearId: String(committedYearId),
+    CarrierId: String(committedCarrierId),
+    ConsignmentTypeId: String(committedConsignmentTypeId),
+    ...(committedSearch.trim()
+      ? { SearchString: committedSearch.trim() }
+      : {}),
+  }
+
   const {
     data: response,
     refetch,
-    isLoading: _isLoadingFreight,
-  } = useGet<IFreight>(
+    isLoading: isLoadingFreight,
+  } = useGetByBody<IFreight>(
     `${Freight.get}`,
     "freight",
-    committedSearch.trim() || undefined
+    freightQueryParams,
+    undefined,
+    hasSearched
   )
 
-  const { data } = (response as ApiResponse<IFreight>) ?? {
+  const { data, totalRecords = 0 } = (response as ApiResponse<IFreight>) ?? {
     result: 0,
     message: "",
     data: [],
+    totalRecords: 0,
   }
 
   // Mutations
@@ -117,6 +162,12 @@ export default function FreightManagementPage() {
       }
     }
   }, [itemResponse])
+
+  // Re-run API search on every Search click (including same filters — React Query skips refetch when query key is unchanged)
+  useEffect(() => {
+    if (searchTrigger === 0) return
+    void refetch()
+  }, [searchTrigger, refetch])
 
   // Handlers
   const handleSelect = useCallback((item: IFreight | null) => {
@@ -230,16 +281,62 @@ export default function FreightManagementPage() {
 
   // Handlers for search box
   const handleSearchClick = useCallback(() => {
+    const { yearId, carrierId, consignmentTypeId } = filterForm.getValues()
     setCommittedSearch(searchInput.trim())
-  }, [searchInput])
+    setCommittedYearId(yearId ?? 0)
+    setCommittedCarrierId(carrierId ?? 0)
+    setCommittedConsignmentTypeId(consignmentTypeId ?? 0)
+    setCommittedPageNumber(1)
+    setCurrentPage(1)
+    setHasSearched(true)
+    setSearchTrigger((trigger) => trigger + 1)
+  }, [filterForm, searchInput])
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
+    setCommittedPageNumber(page)
+    setSearchTrigger((trigger) => trigger + 1)
+  }, [])
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size)
+    setCommittedPageSize(size)
+    setCurrentPage(1)
+    setCommittedPageNumber(1)
+    setSearchTrigger((trigger) => trigger + 1)
+  }, [])
 
   const handleClearSearch = useCallback(() => {
     setSearchInput("")
     setCommittedSearch("")
-  }, [])
+    setCommittedYearId(0)
+    setCommittedCarrierId(0)
+    setCommittedConsignmentTypeId(0)
+    setCommittedPageNumber(1)
+    setCommittedPageSize(50)
+    setCurrentPage(1)
+    setPageSize(50)
+    setHasSearched(false)
+    setSearchTrigger(0)
+    filterForm.reset({
+      yearId: 0,
+      carrierId: 0,
+      consignmentTypeId: 0,
+    })
+  }, [filterForm])
+
+  const hasActiveFilters =
+    !!searchInput ||
+    !!committedSearch ||
+    committedYearId !== 0 ||
+    committedCarrierId !== 0 ||
+    committedConsignmentTypeId !== 0 ||
+    filterForm.watch("carrierId") !== 0 ||
+    filterForm.watch("consignmentTypeId") !== 0 ||
+    filterForm.watch("yearId") !== 0
 
   // API returns filtered data when searchString is sent; no client-side filter needed
-  const tableData = data || []
+  const tableData = hasSearched ? data || [] : []
 
   return (
     <>
@@ -256,47 +353,76 @@ export default function FreightManagementPage() {
           </div>
         </div>
 
-        {/* Search box + actions */}
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="w-full max-w-xs sm:max-w-sm">
-            <Input
-              type="text"
-              placeholder="Search by Ref / AWB / Job Order..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  handleSearchClick()
-                }
-              }}
-            />
+        {/* Filters + search box + actions */}
+        <Form {...filterForm}>
+          <div className="mb-4 flex flex-wrap items-end gap-2">
+            <div className="w-full min-w-[120px] max-w-[140px]">
+              <CurrentYearAutocomplete
+                form={filterForm}
+                name="yearId"
+                label="Year"
+              />
+            </div>
+            <div className="w-full min-w-[160px] max-w-[200px]">
+              <CarrierAutocomplete
+                form={filterForm}
+                name="carrierId"
+                label="Carrier"
+              />
+            </div>
+            <div className="w-full min-w-[160px] max-w-[200px]">
+              <ConsignmentTypeAutocomplete
+                form={filterForm}
+                name="consignmentTypeId"
+                label="Consignment Type"
+              />
+            </div>
+            <div className="w-full max-w-xs sm:max-w-sm">
+              <Input
+                type="text"
+                placeholder="Search by Ref / AWB / Job Order..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    handleSearchClick()
+                  }
+                }}
+              />
+            </div>
+            <Button
+              type="button"
+              onClick={handleSearchClick}
+              className="flex items-center gap-1 px-2 sm:px-3"
+              size="sm"
+            >
+              <Search className="h-4 w-4" />
+              <span>Search</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClearSearch}
+              className="flex items-center gap-1 px-2 sm:px-3"
+              size="sm"
+              disabled={!hasActiveFilters}
+            >
+              <Eraser className="h-4 w-4" />
+              <span>Clear</span>
+            </Button>
           </div>
-          <Button
-            type="button"
-            onClick={handleSearchClick}
-            className="flex items-center gap-1 px-2 sm:px-3"
-            size="sm"
-          >
-            <Search className="h-4 w-4" />
-            <span>Search</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClearSearch}
-            className="flex items-center gap-1 px-2 sm:px-3"
-            size="sm"
-            disabled={!searchInput && !committedSearch}
-          >
-            <Eraser className="h-4 w-4" />
-            <span>Clear</span>
-          </Button>
-        </div>
+        </Form>
 
         <div className="overflow-x-auto">
           <FreightTable
             data={tableData}
+            totalRecords={totalRecords}
+            isLoading={isLoadingFreight}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
             onFreightSelect={handleSelect}
             onEditActionFreight={handleEdit}
             onCreateActionFreight={handleCreateFreight}
@@ -308,7 +434,7 @@ export default function FreightManagementPage() {
       </div>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="max-h-[90vh] w-[90vw] !max-w-none overflow-y-auto"
+          className="max-h-[90vh] w-[90vw] max-w-none! overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.preventDefault()
           }}

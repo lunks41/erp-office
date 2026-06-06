@@ -858,12 +858,14 @@ export default function NewChecklistPage() {
                       form={form}
                       name="isActive"
                       label="Active"
+                      labelPosition="top"
                       isRequired={false}
                     />
                     <CustomCheckbox
                       form={form}
                       name="isPost"
                       label="Posted"
+                      labelPosition="top"
                       isRequired={false}
                       isDisabled
                     />

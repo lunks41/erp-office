@@ -35,6 +35,150 @@ export function findOptionByTypedCode(
   return null
 }
 
+function getNameFromSelectLabel(label: string): string {
+  const idx = label.indexOf(" - ")
+  return (idx >= 0 ? label.slice(idx + 3) : label).trim()
+}
+
+function pickUniqueMatch(
+  matches: SearchableFieldOption[]
+): SearchableFieldOption | null {
+  return matches.length === 1 ? matches[0] : null
+}
+
+/** Match by code, full label, or name segment when the filter narrows to one row. */
+export function findOptionByTypedSearch(
+  options: SearchableFieldOption[],
+  rawInput: string
+): SearchableFieldOption | null {
+  const query = rawInput.trim().toLowerCase()
+  if (!query) return null
+
+  const byCode = findOptionByTypedCode(options, rawInput)
+  if (byCode) return byCode
+
+  const searchable = options.filter((o) => !o.isPinnedPrevious)
+
+  return (
+    pickUniqueMatch(
+      searchable.filter((o) => o.label.toLowerCase() === query)
+    ) ??
+    pickUniqueMatch(
+      searchable.filter((o) => o.label.toLowerCase().includes(query))
+    ) ??
+    pickUniqueMatch(
+      searchable.filter((o) =>
+        getNameFromSelectLabel(o.label).toLowerCase().includes(query)
+      )
+    ) ??
+    pickUniqueMatch(
+      searchable.filter((o) =>
+        getNameFromSelectLabel(o.label).toLowerCase().startsWith(query)
+      )
+    ) ??
+    pickUniqueMatch(
+      searchable.filter((o) => o.label.toLowerCase().startsWith(query))
+    )
+  )
+}
+
+function matchOptionByElementText(
+  enabledOptions: SearchableFieldOption[],
+  element: HTMLElement | null
+): SearchableFieldOption | null {
+  if (!element) return null
+
+  const text = (element.textContent ?? "").trim()
+  if (!text) return null
+
+  return (
+    enabledOptions.find((o) => text === o.label) ??
+    enabledOptions.find((o) => text.endsWith(o.label)) ??
+    enabledOptions.find((o) => o.label.includes(text) || text.includes(o.label)) ??
+    null
+  )
+}
+
+/** Keyboard-focused row in the open react-select menu (portal-safe). */
+export function getFocusedSelectOption(
+  filteredOptions: SearchableFieldOption[],
+  container?: HTMLElement | null
+): SearchableFieldOption | null {
+  const enabledOptions = filteredOptions.filter((o) => !o.isPinnedPrevious)
+  if (enabledOptions.length === 0) return null
+
+  if (container) {
+    const input = container.querySelector("input")
+    const activeId = input?.getAttribute("aria-activedescendant")
+    if (activeId) {
+      const byAria = matchOptionByElementText(
+        enabledOptions,
+        document.getElementById(activeId)
+      )
+      if (byAria) return byAria
+    }
+  }
+
+  const focusedEl = document.querySelector(
+    ".react-select__option--is-focused"
+  ) as HTMLElement | null
+  if (focusedEl && !focusedEl.classList.contains("react-select__option--is-disabled")) {
+    const menuList = focusedEl.closest(".react-select__menu-list")
+    if (menuList) {
+      const enabledEls = menuList.querySelectorAll(
+        ".react-select__option:not(.react-select__option--is-disabled)"
+      )
+      const idx = Array.from(enabledEls).indexOf(focusedEl)
+      if (idx >= 0 && idx < enabledOptions.length) {
+        return enabledOptions[idx]
+      }
+    }
+
+    const byDom = matchOptionByElementText(enabledOptions, focusedEl)
+    if (byDom) return byDom
+  }
+
+  return null
+}
+
+/** Resolve Tab selection: code/name search, else highlighted row, else sole visible match. */
+export function resolveOptionOnTabSelect({
+  baseOptions,
+  filteredOptions,
+  rawInput,
+  keyboardFocusedOption,
+  selectContainer,
+}: {
+  baseOptions: SearchableFieldOption[]
+  filteredOptions: SearchableFieldOption[]
+  rawInput: string
+  keyboardFocusedOption?: SearchableFieldOption | null
+  selectContainer?: HTMLElement | null
+}): SearchableFieldOption | null {
+  const query = rawInput.trim()
+  if (!query) return null
+
+  const visible = filteredOptions.filter((o) => !o.isPinnedPrevious)
+
+  const bySearch = findOptionByTypedSearch(baseOptions, query)
+  if (bySearch) return bySearch
+
+  if (
+    keyboardFocusedOption &&
+    !keyboardFocusedOption.isPinnedPrevious &&
+    visible.some((o) => o.value === keyboardFocusedOption.value)
+  ) {
+    return keyboardFocusedOption
+  }
+
+  const focused = getFocusedSelectOption(filteredOptions, selectContainer)
+  if (focused) return focused
+
+  if (visible.length === 1) return visible[0]
+
+  return null
+}
+
 export function buildSearchableSelectOptions(
   baseOptions: SearchableFieldOption[],
   menuInputValue: string,

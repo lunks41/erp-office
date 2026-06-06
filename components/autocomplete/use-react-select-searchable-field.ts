@@ -6,8 +6,8 @@ import { SelectInstance } from "react-select"
 import {
   buildSearchableSelectOptions,
   filterSearchableSelectOption,
-  findOptionByTypedCode,
   isPinnedPreviousSelectOption,
+  resolveOptionOnTabSelect,
   type SearchableFieldOption,
 } from "./searchable-field-option"
 import { createSearchableSelectOption } from "./searchable-select-option"
@@ -30,6 +30,7 @@ export function useReactSelectSearchableField({
   const selectRef = React.useRef<SelectInstance<SearchableFieldOption, false>>(
     null
   )
+  const focusedOptionRef = React.useRef<SearchableFieldOption | null>(null)
   const [menuInputValue, setMenuInputValue] = React.useState("")
   const hasActiveSearch = menuInputValue.trim().length > 0
   const onTabSelectRef = React.useRef(onTabSelectOption)
@@ -54,7 +55,7 @@ export function useReactSelectSearchableField({
   )
 
   const SearchableOption = React.useMemo(
-    () => createSearchableSelectOption(hasActiveSearch),
+    () => createSearchableSelectOption(hasActiveSearch, focusedOptionRef),
     [hasActiveSearch]
   )
 
@@ -96,9 +97,22 @@ export function useReactSelectSearchableField({
   }, [])
 
   const handleSearchableMenuClose = React.useCallback(() => {
+    focusedOptionRef.current = null
     setMenuInputValue("")
     handleMenuClose()
   }, [handleMenuClose])
+
+  const resolveTabSelectMatch = React.useCallback(
+    (rawInput: string, selectContainer: HTMLElement | null) =>
+      resolveOptionOnTabSelect({
+        baseOptions,
+        filteredOptions: options,
+        rawInput,
+        keyboardFocusedOption: focusedOptionRef.current,
+        selectContainer,
+      }),
+    [baseOptions, options]
+  )
 
   const handleSearchableKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLElement>) => {
@@ -108,16 +122,25 @@ export function useReactSelectSearchableField({
         const typed = getTypedValueFromControl(container)
 
         if (typed) {
-          const matched = findOptionByTypedCode(baseOptions, typed)
+          const matched = resolveTabSelectMatch(typed, container)
           if (matched && matched.value !== selectedOptionId) {
+            setMenuInputValue("")
             onTabSelectRef.current?.(matched)
+            markOptionSelected(true)
+            selectRef.current?.blur()
           }
         }
       }
 
       handleKeyDown(event)
     },
-    [baseOptions, selectedOptionId, handleKeyDown, selectControlRef]
+    [
+      resolveTabSelectMatch,
+      selectedOptionId,
+      handleKeyDown,
+      selectControlRef,
+      markOptionSelected,
+    ]
   )
 
   const shouldSkipMenuOpenScroll = hasActiveSearch
@@ -154,6 +177,7 @@ export function useReactSelectSearchableField({
     resetOnMenuOpen,
     markOptionSelected,
     searchableSelectProps,
+    resolveTabSelectMatch,
     shouldSkipMenuOpenScroll,
     /** @deprecated Use searchableSelectProps — kept for gradual migration */
     selectRef,

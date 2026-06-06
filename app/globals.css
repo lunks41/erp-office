@@ -96,6 +96,10 @@
     --font-size-label: var(--erp-ui-font-size);
     --font-size-table-header: var(--erp-ui-font-size);
     --font-size-table-cell: var(--erp-ui-font-size);
+
+    /* react-select list — keyboard/hover focus (orange primary tint) */
+    --select-option-focus-bg: color-mix(in oklch, var(--primary) 18%, var(--popover));
+    --select-option-focus-fg: var(--popover-foreground);
 }
 
 .dark {
@@ -138,6 +142,10 @@
     --chart-3: oklch(0.541 0.200 280);   /* Indigo    #6366f1 */
     --chart-4: oklch(0.748 0.118 88);    /* Amber */
     --chart-5: oklch(0.648 0.175 22);    /* Red-orange */
+
+    /* react-select list — stronger primary tint on dark popover */
+    --select-option-focus-bg: color-mix(in oklch, var(--primary) 38%, var(--popover));
+    --select-option-focus-fg: var(--popover-foreground);
 
     /* ── Sidebar ── */
     --sidebar:                      oklch(0.098 0.026 248);   /* 1 step above background */
@@ -967,6 +975,26 @@ main[id="main-content"] {
 .react-select__menu-list {
     background-color: var(--popover) !important;
     color: var(--popover-foreground) !important;
+}
+
+.react-select__option {
+    background-color: transparent !important;
+    color: var(--popover-foreground) !important;
+}
+
+.react-select__option--is-focused:not(.react-select__option--is-disabled) {
+    background-color: var(--select-option-focus-bg) !important;
+    color: var(--select-option-focus-fg) !important;
+}
+
+.react-select__option[data-focused="true"] {
+    background-color: var(--select-option-focus-bg);
+    color: var(--select-option-focus-fg);
+}
+
+.react-select__option--is-disabled {
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent) !important;
+    color: var(--muted-foreground) !important;
 }
 
 .react-select__multi-value {

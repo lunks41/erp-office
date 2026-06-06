@@ -16,7 +16,12 @@ import { MainTable } from "@/components/table/table-main"
 
 interface FreightTableProps {
   data: IFreight[]
+  totalRecords?: number
   isLoading?: boolean
+  currentPage?: number
+  pageSize?: number
+  onPageChange?: (page: number) => void
+  onPageSizeChange?: (pageSize: number) => void
   onFreightSelect?: (freight: IFreight | null) => void
   onEditActionFreight?: (freight: IFreight) => void
   onCreateActionFreight?: () => void
@@ -27,7 +32,12 @@ interface FreightTableProps {
 
 export function FreightTable({
   data,
+  totalRecords = 0,
   isLoading = false,
+  currentPage = 1,
+  pageSize = 50,
+  onPageChange,
+  onPageSizeChange,
   onFreightSelect,
   onEditActionFreight,
   onCreateActionFreight,
@@ -403,6 +413,12 @@ export function FreightTable({
       data={data}
       columns={columns}
       isLoading={isLoading}
+      totalRecords={totalRecords}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      onPageChange={onPageChange}
+      onPageSizeChange={onPageSizeChange}
+      serverSidePagination={true}
       tableName={TableName.checklist}
       accessorId="consignmentImportId"
       onSelect={onFreightSelect}

@@ -654,12 +654,14 @@ export function TallyServiceForm({
                           form={form}
                           name="isActive"
                           label="Active"
+                          labelPosition="top"
                           isDisabled={isReadOnly}
                         />
                         <CustomCheckbox
                           form={form}
                           name="isPost"
                           label="Posted"
+                          labelPosition="top"
                           isDisabled
                         />
                       </div>
@@ -667,6 +669,7 @@ export function TallyServiceForm({
                         form={form}
                         name="isCancel"
                         label="Cancel"
+                        labelPosition="top"
                         isDisabled={isReadOnly}
                         className="col-span-2"
                       />
