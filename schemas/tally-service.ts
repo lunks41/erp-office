@@ -65,6 +65,9 @@ export const tallyServiceSchema = z.object({
     }
 
     data.freshWaterLines.forEach((line, index) => {
+      const isBlankLine = line.chargeId <= 0 && line.uomId <= 0
+      if (isBlankLine) return
+
       if (line.chargeId <= 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -81,15 +84,6 @@ export const tallyServiceSchema = z.object({
       }
     })
 
-    data.launchServiceLines.forEach((line, index) => {
-      if (line.chargeId <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Charge is required",
-          path: ["launchServiceLines", index, "chargeId"],
-        })
-      }
-    })
   })
 
 export type TallyServiceSchemaType = z.infer<typeof tallyServiceSchema>

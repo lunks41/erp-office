@@ -5,10 +5,10 @@ import {
   IInvoicePreviewHeader,
   IInvoicePreviewLine,
 } from "@/interfaces/invoice-preview"
-import { openInvoicePreviewReport } from "@/lib/open-invoice-preview-report"
 import { Loader2, Printer } from "lucide-react"
 import { toast } from "sonner"
 
+import { openInvoicePreviewReport } from "@/lib/open-invoice-preview-report"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -43,7 +43,10 @@ function formatPreviewDate(value: string | undefined) {
 }
 
 function joinNonEmpty(parts: (string | undefined)[], separator: string) {
-  return parts.map((p) => (p ?? "").trim()).filter(Boolean).join(separator)
+  return parts
+    .map((p) => (p ?? "").trim())
+    .filter(Boolean)
+    .join(separator)
 }
 
 function formatCurrency(header: IInvoicePreviewHeader | undefined) {
@@ -94,7 +97,7 @@ function PreviewHeaderBlock({ header }: { header: IInvoicePreviewHeader }) {
   return (
     <div className="grid gap-4 rounded-md border p-4 text-sm sm:grid-cols-2">
       <div className="space-y-1">
-        <div className="font-medium text-muted-foreground">Address :</div>
+        <div className="text-muted-foreground font-medium">Address :</div>
         <div className="font-medium">{header.billName?.trim() || "—"}</div>
         {header.address1?.trim() ? <div>{header.address1}</div> : null}
         {addressLine2Country ? <div>{addressLine2Country}</div> : null}
@@ -165,19 +168,19 @@ export function InvoicePreviewDialog({
         <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>Invoice Preview</DialogTitle>
           <DialogDescription>
-            Preview only — no invoice number is assigned until you post. Document
-            no.: {header?.invoiceNo || "DRAFT"}
+            Preview only — no invoice number is assigned until you post.
+            Document no.: {header?.invoiceNo || "DRAFT"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
           {isLoading ? (
-            <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center justify-center gap-2 py-12">
               <Loader2 className="h-5 w-5 animate-spin" />
               Loading preview...
             </div>
           ) : loadError ? (
-            <p className="text-sm text-destructive">{loadError}</p>
+            <p className="text-destructive text-sm">{loadError}</p>
           ) : preview && header ? (
             <div className="space-y-4">
               <PreviewHeaderBlock header={header} />
@@ -186,6 +189,8 @@ export function InvoicePreviewDialog({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
+                    <TableHead className="w-24">GL Code</TableHead>
+                    <TableHead>GL Name</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead className="text-right">Qty</TableHead>
                     <TableHead className="text-right">Unit price</TableHead>
@@ -198,8 +203,8 @@ export function InvoicePreviewDialog({
                   {lines.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
-                        className="text-center text-muted-foreground"
+                        colSpan={9}
+                        className="text-muted-foreground text-center"
                       >
                         No invoice lines
                       </TableCell>
@@ -210,6 +215,12 @@ export function InvoicePreviewDialog({
                         key={`${line.itemNo ?? index}-${line.remarks ?? line.chargeName ?? index}`}
                       >
                         <TableCell>{line.itemNo}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {line.glCode?.trim() || "—"}
+                        </TableCell>
+                        <TableCell className="max-w-[12rem] truncate">
+                          {line.glName?.trim() || "—"}
+                        </TableCell>
                         <TableCell className="max-w-md whitespace-pre-wrap">
                           {line.remarks || line.chargeName || "—"}
                         </TableCell>

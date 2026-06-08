@@ -71,7 +71,7 @@ interface TallyServiceFormProps {
   isSubmitting?: boolean
   formId?: string
   hideActions?: boolean
-  /** Lock most fields when confirmed or posted (not job status). */
+  /** Lock most fields when invoice is posted (not when confirmed). */
   isFieldsLocked?: boolean
   /** Lock job status only when posted (IsPost or status Posted). */
   isJobStatusLocked?: boolean
@@ -111,6 +111,7 @@ export function TallyServiceForm({
     useState<ICustomerAddress | null>(null)
   const [selectedContact, setSelectedContact] =
     useState<ICustomerContact | null>(null)
+  const tallyServiceNoManualRef = useRef(false)
 
   const parseWithFallback = useCallback(
     (value: string | Date | null | undefined): Date | null => {
@@ -212,7 +213,7 @@ export function TallyServiceForm({
       remarks: initialData?.remarks ?? "",
       editVersion: initialData?.editVersion ?? 0,
     }
-  }, [dateFormat, initialData, mode, parseWithFallback])
+  }, [dateFormat, initialData, parseWithFallback])
 
   const form = useForm<TallyServiceSchemaType>({
     resolver: zodResolver(tallyServiceSchema),
@@ -253,7 +254,6 @@ export function TallyServiceForm({
   const isCancel = form.watch("isCancel")
   const serviceDate = form.watch("date")
   const portId = form.watch("portId")
-  const tallyServiceNoManualRef = useRef(false)
 
   const { data: customerAddresses = [] } = useCustomerAddressLookup(customerId)
   const { data: customerContacts = [] } = useCustomerContactLookup(customerId)

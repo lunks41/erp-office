@@ -6,15 +6,14 @@ import {
   canShowInvoicePost,
   canShowInvoicePreview,
   canShowJobSummaryPrint,
-  isJobLocked,
   isJobStatusLocked,
 } from "@/helpers/project"
 import { ITallyService } from "@/interfaces"
+import { IInvoicePreview } from "@/interfaces/invoice-preview"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { IInvoicePreview } from "@/interfaces/invoice-preview"
 import { Eye, FileText, Printer } from "lucide-react"
 import { toast } from "sonner"
 
@@ -91,8 +90,7 @@ export function TallyServiceDetailPage({
   const transactionId = OperationsTransactionId.tallyService
   const canEdit = hasPermission(moduleId, transactionId, "isEdit")
   const canCreate = hasPermission(moduleId, transactionId, "isCreate")
-  const isPermissionReadOnly =
-    mode === "edit" ? !canEdit : !canCreate
+  const isPermissionReadOnly = mode === "edit" ? !canEdit : !canCreate
 
   const isValidId =
     mode === "edit" && !!tallyServiceId && /^\d+$/.test(tallyServiceId)
@@ -133,7 +131,6 @@ export function TallyServiceDetailPage({
     jobStatusId: tallyService?.jobStatusId,
     jobStatusName: tallyService?.jobStatusName,
   }
-  const isConfirmed = isJobLocked(jobStatus)
   const isPosted = isJobStatusLocked(jobStatus, tallyService?.isPost)
   const allowInvoicePreviewButton = canShowInvoicePreview(jobStatus)
   const allowInvoicePostButton = canShowInvoicePost(
@@ -145,7 +142,7 @@ export function TallyServiceDetailPage({
     tallyService?.isPost
   )
 
-  const isFieldsLocked = mode === "edit" && isConfirmed
+  const isFieldsLocked = mode === "edit" && isPosted
   const isReadOnly = isPermissionReadOnly
 
   const hasPostedInvoice =
@@ -375,7 +372,10 @@ export function TallyServiceDetailPage({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {mode === "edit" && tallyService && (
-            <Badge variant="outline" className="px-3 py-1.5 text-xs font-semibold">
+            <Badge
+              variant="outline"
+              className="px-3 py-1.5 text-xs font-semibold"
+            >
               {tallyService.tallyServiceNo || `#${tallyService.tallyServiceId}`}
               {tallyService.editVersion != null
                 ? ` · v${tallyService.editVersion}`
@@ -486,9 +486,7 @@ export function TallyServiceDetailPage({
       <TallyServiceForm
         companyId={numericCompanyId}
         initialData={tallyService}
-        mode={
-          isReadOnly ? "view" : mode === "create" ? "create" : "edit"
-        }
+        mode={isReadOnly ? "view" : mode === "create" ? "create" : "edit"}
         isFieldsLocked={isFieldsLocked}
         isJobStatusLocked={isPosted}
         submitAction={handleSaveRequest}
@@ -539,7 +537,10 @@ export function TallyServiceDetailPage({
         locAmtDec={decimals[0]?.locAmtDec || 2}
       />
 
-      <Dialog open={showPostInvoiceConfirm} onOpenChange={setShowPostInvoiceConfirm}>
+      <Dialog
+        open={showPostInvoiceConfirm}
+        onOpenChange={setShowPostInvoiceConfirm}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Generate Invoice</DialogTitle>

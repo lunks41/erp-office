@@ -45,6 +45,8 @@ export interface IInvoicePreviewLine {
   itemNo?: number
   chargeId?: number
   chargeName?: string
+  glCode?: string
+  glName?: string
   qty?: number
   unitPrice?: number
   totAmt?: number
