@@ -29,9 +29,13 @@ export interface ITallyLaunchServiceLine {
 export interface ITallyService {
   companyId: number
   tallyServiceId: number
+  tallyServiceNo?: string | null
+  tallyServiceNoSeq?: number | null
+  referenceNo?: string | null
   date: Date | string
   serviceDate?: Date | string | null
   accountDate?: Date | string | null
+  seriesDate?: Date | string | null
   customerId?: number | null
   customerCode?: string | null
   customerName?: string | null

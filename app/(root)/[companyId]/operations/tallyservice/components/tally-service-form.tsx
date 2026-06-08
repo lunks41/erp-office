@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ITallyService } from "@/interfaces"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
 import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
@@ -14,12 +14,15 @@ import { useFieldArray, useForm, type FieldErrors } from "react-hook-form"
 import { toast } from "sonner"
 
 import { getData } from "@/lib/api-client"
-import { BasicSetting } from "@/lib/api-routes"
+import { BasicSetting, TallyService } from "@/lib/api-routes"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import {
+  useCustomerAddressLookup,
+  useCustomerContactLookup,
+} from "@/hooks/use-lookup"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   BargeAutocomplete,
   CountryAutocomplete,
@@ -47,13 +50,14 @@ import { TallyServiceServiceTab } from "./tally-service-service-tab"
 import {
   buildFreshWaterLinesFromTally,
   buildLaunchLinesFromTally,
-  createEmptyFreshWaterLine,
   mapFormToTallyService,
 } from "./tally-service-utils"
 
 const SECTION_CARD_CLASS =
   "rounded-lg border border-border bg-card px-4 pb-4 pt-5 [&_.text-red-500]:dark:text-red-400"
-const SECTION_HEADER_ROW_CLASS = "mb-1 flex flex-wrap items-center gap-2"
+const SECTION_HEADER_ROW_CLASS = "mb-2 flex flex-wrap items-center gap-2"
+const SECTION_DIVIDER_CLASS =
+  "mb-4 border-b border-gray-200 dark:border-gray-700"
 const SECTION_BODY_CLASS = "pt-1"
 const SECTION_HEADER_BADGE_CLASS =
   "px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition-colors duration-200"
@@ -71,8 +75,6 @@ interface TallyServiceFormProps {
   isFieldsLocked?: boolean
   /** Lock job status only when posted (IsPost or status Posted). */
   isJobStatusLocked?: boolean
-  /** Fires when freshwater/launch line eligibility for save changes (at least one valid line). */
-  onSaveEligibilityChange?: (hasRequiredServiceLine: boolean) => void
 }
 
 function formatDurationToHhMm(value?: number | null): string {
@@ -92,7 +94,6 @@ export function TallyServiceForm({
   hideActions = false,
   isFieldsLocked = false,
   isJobStatusLocked = false,
-  onSaveEligibilityChange,
 }: TallyServiceFormProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
@@ -143,10 +144,21 @@ export function TallyServiceForm({
         )
       : serviceDate
 
+    const seriesDate = initialData?.seriesDate
+      ? format(
+          parseWithFallback(initialData.seriesDate as string) || new Date(),
+          dateFormat
+        )
+      : serviceDate
+
     return {
       tallyServiceId: initialData?.tallyServiceId ?? 0,
+      tallyServiceNo: initialData?.tallyServiceNo ?? "",
+      tallyServiceNoSeq: initialData?.tallyServiceNoSeq ?? 0,
+      referenceNo: initialData?.referenceNo ?? "",
       date: serviceDate,
       accountDate,
+      seriesDate,
       customerId: initialData?.customerId ?? 0,
       currencyId: initialData?.currencyId ?? 0,
       exhRate: initialData?.exhRate ?? 0,
@@ -173,11 +185,7 @@ export function TallyServiceForm({
       contactName: initialData?.contactName ?? "",
       mobileNo: initialData?.mobileNo ?? "",
       emailAdd: initialData?.emailAdd ?? "",
-      freshWaterLines: (() => {
-        const lines = buildFreshWaterLinesFromTally(initialData)
-        if (lines.length > 0) return lines
-        return mode === "create" ? [createEmptyFreshWaterLine()] : []
-      })(),
+      freshWaterLines: buildFreshWaterLinesFromTally(initialData),
       launchServiceLines: buildLaunchLinesFromTally(initialData).map(
         (line) => ({
           ...line,
@@ -234,13 +242,21 @@ export function TallyServiceForm({
   useEffect(() => {
     form.reset(buildDefaultValues())
     setCustomerCode(initialData?.customerCode ?? "")
-  }, [buildDefaultValues, form, initialData?.customerCode])
+    tallyServiceNoManualRef.current =
+      mode === "edit" && !!initialData?.tallyServiceNo
+  }, [buildDefaultValues, form, initialData?.customerCode, initialData?.tallyServiceNo, mode])
 
   const customerId = form.watch("customerId")
   const accountDate = form.watch("accountDate")
   const currencyId = form.watch("currencyId")
   const gstId = form.watch("gstId")
   const isCancel = form.watch("isCancel")
+  const serviceDate = form.watch("date")
+  const portId = form.watch("portId")
+  const tallyServiceNoManualRef = useRef(false)
+
+  const { data: customerAddresses = [] } = useCustomerAddressLookup(customerId)
+  const { data: customerContacts = [] } = useCustomerContactLookup(customerId)
 
   useEffect(() => {
     const updateExchangeRate = async () => {
@@ -263,6 +279,37 @@ export function TallyServiceForm({
     }
     updateExchangeRate()
   }, [accountDate, currencyId, exhRateDec, form, parseWithFallback])
+
+  useEffect(() => {
+    if (mode !== "create" || isReadOnly) return
+    if (tallyServiceNoManualRef.current) return
+    if (!portId || portId <= 0 || !serviceDate) return
+
+    const fetchNextTallyServiceNo = async () => {
+      try {
+        const parsedServiceDate = parseWithFallback(serviceDate)
+        if (!parsedServiceDate) return
+        const apiDate = format(parsedServiceDate, "yyyy-MM-dd")
+        const res = await getData(
+          `${TallyService.nextNo}?portId=${portId}&serviceDate=${apiDate}`
+        )
+        const payload = res?.data as
+          | { tallyServiceNo?: string; TallyServiceNo?: string; tallyServiceNoSeq?: number; TallyServiceNoSeq?: number }
+          | undefined
+        const nextNo = payload?.tallyServiceNo ?? payload?.TallyServiceNo
+        const nextSeq =
+          payload?.tallyServiceNoSeq ?? payload?.TallyServiceNoSeq ?? 0
+        if (nextNo) {
+          form.setValue("tallyServiceNo", nextNo)
+          form.setValue("tallyServiceNoSeq", nextSeq)
+        }
+      } catch {
+        /* ignore preview failures */
+      }
+    }
+
+    fetchNextTallyServiceNo()
+  }, [form, isReadOnly, mode, parseWithFallback, portId, serviceDate])
 
   useEffect(() => {
     const fetchGstPercentage = async () => {
@@ -331,43 +378,74 @@ export function TallyServiceForm({
     [customerId, form, handleCurrencyChange]
   )
 
-  const handleAddressSelect = (
-    address: ICustomerAddress | ISupplierAddress | IBankAddress | null
-  ) => {
-    const customerAddress = address as ICustomerAddress | null
-    setSelectedAddress(customerAddress)
-    if (customerAddress) {
-      form.setValue("addressId", customerAddress.addressId)
-      form.setValue("billName", customerAddress.billName || "")
-      form.setValue("address1", customerAddress.address1 || "")
-      form.setValue("address2", customerAddress.address2 || "")
-      form.setValue("address3", customerAddress.address3 || "")
-      form.setValue("address4", customerAddress.address4 || "")
-      form.setValue("pinCode", customerAddress.pinCode?.toString() || "")
-      form.setValue("phoneNo", customerAddress.phoneNo || "")
-      form.setValue("faxNo", customerAddress.faxNo || "")
-      form.setValue("countryId", customerAddress.countryId || 0)
-    } else {
-      form.setValue("addressId", 0)
-      setSelectedAddress(null)
-    }
-  }
+  const handleAddressSelect = useCallback(
+    (address: ICustomerAddress | ISupplierAddress | IBankAddress | null) => {
+      const customerAddress = address as ICustomerAddress | null
+      setSelectedAddress(customerAddress)
+      if (customerAddress) {
+        form.setValue("addressId", customerAddress.addressId)
+        form.setValue("billName", customerAddress.billName || "")
+        form.setValue("address1", customerAddress.address1 || "")
+        form.setValue("address2", customerAddress.address2 || "")
+        form.setValue("address3", customerAddress.address3 || "")
+        form.setValue("address4", customerAddress.address4 || "")
+        form.setValue("pinCode", customerAddress.pinCode?.toString() || "")
+        form.setValue("phoneNo", customerAddress.phoneNo || "")
+        form.setValue("faxNo", customerAddress.faxNo || "")
+        form.setValue("countryId", customerAddress.countryId || 0)
+      } else {
+        form.setValue("addressId", 0)
+        form.setValue("countryId", 0)
+        setSelectedAddress(null)
+      }
+    },
+    [form]
+  )
 
-  const handleContactSelect = (
-    contact: ICustomerContact | ISupplierContact | IBankContact | null
-  ) => {
-    const customerContact = contact as ICustomerContact | null
-    setSelectedContact(customerContact)
-    if (customerContact) {
-      form.setValue("contactId", customerContact.contactId)
-      form.setValue("contactName", customerContact.contactName || "")
-      form.setValue("mobileNo", customerContact.mobileNo || "")
-      form.setValue("emailAdd", customerContact.emailAdd || "")
-    } else {
-      form.setValue("contactId", 0)
-      setSelectedContact(null)
+  const handleContactSelect = useCallback(
+    (contact: ICustomerContact | ISupplierContact | IBankContact | null) => {
+      const customerContact = contact as ICustomerContact | null
+      setSelectedContact(customerContact)
+      if (customerContact) {
+        form.setValue("contactId", customerContact.contactId)
+        form.setValue("contactName", customerContact.contactName || "")
+        form.setValue("mobileNo", customerContact.mobileNo || "")
+        form.setValue("emailAdd", customerContact.emailAdd || "")
+      } else {
+        form.setValue("contactId", 0)
+        setSelectedContact(null)
+      }
+    },
+    [form]
+  )
+
+  useEffect(() => {
+    if (!customerId || customerId <= 0) return
+    if ((form.getValues("addressId") ?? 0) > 0) return
+    if (customerAddresses.length === 0) return
+
+    const defaultAddress =
+      customerAddresses.find((address) => address.isDefaultAdd && address.isActive) ??
+      customerAddresses.find((address) => address.isActive)
+
+    if (defaultAddress) {
+      handleAddressSelect(defaultAddress)
     }
-  }
+  }, [customerId, customerAddresses, form, handleAddressSelect])
+
+  useEffect(() => {
+    if (!customerId || customerId <= 0) return
+    if ((form.getValues("contactId") ?? 0) > 0) return
+    if (customerContacts.length === 0) return
+
+    const defaultContact =
+      customerContacts.find((contact) => contact.isDefault && contact.isActive) ??
+      customerContacts.find((contact) => contact.isActive)
+
+    if (defaultContact) {
+      handleContactSelect(defaultContact)
+    }
+  }, [customerId, customerContacts, form, handleContactSelect])
 
   const calculateWaitingTime = useCallback(
     (index: number) => {
@@ -433,6 +511,7 @@ export function TallyServiceForm({
         )
       }
       form.setValue("accountDate", format(selectedDate, dateFormat))
+      form.setValue("seriesDate", format(selectedDate, dateFormat))
       const launchLines = form.getValues("launchServiceLines") ?? []
       launchLines.forEach((line, index) => {
         form.setValue(
@@ -474,12 +553,19 @@ export function TallyServiceForm({
 
   const onSubmitInvalid = (errors: FieldErrors<TallyServiceSchemaType>) => {
     const collectFirst = (
-      e: FieldErrors<TallyServiceSchemaType> | Record<string, unknown> | undefined
+      e:
+        | FieldErrors<TallyServiceSchemaType>
+        | Record<string, unknown>
+        | undefined
     ): string | undefined => {
       if (!e || typeof e !== "object") return undefined
       for (const v of Object.values(e)) {
         if (!v) continue
-        if (typeof v === "object" && "message" in v && typeof v.message === "string") {
+        if (
+          typeof v === "object" &&
+          "message" in v &&
+          typeof v.message === "string"
+        ) {
           return v.message
         }
         const nested = collectFirst(v as Record<string, unknown>)
@@ -488,24 +574,9 @@ export function TallyServiceForm({
       return undefined
     }
     const msg =
-      collectFirst(errors) ||
-      "Please fix validation errors before saving."
+      collectFirst(errors) || "Please fix validation errors before saving."
     toast.error(msg)
   }
-
-  const watchedFresh = form.watch("freshWaterLines")
-  const watchedLaunch = form.watch("launchServiceLines")
-
-  const hasRequiredServiceLine = useMemo(
-    () =>
-      (watchedFresh ?? []).some((l) => l.chargeId > 0 && l.uomId > 0) ||
-      (watchedLaunch ?? []).some((l) => l.chargeId > 0),
-    [watchedFresh, watchedLaunch]
-  )
-
-  useEffect(() => {
-    onSaveEligibilityChange?.(hasRequiredServiceLine)
-  }, [hasRequiredServiceLine, onSaveEligibilityChange])
 
   return (
     <div className="flex flex-col gap-2">
@@ -513,16 +584,12 @@ export function TallyServiceForm({
         <form
           id={formId}
           onSubmit={form.handleSubmit(onSubmit, onSubmitInvalid)}
-          className="space-y-3"
+          className="space-y-4"
         >
-          <Tabs defaultValue="main" className="w-full">
-            <TabsList className="mb-2">
-              <TabsTrigger value="main">Main</TabsTrigger>
-              <TabsTrigger value="service">Service</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="main" className="mt-0 space-y-3">
-              <div className={SECTION_CARD_CLASS}>
+          <div className="space-y-4">
+            {/* Job details + accounts sidebar (checklist-new pattern) */}
+            <div className="flex flex-col gap-4 lg:flex-row">
+              <div className={`w-full lg:w-[75%] ${SECTION_CARD_CLASS}`}>
                 <div className={SECTION_HEADER_ROW_CLASS}>
                   <Badge
                     variant="outline"
@@ -531,7 +598,10 @@ export function TallyServiceForm({
                     ⚓ Tally Service Details
                   </Badge>
                 </div>
-                <div className={`grid grid-cols-4 gap-2 ${SECTION_BODY_CLASS}`}>
+                <div className={SECTION_DIVIDER_CLASS} />
+                <div
+                  className={`grid grid-cols-2 gap-2 sm:grid-cols-4 ${SECTION_BODY_CLASS}`}
+                >
                   <CustomDateNew
                     form={form}
                     name="date"
@@ -556,6 +626,21 @@ export function TallyServiceForm({
                     isRequired
                     isDisabled={isReadOnly}
                   />
+                  <CustomInput
+                    form={form}
+                    name="tallyServiceNo"
+                    label="Tally Service No"
+                    isDisabled={isReadOnly}
+                    onChangeEvent={() => {
+                      tallyServiceNoManualRef.current = true
+                    }}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="referenceNo"
+                    label="Reference No"
+                    isDisabled={isReadOnly}
+                  />
                   <VesselAutocomplete
                     form={form}
                     name="vesselId"
@@ -570,7 +655,6 @@ export function TallyServiceForm({
                     isRequired
                     isDisabled={isReadOnly}
                   />
-
                   <JobStatusAutocomplete
                     form={form}
                     name="jobStatusId"
@@ -585,25 +669,23 @@ export function TallyServiceForm({
                     showCharacterCount
                     minRows={1}
                     isDisabled={isReadOnly}
-                    className="col-span-2"
+                    className="col-span-2 sm:col-span-2"
                   />
                 </div>
               </div>
 
-              {/* Row 2: Accounts | Address + Contact */}
-              <div className="grid grid-cols-12 gap-4">
-                <div className={`col-span-4 ${SECTION_CARD_CLASS}`}>
-                  <div className={SECTION_HEADER_ROW_CLASS}>
-                    <Badge
-                      variant="outline"
-                      className={`${SECTION_HEADER_BADGE_CLASS} border-green-300 bg-green-100 text-green-800 hover:bg-green-200 dark:border-green-800/50 dark:bg-green-950/40 dark:text-green-100 dark:hover:bg-green-950/60`}
-                    >
-                      💰 Accounts
-                    </Badge>
-                  </div>
-                  <div
-                    className={`grid grid-cols-2 gap-2 ${SECTION_BODY_CLASS}`}
+              <div className={`w-full lg:w-[25%] ${SECTION_CARD_CLASS}`}>
+                <div className={SECTION_HEADER_ROW_CLASS}>
+                  <Badge
+                    variant="outline"
+                    className={`${SECTION_HEADER_BADGE_CLASS} border-green-300 bg-green-100 text-green-800 hover:bg-green-200 dark:border-green-800/50 dark:bg-green-950/40 dark:text-green-100 dark:hover:bg-green-950/60`}
                   >
+                    💰 Accounts
+                  </Badge>
+                </div>
+                <div className={SECTION_DIVIDER_CLASS} />
+                <div className={`grid grid-cols-1 gap-2 ${SECTION_BODY_CLASS}`}>
+                  <div className="grid grid-cols-2 gap-2">
                     <CurrencyAutocomplete
                       form={form}
                       name="currencyId"
@@ -621,213 +703,219 @@ export function TallyServiceForm({
                       round={exhRateDec}
                       className="text-right"
                     />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <CustomDateNew
                       form={form}
                       name="accountDate"
-                      label="Account | Debit Note Date"
+                      label="Account Date"
                       isRequired
                       isDisabled={isReadOnly}
                       isFutureShow
-                      className="col-span-2"
                     />
-                    <DynamicAddressAutocomplete
+                    <CustomDateNew
                       form={form}
-                      name="addressId"
-                      label="Address"
-                      entityId={customerId}
-                      entityType={AddressEntityType.CUSTOMER}
-                      onChangeEvent={handleAddressSelect}
+                      name="seriesDate"
+                      label="Series Date"
+                      isRequired
                       isDisabled={isReadOnly}
+                      isFutureShow
                     />
-                    <DynamicContactAutocomplete
-                      form={form}
-                      name="contactId"
-                      label="Contact"
-                      entityId={customerId}
-                      entityType={ContactEntityType.CUSTOMER}
-                      onChangeEvent={handleContactSelect}
-                      isDisabled={isReadOnly}
-                    />
-                    <div className="col-span-2 grid grid-cols-2 gap-2">
-                      <div className="col-span-2 flex flex-row flex-wrap items-center gap-6">
-                        <CustomCheckbox
-                          form={form}
-                          name="isActive"
-                          label="Active"
-                          labelPosition="top"
-                          isDisabled={isReadOnly}
-                        />
-                        <CustomCheckbox
-                          form={form}
-                          name="isPost"
-                          label="Posted"
-                          labelPosition="top"
-                          isDisabled
-                        />
-                      </div>
-                      <CustomCheckbox
-                        form={form}
-                        name="isCancel"
-                        label="Cancel"
-                        labelPosition="top"
-                        isDisabled={isReadOnly}
-                        className="col-span-2"
-                      />
-                      <GSTAutocomplete
-                        form={form}
-                        name="gstId"
-                        label="VAT"
-                        isRequired
-                        isDisabled={isReadOnly}
-                      />
-                      <CustomNumberInput
-                        form={form}
-                        name="gstPercentage"
-                        label="VAT %"
-                        isRequired
-                        isDisabled={isReadOnly}
-                      />
-                    </div>
-
-                    {isCancel && (
-                      <CustomTextarea
-                        form={form}
-                        name="cancelRemarks"
-                        label="Cancel Remarks"
-                        isDisabled={isReadOnly}
-                        maxLength={500}
-                        minRows={2}
-                        className="col-span-2"
-                      />
-                    )}
                   </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <GSTAutocomplete
+                      form={form}
+                      name="gstId"
+                      label="VAT"
+                      isRequired
+                      isDisabled={isReadOnly}
+                    />
+                    <CustomNumberInput
+                      form={form}
+                      name="gstPercentage"
+                      label="VAT %"
+                      isRequired
+                      isDisabled={isReadOnly}
+                    />
+                  </div>
+                  <div className="flex flex-row flex-wrap items-center gap-4 pt-1">
+                    <CustomCheckbox
+                      form={form}
+                      name="isActive"
+                      label="Active"
+                      labelPosition="top"
+                      isDisabled={isReadOnly}
+                    />
+                    <CustomCheckbox
+                      form={form}
+                      name="isPost"
+                      label="Posted"
+                      labelPosition="top"
+                      isDisabled
+                    />
+                  </div>
+                  {isCancel && (
+                    <CustomTextarea
+                      form={form}
+                      name="cancelRemarks"
+                      label="Cancel Remarks"
+                      isDisabled={isReadOnly}
+                      maxLength={500}
+                      minRows={2}
+                    />
+                  )}
                 </div>
+              </div>
+            </div>
 
-                <div className="col-span-8 grid grid-cols-2 gap-4">
-                  <div className={SECTION_CARD_CLASS}>
-                    <div className={SECTION_HEADER_ROW_CLASS}>
-                      <Badge
-                        variant="outline"
-                        className={`${SECTION_HEADER_BADGE_CLASS} border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-800/50 dark:bg-purple-950/40 dark:text-purple-100`}
-                      >
-                        📍 Address Details
-                      </Badge>
-                    </div>
+            <TallyServiceServiceTab
+              form={form}
+              isReadOnly={isReadOnly}
+              freshWaterFields={freshWaterFields}
+              appendFreshWater={appendFreshWater}
+              insertFreshWater={insertFreshWater}
+              removeFreshWater={removeFreshWater}
+              launchFields={launchFields}
+              appendLaunch={appendLaunch}
+              insertLaunch={insertLaunch}
+              removeLaunch={removeLaunch}
+              formatDurationToHhMm={formatDurationToHhMm}
+              calculateWaitingTime={calculateWaitingTime}
+              calculateTimeDiff={calculateTimeDiff}
+            />
 
-                    <div className={`grid gap-2 ${SECTION_BODY_CLASS}`}>
-                      <CustomInput
-                        form={form}
-                        name="billName"
-                        label="Bill Name"
-                        isDisabled={!selectedAddress || isReadOnly}
-                      />
-                      <div className="grid grid-cols-2 gap-2">
-                        <CustomTextarea
-                          form={form}
-                          name="address1"
-                          label="Address Line 1"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                        <CustomTextarea
-                          form={form}
-                          name="address2"
-                          label="Address Line 2"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                        <CustomTextarea
-                          form={form}
-                          name="address3"
-                          label="Address Line 3"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                        <CustomTextarea
-                          form={form}
-                          name="address4"
-                          label="Address Line 4"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <CountryAutocomplete
-                          form={form}
-                          name="countryId"
-                          label="Country"
-                          isDisabled={isReadOnly}
-                        />
-                        <CustomInput
-                          form={form}
-                          name="pinCode"
-                          label="Pin Code"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                        <CustomInput
-                          form={form}
-                          name="phoneNo"
-                          label="Phone No"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                        <CustomInput
-                          form={form}
-                          name="faxNo"
-                          label="Fax No"
-                          isDisabled={!selectedAddress || isReadOnly}
-                        />
-                      </div>
-                    </div>
+            {/* Bill-to: address + contact (pickers co-located with fields) */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className={SECTION_CARD_CLASS}>
+                <div className={SECTION_HEADER_ROW_CLASS}>
+                  <Badge
+                    variant="outline"
+                    className={`${SECTION_HEADER_BADGE_CLASS} border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-800/50 dark:bg-purple-950/40 dark:text-purple-100`}
+                  >
+                    📍 Address Details
+                  </Badge>
+                </div>
+                <div className={SECTION_DIVIDER_CLASS} />
+                <div className={`grid gap-2 ${SECTION_BODY_CLASS}`}>
+                  <DynamicAddressAutocomplete
+                    form={form}
+                    name="addressId"
+                    label="Address"
+                    entityId={customerId}
+                    entityType={AddressEntityType.CUSTOMER}
+                    onChangeEvent={handleAddressSelect}
+                    isDisabled={isReadOnly}
+                    isRequired
+                  />
+                  <CustomInput
+                    form={form}
+                    name="billName"
+                    label="Bill Name"
+                    isDisabled={!selectedAddress || isReadOnly}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <CustomTextarea
+                      form={form}
+                      name="address1"
+                      label="Address Line 1"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
+                    <CustomTextarea
+                      form={form}
+                      name="address2"
+                      label="Address Line 2"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
+                    <CustomTextarea
+                      form={form}
+                      name="address3"
+                      label="Address Line 3"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
+                    <CustomTextarea
+                      form={form}
+                      name="address4"
+                      label="Address Line 4"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
                   </div>
-                  <div className={SECTION_CARD_CLASS}>
-                    <div className={SECTION_HEADER_ROW_CLASS}>
-                      <Badge
-                        variant="outline"
-                        className={`${SECTION_HEADER_BADGE_CLASS} border-indigo-200 bg-indigo-100 text-indigo-800 dark:border-indigo-800/50 dark:bg-indigo-950/40 dark:text-indigo-100`}
-                      >
-                        👤 Contact Details
-                      </Badge>
-                    </div>
-
-                    <div className={`grid gap-2 ${SECTION_BODY_CLASS}`}>
-                      <CustomInput
-                        form={form}
-                        name="contactName"
-                        label="Contact Name"
-                        isDisabled={!selectedContact || isReadOnly}
-                      />
-                      <CustomInput
-                        form={form}
-                        name="emailAdd"
-                        label="Email"
-                        isDisabled={!selectedContact || isReadOnly}
-                      />
-                      <CustomInput
-                        form={form}
-                        name="mobileNo"
-                        label="Mobile No"
-                        isDisabled={!selectedContact || isReadOnly}
-                      />
-                    </div>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <CountryAutocomplete
+                      form={form}
+                      name="countryId"
+                      label="Country"
+                      isDisabled={isReadOnly}
+                      isRequired
+                    />
+                    <CustomInput
+                      form={form}
+                      name="pinCode"
+                      label="Pin Code"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
+                    <CustomInput
+                      form={form}
+                      name="phoneNo"
+                      label="Phone No"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
+                    <CustomInput
+                      form={form}
+                      name="faxNo"
+                      label="Fax No"
+                      isDisabled={!selectedAddress || isReadOnly}
+                    />
                   </div>
                 </div>
               </div>
-            </TabsContent>
 
-            <TabsContent value="service" className="mt-0">
-              <TallyServiceServiceTab
-                form={form}
-                isReadOnly={isReadOnly}
-                freshWaterFields={freshWaterFields}
-                appendFreshWater={appendFreshWater}
-                insertFreshWater={insertFreshWater}
-                removeFreshWater={removeFreshWater}
-                launchFields={launchFields}
-                appendLaunch={appendLaunch}
-                insertLaunch={insertLaunch}
-                removeLaunch={removeLaunch}
-                formatDurationToHhMm={formatDurationToHhMm}
-                calculateWaitingTime={calculateWaitingTime}
-                calculateTimeDiff={calculateTimeDiff}
-              />
-            </TabsContent>
-          </Tabs>
+              <div className={SECTION_CARD_CLASS}>
+                <div className={SECTION_HEADER_ROW_CLASS}>
+                  <Badge
+                    variant="outline"
+                    className={`${SECTION_HEADER_BADGE_CLASS} border-indigo-200 bg-indigo-100 text-indigo-800 dark:border-indigo-800/50 dark:bg-indigo-950/40 dark:text-indigo-100`}
+                  >
+                    👤 Contact Details
+                  </Badge>
+                </div>
+                <div className={SECTION_DIVIDER_CLASS} />
+                <div className={`grid gap-2 ${SECTION_BODY_CLASS}`}>
+                  <DynamicContactAutocomplete
+                    form={form}
+                    name="contactId"
+                    label="Contact"
+                    entityId={customerId}
+                    entityType={ContactEntityType.CUSTOMER}
+                    onChangeEvent={handleContactSelect}
+                    isDisabled={isReadOnly}
+                    isRequired
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <CustomInput
+                      form={form}
+                      name="contactName"
+                      label="Contact Name"
+                      isDisabled={!selectedContact || isReadOnly}
+                    />
+                    <CustomInput
+                      form={form}
+                      name="emailAdd"
+                      label="Email"
+                      isDisabled={!selectedContact || isReadOnly}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <CustomInput
+                      form={form}
+                      name="mobileNo"
+                      label="Mobile No"
+                      isDisabled={!selectedContact || isReadOnly}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <AuditTrailAccordion
             createBy={initialData?.createBy}

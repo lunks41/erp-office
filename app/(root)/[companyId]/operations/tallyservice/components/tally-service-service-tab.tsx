@@ -1,6 +1,5 @@
 "use client"
 
-import { useMemo, useState } from "react"
 import { TallyServiceSchemaType } from "@/schemas"
 import { Copy, Plus, Trash2 } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
@@ -17,12 +16,6 @@ import {
   createEmptyFreshWaterLine,
   createEmptyLaunchLine,
 } from "./tally-service-utils"
-
-type LineFilter = "all" | "freshwater" | "launch"
-
-type DisplayRow =
-  | { kind: "freshwater"; index: number; id: string }
-  | { kind: "launch"; index: number; id: string }
 
 interface TallyServiceServiceTabProps {
   form: UseFormReturn<TallyServiceSchemaType>
@@ -48,20 +41,14 @@ interface TallyServiceServiceTabProps {
 
 const lineFieldClass = "min-w-0 w-full"
 
-const serviceLinesSectionClass =
-  "space-y-2 rounded-lg border border-border bg-card p-2 [&_.text-red-500]:dark:text-red-400"
+const sectionCardClass =
+  "rounded-lg border border-border bg-card px-4 pb-4 pt-5 [&_.text-red-500]:dark:text-red-400"
 
 const freshWaterRowClass =
-  "flex flex-col gap-2 rounded-md border border-cyan-200 bg-cyan-50/40 p-2 dark:border-cyan-800/50 dark:bg-cyan-950/25"
+  "rounded-md border border-cyan-200 bg-cyan-50/40 p-3 dark:border-cyan-800/50 dark:bg-cyan-950/25"
 
 const launchRowClass =
-  "flex flex-col gap-2 rounded-md border border-sky-200 bg-sky-50/40 p-2 dark:border-sky-800/50 dark:bg-sky-950/25"
-
-const freshWaterBadgeClass =
-  "h-9 w-full justify-center bg-cyan-100 px-2 text-xs text-cyan-900 dark:bg-cyan-900/50 dark:text-cyan-100"
-
-const launchBadgeClass =
-  "h-9 w-full justify-center bg-sky-100 px-2 text-xs text-sky-900 dark:bg-sky-900/50 dark:text-sky-100"
+  "rounded-md border border-sky-200 bg-sky-50/40 p-3 dark:border-sky-800/50 dark:bg-sky-950/25"
 
 function ComputedDurationField({
   label,
@@ -87,6 +74,44 @@ function ComputedDurationField({
   )
 }
 
+function LineSectionHeader({
+  badgeLabel,
+  badgeClassName,
+  count,
+  countLabel,
+  addLabel,
+  onAdd,
+  isReadOnly,
+}: {
+  badgeLabel: string
+  badgeClassName: string
+  count: number
+  countLabel: string
+  addLabel: string
+  onAdd: () => void
+  isReadOnly: boolean
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="outline" className={badgeClassName}>
+          {badgeLabel}
+        </Badge>
+        <span className="text-muted-foreground text-xs">
+          {count} {countLabel}
+          {count === 1 ? "" : "s"}
+        </span>
+      </div>
+      {!isReadOnly && (
+        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
+          <Plus className="mr-1 h-4 w-4" />
+          {addLabel}
+        </Button>
+      )}
+    </div>
+  )
+}
+
 export function TallyServiceServiceTab({
   form,
   isReadOnly,
@@ -102,29 +127,6 @@ export function TallyServiceServiceTab({
   calculateWaitingTime,
   calculateTimeDiff,
 }: TallyServiceServiceTabProps) {
-  const [lineFilter, setLineFilter] = useState<LineFilter>("all")
-
-  const allRows = useMemo<DisplayRow[]>(() => {
-    const rows: DisplayRow[] = []
-    freshWaterFields.forEach((field, index) => {
-      rows.push({ kind: "freshwater", index, id: field.id })
-    })
-    launchFields.forEach((field, index) => {
-      rows.push({ kind: "launch", index, id: field.id })
-    })
-    return rows
-  }, [freshWaterFields, launchFields])
-
-  const visibleRows = useMemo(() => {
-    if (lineFilter === "freshwater") {
-      return allRows.filter((row) => row.kind === "freshwater")
-    }
-    if (lineFilter === "launch") {
-      return allRows.filter((row) => row.kind === "launch")
-    }
-    return allRows
-  }, [allRows, lineFilter])
-
   const duplicateFreshWater = (index: number) => {
     const line = form.getValues(`freshWaterLines.${index}`)
     insertFreshWater(index + 1, { ...line, itemNo: 0 })
@@ -140,80 +142,74 @@ export function TallyServiceServiceTab({
       key={freshWaterFields[index]?.id ?? `fw-${index}`}
       className={freshWaterRowClass}
     >
-      <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-end">
-        <div className="flex shrink-0 items-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-9 shrink-0"
-            disabled={isReadOnly}
-            onClick={() => removeFreshWater(index)}
-            title="Remove line"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-9 shrink-0"
-            disabled={isReadOnly}
-            onClick={() => duplicateFreshWater(index)}
-            title="Duplicate line"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-          <div className="flex w-22 shrink-0 flex-col gap-0.5">
-            <span className="text-muted-foreground text-xs font-medium">
-              Type
-            </span>
-            <Badge variant="secondary" className={freshWaterBadgeClass}>
-              Fresh water
-            </Badge>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs font-semibold text-cyan-900 dark:text-cyan-100">
+          Fresh water line {index + 1}
+        </span>
+        {!isReadOnly && (
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => duplicateFreshWater(index)}
+              title="Duplicate line"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => removeFreshWater(index)}
+              title="Remove line"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-        </div>
-        <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-5">
-          <CustomInput
-            form={form}
-            name={`freshWaterLines.${index}.tallyNo`}
-            label="Tally No"
-            isDisabled={isReadOnly}
-            className={lineFieldClass}
-          />
-          <CustomNumberInput
-            form={form}
-            name={`freshWaterLines.${index}.distance`}
-            label="Distance"
-            isDisabled={isReadOnly}
-            round={2}
-            className={lineFieldClass}
-          />
-
-          <ChargeAutocomplete
-            form={form}
-            name={`freshWaterLines.${index}.chargeId`}
-            label="Charge"
-            isRequired
-            isDisabled={isReadOnly}
-          />
-          <UomAutocomplete
-            form={form}
-            name={`freshWaterLines.${index}.uomId`}
-            label="UOM"
-            isRequired
-            isDisabled={isReadOnly}
-          />
-          <CustomNumberInput
-            form={form}
-            name={`freshWaterLines.${index}.quantity`}
-            label="Quantity"
-            isRequired
-            isDisabled={isReadOnly}
-            round={0}
-            className={lineFieldClass}
-          />
-        </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-5">
+        <CustomInput
+          form={form}
+          name={`freshWaterLines.${index}.tallyNo`}
+          label="Tally No"
+          isDisabled={isReadOnly}
+          className={lineFieldClass}
+        />
+        <CustomNumberInput
+          form={form}
+          name={`freshWaterLines.${index}.distance`}
+          label="Distance"
+          isDisabled={isReadOnly}
+          round={2}
+          className={lineFieldClass}
+        />
+        <ChargeAutocomplete
+          form={form}
+          name={`freshWaterLines.${index}.chargeId`}
+          label="Charge"
+          isRequired
+          isDisabled={isReadOnly}
+        />
+        <UomAutocomplete
+          form={form}
+          name={`freshWaterLines.${index}.uomId`}
+          label="UOM"
+          isRequired
+          isDisabled={isReadOnly}
+        />
+        <CustomNumberInput
+          form={form}
+          name={`freshWaterLines.${index}.quantity`}
+          label="Quantity"
+          isRequired
+          isDisabled={isReadOnly}
+          round={0}
+          className={lineFieldClass}
+        />
       </div>
     </div>
   )
@@ -223,218 +219,196 @@ export function TallyServiceServiceTab({
       key={launchFields[index]?.id ?? `launch-${index}`}
       className={launchRowClass}
     >
-      <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-start">
-        <div className="flex shrink-0 items-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-9 shrink-0"
-            disabled={isReadOnly}
-            onClick={() => removeLaunch(index)}
-            title="Remove line"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-9 shrink-0"
-            disabled={isReadOnly}
-            onClick={() => duplicateLaunch(index)}
-            title="Duplicate line"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-          <div className="flex w-22 shrink-0 flex-col gap-0.5">
-            <span className="text-muted-foreground text-xs font-medium">
-              Type
-            </span>
-            <Badge variant="secondary" className={launchBadgeClass}>
-              Launch
-            </Badge>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs font-semibold text-sky-900 dark:text-sky-100">
+          Launch line {index + 1}
+        </span>
+        {!isReadOnly && (
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => duplicateLaunch(index)}
+              title="Duplicate line"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => removeLaunch(index)}
+              title="Remove line"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
+          <CustomInput
+            form={form}
+            name={`launchServiceLines.${index}.tallyNo`}
+            label="Tally No"
+            isDisabled={isReadOnly}
+            className={lineFieldClass}
+          />
+          <CustomNumberInput
+            form={form}
+            name={`launchServiceLines.${index}.distance`}
+            label="Distance"
+            isDisabled={isReadOnly}
+            round={2}
+            className={lineFieldClass}
+          />
+          <ChargeAutocomplete
+            form={form}
+            name={`launchServiceLines.${index}.chargeId`}
+            label="Charge"
+            isRequired
+            isDisabled={isReadOnly}
+          />
+          <CustomNumberInput
+            form={form}
+            name={`launchServiceLines.${index}.deliveredWeight`}
+            label="Delivered"
+            isDisabled={isReadOnly}
+            round={3}
+            className={lineFieldClass}
+          />
+          <CustomNumberInput
+            form={form}
+            name={`launchServiceLines.${index}.landedWeight`}
+            label="Landed"
+            isDisabled={isReadOnly}
+            round={3}
+            className={lineFieldClass}
+          />
+          <CustomDateTimePicker
+            form={form}
+            name={`launchServiceLines.${index}.loadingTime`}
+            label="Loading"
+            isDisabled={isReadOnly}
+            isFutureShow
+            className={lineFieldClass}
+            onChangeEvent={() => calculateWaitingTime(index)}
+          />
         </div>
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
-            <CustomInput
-              form={form}
-              name={`launchServiceLines.${index}.tallyNo`}
-              label="Tally No"
-              isDisabled={isReadOnly}
-              className={lineFieldClass}
-            />
-            <CustomNumberInput
-              form={form}
-              name={`launchServiceLines.${index}.distance`}
-              label="Distance"
-              isDisabled={isReadOnly}
-              round={2}
-              className={lineFieldClass}
-            />
-            <ChargeAutocomplete
-              form={form}
-              name={`launchServiceLines.${index}.chargeId`}
-              label="Charge"
-              isRequired
-              isDisabled={isReadOnly}
-            />
-            <CustomNumberInput
-              form={form}
-              name={`launchServiceLines.${index}.deliveredWeight`}
-              label="Delivered"
-              isDisabled={isReadOnly}
-              round={3}
-              className={lineFieldClass}
-            />
-            <CustomNumberInput
-              form={form}
-              name={`launchServiceLines.${index}.landedWeight`}
-              label="Landed"
-              isDisabled={isReadOnly}
-              round={3}
-              className={lineFieldClass}
-            />
-            <CustomDateTimePicker
-              form={form}
-              name={`launchServiceLines.${index}.loadingTime`}
-              label="Loading"
-              isDisabled={isReadOnly}
-              isFutureShow
-              className={lineFieldClass}
-              onChangeEvent={() => calculateWaitingTime(index)}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
-            <CustomDateTimePicker
-              form={form}
-              name={`launchServiceLines.${index}.leftJetty`}
-              label="Left jetty"
-              isDisabled={isReadOnly}
-              isFutureShow
-              className={lineFieldClass}
-              onChangeEvent={() => calculateWaitingTime(index)}
-            />
-            <ComputedDurationField
-              label="Waiting"
-              className={lineFieldClass}
-              value={formatDurationToHhMm(
-                form.watch(`launchServiceLines.${index}.waitingTime`)
-              )}
-            />
-            <CustomDateTimePicker
-              form={form}
-              name={`launchServiceLines.${index}.alongsideVessel`}
-              label="Alongside"
-              isDisabled={isReadOnly}
-              isFutureShow
-              className={lineFieldClass}
-              onChangeEvent={() => calculateTimeDiff(index)}
-            />
-            <CustomDateTimePicker
-              form={form}
-              name={`launchServiceLines.${index}.departedFromVessel`}
-              label="Departed"
-              isDisabled={isReadOnly}
-              isFutureShow
-              className={lineFieldClass}
-              onChangeEvent={() => calculateTimeDiff(index)}
-            />
-            <ComputedDurationField
-              label="Time diff"
-              className={lineFieldClass}
-              value={formatDurationToHhMm(
-                form.watch(`launchServiceLines.${index}.timeDiff`)
-              )}
-            />
-            <CustomDateTimePicker
-              form={form}
-              name={`launchServiceLines.${index}.arrivedAtJetty`}
-              label="Arrived jetty"
-              isDisabled={isReadOnly}
-              isFutureShow
-              className={lineFieldClass}
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
+          <CustomDateTimePicker
+            form={form}
+            name={`launchServiceLines.${index}.leftJetty`}
+            label="Left jetty"
+            isDisabled={isReadOnly}
+            isFutureShow
+            className={lineFieldClass}
+            onChangeEvent={() => calculateWaitingTime(index)}
+          />
+          <ComputedDurationField
+            label="Waiting"
+            className={lineFieldClass}
+            value={formatDurationToHhMm(
+              form.watch(`launchServiceLines.${index}.waitingTime`)
+            )}
+          />
+          <CustomDateTimePicker
+            form={form}
+            name={`launchServiceLines.${index}.alongsideVessel`}
+            label="Alongside"
+            isDisabled={isReadOnly}
+            isFutureShow
+            className={lineFieldClass}
+            onChangeEvent={() => calculateTimeDiff(index)}
+          />
+          <CustomDateTimePicker
+            form={form}
+            name={`launchServiceLines.${index}.departedFromVessel`}
+            label="Departed"
+            isDisabled={isReadOnly}
+            isFutureShow
+            className={lineFieldClass}
+            onChangeEvent={() => calculateTimeDiff(index)}
+          />
+          <ComputedDurationField
+            label="Time diff"
+            className={lineFieldClass}
+            value={formatDurationToHhMm(
+              form.watch(`launchServiceLines.${index}.timeDiff`)
+            )}
+          />
+          <CustomDateTimePicker
+            form={form}
+            name={`launchServiceLines.${index}.arrivedAtJetty`}
+            label="Arrived jetty"
+            isDisabled={isReadOnly}
+            isFutureShow
+            className={lineFieldClass}
+          />
         </div>
       </div>
     </div>
   )
 
   return (
-    <div className={serviceLinesSectionClass}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="text-sm font-medium">Service lines</p>
-          <p className="text-muted-foreground text-xs">
-            {freshWaterFields.length} fresh water · {launchFields.length} launch
-          </p>
-        </div>
-        {allRows.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {(
-              [
-                ["all", "All"],
-                ["freshwater", "Fresh water"],
-                ["launch", "Launch"],
-              ] as const
-            ).map(([value, label]) => (
-              <Button
-                key={value}
-                type="button"
-                size="sm"
-                variant={lineFilter === value ? "default" : "outline"}
-                disabled={isReadOnly}
-                onClick={() => setLineFilter(value)}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-        ) : null}
+    <div className={cn(sectionCardClass, "space-y-4")}>
+      <div>
+        <Badge
+          variant="outline"
+          className="border-cyan-200 bg-cyan-100 px-3 py-1.5 text-xs font-semibold text-cyan-900 shadow-sm dark:border-cyan-800/50 dark:bg-cyan-950/40 dark:text-cyan-100"
+        >
+          🚢 Service Lines
+        </Badge>
+        <p className="text-muted-foreground mt-2 text-xs">
+          Add at least one fresh water line (charge + UOM) or one launch line
+          (charge) to save.
+        </p>
       </div>
 
-      {allRows.length === 0 ? (
-        <p className="text-muted-foreground text-xs">
-          No service lines yet. Add a fresh water or launch line below.
-        </p>
-      ) : visibleRows.length === 0 ? (
-        <p className="text-muted-foreground text-xs">
-          No lines match this filter.
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {visibleRows.map((row) =>
-            row.kind === "freshwater"
-              ? renderFreshWaterRow(row.index)
-              : renderLaunchRow(row.index)
-          )}
-        </div>
-      )}
+      <div className="space-y-3 border-t border-border pt-4">
+        <LineSectionHeader
+          badgeLabel="💧 Fresh Water"
+          badgeClassName="border-cyan-200 bg-cyan-100 text-cyan-900 dark:border-cyan-800/50 dark:bg-cyan-950/40 dark:text-cyan-100"
+          count={freshWaterFields.length}
+          countLabel="line"
+          addLabel="Add line"
+          onAdd={() => appendFreshWater(createEmptyFreshWaterLine())}
+          isReadOnly={isReadOnly}
+        />
+        {freshWaterFields.length === 0 ? (
+          <p className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-xs">
+            No fresh water lines yet.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {freshWaterFields.map((_, index) => renderFreshWaterRow(index))}
+          </div>
+        )}
+      </div>
 
-      {!isReadOnly ? (
-        <div className="flex flex-wrap gap-2 pt-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => appendFreshWater(createEmptyFreshWaterLine())}
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            Add fresh water line
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => appendLaunch(createEmptyLaunchLine())}
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            Add launch line
-          </Button>
-        </div>
-      ) : null}
+      <div className="space-y-3 border-t border-border pt-4">
+        <LineSectionHeader
+          badgeLabel="🚤 Launch"
+          badgeClassName="border-sky-200 bg-sky-100 text-sky-900 dark:border-sky-800/50 dark:bg-sky-950/40 dark:text-sky-100"
+          count={launchFields.length}
+          countLabel="line"
+          addLabel="Add line"
+          onAdd={() => appendLaunch(createEmptyLaunchLine())}
+          isReadOnly={isReadOnly}
+        />
+        {launchFields.length === 0 ? (
+          <p className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-xs">
+            No launch lines yet.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {launchFields.map((_, index) => renderLaunchRow(index))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

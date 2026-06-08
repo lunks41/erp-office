@@ -110,7 +110,6 @@ export function TallyServiceDetailPage({
   )
 
   const saveMutation = usePersist<ITallyService>(TallyService.add)
-  const [hasRequiredServiceLine, setHasRequiredServiceLine] = useState(false)
   const [saveConfirmation, setSaveConfirmation] = useState<{
     isOpen: boolean
     data: ITallyService | null
@@ -350,10 +349,16 @@ export function TallyServiceDetailPage({
   const title =
     mode === "create"
       ? "Create Tally Service"
-      : `Tally Service${tallyService?.tallyServiceId ? ` #${tallyService.tallyServiceId}` : ""}`
+      : `Tally Service${
+          tallyService?.tallyServiceNo
+            ? ` ${tallyService.tallyServiceNo}`
+            : tallyService?.tallyServiceId
+              ? ` #${tallyService.tallyServiceId}`
+              : ""
+        }`
 
   return (
-    <div className="@container mx-auto space-y-3 px-4 pt-2 pb-6 sm:px-8 lg:px-12">
+    <div className="@container mx-auto space-y-3 px-4 pt-2 pb-16 sm:px-8 lg:px-12">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
@@ -371,7 +376,7 @@ export function TallyServiceDetailPage({
         <div className="flex flex-wrap items-center gap-2">
           {mode === "edit" && tallyService && (
             <Badge variant="outline" className="px-3 py-1.5 text-xs font-semibold">
-              #{tallyService.tallyServiceId}
+              {tallyService.tallyServiceNo || `#${tallyService.tallyServiceId}`}
               {tallyService.editVersion != null
                 ? ` · v${tallyService.editVersion}`
                 : ""}
@@ -470,15 +475,7 @@ export function TallyServiceDetailPage({
             <Button
               type="submit"
               form={FORM_ID}
-              disabled={
-                saveMutation.isPending ||
-                !hasRequiredServiceLine
-              }
-              title={
-                !hasRequiredServiceLine
-                  ? "Add at least one freshwater line (charge + UOM) or one launch line (charge) on the Service tab"
-                  : undefined
-              }
+              disabled={saveMutation.isPending}
             >
               {saveMutation.isPending ? "Saving..." : "Save"}
             </Button>
@@ -499,7 +496,6 @@ export function TallyServiceDetailPage({
         isSubmitting={saveMutation.isPending}
         formId={FORM_ID}
         hideActions
-        onSaveEligibilityChange={setHasRequiredServiceLine}
       />
 
       <SaveConfirmation
@@ -518,7 +514,7 @@ export function TallyServiceDetailPage({
         }
         itemName={
           saveConfirmation.data?.tallyServiceId
-            ? `Tally Service #${saveConfirmation.data.tallyServiceId}`
+            ? `Tally Service ${saveConfirmation.data.tallyServiceNo || `#${saveConfirmation.data.tallyServiceId}`}`
             : saveConfirmation.data?.customerName ||
               saveConfirmation.data?.chargeName ||
               "this tally service"

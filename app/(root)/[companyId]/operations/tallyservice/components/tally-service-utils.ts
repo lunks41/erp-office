@@ -11,6 +11,18 @@ import {
 } from "@/schemas"
 
 import { formatDateForApi, formatDateTimeForApi } from "@/lib/date-utils"
+import { pickNumber, pickString } from "@/lib/overview-row-pickers"
+
+export function getDisplayTallyServiceNo(
+  item: Partial<ITallyService> | Record<string, unknown> | null | undefined
+): string {
+  if (!item) return "-"
+  const record = item as Record<string, unknown>
+  const no = pickString(record, ["tallyServiceNo", "TallyServiceNo"])
+  if (no) return no
+  const id = pickNumber(record, ["tallyServiceId", "TallyServiceId"])
+  return id > 0 ? `#${id}` : "-"
+}
 
 export function createEmptyFreshWaterLine(): TallyFreshWaterLineSchemaType {
   return {
@@ -52,9 +64,13 @@ export function createEmptyTallyService(companyId: number): ITallyService {
   return {
     companyId,
     tallyServiceId: 0,
+    tallyServiceNo: "",
+    tallyServiceNoSeq: 0,
+    referenceNo: "",
     date: "",
     serviceDate: "",
     accountDate: "",
+    seriesDate: "",
     customerId: 0,
     currencyId: 0,
     exhRate: 0,
@@ -101,8 +117,12 @@ export function createEmptyTallyService(companyId: number): ITallyService {
 /** Payload shape expected by SaveTallyService API (camelCase JSON). */
 export type TallyServiceSavePayload = {
   tallyServiceId: number
+  tallyServiceNo?: string | null
+  tallyServiceNoSeq?: number | null
+  referenceNo?: string | null
   serviceDate: string
   accountDate?: string
+  seriesDate?: string
   customerId?: number | null
   currencyId?: number | null
   exhRate?: number | null
@@ -230,13 +250,19 @@ export function mapFormToTallyService(
   const formattedDate = formatDateForApi(data.date) || data.date
   const formattedAccountDate =
     formatDateForApi(data.accountDate) || data.accountDate
+  const formattedSeriesDate =
+    formatDateForApi(data.seriesDate) || data.seriesDate
 
   return {
     companyId,
     tallyServiceId: data.tallyServiceId,
+    tallyServiceNo: data.tallyServiceNo?.trim() || "",
+    tallyServiceNoSeq: data.tallyServiceNoSeq ?? 0,
+    referenceNo: data.referenceNo?.trim() || "",
     date: formattedDate,
     serviceDate: formattedDate,
     accountDate: formattedAccountDate,
+    seriesDate: formattedSeriesDate,
     customerId: data.customerId,
     currencyId: data.currencyId,
     exhRate: data.exhRate,
@@ -312,11 +338,16 @@ export function mapTallyServiceForSave(
 ): TallyServiceSavePayload {
   const serviceDate = String(data.serviceDate || data.date || "")
   const accountDate = String(data.accountDate || serviceDate)
+  const seriesDate = String(data.seriesDate || serviceDate)
 
   return {
     tallyServiceId: data.tallyServiceId ?? 0,
+    tallyServiceNo: data.tallyServiceNo?.trim() || "",
+    tallyServiceNoSeq: data.tallyServiceNoSeq ?? 0,
+    referenceNo: data.referenceNo?.trim() || "",
     serviceDate,
     accountDate,
+    seriesDate,
     customerId: data.customerId,
     currencyId: data.currencyId,
     exhRate: data.exhRate,
@@ -371,15 +402,25 @@ export function normalizeTallyService(
   const base = createEmptyTallyService(companyId)
   const serviceDate = item.date ?? item.serviceDate ?? base.date
   const accountDate = item.accountDate ?? serviceDate
+  const seriesDate = item.seriesDate ?? serviceDate
+
+  const itemRecord = item as Record<string, unknown>
 
   return {
     ...base,
     ...item,
     companyId: item.companyId ?? companyId,
     tallyServiceId: item.tallyServiceId ?? 0,
+    tallyServiceNo: pickString(itemRecord, ["tallyServiceNo", "TallyServiceNo"]),
+    tallyServiceNoSeq: pickNumber(itemRecord, [
+      "tallyServiceNoSeq",
+      "TallyServiceNoSeq",
+    ]),
+    referenceNo: pickString(itemRecord, ["referenceNo", "ReferenceNo"]),
     date: serviceDate,
     serviceDate,
     accountDate,
+    seriesDate,
     customerId: item.customerId ?? base.customerId,
     currencyId: item.currencyId ?? base.currencyId,
     exhRate: item.exhRate ?? base.exhRate,

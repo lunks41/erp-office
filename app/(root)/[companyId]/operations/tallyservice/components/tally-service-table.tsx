@@ -1,9 +1,8 @@
 "use client"
 
 import { useCallback, useMemo } from "react"
-import { ITallyService } from "@/interfaces"
 import { getDisplayTallyServiceLines } from "@/helpers/tally-service-details"
-import { openTallyServiceTab } from "./tally-service-utils"
+import { ITallyService } from "@/interfaces"
 import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
@@ -19,6 +18,7 @@ import {
   TallyServiceInlineTextCell,
   TallyServiceInlineTypeCell,
 } from "./tally-service-inline-detail-cells"
+import { getDisplayTallyServiceNo, openTallyServiceTab } from "./tally-service-utils"
 
 interface TallyServiceTableProps {
   companyId: string
@@ -128,18 +128,38 @@ export function TallyServiceTable({
   const columns: ColumnDef<ITallyService>[] = useMemo(
     () => [
       {
+        accessorKey: "tallyServiceNo",
+        header: "Tally No",
+        cell: ({ row }) => (
+          <TableCellLink
+            type="button"
+            onClick={() => openRecord(row.original)}
+          >
+            {getDisplayTallyServiceNo(row.original)}
+          </TableCellLink>
+        ),
+        size: 170,
+        minSize: 140,
+      },
+      {
         accessorKey: "tallyServiceId",
-        header: "Tally #",
-        cell: ({ row }) => {
-          const id = row.original.tallyServiceId
-          return (
-            <TableCellLink type="button" onClick={() => openRecord(row.original)}>
-              #{id}
-            </TableCellLink>
-          )
-        },
-        size: 90,
-        minSize: 70,
+        header: "Id",
+        cell: ({ row }) => (
+          <div className="text-muted-foreground truncate">
+            {row.original.tallyServiceId}
+          </div>
+        ),
+        size: 70,
+        minSize: 55,
+      },
+      {
+        accessorKey: "referenceNo",
+        header: "Reference No",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
+        ),
+        size: 140,
+        minSize: 110,
       },
       {
         accessorKey: "date",
@@ -156,9 +176,7 @@ export function TallyServiceTable({
         accessorKey: "customerName",
         header: "Customer",
         cell: ({ row }) => (
-          <div className="truncate">
-            {row.getValue("customerName") || "-"}
-          </div>
+          <div className="truncate">{row.getValue("customerName") || "-"}</div>
         ),
         size: 160,
         minSize: 130,
@@ -260,11 +278,7 @@ export function TallyServiceTable({
                 chargeName?: string | null
                 ChargeName?: string | null
               }
-              return (
-                line.chargeName?.trim() ||
-                line.ChargeName?.trim() ||
-                "-"
-              )
+              return line.chargeName?.trim() || line.ChargeName?.trim() || "-"
             }}
           />
         ),
@@ -297,7 +311,7 @@ export function TallyServiceTable({
           <TallyServiceInlineNumberCell
             lines={getDisplayTallyServiceLines(row.original)}
             format={(entry) =>
-              entry.kind === "freshwater" ? entry.line.quantity ?? 0 : "-"
+              entry.kind === "freshwater" ? (entry.line.quantity ?? 0) : "-"
             }
           />
         ),
@@ -311,9 +325,7 @@ export function TallyServiceTable({
           <TallyServiceInlineNumberCell
             lines={getDisplayTallyServiceLines(row.original)}
             format={(entry) =>
-              entry.kind === "launch"
-                ? entry.line.deliveredWeight ?? 0
-                : "-"
+              entry.kind === "launch" ? (entry.line.deliveredWeight ?? 0) : "-"
             }
           />
         ),
@@ -327,7 +339,7 @@ export function TallyServiceTable({
           <TallyServiceInlineNumberCell
             lines={getDisplayTallyServiceLines(row.original)}
             format={(entry) =>
-              entry.kind === "launch" ? entry.line.landedWeight ?? 0 : "-"
+              entry.kind === "launch" ? (entry.line.landedWeight ?? 0) : "-"
             }
           />
         ),

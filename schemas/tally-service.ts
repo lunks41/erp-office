@@ -7,17 +7,21 @@ import {
 
 export const tallyServiceSchema = z.object({
   tallyServiceId: z.number(),
+  tallyServiceNo: z.string().max(50).optional(),
+  tallyServiceNoSeq: z.number().min(0).optional(),
+  referenceNo: z.string().max(100).optional(),
   date: z.string().min(1, "Service Date is required"),
   accountDate: z.string().min(1, "Account Date is required"),
+  seriesDate: z.string().min(1, "Series Date is required"),
   customerId: z.number().min(1, "Customer is required"),
   currencyId: z.number().min(1, "Currency is required"),
   exhRate: z.number().min(0, "Exchange rate must be 0 or greater"),
   vesselId: z.number().min(1, "Vessel is required"),
   bargeId: z.number().min(1, "Barge is required"),
   portId: z.number().min(1, "Port is required"),
-  addressId: z.number().optional(),
-  contactId: z.number().optional(),
-  gstId: z.number().optional(),
+  addressId: z.number().min(1, "Address is required"),
+  contactId: z.number().min(1, "Contact is required"),
+  gstId: z.number().min(1, "VAT is required"),
   gstPercentage: z.number().optional(),
   isActive: z.boolean(),
   isPost: z.boolean().optional(),
@@ -29,7 +33,7 @@ export const tallyServiceSchema = z.object({
   address3: z.string().optional(),
   address4: z.string().optional(),
   pinCode: z.string().optional(),
-  countryId: z.number().optional(),
+  countryId: z.number().min(1, "Country is required"),
   phoneNo: z.string().optional(),
   faxNo: z.string().optional(),
   contactName: z.string().optional(),
@@ -59,6 +63,33 @@ export const tallyServiceSchema = z.object({
         path: ["freshWaterLines", 0, "chargeId"],
       })
     }
+
+    data.freshWaterLines.forEach((line, index) => {
+      if (line.chargeId <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Charge is required",
+          path: ["freshWaterLines", index, "chargeId"],
+        })
+      }
+      if (line.chargeId > 0 && line.uomId <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "UOM is required",
+          path: ["freshWaterLines", index, "uomId"],
+        })
+      }
+    })
+
+    data.launchServiceLines.forEach((line, index) => {
+      if (line.chargeId <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Charge is required",
+          path: ["launchServiceLines", index, "chargeId"],
+        })
+      }
+    })
   })
 
 export type TallyServiceSchemaType = z.infer<typeof tallyServiceSchema>

@@ -1336,6 +1336,7 @@ export const Template = {
 export const TallyService = {
   get: "/operations/gettallyservice",
   getById: "/operations/gettallyservicebyid",
+  nextNo: "/operations/getnexttallyserviceno",
   add: "/operations/savetallyservice",
   delete: "/operations/deletetallyservice",
   generateInvoice: "/operations/GetGenerateInvoiceByTallyServiceId",
