@@ -31,7 +31,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { TableName } from "@/lib/utils"
+import { TableName, cn } from "@/lib/utils"
 import { useGetGridLayout } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 // Virtual scrolling removed - using empty rows instead
@@ -511,8 +511,11 @@ export function AccountEditableBaseTable<T>({
                   <TableRow key={headerGroup.id} className="bg-muted/50">
                     {/* Render each header */}
                     {headerGroup.headers.map((header) => {
-                      // Don't use SortableTableHeader for drag-actions column
-                      if (header.id === "drag-actions") {
+                      // Custom header cells (e.g. select-all checkbox) must not use SortableTableHeader
+                      if (
+                        header.id === "drag-actions" ||
+                        header.id === "isSel"
+                      ) {
                         return (
                           <TableHead
                             key={header.id}
@@ -525,15 +528,18 @@ export function AccountEditableBaseTable<T>({
                             className="bg-muted group hover:bg-muted/80 sticky left-0 z-40 transition-colors"
                           >
                             {header.isPlaceholder ? null : (
-                              <div className="flex items-center justify-between pl-3">
-                                <div className="flex items-center">
-                                  <span className="font-medium">
-                                    {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                    )}
-                                  </span>
-                                </div>
+                              <div
+                                className={cn(
+                                  "flex items-center",
+                                  header.id === "isSel"
+                                    ? "justify-center"
+                                    : "justify-between pl-3"
+                                )}
+                              >
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
                               </div>
                             )}
                           </TableHead>

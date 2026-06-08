@@ -26,6 +26,10 @@ import {
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import {
+  mapBankReconDetailFromApi,
+  parseBankReconPrevReconId,
+} from "@/helpers/cb-bankrecon-mappers"
 import { getById } from "@/lib/api-client"
 import { CbBankRecon } from "@/lib/api-routes"
 import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils"
@@ -132,7 +136,7 @@ export default function BankReconPage() {
       ? {
           reconId: bankRecon.reconId?.toString() ?? "0",
           reconNo: bankRecon.reconNo ?? "",
-          prevReconId: bankRecon.prevReconId ?? 0,
+          prevReconId: parseBankReconPrevReconId(bankRecon.prevReconId),
           prevReconNo: bankRecon.prevReconNo ?? "",
           referenceNo: bankRecon.referenceNo ?? "",
           trnDate: bankRecon.trnDate ?? new Date(),
@@ -170,32 +174,28 @@ export default function BankReconPage() {
           appBy: bankRecon.appBy ?? "",
           appDate: bankRecon.appDate ?? "",
           data_details:
-            bankRecon.data_details?.map((detail) => ({
-              ...detail,
-              reconId: detail.reconId?.toString() ?? "0",
-              reconNo: detail.reconNo ?? "",
-              itemNo: detail.itemNo ?? 0,
-              isSel: detail.isSel ?? false,
-              moduleId: detail.moduleId ?? 0,
-              transactionId: detail.transactionId ?? 0,
-              documentId: detail.documentId ?? 0,
-              documentNo: detail.documentNo ?? "",
-              docReferenceNo: detail.docReferenceNo ?? "",
-              accountDate: detail.accountDate ?? new Date(),
-              paymentTypeId: detail.paymentTypeId ?? 0,
-              chequeNo: detail.chequeNo ?? "",
-              chequeDate: detail.chequeDate ?? new Date(),
-              customerId: detail.customerId ?? 0,
-              supplierId: detail.supplierId ?? 0,
-              glId: detail.glId ?? 0,
-              isDebit: detail.isDebit ?? false,
-              exhRate: detail.exhRate ?? 0,
-              totAmt: detail.totAmt ?? 0,
-              totLocalAmt: detail.totLocalAmt ?? 0,
-              paymentFromTo: detail.paymentFromTo ?? "",
-              remarks: detail.remarks ?? "",
-              editVersion: detail.editVersion ?? 0,
-            })) || [],
+            bankRecon.data_details?.map((detail) =>
+              mapBankReconDetailFromApi(detail as unknown as Record<string, unknown>, {
+                ...detail,
+                reconId: detail.reconId?.toString() ?? "0",
+                reconNo: detail.reconNo ?? "",
+                itemNo: detail.itemNo ?? 0,
+                isSel: detail.isSel ?? false,
+                documentNo: detail.documentNo ?? "",
+                docRefNo: detail.docRefNo ?? "",
+                accountDate: detail.accountDate ?? new Date(),
+                paymentTypeId: detail.paymentTypeId ?? 0,
+                chequeNo: detail.chequeNo ?? "",
+                chequeDate: detail.chequeDate ?? new Date(),
+                customerId: detail.customerId ?? 0,
+                supplierId: detail.supplierId ?? 0,
+                glId: detail.glId ?? 0,
+                isDebit: detail.isDebit ?? false,
+                paymentFromTo: detail.paymentFromTo ?? "",
+                remarks: detail.remarks ?? "",
+                editVersion: detail.editVersion ?? 0,
+              })
+            ) || [],
         }
       : (() => {
           // For new bankRecon, set createDate with time and createBy
@@ -240,6 +240,11 @@ export default function BankReconPage() {
       const formValues = transformToSchemaType(
         form.getValues() as unknown as ICbBankReconHd
       )
+      if (formValues.data_details?.length) {
+        formValues.data_details = formValues.data_details.map((detail) =>
+          mapBankReconDetailFromApi(detail as unknown as Record<string, unknown>)
+        )
+      }
 
       // Validate the form data using the schema
       const validationResult = bankReconSchema.safeParse(formValues)
@@ -507,7 +512,7 @@ export default function BankReconPage() {
     return {
       reconId: apiBankRecon.reconId?.toString() ?? "0",
       reconNo: apiBankRecon.reconNo ?? "",
-      prevReconId: apiBankRecon.prevReconId ?? 0,
+      prevReconId: parseBankReconPrevReconId(apiBankRecon.prevReconId),
       prevReconNo: apiBankRecon.prevReconNo ?? "",
       referenceNo: apiBankRecon.referenceNo ?? "",
       trnDate: apiBankRecon.trnDate
@@ -586,45 +591,37 @@ export default function BankReconPage() {
           )
         : "",
       data_details:
-        apiBankRecon.data_details?.map(
-          (detail) =>
-            ({
-              ...detail,
-              reconId: detail.reconId?.toString() ?? "0",
-              reconNo: detail.reconNo ?? "",
-              itemNo: detail.itemNo ?? 0,
-              isSel: detail.isSel ?? false,
-              moduleId: detail.moduleId ?? 0,
-              transactionId: detail.transactionId ?? 0,
-              documentId: detail.documentId ?? 0,
-              documentNo: detail.documentNo ?? "",
-              docReferenceNo: detail.docReferenceNo ?? "",
-              accountDate: detail.accountDate
-                ? format(
-                    parseDate(detail.accountDate as string) || new Date(),
-                    clientDateFormat
-                  )
-                : "",
-              paymentTypeId: detail.paymentTypeId ?? 0,
-              chequeNo: detail.chequeNo ?? "",
-              chequeDate: detail.chequeDate
-                ? format(
-                    parseDate(detail.chequeDate as string) || new Date(),
-                    clientDateFormat
-                  )
-                : "",
-              customerId: detail.customerId ?? 0,
-              supplierId: detail.supplierId ?? 0,
-              glId: detail.glId ?? 0,
-              isDebit: detail.isDebit ?? false,
-              exhRate: detail.exhRate ?? 0,
-              totAmt: detail.totAmt ?? 0,
-              totLocalAmt: detail.totLocalAmt ?? 0,
-              paymentFromTo: detail.paymentFromTo ?? "",
-              remarks: detail.remarks ?? "",
-              editVersion: detail.editVersion ?? 0,
-            }) as unknown as CbBankReconDtSchemaType
-        ) || [],
+        (apiBankRecon.data_details?.map((detail) =>
+          mapBankReconDetailFromApi(detail as unknown as Record<string, unknown>, {
+            reconId: detail.reconId?.toString() ?? "0",
+            reconNo: detail.reconNo ?? "",
+            itemNo: detail.itemNo ?? 0,
+            isSel: detail.isSel ?? false,
+            documentNo: detail.documentNo ?? "",
+            docRefNo: detail.docRefNo ?? "",
+            accountDate: detail.accountDate
+              ? format(
+                  parseDate(detail.accountDate as string) || new Date(),
+                  clientDateFormat
+                )
+              : "",
+            paymentTypeId: detail.paymentTypeId ?? 0,
+            chequeNo: detail.chequeNo ?? "",
+            chequeDate: detail.chequeDate
+              ? format(
+                  parseDate(detail.chequeDate as string) || new Date(),
+                  clientDateFormat
+                )
+              : "",
+            customerId: detail.customerId ?? 0,
+            supplierId: detail.supplierId ?? 0,
+            glId: detail.glId ?? 0,
+            isDebit: detail.isDebit ?? false,
+            paymentFromTo: detail.paymentFromTo ?? "",
+            remarks: detail.remarks ?? "",
+            editVersion: detail.editVersion ?? 0,
+          })
+        ) ?? []) as CbBankReconDtSchemaType[],
     }
   }
 
@@ -811,45 +808,40 @@ export default function BankReconPage() {
               seqNo = currentSeqNo
             }
 
-            return {
-              ...(detail as unknown as CbBankReconDtSchemaType),
-              reconId: detail.reconId?.toString() ?? "0",
-              reconNo: detail.reconNo ?? "",
-              itemNo,
-              // seqNo is used for display only; keep it on the object
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ...( { seqNo } as any ),
-              isSel: detail.isSel ?? false,
-              moduleId: detail.moduleId ?? 0,
-              transactionId: detail.transactionId ?? 0,
-              documentId: detail.documentId ?? 0,
-              documentNo: detail.documentNo ?? "",
-              docReferenceNo: detail.docReferenceNo ?? "",
-              accountDate: detail.accountDate
-                ? format(
-                    parseDate(detail.accountDate as string) || new Date(),
-                    clientDateFormat
-                  )
-                : "",
-              paymentTypeId: detail.paymentTypeId ?? 0,
-              chequeNo: detail.chequeNo ?? "",
-              chequeDate: detail.chequeDate
-                ? format(
-                    parseDate(detail.chequeDate as string) || new Date(),
-                    clientDateFormat
-                  )
-                : "",
-              customerId: detail.customerId ?? 0,
-              supplierId: detail.supplierId ?? 0,
-              glId: detail.glId ?? 0,
-              isDebit: detail.isDebit ?? false,
-              exhRate: detail.exhRate ?? 0,
-              totAmt: detail.totAmt ?? 0,
-              totLocalAmt: detail.totLocalAmt ?? 0,
-              paymentFromTo: detail.paymentFromTo ?? "",
-              remarks: detail.remarks ?? "",
-              editVersion: detail.editVersion ?? 0,
-            }
+            return mapBankReconDetailFromApi(
+              detail as unknown as Record<string, unknown>,
+              {
+                reconId: detail.reconId?.toString() ?? "0",
+                reconNo: detail.reconNo ?? "",
+                itemNo,
+                // seqNo is used for display only; keep it on the object
+                seqNo,
+                isSel: detail.isSel ?? false,
+                documentNo: detail.documentNo ?? "",
+                docRefNo: detail.docRefNo ?? "",
+                accountDate: detail.accountDate
+                  ? format(
+                      parseDate(detail.accountDate as string) || new Date(),
+                      clientDateFormat
+                    )
+                  : "",
+                paymentTypeId: detail.paymentTypeId ?? 0,
+                chequeNo: detail.chequeNo ?? "",
+                chequeDate: detail.chequeDate
+                  ? format(
+                      parseDate(detail.chequeDate as string) || new Date(),
+                      clientDateFormat
+                    )
+                  : "",
+                customerId: detail.customerId ?? 0,
+                supplierId: detail.supplierId ?? 0,
+                glId: detail.glId ?? 0,
+                isDebit: detail.isDebit ?? false,
+                paymentFromTo: detail.paymentFromTo ?? "",
+                remarks: detail.remarks ?? "",
+                editVersion: detail.editVersion ?? 0,
+              }
+            )
           }
         )
 

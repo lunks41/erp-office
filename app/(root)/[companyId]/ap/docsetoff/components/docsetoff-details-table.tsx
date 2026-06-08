@@ -2,17 +2,18 @@ import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { IApDocSetOffDt } from "@/interfaces/ap-docsetoff"
 import { IVisibleFields } from "@/interfaces/setting"
+// Extended column definition with hide property
+import { useCompanyStore } from "@/stores/company-store"
 import { usePermissionStore } from "@/stores/permission-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
 import { formatNumber } from "@/lib/format-utils"
 import { APTransactionId, ModuleId, TableName } from "@/lib/utils"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { AccountReceiptBaseTable } from "@/components/table/table-account-receipt"
 
-// Extended column definition with hide property
-import { useCompanyStore } from "@/stores/company-store"
 type ExtendedColumnDef<T> = ColumnDef<T> & {
   hidden?: boolean
 }
@@ -281,8 +282,8 @@ export default function DocSetOffDetailsTable({
       },
     },
     {
-      accessorKey: "referenceNo",
-      header: "Reference No",
+      accessorKey: "docRefNo",
+      header: "Invoice No",
       size: 120,
     },
 

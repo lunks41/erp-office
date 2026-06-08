@@ -64,7 +64,7 @@ export interface ICbBankReconDt {
   transactionId: number
   documentId: number
   documentNo: string
-  docReferenceNo: string
+  docRefNo: string
   accountDate: Date | string
   paymentTypeId: number
   paymentTypeName: string

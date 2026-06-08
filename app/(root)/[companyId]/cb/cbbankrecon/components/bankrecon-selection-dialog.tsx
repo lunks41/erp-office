@@ -1,13 +1,13 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useEffect, useState } from "react"
 import { ICbBankReconHd } from "@/interfaces"
+import { useCompanyStore } from "@/stores/company-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, subMonths } from "date-fns"
-import { FormProvider, useForm } from "react-hook-form"
 import { Search } from "lucide-react"
+import { FormProvider, useForm } from "react-hook-form"
+
 import { CbBankRecon } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { CBTransactionId, ModuleId, TableName } from "@/lib/utils"
@@ -27,7 +27,7 @@ import { DialogDataTable } from "@/components/table/table-dialog"
 interface BankReconSelectionDialogProps {
   open: boolean
   onOpenChangeAction: (open: boolean) => void
-  onSelectBankReconAction: (reconNo: string, reconId: string) => void
+  onSelectBankReconAction: (recon: ICbBankReconHd) => void
   bankId: number
   currencyId?: number
   companyId: number
@@ -112,22 +112,17 @@ export default function BankReconSelectionDialog({
       },
     },
     {
-      accessorKey: "bankId",
+      accessorKey: "bankName",
       header: "Bank Name",
       size: 150,
-      cell: ({ row }) => {
-        // You may need to fetch bank name from a lookup
-        return row.original.bankId || "-"
-      },
+      cell: ({ row }) => row.original.bankName || "-",
     },
     {
-      accessorKey: "currencyId",
+      accessorKey: "currencyName",
       header: "Currency",
       size: 100,
-      cell: ({ row }) => {
-        // You may need to fetch currency name from a lookup
-        return row.original.currencyId || "-"
-      },
+      cell: ({ row }) =>
+        row.original.currencyName || row.original.currencyCode || "-",
     },
     {
       accessorKey: "totAmt",
@@ -220,7 +215,7 @@ export default function BankReconSelectionDialog({
 
   const handleRowSelect = (row: ICbBankReconHd | null) => {
     if (row) {
-      onSelectBankReconAction(row.reconNo || "", row.reconId || "")
+      onSelectBankReconAction(row)
       onOpenChangeAction(false)
     }
   }
@@ -243,7 +238,7 @@ export default function BankReconSelectionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-hidden">
           <FormProvider {...form}>
             <div className="mb-4 flex items-center gap-2">
               {/* From Date */}

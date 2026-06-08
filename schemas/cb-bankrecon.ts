@@ -131,7 +131,7 @@ export const CbBankReconDtSchema = (
     transactionId: z.number().min(1, "Transaction is required"),
     documentId: z.number().min(1, "Document is required"),
     documentNo: z.string().min(1, "Document No is required"),
-    docReferenceNo: z.string().optional(),
+    docRefNo: z.string().optional(),
     accountDate: z.union([z.date(), z.string()]),
 
     // Payment Fields

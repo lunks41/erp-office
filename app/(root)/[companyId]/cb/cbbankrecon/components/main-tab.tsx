@@ -4,7 +4,10 @@ import { useCompanyStore } from "@/stores/company-store"
 // main-tab.tsx - Bank Reconciliation
 
 import { useEffect } from "react"
-import { calculateTotalAmounts } from "@/helpers/cb-bankrecon-calculations"
+import {
+  calculateClosingBalance,
+  calculateTotalAmounts,
+} from "@/helpers/cb-bankrecon-calculations"
 import { ICbBankReconDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankReconDtSchemaType, CbBankReconHdSchemaType } from "@/schemas"
@@ -35,6 +38,9 @@ export default function Main({
 
   // Watch data_details for reactive updates
   const dataDetails = form.watch("data_details") || []
+  const opBalAmt = form.watch("opBalAmt") ?? 0
+  const debitTotAmt = form.watch("debitTotAmt") ?? 0
+  const creditTotAmt = form.watch("creditTotAmt") ?? 0
 
   // Recalculate header totals when details change
   useEffect(() => {
@@ -51,7 +57,8 @@ export default function Main({
     // Calculate base currency totals and debit/credit
     const totals = calculateTotalAmounts(
       dataDetails as unknown as ICbBankReconDt[],
-      amtDec
+      amtDec,
+      locAmtDec
     )
     form.setValue("totAmt", totals.totAmt)
     form.setValue("debitTotAmt", totals.debitTotAmt)
@@ -60,7 +67,16 @@ export default function Main({
     form.setValue("unAllocTotAmt", totals.unAllocTotAmt)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataDetails.length, amtDec, locAmtDec])
+  }, [dataDetails, amtDec, locAmtDec])
+
+  // Keep closing balance in sync with opening balance and detail totals
+  useEffect(() => {
+    form.setValue(
+      "clBalAmt",
+      calculateClosingBalance(opBalAmt, debitTotAmt, creditTotAmt, amtDec)
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opBalAmt, debitTotAmt, creditTotAmt, amtDec])
 
   const handleDelete = (itemNo: number) => {
     const currentData = form.getValues("data_details") || []
@@ -108,6 +124,44 @@ export default function Main({
     )
   }
 
+  const handleCellUpdate = (
+    itemNo: number,
+    field: keyof ICbBankReconDt,
+    value: string | Date | boolean
+  ) => {
+    const currentData = form.getValues("data_details") || []
+    const updated = currentData.map((item) =>
+      item.itemNo === itemNo ? { ...item, [field]: value } : item
+    )
+
+    form.setValue(
+      "data_details",
+      updated as unknown as CbBankReconDtSchemaType[],
+      {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      }
+    )
+    form.trigger("data_details")
+  }
+
+  const handleSelectAll = (selected: boolean) => {
+    const currentData = form.getValues("data_details") || []
+    const updated = currentData.map((item) => ({ ...item, isSel: selected }))
+
+    form.setValue(
+      "data_details",
+      updated as unknown as CbBankReconDtSchemaType[],
+      {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      }
+    )
+    form.trigger("data_details")
+  }
+
   return (
     <div className="w-full space-y-4">
       <BankReconForm
@@ -124,6 +178,8 @@ export default function Main({
         onDeleteAction={handleDelete}
         onBulkDeleteAction={handleBulkDelete}
         onDataReorder={handleDataReorder}
+        onCellUpdate={handleCellUpdate}
+        onSelectAllAction={handleSelectAll}
         visible={visible}
       />
     </div>

@@ -7,7 +7,7 @@ const defaultBankReconDetails = {
   transactionId: 0,
   documentId: 0,
   documentNo: "",
-  docReferenceNo: "",
+  docRefNo: "",
   accountDate: new Date(),
   paymentTypeId: 0,
   chequeNo: "",

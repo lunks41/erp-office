@@ -3,6 +3,7 @@
 import { useCompanyStore } from "@/stores/company-store"
 
 import * as React from "react"
+import { ICbBankReconHd } from "@/interfaces/cb-bankrecon"
 import { IBankLookup, ICurrencyLookup } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { CbBankReconHdSchemaType } from "@/schemas"
@@ -10,7 +11,19 @@ import { endOfMonth, isAfter, isValid, startOfMonth } from "date-fns"
 import { Plus } from "lucide-react"
 import { FormProvider, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
+import { getData } from "@/lib/api-client"
+import { CbBankRecon } from "@/lib/api-routes"
 import { parseDate } from "@/lib/date-utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   BankAutocomplete,
@@ -46,24 +59,157 @@ export default function BankReconForm({
 
   const [isBankReconDialogOpen, setIsBankReconDialogOpen] =
     React.useState(false)
+  const [showBankChangeConfirm, setShowBankChangeConfirm] =
+    React.useState(false)
+  const [pendingBank, setPendingBank] = React.useState<IBankLookup | null>(null)
+  const previousBankIdRef = React.useRef<number>(form.getValues("bankId") ?? 0)
 
-  // Handle bank selection
-  const handleBankChange = React.useCallback(
-    (selectedBank: IBankLookup | null) => {
-      // Additional logic when bank changes
-      // When bank changes in New Mode, update currency to match bank's currency
-      if (!_isEdit && selectedBank && selectedBank.currencyId) {
+  const clearDetailsAndTotals = React.useCallback(() => {
+    form.setValue("data_details", [], {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    })
+    form.setValue("totAmt", 0)
+    form.setValue("debitTotAmt", 0)
+    form.setValue("creditTotAmt", 0)
+    form.setValue("allocTotAmt", 0)
+    form.setValue("unAllocTotAmt", 0)
+    form.trigger("data_details")
+  }, [form])
+
+  const applyPreviousReconHeader = React.useCallback(
+    (recon: ICbBankReconHd) => {
+      form.setValue("prevReconNo", recon.reconNo ?? "")
+      form.setValue("prevReconId", Number(recon.reconId) || 0)
+      form.setValue("opBalAmt", recon.clBalAmt ?? 0)
+      form.trigger(["prevReconNo", "prevReconId", "opBalAmt"])
+    },
+    [form]
+  )
+
+  const loadLatestPreviousRecon = React.useCallback(
+    async (bankIdValue: number, currencyIdValue?: number) => {
+      if (!bankIdValue || bankIdValue <= 0) return
+
+      try {
+        const response = await getData(CbBankRecon.get, {
+          pageNumber: "1",
+          pageSize: "2000",
+          searchString: "null",
+          startDate: "",
+          endDate: "",
+          isAllTime: "true",
+        })
+
+        const records = Array.isArray(response?.data)
+          ? (response.data as ICbBankReconHd[])
+          : []
+
+        const latest = records
+          .filter(
+            (item) =>
+              item.bankId === bankIdValue &&
+              !item.isCancel &&
+              (!currencyIdValue || item.currencyId === currencyIdValue)
+          )
+          .sort((a, b) => {
+            const dateA = a.accountDate
+              ? new Date(a.accountDate).getTime()
+              : 0
+            const dateB = b.accountDate
+              ? new Date(b.accountDate).getTime()
+              : 0
+            if (dateA !== dateB) return dateB - dateA
+            return (Number(b.reconId) || 0) - (Number(a.reconId) || 0)
+          })[0]
+
+        if (latest) {
+          applyPreviousReconHeader(latest)
+        } else {
+          form.setValue("prevReconNo", "")
+          form.setValue("prevReconId", 0)
+          form.setValue("opBalAmt", 0)
+          form.trigger(["prevReconNo", "prevReconId", "opBalAmt"])
+        }
+      } catch {
+        toast.error("Failed to load previous bank reconciliation")
+      }
+    },
+    [applyPreviousReconHeader, form]
+  )
+
+  const applyBankChange = React.useCallback(
+    async (selectedBank: IBankLookup | null) => {
+      if (!_isEdit && selectedBank?.currencyId) {
         const currentCurrencyId = form.getValues("currencyId")
-
-        // Only update currency if it's different from bank's currency
         if (currentCurrencyId !== selectedBank.currencyId) {
           form.setValue("currencyId", selectedBank.currencyId)
           form.trigger("currencyId")
         }
       }
+
+      if (!_isEdit && selectedBank?.bankId) {
+        await loadLatestPreviousRecon(
+          selectedBank.bankId,
+          selectedBank.currencyId
+        )
+      }
+
+      previousBankIdRef.current = selectedBank?.bankId ?? 0
     },
-    [_isEdit, form]
+    [_isEdit, form, loadLatestPreviousRecon]
   )
+
+  // Handle bank selection
+  const handleBankChange = React.useCallback(
+    (selectedBank: IBankLookup | null) => {
+      const newBankId = selectedBank?.bankId ?? 0
+      const previousBankId = previousBankIdRef.current
+      const details = form.getValues("data_details") || []
+
+      if (
+        !_isEdit &&
+        details.length > 0 &&
+        previousBankId > 0 &&
+        newBankId > 0 &&
+        newBankId !== previousBankId
+      ) {
+        setPendingBank(selectedBank)
+        setShowBankChangeConfirm(true)
+        form.setValue("bankId", previousBankId)
+        form.trigger("bankId")
+        return
+      }
+
+      void applyBankChange(selectedBank)
+    },
+    [_isEdit, applyBankChange, form]
+  )
+
+  const handleConfirmBankChange = React.useCallback(async () => {
+    if (!pendingBank) {
+      setShowBankChangeConfirm(false)
+      return
+    }
+
+    clearDetailsAndTotals()
+    form.setValue("prevReconNo", "")
+    form.setValue("prevReconId", 0)
+    form.setValue("opBalAmt", 0)
+    form.setValue("bankId", pendingBank.bankId)
+    form.trigger(["bankId", "prevReconNo", "prevReconId", "opBalAmt"])
+
+    await applyBankChange(pendingBank)
+    setPendingBank(null)
+    setShowBankChangeConfirm(false)
+    toast.info("Details cleared. Click Refresh to load transactions for the new bank.")
+  }, [applyBankChange, clearDetailsAndTotals, form, pendingBank])
+
+  const handleCancelBankChange = React.useCallback(() => {
+    setPendingBank(null)
+    setShowBankChangeConfirm(false)
+  }, [])
 
   // Handle currency selection
   const handleCurrencyChange = React.useCallback(
@@ -75,17 +221,20 @@ export default function BankReconForm({
 
   // Handle bank reconciliation selection
   const handleBankReconSelect = React.useCallback(
-    (reconNo: string, reconId: string) => {
-      form.setValue("prevReconNo", reconNo)
-      form.setValue("prevReconId", Number(reconId) || 0)
-      form.trigger("prevReconNo")
-      form.trigger("prevReconId")
+    (recon: ICbBankReconHd) => {
+      applyPreviousReconHeader(recon)
     },
-    [form]
+    [applyPreviousReconHeader]
   )
 
   // Watch core fields
   const bankId = form.watch("bankId")
+
+  React.useEffect(() => {
+    if (bankId && bankId > 0) {
+      previousBankIdRef.current = bankId
+    }
+  }, [bankId])
   const currencyId = form.watch("currencyId")
   const isBankSelected = bankId && bankId > 0
 
@@ -350,6 +499,31 @@ export default function BankReconForm({
           companyId={companyId}
         />
       )}
+
+      <AlertDialog
+        open={showBankChangeConfirm}
+        onOpenChange={(open) => {
+          if (!open) handleCancelBankChange()
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change Bank?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Changing the bank will clear all reconciliation details. You will
+              need to click Refresh to load transactions for the new bank.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelBankChange}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => void handleConfirmBankChange()}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </FormProvider>
   )
 }

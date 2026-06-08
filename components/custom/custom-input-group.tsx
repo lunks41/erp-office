@@ -122,7 +122,7 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
                     type="button"
                     className={cn(btnClass, "border-l-0 border-r border-gray-300 dark:border-gray-600")}
                     onClick={onButtonClick}
-                    disabled={buttonDisabled || isDisabled}
+                    disabled={buttonDisabled}
                     tabIndex={-1}
                   >
                     {buttonIcon}
@@ -168,7 +168,7 @@ export default function CustomInputGroup<T extends Record<string, unknown>>({
                     type="button"
                     className={btnClass}
                     onClick={onButtonClick}
-                    disabled={buttonDisabled || isDisabled}
+                    disabled={buttonDisabled}
                     tabIndex={-1}
                   >
                     {buttonIcon}

@@ -1,7 +1,5 @@
 ﻿"use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   autoAllocateAmounts,
@@ -13,6 +11,7 @@ import {
 import { IApDocSetOffDt, IApOutTransaction } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApDocSetOffDtSchemaType, ApDocSetOffHdSchemaType } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { Check, Plus, RotateCcw, X, Zap } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
@@ -20,7 +19,7 @@ import { toast } from "sonner"
 import { APTransactionId } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import ArOutStandingTransactionsDialog from "@/components/accounttransaction/ap-outstandingtransactions-dialog"
+import ApOutStandingTransactionsDialog from "@/components/accounttransaction/ap-outstandingtransactions-dialog"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 
 import DocSetOffDetailsTable from "./docsetoff-details-table"
@@ -585,7 +584,7 @@ export default function Main({
             transactionId: transaction.transactionId,
             documentId: String(transaction.documentId),
             documentNo: transaction.documentNo,
-            referenceNo: transaction.suppNo,
+            docRefNo: transaction.referenceNo ?? "",
             docCurrencyId: transaction.currencyId,
             docCurrencyCode: transaction.currencyCode || "",
             docExhRate: transaction.exhRate,
@@ -681,7 +680,7 @@ export default function Main({
           </Button>
           <Badge
             variant="secondary"
-            className="border-border bg-blue-100 px-3 py-1 text-sm font-medium text-primary"
+            className="border-border text-primary bg-blue-100 px-3 py-1 text-sm font-medium"
           >
             Total Alloc: {(form.getValues("allocTotAmt") || 0).toFixed(amtDec)}
           </Badge>
@@ -734,7 +733,7 @@ export default function Main({
 
       {/* Transaction Selection Dialog */}
       {showTransactionDialog && dialogParamsRef.current && (
-        <ArOutStandingTransactionsDialog
+        <ApOutStandingTransactionsDialog
           open={showTransactionDialog}
           onOpenChangeAction={setShowTransactionDialog}
           supplierId={dialogParamsRef.current.supplierId}

@@ -399,8 +399,8 @@ export default function EditVersionDetails({
       header: "Document No",
     },
     {
-      accessorKey: "docReferenceNo",
-      header: "Doc Reference No",
+      accessorKey: "docRefNo",
+      header: "Doc Ref No",
     },
     {
       accessorKey: "accountDate",

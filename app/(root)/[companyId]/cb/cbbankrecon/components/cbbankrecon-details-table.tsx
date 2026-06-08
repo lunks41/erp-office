@@ -34,6 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { calculateTotalAmounts } from "@/helpers/cb-bankrecon-calculations"
 import { AccountEditableBaseTable } from "@/components/table/table-account-editable"
 
 // Extended column definition with hide property
@@ -55,6 +56,7 @@ interface BankReconDetailsTableProps {
     field: keyof ICbBankReconDt,
     value: string | Date | boolean
   ) => void
+  onSelectAllAction?: (selected: boolean) => void
   visible: IVisibleFields
 }
 
@@ -66,6 +68,7 @@ export default function BankReconDetailsTable({
   onFilterChange,
   onDataReorder,
   onCellUpdate,
+  onSelectAllAction,
   visible: _visible,
 }: BankReconDetailsTableProps) {
   const params = useParams()
@@ -503,16 +506,41 @@ export default function BankReconDetailsTable({
     },
     {
       accessorKey: "isSel",
-      header: "Sel",
+      id: "isSel",
+      enableSorting: false,
+      header: () => {
+        const allSelected =
+          data.length > 0 && data.every((row) => row.isSel === true)
+        const someSelected = data.some((row) => row.isSel === true)
+
+        return (
+          <div
+            className="flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              checked={
+                allSelected ? true : someSelected ? "indeterminate" : false
+              }
+              onCheckedChange={(checked) => {
+                onSelectAllAction?.(checked === true)
+              }}
+              className="cursor-pointer"
+              aria-label="Select all rows"
+            />
+          </div>
+        )
+      },
       size: 50,
       cell: ({ row }) => (
-        <div className="flex items-center justify-center">
+        <div
+          className="flex items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Checkbox
             checked={row.original.isSel || false}
             onCheckedChange={(checked) => {
-              if (onCellUpdate) {
-                onCellUpdate(row.original.itemNo, "isSel", checked === true)
-              }
+              onCellUpdate?.(row.original.itemNo, "isSel", checked === true)
             }}
             className="cursor-pointer"
           />
@@ -591,11 +619,11 @@ export default function BankReconDetailsTable({
       },
     },
     {
-      accessorKey: "docReferenceNo",
-      header: "Doc Reference",
+      accessorKey: "docRefNo",
+      header: "Doc Ref No",
       size: 120,
       cell: ({ row }) => (
-        <div className="text-sm">{row.original.docReferenceNo ?? "-"}</div>
+        <div className="text-sm">{row.original.docRefNo ?? "-"}</div>
       ),
     },
     {
@@ -843,24 +871,71 @@ export default function BankReconDetailsTable({
   // Filter out columns with hidden: true
   const visibleColumns = columns.filter((column) => !column.hidden)
 
+  const columnTotals = useMemo(
+    () => calculateTotalAmounts(data, amtDec, locAmtDec),
+    [data, amtDec, locAmtDec]
+  )
+
+  const formatAmount = (value: number, decimals: number) =>
+    value.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    })
+
   if (!mounted) {
     return <div>Loading...</div>
   }
 
   return (
-    <AccountEditableBaseTable
-      data={data as unknown[]}
-      columns={visibleColumns as ColumnDef<unknown>[]}
-      accessorId={"itemNo" as keyof unknown}
-      onDeleteAction={handleDelete}
-      onBulkDeleteAction={handleBulkDelete}
-      onRefreshAction={onRefreshAction}
-      onFilterChange={onFilterChange}
-      onDataReorder={(newData) => onDataReorder?.(newData as ICbBankReconDt[])}
-      tableName={TableName.cbBankReconDt}
-      emptyMessage="No reconciliation details. Add transactions to reconcile."
-      hideEdit={true}
-      showActions={false}
-    />
+    <div className="w-full">
+      <AccountEditableBaseTable
+        data={data as unknown[]}
+        columns={visibleColumns as ColumnDef<unknown>[]}
+        accessorId={"itemNo" as keyof unknown}
+        onDeleteAction={handleDelete}
+        onBulkDeleteAction={handleBulkDelete}
+        onRefreshAction={onRefreshAction}
+        onFilterChange={onFilterChange}
+        onDataReorder={(newData) => onDataReorder?.(newData as ICbBankReconDt[])}
+        tableName={TableName.cbBankReconDt}
+        emptyMessage="No reconciliation details. Add transactions to reconcile."
+        hideEdit={true}
+        showActions={false}
+      />
+      <div
+        className="border-border/80 bg-muted/30 mt-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border border-t-0 px-3 py-2 text-xs"
+        data-testid="cbbankrecon-details-table-footer"
+      >
+        <span className="text-muted-foreground shrink-0">
+          Total Lines: {data.length}
+        </span>
+        <div className="flex flex-wrap items-center justify-end gap-4 sm:gap-6">
+          <span className="font-medium">
+            Debit Amt:{" "}
+            <span className="tabular-nums">
+              {formatAmount(columnTotals.debitTotAmt, amtDec)}
+            </span>
+          </span>
+          <span className="font-medium">
+            Credit Amt:{" "}
+            <span className="tabular-nums">
+              {formatAmount(columnTotals.creditTotAmt, amtDec)}
+            </span>
+          </span>
+          <span className="text-muted-foreground font-medium">
+            Debit Local:{" "}
+            <span className="tabular-nums">
+              {formatAmount(columnTotals.debitLocalTotAmt, locAmtDec)}
+            </span>
+          </span>
+          <span className="text-muted-foreground font-medium">
+            Credit Local:{" "}
+            <span className="tabular-nums">
+              {formatAmount(columnTotals.creditLocalTotAmt, locAmtDec)}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
   )
 }

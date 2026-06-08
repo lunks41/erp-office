@@ -72,7 +72,11 @@ export function SortableTableHeader<TData>({
 
   const handleSortToggle = header.column.getToggleSortingHandler()
   const isActionsColumn = header.column.id === "actions"
-  const canSort = header.column.getCanSort() && !isActionsColumn
+  const isCustomHeader =
+    typeof header.column.columnDef.header !== "string" &&
+    typeof header.column.columnDef.header !== "undefined"
+  const canSort =
+    header.column.getCanSort() && !isActionsColumn && !isCustomHeader
 
   const align =
     (header.column.columnDef.meta as { align?: string } | undefined)?.align ??
@@ -113,34 +117,51 @@ export function SortableTableHeader<TData>({
               )}
             >
               <div
-                {...(!isActionsColumn ? attributes : {})}
-                {...(!isActionsColumn ? listeners : {})}
+                {...(!isActionsColumn && !isCustomHeader ? attributes : {})}
+                {...(!isActionsColumn && !isCustomHeader ? listeners : {})}
                 className={cn(
-                  "flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden",
+                  "flex min-w-0 flex-1 items-center gap-0.5",
+                  isCustomHeader ? "justify-center overflow-visible" : "overflow-hidden",
                   !isActionsColumn &&
+                    !isCustomHeader &&
                     "cursor-grab active:cursor-grabbing"
                 )}
                 aria-label={
-                  !isActionsColumn ? "Drag to reorder column" : undefined
+                  !isActionsColumn && !isCustomHeader
+                    ? "Drag to reorder column"
+                    : undefined
                 }
-                title={!isActionsColumn ? "Drag to reorder column" : undefined}
+                title={
+                  !isActionsColumn && !isCustomHeader
+                    ? "Drag to reorder column"
+                    : undefined
+                }
               >
-                <span
-                  className={cn(
-                    "min-w-0 flex-1 font-medium truncate",
-                    isRightAligned && "text-right"
-                  )}
-                  title={
-                    typeof header.column.columnDef.header === "string"
-                      ? header.column.columnDef.header
-                      : String(header.column.id)
-                  }
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </span>
+                {isCustomHeader ? (
+                  <div className="flex items-center justify-center">
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </div>
+                ) : (
+                  <span
+                    className={cn(
+                      "min-w-0 flex-1 font-medium truncate",
+                      isRightAligned && "text-right"
+                    )}
+                    title={
+                      typeof header.column.columnDef.header === "string"
+                        ? header.column.columnDef.header
+                        : String(header.column.id)
+                    }
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </span>
+                )}
               </div>
 
               {canSort ? (

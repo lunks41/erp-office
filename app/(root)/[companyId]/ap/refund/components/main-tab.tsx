@@ -1,7 +1,5 @@
 ﻿"use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   applyCentDiffAdjustment,
@@ -14,6 +12,7 @@ import {
 import { IApOutTransaction, IApRefundDt } from "@/interfaces"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApRefundDtSchemaType, ApRefundHdSchemaType } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { Plus, RotateCcw, Zap } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
@@ -574,7 +573,7 @@ export default function Main({
           transactionId: transaction.transactionId,
           documentId: String(transaction.documentId),
           documentNo: transaction.documentNo,
-          referenceNo: transaction.referenceNo,
+          docRefNo: transaction.referenceNo ?? "",
           docCurrencyId: transaction.currencyId,
           docCurrencyCode: transaction.currencyCode || "",
           docExhRate: transaction.exhRate,
@@ -665,7 +664,7 @@ export default function Main({
           </Button>
           <Badge
             variant="secondary"
-            className="border-border bg-blue-100 px-3 py-1 text-sm font-medium text-primary"
+            className="border-border text-primary bg-blue-100 px-3 py-1 text-sm font-medium"
           >
             Total Alloc: {(form.getValues("allocTotAmt") || 0).toFixed(amtDec)}
           </Badge>
