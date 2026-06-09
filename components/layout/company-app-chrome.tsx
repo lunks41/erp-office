@@ -94,8 +94,12 @@ export function CompanyAppChrome({
           </header>
           <HorizontalModuleNav />
           <AnnouncementBanner />
-          <main id="main-content" className="bg-muted/20 flex-1" role="main">
-            <div className="min-h-full">{children}</div>
+          <main
+            id="main-content"
+            className="bg-muted/20 flex min-h-0 flex-1 flex-col"
+            role="main"
+          >
+            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
           </main>
         </SidebarInset>
       </SidebarProvider>

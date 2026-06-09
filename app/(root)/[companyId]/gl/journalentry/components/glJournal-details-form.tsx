@@ -1,7 +1,5 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import React, {
   useEffect,
   useImperativeHandle,
@@ -40,8 +38,9 @@ import {
   GLJournalDtSchemaType,
   GLJournalHdSchemaType,
 } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
+import { FormProvider, useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
 import { clientDateFormat } from "@/lib/date-utils"
@@ -421,7 +420,9 @@ const GLJournalDetailsForm = React.forwardRef<
       if (!chartOfAccounts) return
 
       const glIdToEvaluate =
-        watchedGlId && watchedGlId > 0 ? watchedGlId : (editingDetail?.glId ?? 0)
+        watchedGlId && watchedGlId > 0
+          ? watchedGlId
+          : (editingDetail?.glId ?? 0)
 
       if (!glIdToEvaluate || glIdToEvaluate <= 0) {
         setIsJobSpecific(false)
@@ -1064,7 +1065,7 @@ const GLJournalDetailsForm = React.forwardRef<
                       ? "bg-red-100 text-red-800 hover:bg-red-200"
                       : editingDetail
                         ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                        : "bg-blue-100 text-primary hover:bg-blue-200"
+                        : "text-primary bg-blue-100 hover:bg-blue-200"
                   }`}
                 >
                   {isCancelled
@@ -1252,7 +1253,12 @@ const GLJournalDetailsForm = React.forwardRef<
               />
             )}
 
-            <CustomCheckbox form={form} name="isDebit" label="Is Debit" />
+            <CustomCheckbox
+              form={form}
+              name="isDebit"
+              label="Is Debit?"
+              labelPosition="top"
+            />
 
             {/* Total Amount */}
             <CustomNumberInput

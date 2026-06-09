@@ -18,8 +18,8 @@ import {
 import CustomerAutocomplete from "@/components/autocomplete/autocomplete-customer"
 import SupplierAutocomplete from "@/components/autocomplete/autocomplete-supplier"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
+import { CustomCheckbox } from "@/components/custom"
 import CustomInput from "@/components/custom/custom-input"
-import CustomCheckbox from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 import SupplierCodeLookupInput from "@/components/lookup/supplier-code-lookup-input"
 
@@ -196,49 +196,33 @@ export default function SupplierForm({
                 placeholder="e.g. scheme:identifier"
               />
             </div>
-            <div className="grid grid-cols-6 gap-2">
-              <div className="col-span-6">
+            <div className="grid grid-cols-9 gap-2">
+              <div className="col-span-2">
                 <CustomTextarea form={form} name="remarks" label="Remarks" />
               </div>
-            </div>
 
-            <div className="grid grid-cols-6 gap-2">
               <CustomCheckbox
                 form={form}
                 name="isCustomer"
                 label="Is Customer"
-                activeColor="success"
               />
-              <CustomCheckbox
-                form={form}
-                name="isVendor"
-                label="Is Vendor"
-                activeColor="success"
-              />
+              <CustomCheckbox form={form} name="isVendor" label="Is Vendor" />
 
-              <CustomCheckbox
-                form={form}
-                name="isTrader"
-                label="Is Trader"
-                activeColor="success"
-              />
+              <CustomCheckbox form={form} name="isTrader" label="Is Trader" />
               <CustomCheckbox
                 form={form}
                 name="isSupplier"
                 label="Is Supplier"
-                activeColor="success"
               />
               <CustomCheckbox
                 form={form}
                 name="isDiffGstGl"
                 label="Diff VAT GL"
-                activeColor="success"
               />
               <CustomCheckbox
                 form={form}
                 name="isActive"
                 label="Active Status"
-                activeColor="success"
               />
             </div>
 

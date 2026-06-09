@@ -1,7 +1,5 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import * as React from "react"
 import {
   EntityType,
@@ -25,6 +23,7 @@ import {
 } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ApCreditNoteDtSchemaType, ApCreditNoteHdSchemaType } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { format, isValid, parse } from "date-fns"
 import { PlusIcon } from "lucide-react"
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form"
@@ -48,8 +47,12 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import TransactionSummaryBox from "@/components/custom/transaction-summary-box"
 
 import { CreditNoteDetailsFormRef } from "./creditnote-details-form"
+
+const invoiceFormControlsClassName =
+  "[&_button]:text-sm [&_input]:h-7.5 [&_input]:min-h-7.5 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-11 [&_textarea]:text-sm"
 
 interface CreditNoteFormProps {
   form: UseFormReturn<ApCreditNoteHdSchemaType>
@@ -710,341 +713,256 @@ export default function CreditNoteForm({
     <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-12 rounded-md p-2"
+        className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
-        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-1">
-          {/* Transaction Date */}
-          {visible?.m_TrnDate && (
-            <CustomDateNew
-              form={form}
-              name="trnDate"
-              label="Transaction Date"
-              isRequired={true}
-              onChangeEvent={handleTrnDateChange}
-              isFutureShow={false}
-            />
-          )}
+        <div className="border-border/60 bg-card col-span-10 rounded-md border p-3 shadow-sm">
+          <div className={invoiceFormControlsClassName}>
+            <div className="grid grid-cols-6 gap-x-2 gap-y-1">
+              {/* Transaction Date */}
+              {visible?.m_TrnDate && (
+                <CustomDateNew
+                  form={form}
+                  name="trnDate"
+                  label="Transaction Date"
+                  isRequired={true}
+                  onChangeEvent={handleTrnDateChange}
+                  isFutureShow={false}
+                />
+              )}
 
-          {/* Account Date */}
-          <CustomDateNew
-            form={form}
-            name="accountDate"
-            label="Account Date"
-            isRequired={true}
-            onChangeEvent={handleAccountDateChange}
-            isFutureShow={false}
-          />
+              {/* Account Date */}
+              <CustomDateNew
+                form={form}
+                name="accountDate"
+                label="Account Date"
+                isRequired={true}
+                onChangeEvent={handleAccountDateChange}
+                isFutureShow={false}
+              />
 
-          {/* Customer */}
-          {isDynamicSupplier ? (
-            <DynamicSupplierAutocomplete
-              form={form}
-              name="supplierId"
-              label="Supplier"
-              isRequired={true}
-              onChangeEvent={handleSupplierChange}
-              isDisabled={isSupplierCurrencyLocked}
-            />
-          ) : (
-            <SupplierAutocomplete
-              form={form}
-              name="supplierId"
-              label="Supplier"
-              isRequired={true}
-              onChangeEvent={handleSupplierChange}
-              isDisabled={isSupplierCurrencyLocked}
-            />
-          )}
+              {/* Customer */}
+              {isDynamicSupplier ? (
+                <DynamicSupplierAutocomplete
+                  form={form}
+                  name="supplierId"
+                  label="Supplier"
+                  isRequired={true}
+                  onChangeEvent={handleSupplierChange}
+                  isDisabled={isSupplierCurrencyLocked}
+                />
+              ) : (
+                <SupplierAutocomplete
+                  form={form}
+                  name="supplierId"
+                  label="Supplier"
+                  isRequired={true}
+                  onChangeEvent={handleSupplierChange}
+                  isDisabled={isSupplierCurrencyLocked}
+                />
+              )}
 
-          {/* customerCreditNoteNo */}
-          <CustomInput
-            form={form}
-            name="suppCreditNoteNo"
-            label="Supplier Credit Note No."
-            isRequired={required?.m_SuppInvoiceNo}
-            onBlurEvent={checkDuplicateSuppCreditNoteNo}
-          />
+              {/* customerCreditNoteNo */}
+              <CustomInput
+                form={form}
+                name="suppCreditNoteNo"
+                label="Supplier Credit Note No."
+                isRequired={required?.m_SuppInvoiceNo}
+                onBlurEvent={checkDuplicateSuppCreditNoteNo}
+              />
 
-          {/* Reference No */}
-          <CustomInput
-            form={form}
-            name="referenceNo"
-            label="Reference No."
-            isRequired={required?.m_ReferenceNo}
-          />
+              {/* Reference No */}
+              <CustomInput
+                form={form}
+                name="referenceNo"
+                label="Reference No."
+                isRequired={required?.m_ReferenceNo}
+              />
 
-          {/* Credit Terms */}
-          <CreditTermAutocomplete
-            form={form}
-            name="creditTermId"
-            label="Credit Terms"
-            isRequired={true}
-            onChangeEvent={handleCreditTermChange}
-          />
+              {/* Credit Terms */}
+              <CreditTermAutocomplete
+                form={form}
+                name="creditTermId"
+                label="Credit Terms"
+                isRequired={true}
+                onChangeEvent={handleCreditTermChange}
+              />
 
-          {/* Due Date */}
-          <CustomDateNew
-            form={form}
-            name="dueDate"
-            label="Due Date"
-            isRequired={true}
-            isFutureShow={true}
-            minDate={dueDateMinDate}
-          />
+              {/* Due Date */}
+              <CustomDateNew
+                form={form}
+                name="dueDate"
+                label="Due Date"
+                isRequired={true}
+                isFutureShow={true}
+                minDate={dueDateMinDate}
+              />
 
-          {/* Bank */}
-          {visible?.m_BankId && (
-            <BankAutocomplete
-              form={form}
-              name="bankId"
-              label="Bank"
-              isRequired={required?.m_BankId}
-              onChangeEvent={handleBankChange}
-            />
-          )}
+              {/* Bank */}
+              {visible?.m_BankId && (
+                <BankAutocomplete
+                  form={form}
+                  name="bankId"
+                  label="Bank"
+                  isRequired={required?.m_BankId}
+                  onChangeEvent={handleBankChange}
+                />
+              )}
 
-          {/* Currency */}
-          <CurrencyAutocomplete
-            form={form}
-            name="currencyId"
-            label="Currency"
-            isRequired={true}
-            onChangeEvent={handleCurrencyChange}
-          />
+              {/* Currency */}
+              <CurrencyAutocomplete
+                form={form}
+                name="currencyId"
+                label="Currency"
+                isRequired={true}
+                onChangeEvent={handleCurrencyChange}
+              />
 
-          {/* Exchange Rate */}
-          <CustomNumberInput
-            form={form}
-            name="exhRate"
-            label="Exchange Rate"
-            isRequired={true}
-            round={exhRateDec}
-            className="text-right"
-            onFocusEvent={handleExchangeRateFocus}
-            onBlurEvent={handleExchangeRateBlur}
-          />
-          {visible?.m_CtyCurr && (
-            <>
-              {/* Country Exchange Rate */}
+              {/* Exchange Rate */}
               <CustomNumberInput
                 form={form}
-                name="ctyExhRate"
-                label="Country Exchange Rate"
+                name="exhRate"
+                label="Exh Rate"
                 isRequired={true}
                 round={exhRateDec}
                 className="text-right"
-                onFocusEvent={handleCountryExchangeRateFocus}
-                onBlurEvent={handleCountryExchangeRateBlur}
+                onFocusEvent={handleExchangeRateFocus}
+                onBlurEvent={handleExchangeRateBlur}
               />
-            </>
-          )}
+              {visible?.m_CtyCurr && (
+                <>
+                  {/* Country Exchange Rate */}
+                  <CustomNumberInput
+                    form={form}
+                    name="ctyExhRate"
+                    label="Country Exchange Rate"
+                    isRequired={true}
+                    round={exhRateDec}
+                    className="text-right"
+                    onFocusEvent={handleCountryExchangeRateFocus}
+                    onBlurEvent={handleCountryExchangeRateBlur}
+                  />
+                </>
+              )}
 
-          {/* Invoice */}
-          <CustomInputGroup
-            form={form}
-            name="invoiceNo"
-            label="Invoice"
-            isRequired={false}
-            buttonText=""
-            buttonIcon={<PlusIcon className="h-3 w-3" />}
-            buttonPosition="right"
-            onButtonClick={handleAddInvoiceNo}
-            buttonVariant="default"
-            buttonDisabled={!canSelectInvoice}
-            onChangeEvent={handleInvoiceInputChange}
-          />
-
-          {/* Delivery Date */}
-          {visible?.m_DeliveryDate && (
-            <CustomDateNew
-              form={form}
-              name="deliveryDate"
-              label="Delivery Date"
-              isRequired={required?.m_DeliveryDate}
-              onChangeEvent={handleDeliveryDateChange}
-              isFutureShow={true}
-            />
-          )}
-
-          {/* VAT Claim Date */}
-          {visible?.m_GstClaimDate && (
-            <CustomDateNew
-              form={form}
-              name="gstClaimDate"
-              label="VAT Claim Date"
-              isRequired={false}
-              isFutureShow={true}
-            />
-          )}
-
-          {visible?.m_CtyCurr && (
-            <>
-              {/* Total Country Amount */}
-              <CustomNumberInput
+              {/* Invoice */}
+              <CustomInputGroup
                 form={form}
-                name="totCtyAmt"
-                label="Total Country Amount"
-                round={ctyAmtDec}
-                isDisabled={true}
-                className="text-right"
+                name="invoiceNo"
+                label="Invoice"
+                isRequired={false}
+                buttonText=""
+                buttonIcon={<PlusIcon className="h-3 w-3" />}
+                buttonPosition="right"
+                onButtonClick={handleAddInvoiceNo}
+                buttonVariant="default"
+                buttonDisabled={!canSelectInvoice}
+                onChangeEvent={handleInvoiceInputChange}
               />
-            </>
-          )}
 
-          {visible?.m_CtyCurr && visible?.m_GstId && (
-            <>
-              {/* VAT Country Amount */}
-              <CustomNumberInput
+              {/* Delivery Date */}
+              {visible?.m_DeliveryDate && (
+                <CustomDateNew
+                  form={form}
+                  name="deliveryDate"
+                  label="Delivery Date"
+                  isRequired={required?.m_DeliveryDate}
+                  onChangeEvent={handleDeliveryDateChange}
+                  isFutureShow={true}
+                />
+              )}
+
+              {/* VAT Claim Date */}
+              {visible?.m_GstClaimDate && (
+                <CustomDateNew
+                  form={form}
+                  name="gstClaimDate"
+                  label="VAT Claim Date"
+                  isRequired={false}
+                  isFutureShow={true}
+                />
+              )}
+
+              {visible?.m_CtyCurr && (
+                <>
+                  {/* Total Country Amount */}
+                  <CustomNumberInput
+                    form={form}
+                    name="totCtyAmt"
+                    label="Total Country Amount"
+                    round={ctyAmtDec}
+                    isDisabled={true}
+                    className="text-right"
+                  />
+                </>
+              )}
+
+              {visible?.m_CtyCurr && visible?.m_GstId && (
+                <>
+                  {/* VAT Country Amount */}
+                  <CustomNumberInput
+                    form={form}
+                    name="gstCtyAmt"
+                    label="VAT Country Amount"
+                    isDisabled={true}
+                    round={ctyAmtDec}
+                    className="text-right"
+                  />
+                </>
+              )}
+
+              {visible?.m_CtyCurr && (
+                <>
+                  {/* Total Country Amount After VAT */}
+                  <CustomNumberInput
+                    form={form}
+                    name="totCtyAmtAftGst"
+                    label="Total Country Amount After VAT"
+                    isDisabled={true}
+                    round={ctyAmtDec}
+                    className="text-right"
+                  />
+                </>
+              )}
+
+              {/* Service Category */}
+              {visible?.m_ServiceCategoryId && (
+                <ServiceCategoryAutocomplete
+                  form={form}
+                  name="serviceCategoryId"
+                  label="Service Category"
+                  isRequired={isNonZeroGstAmount(form.watch("gstAmt"))}
+                />
+              )}
+
+              {/* Remarks */}
+              <CustomTextarea
                 form={form}
-                name="gstCtyAmt"
-                label="VAT Country Amount"
-                isDisabled={true}
-                round={ctyAmtDec}
-                className="text-right"
+                name="remarks"
+                label="Remarks"
+                isRequired={required?.m_Remarks_Hd}
+                //className="col-span-2"
               />
-            </>
-          )}
-
-          {visible?.m_CtyCurr && (
-            <>
-              {/* Total Country Amount After VAT */}
-              <CustomNumberInput
-                form={form}
-                name="totCtyAmtAftGst"
-                label="Total Country Amount After VAT"
-                isDisabled={true}
-                round={ctyAmtDec}
-                className="text-right"
-              />
-            </>
-          )}
-
-          {/* Service Category */}
-          {visible?.m_ServiceCategoryId && (
-            <ServiceCategoryAutocomplete
-              form={form}
-              name="serviceCategoryId"
-              label="Service Category"
-              isRequired={isNonZeroGstAmount(form.watch("gstAmt"))}
-            />
-          )}
-
-          {/* Remarks */}
-          <CustomTextarea
-            form={form}
-            name="remarks"
-            label="Remarks"
-            isRequired={required?.m_Remarks_Hd}
-            className="col-span-2"
-          />
-        </div>
-
-        {/* Right Section: Summary Box */}
-        <div className="col-span-2 ml-2 flex flex-col justify-start">
-          <div className="w-full rounded-md border border-border bg-card p-3 shadow-sm">
-            {/* Header Row */}
-            <div className="mb-2 grid grid-cols-3 gap-x-4 border-b border-border pb-2 text-sm">
-              <div className="text-right font-bold text-primary">Trns</div>
-              <div className="text-center"></div>
-              <div className="text-right font-bold text-primary">Local</div>
-            </div>
-
-            {/* 3-column grid: [Amt] [Label] [Local] */}
-            <div className="grid grid-cols-3 gap-x-4 text-sm">
-              {/* Column 1: Foreign Amounts (Amt) */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
-                  {(form.watch("totAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
-                    {(form.watch("gstAmt") || 0).toLocaleString(undefined, {
-                      minimumFractionDigits: amtDec,
-                      maximumFractionDigits: amtDec,
-                    })}
-                  </div>
-                )}
-                <hr className="my-1 border-border" />
-                <div className="font-bold text-foreground">
-                  {(form.watch("totAmtAftGst") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("payAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("balAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-              </div>
-
-              {/* Column 2: Labels */}
-              <div className="space-y-1 text-center">
-                <div className="font-medium text-muted-foreground">Amt</div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-muted-foreground">VAT</div>
-                )}
-                <div></div>
-                <div className="font-bold text-primary">Total</div>
-                <div className="font-bold text-primary">Payment</div>
-                <div className="font-bold text-primary">Balance</div>
-              </div>
-
-              {/* Column 3: Local Amounts */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
-                  {(form.watch("totLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
-                    {(form.watch("gstLocalAmt") || 0).toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: locAmtDec,
-                        maximumFractionDigits: locAmtDec,
-                      }
-                    )}
-                  </div>
-                )}
-                <hr className="my-1 border-border" />
-                <div className="font-bold text-foreground">
-                  {(form.watch("totLocalAmtAftGst") || 0).toLocaleString(
-                    undefined,
-                    {
-                      minimumFractionDigits: locAmtDec,
-                      maximumFractionDigits: locAmtDec,
-                    }
-                  )}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("payLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("balLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-              </div>
             </div>
           </div>
         </div>
+
+        <TransactionSummaryBox
+          values={{
+            totAmt: form.watch("totAmt"),
+            gstAmt: form.watch("gstAmt"),
+            totAmtAftGst: form.watch("totAmtAftGst"),
+            payAmt: form.watch("payAmt"),
+            balAmt: form.watch("balAmt"),
+            totLocalAmt: form.watch("totLocalAmt"),
+            gstLocalAmt: form.watch("gstLocalAmt"),
+            totLocalAmtAftGst: form.watch("totLocalAmtAftGst"),
+            payLocalAmt: form.watch("payLocalAmt"),
+            balLocalAmt: form.watch("balLocalAmt"),
+          }}
+          amtDec={amtDec}
+          locAmtDec={locAmtDec}
+          showGst={!!visible?.m_GstId}
+        />
 
         {/* Duplicate Supplier Credit Note Dialog */}
         {showDuplicateCreditDialog && duplicateCreditNotes.length > 0 && (

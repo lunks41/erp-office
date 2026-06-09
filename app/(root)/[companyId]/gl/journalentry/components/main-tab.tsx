@@ -288,7 +288,8 @@ export default function Main({
         detailsFormRef={detailsFormRef}
       />
 
-      <GLJournalDetailsForm
+      <div className="w-full min-w-0">
+        <GLJournalDetailsForm
         ref={handleDetailsFormRef}
         Hdform={form}
         onAddRowAction={handleAddRow}
@@ -302,20 +303,23 @@ export default function Main({
         defaultGstId={defaults.common.gstId || 1}
         isCancelled={isCancelled}
       />
+      </div>
 
-      <GLJournalDetailsTable
-        key={tableKey}
-        data={(dataDetails as unknown as IGLJournalDt[]) || []}
-        visible={visible}
-        onDeleteAction={handleDelete}
-        onBulkDeleteAction={handleBulkDelete}
-        onEditAction={handleEdit as (template: IGLJournalDt) => void}
-        onCloneAction={handleClone as (template: IGLJournalDt) => void}
-        onRefreshAction={() => {}} // Add refresh logic if needed
-        onFilterChange={() => {}} // Add filter logic if needed
-        onDataReorder={handleDataReorder as (newData: IGLJournalDt[]) => void}
-        isCancelled={isCancelled}
-      />
+      <div className="w-full min-w-0">
+        <GLJournalDetailsTable
+          key={tableKey}
+          data={(dataDetails as unknown as IGLJournalDt[]) || []}
+          visible={visible}
+          onDeleteAction={handleDelete}
+          onBulkDeleteAction={handleBulkDelete}
+          onEditAction={handleEdit as (template: IGLJournalDt) => void}
+          onCloneAction={handleClone as (template: IGLJournalDt) => void}
+          onRefreshAction={() => {}} // Add refresh logic if needed
+          onFilterChange={() => {}} // Add filter logic if needed
+          onDataReorder={handleDataReorder as (newData: IGLJournalDt[]) => void}
+          isCancelled={isCancelled}
+        />
+      </div>
 
       <DeleteConfirmation
         title="Delete Selected Items"

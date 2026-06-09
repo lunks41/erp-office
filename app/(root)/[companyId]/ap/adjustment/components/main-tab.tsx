@@ -288,7 +288,8 @@ export default function Main({
         detailsFormRef={detailsFormRef}
       />
 
-      <AdjustmentDetailsForm
+      <div className="w-full min-w-0">
+        <AdjustmentDetailsForm
         ref={handleDetailsFormRef}
         Hdform={form}
         onAddRowAction={handleAddRow}
@@ -303,22 +304,25 @@ export default function Main({
         defaultGstId={defaults.common.gstId || 1}
         isCancelled={isCancelled}
       />
+      </div>
 
-      <AdjustmentDetailsTable
-        key={tableKey}
-        data={(dataDetails as unknown as IApAdjustmentDt[]) || []}
-        visible={visible}
-        onDeleteAction={handleDelete}
-        onBulkDeleteAction={handleBulkDelete}
-        onEditAction={handleEdit as (template: IApAdjustmentDt) => void}
-         onCloneAction={handleClone as (template: IApAdjustmentDt) => void}
-        onRefreshAction={() => {}} // Add refresh logic if needed
-        onFilterChange={() => {}} // Add filter logic if needed
-        onDataReorder={
-          handleDataReorder as (newData: IApAdjustmentDt[]) => void
-        }
-        isCancelled={isCancelled}
-      />
+      <div className="w-full min-w-0">
+        <AdjustmentDetailsTable
+          key={tableKey}
+          data={(dataDetails as unknown as IApAdjustmentDt[]) || []}
+          visible={visible}
+          onDeleteAction={handleDelete}
+          onBulkDeleteAction={handleBulkDelete}
+          onEditAction={handleEdit as (template: IApAdjustmentDt) => void}
+          onCloneAction={handleClone as (template: IApAdjustmentDt) => void}
+          onRefreshAction={() => {}} // Add refresh logic if needed
+          onFilterChange={() => {}} // Add filter logic if needed
+          onDataReorder={
+            handleDataReorder as (newData: IApAdjustmentDt[]) => void
+          }
+          isCancelled={isCancelled}
+        />
+      </div>
 
       <DeleteConfirmation
         title="Delete Selected Items"

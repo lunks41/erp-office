@@ -185,10 +185,10 @@ export function EditVersionDetailsForm({
           <div className="grid grid-cols-3 gap-x-4 text-sm">
             {/* Column 1: Foreign Amounts (Amt) */}
             <div className="space-y-1 text-right">
-              <div className="font-medium text-gray-700">
+              <div className="font-semibold tabular-nums text-card-foreground">
                 {formatCurrency(summaryData?.transactionAmount, 2)}
               </div>
-              <div className="font-medium text-gray-700">
+              <div className="font-semibold tabular-nums text-card-foreground">
                 {formatCurrency(summaryData?.gstAmount, 2)}
               </div>
               <hr className="my-1 border-border" />
@@ -205,8 +205,8 @@ export function EditVersionDetailsForm({
 
             {/* Column 2: Labels */}
             <div className="space-y-1 text-center">
-              <div className="font-medium text-muted-foreground">Amt</div>
-              <div className="font-medium text-muted-foreground">VAT</div>
+              <div className="font-medium text-secondary-foreground">Amt</div>
+              <div className="font-medium text-secondary-foreground">VAT</div>
               <div></div>
               <div className="font-bold text-primary">Total</div>
               <div className="font-bold text-primary">Payment</div>
@@ -215,10 +215,10 @@ export function EditVersionDetailsForm({
 
             {/* Column 3: Local Amounts */}
             <div className="space-y-1 text-right">
-              <div className="font-medium text-gray-700">
+              <div className="font-semibold tabular-nums text-card-foreground">
                 {formatCurrency(summaryData?.localAmount, 2)}
               </div>
-              <div className="font-medium text-gray-700">
+              <div className="font-semibold tabular-nums text-card-foreground">
                 {formatCurrency(summaryData?.localGstAmount, 2)}
               </div>
               <hr className="my-1 border-border" />

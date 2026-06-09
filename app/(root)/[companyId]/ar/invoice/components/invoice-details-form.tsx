@@ -1096,8 +1096,10 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`border-border/60 bg-card mb-0 grid w-full grid-cols-8 gap-1 rounded-md border p-2 shadow-sm ${
+            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 p-2 ${
               isCancelled ? "pointer-events-none opacity-50" : ""
+              // className={`border-border/60 bg-card mb-0 grid w-full grid-cols-8 gap-1 rounded-md border p-2 shadow-sm ${
+              //   isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
             {/* Hidden fields to register code/name fields with React Hook Form */}

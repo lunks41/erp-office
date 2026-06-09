@@ -149,118 +149,122 @@ export default function Other({ form, visible: _visible }: OtherProps) {
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 px-2 pt-2 pb-2">
       <Form {...form}>
-        <Card className="rounded-md border border-border/60 bg-card shadow-sm">
-          <CardContent className="p-2">
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-              {/* Address Section */}
-              <div className="space-y-2 md:col-span-2">
-                {supplierId > 0 && (
-                  <div className="mb-1">
-                    <DynamicAddressAutocomplete
-                      form={form}
-                      name="addressId"
-                      label="Address"
-                      entityId={supplierId}
-                      entityType={AddressEntityType.SUPPLIER}
-                      onChangeEvent={handleAddressSelect}
-                    />
-                  </div>
-                )}
-                <div className="grid">
-                  <div className="grid grid-cols-2 gap-x-1 gap-y-0">
-                    <CustomTextarea
-                      form={form}
-                      name="address1"
-                      label="Address Line 1"
-                      isDisabled={!selectedAddress}
-                    />
-                    <CustomTextarea
-                      form={form}
-                      name="address2"
-                      label="Address Line 2"
-                      isDisabled={!selectedAddress}
-                    />
-                    <CustomTextarea
-                      form={form}
-                      name="address3"
-                      label="Address Line 3"
-                      isDisabled={!selectedAddress}
-                    />
-                    <CustomTextarea
-                      form={form}
-                      name="address4"
-                      label="Address Line 4"
-                      isDisabled={!selectedAddress}
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 gap-1">
-                    <CountryAutocomplete
-                      form={form}
-                      name="countryId"
-                      label="Country"
-                    />
-                    <CustomInput
-                      form={form}
-                      name="pinCode"
-                      label="Pin Code"
-                      isDisabled={!selectedAddress}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="phoneNo"
-                      label="Phone No"
-                      isDisabled={!selectedAddress}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="faxNo"
-                      label="Fax No"
-                      isDisabled={!selectedAddress}
-                    />
-                  </div>
+        <div className="grid grid-cols-2 gap-1">
+          {/* Address Section */}
+          <Card className="gap-2 rounded-md border border-border/60 bg-card py-2 shadow-sm">
+            <CardContent className="px-2 py-1">
+              {supplierId > 0 && (
+                <div className="mb-1">
+                  <DynamicAddressAutocomplete
+                    form={form}
+                    name="addressId"
+                    label="Address"
+                    entityId={supplierId}
+                    entityType={AddressEntityType.SUPPLIER}
+                    onChangeEvent={handleAddressSelect}
+                  />
+                </div>
+              )}
+              <div className="grid">
+                <div className="grid grid-cols-2 gap-x-1 gap-y-0">
+                  <CustomTextarea
+                    form={form}
+                    name="address1"
+                    label="Address Line 1"
+                    isDisabled={!selectedAddress}
+                  />
+                  <CustomTextarea
+                    form={form}
+                    name="address2"
+                    label="Address Line 2"
+                    isDisabled={!selectedAddress}
+                  />
+                  <CustomTextarea
+                    form={form}
+                    name="address3"
+                    label="Address Line 3"
+                    isDisabled={!selectedAddress}
+                  />
+                  <CustomTextarea
+                    form={form}
+                    name="address4"
+                    label="Address Line 4"
+                    isDisabled={!selectedAddress}
+                  />
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  <CountryAutocomplete
+                    form={form}
+                    name="countryId"
+                    label="Country"
+                  />
+                  <CustomInput
+                    form={form}
+                    name="pinCode"
+                    label="Pin Code"
+                    isDisabled={!selectedAddress}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="phoneNo"
+                    label="Phone No"
+                    isDisabled={!selectedAddress}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="faxNo"
+                    label="Fax No"
+                    isDisabled={!selectedAddress}
+                  />
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Contact Section */}
-              <div className="space-y-2 md:col-span-1 md:border-l md:border-muted md:pl-3">
-                {supplierId > 0 && (
-                  <div className="mb-1">
-                    <DynamicContactAutocomplete
-                      form={form}
-                      name="contactId"
-                      label="Contact"
-                      entityId={supplierId}
-                      entityType={ContactEntityType.SUPPLIER}
-                      onChangeEvent={handleContactSelect}
-                    />
-                  </div>
-                )}
-                <div className="grid gap-4">
-                    <CustomInput
-                      form={form}
-                      name="contactName"
-                      label="Contact Name"
-                      isDisabled={!selectedContact}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="emailAdd"
-                      label="Email"
-                      isDisabled={!selectedAddress}
-                    />
-                    <CustomInput
-                      form={form}
-                      name="mobileNo"
-                      label="Mobile No"
-                      isDisabled={!selectedContact}
-                    />
+          {/* Contact Section */}
+          <Card className="gap-2 rounded-md border border-border/60 bg-card py-2 shadow-sm">
+            <CardContent className="px-2 py-1">
+              {supplierId > 0 && (
+                <div className="mb-1">
+                  <DynamicContactAutocomplete
+                    form={form}
+                    name="contactId"
+                    label="Contact"
+                    entityId={supplierId}
+                    entityType={ContactEntityType.SUPPLIER}
+                    onChangeEvent={handleContactSelect}
+                  />
+                </div>
+              )}
+              <div className="grid gap-1">
+                <div className="grid grid-cols-2 gap-1">
+                  <CustomInput
+                    form={form}
+                    name="contactName"
+                    label="Contact Name"
+                    isDisabled={!selectedContact}
+                  />
+                  <CustomInput
+                    form={form}
+                    name="emailAdd"
+                    label="Email"
+                    isDisabled={!selectedAddress}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  <CustomInput
+                    form={form}
+                    name="mobileNo"
+                    label="Mobile No"
+                    isDisabled={!selectedContact}
+                  />
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </Form>
 
       {/* Document Upload Section - Only show after invoice is saved */}

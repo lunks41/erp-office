@@ -30,8 +30,12 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import TransactionSummaryBox from "@/components/custom/transaction-summary-box"
 
 import { GLJournalDetailsFormRef } from "./glJournal-details-form"
+
+const glJournalFormControlsClassName =
+  "[&_button]:text-sm [&_input]:h-7.5 [&_input]:min-h-7.5 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-11 [&_textarea]:text-sm"
 
 interface GLJournalFormProps {
   form: UseFormReturn<GLJournalHdSchemaType>
@@ -484,9 +488,11 @@ export default function GLJournalForm({
     <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-12 rounded-md p-2"
+        className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
-        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-1">
+        <div className="border-border/60 bg-card col-span-10 rounded-md border p-3 shadow-sm">
+          <div className={glJournalFormControlsClassName}>
+            <div className="grid grid-cols-6 gap-x-2 gap-y-1">
           {/* Transaction Date */}
           {visible?.m_TrnDate && (
             <CustomDateNew
@@ -614,26 +620,26 @@ export default function GLJournalForm({
             isRequired={required?.m_Remarks_Hd}
             className="col-span-2"
           />
+            </div>
+          </div>
         </div>
 
-        {/* {form.watch("journalId") != "0" && (
-          <>
-            {/* Summary Box */}
-        {/* Right Section: Summary Box */}
-        <div className="col-span-2 ml-2 flex flex-col justify-start gap-2">
+        <div className="col-span-2 flex min-w-0 flex-col justify-start gap-2">
           {/* Balance Status Indicator */}
           {dataDetails && dataDetails.length > 0 && (
             <div
               className={`w-full rounded-md border p-3 shadow-sm ${
                 balanceStatus.isBalanced
-                  ? "border-green-200 bg-green-50"
-                  : "border-red-200 bg-red-50"
+                  ? "border-green-500/30 bg-green-500/10"
+                  : "border-red-500/30 bg-red-500/10"
               }`}
             >
-              <div className="mb-2 flex items-center justify-between border-b pb-2">
+              <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
                 <span
                   className={`text-xs font-bold ${
-                    balanceStatus.isBalanced ? "text-green-800" : "text-red-800"
+                    balanceStatus.isBalanced
+                      ? "text-green-400"
+                      : "text-red-400"
                   }`}
                 >
                   {balanceStatus.isBalanced ? "✓ Balanced" : "⚠ Not Balanced"}
@@ -641,10 +647,10 @@ export default function GLJournalForm({
               </div>
               <div className="space-y-1 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-secondary-foreground">
                     Debit Total:
                   </span>
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold tabular-nums text-card-foreground">
                     {balanceStatus.debitTotal.toLocaleString(undefined, {
                       minimumFractionDigits: amtDec,
                       maximumFractionDigits: amtDec,
@@ -652,10 +658,10 @@ export default function GLJournalForm({
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-secondary-foreground">
                     Credit Total:
                   </span>
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold tabular-nums text-card-foreground">
                     {balanceStatus.creditTotal.toLocaleString(undefined, {
                       minimumFractionDigits: amtDec,
                       maximumFractionDigits: amtDec,
@@ -663,12 +669,12 @@ export default function GLJournalForm({
                   </span>
                 </div>
                 {!balanceStatus.isBalanced && (
-                  <div className="mt-2 border-t border-red-300 pt-2">
+                  <div className="mt-2 border-t border-red-500/30 pt-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-red-700">
+                      <span className="font-semibold text-red-400">
                         Difference:
                       </span>
-                      <span className="font-bold text-red-800">
+                      <span className="font-bold tabular-nums text-red-400">
                         {balanceStatus.difference.toLocaleString(undefined, {
                           minimumFractionDigits: amtDec,
                           maximumFractionDigits: amtDec,
@@ -681,77 +687,22 @@ export default function GLJournalForm({
             </div>
           )}
 
-          <div className="w-full rounded-md border border-border bg-card p-3 shadow-sm">
-            {/* Header Row */}
-            <div className="mb-2 grid grid-cols-3 gap-x-4 border-b border-border pb-2 text-xs">
-              <div className="text-right font-bold text-primary">Trns</div>
-              <div className="text-center"></div>
-              <div className="text-right font-bold text-primary">Local</div>
-            </div>
-
-            {/* 3-column grid: [Amt] [Label] [Local] */}
-            <div className="grid grid-cols-3 gap-x-4 text-xs">
-              {/* Column 1: Foreign Amounts (Amt) - Only Debit */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
-                  {debitTotals.totAmt.toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
-                    {debitTotals.gstAmt.toLocaleString(undefined, {
-                      minimumFractionDigits: amtDec,
-                      maximumFractionDigits: amtDec,
-                    })}
-                  </div>
-                )}
-                <hr className="my-1 border-border" />
-                <div className="font-bold text-foreground">
-                  {debitTotals.totAmtAftGst.toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-              </div>
-
-              {/* Column 2: Labels */}
-              <div className="space-y-1 text-center">
-                <div className="font-medium text-muted-foreground">Amt</div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-muted-foreground">VAT</div>
-                )}
-                <div></div>
-                <div className="font-bold text-primary">Total</div>
-              </div>
-
-              {/* Column 3: Local Amounts - Only Debit */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
-                  {debitTotals.totLocalAmt.toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
-                    {debitTotals.gstLocalAmt.toLocaleString(undefined, {
-                      minimumFractionDigits: locAmtDec,
-                      maximumFractionDigits: locAmtDec,
-                    })}
-                  </div>
-                )}
-                <hr className="my-1 border-border" />
-                <div className="font-bold text-foreground">
-                  {debitTotals.totLocalAmtAftGst.toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          <TransactionSummaryBox
+            className="w-full"
+            values={{
+              totAmt: debitTotals.totAmt,
+              gstAmt: debitTotals.gstAmt,
+              totAmtAftGst: debitTotals.totAmtAftGst,
+              totLocalAmt: debitTotals.totLocalAmt,
+              gstLocalAmt: debitTotals.gstLocalAmt,
+              totLocalAmtAftGst: debitTotals.totLocalAmtAftGst,
+            }}
+            amtDec={amtDec}
+            locAmtDec={locAmtDec}
+            showGst={!!visible?.m_GstId}
+            showPaymentBalance={false}
+            textSize="xs"
+          />
         </div>
       </form>
     </FormProvider>

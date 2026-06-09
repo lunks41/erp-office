@@ -24,6 +24,7 @@ import { ChargeAutocomplete, GSTAutocomplete } from "@/components/autocomplete"
 import { CustomCheckbox } from "@/components/custom"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextArea from "@/components/custom/custom-textarea"
+import { DebitNoteTotalSummary } from "@/components/custom/transaction-summary-box"
 
 interface DebitNoteFormProps {
   debitNoteHd?: IDebitNoteHd
@@ -747,47 +748,11 @@ export default function DebitNoteForm({
           </div>
         </div>
 
-        {/* Right Section: Summary Box */}
-        <div className="w-[12%] min-w-0 shrink-0">
-          <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-2 shadow-sm">
-            <div className="mb-3 border-b border-slate-200 pb-2 text-center text-sm font-semibold text-slate-700">
-              Total Summary
-            </div>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-slate-600">Amt</span>
-                <span className="font-medium text-slate-800 tabular-nums">
-                  {(summaryTotals?.totalAmount || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-slate-600">VAT</span>
-                <span className="font-medium text-slate-800 tabular-nums">
-                  {(summaryTotals?.vatAmount || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <hr className="border-slate-200" />
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold text-slate-800">Total</span>
-                <span className="font-semibold text-slate-900 tabular-nums">
-                  {(summaryTotals?.totalAfterVat || 0).toLocaleString(
-                    undefined,
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DebitNoteTotalSummary
+          totalAmount={summaryTotals?.totalAmount}
+          vatAmount={summaryTotals?.vatAmount}
+          totalAfterVat={summaryTotals?.totalAfterVat}
+        />
       </form>
     </Form>
   )

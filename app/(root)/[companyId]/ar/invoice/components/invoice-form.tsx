@@ -49,11 +49,12 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import TransactionSummaryBox from "@/components/custom/transaction-summary-box"
 
 import { InvoiceDetailsFormRef } from "./invoice-details-form"
 
 const invoiceFormControlsClassName =
-  "[&_button]:text-sm [&_input]:min-h-9 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-11 [&_textarea]:text-sm"
+  "[&_button]:text-sm [&_input]:h-7.5 [&_input]:min-h-7.5 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-11 [&_textarea]:text-sm"
 
 interface InvoiceFormProps {
   form: UseFormReturn<ArInvoiceHdSchemaType>
@@ -822,115 +823,23 @@ export default function InvoiceForm({
           </div>
         </div>
 
-        {/* {form.watch("invoiceId") != "0" && (
-          <>
-            {/* Summary Box */}
-        {/* Right Section: Summary Box */}
-        <div className="col-span-2 flex min-w-0 flex-col justify-start rounded-md border border-border bg-card p-3 shadow-sm">
-          <div className="w-full">
-            {/* Header Row */}
-            <div className="mb-1.5 grid grid-cols-3 gap-x-2 border-b border-border pb-1.5 text-sm">
-              <div className="text-right font-bold text-primary">Trns</div>
-              <div className="text-center"></div>
-              <div className="text-right font-bold text-primary">Local</div>
-            </div>
-
-            {/* 3-column grid: [Amt] [Label] [Local] */}
-            <div className="grid grid-cols-3 gap-x-2 text-sm leading-snug">
-              {/* Column 1: Foreign Amounts (Amt) */}
-              <div className="space-y-1.5 text-right">
-                <div className="font-medium text-foreground">
-                  {(form.watch("totAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-foreground">
-                    {(form.watch("gstAmt") || 0).toLocaleString(undefined, {
-                      minimumFractionDigits: amtDec,
-                      maximumFractionDigits: amtDec,
-                    })}
-                  </div>
-                )}
-                <hr className="my-0.5 border-border" />
-                <div className="font-bold text-foreground">
-                  {(form.watch("totAmtAftGst") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("payAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("balAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-              </div>
-
-              {/* Column 2: Labels */}
-              <div className="space-y-1 text-center">
-                <div className="font-medium text-muted-foreground">Amt</div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-muted-foreground">VAT</div>
-                )}
-                <div></div>
-                <div className="font-bold text-primary">Total</div>
-                <div className="font-bold text-primary">Payment</div>
-                <div className="font-bold text-primary">Balance</div>
-              </div>
-
-              {/* Column 3: Local Amounts */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-foreground">
-                  {(form.watch("totLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-foreground">
-                    {(form.watch("gstLocalAmt") || 0).toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: locAmtDec,
-                        maximumFractionDigits: locAmtDec,
-                      }
-                    )}
-                  </div>
-                )}
-                <hr className="my-0.5 border-border" />
-                <div className="font-bold text-foreground">
-                  {(form.watch("totLocalAmtAftGst") || 0).toLocaleString(
-                    undefined,
-                    {
-                      minimumFractionDigits: locAmtDec,
-                      maximumFractionDigits: locAmtDec,
-                    }
-                  )}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("payLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("balLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TransactionSummaryBox
+          values={{
+            totAmt: form.watch("totAmt"),
+            gstAmt: form.watch("gstAmt"),
+            totAmtAftGst: form.watch("totAmtAftGst"),
+            payAmt: form.watch("payAmt"),
+            balAmt: form.watch("balAmt"),
+            totLocalAmt: form.watch("totLocalAmt"),
+            gstLocalAmt: form.watch("gstLocalAmt"),
+            totLocalAmtAftGst: form.watch("totLocalAmtAftGst"),
+            payLocalAmt: form.watch("payLocalAmt"),
+            balLocalAmt: form.watch("balLocalAmt"),
+          }}
+          amtDec={amtDec}
+          locAmtDec={locAmtDec}
+          showGst={!!visible?.m_GstId}
+        />
       </form>
     </FormProvider>
   )

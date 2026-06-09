@@ -44,8 +44,12 @@ import { CustomDateNew } from "@/components/custom/custom-date-new"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
+import TransactionSummaryBox from "@/components/custom/transaction-summary-box"
 
 import { DebitNoteDetailsFormRef } from "./debitNote-details-form"
+
+const invoiceFormControlsClassName =
+  "[&_button]:text-sm [&_input]:h-7.5 [&_input]:min-h-7.5 [&_input]:text-sm [&_label]:text-sm [&_textarea]:min-h-11 [&_textarea]:text-sm"
 
 interface DebitNoteFormProps {
   form: UseFormReturn<ApDebitNoteHdSchemaType>
@@ -621,9 +625,11 @@ export default function DebitNoteForm({
     <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-12 rounded-md p-2"
+        className="grid grid-cols-12 gap-x-2 gap-y-2 py-2"
       >
-        <div className="col-span-10 grid grid-cols-6 gap-1 gap-y-1">
+        <div className="border-border/60 bg-card col-span-10 rounded-md border p-3 shadow-sm">
+          <div className={invoiceFormControlsClassName}>
+            <div className="grid grid-cols-6 gap-x-2 gap-y-1">
           {/* Transaction Date */}
           {visible?.m_TrnDate && (
             <CustomDateNew
@@ -837,117 +843,27 @@ export default function DebitNoteForm({
             isRequired={required?.m_Remarks_Hd}
             className="col-span-2"
           />
-        </div>
-
-        {/* {form.watch("debitNoteId") != "0" && (
-          <>
-            {/* Summary Box */}
-        {/* Right Section: Summary Box */}
-        <div className="col-span-2 ml-2 flex flex-col justify-start">
-          <div className="w-full rounded-md border border-border bg-card p-3 shadow-sm">
-            {/* Header Row */}
-            <div className="mb-2 grid grid-cols-3 gap-x-4 border-b border-border pb-2 text-sm">
-              <div className="text-right font-bold text-primary">Trns</div>
-              <div className="text-center"></div>
-              <div className="text-right font-bold text-primary">Local</div>
-            </div>
-
-            {/* 3-column grid: [Amt] [Label] [Local] */}
-            <div className="grid grid-cols-3 gap-x-4 text-sm">
-              {/* Column 1: Foreign Amounts (Amt) */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
-                  {(form.watch("totAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
-                    {(form.watch("gstAmt") || 0).toLocaleString(undefined, {
-                      minimumFractionDigits: amtDec,
-                      maximumFractionDigits: amtDec,
-                    })}
-                  </div>
-                )}
-                <hr className="my-1 border-border" />
-                <div className="font-bold text-foreground">
-                  {(form.watch("totAmtAftGst") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("payAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("balAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: amtDec,
-                    maximumFractionDigits: amtDec,
-                  })}
-                </div>
-              </div>
-
-              {/* Column 2: Labels */}
-              <div className="space-y-1 text-center">
-                <div className="font-medium text-muted-foreground">Amt</div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-muted-foreground">VAT</div>
-                )}
-                <div></div>
-                <div className="font-bold text-primary">Total</div>
-                <div className="font-bold text-primary">Payment</div>
-                <div className="font-bold text-primary">Balance</div>
-              </div>
-
-              {/* Column 3: Local Amounts */}
-              <div className="space-y-1 text-right">
-                <div className="font-medium text-gray-700">
-                  {(form.watch("totLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                {visible?.m_GstId && (
-                  <div className="font-medium text-gray-700">
-                    {(form.watch("gstLocalAmt") || 0).toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: locAmtDec,
-                        maximumFractionDigits: locAmtDec,
-                      }
-                    )}
-                  </div>
-                )}
-                <hr className="my-1 border-border" />
-                <div className="font-bold text-foreground">
-                  {(form.watch("totLocalAmtAftGst") || 0).toLocaleString(
-                    undefined,
-                    {
-                      minimumFractionDigits: locAmtDec,
-                      maximumFractionDigits: locAmtDec,
-                    }
-                  )}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("payLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-                <div className="font-bold text-foreground">
-                  {(form.watch("balLocalAmt") || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: locAmtDec,
-                    maximumFractionDigits: locAmtDec,
-                  })}
-                </div>
-              </div>
             </div>
           </div>
         </div>
+
+        <TransactionSummaryBox
+          values={{
+            totAmt: form.watch("totAmt"),
+            gstAmt: form.watch("gstAmt"),
+            totAmtAftGst: form.watch("totAmtAftGst"),
+            payAmt: form.watch("payAmt"),
+            balAmt: form.watch("balAmt"),
+            totLocalAmt: form.watch("totLocalAmt"),
+            gstLocalAmt: form.watch("gstLocalAmt"),
+            totLocalAmtAftGst: form.watch("totLocalAmtAftGst"),
+            payLocalAmt: form.watch("payLocalAmt"),
+            balLocalAmt: form.watch("balLocalAmt"),
+          }}
+          amtDec={amtDec}
+          locAmtDec={locAmtDec}
+          showGst={!!visible?.m_GstId}
+        />
       </form>
       <InvoiceSelectionDialog
         open={showInvoiceDialog}

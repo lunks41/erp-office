@@ -1,7 +1,5 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import React, {
   useEffect,
   useImperativeHandle,
@@ -42,9 +40,10 @@ import {
   ApInvoiceDtSchemaType,
   ApInvoiceHdSchemaType,
 } from "@/schemas"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Repeat } from "lucide-react"
-import { FormProvider, UseFormReturn, useForm } from "react-hook-form"
+import { FormProvider, useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
 import { clientDateFormat } from "@/lib/date-utils"
@@ -536,7 +535,9 @@ const InvoiceDetailsForm = React.forwardRef<
       if (!chartOfAccounts) return
 
       const glIdToEvaluate =
-        watchedGlId && watchedGlId > 0 ? watchedGlId : (editingDetail?.glId ?? 0)
+        watchedGlId && watchedGlId > 0
+          ? watchedGlId
+          : (editingDetail?.glId ?? 0)
 
       if (!glIdToEvaluate || glIdToEvaluate <= 0) {
         setIsJobSpecific(false)
@@ -1241,7 +1242,7 @@ const InvoiceDetailsForm = React.forwardRef<
         <FormProvider {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={`border-border/60 bg-card -mt-2 mb-1 grid w-full grid-cols-8 gap-1 gap-y-2 rounded-md border p-2 shadow-sm ${
+            className={`-mt-2 mb-1 grid w-full grid-cols-8 gap-1 p-2 ${
               isCancelled ? "pointer-events-none opacity-50" : ""
             }`}
           >
@@ -1278,7 +1279,7 @@ const InvoiceDetailsForm = React.forwardRef<
                       ? "bg-red-100 text-red-800 hover:bg-red-200"
                       : editingDetail
                         ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                        : "bg-blue-100 text-primary hover:bg-blue-200"
+                        : "text-primary bg-blue-100 hover:bg-blue-200"
                   }`}
                 >
                   {isCancelled
