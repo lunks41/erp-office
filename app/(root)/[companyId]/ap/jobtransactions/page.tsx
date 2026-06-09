@@ -108,7 +108,7 @@ export default function JobTransactionsPage() {
   }, [])
 
   return (
-    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
+    <div className="@container flex h-[calc(100dvh-7rem)] max-h-[calc(100dvh-7rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pb-2 pt-1">
       <div className="mb-4">
         <h1 className="text-2xl font-semibold tracking-tight">
           Job Transactions

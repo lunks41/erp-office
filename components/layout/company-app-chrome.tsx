@@ -71,7 +71,7 @@ export function CompanyAppChrome({
         onOpenChange={handleSidebarOpenChange}
       >
         <AppSidebar className="hidden md:block" />
-        <SidebarInset className="flex min-h-screen flex-col">
+        <SidebarInset className="flex min-h-svh flex-col">
           <header
             id="navigation"
             className="bg-background sticky inset-x-0 top-0 isolate z-30 flex shrink-0 items-center gap-2 border-b shadow-sm"
@@ -96,10 +96,10 @@ export function CompanyAppChrome({
           <AnnouncementBanner />
           <main
             id="main-content"
-            className="bg-muted/20 flex min-h-0 flex-1 flex-col"
+            className="bg-muted/20 flex-1 overflow-x-hidden overflow-y-auto"
             role="main"
           >
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+            {children}
           </main>
         </SidebarInset>
       </SidebarProvider>

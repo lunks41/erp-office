@@ -1427,7 +1427,7 @@ export default function InvoicePage() {
   }
 
   return (
-    <div className="@container flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pt-1 pb-2">
+    <div className="@container flex h-[calc(100dvh-7rem)] max-h-[calc(100dvh-7rem)] min-h-0 flex-col gap-0 overflow-hidden px-2 pt-1 pb-2">
       <Tabs
         defaultValue="main"
         className="flex h-full min-h-0 w-full flex-1 flex-col gap-0"

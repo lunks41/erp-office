@@ -297,7 +297,7 @@ export default function ChecklistPage() {
   const statusCounts = getStatusCounts
 
   return (
-    <div className="@container mx-auto flex h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)] min-h-0 flex-col gap-1 overflow-hidden px-2 pt-2 pb-2 sm:px-4 lg:px-6">
+    <div className="@container mx-auto flex min-h-[calc(100dvh-7rem)] flex-col gap-1 px-2 pt-2 pb-2 sm:px-4 lg:px-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
