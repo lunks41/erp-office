@@ -59,13 +59,15 @@ export function SupplierAddressForm({
 }: SupplierAddressFormProps) {
   const { decimals } = useCompanyStore()
   const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+  const resolvedSupplierId = initialData?.supplierId ?? supplierId ?? 0
+
   const form = useForm<SupplierAddressSchemaType>({
     resolver: zodResolver(supplierAddressSchema),
     defaultValues: initialData
-      ? { ...initialData }
+      ? { ...initialData, supplierId: resolvedSupplierId }
       : {
           ...defaultAddressSchemaType,
-          supplierId: supplierId || 0,
+          supplierId: resolvedSupplierId,
         },
   })
 
@@ -103,27 +105,14 @@ export function SupplierAddressForm({
 
   useEffect(() => {
     form.reset(
-      initialData || {
-        supplierId: 0,
-        addressId: 0,
-        address1: "",
-        address2: "",
-        address3: "",
-        address4: "",
-        pinCode: "",
-        countryId: 0,
-        phoneNo: "",
-        faxNo: "",
-        emailAdd: "",
-        webUrl: "",
-        isActive: true,
-        isDefaultAdd: false,
-        isDeliveryAdd: false,
-        isFinAdd: false,
-        isSalesAdd: false,
-      }
+      initialData
+        ? { ...initialData, supplierId: resolvedSupplierId }
+        : {
+            ...defaultAddressSchemaType,
+            supplierId: resolvedSupplierId,
+          }
     )
-  }, [initialData, form])
+  }, [initialData, form, resolvedSupplierId])
 
   return (
     <div className="max-w flex flex-col gap-2">

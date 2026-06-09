@@ -76,7 +76,7 @@ export function DocumentTable({
           {rows.map((doc) => (
             <TableRow key={`${doc.documentId}-${doc.itemNo}`}>
               <TableCell>
-                <div className="font-medium">{doc.documentTitle}</div>
+                <div className="font-medium">{doc.title}</div>
                 {doc.documentNo && (
                   <span className="text-muted-foreground text-xs">
                     {doc.documentNo}
@@ -90,13 +90,13 @@ export function DocumentTable({
                 {doc.documentTypeName ?? "—"}
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
-                {doc.documentCategoryName ?? "—"}
+                {doc.docCategoryName ?? "—"}
               </TableCell>
               <TableCell>{fmtDate(doc.expiryDate)}</TableCell>
               <TableCell>
                 <ExpiryBadge
                   priorityLevel={doc.priorityLevel}
-                  statusName={doc.statusName}
+                  statusName={doc.docStatusName}
                   daysUntilExpiry={doc.daysUntilExpiry}
                 />
                 {doc.isMandatory && (

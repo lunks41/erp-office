@@ -36,7 +36,7 @@ export function ReminderRuleForm({
   const form = useForm<ReminderRuleFormValues>({
     defaultValues: {
       reminderRuleId: 0,
-      documentTypeId: null,
+      docTypeId: null,
       daysBeforeExpiry: 30,
       priorityLevel: 2,
       isPopupEnabled: true,
@@ -49,7 +49,7 @@ export function ReminderRuleForm({
     if (rule) {
       form.reset({
         reminderRuleId: rule.reminderRuleId,
-        documentTypeId: rule.documentTypeId ?? null,
+        docTypeId: rule.docTypeId ?? null,
         daysBeforeExpiry: rule.daysBeforeExpiry,
         priorityLevel: rule.priorityLevel,
         isPopupEnabled: rule.isPopupEnabled,
@@ -59,7 +59,7 @@ export function ReminderRuleForm({
     } else {
       form.reset({
         reminderRuleId: 0,
-        documentTypeId: null,
+        docTypeId: null,
         daysBeforeExpiry: 30,
         priorityLevel: 2,
         isPopupEnabled: true,
@@ -74,7 +74,7 @@ export function ReminderRuleForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <DocExpiryDocumentTypeAutocomplete
           form={form}
-          name="documentTypeId"
+          name="docTypeId"
           label="Document type (optional)"
           optional
           optionalLabel="All document types"

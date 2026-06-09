@@ -826,8 +826,10 @@ export default function SupplierPage() {
             </p>
           </DialogHeader>
           <Separator />
+          {supplier?.supplierId && supplier.supplierId > 0 && (
           <SupplierAddressForm
             key={`address-form-${selectedAddress?.addressId || "new"}-${addressMode}`}
+            supplierId={supplier.supplierId}
             initialData={
               addressMode === "edit" || addressMode === "view"
                 ? selectedAddress || undefined
@@ -844,6 +846,7 @@ export default function SupplierPage() {
             }
             isReadOnly={addressMode === "view"}
           />
+          )}
         </DialogContent>
       </Dialog>
 

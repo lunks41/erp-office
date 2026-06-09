@@ -791,6 +791,7 @@ export interface IDebitNoteHd {
   debitNoteDate: Date | string
   itemNo: number
   jobOrderId: number
+  tallyServiceId?: number
   taskId: number
   taskName?: string
   chargeId: number
@@ -819,6 +820,9 @@ export interface IDebitNoteDt {
   taskName?: string
   chargeId: number
   chargeName?: string
+  glId?: number
+  glCode?: string
+  glName?: string
   qty: number
   unitPrice: number
   totLocalAmt: number

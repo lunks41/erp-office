@@ -119,8 +119,20 @@ export const supplierAddressSchema = z.object({
     .string()
     .max(20, "Fax number cannot exceed 20 characters")
     .optional(),
-  emailAdd: z.string().email("Please enter a valid email address").optional(),
-  webUrl: z.string().url("Please enter a valid URL").optional(),
+  emailAdd: z
+    .string()
+    .max(150, "Email address cannot exceed 150 characters")
+    .optional()
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: "Please enter a valid email address",
+    }),
+  webUrl: z
+    .string()
+    .max(255, "Web URL cannot exceed 255 characters")
+    .optional()
+    .refine((val) => !val || z.string().url().safeParse(val).success, {
+      message: "Please enter a valid URL",
+    }),
   isDefaultAdd: z.boolean().optional(),
   isDeliveryAdd: z.boolean().optional(),
   isFinAdd: z.boolean().optional(),

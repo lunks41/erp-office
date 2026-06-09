@@ -39,11 +39,10 @@ function toQueryRecord(params: DocumentQueryParams): Record<string, string> {
   if (params.pageNumber != null) out.PageNumber = String(params.pageNumber)
   if (params.pageSize != null) out.PageSize = String(params.pageSize)
   if (params.search?.trim()) out.Search = params.search.trim()
-  if (params.documentTypeId != null)
-    out.DocumentTypeId = String(params.documentTypeId)
-  if (params.documentCategoryId != null)
-    out.DocumentCategoryId = String(params.documentCategoryId)
-  if (params.statusId != null) out.StatusId = String(params.statusId)
+  if (params.docTypeId != null) out.DocTypeId = String(params.docTypeId)
+  if (params.docCategoryId != null)
+    out.DocCategoryId = String(params.docCategoryId)
+  if (params.docStatusId != null) out.DocStatusId = String(params.docStatusId)
   if (params.daysAhead != null) out.DaysAhead = String(params.daysAhead)
   if (params.expiredOnly) out.ExpiredOnly = "true"
   if (params.criticalOnly) out.CriticalOnly = "true"

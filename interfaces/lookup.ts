@@ -419,9 +419,9 @@ export interface IDocExpiryDocumentTypeLookup {
 }
 
 export interface IDocExpiryDocumentCategoryLookup {
-  documentCategoryId: number
-  documentCategoryCode: string
-  documentCategoryName: string
+  docCategoryId: number
+  docCategoryCode: string
+  docCategoryName: string
 }
 
 export interface IEntityTypeLookup {

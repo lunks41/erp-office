@@ -62,7 +62,7 @@ export function DocumentHistoryTimeline({
         const action = item.actionType
         const title = isHistoryDto(item)
           ? action
-          : `${action} — ${"documentTitle" in item ? item.documentTitle : ""}`
+          : `${action} — ${"title" in item ? item.title : ""}`
 
         return (
           <li key={key} className="relative">

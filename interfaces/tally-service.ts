@@ -7,6 +7,7 @@ export interface ITallyFreshWaterLine {
   quantity: number
   distance?: number | null
   tallyNo?: string | null
+  tallyDate?: Date | string | null
 }
 
 export interface ITallyLaunchServiceLine {
@@ -24,6 +25,7 @@ export interface ITallyLaunchServiceLine {
   landedWeight?: number | null
   distance?: number | null
   tallyNo?: string | null
+  tallyDate?: Date | string | null
 }
 
 export interface ITallyService {
@@ -93,6 +95,8 @@ export interface ITallyService {
   editVersion: number
   freshWaterLines?: ITallyFreshWaterLine[]
   launchServiceLines?: ITallyLaunchServiceLine[]
+  debitNoteId?: number
+  debitNoteNo?: string | null
 }
 
 export interface ITallyServiceFilter {

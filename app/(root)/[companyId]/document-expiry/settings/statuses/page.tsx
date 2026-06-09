@@ -15,9 +15,9 @@ import {
 
 function toRows(items: DocumentStatusViewModel[]): SetupRow[] {
   return items.map((s) => ({
-    id: s.statusId,
-    code: s.statusCode,
-    name: s.statusName,
+    id: s.docStatusId,
+    code: s.docStatusCode,
+    name: s.docStatusName,
     isActive: s.isActive,
   }))
 }

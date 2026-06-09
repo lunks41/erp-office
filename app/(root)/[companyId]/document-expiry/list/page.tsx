@@ -40,11 +40,11 @@ function exportCsv(rows: DocumentViewModel[]) {
   ]
   const lines = rows.map((r) =>
     [
-      r.documentTitle,
+      r.title,
       r.documentTypeName ?? "",
-      r.documentCategoryName ?? "",
+      r.docCategoryName ?? "",
       r.expiryDate,
-      r.statusName ?? "",
+      r.docStatusName ?? "",
       String(r.daysUntilExpiry),
     ]
       .map((c) => `"${String(c).replace(/"/g, '""')}"`)
@@ -90,8 +90,8 @@ export default function DocumentExpiryListPage() {
       pageNumber: filters.page,
       pageSize: filters.pageSize,
       search: filters.search || undefined,
-      documentTypeId: filters.typeId ?? undefined,
-      documentCategoryId: filters.categoryId ?? undefined,
+      docTypeId: filters.typeId ?? undefined,
+      docCategoryId: filters.categoryId ?? undefined,
       criticalOnly: filter === "critical",
       expiredOnly: filter === "expired",
       daysAhead: filter === "expiring" ? 30 : undefined,
@@ -214,7 +214,7 @@ export default function DocumentExpiryListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete document?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will deactivate &quot;{deleteTarget?.documentTitle}&quot;.
+              This will deactivate &quot;{deleteTarget?.title}&quot;.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -1,13 +1,13 @@
 "use client"
 
-import { useCompanyStore } from "@/stores/company-store"
-
 import { useEffect } from "react"
 import { ISupplier } from "@/interfaces/supplier"
 import { supplierSchema } from "@/schemas/supplier"
+import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+
 import { Form } from "@/components/ui/form"
 import {
   AccountSetupAutocomplete,
@@ -19,7 +19,7 @@ import CustomerAutocomplete from "@/components/autocomplete/autocomplete-custome
 import SupplierAutocomplete from "@/components/autocomplete/autocomplete-supplier"
 import { AuditTrailAccordion } from "@/components/common/audit-trail-accordion"
 import CustomInput from "@/components/custom/custom-input"
-import CustomSwitch from "@/components/custom/custom-switch"
+import CustomCheckbox from "@/components/custom/custom-switch"
 import CustomTextarea from "@/components/custom/custom-textarea"
 import SupplierCodeLookupInput from "@/components/lookup/supplier-code-lookup-input"
 
@@ -203,38 +203,38 @@ export default function SupplierForm({
             </div>
 
             <div className="grid grid-cols-6 gap-2">
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isCustomer"
                 label="Is Customer"
                 activeColor="success"
               />
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isVendor"
                 label="Is Vendor"
                 activeColor="success"
               />
 
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isTrader"
                 label="Is Trader"
                 activeColor="success"
               />
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isSupplier"
                 label="Is Supplier"
                 activeColor="success"
               />
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isDiffGstGl"
                 label="Diff VAT GL"
                 activeColor="success"
               />
-              <CustomSwitch
+              <CustomCheckbox
                 form={form}
                 name="isActive"
                 label="Active Status"

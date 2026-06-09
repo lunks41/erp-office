@@ -67,7 +67,7 @@ export default function DocumentDetailsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{header.documentTitle}</CardTitle>
+          <CardTitle>{header.title}</CardTitle>
           {header.companyName && (
             <p className="text-muted-foreground text-sm">
               {header.companyName}
@@ -77,14 +77,8 @@ export default function DocumentDetailsPage() {
         <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <span className="text-muted-foreground">Category</span>
-            <p>{header.documentCategoryName ?? "—"}</p>
+            <p>{header.docCategoryName ?? "—"}</p>
           </div>
-          {header.description && (
-            <div className="sm:col-span-2">
-              <span className="text-muted-foreground">Description</span>
-              <p>{header.description}</p>
-            </div>
-          )}
           {header.remarks && (
             <div className="sm:col-span-2">
               <span className="text-muted-foreground">Header remarks</span>

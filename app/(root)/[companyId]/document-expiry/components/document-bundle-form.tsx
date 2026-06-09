@@ -47,11 +47,6 @@ function toFormDate(value?: string | null) {
   return format(parsed, clientDateFormat)
 }
 
-function nextLineItemNo(details: SaveDocumentDetailViewModel[]): number {
-  const max = details.reduce((m, d) => Math.max(m, d.itemNo ?? 0), 0)
-  return max + 1
-}
-
 function displayLineItemNo(
   details: SaveDocumentDetailViewModel[],
   index: number
@@ -60,9 +55,9 @@ function displayLineItemNo(
   return String(itemNo > 0 ? itemNo : index + 1)
 }
 
-const createEmptyLine = (itemNo: number): SaveDocumentDetailViewModel => ({
-  itemNo,
-  documentTypeId: 0,
+const createEmptyLine = (): SaveDocumentDetailViewModel => ({
+  itemNo: 0,
+  docTypeId: 0,
   documentNo: "",
   issueDate: "",
   expiryDate: "",
@@ -77,16 +72,14 @@ function headerToFormValues(
   return {
     documentId: header.documentId,
     companyId: header.companyId,
-    branchId: header.branchId ?? undefined,
-    documentCategoryId: header.documentCategoryId,
-    documentTitle: header.documentTitle,
-    description: header.description ?? "",
+    docCategoryId: header.docCategoryId,
+    title: header.title,
     remarks: header.remarks ?? "",
     details:
       header.details.length > 0
         ? header.details.map((d) => ({
             itemNo: d.itemNo,
-            documentTypeId: d.documentTypeId,
+            docTypeId: d.docTypeId,
             documentNo: d.documentNo ?? "",
             issueDate: toFormDate(d.issueDate),
             expiryDate: toFormDate(d.expiryDate),
@@ -94,19 +87,19 @@ function headerToFormValues(
             isMandatory: d.isMandatory,
             remarks: d.remarks ?? "",
           }))
-        : [createEmptyLine(1)],
+        : [createEmptyLine()],
   }
 }
+
+export const DOCUMENT_BUNDLE_FORM_ID = "document-bundle-form"
 
 export function DocumentBundleForm({
   header,
   onSubmit,
-  isSubmitting,
   isLoading,
 }: {
   header?: DocumentHeaderViewModel | null
   onSubmit: (values: SaveDocumentWithDetailsViewModel) => void
-  isSubmitting?: boolean
   isLoading?: boolean
 }) {
   const params = useParams()
@@ -116,11 +109,10 @@ export function DocumentBundleForm({
     defaultValues: {
       documentId: 0,
       companyId: routeCompanyId || 0,
-      documentCategoryId: 0,
-      documentTitle: "",
-      description: "",
+      docCategoryId: 0,
+      title: "",
       remarks: "",
-      details: [createEmptyLine(1)],
+      details: [createEmptyLine()],
     },
   })
 
@@ -162,7 +154,11 @@ export function DocumentBundleForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form
+        id={DOCUMENT_BUNDLE_FORM_ID}
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6"
+      >
         <div className="space-y-4">
           <h3 className="text-sm font-semibold">Header</h3>
           <div className="grid gap-4 md:grid-cols-3">
@@ -174,36 +170,26 @@ export function DocumentBundleForm({
             />
             <DocExpiryDocumentCategoryAutocomplete
               form={formCompat}
-              name="documentCategoryId"
+              name="docCategoryId"
               label="Category"
               isRequired
             />
 
             <CustomInput
               form={formCompat}
-              name="documentTitle"
-              label="Document title"
+              name="title"
+              label="Title"
               isRequired
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
-            <CustomTextarea
-              form={formCompat}
-              name="description"
-              label="Description"
-              minRows={2}
-              className="w-full min-w-0"
-            />
-
-            <CustomTextarea
-              form={formCompat}
-              name="remarks"
-              label="Header remarks"
-              minRows={2}
-              className="w-full min-w-0"
-            />
-          </div>
+          <CustomTextarea
+            form={formCompat}
+            name="remarks"
+            label="Header remarks"
+            minRows={2}
+            className="w-full min-w-0"
+          />
         </div>
 
         <div className="space-y-3">
@@ -213,10 +199,7 @@ export function DocumentBundleForm({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => {
-                const current = form.getValues("details") ?? []
-                append(createEmptyLine(nextLineItemNo(current)))
-              }}
+              onClick={() => append(createEmptyLine())}
             >
               <Plus className="mr-1 h-4 w-4" />
               Add line
@@ -234,6 +217,7 @@ export function DocumentBundleForm({
                   <TableHead className="min-w-[150px]">Expiry</TableHead>
                   <TableHead className="min-w-[90px]">Reminder</TableHead>
                   <TableHead>Mandatory</TableHead>
+                  <TableHead className="min-w-[160px]">Remarks</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -252,7 +236,7 @@ export function DocumentBundleForm({
                     <TableCell className="align-top">
                       <DocExpiryDocumentTypeAutocomplete
                         form={formCompat}
-                        name={`details.${index}.documentTypeId`}
+                        name={`details.${index}.docTypeId`}
                         label=""
                         isRequired
                         onChangeEvent={(
@@ -283,6 +267,7 @@ export function DocumentBundleForm({
                         form={formCompat}
                         name={`details.${index}.issueDate`}
                         label=""
+                        isRequired
                         isFutureShow
                       />
                     </TableCell>
@@ -311,6 +296,14 @@ export function DocumentBundleForm({
                       />
                     </TableCell>
                     <TableCell className="align-top">
+                      <CustomInput
+                        form={formCompat}
+                        name={`details.${index}.remarks`}
+                        label=""
+                        placeholder="Line remarks"
+                      />
+                    </TableCell>
+                    <TableCell className="align-top">
                       <Button
                         type="button"
                         variant="ghost"
@@ -326,16 +319,6 @@ export function DocumentBundleForm({
               </TableBody>
             </Table>
           </div>
-        </div>
-
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting
-              ? "Saving…"
-              : header
-                ? "Update record"
-                : "Create record"}
-          </Button>
         </div>
       </form>
     </Form>

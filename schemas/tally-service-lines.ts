@@ -7,6 +7,7 @@ export const tallyFreshWaterLineSchema = z.object({
   quantity: z.number().min(0, "Quantity must be 0 or greater"),
   distance: z.number().min(0, "Distance must be 0 or greater").optional(),
   tallyNo: z.string().optional(),
+  tallyDate: z.union([z.date(), z.string()]).optional(),
 })
 
 export const tallyLaunchServiceLineSchema = z.object({
@@ -23,6 +24,7 @@ export const tallyLaunchServiceLineSchema = z.object({
   landedWeight: z.number().min(0).optional(),
   distance: z.number().min(0, "Distance must be 0 or greater").optional(),
   tallyNo: z.string().optional(),
+  tallyDate: z.union([z.date(), z.string()]).optional(),
 })
 
 export type TallyFreshWaterLineSchemaType = z.infer<

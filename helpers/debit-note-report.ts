@@ -30,6 +30,32 @@ export function openDebitNoteReportWindow(params: DebitNoteReportOpenParams): vo
   })
 }
 
+export type TallyDebitNoteReportOpenParams = {
+  companyId: string
+  debitNoteId: number
+  debitNoteNo: string
+  tallyServiceId: string
+  amtDec: number
+  locAmtDec: number
+  userName: string
+}
+
+export const TALLY_DEBIT_NOTE_REPORT_FILE = "tallyservice/DebitNote.trdp"
+
+export function openTallyDebitNoteReportWindow(
+  params: TallyDebitNoteReportOpenParams
+): void {
+  openReportWindow(params.companyId, TALLY_DEBIT_NOTE_REPORT_FILE, {
+    companyId: params.companyId,
+    debitNoteId: params.debitNoteId.toString(),
+    debitNoteNo: params.debitNoteNo,
+    tallyServiceId: params.tallyServiceId,
+    amtDec: params.amtDec,
+    locAmtDec: params.locAmtDec,
+    userName: params.userName,
+  })
+}
+
 function openReportWindow(
   companyId: string,
   reportFile: string,

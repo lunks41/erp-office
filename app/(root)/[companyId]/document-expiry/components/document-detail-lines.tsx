@@ -14,6 +14,7 @@ import {
   useRenewDocument,
   useUploadDocumentAttachment,
 } from "@/hooks/use-document-expiry"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -42,6 +43,25 @@ function fmtDate(value?: string | null) {
   }
 }
 
+function RenewalInfo({ line }: { line: DocumentDetailViewModel }) {
+  if (!line.isRenewed && !(line.previousItemNo != null && line.previousItemNo > 0)) {
+    return <span className="text-muted-foreground text-sm">—</span>
+  }
+
+  return (
+    <div className="space-y-0.5 text-xs">
+      {line.isRenewed && (
+        <Badge variant="outline" className="font-normal">
+          Renewed
+        </Badge>
+      )}
+      {line.previousItemNo != null && line.previousItemNo > 0 && (
+        <p className="text-muted-foreground">Was item {line.previousItemNo}</p>
+      )}
+    </div>
+  )
+}
+
 function LineAttachments({
   documentId,
   line,
@@ -60,7 +80,7 @@ function LineAttachments({
   return (
     <div className="bg-muted/30 mt-2 space-y-2 rounded-md border p-3">
       <UploadDropzone
-        disabled={uploadMutation.isPending || line.statusCode === "CANCELLED"}
+        disabled={uploadMutation.isPending || line.docStatusCode === "CANCELLED"}
         onFileSelect={async (file) => {
           await uploadMutation.mutateAsync({
             documentId,
@@ -137,11 +157,14 @@ export function DocumentDetailLines({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-14">Item</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Doc no.</TableHead>
               <TableHead>Issue</TableHead>
               <TableHead>Expiry</TableHead>
               <TableHead>Reminder</TableHead>
+              <TableHead>Remarks</TableHead>
+              <TableHead>Renewal</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -150,17 +173,33 @@ export function DocumentDetailLines({
             {lines.map((line) => (
               <Fragment key={line.itemNo}>
                 <TableRow>
+                  <TableCell className="text-muted-foreground text-center text-sm tabular-nums">
+                    {line.itemNo}
+                  </TableCell>
                   <TableCell className="font-medium">
-                    {line.documentTypeName ?? "—"}
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span>{line.documentTypeName ?? "—"}</span>
+                      {line.isMandatory && (
+                        <Badge variant="secondary" className="text-xs font-normal">
+                          Required
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>{line.documentNo ?? "—"}</TableCell>
                   <TableCell>{fmtDate(line.issueDate)}</TableCell>
                   <TableCell>{fmtDate(line.expiryDate)}</TableCell>
                   <TableCell>{line.reminderDays}</TableCell>
+                  <TableCell className="max-w-[200px] truncate">
+                    {line.remarks ?? "—"}
+                  </TableCell>
+                  <TableCell>
+                    <RenewalInfo line={line} />
+                  </TableCell>
                   <TableCell>
                     <ExpiryBadge
                       priorityLevel={line.priorityLevel}
-                      statusName={line.statusName}
+                      statusName={line.docStatusName}
                       daysUntilExpiry={line.daysUntilExpiry}
                     />
                   </TableCell>
@@ -179,7 +218,7 @@ export function DocumentDetailLines({
                         <Upload className="mr-1 h-3.5 w-3.5" />
                         Files ({line.attachmentCount})
                       </Button>
-                      {line.statusCode !== "CANCELLED" && (
+                      {line.docStatusCode !== "CANCELLED" && (
                         <>
                           <Button
                             type="button"
@@ -212,7 +251,7 @@ export function DocumentDetailLines({
                 </TableRow>
                 {expandedItemNo === line.itemNo && (
                   <TableRow>
-                    <TableCell colSpan={7}>
+                    <TableCell colSpan={10}>
                       <LineAttachments documentId={documentId} line={line} />
                     </TableCell>
                   </TableRow>

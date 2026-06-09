@@ -15,9 +15,9 @@ import {
 
 function toRows(items: DocumentCategoryViewModel[]): SetupRow[] {
   return items.map((c) => ({
-    id: c.documentCategoryId,
-    code: c.documentCategoryCode,
-    name: c.documentCategoryName,
+    id: c.docCategoryId,
+    code: c.docCategoryCode,
+    name: c.docCategoryName,
     isActive: c.isActive,
   }))
 }

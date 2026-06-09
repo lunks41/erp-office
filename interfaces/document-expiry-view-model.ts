@@ -5,21 +5,19 @@ export interface DocumentViewModel {
   documentId: number
   companyId: number
   companyName?: string | null
-  branchId?: number | null
-  documentTypeId: number
+  docTypeId: number
   documentTypeCode?: string | null
   documentTypeName?: string | null
-  documentCategoryId: number
-  documentCategoryName?: string | null
-  documentNo?: string | null
-  documentTitle: string
-  description?: string | null
-  issueDate?: string | null
+  docCategoryId: number
+  docCategoryName?: string | null
+  documentNo: string
+  title: string
+  issueDate: string
   expiryDate: string
   reminderDays: number
-  statusId: number
-  statusCode?: string | null
-  statusName?: string | null
+  docStatusId: number
+  docStatusCode?: string | null
+  docStatusName?: string | null
   priorityLevel: number
   isMandatory: boolean
   isRenewed: boolean
@@ -37,16 +35,16 @@ export interface DocumentViewModel {
 export interface DocumentDetailViewModel {
   itemNo: number
   documentId: number
-  documentTypeId: number
+  docTypeId: number
   documentTypeCode?: string | null
   documentTypeName?: string | null
-  documentNo?: string | null
-  issueDate?: string | null
+  documentNo: string
+  issueDate: string
   expiryDate: string
   reminderDays: number
-  statusId: number
-  statusCode?: string | null
-  statusName?: string | null
+  docStatusId: number
+  docStatusCode?: string | null
+  docStatusName?: string | null
   priorityLevel: number
   isMandatory: boolean
   isRenewed: boolean
@@ -61,11 +59,9 @@ export interface DocumentHeaderViewModel {
   documentId: number
   companyId: number
   companyName?: string | null
-  branchId?: number | null
-  documentCategoryId: number
-  documentCategoryName?: string | null
-  documentTitle: string
-  description?: string | null
+  docCategoryId: number
+  docCategoryName?: string | null
+  title: string
   remarks?: string | null
   createdById: number
   createdDate: string
@@ -76,9 +72,9 @@ export interface DocumentHeaderViewModel {
 
 export interface SaveDocumentDetailViewModel {
   itemNo?: number
-  documentTypeId: number
-  documentNo?: string | null
-  issueDate?: string | null
+  docTypeId: number
+  documentNo: string
+  issueDate: string
   expiryDate: string
   reminderDays?: number | null
   isMandatory: boolean
@@ -88,10 +84,8 @@ export interface SaveDocumentDetailViewModel {
 export interface SaveDocumentWithDetailsViewModel {
   documentId?: number
   companyId: number
-  branchId?: number | null
-  documentCategoryId: number
-  documentTitle: string
-  description?: string | null
+  docCategoryId: number
+  title: string
   remarks?: string | null
   details: SaveDocumentDetailViewModel[]
 }
@@ -108,9 +102,9 @@ export interface DocumentQueryParams {
   pageNumber?: number
   pageSize?: number
   search?: string
-  documentTypeId?: number
-  documentCategoryId?: number
-  statusId?: number
+  docTypeId?: number
+  docCategoryId?: number
+  docStatusId?: number
   daysAhead?: number
   expiredOnly?: boolean
   criticalOnly?: boolean
@@ -128,16 +122,16 @@ export interface DocumentTypeViewModel {
 }
 
 export interface DocumentCategoryViewModel {
-  documentCategoryId: number
-  documentCategoryCode: string
-  documentCategoryName: string
+  docCategoryId: number
+  docCategoryCode: string
+  docCategoryName: string
   isActive: boolean
 }
 
 export interface DocumentStatusViewModel {
-  statusId: number
-  statusCode: string
-  statusName: string
+  docStatusId: number
+  docStatusCode: string
+  docStatusName: string
   isActive: boolean
 }
 
@@ -152,22 +146,22 @@ export interface SaveDocumentTypeViewModel {
 }
 
 export interface SaveDocumentCategoryViewModel {
-  documentCategoryId: number
-  documentCategoryCode: string
-  documentCategoryName: string
+  docCategoryId: number
+  docCategoryCode: string
+  docCategoryName: string
   isActive: boolean
 }
 
 export interface SaveDocumentStatusViewModel {
-  statusId: number
-  statusCode: string
-  statusName: string
+  docStatusId: number
+  docStatusCode: string
+  docStatusName: string
   isActive: boolean
 }
 
 export interface ReminderRuleViewModel {
   reminderRuleId: number
-  documentTypeId?: number | null
+  docTypeId?: number | null
   documentTypeName?: string | null
   daysBeforeExpiry: number
   notificationTypeId: number
@@ -179,7 +173,7 @@ export interface ReminderRuleViewModel {
 
 export interface SaveReminderRuleViewModel {
   reminderRuleId: number
-  documentTypeId?: number | null
+  docTypeId?: number | null
   daysBeforeExpiry: number
   priorityLevel: number
   isPopupEnabled: boolean
@@ -189,6 +183,7 @@ export interface SaveReminderRuleViewModel {
 
 export interface DocumentAttachmentViewModel {
   attachmentId: number
+  documentId: number
   itemNo: number
   fileName: string
   filePath: string
@@ -237,18 +232,18 @@ export interface DashboardSummaryViewModel {
 export interface ExpiryReportRowViewModel {
   itemNo: number
   documentId: number
-  documentTitle: string
+  title: string
   documentTypeName?: string | null
-  documentCategoryName?: string | null
+  docCategoryName?: string | null
   expiryDate: string
-  statusName?: string | null
+  docStatusName?: string | null
   daysUntilExpiry: number
 }
 
 export interface RenewalHistoryReportRowViewModel {
   itemNo: number
   documentId: number
-  documentTitle: string
+  title: string
   oldExpiryDate?: string | null
   newExpiryDate?: string | null
   actionType: string

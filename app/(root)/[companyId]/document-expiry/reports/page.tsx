@@ -89,7 +89,7 @@ export default function DocumentExpiryReportsPage() {
                           href={`${base}/details/${r.documentId}`}
                           className="font-medium hover:underline"
                         >
-                          {r.documentTitle}
+                          {r.title}
                         </Link>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
@@ -99,7 +99,7 @@ export default function DocumentExpiryReportsPage() {
                       <TableCell>
                         <ExpiryBadge
                           priorityLevel={priorityFromDays(r.daysUntilExpiry)}
-                          statusName={r.statusName}
+                          statusName={r.docStatusName}
                           daysUntilExpiry={r.daysUntilExpiry}
                         />
                       </TableCell>

@@ -35,10 +35,10 @@ type DocExpiryLookupKind = "documentType" | "documentCategory"
 
 const FIELD_NAMES: Record<
   DocExpiryLookupKind,
-  "documentTypeId" | "documentCategoryId"
+  "docTypeId" | "docCategoryId"
 > = {
-  documentType: "documentTypeId",
-  documentCategory: "documentCategoryId",
+  documentType: "docTypeId",
+  documentCategory: "docCategoryId",
 }
 
 const PLACEHOLDERS: Record<DocExpiryLookupKind, string> = {
@@ -81,8 +81,8 @@ function useLookupOptions(kind: DocExpiryLookupKind) {
       }))
     }
     return (rows as IDocExpiryDocumentCategoryLookup[]).map((r) => ({
-      value: String(r.documentCategoryId),
-      label: `${r.documentCategoryCode} - ${r.documentCategoryName}`,
+      value: String(r.docCategoryId),
+      label: `${r.docCategoryCode} - ${r.docCategoryName}`,
     }))
   }, [kind, query.data])
 

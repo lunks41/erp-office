@@ -1343,6 +1343,14 @@ export const TallyService = {
   previewInvoice: "/operations/GetPreviewInvoiceByTallyServiceId",
 }
 
+export const TallyService_DebitNote = {
+  getById: "/operations/gettallydebitnotebyid",
+  getByTallyServiceId: "/operations/gettallydebitnotebytallyserviceid",
+  generate: "/operations/generatetallydebitnote",
+  add: "/operations/savetallydebitnote",
+  delete: "/operations/deletetallydebitnote",
+}
+
 // Port Expenses Endpoints
 export const JobOrder_PortExpenses = {
   get: "/operations/getportexpenses",

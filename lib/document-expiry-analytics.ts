@@ -162,7 +162,7 @@ export function buildCategoryBars(docs: DocumentViewModel[]): DocumentExpiryBarI
     "bg-cyan-500",
     "bg-primary",
   ]
-  return countByLabel(docs, (d) => d.documentCategoryName).map((item, i) => ({
+  return countByLabel(docs, (d) => d.docCategoryName).map((item, i) => ({
     ...item,
     chartKey: item.chartKey || `cat_${i}`,
     colorClass: colors[i % colors.length] ?? "bg-primary",

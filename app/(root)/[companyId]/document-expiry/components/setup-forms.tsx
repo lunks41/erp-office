@@ -202,9 +202,9 @@ export function DocumentCategorySetupForm(props: {
   return (
     <CodeNameForm
       {...props}
-      idField="documentCategoryId"
-      codeField="documentCategoryCode"
-      nameField="documentCategoryName"
+      idField="docCategoryId"
+      codeField="docCategoryCode"
+      nameField="docCategoryName"
       onSubmit={(v) =>
         props.onSubmit(v as unknown as SaveDocumentCategoryViewModel)
       }
@@ -221,9 +221,9 @@ export function DocumentStatusSetupForm(props: {
   return (
     <CodeNameForm
       {...props}
-      idField="statusId"
-      codeField="statusCode"
-      nameField="statusName"
+      idField="docStatusId"
+      codeField="docStatusCode"
+      nameField="docStatusName"
       extra={
         <p className="text-muted-foreground text-xs">
           Status codes are used by the expiry engine (ACTIVE, EXPIRING, EXPIRED,

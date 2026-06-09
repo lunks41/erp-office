@@ -8,7 +8,10 @@ import { ArrowLeft } from "lucide-react"
 import { useDocumentById, useSaveDocument } from "@/hooks/use-document-expiry"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DocumentBundleForm } from "@/app/(root)/[companyId]/document-expiry/components/document-bundle-form"
+import {
+  DOCUMENT_BUNDLE_FORM_ID,
+  DocumentBundleForm,
+} from "@/app/(root)/[companyId]/document-expiry/components/document-bundle-form"
 
 export default function EditDocumentPage() {
   const params = useParams()
@@ -47,14 +50,20 @@ export default function EditDocumentPage() {
       </Button>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle>Edit document record</CardTitle>
+          <Button
+            type="submit"
+            form={DOCUMENT_BUNDLE_FORM_ID}
+            disabled={saveMutation.isPending || docLoading}
+          >
+            {saveMutation.isPending ? "Saving…" : "Update"}
+          </Button>
         </CardHeader>
         <CardContent>
           <DocumentBundleForm
             header={header}
             onSubmit={handleSubmit}
-            isSubmitting={saveMutation.isPending}
             isLoading={docLoading}
           />
         </CardContent>

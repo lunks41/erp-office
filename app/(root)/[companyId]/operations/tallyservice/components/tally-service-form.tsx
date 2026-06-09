@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { IDebitNoteHd } from "@/interfaces/checklist"
 import { ITallyService } from "@/interfaces"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
 import { ICustomerAddress, ICustomerContact } from "@/interfaces/customer"
@@ -9,13 +10,15 @@ import { ISupplierAddress, ISupplierContact } from "@/interfaces/supplier"
 import { tallyServiceSchema, TallyServiceSchemaType } from "@/schemas"
 import { useCompanyStore } from "@/stores/company-store"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQueryClient } from "@tanstack/react-query"
 import { differenceInMinutes, format, isValid, parse } from "date-fns"
 import { useFieldArray, useForm, type FieldErrors } from "react-hook-form"
 import { toast } from "sonner"
 
-import { getData } from "@/lib/api-client"
-import { BasicSetting, TallyService } from "@/lib/api-routes"
+import { getData, saveData } from "@/lib/api-client"
+import { BasicSetting, TallyService, TallyService_DebitNote } from "@/lib/api-routes"
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
+import { useDelete } from "@/hooks/use-common"
 import {
   useCustomerAddressLookup,
   useCustomerContactLookup,
@@ -47,6 +50,7 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import CustomTextarea from "@/components/custom/custom-textarea"
 
 import { TallyServiceServiceTab } from "./tally-service-service-tab"
+import DebitNoteDialog from "./tally-service-debit-note-dialog"
 import {
   buildFreshWaterLinesFromTally,
   buildLaunchLinesFromTally,
@@ -75,6 +79,31 @@ interface TallyServiceFormProps {
   isFieldsLocked?: boolean
   /** Lock job status only when posted (IsPost or status Posted). */
   isJobStatusLocked?: boolean
+}
+
+interface ApiResponse<T> {
+  result: number
+  message?: string
+  data?: T | T[]
+  totalRecords?: number
+}
+
+function mapTallyDebitNoteResponse(data: IDebitNoteHd): IDebitNoteHd {
+  const tallyServiceId =
+    data.tallyServiceId ?? data.jobOrderId ?? 0
+  return {
+    ...data,
+    tallyServiceId,
+    jobOrderId: tallyServiceId,
+  }
+}
+
+function extractDebitNoteHd(data: unknown): IDebitNoteHd | null {
+  if (!data) return null
+  if (Array.isArray(data)) {
+    return data[0] ? mapTallyDebitNoteResponse(data[0] as IDebitNoteHd) : null
+  }
+  return mapTallyDebitNoteResponse(data as IDebitNoteHd)
 }
 
 function formatDurationToHhMm(value?: number | null): string {
@@ -186,10 +215,20 @@ export function TallyServiceForm({
       contactName: initialData?.contactName ?? "",
       mobileNo: initialData?.mobileNo ?? "",
       emailAdd: initialData?.emailAdd ?? "",
-      freshWaterLines: buildFreshWaterLinesFromTally(initialData),
+      freshWaterLines: buildFreshWaterLinesFromTally(initialData).map(
+        (line) => ({
+          ...line,
+          tallyDate: line.tallyDate
+            ? parseWithFallback(line.tallyDate as string) || undefined
+            : parseWithFallback(serviceDate) || undefined,
+        })
+      ),
       launchServiceLines: buildLaunchLinesFromTally(initialData).map(
         (line) => ({
           ...line,
+          tallyDate: line.tallyDate
+            ? parseWithFallback(line.tallyDate as string) || undefined
+            : parseWithFallback(serviceDate) || undefined,
           loadingTime: line.loadingTime
             ? parseWithFallback(line.loadingTime as string) || undefined
             : undefined,
@@ -254,6 +293,186 @@ export function TallyServiceForm({
   const isCancel = form.watch("isCancel")
   const serviceDate = form.watch("date")
   const portId = form.watch("portId")
+
+  const queryClient = useQueryClient()
+  const [showDebitNoteModal, setShowDebitNoteModal] = useState(false)
+  const [debitNoteHd, setDebitNoteHd] = useState<IDebitNoteHd | null>(null)
+  const [debitNoteNoLabel, setDebitNoteNoLabel] = useState(
+    initialData?.debitNoteNo ?? ""
+  )
+  const [debitNoteIdLabel, setDebitNoteIdLabel] = useState(
+    initialData?.debitNoteId && initialData?.debitNoteNo
+      ? initialData.debitNoteId
+      : 0
+  )
+  const [isDebitNoteLoading, setIsDebitNoteLoading] = useState(false)
+
+  useEffect(() => {
+    const hasDebitNote =
+      (initialData?.debitNoteId ?? 0) > 0 &&
+      Boolean(initialData?.debitNoteNo?.trim())
+    setDebitNoteNoLabel(hasDebitNote ? (initialData?.debitNoteNo ?? "") : "")
+    setDebitNoteIdLabel(hasDebitNote ? (initialData?.debitNoteId ?? 0) : 0)
+  }, [initialData?.debitNoteId, initialData?.debitNoteNo])
+
+  const hasExistingDebitNote =
+    debitNoteIdLabel > 0 && Boolean(debitNoteNoLabel?.trim())
+
+  const debitNoteDeleteMutation = useDelete(`${TallyService_DebitNote.delete}`)
+
+  const hasServiceLines =
+    freshWaterFields.length > 0 || launchFields.length > 0
+
+  const tallyDebitNoteTaskId = useMemo(() => {
+    const freshWaterCount = freshWaterFields.length
+    const launchCount = launchFields.length
+    if (launchCount > 0 && freshWaterCount === 0) return 2
+    if (freshWaterCount > 0 && launchCount === 0) return 11
+    if (launchCount > 0) return 2
+    return 2
+  }, [freshWaterFields.length, launchFields.length])
+
+  const tallyServiceForDebitNote = useMemo((): ITallyService | undefined => {
+    if (!initialData?.tallyServiceId) return undefined
+    return {
+      ...initialData,
+      customerId: customerId || initialData.customerId,
+      portId: portId || initialData.portId,
+      currencyId: currencyId || initialData.currencyId,
+      gstId: gstId || initialData.gstId,
+    } as ITallyService
+  }, [initialData, customerId, portId, currencyId, gstId])
+
+  const handleDebitNote = useCallback(async () => {
+    const tallyServiceId = initialData?.tallyServiceId ?? 0
+    if (!hasServiceLines) return
+
+    if (tallyServiceId <= 0) {
+      toast.error("Save the tally service before creating a debit note.")
+      return
+    }
+
+    setIsDebitNoteLoading(true)
+    try {
+      const existingResponse = (await getData(
+        `${TallyService_DebitNote.getByTallyServiceId}/${tallyServiceId}`
+      )) as ApiResponse<IDebitNoteHd>
+
+      if (existingResponse.result === 1 && existingResponse.data) {
+        const existing = extractDebitNoteHd(existingResponse.data)
+        if (existing) {
+          setDebitNoteHd(existing)
+          setDebitNoteNoLabel(existing.debitNoteNo ?? "")
+          setDebitNoteIdLabel(existing.debitNoteId ?? 0)
+          setShowDebitNoteModal(true)
+          return
+        }
+      }
+
+      const generateResponse = (await saveData(
+        TallyService_DebitNote.generate,
+        { tallyServiceId, debitNoteNo: "" }
+      )) as ApiResponse<IDebitNoteHd>
+
+      if (generateResponse.result > 0) {
+        const createdFromGenerate = extractDebitNoteHd(generateResponse.data)
+        if (createdFromGenerate) {
+          setDebitNoteHd(createdFromGenerate)
+          setDebitNoteNoLabel(createdFromGenerate.debitNoteNo ?? "")
+          setDebitNoteIdLabel(createdFromGenerate.debitNoteId ?? 0)
+          setShowDebitNoteModal(true)
+          await queryClient.invalidateQueries({ queryKey: ["tallyService"] })
+          return
+        }
+
+        const debitNoteId =
+          generateResponse.totalRecords ?? generateResponse.result
+        const debitNoteResponse = (await getData(
+          `${TallyService_DebitNote.getById}/${tallyServiceId}/${debitNoteId}`
+        )) as ApiResponse<IDebitNoteHd>
+
+        if (debitNoteResponse.result === 1 && debitNoteResponse.data) {
+          const created = extractDebitNoteHd(debitNoteResponse.data)
+          if (created) {
+            setDebitNoteHd(created)
+            setDebitNoteNoLabel(created.debitNoteNo ?? "")
+            setDebitNoteIdLabel(created.debitNoteId ?? 0)
+            setShowDebitNoteModal(true)
+            await queryClient.invalidateQueries({ queryKey: ["tallyService"] })
+            return
+          }
+        }
+      }
+
+      toast.error(generateResponse.message || "Failed to generate debit note.")
+    } catch {
+      toast.error("Failed to open debit note.")
+    } finally {
+      setIsDebitNoteLoading(false)
+    }
+  }, [hasServiceLines, initialData?.tallyServiceId, queryClient])
+
+  const handleOpenDebitNote = useCallback(async () => {
+    const tallyServiceId = initialData?.tallyServiceId ?? 0
+    const debitNoteId =
+      debitNoteHd?.debitNoteId ?? debitNoteIdLabel ?? initialData?.debitNoteId ?? 0
+
+    if (tallyServiceId <= 0) return
+
+    setIsDebitNoteLoading(true)
+    try {
+      const response = (await getData(
+        debitNoteId > 0
+          ? `${TallyService_DebitNote.getById}/${tallyServiceId}/${debitNoteId}`
+          : `${TallyService_DebitNote.getByTallyServiceId}/${tallyServiceId}`
+      )) as ApiResponse<IDebitNoteHd>
+
+      if (response.result === 1 && response.data) {
+        const existing = extractDebitNoteHd(response.data)
+        if (existing) {
+          setDebitNoteHd(existing)
+          setDebitNoteNoLabel(existing.debitNoteNo ?? "")
+          setDebitNoteIdLabel(existing.debitNoteId ?? 0)
+          setShowDebitNoteModal(true)
+          return
+        }
+      }
+
+      toast.error(response.message || "Debit note not found.")
+    } catch {
+      toast.error("Failed to open debit note.")
+    } finally {
+      setIsDebitNoteLoading(false)
+    }
+  }, [
+    debitNoteHd?.debitNoteId,
+    debitNoteIdLabel,
+    initialData?.debitNoteId,
+    initialData?.tallyServiceId,
+  ])
+
+  const handleDeleteDebitNote = useCallback(
+    async (debitNoteId: number) => {
+      const tallyServiceId = initialData?.tallyServiceId ?? 0
+      if (tallyServiceId <= 0 || debitNoteId <= 0) return
+
+      try {
+        await debitNoteDeleteMutation.mutateAsync(
+          `${tallyServiceId}/${debitNoteId}`
+        )
+        setShowDebitNoteModal(false)
+        setDebitNoteHd(null)
+        setDebitNoteNoLabel("")
+        setDebitNoteIdLabel(0)
+        await queryClient.invalidateQueries({ queryKey: ["tallyService"] })
+        await queryClient.invalidateQueries({ queryKey: ["tallyServices"] })
+        toast.success("Debit note deleted.")
+      } catch {
+        toast.error("Failed to delete debit note.")
+      }
+    },
+    [debitNoteDeleteMutation, initialData?.tallyServiceId, queryClient]
+  )
 
   const { data: customerAddresses = [] } = useCustomerAddressLookup(customerId)
   const { data: customerContacts = [] } = useCustomerContactLookup(customerId)
@@ -782,6 +1001,16 @@ export function TallyServiceForm({
               formatDurationToHhMm={formatDurationToHhMm}
               calculateWaitingTime={calculateWaitingTime}
               calculateTimeDiff={calculateTimeDiff}
+              hasServiceLines={hasServiceLines}
+              debitNoteNo={debitNoteNoLabel}
+              hasExistingDebitNote={hasExistingDebitNote}
+              onDebitNote={mode !== "create" ? handleDebitNote : undefined}
+              onOpenDebitNote={
+                mode !== "create" && debitNoteNoLabel
+                  ? handleOpenDebitNote
+                  : undefined
+              }
+              isDebitNoteLoading={isDebitNoteLoading}
             />
 
             {/* Bill-to: address + contact (pickers co-located with fields) */}
@@ -942,6 +1171,24 @@ export function TallyServiceForm({
           )}
         </form>
       </Form>
+
+      {tallyServiceForDebitNote && (
+        <DebitNoteDialog
+          open={showDebitNoteModal}
+          taskId={tallyDebitNoteTaskId}
+          debitNoteHd={debitNoteHd ?? undefined}
+          isConfirmed={isReadOnly}
+          title="Tally Service Debit Note"
+          onOpenChange={setShowDebitNoteModal}
+          onDeleteAction={isReadOnly ? undefined : handleDeleteDebitNote}
+          onUpdateHeader={(header) => {
+            setDebitNoteHd(header)
+            setDebitNoteNoLabel(header.debitNoteNo ?? "")
+            setDebitNoteIdLabel(header.debitNoteId ?? 0)
+          }}
+          tallyService={tallyServiceForDebitNote}
+        />
+      )}
     </div>
   )
 }

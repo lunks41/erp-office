@@ -6,7 +6,7 @@ import { formatDateForApi } from "@/lib/date-utils"
 
 export function isDetailLineEmpty(line: SaveDocumentDetailViewModel): boolean {
   return (
-    (!line.documentTypeId || line.documentTypeId <= 0) &&
+    (!line.docTypeId || line.docTypeId <= 0) &&
     !formatDateForApi(line.expiryDate) &&
     !formatDateForApi(line.issueDate) &&
     !line.documentNo?.trim()
@@ -15,9 +15,10 @@ export function isDetailLineEmpty(line: SaveDocumentDetailViewModel): boolean {
 
 export function isDetailLineComplete(line: SaveDocumentDetailViewModel): boolean {
   return (
-    !!line.documentTypeId &&
-    line.documentTypeId > 0 &&
-    !!formatDateForApi(line.expiryDate)
+    !!line.docTypeId &&
+    line.docTypeId > 0 &&
+    !!formatDateForApi(line.expiryDate) &&
+    !!formatDateForApi(line.issueDate)
   )
 }
 
@@ -32,10 +33,10 @@ export function validateDocumentBundleSave(
   if (!values.companyId || values.companyId <= 0) {
     return "Company is required."
   }
-  if (!values.documentTitle?.trim()) {
+  if (!values.title?.trim()) {
     return "Document title is required."
   }
-  if (!values.documentCategoryId || values.documentCategoryId <= 0) {
+  if (!values.docCategoryId || values.docCategoryId <= 0) {
     return "Category is required."
   }
 
@@ -43,7 +44,7 @@ export function validateDocumentBundleSave(
   const filledLines = lines.filter(isDetailLineComplete)
 
   if (filledLines.length === 0) {
-    return "Add at least one document line with type and expiry date."
+    return "Add at least one document line with type, issue date, and expiry date."
   }
 
   for (let i = 0; i < lines.length; i++) {
@@ -52,8 +53,11 @@ export function validateDocumentBundleSave(
 
     if (!isDetailLineComplete(line)) {
       const label = lineLabel(line, i)
-      if (!line.documentTypeId || line.documentTypeId <= 0) {
+      if (!line.docTypeId || line.docTypeId <= 0) {
         return `Line ${label}: document type is required.`
+      }
+      if (!formatDateForApi(line.issueDate)) {
+        return `Line ${label}: issue date is required.`
       }
       if (!formatDateForApi(line.expiryDate)) {
         return `Line ${label}: expiry date is required.`
@@ -70,12 +74,13 @@ export function buildDocumentBundlePayload(
 ): SaveDocumentWithDetailsViewModel {
   return {
     ...values,
-    documentTitle: values.documentTitle.trim(),
+    title: values.title.trim(),
     details: (values.details ?? [])
       .filter(isDetailLineComplete)
       .map((d) => ({
         ...d,
-        issueDate: formatDateForApi(d.issueDate) ?? undefined,
+        documentNo: d.documentNo?.trim() ?? "",
+        issueDate: formatDateForApi(d.issueDate) ?? "",
         expiryDate: formatDateForApi(d.expiryDate) ?? "",
       })),
   }

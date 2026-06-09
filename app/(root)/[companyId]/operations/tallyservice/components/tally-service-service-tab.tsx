@@ -1,13 +1,16 @@
 "use client"
 
+import { useMemo } from "react"
+import { useCompanyStore } from "@/stores/company-store"
 import { TallyServiceSchemaType } from "@/schemas"
-import { Copy, Plus, Trash2 } from "lucide-react"
+import { Copy, Plus, Receipt, Trash2 } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ChargeAutocomplete, UomAutocomplete } from "@/components/autocomplete"
+import { CustomDateNew } from "@/components/custom/custom-date-new"
 import { CustomDateTimePicker } from "@/components/custom/custom-date-time-picker"
 import CustomInput from "@/components/custom/custom-input"
 import CustomNumberInput from "@/components/custom/custom-number-input"
@@ -15,6 +18,7 @@ import CustomNumberInput from "@/components/custom/custom-number-input"
 import {
   createEmptyFreshWaterLine,
   createEmptyLaunchLine,
+  resolveDefaultTallyDate,
 } from "./tally-service-utils"
 
 interface TallyServiceServiceTabProps {
@@ -37,6 +41,12 @@ interface TallyServiceServiceTabProps {
   formatDurationToHhMm: (value?: number | null) => string
   calculateWaitingTime: (index: number) => void
   calculateTimeDiff: (index: number) => void
+  hasServiceLines?: boolean
+  debitNoteNo?: string | null
+  hasExistingDebitNote?: boolean
+  onDebitNote?: () => void
+  onOpenDebitNote?: () => void
+  isDebitNoteLoading?: boolean
 }
 
 const lineFieldClass = "min-w-0 w-full"
@@ -126,15 +136,37 @@ export function TallyServiceServiceTab({
   formatDurationToHhMm,
   calculateWaitingTime,
   calculateTimeDiff,
+  hasServiceLines = false,
+  debitNoteNo,
+  hasExistingDebitNote = false,
+  onDebitNote,
+  onOpenDebitNote,
+  isDebitNoteLoading = false,
 }: TallyServiceServiceTabProps) {
+  const { decimals } = useCompanyStore()
+  const dateFormat = decimals[0]?.dateFormat || "dd/MM/yyyy"
+  const serviceDate = form.watch("date")
+  const defaultTallyDate = useMemo(
+    () => resolveDefaultTallyDate(serviceDate, dateFormat),
+    [serviceDate, dateFormat]
+  )
+
   const duplicateFreshWater = (index: number) => {
     const line = form.getValues(`freshWaterLines.${index}`)
-    insertFreshWater(index + 1, { ...line, itemNo: 0 })
+    insertFreshWater(index + 1, {
+      ...line,
+      itemNo: 0,
+      tallyDate: line.tallyDate ?? defaultTallyDate,
+    })
   }
 
   const duplicateLaunch = (index: number) => {
     const line = form.getValues(`launchServiceLines.${index}`)
-    insertLaunch(index + 1, { ...line, itemNo: 0 })
+    insertLaunch(index + 1, {
+      ...line,
+      itemNo: 0,
+      tallyDate: line.tallyDate ?? defaultTallyDate,
+    })
   }
 
   const renderFreshWaterRow = (index: number) => (
@@ -171,11 +203,18 @@ export function TallyServiceServiceTab({
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
         <CustomInput
           form={form}
           name={`freshWaterLines.${index}.tallyNo`}
           label="Tally No"
+          isDisabled={isReadOnly}
+          className={lineFieldClass}
+        />
+        <CustomDateNew
+          form={form}
+          name={`freshWaterLines.${index}.tallyDate`}
+          label="Tally Date"
           isDisabled={isReadOnly}
           className={lineFieldClass}
         />
@@ -249,11 +288,18 @@ export function TallyServiceServiceTab({
         )}
       </div>
       <div className="space-y-2">
-        <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-7">
           <CustomInput
             form={form}
             name={`launchServiceLines.${index}.tallyNo`}
             label="Tally No"
+            isDisabled={isReadOnly}
+            className={lineFieldClass}
+          />
+          <CustomDateNew
+            form={form}
+            name={`launchServiceLines.${index}.tallyDate`}
+            label="Tally Date"
             isDisabled={isReadOnly}
             className={lineFieldClass}
           />
@@ -355,17 +401,74 @@ export function TallyServiceServiceTab({
 
   return (
     <div className={cn(sectionCardClass, "space-y-4")}>
-      <div>
-        <Badge
-          variant="outline"
-          className="border-cyan-200 bg-cyan-100 px-3 py-1.5 text-xs font-semibold text-cyan-900 shadow-sm dark:border-cyan-800/50 dark:bg-cyan-950/40 dark:text-cyan-100"
-        >
-          🚢 Service Lines
-        </Badge>
-        <p className="text-muted-foreground mt-2 text-xs">
-          Add at least one fresh water line (charge + UOM) or one launch line
-          (charge) to save.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <Badge
+            variant="outline"
+            className="border-cyan-200 bg-cyan-100 px-3 py-1.5 text-xs font-semibold text-cyan-900 shadow-sm dark:border-cyan-800/50 dark:bg-cyan-950/40 dark:text-cyan-100"
+          >
+            🚢 Service Lines
+          </Badge>
+          <p className="text-muted-foreground mt-2 text-xs">
+            Add at least one fresh water line (charge + UOM) or one launch line
+            (charge) to save.
+          </p>
+        </div>
+        {onDebitNote && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              disabled={
+                !hasServiceLines || isDebitNoteLoading || hasExistingDebitNote
+              }
+              onClick={onDebitNote}
+              title={
+                hasExistingDebitNote
+                  ? "Debit note already exists. Click the number to open, or delete it to create a new one."
+                  : !hasServiceLines
+                    ? "Add at least one service line to enable debit note"
+                    : "Create debit note"
+              }
+              className={
+                !hasServiceLines || isDebitNoteLoading || hasExistingDebitNote
+                  ? "cursor-not-allowed bg-[#2f6abb] text-white opacity-50 hover:bg-[#255499]"
+                  : "bg-[#2f6abb] font-semibold text-white hover:bg-[#255499]"
+              }
+            >
+              <Receipt className="h-4 w-4" />
+              {isDebitNoteLoading ? "Loading..." : "Debit Note"}
+            </Button>
+            {debitNoteNo ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-muted-foreground text-xs font-medium">
+                  Debit Note No:
+                </span>
+                <Badge
+                  variant="outline"
+                  role="button"
+                  tabIndex={0}
+                  title="Open debit note"
+                  className={cn(
+                    "cursor-pointer border-[#2f6abb]/35 bg-[#2f6abb]/10 px-2.5 py-1 text-xs font-semibold text-[#2f6abb]",
+                    "hover:bg-[#2f6abb]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f6abb]/40",
+                    isDebitNoteLoading && "pointer-events-none opacity-60"
+                  )}
+                  onClick={() => (onOpenDebitNote ?? onDebitNote)?.()}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault()
+                      ;(onOpenDebitNote ?? onDebitNote)?.()
+                    }
+                  }}
+                >
+                  {debitNoteNo}
+                </Badge>
+              </div>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3 border-t border-border pt-4">
@@ -375,7 +478,9 @@ export function TallyServiceServiceTab({
           count={freshWaterFields.length}
           countLabel="line"
           addLabel="Add line"
-          onAdd={() => appendFreshWater(createEmptyFreshWaterLine())}
+          onAdd={() =>
+            appendFreshWater(createEmptyFreshWaterLine(defaultTallyDate))
+          }
           isReadOnly={isReadOnly}
         />
         {freshWaterFields.length === 0 ? (
@@ -396,7 +501,7 @@ export function TallyServiceServiceTab({
           count={launchFields.length}
           countLabel="line"
           addLabel="Add line"
-          onAdd={() => appendLaunch(createEmptyLaunchLine())}
+          onAdd={() => appendLaunch(createEmptyLaunchLine(defaultTallyDate))}
           isReadOnly={isReadOnly}
         />
         {launchFields.length === 0 ? (

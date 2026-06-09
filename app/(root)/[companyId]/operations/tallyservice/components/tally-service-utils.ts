@@ -10,7 +10,12 @@ import {
   TallyServiceSchemaType,
 } from "@/schemas"
 
-import { formatDateForApi, formatDateTimeForApi } from "@/lib/date-utils"
+import {
+  formatDateForApi,
+  formatDateTimeForApi,
+  parseDate,
+} from "@/lib/date-utils"
+import { isValid, parse } from "date-fns"
 import { pickNumber, pickString } from "@/lib/overview-row-pickers"
 
 export function getDisplayTallyServiceNo(
@@ -24,7 +29,29 @@ export function getDisplayTallyServiceNo(
   return id > 0 ? `#${id}` : "-"
 }
 
-export function createEmptyFreshWaterLine(): TallyFreshWaterLineSchemaType {
+export function resolveDefaultTallyDate(
+  serviceDate?: Date | string | null,
+  dateFormat?: string
+): Date | undefined {
+  if (!serviceDate) return undefined
+  if (serviceDate instanceof Date) {
+    return isValid(serviceDate) ? serviceDate : undefined
+  }
+
+  const parsed = parseDate(serviceDate)
+  if (parsed) return parsed
+
+  if (dateFormat) {
+    const fromFormat = parse(serviceDate, dateFormat, new Date())
+    if (isValid(fromFormat)) return fromFormat
+  }
+
+  return undefined
+}
+
+export function createEmptyFreshWaterLine(
+  defaultTallyDate?: Date | string
+): TallyFreshWaterLineSchemaType {
   return {
     itemNo: 0,
     chargeId: 0,
@@ -32,6 +59,7 @@ export function createEmptyFreshWaterLine(): TallyFreshWaterLineSchemaType {
     quantity: 1,
     distance: 0,
     tallyNo: "",
+    tallyDate: resolveDefaultTallyDate(defaultTallyDate) ?? defaultTallyDate,
   }
 }
 
@@ -47,7 +75,9 @@ export function filterLaunchLinesForSave(
   return (lines ?? []).filter((line) => line.chargeId > 0)
 }
 
-export function createEmptyLaunchLine(): TallyLaunchServiceLineSchemaType {
+export function createEmptyLaunchLine(
+  defaultTallyDate?: Date | string
+): TallyLaunchServiceLineSchemaType {
   return {
     itemNo: 0,
     chargeId: 0,
@@ -57,6 +87,7 @@ export function createEmptyLaunchLine(): TallyLaunchServiceLineSchemaType {
     landedWeight: 0,
     distance: 0,
     tallyNo: "",
+    tallyDate: resolveDefaultTallyDate(defaultTallyDate) ?? defaultTallyDate,
   }
 }
 
@@ -164,11 +195,12 @@ export function buildFreshWaterLineFromTally(
   const firstLine = item?.freshWaterLines?.[0]
   return {
     itemNo: 0,
-    chargeId: firstLine?.chargeId ?? item?.chargeId ?? 0,
-    uomId: firstLine?.uomId ?? item?.uomId ?? 0,
+    chargeId: firstLine?.chargeId ?? 0,
+    uomId: firstLine?.uomId ?? 0,
     quantity: firstLine?.quantity ?? 1,
     distance: firstLine?.distance ?? 0,
     tallyNo: firstLine?.tallyNo ?? "",
+    tallyDate: firstLine?.tallyDate ?? undefined,
   }
 }
 
@@ -178,7 +210,7 @@ export function buildLaunchLineFromTally(
   const firstLine = item?.launchServiceLines?.[0]
   return {
     itemNo: 0,
-    chargeId: firstLine?.chargeId ?? item?.chargeId ?? 0,
+    chargeId: firstLine?.chargeId ?? 0,
     loadingTime: firstLine?.loadingTime ?? undefined,
     leftJetty: firstLine?.leftJetty ?? undefined,
     waitingTime: firstLine?.waitingTime ?? 0,
@@ -190,6 +222,7 @@ export function buildLaunchLineFromTally(
     landedWeight: firstLine?.landedWeight ?? 0,
     distance: firstLine?.distance ?? 0,
     tallyNo: firstLine?.tallyNo ?? "",
+    tallyDate: firstLine?.tallyDate ?? undefined,
   }
 }
 
@@ -210,6 +243,7 @@ export function buildFreshWaterLinesFromTally(
     quantity: line.quantity ?? 1,
     distance: line.distance ?? 0,
     tallyNo: line.tallyNo ?? "",
+    tallyDate: line.tallyDate ?? undefined,
   }))
 }
 
@@ -237,6 +271,7 @@ export function buildLaunchLinesFromTally(
     landedWeight: line.landedWeight ?? 0,
     distance: line.distance ?? 0,
     tallyNo: line.tallyNo ?? "",
+    tallyDate: line.tallyDate ?? undefined,
   }))
 }
 
@@ -288,10 +323,7 @@ export function mapFormToTallyService(
     contactName: data.contactName || "",
     mobileNo: data.mobileNo || "",
     emailAdd: data.emailAdd || "",
-    chargeId:
-      freshWaterLines.find((line) => line.chargeId > 0)?.chargeId ?? 0,
     bargeId: data.bargeId,
-    uomId: freshWaterLines.find((line) => line.uomId > 0)?.uomId ?? 0,
     invoiceId: data.invoiceId ?? 0,
     invoiceNo: data.invoiceNo || "",
     jobStatusId: data.jobStatusId ?? 1,
@@ -312,6 +344,7 @@ export function mapFormToTallyService(
         quantity: line.quantity,
         distance: line.distance ?? 0,
         tallyNo: line.tallyNo || "",
+        tallyDate: formatDateForApi(line.tallyDate) || undefined,
       })),
     launchServiceLines: launchServiceLines
       .filter((line) => line.chargeId > 0)
@@ -329,6 +362,7 @@ export function mapFormToTallyService(
       landedWeight: line.landedWeight ?? 0,
       distance: line.distance ?? 0,
       tallyNo: line.tallyNo || "",
+      tallyDate: formatDateForApi(line.tallyDate) || undefined,
     })),
   }
 }
@@ -446,9 +480,16 @@ export function normalizeTallyService(
     contactName: item.contactName ?? base.contactName,
     mobileNo: item.mobileNo ?? base.mobileNo,
     emailAdd: item.emailAdd ?? base.emailAdd,
-    chargeId: item.chargeId ?? 0,
+    chargeId:
+      item.freshWaterLines?.find((line) => line.chargeId > 0)?.chargeId ??
+      item.launchServiceLines?.find((line) => line.chargeId > 0)?.chargeId ??
+      item.chargeId ??
+      0,
     bargeId: item.bargeId ?? 0,
-    uomId: item.uomId ?? 0,
+    uomId:
+      item.freshWaterLines?.find((line) => line.uomId > 0)?.uomId ??
+      item.uomId ??
+      0,
     invoiceId: item.invoiceId ?? base.invoiceId,
     invoiceNo: item.invoiceNo ?? base.invoiceNo,
     jobStatusId: item.jobStatusId ?? base.jobStatusId,
