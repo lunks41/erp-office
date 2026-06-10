@@ -789,7 +789,7 @@ export function MainTable<T>({
   // RENDER SECTION
   // ============================================================================
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden">
       {/* ============================================================================
           TABLE HEADER SECTION
           ============================================================================ */}
@@ -993,7 +993,7 @@ export function MainTable<T>({
           ============================================================================ */}
       {/* Conditionally render table footer with pagination controls */}
       {showFooter && (
-        <div className="mt-1.5">
+        <div className="mt-1.5 shrink-0">
           <MainTableFooter
             currentPage={currentPage} // Current page number
             totalPages={Math.ceil((totalRecords || data.length) / pageSize)} // Total number of pages

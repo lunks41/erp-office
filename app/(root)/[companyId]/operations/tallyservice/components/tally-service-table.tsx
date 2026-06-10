@@ -8,7 +8,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format, isValid, parse } from "date-fns"
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils"
-import { TableName } from "@/lib/utils"
+import { TALLY_SERVICE_LIST_TABLE_MAX_HEIGHT } from "@/lib/checklist-table-layout"
+import { cn, TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { TableCellLink } from "@/components/ui/table-cell-link"
 import { MainTable } from "@/components/table/table-main"
@@ -19,14 +20,30 @@ import {
   TallyServiceInlineTypeCell,
 } from "./tally-service-inline-detail-cells"
 import {
+  filterTallyServicesByStatus,
   getDisplayTallyServiceNo,
   openTallyServiceTab,
+  type TallyStatusTab,
 } from "./tally-service-utils"
+
+const TALLY_JOB_STATUS_BADGE_CLASS: Record<string, string> = {
+  Pending:
+    "border-orange-200 bg-orange-50 text-orange-800 hover:bg-orange-100 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-300",
+  Confirmed:
+    "border-green-200 bg-green-50 text-green-800 hover:bg-green-100 dark:border-green-900/60 dark:bg-green-950/30 dark:text-green-300",
+}
+
+function getTallyJobStatusBadgeClass(statusName?: string | null) {
+  if (!statusName) return undefined
+  if (statusName === "Posted") return undefined
+  return TALLY_JOB_STATUS_BADGE_CLASS[statusName]
+}
 
 interface TallyServiceTableProps {
   companyId: string
   data: ITallyService[]
   isLoading?: boolean
+  selectedStatus?: TallyStatusTab
   totalRecords?: number
   onOpenRecord?: (item: ITallyService) => void
   onDeleteAction?: (item: ITallyService) => void
@@ -58,10 +75,9 @@ export function TallyServiceTable({
   companyId,
   data,
   isLoading = false,
+  selectedStatus = "All",
   totalRecords,
   onOpenRecord,
-  onDeleteAction,
-  onEditAction,
   onRefreshAction,
   onFilterChange,
   initialSearchValue,
@@ -72,9 +88,6 @@ export function TallyServiceTable({
   serverSidePagination = false,
   moduleId,
   transactionId,
-  canEdit = true,
-  canDelete = true,
-  canView = true,
   canCreate = true,
   onCreateAction,
 }: TallyServiceTableProps) {
@@ -83,6 +96,11 @@ export function TallyServiceTable({
   const dateFormat = useMemo(
     () => decimals[0]?.dateFormat || clientDateFormat,
     [decimals]
+  )
+
+  const filteredData = useMemo(
+    () => filterTallyServicesByStatus(data, selectedStatus),
+    [data, selectedStatus]
   )
 
   const formatDateValue = useCallback(
@@ -138,7 +156,7 @@ export function TallyServiceTable({
             {getDisplayTallyServiceNo(row.original)}
           </TableCellLink>
         ),
-        size: 170,
+        size: 150,
         minSize: 140,
       },
       {
@@ -149,8 +167,8 @@ export function TallyServiceTable({
             {formatDateValue(row.getValue("date"))}
           </div>
         ),
-        size: 110,
-        minSize: 95,
+        size: 95,
+        minSize: 70,
       },
       {
         accessorKey: "referenceNo",
@@ -158,8 +176,8 @@ export function TallyServiceTable({
         cell: ({ row }) => (
           <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
         ),
-        size: 110,
-        minSize: 90,
+        size: 90,
+        minSize: 70,
       },
 
       {
@@ -201,13 +219,27 @@ export function TallyServiceTable({
       {
         accessorKey: "jobStatusName",
         header: "Status",
-        cell: ({ row }) => (
-          <div className="text-center">
-            <Badge variant="secondary">
-              {row.getValue("jobStatusName") || "-"}
-            </Badge>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const statusName = row.getValue("jobStatusName") as string | undefined
+          const statusBadgeClass = getTallyJobStatusBadgeClass(statusName)
+
+          return (
+            <div className="text-center">
+              <Badge
+                variant={
+                  statusName === "Posted"
+                    ? "destructive"
+                    : statusBadgeClass
+                      ? "outline"
+                      : "secondary"
+                }
+                className={cn(statusBadgeClass)}
+              >
+                {statusName || "-"}
+              </Badge>
+            </div>
+          )
+        },
         size: 110,
         minSize: 90,
       },
@@ -220,8 +252,8 @@ export function TallyServiceTable({
             format={(entry) => (entry.line.tallyNo ?? "").trim() || "-"}
           />
         ),
-        size: 110,
-        minSize: 90,
+        size: 80,
+        minSize: 70,
       },
       {
         id: "lineType",
@@ -237,14 +269,14 @@ export function TallyServiceTable({
 
       {
         id: "lineDistance",
-        header: "Distance",
+        header: "Dis.",
         cell: ({ row }) => (
           <TallyServiceInlineNumberCell
             lines={getDisplayTallyServiceLines(row.original)}
             format={(entry) => entry.line.distance ?? 0}
           />
         ),
-        size: 80,
+        size: 70,
         minSize: 70,
       },
       {
@@ -443,45 +475,35 @@ export function TallyServiceTable({
     [formatDateTimeValue, formatDateValue, openRecord]
   )
 
-  const handleDelete = (tallyServiceId: string) => {
-    const item = data.find(
-      (row) => row.tallyServiceId.toString() === tallyServiceId
-    )
-    if (item) {
-      onDeleteAction?.(item)
-    }
-  }
-
   return (
-    <MainTable
-      data={data}
-      columns={columns}
-      isLoading={isLoading}
-      totalRecords={totalRecords}
-      moduleId={moduleId}
-      transactionId={transactionId}
-      tableName={TableName.tallyService}
-      emptyMessage="No tally services found."
-      accessorId="tallyServiceId"
-      onRefreshAction={onRefreshAction}
-      onFilterChange={onFilterChange}
-      initialSearchValue={initialSearchValue}
-      onPageChange={onPageChange}
-      onPageSizeChange={onPageSizeChange}
-      currentPage={currentPage}
-      pageSize={pageSize}
-      serverSidePagination={serverSidePagination}
-      onCreateAction={onCreateAction}
-      onEditAction={onEditAction}
-      onDeleteAction={handleDelete}
-      createButtonText="Add Tally Service"
-      showHeader={true}
-      showFooter={true}
-      showActions={true}
-      canEdit={canEdit}
-      canDelete={canDelete}
-      canView={canView}
-      canCreate={canCreate}
-    />
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <MainTable
+        data={filteredData}
+        columns={columns}
+        isLoading={isLoading}
+        totalRecords={totalRecords}
+        moduleId={moduleId}
+        transactionId={transactionId}
+        tableName={TableName.tallyService}
+        tableHeight={TALLY_SERVICE_LIST_TABLE_MAX_HEIGHT}
+        tableContainerClassName="rounded-none border-0 bg-transparent shadow-none"
+        emptyMessage="No tally services found."
+        accessorId="tallyServiceId"
+        onRefreshAction={onRefreshAction}
+        onFilterChange={onFilterChange}
+        initialSearchValue={initialSearchValue}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        serverSidePagination={serverSidePagination}
+        onCreateAction={onCreateAction}
+        createButtonText="Add Tally Service"
+        showHeader={true}
+        showFooter={true}
+        showActions={false}
+        canCreate={canCreate}
+      />
+    </div>
   )
 }

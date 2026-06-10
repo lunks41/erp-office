@@ -343,26 +343,19 @@ export function TallyServiceDetailPage({
     )
   }
 
-  const title =
-    mode === "create"
-      ? "Create Tally Service"
-      : `Tally Service${
-          tallyService?.tallyServiceNo
-            ? ` ${tallyService.tallyServiceNo}`
-            : tallyService?.tallyServiceId
-              ? ` #${tallyService.tallyServiceId}`
-              : ""
-        }`
+  const title = mode === "create" ? "Create Tally Service" : "Tally Service"
 
   return (
     <div className="@container mx-auto space-y-3 px-4 pt-2 pb-16 sm:px-8 lg:px-12">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-4">
+        <div className="flex min-w-0 items-center gap-3 justify-self-start">
+          <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
             <span className="text-lg">⚓</span>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-bold tracking-tight">
+              {title}
+            </h1>
             <p className="text-muted-foreground text-sm">
               {mode === "create"
                 ? "Fill in the details to create a new tally service."
@@ -370,7 +363,8 @@ export function TallyServiceDetailPage({
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 justify-self-center">
           {mode === "edit" && tallyService && (
             <Badge
               variant="outline"
@@ -400,7 +394,9 @@ export function TallyServiceDetailPage({
               Posted
             </Badge>
           )}
+        </div>
 
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 justify-self-end">
           {mode === "edit" && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -477,7 +473,7 @@ export function TallyServiceDetailPage({
               form={FORM_ID}
               disabled={saveMutation.isPending}
             >
-              {saveMutation.isPending ? "Saving..." : "Save"}
+              {saveMutation.isPending ? "Update..." : "Update"}
             </Button>
           )}
         </div>

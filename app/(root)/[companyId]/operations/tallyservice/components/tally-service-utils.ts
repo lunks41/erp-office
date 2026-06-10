@@ -1,5 +1,11 @@
 import { readTallyServiceLineArray } from "@/helpers/tally-service-details"
 import {
+  isInvoicePosted,
+  isStatusCancelled,
+  isStatusConfirmed,
+  isStatusPosted,
+} from "@/helpers/project"
+import {
   ITallyFreshWaterLine,
   ITallyLaunchServiceLine,
   ITallyService,
@@ -17,6 +23,122 @@ import {
 } from "@/lib/date-utils"
 import { isValid, parse } from "date-fns"
 import { pickNumber, pickString } from "@/lib/overview-row-pickers"
+import { OperationsStatus } from "@/lib/operations-utils"
+
+export const TALLY_STATUS_TABS = [
+  { value: "All", icon: "📋" },
+  { value: "Pending", icon: "⏳" },
+  { value: "Confirmed", icon: "✔️" },
+  { value: "Posted", icon: "📤" },
+  { value: "Cancel", icon: "❌" },
+] as const
+
+export type TallyStatusTab = (typeof TALLY_STATUS_TABS)[number]["value"]
+
+export const TALLY_STATUS_BADGE_CLASSNAME: Record<TallyStatusTab, string> = {
+  All: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300",
+  Pending:
+    "border-orange-200 bg-orange-50 text-orange-800 hover:bg-orange-100 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-300",
+  Confirmed:
+    "border-green-200 bg-green-50 text-green-800 hover:bg-green-100 dark:border-green-900/60 dark:bg-green-950/30 dark:text-green-300",
+  Posted:
+    "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300",
+  Cancel:
+    "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300",
+}
+
+export const TALLY_STATUS_TAB_CLASSNAME: Record<TallyStatusTab, string> = {
+  All: "data-[state=active]:bg-amber-50 data-[state=active]:text-amber-700 data-[state=active]:border-b-amber-600 dark:data-[state=active]:bg-amber-950/30 dark:data-[state=active]:text-amber-300 dark:data-[state=active]:border-b-amber-400",
+  Pending:
+    "data-[state=active]:bg-orange-50 data-[state=active]:text-orange-800 data-[state=active]:border-b-orange-600 dark:data-[state=active]:bg-orange-950/30 dark:data-[state=active]:text-orange-300 dark:data-[state=active]:border-b-orange-400",
+  Confirmed:
+    "data-[state=active]:bg-green-50 data-[state=active]:text-green-800 data-[state=active]:border-b-green-600 dark:data-[state=active]:bg-green-950/30 dark:data-[state=active]:text-green-300 dark:data-[state=active]:border-b-green-400",
+  Posted:
+    "data-[state=active]:bg-red-50 data-[state=active]:text-red-700 data-[state=active]:border-b-red-600 dark:data-[state=active]:bg-red-950/30 dark:data-[state=active]:text-red-300 dark:data-[state=active]:border-b-red-400",
+  Cancel:
+    "data-[state=active]:bg-red-50 data-[state=active]:text-red-700 data-[state=active]:border-b-red-600 dark:data-[state=active]:bg-red-950/30 dark:data-[state=active]:text-red-300 dark:data-[state=active]:border-b-red-400",
+}
+
+export function isTallyServiceCancelled(
+  item: Pick<ITallyService, "isCancel" | "jobStatusId" | "jobStatusName">
+): boolean {
+  return (
+    item.isCancel === true ||
+    isStatusCancelled({
+      jobStatusId: item.jobStatusId,
+      jobStatusName: item.jobStatusName,
+    })
+  )
+}
+
+export function isTallyServicePosted(
+  item: Pick<ITallyService, "jobStatusId" | "jobStatusName" | "isPost">
+): boolean {
+  if (
+    isStatusPosted({
+      jobStatusId: item.jobStatusId,
+      jobStatusName: item.jobStatusName,
+    })
+  ) {
+    return true
+  }
+
+  return (
+    isInvoicePosted(item.isPost) &&
+    isStatusConfirmed({
+      jobStatusId: item.jobStatusId,
+      jobStatusName: item.jobStatusName,
+    })
+  )
+}
+
+export function matchesTallyStatusTab(
+  item: ITallyService,
+  tab: TallyStatusTab
+): boolean {
+  if (tab === "All") return true
+  if (tab === "Cancel") return isTallyServiceCancelled(item)
+  if (isTallyServiceCancelled(item)) return false
+
+  switch (tab) {
+    case "Pending":
+      return item.jobStatusName === OperationsStatus.Pending.toString()
+    case "Confirmed":
+      return (
+        isStatusConfirmed({
+          jobStatusId: item.jobStatusId,
+          jobStatusName: item.jobStatusName,
+        }) && !isTallyServicePosted(item)
+      )
+    case "Posted":
+      return isTallyServicePosted(item)
+    default:
+      return true
+  }
+}
+
+export function filterTallyServicesByStatus(
+  data: ITallyService[],
+  tab: TallyStatusTab
+): ITallyService[] {
+  if (tab === "All") return data
+  return data.filter((item) => matchesTallyStatusTab(item, tab))
+}
+
+export function getTallyStatusCounts(
+  data: ITallyService[]
+): Record<TallyStatusTab, number> {
+  return {
+    All: data.length,
+    Pending: data.filter((item) => matchesTallyStatusTab(item, "Pending"))
+      .length,
+    Confirmed: data.filter((item) => matchesTallyStatusTab(item, "Confirmed"))
+      .length,
+    Posted: data.filter((item) => matchesTallyStatusTab(item, "Posted")).length,
+    Cancel: data.filter((item) => matchesTallyStatusTab(item, "Cancel"))
+      .length,
+  }
+}
 
 export function getDisplayTallyServiceNo(
   item: Partial<ITallyService> | Record<string, unknown> | null | undefined
