@@ -89,12 +89,9 @@ interface ApiResponse<T> {
 }
 
 function mapTallyDebitNoteResponse(data: IDebitNoteHd): IDebitNoteHd {
-  const tallyServiceId =
-    data.tallyServiceId ?? data.jobOrderId ?? 0
   return {
     ...data,
-    tallyServiceId,
-    jobOrderId: tallyServiceId,
+    tallyServiceId: data.tallyServiceId ?? 0,
   }
 }
 
@@ -1179,7 +1176,7 @@ export function TallyServiceForm({
           debitNoteHd={debitNoteHd ?? undefined}
           isConfirmed={isReadOnly}
           title="Tally Service Debit Note"
-          onOpenChange={setShowDebitNoteModal}
+          onOpenChangeAction={setShowDebitNoteModal}
           onDeleteAction={isReadOnly ? undefined : handleDeleteDebitNote}
           onUpdateHeader={(header) => {
             setDebitNoteHd(header)

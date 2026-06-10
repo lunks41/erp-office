@@ -20,14 +20,12 @@ import {
 } from "@/helpers/debit-note-calculations"
 import {
   openDebitNoteReportWindow,
-  openTallyDebitNoteReportWindow,
+  TALLY_DEBIT_NOTE_REPORT_FILE,
 } from "@/helpers/debit-note-report"
-import { IDebitNoteDt, IDebitNoteHd, IJobOrderHd } from "@/interfaces/checklist"
+import { IDebitNoteDt, IDebitNoteHd } from "@/interfaces/checklist"
 import { ITallyService } from "@/interfaces/tally-service"
-import {
-  DebitNoteDtSchemaType,
-  DebitNoteHdSchemaType,
-} from "@/schemas/checklist"
+import { DebitNoteDtSchemaType } from "@/schemas/checklist"
+import { TallyDebitNoteHdSchemaType } from "@/schemas/tally-service"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCompanyStore } from "@/stores/company-store"
 import { useQueryClient } from "@tanstack/react-query"
@@ -35,7 +33,7 @@ import { format } from "date-fns"
 import { Printer, Save, Trash } from "lucide-react"
 import { toast } from "sonner"
 
-import { JobOrder_DebitNote, TallyService_DebitNote } from "@/lib/api-routes"
+import { TallyService_DebitNote } from "@/lib/api-routes"
 import { formatDateForApi, parseDate } from "@/lib/date-utils"
 import { usePersist } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
@@ -60,22 +58,17 @@ interface DebitNoteDialogProps {
   isConfirmed?: boolean
   title?: string
   description?: string
-  onOpenChange: (open: boolean) => void
+  onOpenChangeAction: (open: boolean) => void
   onDeleteAction?: (debitNoteId: number) => void
   onUpdateHeader?: (updatedHeader: IDebitNoteHd) => void
   onClearSelection?: () => void
-  jobOrder?: IJobOrderHd
-  tallyService?: ITallyService
+  tallyService: ITallyService
 }
 
-function mapTallyDebitNoteForDialog(
-  data: IDebitNoteHd & { tallyServiceId?: number }
-): IDebitNoteHd {
-  const tallyServiceId = data.tallyServiceId ?? data.jobOrderId ?? 0
+function normalizeTallyDebitNoteHd(data: IDebitNoteHd): IDebitNoteHd {
   return {
     ...data,
-    tallyServiceId,
-    jobOrderId: tallyServiceId,
+    tallyServiceId: data.tallyServiceId ?? 0,
   }
 }
 
@@ -86,32 +79,20 @@ export default function DebitNoteDialog({
   isConfirmed,
   title = "Debit Note",
   description: _description = "Manage debit note details for this service.",
-  // Note: onOpenChange is a standard Dialog prop from shadcn/ui - Next.js linter warning is a false positive
-  // as this is a client component using a client component (Dialog)
-  onOpenChange,
+  onOpenChangeAction,
   onDeleteAction,
   onUpdateHeader,
   onClearSelection,
-  jobOrder,
   tallyService,
 }: DebitNoteDialogProps) {
-  const isTallyMode = Boolean(tallyService?.tallyServiceId)
-  const debitNoteRoutes = isTallyMode
-    ? TallyService_DebitNote
-    : JobOrder_DebitNote
-  const contextJobData = useMemo((): IJobOrderHd | undefined => {
-    if (jobOrder) return jobOrder
-    if (!tallyService) return undefined
-    return {
-      customerId: tallyService.customerId ?? 0,
-      customerName: tallyService.customerName ?? "",
-      portId: tallyService.portId ?? 0,
-      portName: tallyService.portName ?? "",
-      currencyCode: tallyService.currencyCode ?? "",
+  const tallyGstContext = useMemo(
+    () => ({
       gstId: tallyService.gstId ?? 0,
       gstPercentage: tallyService.gstPercentage ?? 0,
-    } as IJobOrderHd
-  }, [jobOrder, tallyService])
+      currencyCode: tallyService.currencyCode ?? "",
+    }),
+    [tallyService]
+  )
   const params = useParams()
   const companyId = params.companyId as string
   const { user } = useAuthStore()
@@ -155,9 +136,7 @@ export default function DebitNoteDialog({
   useEffect(() => {
     if (!debitNoteHd) return
 
-    const mappedHd = isTallyMode
-      ? mapTallyDebitNoteForDialog(debitNoteHd)
-      : debitNoteHd
+    const mappedHd = normalizeTallyDebitNoteHd(debitNoteHd)
 
     setDebitNoteHdState(mappedHd)
 
@@ -166,7 +145,7 @@ export default function DebitNoteDialog({
     setSavedSnapshot(raw.map((row) => ({ ...row })))
     setSavedHeaderSnapshot(headerAmounts)
     setDetails(normalizeDebitNoteDetails(raw, { amtDec }))
-  }, [debitNoteHd, amtDec, isTallyMode])
+  }, [debitNoteHd, amtDec])
 
   const lineTotalMismatches = useMemo(
     () => findDebitNoteLineTotalMismatches(savedSnapshot, { amtDec }),
@@ -282,8 +261,8 @@ export default function DebitNoteDialog({
     isOpen: false,
   })
 
-  const saveMutation = usePersist<DebitNoteHdSchemaType>(
-    `${debitNoteRoutes.add}`
+  const saveMutation = usePersist<TallyDebitNoteHdSchemaType>(
+    TallyService_DebitNote.add
   )
 
   // Handler to open modal for creating a new debit note detail
@@ -763,16 +742,12 @@ export default function DebitNoteDialog({
         totAmtAftGst: totalAfterVat,
       }))
 
-      const newDebitNoteHd = {
+      const newDebitNoteHd: TallyDebitNoteHdSchemaType = {
         debitNoteId: debitNoteHdState?.debitNoteId ?? 0,
         debitNoteNo: debitNoteHdState?.debitNoteNo ?? "",
-        jobOrderId: debitNoteHdState?.jobOrderId ?? 0,
-        ...(isTallyMode && tallyService
-          ? { tallyServiceId: tallyService.tallyServiceId }
-          : {}),
+        tallyServiceId: tallyService.tallyServiceId,
         debitNoteDate: formattedDebitNoteDate,
         itemNo: debitNoteHdState?.itemNo ?? 0,
-        ...(isTallyMode ? {} : { taskId: debitNoteHdState?.taskId ?? 0 }),
         chargeId: debitNoteHdState?.chargeId ?? 0,
         currencyId: debitNoteHdState?.currencyId ?? 0,
         exhRate: debitNoteHdState?.exhRate ?? 1,
@@ -787,10 +762,7 @@ export default function DebitNoteDialog({
         data_details: normalizedDetails,
       }
 
-      // Save the complete debit note (header + details) using the new API
-      const response = await saveMutation.mutateAsync(
-        newDebitNoteHd as DebitNoteHdSchemaType
-      )
+      const response = await saveMutation.mutateAsync(newDebitNoteHd)
 
       if (response.result > 0) {
         // Close the save confirmation dialog
@@ -805,10 +777,8 @@ export default function DebitNoteDialog({
 
         // Update local state with response data if available
         if (response.data && "data_details" in response.data) {
-          const responseData = mapTallyDebitNoteForDialog(
-            response.data as unknown as IDebitNoteHd & {
-              tallyServiceId?: number
-            }
+          const responseData = normalizeTallyDebitNoteHd(
+            response.data as unknown as IDebitNoteHd
           )
 
           const persistedDetails = normalizeDebitNoteDetails(
@@ -840,18 +810,6 @@ export default function DebitNoteDialog({
             // Invalidate queries to refresh data
             queryClient.invalidateQueries({ queryKey: ["tallyService"] })
             queryClient.invalidateQueries({ queryKey: ["tallyServices"] })
-            if (!isTallyMode) {
-              queryClient.invalidateQueries({
-                queryKey: [
-                  JobOrder_DebitNote.getDetails,
-                  debitNoteHdState.jobOrderId,
-                  taskId,
-                  debitNoteHdState.debitNoteId,
-                ],
-              })
-              queryClient.invalidateQueries({ queryKey: ["portExpenses"] })
-              queryClient.invalidateQueries({ queryKey: ["taskCount"] })
-            }
             queryClient.invalidateQueries({ queryKey: ["debit-note-details"] })
           }, 50)
         })
@@ -866,10 +824,8 @@ export default function DebitNoteDialog({
     amtDec,
     saveMutation,
     queryClient,
-    taskId,
     onUpdateHeader,
     onClearSelection,
-    isTallyMode,
     tallyService,
   ])
 
@@ -1016,34 +972,30 @@ export default function DebitNoteDialog({
       return
     }
 
+    const tallyServiceId = String(
+      tallyService.tallyServiceId ||
+        debitNoteHdState.tallyServiceId ||
+        0
+    )
+
+    if (tallyServiceId === "0") {
+      toast.error("Tally service id is missing. Save the tally service first.")
+      return
+    }
+
     try {
-      if (isTallyMode) {
-        openTallyDebitNoteReportWindow({
-          companyId,
-          debitNoteId: debitNoteHdState.debitNoteId,
-          debitNoteNo: debitNoteHdState.debitNoteNo || "",
-          tallyServiceId:
-            (
-              debitNoteHdState.tallyServiceId ??
-              tallyService?.tallyServiceId ??
-              debitNoteHdState.jobOrderId
-            )?.toString() || "0",
-          amtDec,
-          locAmtDec,
-          userName: user?.userName || "",
-        })
-      } else {
-        openDebitNoteReportWindow({
-          companyId,
-          debitNoteId: debitNoteHdState.debitNoteId,
-          debitNoteNo: debitNoteHdState.debitNoteNo || "",
-          jobOrderId: debitNoteHdState.jobOrderId?.toString() || "0",
-          taskId,
-          amtDec,
-          locAmtDec,
-          userName: user?.userName || "",
-        })
-      }
+      // Report parameter is jobOrderId (maps to SQL @inJobOrderId), value = tally service id.
+      openDebitNoteReportWindow({
+        companyId,
+        debitNoteId: debitNoteHdState.debitNoteId,
+        debitNoteNo: debitNoteHdState.debitNoteNo || "",
+        jobOrderId: tallyServiceId,
+        taskId,
+        amtDec,
+        locAmtDec,
+        userName: user?.userName || "",
+        reportFile: TALLY_DEBIT_NOTE_REPORT_FILE,
+      })
     } catch (error) {
       console.error("Error opening report:", error)
       toast.error("Failed to open report")
@@ -1055,12 +1007,11 @@ export default function DebitNoteDialog({
     amtDec,
     locAmtDec,
     user,
-    isTallyMode,
-    tallyService?.tallyServiceId,
+    tallyService.tallyServiceId,
   ])
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent
         className="flex max-h-[95vh] w-[90vw] max-w-none! flex-col overflow-y-auto"
         onPointerDownOutside={(e) => {
@@ -1198,11 +1149,10 @@ export default function DebitNoteDialog({
               companyId={debitNoteHdState?.companyId || 0}
               onChargeChange={() => {}}
               summaryTotals={summaryTotals}
-              currencyCode={contextJobData?.currencyCode}
-              baseCurrencyCode={contextJobData?.baseCurrencyCode}
+              currencyCode={tallyGstContext.currencyCode ?? undefined}
               onServiceChargeUpdate={handleFormServiceChargeUpdate}
               shouldResetForm={shouldResetForm}
-              jobData={contextJobData}
+              tallyGstContext={tallyGstContext}
             />
           </div>
 

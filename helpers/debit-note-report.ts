@@ -7,6 +7,8 @@ export type DebitNoteReportOpenParams = {
   amtDec: number
   locAmtDec: number
   userName: string
+  /** When set, overrides getDebitNoteReportFile (e.g. tally service debit note). */
+  reportFile?: string
 }
 
 /** Resolve Telerik report path from checklist task id (matches service debit-note dialog). */
@@ -17,8 +19,15 @@ export function getDebitNoteReportFile(taskId: number): string {
   return "debitnote/DebitNote.trdp"
 }
 
-export function openDebitNoteReportWindow(params: DebitNoteReportOpenParams): void {
-  openReportWindow(params.companyId, getDebitNoteReportFile(params.taskId), {
+export const TALLY_DEBIT_NOTE_REPORT_FILE = "tallyservice/DebitNote.trdp"
+
+export function openDebitNoteReportWindow(
+  params: DebitNoteReportOpenParams
+): void {
+  const reportFile =
+    params.reportFile ?? getDebitNoteReportFile(params.taskId)
+
+  const reportParameters: Record<string, string | number> = {
     companyId: params.companyId,
     debitNoteId: params.debitNoteId.toString(),
     debitNoteNo: params.debitNoteNo,
@@ -27,33 +36,17 @@ export function openDebitNoteReportWindow(params: DebitNoteReportOpenParams): vo
     amtDec: params.amtDec,
     locAmtDec: params.locAmtDec,
     userName: params.userName,
-  })
-}
+  }
 
-export type TallyDebitNoteReportOpenParams = {
-  companyId: string
-  debitNoteId: number
-  debitNoteNo: string
-  tallyServiceId: string
-  amtDec: number
-  locAmtDec: number
-  userName: string
-}
+  // Tally debit note report SQL uses @inJobOrderId (tally service id).
+  // Pass aliases so bindings work whether the .trdp maps jobOrderId or inJobOrderId.
+  if (reportFile === TALLY_DEBIT_NOTE_REPORT_FILE) {
+    reportParameters.inJobOrderId = params.jobOrderId
+    reportParameters.tallyServiceId = params.jobOrderId
+    reportParameters.inTallyServiceId = params.jobOrderId
+  }
 
-export const TALLY_DEBIT_NOTE_REPORT_FILE = "tallyservice/DebitNote.trdp"
-
-export function openTallyDebitNoteReportWindow(
-  params: TallyDebitNoteReportOpenParams
-): void {
-  openReportWindow(params.companyId, TALLY_DEBIT_NOTE_REPORT_FILE, {
-    companyId: params.companyId,
-    debitNoteId: params.debitNoteId.toString(),
-    debitNoteNo: params.debitNoteNo,
-    tallyServiceId: params.tallyServiceId,
-    amtDec: params.amtDec,
-    locAmtDec: params.locAmtDec,
-    userName: params.userName,
-  })
+  openReportWindow(params.companyId, reportFile, reportParameters)
 }
 
 function openReportWindow(

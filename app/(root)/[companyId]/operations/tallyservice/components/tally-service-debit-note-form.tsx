@@ -6,7 +6,7 @@ import {
   calculateTotalAfterVat,
   normalizeDebitNoteLineTotals,
 } from "@/helpers/debit-note-calculations"
-import { IDebitNoteDt, IDebitNoteHd, IJobOrderHd } from "@/interfaces/checklist"
+import { IDebitNoteDt, IDebitNoteHd } from "@/interfaces/checklist"
 import {
   IChargeLookup,
   IChartOfAccountLookup,
@@ -64,7 +64,12 @@ interface DebitNoteFormProps {
   ) => void // Callback to update service charge entry when parent changes
   /** When true, form resets to create defaults (e.g. after adding a line item) */
   shouldResetForm?: boolean
-  jobData?: IJobOrderHd
+  tallyGstContext?: {
+    gstId?: number | null
+    gstPercentage?: number | null
+    currencyCode?: string | null
+    baseCurrencyCode?: string
+  }
 }
 
 export default function DebitNoteForm({
@@ -83,7 +88,7 @@ export default function DebitNoteForm({
   baseCurrencyCode,
   onServiceChargeUpdate,
   shouldResetForm = false,
-  jobData,
+  tallyGstContext,
 }: DebitNoteFormProps) {
   const { decimals } = useCompanyStore()
 
@@ -132,11 +137,11 @@ export default function DebitNoteForm({
     (itemNo: number): DebitNoteDtSchemaType => ({
       // If job order is taxable and has valid GST values, default debit note GST from job order.
       // Otherwise keep existing fallback behavior.
-      ...(Number(jobData?.gstId) > 1 &&
-      (Number(jobData?.gstPercentage) || 0) > 0
+      ...(Number(tallyGstContext?.gstId) > 1 &&
+      (Number(tallyGstContext?.gstPercentage) || 0) > 0
         ? {
-            gstId: Number(jobData?.gstId),
-            gstPercentage: Number(jobData?.gstPercentage ?? 0),
+            gstId: Number(tallyGstContext?.gstId),
+            gstPercentage: Number(tallyGstContext?.gstPercentage ?? 0),
           }
         : {
             gstId: 1,
@@ -166,8 +171,8 @@ export default function DebitNoteForm({
       debitNoteHd?.debitNoteId,
       debitNoteHd?.debitNoteNo,
       resolveLineTaskId,
-      jobData?.gstId,
-      jobData?.gstPercentage,
+      tallyGstContext?.gstId,
+      tallyGstContext?.gstPercentage,
     ]
   )
 

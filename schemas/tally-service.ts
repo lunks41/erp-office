@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { debitNoteDtSchema } from "./checklist"
 import {
   tallyFreshWaterLineSchema,
   tallyLaunchServiceLineSchema,
@@ -87,6 +88,28 @@ export const tallyServiceSchema = z.object({
   })
 
 export type TallyServiceSchemaType = z.infer<typeof tallyServiceSchema>
+
+export const tallyDebitNoteHdSchema = z.object({
+  debitNoteId: z.number().optional(),
+  debitNoteNo: z.string().min(1, "Debit Note Number is required"),
+  debitNoteDate: z.union([z.string(), z.date()]).optional(),
+  tallyServiceId: z.number().min(1, "Tally Service ID is required"),
+  itemNo: z.number().min(0, "Item Number is required"),
+  chargeId: z.number().min(1, "Charge is required"),
+  currencyId: z.number().min(1, "Currency is required"),
+  exhRate: z.number().min(0, "Exchange rate must be 0 or greater"),
+  glId: z.number().min(1, "Chart of Account is required"),
+  totAmt: z.number().min(0, "Total amount must be 0 or greater"),
+  gstAmt: z.number().min(0, "VAT amount must be 0 or greater"),
+  totAmtAftGst: z.number().min(0, "Total after VAT must be 0 or greater"),
+  taxableAmt: z.number().min(0, "Taxable amount must be 0 or greater"),
+  nonTaxableAmt: z.number().min(0, "Non-taxable amount must be 0 or greater"),
+  isLocked: z.boolean(),
+  editVersion: z.number().min(0, "Edit version must be 0 or greater"),
+  data_details: z.array(debitNoteDtSchema).optional(),
+})
+
+export type TallyDebitNoteHdSchemaType = z.infer<typeof tallyDebitNoteHdSchema>
 
 export {
   tallyFreshWaterLineSchema,

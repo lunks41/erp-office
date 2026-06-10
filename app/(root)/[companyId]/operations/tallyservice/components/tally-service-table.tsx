@@ -18,7 +18,10 @@ import {
   TallyServiceInlineTextCell,
   TallyServiceInlineTypeCell,
 } from "./tally-service-inline-detail-cells"
-import { getDisplayTallyServiceNo, openTallyServiceTab } from "./tally-service-utils"
+import {
+  getDisplayTallyServiceNo,
+  openTallyServiceTab,
+} from "./tally-service-utils"
 
 interface TallyServiceTableProps {
   companyId: string
@@ -131,35 +134,12 @@ export function TallyServiceTable({
         accessorKey: "tallyServiceNo",
         header: "Tally No",
         cell: ({ row }) => (
-          <TableCellLink
-            type="button"
-            onClick={() => openRecord(row.original)}
-          >
+          <TableCellLink type="button" onClick={() => openRecord(row.original)}>
             {getDisplayTallyServiceNo(row.original)}
           </TableCellLink>
         ),
         size: 170,
         minSize: 140,
-      },
-      {
-        accessorKey: "tallyServiceId",
-        header: "Id",
-        cell: ({ row }) => (
-          <div className="text-muted-foreground truncate">
-            {row.original.tallyServiceId}
-          </div>
-        ),
-        size: 70,
-        minSize: 55,
-      },
-      {
-        accessorKey: "referenceNo",
-        header: "Reference No",
-        cell: ({ row }) => (
-          <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
-        ),
-        size: 140,
-        minSize: 110,
       },
       {
         accessorKey: "date",
@@ -172,6 +152,16 @@ export function TallyServiceTable({
         size: 110,
         minSize: 95,
       },
+      {
+        accessorKey: "referenceNo",
+        header: "Reference No",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("referenceNo") || "-"}</div>
+        ),
+        size: 110,
+        minSize: 90,
+      },
+
       {
         accessorKey: "customerName",
         header: "Customer",
@@ -200,6 +190,15 @@ export function TallyServiceTable({
         minSize: 90,
       },
       {
+        accessorKey: "bargeName",
+        header: "Barge",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("bargeName") || "-"}</div>
+        ),
+        size: 130,
+        minSize: 100,
+      },
+      {
         accessorKey: "jobStatusName",
         header: "Status",
         cell: ({ row }) => (
@@ -210,37 +209,6 @@ export function TallyServiceTable({
           </div>
         ),
         size: 110,
-        minSize: 90,
-      },
-      {
-        accessorKey: "chargeName",
-        header: "Charge Name",
-        cell: ({ row }) => (
-          <div className="truncate font-medium">
-            {row.getValue("chargeName") || "-"}
-          </div>
-        ),
-        size: 170,
-        minSize: 130,
-      },
-      {
-        accessorKey: "bargeName",
-        header: "Barge",
-        cell: ({ row }) => (
-          <div className="truncate">{row.getValue("bargeName") || "-"}</div>
-        ),
-        size: 130,
-        minSize: 100,
-      },
-      {
-        id: "lineType",
-        header: "Type",
-        cell: ({ row }) => (
-          <TallyServiceInlineTypeCell
-            lines={getDisplayTallyServiceLines(row.original)}
-          />
-        ),
-        size: 100,
         minSize: 90,
       },
       {
@@ -256,6 +224,18 @@ export function TallyServiceTable({
         minSize: 90,
       },
       {
+        id: "lineType",
+        header: "Type",
+        cell: ({ row }) => (
+          <TallyServiceInlineTypeCell
+            lines={getDisplayTallyServiceLines(row.original)}
+          />
+        ),
+        size: 100,
+        minSize: 90,
+      },
+
+      {
         id: "lineDistance",
         header: "Distance",
         cell: ({ row }) => (
@@ -266,6 +246,20 @@ export function TallyServiceTable({
         ),
         size: 80,
         minSize: 70,
+      },
+      {
+        id: "lineQuantity",
+        header: "Qty",
+        cell: ({ row }) => (
+          <TallyServiceInlineNumberCell
+            lines={getDisplayTallyServiceLines(row.original)}
+            format={(entry) =>
+              entry.kind === "freshwater" ? (entry.line.quantity ?? 0) : "-"
+            }
+          />
+        ),
+        size: 70,
+        minSize: 55,
       },
       {
         id: "lineCharge",
@@ -304,20 +298,7 @@ export function TallyServiceTable({
         size: 80,
         minSize: 65,
       },
-      {
-        id: "lineQuantity",
-        header: "Qty",
-        cell: ({ row }) => (
-          <TallyServiceInlineNumberCell
-            lines={getDisplayTallyServiceLines(row.original)}
-            format={(entry) =>
-              entry.kind === "freshwater" ? (entry.line.quantity ?? 0) : "-"
-            }
-          />
-        ),
-        size: 70,
-        minSize: 55,
-      },
+
       {
         id: "lineDelivered",
         header: "Delivered",
@@ -426,6 +407,37 @@ export function TallyServiceTable({
         ),
         size: 160,
         minSize: 130,
+      },
+      {
+        accessorKey: "editBy",
+        header: "Edited By",
+        cell: ({ row }) => (
+          <div className="truncate">{row.getValue("editBy") || "-"}</div>
+        ),
+        size: 110,
+        minSize: 90,
+      },
+      {
+        accessorKey: "editDate",
+        header: "Edited Date",
+        cell: ({ row }) => (
+          <div className="truncate">
+            {formatDateTimeValue(row.getValue("editDate"))}
+          </div>
+        ),
+        size: 160,
+        minSize: 130,
+      },
+      {
+        accessorKey: "tallyServiceId",
+        header: "Id",
+        cell: ({ row }) => (
+          <div className="text-muted-foreground truncate">
+            {row.original.tallyServiceId}
+          </div>
+        ),
+        size: 70,
+        minSize: 55,
       },
     ],
     [formatDateTimeValue, formatDateValue, openRecord]
