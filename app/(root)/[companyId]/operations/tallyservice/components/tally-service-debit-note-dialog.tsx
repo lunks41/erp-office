@@ -48,6 +48,7 @@ import {
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { SaveConfirmation } from "@/components/confirmation/save-confirmation"
 
+import { toTallyDocumentId } from "./tally-service-utils"
 import DebitNoteForm from "./tally-service-debit-note-form"
 import DebitNoteTable from "./tally-service-debit-note-table"
 
@@ -745,7 +746,7 @@ export default function DebitNoteDialog({
       const newDebitNoteHd: TallyDebitNoteHdSchemaType = {
         debitNoteId: debitNoteHdState?.debitNoteId ?? 0,
         debitNoteNo: debitNoteHdState?.debitNoteNo ?? "",
-        tallyServiceId: tallyService.tallyServiceId,
+        tallyServiceId: Number(toTallyDocumentId(tallyService.tallyServiceId)),
         debitNoteDate: formattedDebitNoteDate,
         itemNo: debitNoteHdState?.itemNo ?? 0,
         chargeId: debitNoteHdState?.chargeId ?? 0,

@@ -54,7 +54,9 @@ import DebitNoteDialog from "./tally-service-debit-note-dialog"
 import {
   buildFreshWaterLinesFromTally,
   buildLaunchLinesFromTally,
+  hasTallyDocumentId,
   mapFormToTallyService,
+  toTallyDocumentId,
 } from "./tally-service-utils"
 
 const SECTION_CARD_CLASS =
@@ -179,7 +181,7 @@ export function TallyServiceForm({
       : serviceDate
 
     return {
-      tallyServiceId: initialData?.tallyServiceId ?? 0,
+      tallyServiceId: toTallyDocumentId(initialData?.tallyServiceId),
       tallyServiceNo: initialData?.tallyServiceNo ?? "",
       tallyServiceNoSeq: initialData?.tallyServiceNoSeq ?? 0,
       referenceNo: initialData?.referenceNo ?? "",
@@ -243,7 +245,7 @@ export function TallyServiceForm({
             : undefined,
         })
       ),
-      invoiceId: initialData?.invoiceId ?? 0,
+      invoiceId: toTallyDocumentId(initialData?.invoiceId),
       invoiceNo: initialData?.invoiceNo ?? "",
       jobStatusId: initialData?.jobStatusId ?? 1,
       remarks: initialData?.remarks ?? "",
@@ -330,7 +332,9 @@ export function TallyServiceForm({
   }, [freshWaterFields.length, launchFields.length])
 
   const tallyServiceForDebitNote = useMemo((): ITallyService | undefined => {
-    if (!initialData?.tallyServiceId) return undefined
+    if (!initialData || !hasTallyDocumentId(initialData.tallyServiceId)) {
+      return undefined
+    }
     return {
       ...initialData,
       customerId: customerId || initialData.customerId,
@@ -341,10 +345,10 @@ export function TallyServiceForm({
   }, [initialData, customerId, portId, currencyId, gstId])
 
   const handleDebitNote = useCallback(async () => {
-    const tallyServiceId = initialData?.tallyServiceId ?? 0
+    const tallyServiceId = toTallyDocumentId(initialData?.tallyServiceId)
     if (!hasServiceLines) return
 
-    if (tallyServiceId <= 0) {
+    if (!hasTallyDocumentId(tallyServiceId)) {
       toast.error("Save the tally service before creating a debit note.")
       return
     }
@@ -368,7 +372,7 @@ export function TallyServiceForm({
 
       const generateResponse = (await saveData(
         TallyService_DebitNote.generate,
-        { tallyServiceId, debitNoteNo: "" }
+        { tallyServiceId: Number(tallyServiceId), debitNoteNo: "" }
       )) as ApiResponse<IDebitNoteHd>
 
       if (generateResponse.result > 0) {
@@ -410,11 +414,11 @@ export function TallyServiceForm({
   }, [hasServiceLines, initialData?.tallyServiceId, queryClient])
 
   const handleOpenDebitNote = useCallback(async () => {
-    const tallyServiceId = initialData?.tallyServiceId ?? 0
+    const tallyServiceId = toTallyDocumentId(initialData?.tallyServiceId)
     const debitNoteId =
       debitNoteHd?.debitNoteId ?? debitNoteIdLabel ?? initialData?.debitNoteId ?? 0
 
-    if (tallyServiceId <= 0) return
+    if (!hasTallyDocumentId(tallyServiceId)) return
 
     setIsDebitNoteLoading(true)
     try {
@@ -450,8 +454,8 @@ export function TallyServiceForm({
 
   const handleDeleteDebitNote = useCallback(
     async (debitNoteId: number) => {
-      const tallyServiceId = initialData?.tallyServiceId ?? 0
-      if (tallyServiceId <= 0 || debitNoteId <= 0) return
+      const tallyServiceId = toTallyDocumentId(initialData?.tallyServiceId)
+      if (!hasTallyDocumentId(tallyServiceId) || debitNoteId <= 0) return
 
       try {
         await debitNoteDeleteMutation.mutateAsync(
@@ -846,7 +850,7 @@ export function TallyServiceForm({
                     form={form}
                     name="tallyServiceNo"
                     label="Tally Service No"
-                    isDisabled={isReadOnly}
+                    isDisabled={isReadOnly || mode === "create"}
                     onChangeEvent={() => {
                       tallyServiceNoManualRef.current = true
                     }}

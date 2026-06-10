@@ -55,20 +55,16 @@ export const isJobLocked = (status?: JobStatusInput) =>
   isStatusConfirmed(status) || isStatusPosted(status)
 
 /** Lock Job Status autocomplete when posted (IsPost or status Posted) */
-export const isJobStatusLocked = (
-  status?: JobStatusInput,
-  isPost?: boolean
-) => isStatusPosted(status) || isInvoicePosted(isPost)
+export const isJobStatusLocked = (status?: JobStatusInput, isPost?: boolean) =>
+  isStatusPosted(status) || isInvoicePosted(isPost)
 
 /** Confirmed (not yet posted to accounting): show invoice preview */
 export const canShowInvoicePreview = (status?: JobStatusInput) =>
   isStatusConfirmed(status)
 
 /** Posted (not yet invoiced to AR): show generate/post invoice — hidden on Confirmed */
-export const canShowInvoicePost = (
-  status?: JobStatusInput,
-  isPost?: boolean
-) => isStatusPosted(status) && !isInvoicePosted(isPost)
+export const canShowInvoicePost = (status?: JobStatusInput, isPost?: boolean) =>
+  isStatusPosted(status) && !isInvoicePosted(isPost)
 
 /** Invoice posted or job status Posted: job summary / invoice prints */
 export const canShowJobSummaryPrint = (
@@ -96,3 +92,9 @@ export const isChecklistPostedJob = (job: {
   jobStatusName?: string | null
   isPost?: boolean
 }): boolean => getChecklistJobDisplayStatus(job) === "Posted"
+
+/** ArInvoiceHd.ModuleFrom — checklist job order or tally service invoice */
+export const isArInvoiceFromOperations = (moduleFrom?: string | null) => {
+  const normalized = moduleFrom?.trim().toUpperCase() ?? ""
+  return normalized === "OPERATION" || normalized === "TALLYSERVICE"
+}

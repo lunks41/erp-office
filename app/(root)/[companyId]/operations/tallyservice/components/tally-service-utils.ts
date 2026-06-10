@@ -35,6 +35,18 @@ export const TALLY_STATUS_TABS = [
 
 export type TallyStatusTab = (typeof TALLY_STATUS_TABS)[number]["value"]
 
+/** Document ids as strings in UI — use "0" for new records (checklist invoiceId pattern). */
+export function toTallyDocumentId(value?: string | number | null): string {
+  if (value === undefined || value === null) return "0"
+  const trimmed = String(value).trim()
+  if (!trimmed || trimmed === "undefined" || trimmed === "null") return "0"
+  return trimmed
+}
+
+export function hasTallyDocumentId(value?: string | number | null): boolean {
+  return Number(toTallyDocumentId(value)) > 0
+}
+
 export const TALLY_STATUS_BADGE_CLASSNAME: Record<TallyStatusTab, string> = {
   All: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300",
   Pending:
@@ -216,7 +228,7 @@ export function createEmptyLaunchLine(
 export function createEmptyTallyService(companyId: number): ITallyService {
   return {
     companyId,
-    tallyServiceId: 0,
+    tallyServiceId: "0",
     tallyServiceNo: "",
     tallyServiceNoSeq: 0,
     referenceNo: "",
@@ -252,7 +264,7 @@ export function createEmptyTallyService(companyId: number): ITallyService {
     chargeId: 0,
     bargeId: 0,
     uomId: 0,
-    invoiceId: 0,
+    invoiceId: "0",
     invoiceNo: "",
     jobStatusId: 1,
     jobStatusName: "",
@@ -412,7 +424,7 @@ export function mapFormToTallyService(
 
   return {
     companyId,
-    tallyServiceId: data.tallyServiceId,
+    tallyServiceId: toTallyDocumentId(data.tallyServiceId),
     tallyServiceNo: data.tallyServiceNo?.trim() || "",
     tallyServiceNoSeq: data.tallyServiceNoSeq ?? 0,
     referenceNo: data.referenceNo?.trim() || "",
@@ -446,7 +458,7 @@ export function mapFormToTallyService(
     mobileNo: data.mobileNo || "",
     emailAdd: data.emailAdd || "",
     bargeId: data.bargeId,
-    invoiceId: data.invoiceId ?? 0,
+    invoiceId: toTallyDocumentId(data.invoiceId),
     invoiceNo: data.invoiceNo || "",
     jobStatusId: data.jobStatusId ?? 1,
     remarks: data.remarks || "",
@@ -497,7 +509,7 @@ export function mapTallyServiceForSave(
   const seriesDate = String(data.seriesDate || serviceDate)
 
   return {
-    tallyServiceId: data.tallyServiceId ?? 0,
+    tallyServiceId: Number(toTallyDocumentId(data.tallyServiceId)),
     tallyServiceNo: data.tallyServiceNo?.trim() || "",
     tallyServiceNoSeq: data.tallyServiceNoSeq ?? 0,
     referenceNo: data.referenceNo?.trim() || "",
@@ -530,7 +542,7 @@ export function mapTallyServiceForSave(
     mobileNo: data.mobileNo || "",
     emailAdd: data.emailAdd || "",
     bargeId: data.bargeId,
-    invoiceId: data.invoiceId ?? 0,
+    invoiceId: Number(toTallyDocumentId(data.invoiceId)),
     invoiceNo: data.invoiceNo || "",
     jobStatusId: data.jobStatusId ?? 1,
     remarks: data.remarks || "",
@@ -566,7 +578,10 @@ export function normalizeTallyService(
     ...base,
     ...item,
     companyId: item.companyId ?? companyId,
-    tallyServiceId: item.tallyServiceId ?? 0,
+    tallyServiceId: toTallyDocumentId(
+      pickString(itemRecord, ["tallyServiceId", "TallyServiceId"]) ||
+        pickNumber(itemRecord, ["tallyServiceId", "TallyServiceId"])
+    ),
     tallyServiceNo: pickString(itemRecord, ["tallyServiceNo", "TallyServiceNo"]),
     tallyServiceNoSeq: pickNumber(itemRecord, [
       "tallyServiceNoSeq",
@@ -612,8 +627,11 @@ export function normalizeTallyService(
       item.freshWaterLines?.find((line) => line.uomId > 0)?.uomId ??
       item.uomId ??
       0,
-    invoiceId: item.invoiceId ?? base.invoiceId,
-    invoiceNo: item.invoiceNo ?? base.invoiceNo,
+    invoiceId: toTallyDocumentId(
+      pickString(itemRecord, ["invoiceId", "InvoiceId"]) ||
+        pickNumber(itemRecord, ["invoiceId", "InvoiceId"])
+    ),
+    invoiceNo: pickString(itemRecord, ["invoiceNo", "InvoiceNo"]),
     jobStatusId: item.jobStatusId ?? base.jobStatusId,
     jobStatusName: item.jobStatusName ?? base.jobStatusName,
     remarks: item.remarks ?? base.remarks,
@@ -638,7 +656,7 @@ export function openTallyServiceTab(
   tallyServiceId?: number | string
 ) {
   const path =
-    tallyServiceId && Number(tallyServiceId) > 0
+    hasTallyDocumentId(tallyServiceId)
       ? `/${companyId}/operations/tallyservice/${tallyServiceId}`
       : `/${companyId}/operations/tallyservice/new`
   window.open(path, "_blank", "noopener,noreferrer")

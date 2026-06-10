@@ -974,6 +974,8 @@ export default function CreditNotePage() {
         salesOrderNo: apiCreditNote.salesOrderNo ?? "",
         jobOrderId: apiCreditNote.jobOrderId ?? 0,
         jobOrderNo: apiCreditNote.jobOrderNo ?? "",
+        tallyServiceId: apiCreditNote.tallyServiceId ?? 0,
+        tallyServiceNo: apiCreditNote.tallyServiceNo ?? "",
         vesselId: apiCreditNote.vesselId ?? 0,
         portId: apiCreditNote.portId ?? 0,
         serviceCategoryId: apiCreditNote.serviceCategoryId ?? 0,

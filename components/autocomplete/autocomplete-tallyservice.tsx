@@ -69,6 +69,12 @@ export default function TallyServiceAutocomplete<
     [tallyServices]
   )
 
+  const tallyServiceNoField =
+    form && name ? (`${name.toString().replace("Id", "No")}` as Path<T>) : null
+  const currentTallyServiceNo = tallyServiceNoField
+    ? String(form.watch(tallyServiceNoField) || "")
+    : ""
+
   const watchedValue = form && name ? form.watch(name) : null
 
   const selectedOptionId =
@@ -95,6 +101,19 @@ export default function TallyServiceAutocomplete<
       handleChangeRef.current(option as SingleValue<FieldOption>),
   })
 
+  const mergedOptions: FieldOption[] = React.useMemo(() => {
+    if (
+      selectedOptionId &&
+      currentTallyServiceNo &&
+      !options.some((o) => o.value === selectedOptionId)
+    ) {
+      return [
+        { value: selectedOptionId, label: currentTallyServiceNo },
+        ...options,
+      ]
+    }
+    return options
+  }, [currentTallyServiceNo, options, selectedOptionId])
 
   // Custom components with display names
   const DropdownIndicator = React.memo(
@@ -145,9 +164,22 @@ const handleChange = wrapOnChange(
       markOptionSelected(!!selectedOption)
 
       if (form && name) {
-        // Set the value as a number
         const value = selectedOption ? Number(selectedOption.value) : 0
         form.setValue(name, value as PathValue<T, Path<T>>)
+        if (tallyServiceNoField) {
+          const selectedTally = selectedOption
+            ? tallyServices.find(
+                (u: ITallyServiceLookup) =>
+                  u.tallyServiceId.toString() === selectedOption.value
+              )
+            : null
+          form.setValue(
+            tallyServiceNoField,
+            (selectedOption
+              ? selectedTally?.tallyServiceNo || selectedOption.label
+              : "") as PathValue<T, Path<T>>
+          )
+        }
       }
       if (onChangeEvent) {
         const selectedJobOrder = selectedOption
@@ -159,7 +191,7 @@ const handleChange = wrapOnChange(
         onChangeEvent(selectedJobOrder)
       }
     },
-    [form, name, onChangeEvent, tallyServices, markOptionSelected]
+    [form, name, onChangeEvent, tallyServiceNoField, tallyServices, markOptionSelected]
     )
   )
 
@@ -170,11 +202,12 @@ const handleChange = wrapOnChange(
       const formValue = form.getValues(name)
       // Convert form value to string for comparison
       return (
-        options.find((option) => option.value === formValue?.toString()) || null
+        mergedOptions.find((option) => option.value === formValue?.toString()) ||
+        null
       )
     }
     return null
-  }, [form, name, options])
+  }, [form, mergedOptions, name])
 
 
   if (form && name) {
@@ -225,7 +258,7 @@ const handleChange = wrapOnChange(
                     onChange={handleChange}
 
                     onKeyDown={handleSearchableKeyDown}
-                    placeholder="Select JobOrder..."
+                    placeholder="Select Tally Service..."
                     isDisabled={isDisabled || isLoading}
                     isClearable={true}
                     isSearchable={true}

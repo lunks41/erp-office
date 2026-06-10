@@ -7,7 +7,7 @@ import {
 } from "./tally-service-lines"
 
 export const tallyServiceSchema = z.object({
-  tallyServiceId: z.number(),
+  tallyServiceId: z.string(),
   tallyServiceNo: z.string().max(50).optional(),
   tallyServiceNoSeq: z.number().min(0).optional(),
   referenceNo: z.string().max(100).optional(),
@@ -42,7 +42,7 @@ export const tallyServiceSchema = z.object({
   emailAdd: z.string().optional(),
   freshWaterLines: z.array(tallyFreshWaterLineSchema),
   launchServiceLines: z.array(tallyLaunchServiceLineSchema),
-  invoiceId: z.number().min(0, "Invoice Id must be 0 or greater"),
+  invoiceId: z.string().optional(),
   invoiceNo: z.string().optional(),
   jobStatusId: z.number().min(1, "Status is required"),
   remarks: z

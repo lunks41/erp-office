@@ -30,7 +30,7 @@ export interface ITallyLaunchServiceLine {
 
 export interface ITallyService {
   companyId: number
-  tallyServiceId: number
+  tallyServiceId: string
   tallyServiceNo?: string | null
   tallyServiceNoSeq?: number | null
   referenceNo?: string | null
@@ -81,7 +81,7 @@ export interface ITallyService {
   /** Display only — from first freshwater line when loaded from API */
   uomId?: number
   uomName?: string | null
-  invoiceId?: number | null
+  invoiceId?: string | null
   invoiceNo?: string | null
   jobStatusId: number
   jobStatusName?: string | null

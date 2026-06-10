@@ -963,6 +963,8 @@ export default function DebitNotePage() {
         salesOrderNo: apiDebitNote.salesOrderNo ?? "",
         jobOrderId: apiDebitNote.jobOrderId ?? 0,
         jobOrderNo: apiDebitNote.jobOrderNo ?? "",
+        tallyServiceId: apiDebitNote.tallyServiceId ?? 0,
+        tallyServiceNo: apiDebitNote.tallyServiceNo ?? "",
         vesselId: apiDebitNote.vesselId ?? 0,
         portId: apiDebitNote.portId ?? 0,
         createBy: apiDebitNote.createBy ?? "",

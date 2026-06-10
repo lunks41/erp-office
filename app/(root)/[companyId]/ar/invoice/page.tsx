@@ -14,6 +14,7 @@ import {
   calculateTotalAmounts,
   recalculateAllDetailsLocalAndCtyAmounts,
 } from "@/helpers/ar-invoice-calculations"
+import { isArInvoiceFromOperations } from "@/helpers/project"
 import { IArInvoiceDt, IArInvoiceFilter, IArInvoiceHd } from "@/interfaces"
 import { ApiResponse } from "@/interfaces/auth"
 import { IPaymentHistoryDetails } from "@/interfaces/history"
@@ -143,10 +144,16 @@ export default function InvoicePage() {
   const [searchNo, setSearchNo] = useState("")
   const [activeTab, setActiveTab] = useState("main")
   const [pendingDocId, setPendingDocId] = useState("")
+  const [pendingInvoiceNo, setPendingInvoiceNo] = useState("")
 
   const documentIdFromQuery = useMemo(() => {
     const value =
       searchParams?.get("docId") ?? searchParams?.get("documentId") ?? ""
+    return value ? value.trim() : ""
+  }, [searchParams])
+
+  const invoiceNoFromQuery = useMemo(() => {
+    const value = searchParams?.get("invoiceNo") ?? ""
     return value ? value.trim() : ""
   }, [searchParams])
 
@@ -158,6 +165,13 @@ export default function InvoicePage() {
   useEffect(() => {
     if (documentIdFromQuery) {
       setPendingDocId(documentIdFromQuery)
+      setPendingInvoiceNo("")
+      return
+    }
+
+    if (invoiceNoFromQuery) {
+      setPendingInvoiceNo(invoiceNoFromQuery)
+      setPendingDocId("")
       return
     }
 
@@ -168,10 +182,11 @@ export default function InvoicePage() {
         const trimmed = stored.trim()
         if (trimmed) {
           setPendingDocId(trimmed)
+          setPendingInvoiceNo("")
         }
       }
     }
-  }, [autoLoadStorageKey, documentIdFromQuery])
+  }, [autoLoadStorageKey, documentIdFromQuery, invoiceNoFromQuery])
 
   // Track previous account date to send as PrevAccountDate to API
   const [previousAccountDate, setPreviousAccountDate] = useState<string>("")
@@ -275,6 +290,8 @@ export default function InvoicePage() {
           salesOrderNo: invoice.salesOrderNo ?? "",
           jobOrderId: invoice.jobOrderId ?? 0,
           jobOrderNo: invoice.jobOrderNo ?? "",
+          tallyServiceId: invoice.tallyServiceId ?? 0,
+          tallyServiceNo: invoice.tallyServiceNo ?? "",
           vesselId: invoice.vesselId ?? 0,
           portId: invoice.portId ?? 0,
           serviceCategoryId: invoice.serviceCategoryId ?? 0,
@@ -997,6 +1014,8 @@ export default function InvoicePage() {
         salesOrderNo: apiInvoice.salesOrderNo ?? "",
         jobOrderId: apiInvoice.jobOrderId ?? 0,
         jobOrderNo: apiInvoice.jobOrderNo ?? "",
+        tallyServiceId: apiInvoice.tallyServiceId ?? 0,
+        tallyServiceNo: apiInvoice.tallyServiceNo ?? "",
         vesselId: apiInvoice.vesselId ?? 0,
         portId: apiInvoice.portId ?? 0,
         serviceCategoryId: apiInvoice.serviceCategoryId ?? 0,
@@ -1142,7 +1161,6 @@ export default function InvoicePage() {
         )
 
         if (response?.result === 1) {
-          debugger
           const detailedInvoice = Array.isArray(response.data)
             ? response.data[0]
             : response.data
@@ -1305,6 +1323,22 @@ export default function InvoicePage() {
     setPendingDocId("")
   }, [loadInvoice, pendingDocId])
 
+  useEffect(() => {
+    const trimmedNo = pendingInvoiceNo.trim()
+    if (!trimmedNo) return
+
+    const executeLoad = async () => {
+      await loadInvoice({
+        invoiceId: "0",
+        invoiceNo: trimmedNo,
+        showLoader: true,
+      })
+    }
+
+    void executeLoad()
+    setPendingInvoiceNo("")
+  }, [loadInvoice, pendingInvoiceNo])
+
   // Determine mode and invoice ID from URL
   const invoiceNo = form.getValues("invoiceNo")
   const isEdit = Boolean(invoiceNo)
@@ -1395,6 +1429,7 @@ export default function InvoicePage() {
   // Calculate payment status only if not cancelled
   const balAmt = invoice?.balAmt ?? 0
   const payAmt = invoice?.payAmt ?? 0
+  const isOperationsInvoice = isArInvoiceFromOperations(invoice?.moduleFrom)
 
   const paymentStatus = isCancelled
     ? ""
@@ -1654,9 +1689,8 @@ export default function InvoicePage() {
                 Clone
               </Button>
 
-              {/* Cancel button: Show when NOT from OPERATION, OR from OPERATION but unposted (isPost === false) */}
-              {(invoice?.moduleFrom !== "OPERATION" ||
-                invoice?.isPost === false) && (
+              {/* Cancel: manual AR invoices, or operation/tally invoices not yet posted */}
+              {(!isOperationsInvoice || invoice?.isPost === false) && (
                 <Button
                   variant="destructive"
                   size="sm"
@@ -1681,32 +1715,31 @@ export default function InvoicePage() {
                 </Button>
               )}
 
-              {/* UnPost button: Show only when from OPERATION and posted (isPost === true) */}
-              {invoice?.moduleFrom === "OPERATION" &&
-                invoice?.isPost === true && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleUnpostInvoice}
-                    disabled={
-                      !canView ||
-                      !invoice ||
-                      invoice.invoiceId === "0" ||
-                      unpostMutation.isPending ||
-                      isCancelled ||
-                      payAmt > 0 ||
-                      !canPost
-                    }
-                    title="UnPost Invoice"
-                  >
-                    {unpostMutation.isPending ? (
-                      <Spinner size="sm" className="h-4 w-4" />
-                    ) : (
-                      <Undo2 className="h-4 w-4" />
-                    )}
-                    {"Un Post"}
-                  </Button>
-                )}
+              {/* UnPost: checklist or tally service invoices that are posted */}
+              {isOperationsInvoice && invoice?.isPost === true && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleUnpostInvoice}
+                  disabled={
+                    !canView ||
+                    !invoice ||
+                    invoice.invoiceId === "0" ||
+                    unpostMutation.isPending ||
+                    isCancelled ||
+                    payAmt > 0 ||
+                    !canPost
+                  }
+                  title="UnPost Invoice"
+                >
+                  {unpostMutation.isPending ? (
+                    <Spinner size="sm" className="h-4 w-4" />
+                  ) : (
+                    <Undo2 className="h-4 w-4" />
+                  )}
+                  {"Un Post"}
+                </Button>
+              )}
             </div>
           </div>
         </div>

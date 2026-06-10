@@ -47,8 +47,10 @@ import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
 import { TallyServiceForm } from "./tally-service-form"
 import {
   extractRows,
+  hasTallyDocumentId,
   mapTallyServiceForSave,
   normalizeTallyService,
+  toTallyDocumentId,
 } from "./tally-service-utils"
 
 const FORM_ID = "tally-service-form"
@@ -146,7 +148,7 @@ export function TallyServiceDetailPage({
   const isReadOnly = isPermissionReadOnly
 
   const hasPostedInvoice =
-    Number(tallyService?.invoiceId ?? 0) > 0 && tallyService?.isPost === true
+    hasTallyDocumentId(tallyService?.invoiceId) && tallyService?.isPost === true
 
   const canPostInvoice =
     mode === "edit" &&
@@ -154,32 +156,45 @@ export function TallyServiceDetailPage({
     !isPermissionReadOnly &&
     !tallyService?.isCancel
 
-  const handleInvoiceNoDoubleClick = useCallback(() => {
-    const invoiceId = tallyService?.invoiceId
-    if (
-      !companyId ||
-      invoiceId === undefined ||
-      invoiceId === null ||
-      Number(invoiceId) <= 0
-    ) {
-      return
-    }
-    const docId = String(invoiceId).trim()
-    if (!docId) return
+  const handleInvoiceNoOpen = useCallback(() => {
+    if (!companyId) return
+
+    const invoiceId = toTallyDocumentId(tallyService?.invoiceId)
+    const invoiceNo = String(tallyService?.invoiceNo ?? "").trim()
+
     const targetPath = `/${companyId}/ar/invoice`
     const storageKey = `history-doc:${targetPath}`
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(storageKey, docId)
-      window.open(targetPath, "_blank", "noopener,noreferrer")
+
+    if (hasTallyDocumentId(invoiceId)) {
+      const docId = invoiceId
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(storageKey, docId)
+        window.open(
+          `${targetPath}?docId=${encodeURIComponent(docId)}`,
+          "_blank",
+          "noopener,noreferrer"
+        )
+      }
+      return
     }
-  }, [companyId, tallyService?.invoiceId])
+
+    if (invoiceNo) {
+      if (typeof window !== "undefined") {
+        window.open(
+          `${targetPath}?invoiceNo=${encodeURIComponent(invoiceNo)}`,
+          "_blank",
+          "noopener,noreferrer"
+        )
+      }
+      return
+    }
+
+    toast.error("Invoice not available for this tally service")
+  }, [companyId, tallyService])
 
   const handlePrintInvoice = useCallback(() => {
-    if (
-      !tallyService?.invoiceId ||
-      !tallyService.invoiceNo ||
-      Number(tallyService.invoiceId) <= 0
-    ) {
+    if (!tallyService) return
+    if (!hasTallyDocumentId(tallyService.invoiceId) || !tallyService.invoiceNo) {
       toast.error("Invoice not available for this tally service")
       return
     }
@@ -215,7 +230,7 @@ export function TallyServiceDetailPage({
   }, [companyId, decimals, tallyService, user?.userName])
 
   const handlePreviewInvoice = useCallback(async () => {
-    if (!tallyService?.tallyServiceId) {
+    if (!tallyService || !hasTallyDocumentId(tallyService.tallyServiceId)) {
       toast.error("Invalid tally service data")
       return
     }
@@ -244,10 +259,10 @@ export function TallyServiceDetailPage({
     } finally {
       setIsLoadingPreview(false)
     }
-  }, [tallyService?.tallyServiceId])
+  }, [tallyService])
 
   const handleGenerateInvoice = useCallback(async () => {
-    if (!tallyService?.tallyServiceId) {
+    if (!tallyService || !hasTallyDocumentId(tallyService.tallyServiceId)) {
       toast.error("Invalid tally service data")
       return
     }
@@ -272,7 +287,7 @@ export function TallyServiceDetailPage({
     } finally {
       setIsPostingInvoice(false)
     }
-  }, [queryClient, refetch, tallyService?.tallyServiceId])
+  }, [queryClient, refetch, tallyService])
 
   const handleSaveRequest = (data: ITallyService) => {
     setSaveConfirmation({ isOpen: true, data })
@@ -287,14 +302,15 @@ export function TallyServiceDetailPage({
         payload as unknown as Partial<ITallyService>
       )
       const savedRows = extractRows<ITallyService>(result?.data)
-      const savedId =
-        savedRows[0]?.tallyServiceId ?? payload.tallyServiceId ?? 0
+      const savedId = toTallyDocumentId(
+        savedRows[0]?.tallyServiceId ?? payload.tallyServiceId
+      )
 
       if (result?.result === 1) {
         await queryClient.invalidateQueries({ queryKey: ["tallyServices"] })
         setSaveConfirmation({ isOpen: false, data: null })
 
-        if (mode === "create" && savedId > 0) {
+        if (mode === "create" && hasTallyDocumentId(savedId)) {
           router.push(`/${companyId}/operations/tallyservice/${savedId}`)
         } else {
           await queryClient.invalidateQueries({ queryKey: ["tallyService"] })
@@ -407,7 +423,7 @@ export function TallyServiceDetailPage({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {allowJobSummaryPrint &&
-                Number(tallyService?.invoiceId ?? 0) > 0 ? (
+                hasTallyDocumentId(tallyService?.invoiceId) ? (
                   <DropdownMenuItem onClick={handlePrintInvoice}>
                     Invoice Print
                   </DropdownMenuItem>
@@ -451,12 +467,12 @@ export function TallyServiceDetailPage({
               role="button"
               tabIndex={0}
               className={`${INVOICE_BADGE_CLASS} border-border bg-card text-primary cursor-pointer hover:bg-blue-100`}
-              title="Double-click to open AR Invoice"
-              onDoubleClick={handleInvoiceNoDoubleClick}
+              title="Click to open AR Invoice"
+              onClick={handleInvoiceNoOpen}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault()
-                  handleInvoiceNoDoubleClick()
+                  handleInvoiceNoOpen()
                 }
               }}
             >
