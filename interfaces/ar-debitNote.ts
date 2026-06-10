@@ -86,6 +86,8 @@ export interface IArDebitNoteHd {
   appDate: null | Date
   appBy: string
 
+  tallyServiceId: number
+  tallyServiceNo: string
   jobOrderId: number
   jobOrderNo: string
   vesselId: number

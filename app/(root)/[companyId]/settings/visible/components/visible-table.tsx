@@ -496,6 +496,30 @@ export function VisibleTable() {
     },
 
     {
+      accessorKey: "m_TallyServiceIdHd",
+      header: () => (
+        <div className="text-center font-medium truncate">
+          Tally Service Header
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          <Checkbox
+            checked={row.original.m_TallyServiceIdHd}
+            onCheckedChange={(checked) =>
+              handleFieldChange(
+                row.original,
+                "m_TallyServiceIdHd",
+                checked as boolean
+              )
+            }
+          />
+        </div>
+      ),
+      size: 100,
+    },
+
+    {
       accessorKey: "m_JobOrderIdHd",
       header: () => (
         <div className="text-center font-medium truncate">

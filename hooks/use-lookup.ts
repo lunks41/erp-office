@@ -36,6 +36,7 @@ import {
   IGstLookup,
   IJobOrderLookup,
   IJobStatusLookup,
+  ITallyServiceLookup,
   ILandingPurposeLookup,
   ILandingTypeLookup,
   ILeaveTypeLookup,
@@ -1242,6 +1243,49 @@ export const useBargeDynamicLookup = (queryParams?: {
         const url = queryParams?.searchString
           ? `${Lookup.getBargeDynamic}?${searchParams.toString()}`
           : Lookup.getBargeDynamic
+
+        const data = await getData(url)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+    refetchOnWindowFocus: false,
+  })
+}
+
+export const useTallyServiceLookup = () => {
+  return useQuery<ITallyServiceLookup[]>({
+    queryKey: ["tallyservice-lookUp"],
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      try {
+        const data = await getData(Lookup.getTallyService)
+        return data?.data || []
+      } catch (error) {
+        handleApiError(error)
+      }
+    },
+    refetchOnWindowFocus: false,
+  })
+}
+
+export const useTallyServiceDynamicLookup = (queryParams?: {
+  searchString?: string
+}) => {
+  return useQuery<ITallyServiceLookup[]>({
+    queryKey: ["tallyservice-dynamic-lookUp", queryParams?.searchString],
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      try {
+        const searchParams = new URLSearchParams()
+        if (queryParams?.searchString) {
+          searchParams.append("searchString", queryParams.searchString)
+        }
+
+        const url = queryParams?.searchString
+          ? `${Lookup.getTallyServiceDynamic}?${searchParams.toString()}`
+          : Lookup.getTallyServiceDynamic
 
         const data = await getData(url)
         return data?.data || []

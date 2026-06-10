@@ -366,6 +366,8 @@ export const Lookup = {
   getSupplierCodeLookup: "/master/GetSupplierCodeLookup",
   getProductDynamic: "/master/getproductlookup_v1",
   getJobOrderDynamic: "/master/getjoborderlookup_v1",
+  getTallyService: "/master/gettallyservicelookup",
+  getTallyServiceDynamic: "/master/gettallyservicelookup_v1",
 
   getJobOrderCompany: "/master/getjobordercompanylookup",
 }

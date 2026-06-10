@@ -160,6 +160,7 @@ export interface IVisibleFields {
   m_PayeeTo: boolean
   m_ServiceCategoryId: boolean
   m_OtherRemarks: boolean
+  m_TallyServiceIdHd: boolean
   m_JobOrderIdHd: boolean
   m_PortIdHd: boolean
   m_VesselIdHd: boolean

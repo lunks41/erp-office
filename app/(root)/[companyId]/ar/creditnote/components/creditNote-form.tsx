@@ -4,7 +4,7 @@ import * as React from "react";
 import { EntityType, setAddressContactDetails, setDueDate, setExchangeRate, setExchangeRateLocal, setGSTPercentage } from "@/helpers/account";
 import { recalculateAllDetailsLocalAndCtyAmounts, recalculateAndSetHeaderTotals, syncCountryExchangeRate } from "@/helpers/ar-creditnote-calculations";
 import { IArCreditNoteDt, IArCustomerInvoice } from "@/interfaces";
-import { IBankLookup, ICreditTermLookup, ICurrencyLookup, ICustomerLookup, IJobOrderLookup } from "@/interfaces/lookup";
+import { IBankLookup, ICreditTermLookup, ICurrencyLookup, ICustomerLookup, IJobOrderLookup, ITallyServiceLookup } from "@/interfaces/lookup";
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting";
 import { ArCreditNoteDtSchemaType, ArCreditNoteHdSchemaType } from "@/schemas";
 import { useCompanyStore } from "@/stores/company-store";
@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 import { clientDateFormat, parseDate } from "@/lib/date-utils";
 import { useGetDynamicLookup } from "@/hooks/use-lookup";
-import { BankAutocomplete, CreditTermAutocomplete, CurrencyAutocomplete, CustomerAutocomplete, DynamicCustomerAutocomplete, DynamicJobOrderAutocomplete, JobOrderAutocomplete, PortAutocomplete, VesselAutocomplete } from "@/components/autocomplete";
+import { BankAutocomplete, CreditTermAutocomplete, CurrencyAutocomplete, CustomerAutocomplete, DynamicCustomerAutocomplete, DynamicJobOrderAutocomplete, DynamicTallyServiceAutocomplete, JobOrderAutocomplete, PortAutocomplete, TallyServiceAutocomplete, VesselAutocomplete } from "@/components/autocomplete";
 import DynamicVesselAutocomplete from "@/components/autocomplete/autocomplete-dynamic-vessel";
 import ServiceCategoryAutocomplete from "@/components/autocomplete/autocomplete-servicecategory";
 import InvoiceSelectionDialog from "@/components/common/ar-invoice-selection-dialog";
@@ -66,6 +66,7 @@ export default function CreditNoteForm({
   const { data: dynamicLookup } = useGetDynamicLookup()
   const isDynamicCustomer = dynamicLookup?.isCustomer ?? false
   const isDynamicVessel = dynamicLookup?.isVessel ?? false
+  const isDynamicTallyService = dynamicLookup?.isTallyService ?? false
   const isDynamicJobOrder = dynamicLookup?.isJobOrder ?? false
 
   const [showInvoiceDialog, setShowInvoiceDialog] = React.useState(false)
@@ -348,6 +349,23 @@ export default function CreditNoteForm({
   const handleDeliveryDateChange = React.useCallback(
     async (_selectedDeliveryDate: Date | null) => {
       await setDueDate(form)
+    },
+    [form]
+  )
+
+  const handleTallyServiceChange = React.useCallback(
+    (selectedTallyService: ITallyServiceLookup | null) => {
+      if (selectedTallyService) {
+        form.setValue("vesselId", selectedTallyService.vesselId || 0)
+        form.setValue("portId", selectedTallyService.portId || 0)
+        form.trigger("vesselId")
+        form.trigger("portId")
+      } else {
+        form.setValue("vesselId", 0)
+        form.setValue("portId", 0)
+        form.trigger("vesselId")
+        form.trigger("portId")
+      }
     },
     [form]
   )
@@ -838,6 +856,24 @@ export default function CreditNoteForm({
               />
             </>
           )}
+
+          {/* Tally Service */}
+          {visible?.m_TallyServiceIdHd &&
+            (isDynamicTallyService ? (
+              <DynamicTallyServiceAutocomplete
+                form={form}
+                name="tallyServiceId"
+                label="Tally Service"
+                onChangeEvent={handleTallyServiceChange}
+              />
+            ) : (
+              <TallyServiceAutocomplete
+                form={form}
+                name="tallyServiceId"
+                label="Tally Service"
+                onChangeEvent={handleTallyServiceChange}
+              />
+            ))}
 
           {/* Job Order */}
           {visible?.m_JobOrderIdHd &&

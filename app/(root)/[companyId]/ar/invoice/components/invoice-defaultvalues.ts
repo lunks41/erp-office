@@ -133,6 +133,8 @@ const buildDefaultInvoice = (dateFormat: string) => ({
   postDate: "",
   appById: "",
   appDate: "",
+  tallyServiceId: 0,
+  tallyServiceNo: "",
   jobOrderId: 0,
   jobOrderNo: "",
   vesselId: 0,

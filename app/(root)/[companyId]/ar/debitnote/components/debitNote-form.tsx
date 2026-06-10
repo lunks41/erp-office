@@ -23,6 +23,7 @@ import {
   ICurrencyLookup,
   ICustomerLookup,
   IJobOrderLookup,
+  ITallyServiceLookup,
 } from "@/interfaces/lookup"
 import { IMandatoryFields, IVisibleFields } from "@/interfaces/setting"
 import { ArDebitNoteDtSchemaType, ArDebitNoteHdSchemaType } from "@/schemas"
@@ -40,7 +41,9 @@ import {
   CustomerAutocomplete,
   DynamicCustomerAutocomplete,
   DynamicJobOrderAutocomplete,
+  DynamicTallyServiceAutocomplete,
   JobOrderAutocomplete,
+  TallyServiceAutocomplete,
   PortAutocomplete,
   VesselAutocomplete,
 } from "@/components/autocomplete"
@@ -89,6 +92,7 @@ export default function DebitNoteForm({
   const { data: dynamicLookup } = useGetDynamicLookup()
   const isDynamicCustomer = dynamicLookup?.isCustomer ?? false
   const isDynamicVessel = dynamicLookup?.isVessel ?? false
+  const isDynamicTallyService = dynamicLookup?.isTallyService ?? false
   const isDynamicJobOrder = dynamicLookup?.isJobOrder ?? false
 
   const [showInvoiceDialog, setShowInvoiceDialog] = React.useState(false)
@@ -370,6 +374,23 @@ export default function DebitNoteForm({
   const handleDeliveryDateChange = React.useCallback(
     async (_selectedDeliveryDate: Date | null) => {
       await setDueDate(form)
+    },
+    [form]
+  )
+
+  const handleTallyServiceChange = React.useCallback(
+    (selectedTallyService: ITallyServiceLookup | null) => {
+      if (selectedTallyService) {
+        form.setValue("vesselId", selectedTallyService.vesselId || 0)
+        form.setValue("portId", selectedTallyService.portId || 0)
+        form.trigger("vesselId")
+        form.trigger("portId")
+      } else {
+        form.setValue("vesselId", 0)
+        form.setValue("portId", 0)
+        form.trigger("vesselId")
+        form.trigger("portId")
+      }
     },
     [form]
   )
@@ -860,6 +881,24 @@ export default function DebitNoteForm({
               />
             </>
           )}
+
+          {/* Tally Service */}
+          {visible?.m_TallyServiceIdHd &&
+            (isDynamicTallyService ? (
+              <DynamicTallyServiceAutocomplete
+                form={form}
+                name="tallyServiceId"
+                label="Tally Service"
+                onChangeEvent={handleTallyServiceChange}
+              />
+            ) : (
+              <TallyServiceAutocomplete
+                form={form}
+                name="tallyServiceId"
+                label="Tally Service"
+                onChangeEvent={handleTallyServiceChange}
+              />
+            ))}
 
           {/* Job Order */}
           {visible?.m_JobOrderIdHd &&

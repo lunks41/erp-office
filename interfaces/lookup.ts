@@ -17,6 +17,13 @@ export interface IVesselLookup {
   imoCode: string
 }
 
+export interface ITallyServiceLookup {
+  tallyServiceId: number
+  tallyServiceNo: string
+  vesselId: number
+  portId: number
+}
+
 export interface IJobOrderLookup {
   jobOrderId: number
   jobOrderNo: string
@@ -293,6 +300,7 @@ export interface IDynamicLookup {
   isSupplier: boolean
   isProduct: boolean
   isJobOrder: boolean
+  isTallyService?: boolean
   bargeCount: number
   vesselCount: number
   voyageCount: number

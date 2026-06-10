@@ -85,6 +85,8 @@ export interface IArInvoiceHd {
 
   appBy: string
 
+  tallyServiceId: number
+  tallyServiceNo: string
   jobOrderId: number
   jobOrderNo: string
   vesselId: number

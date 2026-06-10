@@ -134,6 +134,8 @@ const buildDefaultDebitNote = (dateFormat: string) => ({
   appStatusId: "",
   appById: "",
   appDate: "",
+  tallyServiceId: 0,
+  tallyServiceNo: "",
   jobOrderId: 0,
   jobOrderNo: "",
   vesselId: 0,

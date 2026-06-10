@@ -131,6 +131,10 @@ export const ArInvoiceHdSchema = (
     isCancel: z.boolean().optional(),
     cancelRemarks: z.string().optional(),
 
+    // Tally Service Fields
+    tallyServiceId: z.number().optional(),
+    tallyServiceNo: z.string().optional(),
+
     // Job Order Fields
     jobOrderId: z.number().optional(),
     jobOrderNo: z.string().optional(),

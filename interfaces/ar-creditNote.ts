@@ -88,6 +88,8 @@ export interface IArCreditNoteHd {
 
   appBy: string
 
+  tallyServiceId: number
+  tallyServiceNo: string
   jobOrderId: number
   jobOrderNo: string
   vesselId: number
