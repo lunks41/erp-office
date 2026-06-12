@@ -83,6 +83,13 @@ export function BargeTable({
       enableColumnFilter: true,
     },
     {
+      accessorKey: "shortCode",
+      header: "Short Code",
+      size: 120,
+      minSize: 50,
+      enableColumnFilter: true,
+    },
+    {
       accessorKey: "callSign",
       header: "Call Sign",
       size: 120,

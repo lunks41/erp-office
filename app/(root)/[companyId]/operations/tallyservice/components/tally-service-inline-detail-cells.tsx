@@ -37,12 +37,12 @@ export function TallyServiceInlineTypeCell({
     <LineStack lines={lines}>
       {(entry) => (
         <Badge
-          variant="secondary"
+          variant="outline"
           className={cn(
-            "h-5 w-fit px-1.5 text-[10px]",
+            "h-5 w-fit border px-1.5 text-[10px] font-medium",
             entry.kind === "launch"
-              ? "bg-sky-100 text-sky-900 dark:bg-sky-900/50 dark:text-sky-100"
-              : "bg-cyan-100 text-cyan-900 dark:bg-cyan-900/50 dark:text-cyan-100"
+              ? "border-violet-200 bg-violet-50 text-violet-800 dark:border-violet-800/60 dark:bg-violet-950/40 dark:text-violet-300"
+              : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300"
           )}
         >
           {entry.kind === "launch" ? "Launch" : "Fresh water"}

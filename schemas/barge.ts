@@ -10,6 +10,10 @@ export const bargeSchema = z.object({
     .string()
     .min(2, { message: "barge name must be at least 2 characters" })
     .max(150, { message: "barge name cannot exceed 150 characters" }),
+  shortCode: z
+    .string()
+    .max(50, { message: "short code cannot exceed 50 characters" })
+    .optional(),
   callSign: z
     .string()
     .max(150, { message: "call sign cannot exceed 150 characters" })

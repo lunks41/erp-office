@@ -60,6 +60,7 @@ export interface IBargeLookup {
   bargeId: number
   bargeCode: string
   bargeName: string
+  shortCode?: string
 }
 
 export interface ICurrencyLookup {

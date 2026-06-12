@@ -508,10 +508,12 @@ export function mapTallyServiceForSave(
   const accountDate = String(data.accountDate || serviceDate)
   const seriesDate = String(data.seriesDate || serviceDate)
 
+  const isNewRecord = !hasTallyDocumentId(data.tallyServiceId)
+
   return {
     tallyServiceId: Number(toTallyDocumentId(data.tallyServiceId)),
-    tallyServiceNo: data.tallyServiceNo?.trim() || "",
-    tallyServiceNoSeq: data.tallyServiceNoSeq ?? 0,
+    tallyServiceNo: isNewRecord ? "" : data.tallyServiceNo?.trim() || "",
+    tallyServiceNoSeq: isNewRecord ? 0 : data.tallyServiceNoSeq ?? 0,
     referenceNo: data.referenceNo?.trim() || "",
     serviceDate,
     accountDate,

@@ -3,6 +3,7 @@ export interface IBarge {
   bargeId: number
   bargeCode: string
   bargeName: string
+  shortCode: string
   callSign: string
   imoCode: string
   grt: string

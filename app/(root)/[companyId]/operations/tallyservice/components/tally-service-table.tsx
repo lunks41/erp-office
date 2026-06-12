@@ -150,7 +150,7 @@ export function TallyServiceTable({
     () => [
       {
         accessorKey: "tallyServiceNo",
-        header: "Tally No",
+        header: "Barge Service No",
         cell: ({ row }) => (
           <TableCellLink type="button" onClick={() => openRecord(row.original)}>
             {getDisplayTallyServiceNo(row.original)}
@@ -498,7 +498,7 @@ export function TallyServiceTable({
         pageSize={pageSize}
         serverSidePagination={serverSidePagination}
         onCreateAction={onCreateAction}
-        createButtonText="Add Tally Service"
+        createButtonText="Add Barge Service"
         showHeader={true}
         showFooter={true}
         showActions={false}

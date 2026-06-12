@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { IDebitNoteHd } from "@/interfaces/checklist"
 import { ITallyService } from "@/interfaces"
 import { IBankAddress, IBankContact } from "@/interfaces/bank"
@@ -139,8 +139,6 @@ export function TallyServiceForm({
     useState<ICustomerAddress | null>(null)
   const [selectedContact, setSelectedContact] =
     useState<ICustomerContact | null>(null)
-  const tallyServiceNoManualRef = useRef(false)
-
   const parseWithFallback = useCallback(
     (value: string | Date | null | undefined): Date | null => {
       if (!value) return null
@@ -281,9 +279,7 @@ export function TallyServiceForm({
   useEffect(() => {
     form.reset(buildDefaultValues())
     setCustomerCode(initialData?.customerCode ?? "")
-    tallyServiceNoManualRef.current =
-      mode === "edit" && !!initialData?.tallyServiceNo
-  }, [buildDefaultValues, form, initialData?.customerCode, initialData?.tallyServiceNo, mode])
+  }, [buildDefaultValues, form, initialData?.customerCode, mode])
 
   const customerId = form.watch("customerId")
   const accountDate = form.watch("accountDate")
@@ -499,37 +495,6 @@ export function TallyServiceForm({
     }
     updateExchangeRate()
   }, [accountDate, currencyId, exhRateDec, form, parseWithFallback])
-
-  useEffect(() => {
-    if (mode !== "create" || isReadOnly) return
-    if (tallyServiceNoManualRef.current) return
-    if (!portId || portId <= 0 || !serviceDate) return
-
-    const fetchNextTallyServiceNo = async () => {
-      try {
-        const parsedServiceDate = parseWithFallback(serviceDate)
-        if (!parsedServiceDate) return
-        const apiDate = format(parsedServiceDate, "yyyy-MM-dd")
-        const res = await getData(
-          `${TallyService.nextNo}?portId=${portId}&serviceDate=${apiDate}`
-        )
-        const payload = res?.data as
-          | { tallyServiceNo?: string; TallyServiceNo?: string; tallyServiceNoSeq?: number; TallyServiceNoSeq?: number }
-          | undefined
-        const nextNo = payload?.tallyServiceNo ?? payload?.TallyServiceNo
-        const nextSeq =
-          payload?.tallyServiceNoSeq ?? payload?.TallyServiceNoSeq ?? 0
-        if (nextNo) {
-          form.setValue("tallyServiceNo", nextNo)
-          form.setValue("tallyServiceNoSeq", nextSeq)
-        }
-      } catch {
-        /* ignore preview failures */
-      }
-    }
-
-    fetchNextTallyServiceNo()
-  }, [form, isReadOnly, mode, parseWithFallback, portId, serviceDate])
 
   useEffect(() => {
     const fetchGstPercentage = async () => {
@@ -849,11 +814,13 @@ export function TallyServiceForm({
                   <CustomInput
                     form={form}
                     name="tallyServiceNo"
-                    label="Tally Service No"
-                    isDisabled={isReadOnly || mode === "create"}
-                    onChangeEvent={() => {
-                      tallyServiceNoManualRef.current = true
-                    }}
+                    label="Barge Service No"
+                    isDisabled
+                    placeholder={
+                      mode === "create"
+                        ? "Generated when saved"
+                        : undefined
+                    }
                   />
                   <CustomInput
                     form={form}

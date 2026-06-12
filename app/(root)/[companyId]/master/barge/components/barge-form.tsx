@@ -18,6 +18,7 @@ const defaultValues = {
   bargeId: 0,
   bargeName: "",
   bargeCode: "",
+  shortCode: "",
   callSign: "",
   imoCode: "",
   grt: "",
@@ -55,6 +56,7 @@ export function BargeForm({
           bargeId: initialData.bargeId ?? 0,
           bargeName: initialData.bargeName ?? "",
           bargeCode: initialData.bargeCode ?? "",
+          shortCode: initialData.shortCode ?? "",
           callSign: initialData.callSign ?? "",
           imoCode: initialData.imoCode ?? "",
           grt: initialData.grt ?? "",
@@ -78,6 +80,7 @@ export function BargeForm({
             bargeId: initialData.bargeId ?? 0,
             bargeName: initialData.bargeName ?? "",
             bargeCode: initialData.bargeCode ?? "",
+            shortCode: initialData.shortCode ?? "",
             callSign: initialData.callSign ?? "",
             imoCode: initialData.imoCode ?? "",
             grt: initialData.grt ?? "",
@@ -129,12 +132,18 @@ export function BargeForm({
 
               <CustomInput
                 form={form}
-                name="callSign"
-                label="Call Sign"
+                name="shortCode"
+                label="Short Code"
                 isDisabled={isReadOnly}
               />
             </div>
             <div className="grid grid-cols-3 gap-2">
+              <CustomInput
+                form={form}
+                name="callSign"
+                label="Call Sign"
+                isDisabled={isReadOnly}
+              />
               <CustomInput
                 form={form}
                 name="imoCode"
@@ -147,14 +156,14 @@ export function BargeForm({
                 label="GRT"
                 isDisabled={isReadOnly}
               />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
               <CustomInput
                 form={form}
                 name="licenseNo"
                 label="License Number"
                 isDisabled={isReadOnly}
               />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
               <CustomInput
                 form={form}
                 name="bargeType"

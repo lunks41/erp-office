@@ -488,6 +488,7 @@ export default function BargePage() {
               bargeId: bargeData.bargeId,
               bargeName: bargeData.bargeName,
               bargeCode: bargeData.bargeCode,
+              shortCode: bargeData.shortCode ?? "",
               callSign: bargeData.callSign,
               imoCode: bargeData.imoCode,
               grt: bargeData.grt,

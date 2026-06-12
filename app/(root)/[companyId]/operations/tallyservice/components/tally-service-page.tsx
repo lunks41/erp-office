@@ -248,10 +248,10 @@ export function TallyServicePage() {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
-                Tally Service
+                Barge Services
               </h1>
               <p className="text-muted-foreground text-sm">
-                Manage standalone tally service records and related service
+                Manage barge service records and related freshwater and launch
                 timings.
               </p>
             </div>
@@ -316,7 +316,7 @@ export function TallyServicePage() {
               <div className="flex items-center gap-1">
                 <Input
                   type="text"
-                  placeholder="Search Tally Services..."
+                  placeholder="Search Barge Services..."
                   value={searchInput}
                   onChange={handleSearchInput}
                   onKeyDown={(e) => {
