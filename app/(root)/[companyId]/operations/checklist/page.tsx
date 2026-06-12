@@ -15,7 +15,6 @@ import { JobOrder } from "@/lib/api-routes"
 import { formatDateForApi } from "@/lib/date-utils"
 import { OperationsStatus } from "@/lib/operations-utils"
 import { cn, ModuleId, OperationsTransactionId } from "@/lib/utils"
-import { searchJobOrdersDirect } from "@/hooks/use-checklist"
 import { useGetWithDatesAndPagination } from "@/hooks/use-common"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -106,7 +105,6 @@ export default function ChecklistPage() {
   const [searchQuery, setSearchQuery] = useState("") // This is used for API calls
   const [searchInput, setSearchInput] = useState("") // This is for the input field only
   const [selectedStatus, setSelectedStatus] = useState("Pending")
-  const [isLoading, setIsLoading] = useState(true)
   // When user types in search box → true (fetch all data); when empty → false
   const isAllTimeCommitted = (searchQuery ?? "").trim().length > 0
 
@@ -158,14 +156,6 @@ export default function ChecklistPage() {
     true
   )
 
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [])
-
   // Handle API errors
   useEffect(() => {
     if (jobOrderError) {
@@ -215,28 +205,11 @@ export default function ChecklistPage() {
     refetchJobOrder()
   }
 
-  const handleSearchClick = async () => {
-    try {
-      // Update the searchQuery state which triggers the API call (isAllTimeCommitted derived from searchQuery)
-      setSearchQuery(searchInput)
-
-      // Change tab to "All" when searching
-      setSelectedStatus("All")
-
-      // Use enhanced search function from api-client.ts
-      const searchParams = {
-        searchString: searchInput, // Use the input value
-        startDate: isAllTime ? "" : startDate,
-        endDate: isAllTime ? "" : endDate,
-      }
-
-      await searchJobOrdersDirect(searchParams)
-      refetchJobOrder()
-      toast.success("Search completed successfully")
-    } catch (error) {
-      console.error("Search error:", error)
-      toast.error("Search failed. Please try again.")
-    }
+  const handleSearchClick = () => {
+    // React Query refetches when searchQuery changes (isAllTimeCommitted derived from it)
+    setSearchQuery(searchInput.trim())
+    setSelectedStatus("All")
+    setCurrentPage(1)
   }
 
   const handleRefresh = () => {
@@ -297,7 +270,7 @@ export default function ChecklistPage() {
   const statusCounts = getStatusCounts
 
   return (
-    <div className="@container mx-auto flex min-h-[calc(100dvh-7rem)] flex-col gap-1 px-2 pt-2 pb-2 sm:px-4 lg:px-6">
+    <div className="@container mx-auto flex h-[calc(100dvh-7rem)] max-h-[calc(100dvh-7rem)] min-h-0 flex-col gap-1 overflow-hidden px-2 pt-2 pb-2 sm:px-4 lg:px-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
@@ -461,7 +434,7 @@ export default function ChecklistPage() {
 
       {/* Data Table */}
       <div className="bg-card flex min-h-0 flex-1 flex-col rounded-lg border shadow-sm">
-        {isLoading || isLoadingJobOrder ? (
+        {isLoadingJobOrder ? (
           <div className="p-6">
             <div className="mb-4 flex items-center gap-2">
               <span className="text-sm">⏳</span>

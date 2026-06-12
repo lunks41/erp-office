@@ -2,7 +2,7 @@
 
 import { useCompanyStore } from "@/stores/company-store"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useParams } from "next/navigation"
 import { IJobOrderHd } from "@/interfaces/checklist"
 import { useAuthStore } from "@/stores/auth-store"
@@ -19,6 +19,7 @@ import {
   getChecklistJobDisplayStatus,
   isChecklistPostedJob,
 } from "@/helpers/project"
+import { CHECKLIST_LIST_TABLE_MAX_HEIGHT } from "@/lib/checklist-table-layout"
 import { TableName } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -49,17 +50,33 @@ const TASK_PILL_DEFS: Array<{ label: string; key: keyof IJobOrderHd }> = [
 
 function TaskCountHoverCell({ row }: { row: IJobOrderHd }) {
   const [open, setOpen] = useState(false)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const total = row.totalTaskCount ?? 0
 
+  const scheduleClose = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    closeTimerRef.current = setTimeout(() => setOpen(false), 120)
+  }
+
+  const cancelClose = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={false}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
+          onMouseEnter={() => {
+            cancelClose()
+            setOpen(true)
+          }}
+          onMouseLeave={scheduleClose}
           onFocus={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
+          onBlur={scheduleClose}
           className="focus-visible:ring-ring inline-flex items-center justify-center rounded-md focus-visible:ring-2 focus-visible:outline-none"
           aria-label={`Show task breakdown (${total})`}
         >
@@ -79,8 +96,8 @@ function TaskCountHoverCell({ row }: { row: IJobOrderHd }) {
         side="right"
         align="start"
         sideOffset={8}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        onMouseEnter={cancelClose}
+        onMouseLeave={scheduleClose}
         className="w-80 p-3"
       >
         <div className="mb-2 flex items-center justify-between">
@@ -599,6 +616,7 @@ export function ChecklistTable({
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.checklist}
+        tableHeight={CHECKLIST_LIST_TABLE_MAX_HEIGHT}
         tableContainerClassName="rounded-none border-0 bg-transparent shadow-none"
         emptyMessage="No job orders found."
         onRefreshAction={onRefreshAction}

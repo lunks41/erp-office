@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   DndContext,
   DragEndEvent,
@@ -53,6 +53,7 @@ interface JobTableProps<T> {
   onRefreshAction?: () => void
   onCreateAction?: () => void
   hideCreateButton?: boolean
+  tableHeight?: string
   tableHeightClassName?: string
   tableContainerClassName?: string
 }
@@ -67,6 +68,7 @@ export function JobTable<T>({
   emptyMessage = "No data found.",
   onRefreshAction,
   onCreateAction,
+  tableHeight,
   tableHeightClassName = "",
   tableContainerClassName,
 }: JobTableProps<T>) {
@@ -120,7 +122,9 @@ export function JobTable<T>({
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(50)
   const [rowSelection, setRowSelection] = useState({})
+  const [searchInput, setSearchInput] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (gridSettingsData) {
@@ -220,10 +224,25 @@ export function JobTable<T>({
   }
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    // Apply global search across all columns
-    table.setGlobalFilter(query)
+    setSearchInput(query)
+
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current)
+    }
+
+    searchDebounceRef.current = setTimeout(() => {
+      setSearchQuery(query)
+      table.setGlobalFilter(query)
+    }, 250)
   }
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current)
+      }
+    }
+  }, [])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -248,6 +267,9 @@ export function JobTable<T>({
   }
 
   // Handle reset layout - reset all columns to visible and default sizes
+  const resolvedTableHeight = tableHeight ?? undefined
+  const fillScrollBodyHeight = Boolean(resolvedTableHeight)
+
   const handleResetLayout = useCallback(() => {
     // Reset all columns to visible
     const allColumnsVisible: VisibilityState = {}
@@ -269,7 +291,7 @@ export function JobTable<T>({
       <JobTableHeader
         onRefreshAction={onRefreshAction}
         onCreateAction={onCreateAction}
-        searchQuery={searchQuery}
+        searchQuery={searchInput}
         onSearchChange={handleSearch}
         columns={table.getAllColumns()}
         data={data}
@@ -287,12 +309,23 @@ export function JobTable<T>({
         >
           <div className="flex h-full min-h-0 flex-col">
             <div
-              className={`${tableHeightClassName} min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-border/80 bg-background shadow-xs ${tableContainerClassName ?? ""}`}
+              className={`${tableHeightClassName} min-h-0 flex-1 overflow-auto rounded-lg border border-border/80 bg-background shadow-xs ${tableContainerClassName ?? ""}`}
+              style={
+                fillScrollBodyHeight && resolvedTableHeight
+                  ? {
+                      height: resolvedTableHeight,
+                      maxHeight: resolvedTableHeight,
+                      minHeight: resolvedTableHeight,
+                    }
+                  : resolvedTableHeight
+                    ? { maxHeight: resolvedTableHeight }
+                    : undefined
+              }
             >
             {/* Fixed Header */}
             <table
-              className="min-w-full border-collapse"
-              style={{ width: table.getTotalSize() }}
+              className="w-full table-fixed border-collapse text-sm"
+              style={{ minWidth: "100%", width: table.getTotalSize() }}
             >
                 <colgroup>
                   {table.getAllLeafColumns().map((col) => (
@@ -307,7 +340,7 @@ export function JobTable<T>({
                   ))}
                 </colgroup>
 
-                <TableHeader className="bg-background">
+                <TableHeader className="bg-background sticky top-0 z-20">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id} className="bg-muted/50">
                       <SortableContext
