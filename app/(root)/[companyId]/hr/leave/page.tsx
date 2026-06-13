@@ -122,7 +122,7 @@ export default function LeavePage() {
         endDate: data.endDate,
         totalDays,
         reason: data.reason,
-        statusId: 1, // Default to pending
+        statusId: 3, // Hr_Status: 3 = Pending
         remarks: data.remarks,
         attachments: data.attachments,
       }

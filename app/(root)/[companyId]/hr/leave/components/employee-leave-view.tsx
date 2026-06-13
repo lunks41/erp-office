@@ -59,17 +59,17 @@ export function EmployeeLeaveView({
   const stats = useMemo(() => {
     const totalLeaves = employeeLeaves.length
     const pendingLeaves = employeeLeaves.filter(
-      (l) => l.statusName === "PENDING"
+      (l) => l.statusName?.toUpperCase() === "PENDING"
     ).length
     const approvedLeaves = employeeLeaves.filter(
-      (l) => l.statusName === "APPROVED"
+      (l) => l.statusName?.toUpperCase() === "APPROVED"
     ).length
     const rejectedLeaves = employeeLeaves.filter(
-      (l) => l.statusName === "REJECTED"
+      (l) => l.statusName?.toUpperCase() === "REJECTED"
     ).length
     const totalDays = employeeLeaves.reduce((sum, l) => sum + l.totalDays, 0)
     const approvedDays = employeeLeaves
-      .filter((l) => l.statusName === "APPROVED")
+      .filter((l) => l.statusName?.toUpperCase() === "APPROVED")
       .reduce((sum, l) => sum + l.totalDays, 0)
 
     return {
@@ -141,7 +141,7 @@ export function EmployeeLeaveView({
   }
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    switch (status?.toUpperCase()) {
       case "APPROVED":
         return <CheckCircle className="h-4 w-4 text-green-500" />
       case "REJECTED":
@@ -154,7 +154,7 @@ export function EmployeeLeaveView({
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status?.toUpperCase()) {
       case "APPROVED":
         return "bg-green-100 text-green-800"
       case "REJECTED":
@@ -426,7 +426,7 @@ export function EmployeeLeaveView({
 
                     <p className="mb-3 text-sm">{leave.reason}</p>
 
-                    {leave.statusName === "PENDING" && (
+                    {leave.statusName?.toUpperCase() === "PENDING" && (
                       <div className="flex space-x-2">
                         <Button
                           variant="destructive"
@@ -440,7 +440,7 @@ export function EmployeeLeaveView({
                       </div>
                     )}
 
-                    {leave.statusName === "APPROVED" && leave.actionBy && (
+                    {leave.statusName?.toUpperCase() === "APPROVED" && leave.actionBy && (
                       <div className="text-sm text-green-600">
                         Approved by {leave.actionBy} on{" "}
                         {format(
@@ -450,7 +450,7 @@ export function EmployeeLeaveView({
                       </div>
                     )}
 
-                    {leave.statusName === "REJECTED" && leave.actionRemarks && (
+                    {leave.statusName?.toUpperCase() === "REJECTED" && leave.actionRemarks && (
                       <div className="text-sm text-red-600">
                         Rejected: {leave.actionRemarks}
                       </div>

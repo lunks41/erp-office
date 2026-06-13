@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { IEmployeeBasic } from "@/interfaces/employee"
 
+import { toast } from "sonner"
+
 import { useDeleteEmployee, useGetEmployees } from "@/hooks/use-employee"
 import { DeleteConfirmation } from "@/components/confirmation/delete-confirmation"
 import { DataTableSkeleton } from "@/components/skeleton/data-table-skeleton"
@@ -21,8 +23,26 @@ export default function EmployeePage() {
   const companyId = params.companyId as string
 
   // Use hooks for data fetching and mutations
-  const { data, isLoading, refetch } = useGetEmployees()
+  const { data, isLoading, isError, error, refetch } = useGetEmployees()
   const deleteMutation = useDeleteEmployee()
+
+  useEffect(() => {
+    if (isError && error) {
+      toast.error("Failed to load employees. Please try again.")
+      return
+    }
+
+    if (!data || isLoading) return
+
+    if (data.result === -2) {
+      toast.error(data.message || "You do not have permission to view employees.")
+      return
+    }
+
+    if (data.result < 0 && data.result !== -1 && data.message) {
+      toast.error(data.message)
+    }
+  }, [data, error, isError, isLoading])
 
   // Check for refresh parameter and trigger refetch
   useEffect(() => {

@@ -51,11 +51,11 @@ export const DocumentType = {
 
 // Document Endpoints
 export const LeaveType = {
-  get: "/master/getleavetype",
-  getbyId: "/master/getleavetypebyid",
-  getByCode: "/master/getleavetypebycode",
-  add: "/master/saveleavetype",
-  delete: "/master/deleteleavetype",
+  get: "/hr/getleavetype",
+  getbyId: "/hr/getleavetypebyid",
+  getByCode: "/hr/getleavetypebycode",
+  add: "/hr/saveleavetype",
+  delete: "/hr/deleteleavetype",
 }
 
 // Document Endpoints
@@ -69,11 +69,11 @@ export const EntityType = {
 
 // Document Endpoints
 export const LoanType = {
-  get: "/master/getloantype",
-  getbyId: "/master/getloantypebyid",
-  getByCode: "/master/getloantypebycode",
-  add: "/master/saveloantype",
-  delete: "/master/deleteloantype",
+  get: "/hr/getloantype",
+  getbyId: "/hr/getloantypebyid",
+  getByCode: "/hr/getloantypebycode",
+  add: "/hr/saveloantype",
+  delete: "/hr/deleteloantype",
 }
 
 // Attendance Endpoints
@@ -816,10 +816,10 @@ export const Department = {
 
 // Work Location Endpoints
 export const WorkLocation = {
-  get: "/master/getworklocation",
-  getByCode: "/master/getworklocationbycode",
-  add: "/master/saveworklocation",
-  delete: "/master/deleteworklocation",
+  get: "/hr/getworklocation",
+  getByCode: "/hr/getworklocationbycode",
+  add: "/hr/saveworklocation",
+  delete: "/hr/deleteworklocation",
 }
 
 // Designation Endpoints
@@ -832,15 +832,15 @@ export const Designation = {
 
 // Employee Endpoints
 export const Employee = {
-  get: "/master/getemployee",
-  getById: "/master/getemployeebyid",
-  getByUserId: "/master/getemployeebyuserid",
-  add: "/master/saveemployee",
-  getBankById: "/master/getemployeebankbyid",
-  addBank: "/master/saveemployeebank",
-  getPersonalById: "/master/getpersonaldetailsbyid",
-  addPersonal: "/master/savepersonaldetails",
-  delete: "/master/deleteemployee",
+  get: "/hr/getemployee",
+  getById: "/hr/getemployeebyid",
+  getByUserId: "/hr/getemployeebyuserid",
+  add: "/hr/saveemployee",
+  getBankById: "/hr/getemployeebankbyid",
+  addBank: "/hr/saveemployeebank",
+  getPersonalById: "/hr/getpersonaldetailsbyid",
+  addPersonal: "/hr/savepersonaldetails",
+  delete: "/hr/deleteemployee",
 }
 
 // Employer Details Endpoints

@@ -133,7 +133,7 @@ export function LeaveRequestTable({
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status?.toUpperCase()) {
       case "PENDING":
         return "bg-yellow-100 text-yellow-800 border-gray-200"
       case "APPROVED":
@@ -150,7 +150,7 @@ export function LeaveRequestTable({
   }
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    switch (status?.toUpperCase()) {
       case "PENDING":
         return <ClockIcon className="h-4 w-4" />
       case "APPROVED":
@@ -361,7 +361,7 @@ export function LeaveRequestTable({
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            {leave.statusName === "PENDING" && (
+                            {leave.statusName?.toUpperCase() === "PENDING" && (
                               <>
                                 <DropdownMenuItem
                                   onClick={() =>

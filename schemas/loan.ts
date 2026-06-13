@@ -27,6 +27,12 @@ export const loanRequestSchema = z.object({
 export type LoanRequestFormData = z.infer<typeof loanRequestSchema>
 
 // LoanApprovals.schema.ts
+// Loan decision ids map to M_ServiceType category 15 (loan request statuses)
+export const LOAN_DECISION = {
+  APPROVED: 1502,
+  REJECTED: 1503,
+} as const
+
 export const loanApprovalSchema = z.object({
   approvalId: z.number(),
   loanRequestId: z.number().min(1, "Loan request is required"),
@@ -42,7 +48,10 @@ export const loanApprovalSchema = z.object({
     .nonnegative()
     .min(1, "Revised EMI amount is required"),
   comments: z.string().max(1000).optional(),
-  approvalDecision: z.enum(["Rejected", "Approved"]),
+  decisionId: z.union(
+    [z.literal(LOAN_DECISION.APPROVED), z.literal(LOAN_DECISION.REJECTED)],
+    { message: "Decision is required" }
+  ),
 })
 
 export type LoanApprovalFormData = z.infer<typeof loanApprovalSchema>

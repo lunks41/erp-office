@@ -67,7 +67,10 @@ export function LeaveApprovalWorkflow({
         name: "Manager Smith",
         role: "IT Manager",
         email: "manager.smith@company.com",
-        status: leave.statusName === "APPROVED" ? "approved" : "pending",
+        status:
+          leave.statusName?.toUpperCase() === "APPROVED"
+            ? "approved"
+            : "pending",
         approvedAt: leave.actionDate
           ? typeof leave.actionDate === "string"
             ? leave.actionDate

@@ -65,13 +65,18 @@ export interface ILoanApplicationFormData {
   remarks?: string
 }
 
+// Matches api-core SaveLoanApprovalViewModel (POST hr/loan/saveapproval).
+// decisionId: 1502 = Approved, 1503 = Rejected (M_ServiceType category 15).
 export interface ILoanApprovalFormData {
-  applicationId: number
+  approvalId: number
+  loanRequestId: number
+  approverId: number
+  approvalDate?: string | Date
   approvedAmount: number
-  interestRate: number
-  termMonths: number
-  approvedBy: string
-  remarks?: string
+  revisedEMIStartDate?: string | Date
+  revisedEMIAmount?: number
+  comments?: string
+  decisionId: number
 }
 
 export interface ILoanFilter {

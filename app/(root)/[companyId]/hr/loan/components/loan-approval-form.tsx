@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { ILoanRequest } from "@/interfaces/loan"
-import { LoanApprovalFormData, loanApprovalSchema } from "@/schemas/loan"
+import {
+  LOAN_DECISION,
+  LoanApprovalFormData,
+  loanApprovalSchema,
+} from "@/schemas/loan"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
@@ -59,7 +63,7 @@ export function LoanApprovalForm({
       revisedEMIStartDate: loanRequest?.emiStartDate || new Date(),
       revisedEMIAmount: loanRequest?.desiredEMIAmount || 0,
       comments: "",
-      approvalDecision: "Approved",
+      decisionId: LOAN_DECISION.APPROVED,
     },
   })
 
@@ -75,7 +79,7 @@ export function LoanApprovalForm({
         revisedEMIStartDate: loanRequest.emiStartDate,
         revisedEMIAmount: loanRequest.desiredEMIAmount,
         comments: "",
-        approvalDecision: "Approved",
+        decisionId: LOAN_DECISION.APPROVED,
       })
     }
   }, [open, loanRequest, form])
@@ -155,19 +159,26 @@ export function LoanApprovalForm({
           >
             <FormField
               control={form.control}
-              name="approvalDecision"
+              name="decisionId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Approval Decision</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    value={String(field.value)}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select decision" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Approved">Approve</SelectItem>
-                      <SelectItem value="Rejected">Reject</SelectItem>
+                      <SelectItem value={String(LOAN_DECISION.APPROVED)}>
+                        Approve
+                      </SelectItem>
+                      <SelectItem value={String(LOAN_DECISION.REJECTED)}>
+                        Reject
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -175,7 +186,7 @@ export function LoanApprovalForm({
               )}
             />
 
-            {form.watch("approvalDecision") === "Approved" && (
+            {form.watch("decisionId") === LOAN_DECISION.APPROVED && (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <CustomInput

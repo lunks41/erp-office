@@ -75,24 +75,24 @@ export function LeaveDashboard({
   const stats = useMemo(() => {
     const totalLeaves = leaves.length
     const pendingLeaves = leaves.filter(
-      (leave) => leave.statusName === "PENDING"
+      (leave) => leave.statusName?.toUpperCase() === "PENDING"
     ).length
     const approvedLeaves = leaves.filter(
-      (leave) => leave.statusName === "APPROVED"
+      (leave) => leave.statusName?.toUpperCase() === "APPROVED"
     ).length
     const rejectedLeaves = leaves.filter(
-      (leave) => leave.statusName === "REJECTED"
+      (leave) => leave.statusName?.toUpperCase() === "REJECTED"
     ).length
 
     const totalDays = leaves.reduce((sum, leave) => sum + leave.totalDays, 0)
     const pendingDays = leaves
-      .filter((leave) => leave.statusName === "PENDING")
+      .filter((leave) => leave.statusName?.toUpperCase() === "PENDING")
       .reduce((sum, leave) => sum + leave.totalDays, 0)
     const approvedDays = leaves
-      .filter((leave) => leave.statusName === "APPROVED")
+      .filter((leave) => leave.statusName?.toUpperCase() === "APPROVED")
       .reduce((sum, leave) => sum + leave.totalDays, 0)
     const rejectedDays = leaves
-      .filter((leave) => leave.statusName === "REJECTED")
+      .filter((leave) => leave.statusName?.toUpperCase() === "REJECTED")
       .reduce((sum, leave) => sum + leave.totalDays, 0)
 
     return {
